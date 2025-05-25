@@ -125,26 +125,30 @@
             console.error(err);
         }
     }
+    // Get all the objects that were moved from one account to another
+    function getMovements(): Map<string, Map<string, ExtendedObject[]>> {
+        let movements = new Map<string, Map<string, ExtendedObject[]>>();
+        for (const account of extendedAccounts) {
+            for (const object of account.objects) {
+                if (object.currentOwner !== account.address) {
+                    if (!movements.has(object.currentOwner)) {
+                        movements.set(object.currentOwner, new Map());
+                    }
+                    if (!movements.get(object.currentOwner)!.has(account.address)) {
+                        movements.get(object.currentOwner)!.set(account.address, []);
+                    }
+                    movements.get(object.currentOwner)!.get(account.address)!.push(object);
+                }
+            }
+        }
+        return movements;
+    }
     async function dryRun() {
         try {
             const client = await getClient();
             let txResults = [];
 
-            // Collect all movements
-            let movements = new Map<string, Map<string, ExtendedObject[]>>();
-            for (const account of extendedAccounts) {
-                for (const object of account.objects) {
-                    if (object.currentOwner !== account.address) {
-                        if (!movements.has(object.currentOwner)) {
-                            movements.set(object.currentOwner, new Map());
-                        }
-                        if (!movements.get(object.currentOwner)!.has(account.address)) {
-                            movements.get(object.currentOwner)!.set(account.address, []);
-                        }
-                        movements.get(object.currentOwner)!.get(account.address)!.push(object);
-                    }
-                }
-            }
+            let movements = getMovements();
             for (const movement of movements) {
                 const senderAddress = movement[0];
                 console.log(
@@ -167,7 +171,48 @@
                 txResults.push(dryRunResult);
             }
 
-            value = txResults;
+            value = { txs: txResults.length, txResults };
+        } catch (err: any) {
+            value = err.toString();
+            console.error(err);
+        }
+    }
+    async function send() {
+        try {
+            const client = await getClient();
+            let txResults = [];
+
+            let movements = getMovements();
+            for (const movement of movements) {
+                const senderAddress = movement[0];
+                console.log(
+                    `Moving objects from ${senderAddress} to:`,
+                    Array.from(movement[1].keys()).join(', '),
+                );
+                const tx = new Transaction();
+                for (const [to, objects] of movement[1]) {
+                    tx.transferObjects(
+                        objects.map((obj) => obj.id),
+                        to,
+                    );
+                }
+                tx.setSender(senderAddress);
+                const txBytes = await tx.build({ client });
+
+                // @ts-ignore
+                let txResult = await $iota_wallets[0].signAndExecuteTransaction({
+                    transaction: txBytes,
+                    options: {
+                        showEffects: true,
+                        showObjectChanges: true,
+                        showBalanceChanges: true,
+                    },
+                    account: senderAddress,
+                });
+                txResults.push(txResult);
+            }
+
+            value = { txs: txResults.length, txResults };
         } catch (err: any) {
             value = err.toString();
             console.error(err);
@@ -178,6 +223,7 @@
 <main>
     <button onclick={syncReset}> sync/reset </button>
     <button onclick={dryRun}> dry run </button>
+    <button onclick={send}> send </button>
 
     <JsonToggleView {value} />
 
