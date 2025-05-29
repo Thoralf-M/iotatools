@@ -1,5 +1,5 @@
 <script>
-    import Client from './lib/Client.svelte';
+    import Network from './lib/Network.svelte';
     import Converter from './lib/pages/Converter.svelte';
     import Ed25519AddressGeneration from './lib/pages/Ed25519AddressGeneration.svelte';
     import Faucet from './lib/pages/Faucet.svelte';
@@ -9,6 +9,7 @@
     import MultiAccountView from './lib/pages/MultiAccountView.svelte';
     import ProgrammableTransactionBlock from './lib/pages/ProgrammableTransactionBlock.svelte';
     import PublishData from './lib/pages/PublishData.svelte';
+    import Settings from './lib/pages/Settings.svelte';
     import SplitMergeCoins from './lib/pages/SplitMergeCoins.svelte';
     import Stake from './lib/pages/Stake.svelte';
     import Signer from './lib/Signer.svelte';
@@ -31,6 +32,7 @@
         { label: 'IOTA-Names', component: IotaNames },
         { label: 'LedgerNano', component: LedgerNano },
         { label: 'Multi Account View', component: MultiAccountView },
+        { label: '⚙ Settings', component: Settings },
     ].map((e, index) => {
         // @ts-ignore
         e.value = index;
@@ -45,7 +47,7 @@
     left: 0.5rem;
     top: 0.5rem;">This website is experimental, use at your own risk.</span
     >
-    <Client />
+    <Network />
     <Signer />
     <WebWallet />
     <Tabs {items} />

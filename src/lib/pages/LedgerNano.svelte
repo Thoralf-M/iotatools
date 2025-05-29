@@ -8,7 +8,7 @@
     import IotaLedgerClient from '@iota/ledgerjs-hw-app-iota';
     import TransportWebHID from '@ledgerhq/hw-transport-webhid';
 
-    import { getClient } from '../Client.svelte';
+    import { getClient } from '../lib/client';
     import JsonToggleView from '../lib/JsonToggleView.svelte';
 
     const IOTA_BIP44_COIN_TYPE = 4218;

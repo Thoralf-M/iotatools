@@ -8,7 +8,7 @@
     import { Transaction } from '@iota/iota-sdk/transactions';
     import { IOTA_CLOCK_OBJECT_ID, isValidIotaAddress, toHEX } from '@iota/iota-sdk/utils';
 
-    import { getClient, getSelectedNetwork } from '../Client.svelte';
+    import { getClient, getSelectedNetworkConfig } from '../lib/client';
     import JsonToggleView from '../lib/JsonToggleView.svelte';
     import { activeAddress, iota_accounts, iota_wallets } from '../SignerData.svelte';
 
@@ -142,7 +142,7 @@
     };
     async function queryIotaNamesObjectId() {
         const gqlClient = new IotaGraphQLClient({
-            url: getSelectedNetwork().graphql,
+            url: getSelectedNetworkConfig().graphql,
         });
 
         const objectQuery = `{
@@ -160,7 +160,7 @@
     }
     async function queryAuctionObjectId() {
         const gqlClient = new IotaGraphQLClient({
-            url: getSelectedNetwork().graphql,
+            url: getSelectedNetworkConfig().graphql,
         });
 
         const objectQuery = `{
@@ -189,7 +189,7 @@
     }
     async function getRegisteredNamesInner(showResult?: boolean): Promise<object> {
         const gqlClient = new IotaGraphQLClient({
-            url: getSelectedNetwork().graphql,
+            url: getSelectedNetworkConfig().graphql,
         });
 
         let dynamicFields = await queryDynamicFields();
@@ -270,7 +270,7 @@
     async function getReverseRegisteredAddresses() {
         try {
             const gqlClient = new IotaGraphQLClient({
-                url: getSelectedNetwork().graphql,
+                url: getSelectedNetworkConfig().graphql,
             });
 
             let dynamicFields = await queryDynamicFields();
@@ -330,7 +330,7 @@
     }
     async function queryDynamicFields(): Promise<GraphQLQueryResult> {
         const gqlClient = new IotaGraphQLClient({
-            url: getSelectedNetwork().graphql,
+            url: getSelectedNetworkConfig().graphql,
         });
 
         if (IOTA_NAMES_OBJECT_ID.length == 0) {
@@ -727,7 +727,7 @@
                 object.data.content.fields.auctions.fields.id.id;
 
             const gqlClient = new IotaGraphQLClient({
-                url: getSelectedNetwork().graphql,
+                url: getSelectedNetworkConfig().graphql,
             });
             let cursorSection = '';
             while (true) {

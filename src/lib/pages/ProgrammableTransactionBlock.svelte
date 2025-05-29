@@ -5,7 +5,7 @@
     import { basicSetup, EditorView } from 'codemirror';
     import { onMount } from 'svelte';
 
-    import { getClient } from '../Client.svelte';
+    import { getClient } from '../lib/client';
     import JsonToggleView from '../lib/JsonToggleView.svelte';
     import { activeAddress, iota_accounts, iota_wallets } from '../SignerData.svelte';
 

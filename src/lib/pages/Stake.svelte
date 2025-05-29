@@ -3,7 +3,7 @@
     import { Transaction } from '@iota/iota-sdk/transactions';
     import { IOTA_SYSTEM_STATE_OBJECT_ID, isValidIotaAddress } from '@iota/iota-sdk/utils';
 
-    import { getClient } from '../Client.svelte';
+    import { getClient } from '../lib/client';
     import JsonToggleView from '../lib/JsonToggleView.svelte';
     import { activeAddress, iota_accounts, iota_wallets } from '../SignerData.svelte';
 

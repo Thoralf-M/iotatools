@@ -2,7 +2,7 @@
     import { IotaClient, type CoinStruct, type PaginatedCoins } from '@iota/iota-sdk/client';
     import { Transaction } from '@iota/iota-sdk/transactions';
 
-    import { getClient } from '../Client.svelte';
+    import { getClient } from '../lib/client';
     import JsonToggleView from '../lib/JsonToggleView.svelte';
     import { activeAddress, iota_accounts, iota_wallets } from '../SignerData.svelte';
 

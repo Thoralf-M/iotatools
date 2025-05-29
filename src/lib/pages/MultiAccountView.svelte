@@ -5,7 +5,7 @@
     import { onMount } from 'svelte';
     import { dragHandle, dragHandleZone, type DndEvent } from 'svelte-dnd-action';
 
-    import { getClient } from '../Client.svelte';
+    import { getClient } from '../lib/client';
     import { nanoToIota } from '../lib/iota-nano-conversion';
     import JsonToggleView from '../lib/JsonToggleView.svelte';
     import { activeAddress, iota_accounts, iota_wallets } from '../SignerData.svelte';

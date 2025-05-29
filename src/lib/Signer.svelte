@@ -5,7 +5,7 @@
     import { Secp256r1Keypair } from '@iota/iota-sdk/keypairs/secp256r1';
     import { onMount } from 'svelte';
 
-    import { getClient, showSettings } from './Client.svelte';
+    import { getClient } from './lib/client';
     import { activeAddress, iota_accounts, iota_wallets } from './SignerData.svelte';
     import WebWallet from './WebWallet.svelte';
 
@@ -188,7 +188,7 @@
         >
     </p>
 
-    {#if selectedSigner == Signer.Localstorage && $showSettings}
+    {#if selectedSigner == Signer.Localstorage}
         <textarea
             bind:value={jsonPrivateKeysString}
             oninput={handlePrivateKeysChange}

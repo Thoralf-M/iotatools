@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { LatestIotaSystemStateSummary } from '@iota/iota-sdk/client';
 
-    import { getClient } from '../Client.svelte';
+    import { getClient } from '../lib/client';
     import JsonToggleView from '../lib/JsonToggleView.svelte';
 
     let value = {};
