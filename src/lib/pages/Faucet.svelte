@@ -6,7 +6,7 @@
     } from '@iota/iota-sdk/faucet';
     import { isValidIotaAddress } from '@iota/iota-sdk/utils';
 
-    import JsonToggleView from '../lib/JsonToggleView.svelte';
+    import JsonToggleView from '../components/JsonToggleView.svelte';
 
     let address = '0x111111111504e9350e635d65cd38ccd2c029434c6a3a480d8947a9ba6a15b215';
     let faucetUrl = 'https://faucet.testnet.iota.cafe/gas';

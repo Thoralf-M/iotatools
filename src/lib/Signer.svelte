@@ -8,6 +8,7 @@
     import { getClient } from './lib/client';
     import { activeAddress, iota_accounts, iota_wallets } from './SignerData.svelte';
     import WebWallet from './WebWallet.svelte';
+    import { sharedPrivateKeys } from './lib/local-storage-store';
 
     class PrivateKeyAccount {
         privKey: string;
@@ -41,7 +42,7 @@
     function updateSelectedSignerAccounts() {
         localStorage.setItem('selectedSigner', selectedSigner);
         if (selectedSigner == Signer.Localstorage) {
-            updateAccountsWithPrivateKeys(privateKeys);
+            updateAccountsWithPrivateKeys($sharedPrivateKeys);
         } else {
             $iota_accounts = [];
             $activeAddress = '';
@@ -61,35 +62,12 @@
         bech32PrivateKeys: string[];
     }
 
-    let privateKeys: PrivateKeys = JSON.parse(localStorage.getItem('privateKeys')!) || {
-        selected: 'iotaprivkey1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqgfjx8t',
-        bech32PrivateKeys: [
-            'iotaprivkey1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqgfjx8t',
-        ],
-    };
+
     // Init the first time if localstorage is selected
     if (initialSelectedSigner == Signer.Localstorage) {
-        updateAccountsWithPrivateKeys(privateKeys);
+        updateAccountsWithPrivateKeys($sharedPrivateKeys);
     }
 
-    let jsonPrivateKeysString = $state(JSON.stringify(privateKeys, null, 2));
-    function handlePrivateKeysChange() {
-        try {
-            privateKeys = JSON.parse(jsonPrivateKeysString);
-            if (
-                !privateKeys.hasOwnProperty('selected') ||
-                !privateKeys.hasOwnProperty('bech32PrivateKeys')
-            ) {
-                alert(`Missing "selected" or "bech32PrivateKeys" keys`);
-            } else {
-                updateAccountsWithPrivateKeys(privateKeys);
-                localStorage.setItem('privateKeys', JSON.stringify(privateKeys));
-                jsonPrivateKeysString = JSON.stringify(privateKeys, null, 2);
-            }
-        } catch (e) {
-            console.error('Invalid JSON', e);
-        }
-    }
     function updateAccountsWithPrivateKeys(privateKeys: PrivateKeys) {
         $iota_accounts = [];
         for (let privKey of privateKeys.bech32PrivateKeys) {
@@ -163,15 +141,13 @@
             onchange={() => {
                 activeAddress.set($activeAddress);
                 if (selectedSigner == Signer.Localstorage) {
-                    privateKeys.selected = $iota_accounts.find(
+                    $sharedPrivateKeys.selected = $iota_accounts.find(
                         (a) => a.address == $activeAddress,
                         // @ts-ignore
                     )!.privKey;
                     // This is a hack to get the signer working with the same interface as the web wallet, should be refactored
                     // @ts-ignore
-                    $iota_wallets[0] = new PrivateKeyAccount(privateKeys.selected);
-                    localStorage.setItem('privateKeys', JSON.stringify(privateKeys));
-                    jsonPrivateKeysString = JSON.stringify(privateKeys, null, 2);
+                    $iota_wallets[0] = new PrivateKeyAccount($sharedPrivateKeys.selected);
                 }
             }}
         >
@@ -187,13 +163,4 @@
             }}>Copy active address</button
         >
     </p>
-
-    {#if selectedSigner == Signer.Localstorage}
-        <textarea
-            bind:value={jsonPrivateKeysString}
-            oninput={handlePrivateKeysChange}
-            rows="8"
-            cols="100"
-        ></textarea>
-    {/if}
 </main>

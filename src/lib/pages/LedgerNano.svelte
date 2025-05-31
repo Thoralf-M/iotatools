@@ -9,7 +9,7 @@
     import TransportWebHID from '@ledgerhq/hw-transport-webhid';
 
     import { getClient } from '../lib/client';
-    import JsonToggleView from '../lib/JsonToggleView.svelte';
+    import JsonToggleView from '../components/JsonToggleView.svelte';
 
     const IOTA_BIP44_COIN_TYPE = 4218;
     const TESTNET_BIP44_COIN_TYPE = 1;

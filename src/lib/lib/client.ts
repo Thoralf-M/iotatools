@@ -1,8 +1,8 @@
 import { IotaClient } from '@iota/iota-sdk/client';
 import { get } from 'svelte/store';
 
-import type { NetworkConfig } from './defaultClientConfig';
-import { sharedClientConfig } from './localStorageStore';
+import type { NetworkConfig } from './default-client-config';
+import { sharedClientConfig } from './local-storage-store';
 
 // Used to determine if the client should be initialized with a new node
 let previousInitializedNodeUrl = '';

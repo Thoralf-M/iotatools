@@ -2,7 +2,7 @@
     import type { LatestIotaSystemStateSummary } from '@iota/iota-sdk/client';
 
     import { getClient } from '../lib/client';
-    import JsonToggleView from '../lib/JsonToggleView.svelte';
+    import JsonToggleView from '../components/JsonToggleView.svelte';
 
     let value = {};
     let apiVersion = '';

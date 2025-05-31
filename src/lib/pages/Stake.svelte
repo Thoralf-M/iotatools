@@ -4,7 +4,7 @@
     import { IOTA_SYSTEM_STATE_OBJECT_ID, isValidIotaAddress } from '@iota/iota-sdk/utils';
 
     import { getClient } from '../lib/client';
-    import JsonToggleView from '../lib/JsonToggleView.svelte';
+    import JsonToggleView from '../components/JsonToggleView.svelte';
     import { activeAddress, iota_accounts, iota_wallets } from '../SignerData.svelte';
 
     let validatorAddress = '0x111111111504e9350e635d65cd38ccd2c029434c6a3a480d8947a9ba6a15b215';

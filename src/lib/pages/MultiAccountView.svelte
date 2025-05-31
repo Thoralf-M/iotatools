@@ -7,7 +7,7 @@
 
     import { getClient } from '../lib/client';
     import { nanoToIota } from '../lib/iota-nano-conversion';
-    import JsonToggleView from '../lib/JsonToggleView.svelte';
+    import JsonToggleView from '../components/JsonToggleView.svelte';
     import { activeAddress, iota_accounts, iota_wallets } from '../SignerData.svelte';
 
     // Will be updated with the result

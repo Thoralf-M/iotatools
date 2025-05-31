@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { sharedClientConfig } from './lib/localStorageStore';
+    import { sharedClientConfig } from './lib/local-storage-store';
 </script>
 
 <main>

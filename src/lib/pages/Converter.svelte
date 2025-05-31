@@ -4,7 +4,7 @@
     import { TransactionDataBuilder } from '@iota/iota-sdk/transactions';
 
     import { iotaToNano, nanoToIota } from '../lib/iota-nano-conversion';
-    import JsonToggleView from '../lib/JsonToggleView.svelte';
+    import JsonToggleView from '../components/JsonToggleView.svelte';
 
     let bytes: any;
     let hex = '';
