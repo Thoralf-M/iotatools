@@ -3,8 +3,8 @@
     import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
     import { TransactionDataBuilder } from '@iota/iota-sdk/transactions';
 
-    import { iotaToNano, nanoToIota } from '../lib/iota-nano-conversion';
     import JsonToggleView from '../components/JsonToggleView.svelte';
+    import { iotaToNano, nanoToIota } from '../lib/iota-nano-conversion';
 
     let bytes: any;
     let hex = '';

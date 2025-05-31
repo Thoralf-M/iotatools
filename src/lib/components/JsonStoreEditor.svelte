@@ -1,9 +1,10 @@
 <script lang="ts">
     import { get, type Writable } from 'svelte/store';
+
     export let store: Writable<any>;
     export let defaultValue;
     export let errorStore: Writable<string>;
-    export let label = "Config";
+    export let label = 'Config';
 
     let jsonText = JSON.stringify(get(store), null, 2);
 
@@ -26,14 +27,14 @@
 <div>
     <span style="float:left">{label}:</span>
     <textarea
-    bind:value={jsonText}
-    on:input={handleChange}
-    rows="10"
-    cols="170"
-    class:error={errorStore && $errorStore}
+        bind:value={jsonText}
+        on:input={handleChange}
+        rows="10"
+        cols="170"
+        class:error={errorStore && $errorStore}
     ></textarea>
     {#if errorStore && $errorStore}
-    <div style="color: red;">{$errorStore}</div>
+        <div style="color: red;">{$errorStore}</div>
     {/if}
     <button on:click={() => store.set(defaultValue)}>Reset</button>
 </div>

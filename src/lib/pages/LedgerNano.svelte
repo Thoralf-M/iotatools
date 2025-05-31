@@ -8,8 +8,8 @@
     import IotaLedgerClient from '@iota/ledgerjs-hw-app-iota';
     import TransportWebHID from '@ledgerhq/hw-transport-webhid';
 
-    import { getClient } from '../lib/client';
     import JsonToggleView from '../components/JsonToggleView.svelte';
+    import { getClient } from '../lib/client';
 
     const IOTA_BIP44_COIN_TYPE = 4218;
     const TESTNET_BIP44_COIN_TYPE = 1;
@@ -152,7 +152,7 @@
     }
     async function getAllBalances(skipKnown: boolean = false) {
         try {
-            const client = await getClient();
+            const client = getClient();
             for (const entry of accountEntries) {
                 // skip if the balance is already known
                 if (entry.totalBalance && skipKnown) {
@@ -171,7 +171,7 @@
     }
     async function getAllObjects(skipKnown: boolean = false) {
         try {
-            const client = await getClient();
+            const client = getClient();
             for (const entry of accountEntries) {
                 // skip if the balance is already known
                 if (entry.objectCount && skipKnown) {
@@ -205,7 +205,7 @@
                 bip44Path = `m/44'/${coinType}'/${accountIndex}'/${change}'/${addressIndex}'`;
             }
 
-            const client = await getClient();
+            const client = getClient();
 
             const tx = new Transaction();
             let page = await client.getOwnedObjects({
@@ -256,7 +256,7 @@
                 bip44Path = `m/44'/${coinType}'/${accountIndex}'/${change}'/${addressIndex}'`;
             }
 
-            const client = await getClient();
+            const client = getClient();
 
             const tx = new Transaction();
             let balance = await client.getBalance({

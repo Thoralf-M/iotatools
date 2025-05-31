@@ -14,7 +14,6 @@
     import Stake from './lib/pages/Stake.svelte';
     import Signer from './lib/Signer.svelte';
     import Tabs from './lib/Tabs.svelte';
-    import WebWallet from './lib/WebWallet.svelte';
 
     // List of tab items with labels, values and assigned components
     let items = [
@@ -49,7 +48,6 @@
     >
     <Network />
     <Signer />
-    <WebWallet />
     <Tabs {items} />
     <a href="https://github.com/Thoralf-M/iota-utils" target="_blank" rel="noopener noreferrer"
         >https://github.com/Thoralf-M/iota-utils</a

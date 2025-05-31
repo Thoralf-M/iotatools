@@ -43,7 +43,7 @@ export const defaultClientConfig: ClientConfig = {
         },
         {
             name: 'alphanet',
-            node: 'https://indexer.iota-rebased-alphanet.iota.cafe',
+            node: 'https://api.iota-rebased-alphanet.iota.cafe',
             indexer: 'https://indexer.iota-rebased-alphanet.iota.cafe',
             graphql: 'https://graphql.iota-rebased-alphanet.iota.cafe',
             faucet: 'https://faucet.iota-rebased-alphanet.iota.cafe/gas',
@@ -51,7 +51,7 @@ export const defaultClientConfig: ClientConfig = {
     ],
 };
 
-export function isValidClientConfig(value: any) {
+export function verifyClientConfig(value: any) {
     if (typeof value !== 'object' || value === null) throw new Error('Config is not an object');
     if (typeof value.selected !== 'string') throw new Error('Config.selected is not a string');
     if (!Array.isArray(value.networks)) throw new Error('Config.networks is not an array');

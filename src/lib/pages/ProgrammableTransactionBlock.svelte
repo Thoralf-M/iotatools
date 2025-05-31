@@ -5,9 +5,9 @@
     import { basicSetup, EditorView } from 'codemirror';
     import { onMount } from 'svelte';
 
-    import { getClient } from '../lib/client';
     import JsonToggleView from '../components/JsonToggleView.svelte';
-    import { activeAddress, iota_accounts, iota_wallets } from '../SignerData.svelte';
+    import { getClient } from '../lib/client';
+    import { activeAddress, iota_accounts, iota_wallets } from '../lib/signer-data';
 
     interface CodeSnippets {
         selected: string;
@@ -119,7 +119,6 @@
         try {
             let tx = (await buildTransaction())!;
             console.log('execute', tx);
-            // @ts-ignore
             let txResult = await $iota_wallets[0].signAndExecuteTransaction({
                 transaction: tx,
                 options: {
@@ -132,10 +131,6 @@
             console.log(txResult);
             value = txResult;
             let client = await getClient();
-            // result = JSON.stringify(txResult, null, 2);
-            client.waitForTransaction({ digest: txResult.digest }).then(() => {
-                console.log('tx block available via api');
-            });
         } catch (err: any) {
             value = err.toString();
             console.error(err);
@@ -150,7 +145,7 @@
         try {
             activeCode = codeEditorView.state.doc.toString();
             // Scope is required to make the Transaction class available
-            const client = await getClient();
+            const client = getClient();
             const scope = { Transaction, client };
             return new Function(
                 'scope',

@@ -5,10 +5,10 @@
     import { onMount } from 'svelte';
     import { dragHandle, dragHandleZone, type DndEvent } from 'svelte-dnd-action';
 
+    import JsonToggleView from '../components/JsonToggleView.svelte';
     import { getClient } from '../lib/client';
     import { nanoToIota } from '../lib/iota-nano-conversion';
-    import JsonToggleView from '../components/JsonToggleView.svelte';
-    import { activeAddress, iota_accounts, iota_wallets } from '../SignerData.svelte';
+    import { activeAddress, iota_accounts, iota_wallets } from '../lib/signer-data';
 
     // Will be updated with the result
     let value = $state({});
@@ -75,7 +75,7 @@
 
     async function getObjects() {
         try {
-            const client = await getClient();
+            const client = getClient();
             // Iterate over extendedAccounts, get the owned objects for each account and set them in the objects field
             const updatedAccounts = await Promise.all(
                 extendedAccounts.map(async (account) => {
@@ -145,7 +145,7 @@
     }
     async function dryRun() {
         try {
-            const client = await getClient();
+            const client = getClient();
             let txResults = [];
 
             let movements = getMovements();
@@ -179,7 +179,7 @@
     }
     async function send() {
         try {
-            const client = await getClient();
+            const client = getClient();
             let txResults = [];
 
             let movements = getMovements();
@@ -199,7 +199,6 @@
                 tx.setSender(senderAddress);
                 const txBytes = await tx.build({ client });
 
-                // @ts-ignore
                 let txResult = await $iota_wallets[0].signAndExecuteTransaction({
                     transaction: txBytes,
                     options: {
@@ -207,7 +206,7 @@
                         showObjectChanges: true,
                         showBalanceChanges: true,
                     },
-                    account: senderAddress,
+                    account: { address: senderAddress },
                 });
                 txResults.push(txResult);
             }

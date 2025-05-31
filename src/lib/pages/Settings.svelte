@@ -1,8 +1,13 @@
 <script lang="ts">
     import JsonStoreEditor from '../components/JsonStoreEditor.svelte';
-    import { sharedClientConfig, clientConfigErrorMsg, sharedPrivateKeys, privateKeysErrorMsg } from '../lib/local-storage-store';
     import { defaultClientConfig } from '../lib/default-client-config';
-    import { defaultPrivateKeys } from '../lib/default-private-keys';
+    import { defaultPrivateKeyAccounts } from '../lib/default-private-keys';
+    import {
+        clientConfigErrorMsg,
+        privateKeysErrorMsg,
+        sharedClientConfig,
+        sharedPrivateKeyAccounts,
+    } from '../lib/local-storage-store';
 </script>
 
 <main>
@@ -13,8 +18,8 @@
         label="Client config"
     />
     <JsonStoreEditor
-        store={sharedPrivateKeys}
-        defaultValue={defaultPrivateKeys}
+        store={sharedPrivateKeyAccounts}
+        defaultValue={defaultPrivateKeyAccounts}
         errorStore={privateKeysErrorMsg}
         label="Private keys"
     />

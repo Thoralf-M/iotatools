@@ -8,9 +8,9 @@
     import { Transaction } from '@iota/iota-sdk/transactions';
     import { IOTA_CLOCK_OBJECT_ID, isValidIotaAddress, toHEX } from '@iota/iota-sdk/utils';
 
-    import { getClient, getSelectedNetworkConfig } from '../lib/client';
     import JsonToggleView from '../components/JsonToggleView.svelte';
-    import { activeAddress, iota_accounts, iota_wallets } from '../SignerData.svelte';
+    import { getClient, getSelectedNetworkConfig } from '../lib/client';
+    import { activeAddress, iota_accounts, iota_wallets } from '../lib/signer-data';
 
     let address = '0x689dae2f77b048dcc08e14d73104ea14222b5be14cc31f34a16a1221f944c1e3';
     let domainName = 'name.iota';
@@ -451,7 +451,7 @@
 
                 if (isParentSubdomain) {
                     // parent NFT is wrapped in Subdomain NFT, so the subdomain NFT must be provided
-                    const client = await getClient();
+                    const client = getClient();
                     const outputs = await client.getOwnedObjects({
                         owner: $activeAddress,
                         options: { showContent: true, showType: true },
@@ -492,7 +492,6 @@
                 tx.transferObjects([subNft], tx.pure.address($activeAddress));
             }
 
-            // @ts-ignore
             let txResult = await $iota_wallets[0].signAndExecuteTransaction({
                 transaction: tx,
                 options: {
@@ -535,7 +534,6 @@
                 ],
             });
 
-            // @ts-ignore
             let txResult = await $iota_wallets[0].signAndExecuteTransaction({
                 transaction: tx,
                 options: {
@@ -573,7 +571,6 @@
                 arguments: [tx.object(IOTA_NAMES_OBJECT_ID), tx.pure.string(domainName)],
             });
 
-            // @ts-ignore
             let txResult = await $iota_wallets[0].signAndExecuteTransaction({
                 transaction: tx,
                 options: {
@@ -611,7 +608,6 @@
                 ],
             });
 
-            // @ts-ignore
             let txResult = await $iota_wallets[0].signAndExecuteTransaction({
                 transaction: tx,
                 options: {
@@ -648,7 +644,6 @@
                 ],
             });
 
-            // @ts-ignore
             let txResult = await $iota_wallets[0].signAndExecuteTransaction({
                 transaction: tx,
                 options: {
@@ -684,7 +679,6 @@
             });
             tx.transferObjects([nft], tx.pure.address($activeAddress));
 
-            // @ts-ignore
             let txResult = await $iota_wallets[0].signAndExecuteTransaction({
                 transaction: tx,
                 options: {

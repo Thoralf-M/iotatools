@@ -2,9 +2,9 @@
     import { IotaClient, type CoinStruct, type PaginatedCoins } from '@iota/iota-sdk/client';
     import { Transaction } from '@iota/iota-sdk/transactions';
 
-    import { getClient } from '../lib/client';
     import JsonToggleView from '../components/JsonToggleView.svelte';
-    import { activeAddress, iota_accounts, iota_wallets } from '../SignerData.svelte';
+    import { getClient } from '../lib/client';
+    import { activeAddress, iota_accounts, iota_wallets } from '../lib/signer-data';
 
     let objectCount = '1';
     let amountPerObject = '0';
@@ -43,7 +43,6 @@
                 },
             ]);
 
-            // @ts-ignore
             let txResult = await $iota_wallets[0].signAndExecuteTransaction({
                 transaction: tx,
                 options: {
@@ -55,10 +54,6 @@
             });
             console.log(txResult);
             value = txResult;
-            // result = JSON.stringify(txResult, null, 2);
-            client.waitForTransaction({ digest: txResult.digest }).then(() => {
-                console.log('tx block available via api');
-            });
         } catch (err: any) {
             value = err.toString();
             console.error(err);
@@ -78,7 +73,6 @@
             // @ts-ignore
             tx.transferObjects(coinArgs, $activeAddress);
 
-            // @ts-ignore
             let txResult = await $iota_wallets[0].signAndExecuteTransaction({
                 transaction: tx,
                 options: {
@@ -91,10 +85,6 @@
             console.log(txResult);
             value = txResult;
             let client = await getClient();
-            // result = JSON.stringify(txResult, null, 2);
-            client.waitForTransaction({ digest: txResult.digest }).then(() => {
-                console.log('tx block available via api');
-            });
         } catch (err: any) {
             value = err.toString();
             console.error(err);
