@@ -1,14 +1,11 @@
 <script lang="ts">
-    import type { IotaObjectData } from '@iota/iota-sdk/client';
     import { Transaction } from '@iota/iota-sdk/transactions';
-    import { IOTA_SYSTEM_STATE_OBJECT_ID, isValidIotaAddress } from '@iota/iota-sdk/utils';
-    import { onMount } from 'svelte';
     import { dragHandle, dragHandleZone, type DndEvent } from 'svelte-dnd-action';
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
     import { getClient } from '../lib/client';
     import { nanoToIota } from '../lib/iota-nano-conversion';
-    import { activeAddress, iota_accounts, iota_wallets } from '../lib/signer-data';
+    import { iota_accounts, iota_wallets } from '../lib/signer-data';
 
     // Will be updated with the result
     let value = $state({});

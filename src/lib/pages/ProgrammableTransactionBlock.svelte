@@ -89,7 +89,7 @@
     async function devInspect() {
         let tx = (await buildTransaction())!;
         console.log('devInspect', tx);
-        let client = await getClient();
+        let client = getClient();
         const devInspectResult = await client.devInspectTransactionBlock({
             sender:
                 $activeAddress ||
@@ -103,7 +103,7 @@
     async function dryRun() {
         let tx = (await buildTransaction())!;
         console.log('dryRun', tx);
-        let client = await getClient();
+        let client = getClient();
         tx.setSender(
             $activeAddress || '0x0000000000000000000000000000000000000000000000000000000000000000',
         );
@@ -130,7 +130,6 @@
             });
             console.log(txResult);
             value = txResult;
-            let client = await getClient();
         } catch (err: any) {
             value = err.toString();
             console.error(err);

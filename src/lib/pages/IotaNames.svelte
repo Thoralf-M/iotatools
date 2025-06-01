@@ -67,7 +67,7 @@
                 arguments: [targetAddressOption],
             });
 
-            let client = await getClient();
+            let client = getClient();
             let txResult = await client.devInspectTransactionBlock({
                 sender: '0x0000000000000000000000000000000000000000000000000000000000000000',
                 transactionBlock: tx,
@@ -120,7 +120,7 @@
                 arguments: [domain],
             });
 
-            let client = await getClient();
+            let client = getClient();
             let txResult = await client.devInspectTransactionBlock({
                 sender: '0x0000000000000000000000000000000000000000000000000000000000000000',
                 transactionBlock: tx,
@@ -698,7 +698,7 @@
         try {
             await getPackageIds();
             await queryAuctionObjectId();
-            let client = await getClient();
+            let client = getClient();
             let object = await client.getObject({
                 id: AUCTION_HOUSE_OBJECT_ID,
                 options: { showContent: true, showPreviousTransaction: true },

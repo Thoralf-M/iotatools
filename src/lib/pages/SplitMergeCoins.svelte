@@ -14,7 +14,7 @@
 
     const mergeAllIotaCoins = async () => {
         try {
-            let client = await getClient();
+            let client = getClient();
             let coins = await getAllIotaCoins(client, $activeAddress);
             if (coins.length < 2) {
                 throw new Error('No coins to consolidate');
@@ -84,7 +84,6 @@
             });
             console.log(txResult);
             value = txResult;
-            let client = await getClient();
         } catch (err: any) {
             value = err.toString();
             console.error(err);
@@ -92,7 +91,7 @@
     };
     const listAllIotaCoinObjects = async () => {
         try {
-            let client = await getClient();
+            let client = getClient();
             let coins = await getAllIotaCoins(client, $activeAddress);
             iotaBalance = 0;
             for (const coin of coins) {

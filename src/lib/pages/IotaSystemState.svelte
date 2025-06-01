@@ -16,7 +16,7 @@
     };
     const getLatestSystemState = async () => {
         try {
-            let client = await getClient();
+            let client = getClient();
             apiVersion = (await client.getRpcApiVersion()) || '';
             const systemState = await client.getLatestIotaSystemState();
             console.log(systemState);
@@ -31,7 +31,7 @@
     let showAllValidatorData = false;
     const getCandidateValidators = async () => {
         try {
-            let client = await getClient();
+            let client = getClient();
             apiVersion = (await client.getRpcApiVersion()) || '';
             const systemState = await client.getLatestIotaSystemState();
 
@@ -93,7 +93,7 @@
     };
     const getPendingValidators = async () => {
         try {
-            let client = await getClient();
+            let client = getClient();
             apiVersion = (await client.getRpcApiVersion()) || '';
             const systemState = await client.getLatestIotaSystemState();
 

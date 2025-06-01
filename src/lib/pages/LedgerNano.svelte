@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { toB64, toHEX } from '@iota/bcs';
+    import { toHEX } from '@iota/bcs';
     import type { IotaClient } from '@iota/iota-sdk/client';
     import { messageWithIntent, toSerializedSignature } from '@iota/iota-sdk/cryptography';
     import { Ed25519PublicKey } from '@iota/iota-sdk/keypairs/ed25519';

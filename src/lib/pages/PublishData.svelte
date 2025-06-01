@@ -2,7 +2,6 @@
     import { Transaction } from '@iota/iota-sdk/transactions';
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
-    import { getClient } from '../lib/client';
     import { activeAddress, iota_accounts, iota_wallets } from '../lib/signer-data';
 
     let pureInputData = 'some data';
