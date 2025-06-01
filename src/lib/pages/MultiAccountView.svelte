@@ -404,7 +404,7 @@
     pre {
         text-align: left;
         white-space: pre-wrap;
-        word-break: break-all;
+        overflow-wrap: anywhere;
     }
     button {
         margin: 0.5rem;
@@ -422,5 +422,6 @@
     }
     .handle {
         background-color: #232324;
+        overflow-wrap: anywhere;
     }
 </style>
