@@ -53,7 +53,7 @@ export function persistentWritableStore(
     initialValue: any,
     verificationFn: Function,
 ): Writable<any> {
-    const stored = loadFromLocalStorage(key, initialValue);
+    let stored = loadFromLocalStorage(key, initialValue, verificationFn);
     const store = writable(stored);
 
     store.subscribe((value) => {
@@ -82,12 +82,14 @@ export function persistentWritableStore(
     return store;
 }
 
-function loadFromLocalStorage(key: string, initialValue: any) {
+function loadFromLocalStorage(key: string, initialValue: any, verificationFn: Function) {
     const json = localStorage.getItem(key);
     try {
-        return json ? JSON.parse(json) : initialValue;
+        let value = json ? JSON.parse(json) : initialValue;
+        verificationFn(value);
+        return value;
     } catch (err) {
-        console.error(`Error parsing localStorage key "${key}"`, err);
+        console.error(`Error parsing localStorage key "${key}, overwriting with default"`, err);
         return initialValue;
     }
 }
