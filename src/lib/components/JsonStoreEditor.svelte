@@ -26,7 +26,6 @@
 </script>
 
 <div>
-    <span style="float:left">{label}:</span>
     <textarea
         bind:value={jsonText}
         oninput={handleChange}
