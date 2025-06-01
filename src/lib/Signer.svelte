@@ -26,8 +26,9 @@
 
         <select bind:value={$activeAddress}>
             {#each $iota_accounts as account}
-                <option value={account.address}>
+                <option value={account.address} style="font-family: monospace;">
                     {account.address}
+                    {account.label}
                 </option>
             {/each}
         </select>

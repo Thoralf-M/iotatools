@@ -74,6 +74,7 @@ export function toWalletAccounts(sharedPrivateKeyAccounts: PrivateKeyAccounts): 
         (account) =>
             ({
                 address: account.address,
+                label: account.label,
                 privKey: account.bech32PrivateKey,
                 publicKey: keypairFromBech32PrivateKey(account.bech32PrivateKey)
                     .getPublicKey()
