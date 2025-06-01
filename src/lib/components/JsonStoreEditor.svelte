@@ -4,7 +4,7 @@
     export let store: Writable<any>;
     export let defaultValue;
     export let errorStore: Writable<string>;
-    export let label = 'Config';
+    export let label = '';
 
     let jsonText = JSON.stringify(get(store), null, 2);
 
@@ -30,13 +30,13 @@
         bind:value={jsonText}
         on:input={handleChange}
         rows="10"
-        cols="170"
+        style="width: 100%"
         class:error={errorStore && $errorStore}
     ></textarea>
     {#if errorStore && $errorStore}
         <div style="color: red;">{$errorStore}</div>
     {/if}
-    <button on:click={() => store.set(defaultValue)}>Reset</button>
+    <button on:click={() => store.set(defaultValue)}>Reset {label}</button>
 </div>
 
 <style>
