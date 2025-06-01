@@ -7,6 +7,8 @@
     import { isValidIotaAddress } from '@iota/iota-sdk/utils';
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
+    import { sharedClientConfig } from '../lib/local-storage-store';
+    import { activeAddress } from '../lib/signer-data';
 
     let address = '0x111111111504e9350e635d65cd38ccd2c029434c6a3a480d8947a9ba6a15b215';
     let faucetUrl = 'https://faucet.testnet.iota.cafe/gas';
@@ -70,6 +72,18 @@
 </script>
 
 <main>
+    <button
+        on:click={() => {
+            address = $activeAddress;
+            faucetUrl =
+                $sharedClientConfig.networks.find(
+                    (network) => network.name === $sharedClientConfig.selected,
+                )?.faucet ?? 'http://127.0.0.1:9123/gas';
+        }}
+    >
+        Set to current network and active address
+    </button>
+    <br />
     <span>
         faucet URL:
         <input
@@ -80,11 +94,9 @@
             placeholder="faucet URL, like http://127.0.0.1:9123/gas"
         />
         <datalist id="faucetUrls">
-            <option value={'http://127.0.0.1:9123/gas'}>Localnet </option>
-            <option value={'https://faucet.testnet.iota.cafe/gas'}>Testnet </option>
-            <option value={'https://faucet.testnet.iota.cafe/gas'}>Testnet </option>
-            <option value={'https://faucet.devnet.iota.cafe/gas'}>Devnet </option>
-            <option value={'https://faucet.iota-rebased-alphanet.iota.cafe/gas'}>Alphanet </option>
+            {#each $sharedClientConfig.networks as network}
+                <option value={network.faucet}>{network.name} </option>
+            {/each}
         </datalist>
     </span>
     <br />
