@@ -5,7 +5,7 @@
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
     import { getClient } from '../lib/client';
-    import { activeAddress, iota_accounts, iota_wallets } from '../lib/signer-data';
+    import { activeAddress, iota_wallets } from '../lib/signer-data';
 
     let validatorAddress = '0x111111111504e9350e635d65cd38ccd2c029434c6a3a480d8947a9ba6a15b215';
     const minStakeAmount = 1000000000;
@@ -40,7 +40,7 @@
                     showObjectChanges: true,
                     showBalanceChanges: true,
                 },
-                account: $iota_accounts.filter((account) => account.address == $activeAddress)[0],
+                account: { address: $activeAddress },
             });
             console.log(txResult);
             value = txResult;
@@ -108,7 +108,7 @@
                     showObjectChanges: true,
                     showBalanceChanges: true,
                 },
-                account: $iota_accounts.filter((account) => account.address == $activeAddress)[0],
+                account: { address: $activeAddress },
             });
             console.log(txResult);
             value = txResult;

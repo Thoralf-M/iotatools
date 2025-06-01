@@ -142,10 +142,9 @@
     interface PreparedTransaction {
         sender: string;
         recipients: string[];
-        transactionBytes: Uint8Array;
+        transaction: Transaction;
     }
     async function prepareTxs(): Promise<PreparedTransaction[]> {
-        const client = getClient();
         let preparedTxs = [];
 
         let movements = getMovements();
@@ -207,12 +206,12 @@
                 }
             }
             tx.setSender(senderAddress);
-            const txBytes = await tx.build({ client });
+            // const txBytes = await tx.build({ client });
 
             preparedTxs.push({
                 sender: senderAddress,
                 recipients: Array.from(movement[1].keys()),
-                transactionBytes: txBytes,
+                transaction: tx,
             });
         }
         return preparedTxs;
@@ -224,12 +223,14 @@
 
             let txResults = [];
             for (const preparedTx of preparedTxs) {
-                const { sender, recipients, transactionBytes } = preparedTx;
+                const { sender, recipients, transaction } = preparedTx;
                 console.log(`Dry run moving objects from ${sender} to:`, recipients.join(', '));
                 // Perform a dry run
-                const dryRunResult = await client.dryRunTransactionBlock({
-                    transactionBlock: transactionBytes,
-                });
+                let dryRunResult = (await client.dryRunTransactionBlock({
+                    transactionBlock: await transaction.build({ client }),
+                })) as any;
+                dryRunResult.sender = sender;
+                dryRunResult.recipients = recipients;
                 txResults.push(dryRunResult);
             }
 
@@ -245,11 +246,11 @@
 
             let txResults = [];
             for (const preparedTx of preparedTxs) {
-                const { sender, recipients, transactionBytes } = preparedTx;
+                const { sender, recipients, transaction } = preparedTx;
                 console.log(`Moving objects from ${sender} to:`, recipients.join(', '));
 
                 let txResult = await $iota_wallets[0].signAndExecuteTransaction({
-                    transaction: transactionBytes,
+                    transaction,
                     options: {
                         showEffects: true,
                         showObjectChanges: true,
@@ -257,6 +258,8 @@
                     },
                     account: { address: sender },
                 });
+                txResult.sender = sender;
+                txResult.recipients = recipients;
                 txResults.push(txResult);
             }
 

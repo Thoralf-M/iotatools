@@ -67,7 +67,6 @@ function get_wallets() {
                 ),
         );
 
-        console.log(iota_wallets);
         // @ts-ignore
         if (iota_wallets.length == 0) {
             throw new Error('no web wallet found');
@@ -87,6 +86,4 @@ export const connectWallet = async () => {
     let connectResult = await get(iota_wallets)[0].connect();
     iota_accounts.set(connectResult.accounts);
     activeAddress.set(connectResult.accounts[0].address);
-    console.log('web wallet connect result', connectResult);
-    console.log(get(iota_accounts));
 };

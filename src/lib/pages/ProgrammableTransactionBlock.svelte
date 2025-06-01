@@ -7,7 +7,7 @@
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
     import { getClient } from '../lib/client';
-    import { activeAddress, iota_accounts, iota_wallets } from '../lib/signer-data';
+    import { activeAddress, iota_wallets } from '../lib/signer-data';
 
     interface CodeSnippets {
         selected: string;
@@ -126,7 +126,7 @@
                     showObjectChanges: true,
                     showBalanceChanges: true,
                 },
-                account: $iota_accounts.filter((account) => account.address == $activeAddress)[0],
+                account: { address: $activeAddress },
             });
             console.log(txResult);
             value = txResult;

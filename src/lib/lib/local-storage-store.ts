@@ -60,7 +60,6 @@ export function persistentWritableStore(
         if (typeof localStorage !== 'undefined') {
             try {
                 if (verificationFn(value)) {
-                    console.log(`Saving localStorage key "${key}"`, value);
                     localStorage.setItem(key, JSON.stringify(value));
                     if (key === CLIENT_CONFIG_KEY) {
                         clientConfigErrorMsg.set('');
@@ -85,7 +84,6 @@ export function persistentWritableStore(
 
 function loadFromLocalStorage(key: string, initialValue: any) {
     const json = localStorage.getItem(key);
-    console.log(`Loading localStorage key "${key}"`, json);
     try {
         return json ? JSON.parse(json) : initialValue;
     } catch (err) {

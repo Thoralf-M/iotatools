@@ -10,13 +10,13 @@
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
     import { getClient, getSelectedNetworkConfig } from '../lib/client';
-    import { activeAddress, iota_accounts, iota_wallets } from '../lib/signer-data';
+    import { activeAddress, iota_wallets } from '../lib/signer-data';
 
     let address = '0x689dae2f77b048dcc08e14d73104ea14222b5be14cc31f34a16a1221f944c1e3';
     let domainName = 'name.iota';
     let bidPrice = 10000000;
     let IOTA_NAMES_PACKAGE_ID =
-        '0xa9a9c358922b1d8395bf9c3c18c524dc8b458eeccf5090614443a958bbba0e43';
+        '0x3ec4826f1d6e0d9f00680b2e9a7a41f03788ee610b3d11c24f41ab0ae71da39f';
     let AUCTION_PACKAGE_ID = '';
     let AUCTION_HOUSE_OBJECT_ID = '';
     let PAYMENTS_PACKAGE_ID = '';
@@ -499,7 +499,7 @@
                     showObjectChanges: true,
                     showBalanceChanges: true,
                 },
-                account: $iota_accounts.filter((account) => account.address == $activeAddress)[0],
+                account: { address: $activeAddress },
             });
             value = txResult;
         } catch (err: any) {
@@ -541,7 +541,7 @@
                     showObjectChanges: true,
                     showBalanceChanges: true,
                 },
-                account: $iota_accounts.filter((account) => account.address == $activeAddress)[0],
+                account: { address: $activeAddress },
             });
             value = txResult;
         } catch (err: any) {
@@ -578,7 +578,7 @@
                     showObjectChanges: true,
                     showBalanceChanges: true,
                 },
-                account: $iota_accounts.filter((account) => account.address == $activeAddress)[0],
+                account: { address: $activeAddress },
             });
             value = txResult;
         } catch (err: any) {
@@ -615,7 +615,7 @@
                     showObjectChanges: true,
                     showBalanceChanges: true,
                 },
-                account: $iota_accounts.filter((account) => account.address == $activeAddress)[0],
+                account: { address: $activeAddress },
             });
             value = txResult;
         } catch (err: any) {
@@ -651,7 +651,7 @@
                     showObjectChanges: true,
                     showBalanceChanges: true,
                 },
-                account: $iota_accounts.filter((account) => account.address == $activeAddress)[0],
+                account: { address: $activeAddress },
             });
             value = txResult;
         } catch (err: any) {
@@ -686,7 +686,7 @@
                     showObjectChanges: true,
                     showBalanceChanges: true,
                 },
-                account: $iota_accounts.filter((account) => account.address == $activeAddress)[0],
+                account: { address: $activeAddress },
             });
             value = txResult;
         } catch (err: any) {
@@ -821,7 +821,7 @@
 
 <main>
     <span>
-        IotaNames package id (default for alphanet):
+        IotaNames package id (default for devnet):
         <input
             bind:value={IOTA_NAMES_PACKAGE_ID}
             onchange={() => {

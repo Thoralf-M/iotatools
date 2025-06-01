@@ -2,7 +2,7 @@
     import { Transaction } from '@iota/iota-sdk/transactions';
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
-    import { activeAddress, iota_accounts, iota_wallets } from '../lib/signer-data';
+    import { activeAddress, iota_wallets } from '../lib/signer-data';
 
     let pureInputData = 'some data';
     // Will be updated with the result
@@ -20,7 +20,7 @@
                     showObjectChanges: true,
                     showBalanceChanges: true,
                 },
-                account: $iota_accounts.filter((account) => account.address == $activeAddress)[0],
+                account: { address: $activeAddress },
             });
             console.log(txResult);
             value = txResult;

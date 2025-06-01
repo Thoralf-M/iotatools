@@ -1,6 +1,6 @@
 import type { IotaTransactionBlockResponseOptions } from '@iota/iota-sdk/client';
 import type { Transaction } from '@iota/iota-sdk/transactions';
-import type { WalletAccount } from '@iota/wallet-standard';
+import type { IotaSignAndExecuteTransactionInput, WalletAccount } from '@iota/wallet-standard';
 import { get, writable, type Writable } from 'svelte/store';
 
 import { PrivateKeyWallet, toWalletAccounts } from './default-private-keys';
@@ -8,7 +8,7 @@ import { sharedPrivateKeyAccounts, sharedSignerType, SignerType } from './local-
 import { connectWallet } from './web-wallet';
 
 interface TransactionOptions {
-    transaction: Uint8Array<ArrayBufferLike> | Transaction;
+    transaction: Transaction;
     options?: IotaTransactionBlockResponseOptions;
     account?: { address: string };
 }

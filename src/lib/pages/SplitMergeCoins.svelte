@@ -4,10 +4,10 @@
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
     import { getClient } from '../lib/client';
-    import { activeAddress, iota_accounts, iota_wallets } from '../lib/signer-data';
+    import { activeAddress, iota_wallets } from '../lib/signer-data';
 
     let objectCount = '1';
-    let amountPerObject = '0';
+    let amountPerObject = '1000000000';
     // Will be updated with the result
     let value = {};
     let iotaBalance = 0;
@@ -50,7 +50,7 @@
                     showObjectChanges: true,
                     showBalanceChanges: true,
                 },
-                account: $iota_accounts.filter((account) => account.address == $activeAddress)[0],
+                account: { address: $activeAddress },
             });
             console.log(txResult);
             value = txResult;
@@ -80,7 +80,7 @@
                     showObjectChanges: true,
                     showBalanceChanges: true,
                 },
-                account: $iota_accounts.filter((account) => account.address == $activeAddress)[0],
+                account: { address: $activeAddress },
             });
             console.log(txResult);
             value = txResult;
