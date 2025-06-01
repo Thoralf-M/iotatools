@@ -12,6 +12,7 @@
         sharedClientConfig,
         sharedPrivateKeyAccounts,
     } from '../lib/local-storage-store';
+    import { updateSelectedSignerAccounts } from '../lib/signer-data';
 
     let newBech32PrivateKey = $state('');
     let error = $state('');
@@ -45,6 +46,7 @@
                     return privateKeys; // return unchanged if error
                 }
             });
+            updateSelectedSignerAccounts();
             newBech32PrivateKey = '';
         }}>Add private key:</button
     >
@@ -55,5 +57,6 @@
         defaultValue={defaultPrivateKeyAccounts}
         errorStore={privateKeysErrorMsg}
         label="Private keys"
+        onChangeFn={() => updateSelectedSignerAccounts()}
     />
 </main>

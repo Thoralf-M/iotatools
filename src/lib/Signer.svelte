@@ -1,28 +1,12 @@
 <script lang="ts">
-    import { PrivateKeyWallet, toWalletAccounts } from './lib/default-private-keys';
+    import { sharedSignerType, SignerType } from './lib/local-storage-store';
     import {
-        sharedPrivateKeyAccounts,
-        sharedSignerType,
-        SignerType,
-    } from './lib/local-storage-store';
-    import { activeAddress, iota_accounts, iota_wallets } from './lib/signer-data';
+        activeAddress,
+        iota_accounts,
+        iota_wallets,
+        updateSelectedSignerAccounts,
+    } from './lib/signer-data';
     import { connectWallet } from './lib/web-wallet';
-
-    function setSigningWithPrivateKeyAccounts() {
-        // @ts-ignore
-        $iota_wallets[0] = new PrivateKeyWallet();
-        $iota_accounts = toWalletAccounts($sharedPrivateKeyAccounts);
-        $activeAddress = Object.keys($sharedPrivateKeyAccounts.accounts)[0];
-    }
-
-    function updateSelectedSignerAccounts() {
-        if ($sharedSignerType == SignerType.Localstorage) {
-            setSigningWithPrivateKeyAccounts();
-        }
-        if ($sharedSignerType == SignerType.WebWallet) {
-            connectWallet();
-        }
-    }
 
     // Init the first time if localstorage is selected
     updateSelectedSignerAccounts();

@@ -5,6 +5,7 @@
     export let defaultValue;
     export let errorStore: Writable<string>;
     export let label = '';
+    export let onChangeFn: (value: any) => void = () => {};
 
     let jsonText = JSON.stringify(get(store), null, 2);
 
@@ -28,7 +29,8 @@
     <span style="float:left">{label}:</span>
     <textarea
         bind:value={jsonText}
-        on:input={handleChange}
+        oninput={handleChange}
+        onchange={onChangeFn}
         rows="10"
         style="width: 100%"
         class:error={errorStore && $errorStore}
@@ -36,7 +38,7 @@
     {#if errorStore && $errorStore}
         <div style="color: red;">{$errorStore}</div>
     {/if}
-    <button on:click={() => store.set(defaultValue)}>Reset {label}</button>
+    <button onclick={() => store.set(defaultValue)}>Reset {label}</button>
 </div>
 
 <style>
