@@ -93,8 +93,7 @@
                             // @ts-ignore
                             id: obj.data.objectId,
                             label,
-                            // @ts-ignore
-                            data: obj.data.content!,
+                            data: obj.data,
                             currentOwner: account.address,
                         };
                     });
@@ -140,30 +139,96 @@
         }
         return movements;
     }
-    async function dryRun() {
-        try {
-            const client = getClient();
-            let txResults = [];
+    interface PreparedTransaction {
+        sender: string;
+        recipients: string[];
+        transactionBytes: Uint8Array;
+    }
+    async function prepareTxs(): Promise<PreparedTransaction[]> {
+        const client = getClient();
+        let preparedTxs = [];
 
-            let movements = getMovements();
-            for (const movement of movements) {
-                const senderAddress = movement[0];
-                console.log(
-                    `Moving objects from ${senderAddress} to:`,
-                    Array.from(movement[1].keys()).join(', '),
-                );
-                const tx = new Transaction();
-                for (const [to, objects] of movement[1]) {
+        let movements = getMovements();
+        for (const movement of movements) {
+            const senderAddress = movement[0];
+
+            const tx = new Transaction();
+            for (let [to, objects] of movement[1]) {
+                // If we transfer all gas coin objects, we have to split the gas from one of the objects
+                if (
+                    extendedAccounts
+                        .find((acc) => acc.address == senderAddress)
+                        ?.objects.filter(
+                            (obj) => obj.data.content.type === '0x2::coin::Coin<0x2::iota::IOTA>',
+                        ).length == 0
+                ) {
+                    // Get largest gas coin
+                    let gasCoin = objects
+                        .filter(
+                            (obj) => obj.data.content.type === '0x2::coin::Coin<0x2::iota::IOTA>',
+                        )
+                        .sort((a, b) =>
+                            Number(
+                                BigInt(b.data.content.fields.balance) -
+                                    BigInt(a.data.content.fields.balance),
+                            ),
+                        )[0];
+                    if (!gasCoin) {
+                        throw new Error(
+                            `No gas coin found for sender ${senderAddress}. Please ensure the account has IOTA coins.`,
+                        );
+                    }
+                    console.log('Using transfer object as gasCoin', gasCoin);
+                    tx.setGasPayment([
+                        {
+                            objectId: gasCoin.id,
+                            version: gasCoin.data.version,
+                            digest: gasCoin.data.digest,
+                        },
+                    ]);
+
+                    tx.transferObjects(
+                        objects.map((obj) => {
+                            if (obj.id === gasCoin.id) {
+                                // Replace the gas coin id by the gas argument
+                                return tx.gas;
+                            } else {
+                                return obj.id;
+                            }
+                        }),
+                        to,
+                    );
+                } else {
+                    // Just transfer the objects and let the SDK select the gas
                     tx.transferObjects(
                         objects.map((obj) => obj.id),
                         to,
                     );
                 }
-                tx.setSender(senderAddress);
-                const txBytes = await tx.build({ client });
+            }
+            tx.setSender(senderAddress);
+            const txBytes = await tx.build({ client });
+
+            preparedTxs.push({
+                sender: senderAddress,
+                recipients: Array.from(movement[1].keys()),
+                transactionBytes: txBytes,
+            });
+        }
+        return preparedTxs;
+    }
+    async function dryRun() {
+        try {
+            const client = getClient();
+            let preparedTxs = await prepareTxs();
+
+            let txResults = [];
+            for (const preparedTx of preparedTxs) {
+                const { sender, recipients, transactionBytes } = preparedTx;
+                console.log(`Dry run moving objects from ${sender} to:`, recipients.join(', '));
                 // Perform a dry run
                 const dryRunResult = await client.dryRunTransactionBlock({
-                    transactionBlock: txBytes,
+                    transactionBlock: transactionBytes,
                 });
                 txResults.push(dryRunResult);
             }
@@ -176,34 +241,21 @@
     }
     async function send() {
         try {
-            const client = getClient();
-            let txResults = [];
+            let preparedTxs = await prepareTxs();
 
-            let movements = getMovements();
-            for (const movement of movements) {
-                const senderAddress = movement[0];
-                console.log(
-                    `Moving objects from ${senderAddress} to:`,
-                    Array.from(movement[1].keys()).join(', '),
-                );
-                const tx = new Transaction();
-                for (const [to, objects] of movement[1]) {
-                    tx.transferObjects(
-                        objects.map((obj) => obj.id),
-                        to,
-                    );
-                }
-                tx.setSender(senderAddress);
-                const txBytes = await tx.build({ client });
+            let txResults = [];
+            for (const preparedTx of preparedTxs) {
+                const { sender, recipients, transactionBytes } = preparedTx;
+                console.log(`Moving objects from ${sender} to:`, recipients.join(', '));
 
                 let txResult = await $iota_wallets[0].signAndExecuteTransaction({
-                    transaction: txBytes,
+                    transaction: transactionBytes,
                     options: {
                         showEffects: true,
                         showObjectChanges: true,
                         showBalanceChanges: true,
                     },
-                    account: { address: senderAddress },
+                    account: { address: sender },
                 });
                 txResults.push(txResult);
             }
@@ -217,6 +269,8 @@
 </script>
 
 <main>
+    <span style="float:left">Drag and drop objects between accounts.</span>
+    <br />
     <button onclick={syncReset}> sync/reset </button>
     <button onclick={dryRun}> dry run </button>
     <button onclick={send}> send </button>
@@ -250,13 +304,17 @@
                             >
                                 <span>
                                     {#if item.label.startsWith('Coin<0x2::iota::IOTA>')}
-                                        {item.label}: {nanoToIota(item.data?.fields?.balance)} IOTA
+                                        {item.label}: {nanoToIota(
+                                            item.data?.content.fields?.balance,
+                                        )} IOTA
                                     {:else if item.label == 'StakedIota'}
-                                        {item.label}: {nanoToIota(item.data?.fields?.principal)}
+                                        {item.label}: {nanoToIota(
+                                            item.data?.content.fields?.principal,
+                                        )}
                                         IOTA
                                     {:else if item.label == 'TimelockedStakedIota'}
                                         {item.label}: {nanoToIota(
-                                            item.data.fields.staked_iota.fields.principal,
+                                            item.data.content.fields.staked_iota.fields.principal,
                                         )} IOTA
                                     {:else}
                                         {item.label}
@@ -275,7 +333,7 @@
                                 <details>
                                     <summary>Show object data</summary>
                                     <pre style="font-size:0.7rem;  text-align: left;">
-                                        {'\n' + JSON.stringify(item.data, null, 2)}
+                                        {'\n' + JSON.stringify(item, null, 2)}
                                     </pre>
                                 </details>
                             </div>
@@ -295,13 +353,18 @@
                                 <div style="border: 1px solid #525252;">
                                     <span style="word-break: break-all;">
                                         {#if item.label.startsWith('Coin<0x2::iota::IOTA>')}
-                                            {item.label}: {nanoToIota(item.data?.fields?.balance)} IOTA
+                                            {item.label}: {nanoToIota(
+                                                item.data?.content.fields?.balance,
+                                            )} IOTA
                                         {:else if item.label == 'StakedIota'}
-                                            {item.label}: {nanoToIota(item.data?.fields?.principal)}
+                                            {item.label}: {nanoToIota(
+                                                item.data?.content.fields?.principal,
+                                            )}
                                             IOTA
                                         {:else if item.label == 'TimelockedStakedIota'}
                                             {item.label}: {nanoToIota(
-                                                item.data.fields.staked_iota.fields.principal,
+                                                item.data.content.fields.staked_iota.fields
+                                                    .principal,
                                             )} IOTA
                                         {:else}
                                             {item.label}
@@ -320,7 +383,7 @@
                                     <details>
                                         <summary>Show object data</summary>
                                         <pre style="font-size:0.7rem;  text-align: left;">
-                                        {'\n' + JSON.stringify(item.data, null, 2)}
+                                        {'\n' + JSON.stringify(item, null, 2)}
                                     </pre>
                                     </details>
                                 </div>
