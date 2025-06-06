@@ -4,7 +4,8 @@
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
     import { getClient } from '../lib/client';
-    import { activeAddress, iota_wallets } from '../lib/signer-data';
+    import { activeAddress } from '../lib/signer-data';
+    import { executeTransaction } from '../lib/transaction-execution';
 
     let objectCount = '1';
     let amountPerObject = '1000000000';
@@ -43,17 +44,7 @@
                 },
             ]);
 
-            let txResult = await $iota_wallets[0].signAndExecuteTransaction({
-                transaction: tx,
-                options: {
-                    showEffects: true,
-                    showObjectChanges: true,
-                    showBalanceChanges: true,
-                },
-                account: { address: $activeAddress },
-            });
-            console.log(txResult);
-            value = txResult;
+            value = await executeTransaction(tx);
         } catch (err: any) {
             value = err.toString();
             console.error(err);
@@ -73,17 +64,7 @@
             // @ts-ignore
             tx.transferObjects(coinArgs, $activeAddress);
 
-            let txResult = await $iota_wallets[0].signAndExecuteTransaction({
-                transaction: tx,
-                options: {
-                    showEffects: true,
-                    showObjectChanges: true,
-                    showBalanceChanges: true,
-                },
-                account: { address: $activeAddress },
-            });
-            console.log(txResult);
-            value = txResult;
+            value = await executeTransaction(tx);
         } catch (err: any) {
             value = err.toString();
             console.error(err);

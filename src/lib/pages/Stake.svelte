@@ -5,7 +5,8 @@
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
     import { getClient } from '../lib/client';
-    import { activeAddress, iota_wallets } from '../lib/signer-data';
+    import { activeAddress } from '../lib/signer-data';
+    import { executeTransaction } from '../lib/transaction-execution';
 
     let validatorAddress = '0x111111111504e9350e635d65cd38ccd2c029434c6a3a480d8947a9ba6a15b215';
     const minStakeAmount = 1000000000;
@@ -33,17 +34,7 @@
                 ],
             });
 
-            let txResult = await $iota_wallets[0].signAndExecuteTransaction({
-                transaction: tx,
-                options: {
-                    showEffects: true,
-                    showObjectChanges: true,
-                    showBalanceChanges: true,
-                },
-                account: { address: $activeAddress },
-            });
-            console.log(txResult);
-            value = txResult;
+            value = await executeTransaction(tx);
         } catch (err: any) {
             value = err.toString();
             console.error(err);
@@ -88,30 +79,8 @@
                     ],
                 });
             }
-            // dry run
-            // tx.setSender(
-            //     $activeAddress ||
-            //         "0x0000000000000000000000000000000000000000000000000000000000000000",
-            // );
 
-            // const bytes = await tx.build({ client });
-            // const dryRunResult = await client.dryRunTransactionBlock({
-            //     transactionBlock: bytes,
-            // });
-            // console.log(dryRunResult);
-            // value = dryRunResult;
-
-            let txResult = await $iota_wallets[0].signAndExecuteTransaction({
-                transaction: tx,
-                options: {
-                    showEffects: true,
-                    showObjectChanges: true,
-                    showBalanceChanges: true,
-                },
-                account: { address: $activeAddress },
-            });
-            console.log(txResult);
-            value = txResult;
+            value = await executeTransaction(tx);
         } catch (err: any) {
             value = err.toString();
             console.error(err);

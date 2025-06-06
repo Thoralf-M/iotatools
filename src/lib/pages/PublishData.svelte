@@ -2,7 +2,7 @@
     import { Transaction } from '@iota/iota-sdk/transactions';
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
-    import { activeAddress, iota_wallets } from '../lib/signer-data';
+    import { executeTransaction } from '../lib/transaction-execution';
 
     let pureInputData = 'some data';
     // Will be updated with the result
@@ -13,17 +13,7 @@
             const tx = new Transaction();
             tx.pure('string', pureInputData);
 
-            let txResult = await $iota_wallets[0].signAndExecuteTransaction({
-                transaction: tx,
-                options: {
-                    showEffects: true,
-                    showObjectChanges: true,
-                    showBalanceChanges: true,
-                },
-                account: { address: $activeAddress },
-            });
-            console.log(txResult);
-            value = txResult;
+            value = await executeTransaction(tx);
         } catch (err: any) {
             value = err.toString();
             console.error(err);

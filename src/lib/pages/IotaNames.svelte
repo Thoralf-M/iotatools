@@ -10,7 +10,8 @@
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
     import { getClient, getSelectedNetworkConfig } from '../lib/client';
-    import { activeAddress, iota_wallets } from '../lib/signer-data';
+    import { activeAddress } from '../lib/signer-data';
+    import { executeTransaction } from '../lib/transaction-execution';
 
     let address = '0x689dae2f77b048dcc08e14d73104ea14222b5be14cc31f34a16a1221f944c1e3';
     let domainName = 'name.iota';
@@ -492,16 +493,7 @@
                 tx.transferObjects([subNft], tx.pure.address($activeAddress));
             }
 
-            let txResult = await $iota_wallets[0].signAndExecuteTransaction({
-                transaction: tx,
-                options: {
-                    showEffects: true,
-                    showObjectChanges: true,
-                    showBalanceChanges: true,
-                },
-                account: { address: $activeAddress },
-            });
-            value = txResult;
+            value = await executeTransaction(tx);
         } catch (err: any) {
             value = err.toString();
             console.error(err);
@@ -534,16 +526,7 @@
                 ],
             });
 
-            let txResult = await $iota_wallets[0].signAndExecuteTransaction({
-                transaction: tx,
-                options: {
-                    showEffects: true,
-                    showObjectChanges: true,
-                    showBalanceChanges: true,
-                },
-                account: { address: $activeAddress },
-            });
-            value = txResult;
+            value = await executeTransaction(tx);
         } catch (err: any) {
             value = err.toString();
             console.error(err);
@@ -571,16 +554,7 @@
                 arguments: [tx.object(IOTA_NAMES_OBJECT_ID), tx.pure.string(domainName)],
             });
 
-            let txResult = await $iota_wallets[0].signAndExecuteTransaction({
-                transaction: tx,
-                options: {
-                    showEffects: true,
-                    showObjectChanges: true,
-                    showBalanceChanges: true,
-                },
-                account: { address: $activeAddress },
-            });
-            value = txResult;
+            value = await executeTransaction(tx);
         } catch (err: any) {
             value = err.toString();
             console.error(err);
@@ -608,16 +582,7 @@
                 ],
             });
 
-            let txResult = await $iota_wallets[0].signAndExecuteTransaction({
-                transaction: tx,
-                options: {
-                    showEffects: true,
-                    showObjectChanges: true,
-                    showBalanceChanges: true,
-                },
-                account: { address: $activeAddress },
-            });
-            value = txResult;
+            value = await executeTransaction(tx);
         } catch (err: any) {
             value = err.toString();
             console.error(err);
@@ -644,16 +609,7 @@
                 ],
             });
 
-            let txResult = await $iota_wallets[0].signAndExecuteTransaction({
-                transaction: tx,
-                options: {
-                    showEffects: true,
-                    showObjectChanges: true,
-                    showBalanceChanges: true,
-                },
-                account: { address: $activeAddress },
-            });
-            value = txResult;
+            value = await executeTransaction(tx);
         } catch (err: any) {
             value = err.toString();
             console.error(err);
@@ -679,16 +635,7 @@
             });
             tx.transferObjects([nft], tx.pure.address($activeAddress));
 
-            let txResult = await $iota_wallets[0].signAndExecuteTransaction({
-                transaction: tx,
-                options: {
-                    showEffects: true,
-                    showObjectChanges: true,
-                    showBalanceChanges: true,
-                },
-                account: { address: $activeAddress },
-            });
-            value = txResult;
+            value = await executeTransaction(tx);
         } catch (err: any) {
             value = err.toString();
             console.error(err);

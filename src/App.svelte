@@ -1,5 +1,5 @@
 <script>
-    import Network from './lib/Network.svelte';
+    import Options from './lib/Options.svelte';
     import Converter from './lib/pages/Converter.svelte';
     import Ed25519AddressGeneration from './lib/pages/Ed25519AddressGeneration.svelte';
     import Faucet from './lib/pages/Faucet.svelte';
@@ -46,7 +46,7 @@
     left: 0.5rem;
     top: 0.5rem;">This website is experimental, use at your own risk.</span
     >
-    <Network />
+    <Options />
     <Signer />
     <Tabs {items} />
     <a href="https://github.com/Thoralf-M/iota-utils" target="_blank" rel="noopener noreferrer"

@@ -1,6 +1,6 @@
 import type { IotaTransactionBlockResponseOptions } from '@iota/iota-sdk/client';
 import type { Transaction } from '@iota/iota-sdk/transactions';
-import type { IotaSignAndExecuteTransactionInput, WalletAccount } from '@iota/wallet-standard';
+import type { WalletAccount } from '@iota/wallet-standard';
 import { get, writable, type Writable } from 'svelte/store';
 
 import { PrivateKeyWallet, toWalletAccounts } from './default-private-keys';
@@ -18,7 +18,6 @@ export abstract class WalletSigner {
 }
 
 export let iota_wallets: Writable<WalletSigner[]> = writable([]);
-// not needed? Just create WalletAccount for signAndExecuteTransaction
 export let iota_accounts: Writable<WalletAccount[]> = writable([]);
 export let activeAddress: Writable<string> = writable('0x');
 
