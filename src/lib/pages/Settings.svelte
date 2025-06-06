@@ -19,7 +19,7 @@
 </script>
 
 <main>
-    Data is stored in your browser's local storage.
+    Data is stored in your browser's local storage and can be deleted at any time.
 
     <div style="flex-direction: column; display: flex; gap: 1rem;">
         <details style=" margin: 1rem;">
