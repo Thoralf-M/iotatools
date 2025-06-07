@@ -33,3 +33,33 @@ function formatBigIntWithDecimal(bigint: BigInt, decimalPlaces: number): string 
 export const nanoToIota = (nano: string): string => {
     return formatBigIntWithDecimal(BigInt(nano.replace(/_/g, '')), IOTA_DECIMALS);
 };
+
+export function formatNumbersWithUnderscores(obj: object): any {
+    // Helper function to add _ as a thousands separator
+    function formatNumber(n: any) {
+        return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '_');
+    }
+
+    // Recursively process the object
+    function process(value: object): object {
+        if (Array.isArray(value)) {
+            return value.map(process);
+        } else if (value !== null && typeof value === 'object') {
+            const newObj = {};
+            for (const key in value) {
+                // @ts-ignore
+                newObj[key] = process(value[key]);
+            }
+            return newObj;
+        } else if (
+            typeof value === 'number' ||
+            (typeof value === 'string' && /^\d+$/.test(value))
+        ) {
+            return formatNumber(value);
+        } else {
+            return value;
+        }
+    }
+
+    return process(obj);
+}

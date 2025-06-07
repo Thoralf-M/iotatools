@@ -3,6 +3,7 @@
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
     import { getClient } from '../lib/client';
+    import { formatNumbersWithUnderscores } from '../lib/iota-nano-conversion';
 
     let value = {};
     let apiVersion = '';
@@ -186,35 +187,6 @@
         delete validator.staking_pool.fields.exchange_rates;
         delete validator.staking_pool.fields.extra_fields;
         delete validator.staking_pool.fields.id;
-    }
-    function formatNumbersWithUnderscores(obj: object): any {
-        // Helper function to add _ as a thousands separator
-        function formatNumber(n: any) {
-            return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '_');
-        }
-
-        // Recursively process the object
-        function process(value: object): object {
-            if (Array.isArray(value)) {
-                return value.map(process);
-            } else if (value !== null && typeof value === 'object') {
-                const newObj = {};
-                for (const key in value) {
-                    // @ts-ignore
-                    newObj[key] = process(value[key]);
-                }
-                return newObj;
-            } else if (
-                typeof value === 'number' ||
-                (typeof value === 'string' && /^\d+$/.test(value))
-            ) {
-                return formatNumber(value);
-            } else {
-                return value;
-            }
-        }
-
-        return process(obj);
     }
 </script>
 
