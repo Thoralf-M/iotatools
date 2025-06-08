@@ -15,7 +15,7 @@
     import { executeTransaction } from '../lib/transaction-execution';
 
     let validatorAddress = '0x111111111504e9350e635d65cd38ccd2c029434c6a3a480d8947a9ba6a15b215';
-    const minStakeAmount = 1_000_000_000;
+    const minStakeAmount = 2_000_000_000;
     let amount = minStakeAmount;
     // Will be updated with the result
     let value = {};
@@ -55,6 +55,46 @@
             console.error(err);
         }
     };
+    async function unstakeSingle() {
+        try {
+            const client = getClient();
+            let obj = await client.getObject({
+                id: stakedIotaObjectId,
+                options: { showContent: true },
+            });
+            let target;
+            // @ts-ignore
+            if (obj.data?.content?.type === '0x3::staking_pool::StakedIota') {
+                target = '0x3::iota_system::request_withdraw_stake';
+            }
+            // @ts-ignore
+            if (obj.data?.content?.type === '0x3::timelocked_staking::TimelockedStakedIota') {
+                target = '0x3::timelocked_staking::request_withdraw_stake';
+            }
+
+            if (!target) {
+                throw new Error('No staked IOTA object: ' + stakedIotaObjectId);
+            }
+
+            const tx = new Transaction();
+            tx.moveCall({
+                target,
+                arguments: [
+                    tx.sharedObjectRef({
+                        objectId: IOTA_SYSTEM_STATE_OBJECT_ID,
+                        initialSharedVersion: 1,
+                        mutable: true,
+                    }),
+                    tx.object(stakedIotaObjectId),
+                ],
+            });
+
+            value = await executeTransaction(tx);
+        } catch (err: any) {
+            value = err.toString();
+            console.error(err);
+        }
+    }
     async function computeRewards(stakedIotaObjectId: string) {
         try {
             let stakeData = await devInspectStakedObject(stakedIotaObjectId);
@@ -62,6 +102,85 @@
             devInspectValue = stakeData;
         } catch (err: any) {
             devInspectValue = err.toString();
+            console.error(err);
+        }
+    }
+    async function unstakeSpecificAmountSimulation(stakedIotaObjectId: string) {
+        try {
+            let stakeData = await devInspectStakedObject(stakedIotaObjectId);
+
+            let unstakeTargetAmount = BigInt(amount);
+            let initialStaked = BigInt(stakeData.initialStakedAmount);
+            let rewards = BigInt(stakeData.rewards);
+
+            let unstakeAmount = (unstakeTargetAmount * initialStaked) / (initialStaked + rewards);
+            unstakeAmount = unstakeAmount - BigInt(300);
+            let results = [];
+            for (let i = 0; i < 15; i++) {
+                unstakeAmount = unstakeAmount + BigInt(i * 10);
+                const tx = new Transaction();
+                let splitStakedIota = tx.moveCall({
+                    target: '0x3::staking_pool::split',
+                    arguments: [tx.object(stakedIotaObjectId), tx.pure.u64(unstakeAmount)],
+                });
+                let [unstakedBalanceWithRewards] = tx.moveCall({
+                    target: '0x3::iota_system::request_withdraw_stake_non_entry',
+                    arguments: [tx.object('0x5'), splitStakedIota],
+                });
+                let [coin] = tx.moveCall({
+                    target: '0x2::coin::from_balance',
+                    arguments: [unstakedBalanceWithRewards!],
+                    typeArguments: ['0x2::iota::IOTA'],
+                });
+                tx.transferObjects([coin], tx.pure.address($activeAddress));
+
+                let txRes = await getClient().devInspectTransactionBlock({
+                    sender: $activeAddress,
+                    transactionBlock: tx,
+                });
+                // @ts-ignore
+                let amountBytes = txRes.results[1].returnValues[0][0];
+                let amountString = bcs.u64().parse(new Uint8Array(amountBytes));
+                results.push(
+                    `Unstake amount: ${unstakeAmount.toString()}, would result in: ${amountString} for target amount: ${unstakeTargetAmount}`,
+                );
+            }
+
+            value = results;
+        } catch (err: any) {
+            value = err.toString();
+            console.error(err);
+        }
+    }
+    async function unstakeSpecificAmount(stakedIotaObjectId: string) {
+        try {
+            let stakeData = await devInspectStakedObject(stakedIotaObjectId);
+
+            let unstakeTargetAmount = BigInt(amount);
+            let initialStaked = BigInt(stakeData.initialStakedAmount);
+            let rewards = BigInt(stakeData.rewards);
+
+            let unstakeAmount = (unstakeTargetAmount * initialStaked) / (initialStaked + rewards);
+            unstakeAmount = unstakeAmount;
+            const tx = new Transaction();
+            let splitStakedIota = tx.moveCall({
+                target: '0x3::staking_pool::split',
+                arguments: [tx.object(stakedIotaObjectId), tx.pure.u64(unstakeAmount)],
+            });
+            let [unstakedBalanceWithRewards] = tx.moveCall({
+                target: '0x3::iota_system::request_withdraw_stake_non_entry',
+                arguments: [tx.object('0x5'), splitStakedIota],
+            });
+            let [coin] = tx.moveCall({
+                target: '0x2::coin::from_balance',
+                arguments: [unstakedBalanceWithRewards!],
+                typeArguments: ['0x2::iota::IOTA'],
+            });
+            tx.transferObjects([coin], tx.pure.address($activeAddress));
+
+            value = await executeTransaction(tx);
+        } catch (err: any) {
+            value = err.toString();
             console.error(err);
         }
     }
@@ -302,6 +421,7 @@
 
 <main>
     <button on:click={() => listStakedIota()}> list staked IOTA </button>
+    <br />
     <span>
         staked object id:
         <input
@@ -329,14 +449,14 @@
     </span>
     <br />
     <span>
-        amount (min 1 IOTA):
+        amount (min 1 IOTA, to unstake with rewards even more):
         <input type="number" bind:value={amount} placeholder="amount in NANO" min="1000000000" />
         <input
             type="number"
-            value={(amount / minStakeAmount).toFixed(9)}
+            value={(amount / 1_000_000_000).toFixed(9)}
             on:input={(e) => {
                 // @ts-ignore
-                amount = e.target.value * minStakeAmount;
+                amount = e.target.value * 1_000_000_000;
             }}
             placeholder="amount in IOTA"
             min="1"
@@ -345,7 +465,14 @@
     <br />
 
     <button on:click={() => stake()}> stake </button>
+    <button on:click={() => unstakeSingle()}> unstake single object </button>
     <button on:click={() => unstakeAll()}> unstake all </button>
+    <button on:click={() => unstakeSpecificAmountSimulation(stakedIotaObjectId)}>
+        simulate unstake specific amount
+    </button>
+    <button on:click={() => unstakeSpecificAmount(stakedIotaObjectId)}>
+        unstake specific amount (exact is usually not possible)
+    </button>
 
     <hr />
     <button
