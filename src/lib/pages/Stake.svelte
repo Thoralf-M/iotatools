@@ -10,7 +10,10 @@
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
     import { getClient } from '../lib/client';
-    import { formatNumbersWithUnderscores } from '../lib/iota-nano-conversion';
+    import {
+        formatNumbersWithUnderscores,
+        formatNumberWithUnderscores,
+    } from '../lib/iota-nano-conversion';
     import { activeAddress } from '../lib/signer-data';
     import { executeTransaction } from '../lib/transaction-execution';
 
@@ -107,43 +110,62 @@
     }
     async function unstakeSpecificAmountSimulation(stakedIotaObjectId: string) {
         try {
-            let stakeData = await devInspectStakedObject(stakedIotaObjectId);
+            let { amount: initialUnstakeAmount, timelocked } =
+                await computeRequiredUnstakeAmount(stakedIotaObjectId);
 
-            let unstakeTargetAmount = BigInt(amount);
-            let initialStaked = BigInt(stakeData.initialStakedAmount);
-            let rewards = BigInt(stakeData.rewards);
-
-            let unstakeAmount = (unstakeTargetAmount * initialStaked) / (initialStaked + rewards);
-            unstakeAmount = unstakeAmount - BigInt(300);
             let results = [];
-            for (let i = 0; i < 15; i++) {
-                unstakeAmount = unstakeAmount + BigInt(i * 10);
-                const tx = new Transaction();
-                let splitStakedIota = tx.moveCall({
-                    target: '0x3::staking_pool::split',
-                    arguments: [tx.object(stakedIotaObjectId), tx.pure.u64(unstakeAmount)],
-                });
-                let [unstakedBalanceWithRewards] = tx.moveCall({
-                    target: '0x3::iota_system::request_withdraw_stake_non_entry',
-                    arguments: [tx.object('0x5'), splitStakedIota],
-                });
-                let [coin] = tx.moveCall({
-                    target: '0x2::coin::from_balance',
-                    arguments: [unstakedBalanceWithRewards!],
-                    typeArguments: ['0x2::iota::IOTA'],
-                });
-                tx.transferObjects([coin], tx.pure.address($activeAddress));
+            const amountDifferences = [
+                -1_000_000_000n,
+                -1000n,
+                -500n,
+                -100n,
+                -50n,
+                -10n,
+                -5n,
+                -2n,
+                -1n,
+                0n,
+                1n,
+                2n,
+                5n,
+                10n,
+                50n,
+                100n,
+                500n,
+                1000n,
+                1_000_000_000n,
+                10_000_000_000n,
+                1000_000_000_000n,
+            ];
+            for (let diff of amountDifferences) {
+                let unstakeAmount = initialUnstakeAmount + diff;
+                let tx = await buildSingleObjectUnstakeTransaction(
+                    stakedIotaObjectId,
+                    unstakeAmount,
+                    timelocked,
+                );
 
                 let txRes = await getClient().devInspectTransactionBlock({
                     sender: $activeAddress,
                     transactionBlock: tx,
                 });
+                if (txRes.error) {
+                    results.push(txRes.error);
+                    continue;
+                }
+
+                let index = timelocked ? 1 : 0;
                 // @ts-ignore
-                let amountBytes = txRes.results[1].returnValues[0][0];
+                let amountBytes = txRes.results[1].returnValues[index][0];
                 let amountString = bcs.u64().parse(new Uint8Array(amountBytes));
-                results.push(
-                    `Unstake amount: ${unstakeAmount.toString()}, would result in: ${amountString} for target amount: ${unstakeTargetAmount}`,
-                );
+
+                let resString = `Unstake amount with ${diff.toString().padStart(12, ' ')}: ${formatNumberWithUnderscores(unstakeAmount)}, would result in: ${formatNumberWithUnderscores(amountString)} for target amount: ${formatNumberWithUnderscores(amount)}`;
+                if (unstakeAmount == initialUnstakeAmount) {
+                    results.push(resString + ' this would be used');
+                } else {
+                    results.push(resString);
+                }
+                value = results;
             }
 
             value = results;
@@ -152,31 +174,94 @@
             console.error(err);
         }
     }
-    async function unstakeSpecificAmount(stakedIotaObjectId: string) {
-        try {
-            let stakeData = await devInspectStakedObject(stakedIotaObjectId);
-
-            let unstakeTargetAmount = BigInt(amount);
-            let initialStaked = BigInt(stakeData.initialStakedAmount);
-            let rewards = BigInt(stakeData.rewards);
-
-            let unstakeAmount = (unstakeTargetAmount * initialStaked) / (initialStaked + rewards);
-            unstakeAmount = unstakeAmount;
-            const tx = new Transaction();
-            let splitStakedIota = tx.moveCall({
-                target: '0x3::staking_pool::split',
-                arguments: [tx.object(stakedIotaObjectId), tx.pure.u64(unstakeAmount)],
+    async function buildSingleObjectUnstakeTransaction(
+        stakedIotaObjectId: string,
+        unstakeAmount: bigint,
+        timelocked: boolean = false,
+    ): Promise<Transaction> {
+        const tx = new Transaction();
+        let splitStakedIota = tx.moveCall({
+            target: timelocked ? '0x3::timelocked_staking::split' : '0x3::staking_pool::split',
+            arguments: [tx.object(stakedIotaObjectId), tx.pure.u64(unstakeAmount)],
+        });
+        let unstakedBalanceWithRewards;
+        if (timelocked) {
+            let [timelock, balance] = tx.moveCall({
+                target: '0x3::timelocked_staking::request_withdraw_stake_non_entry',
+                arguments: [tx.object('0x5'), tx.object(splitStakedIota)],
             });
-            let [unstakedBalanceWithRewards] = tx.moveCall({
+            tx.moveCall({
+                target: '0x2::timelock::transfer_to_sender',
+                arguments: [timelock],
+                typeArguments: ['0x2::balance::Balance<0x2::iota::IOTA>'],
+            });
+            unstakedBalanceWithRewards = balance;
+        } else {
+            let [balance] = tx.moveCall({
                 target: '0x3::iota_system::request_withdraw_stake_non_entry',
                 arguments: [tx.object('0x5'), splitStakedIota],
             });
-            let [coin] = tx.moveCall({
-                target: '0x2::coin::from_balance',
-                arguments: [unstakedBalanceWithRewards!],
-                typeArguments: ['0x2::iota::IOTA'],
-            });
-            tx.transferObjects([coin], tx.pure.address($activeAddress));
+            unstakedBalanceWithRewards = balance;
+        }
+        let [coin] = tx.moveCall({
+            target: '0x2::coin::from_balance',
+            arguments: [unstakedBalanceWithRewards!],
+            typeArguments: ['0x2::iota::IOTA'],
+        });
+        tx.transferObjects([coin], tx.pure.address($activeAddress));
+        return tx;
+    }
+    interface RequiredUnstakeAmount {
+        amount: bigint;
+        timelocked: boolean;
+    }
+    async function computeRequiredUnstakeAmount(
+        stakedIotaObjectId: string,
+    ): Promise<RequiredUnstakeAmount> {
+        let stakeData = await devInspectStakedObject(stakedIotaObjectId);
+
+        let obj = await getClient().getObject({
+            id: stakedIotaObjectId,
+            options: { showContent: true },
+        });
+
+        let timelocked = false;
+        // @ts-ignore
+        if (obj.data?.content?.type === '0x3::timelocked_staking::TimelockedStakedIota') {
+            timelocked = true;
+        }
+        // @ts-ignore
+        if (!timelocked && obj.data?.content?.type != '0x3::staking_pool::StakedIota') {
+            throw new Error('No staked IOTA object: ' + stakedIotaObjectId);
+        }
+
+        let initialStaked = BigInt(stakeData.initialStakedAmount);
+        let rewards = BigInt(stakeData.rewards);
+        if (rewards === 0n) throw new Error('No rewards available to withdraw.');
+
+        let initialUnstakeAmount: bigint;
+        if (timelocked) {
+            initialUnstakeAmount = (BigInt(amount) * initialStaked + rewards - 1n) / rewards;
+        } else {
+            initialUnstakeAmount =
+                (BigInt(amount) * initialStaked + (initialStaked + rewards - 1n)) /
+                (initialStaked + rewards);
+        }
+        return {
+            amount: initialUnstakeAmount,
+            timelocked,
+        };
+    }
+    async function unstakeSpecificAmount(stakedIotaObjectId: string) {
+        try {
+            let { amount: initialUnstakeAmount, timelocked } =
+                await computeRequiredUnstakeAmount(stakedIotaObjectId);
+
+            let tx = await buildSingleObjectUnstakeTransaction(
+                stakedIotaObjectId,
+                initialUnstakeAmount,
+                timelocked,
+            );
 
             value = await executeTransaction(tx);
         } catch (err: any) {
@@ -357,6 +442,7 @@
         | {
               stakedIota: DelegatedStake[];
               timelockedStakedIota: DelegatedTimelockedStake[];
+              totalRewards: string;
           }
         | undefined
     > {
@@ -365,6 +451,8 @@
             const stakedIota = await client.getStakes({
                 owner: $activeAddress,
             });
+            let totalRewards = BigInt(0);
+
             const timelockedStakedIota = await client.getTimelockedStakes({
                 owner: $activeAddress,
             });
@@ -380,7 +468,8 @@
             for (let delegatedStake of stakedIota) {
                 for (let stake of delegatedStake.stakes) {
                     let stakeData = await devInspectStakedObject(stake.stakedIotaId);
-                    // @ts-ignore // TODO: add field to type?
+                    totalRewards += BigInt(stakeData.rewards);
+                    // @ts-ignore
                     stake.actualRewards = stakeData.rewards;
                     let formattedStake = formatNumbersWithUnderscores(stake);
                     for (const key in formattedStake) {
@@ -395,7 +484,8 @@
                     let stakeData = await devInspectStakedObject(
                         timelockedStake.timelockedStakedIotaId,
                     );
-                    // @ts-ignore // TODO: add field to type?
+                    totalRewards += BigInt(stakeData.rewards);
+                    // @ts-ignore
                     timelockedStake.actualRewards = stakeData.rewards;
                     let formattedTimelockedStake = formatNumbersWithUnderscores(timelockedStake);
                     for (const key in formattedTimelockedStake) {
@@ -408,6 +498,7 @@
             let res = {
                 stakedIota,
                 timelockedStakedIota,
+                totalRewards: formatNumberWithUnderscores(totalRewards),
             };
             value = res;
 

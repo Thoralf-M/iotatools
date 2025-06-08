@@ -34,12 +34,12 @@ export const nanoToIota = (nano: string): string => {
     return formatBigIntWithDecimal(BigInt(nano.replace(/_/g, '')), IOTA_DECIMALS);
 };
 
-export function formatNumbersWithUnderscores(obj: object): any {
-    // Helper function to add _ as a thousands separator
-    function formatNumber(n: any) {
-        return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '_');
-    }
+// Add _ as a thousands separator
+export function formatNumberWithUnderscores(n: any) {
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '_');
+}
 
+export function formatNumbersWithUnderscores(obj: object): any {
     // Recursively process the object
     function process(value: object): object {
         if (Array.isArray(value)) {
@@ -55,7 +55,7 @@ export function formatNumbersWithUnderscores(obj: object): any {
             typeof value === 'number' ||
             (typeof value === 'string' && /^\d+$/.test(value))
         ) {
-            return formatNumber(value);
+            return formatNumberWithUnderscores(value);
         } else {
             return value;
         }
