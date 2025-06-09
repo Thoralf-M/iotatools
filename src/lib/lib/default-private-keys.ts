@@ -16,15 +16,34 @@ export interface PrivateKeyAccount {
     bech32PrivateKey: string;
     address: string;
     label?: string;
+    mnemonic?: string;
 }
 
 export const defaultPrivateKeyAccounts: PrivateKeyAccounts = {
     accounts: {
-        '0x689dae2f77b048dcc08e14d73104ea14222b5be14cc31f34a16a1221f944c1e3': {
+        '0x0000a4984bd495d4346fa208ddff4f5d5e5ad48c21dec631ddebc99809f16900': {
             bech32PrivateKey:
-                'iotaprivkey1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqgfjx8t',
-            address: '0x689dae2f77b048dcc08e14d73104ea14222b5be14cc31f34a16a1221f944c1e3',
-            label: 'Default Account',
+                'iotaprivkey1qq5eupu4xulxuuf904vjdcwcet0842m9vcjmdng5lt0k25uac6l2x0zczeh',
+            address: '0x0000a4984bd495d4346fa208ddff4f5d5e5ad48c21dec631ddebc99809f16900',
+            label: 'Default Account 0',
+            mnemonic:
+                'cook robust sound vote gap elite confirm party music mobile fossil history during gesture gauge flat salt female flag dash industry caution stool bulb',
+        },
+        '0x111173a14c3d402c01546c54265c30cc04414c7b7ec1732412bb19066dd49d11': {
+            bech32PrivateKey:
+                'iotaprivkey1qr9jaf9lywvg8uxwxcec4vqcfqlv3k4z497lqnjntwewprv573lw26wska5',
+            address: '0x111173a14c3d402c01546c54265c30cc04414c7b7ec1732412bb19066dd49d11',
+            label: 'Default Account 1',
+            mnemonic:
+                'glance old lottery ask thank resemble viable celery ankle measure stairs radar radio february maple safe umbrella doctor stuff outside nominee law edit place',
+        },
+        '0x2222b466a24399ebcf5ec0f04820812ae20fea1037c736cfec608753aa38b522': {
+            bech32PrivateKey:
+                'iotaprivkey1qrl3rcyrgzur5830wzeklgpsam7qqk4gph8jcqx9ug6ghek7k8zkzpmy5m8',
+            address: '0x2222b466a24399ebcf5ec0f04820812ae20fea1037c736cfec608753aa38b522',
+            label: 'Default Account 2',
+            mnemonic:
+                'airport easily dignity glove guide because baby shop average camera pledge bonus plug illness junior sell volume nose power derive slight provide cradle hat',
         },
     },
 };
