@@ -26,6 +26,7 @@
     }
 
     let extendedAccounts: ExtendedAccount[] = $state([]);
+    let allAccountsTotalBalance = $state(0);
 
     const syncReset = async () => {
         try {
@@ -39,6 +40,30 @@
                 };
             });
             await getObjects();
+            allAccountsTotalBalance = 0;
+            for (let account of extendedAccounts) {
+                allAccountsTotalBalance += account.objects.reduce((acc, obj) => {
+                    let amountToAdd = 0;
+                    if (obj.data.content.fields?.balance) {
+                        amountToAdd = Number(nanoToIota(obj.data.content.fields.balance));
+                    } else if (obj.data.content.fields?.principal) {
+                        amountToAdd = Number(nanoToIota(obj.data.content.fields.principal));
+                    }
+                    return acc + amountToAdd;
+                }, 0);
+
+                allAccountsTotalBalance += account.timelockedObjects.reduce((acc, obj) => {
+                    let amountToAdd = 0;
+                    if (obj.data.content.fields?.locked) {
+                        amountToAdd = Number(nanoToIota(obj.data.content.fields?.locked));
+                    } else if (obj.data.content.fields?.staked_iota?.fields?.principal) {
+                        amountToAdd = Number(
+                            nanoToIota(obj.data.content.fields.staked_iota.fields.principal),
+                        );
+                    }
+                    return acc + amountToAdd;
+                }, 0);
+            }
         } catch (err: any) {
             value = err.toString();
             console.error(err);
@@ -280,13 +305,42 @@
 
     <JsonToggleView {value} />
 
+    <br />
+    <div style="text-align:left">Balance of all accounts: {allAccountsTotalBalance} IOTA</div>
+
     <div class="grid">
         {#each extendedAccounts as account (account.id)}
             <div class="account">
-                <div>
+                <div class="accountHeader">
                     {account.label ||
-                        account.address.slice(0, 6) + '...' + account.address.slice(-4)}
+                        account.address.slice(0, 6) + '...' + account.address.slice(-4)}: {account.objects.reduce(
+                        (acc, obj) => {
+                            let amountToAdd = 0;
+                            if (obj.data.content.fields?.balance) {
+                                amountToAdd = Number(nanoToIota(obj.data.content.fields.balance));
+                            } else if (obj.data.content.fields?.principal) {
+                                amountToAdd = Number(nanoToIota(obj.data.content.fields.principal));
+                            }
+                            return acc + amountToAdd;
+                        },
+                        0,
+                    ) +
+                        account.timelockedObjects.reduce((acc, obj) => {
+                            let amountToAdd = 0;
+                            if (obj.data.content.fields?.locked) {
+                                amountToAdd = Number(nanoToIota(obj.data.content.fields?.locked));
+                            } else if (obj.data.content.fields?.staked_iota?.fields?.principal) {
+                                amountToAdd = Number(
+                                    nanoToIota(
+                                        obj.data.content.fields.staked_iota.fields.principal,
+                                    ),
+                                );
+                            }
+                            return acc + amountToAdd;
+                        }, 0) +
+                        ' IOTA'}
                 </div>
+                <div style="text-align: left;">Owned objects ({account.objects.length}):</div>
                 <div
                     use:dragHandleZone={{
                         items: account.objects,
@@ -295,9 +349,10 @@
                     onconsider={handleDnd}
                     onfinalize={handleDnd}
                     class={account.id}
+                    style="max-height: 300px; overflow-y: auto;"
                 >
                     {#each account.objects as item (item.id)}
-                        <div style="border: 1px solid #525252;">
+                        <div style="border-top: 1px solid #525252;">
                             <div
                                 use:dragHandle
                                 class="handle"
@@ -353,7 +408,7 @@
                         <details>
                             <summary style="color: #ff9991;">Timelocked objects</summary>
                             {#each account.timelockedObjects as item (item.id)}
-                                <div style="border: 1px solid #525252;">
+                                <div style="border-top: 1px solid #525252;">
                                     <span style="word-break: break-all;">
                                         {#if item.label.startsWith('Coin<0x2::iota::IOTA>')}
                                             {item.label}: {nanoToIota(
@@ -417,8 +472,15 @@
     }
     .account {
         border: 2px solid #535353;
-        width: 400px;
-        min-height: 350px;
+        border-radius: 12px;
+        background-color: #1b2021;
+        max-width: 500px;
+    }
+    .accountHeader {
+        border-radius: 12px 12px 0 0;
+        font-weight: bold;
+        color: #ffffff;
+        background-color: rgb(35, 63, 63);
     }
     .handle {
         background-color: #232324;
