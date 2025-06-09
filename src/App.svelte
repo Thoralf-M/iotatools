@@ -40,12 +40,9 @@
 </script>
 
 <main>
-    <span
-        style="z-index: 1000;
-    position: absolute;
-    left: 0.5rem;
-    top: 0.5rem;">This website is experimental, use at your own risk.</span
-    >
+    <div style="text-align: left; margin-left: -1rem; margin-top: -1.5rem;">
+        Experimental website, use at your own risk.
+    </div>
     <Options />
     <Signer />
     <Tabs {items} />
