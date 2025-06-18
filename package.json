@@ -27,6 +27,7 @@
         "@codemirror/lang-javascript": "^6.2.3",
         "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
         "@iota/bcs": "^1.0.0",
+        "@iota/graphql-transport": "^0.6.0",
         "@iota/iota-sdk": "^1.0.0",
         "@iota/ledgerjs-hw-app-iota": "^0.2.2",
         "@iota/wallet-standard": "^0.2.1",

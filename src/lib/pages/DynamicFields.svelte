@@ -1,0 +1,942 @@
+<script lang="ts">
+    import type { BcsType } from '@iota/bcs';
+    import { bcs } from '@iota/iota-sdk/bcs';
+    import { IotaGraphQLClient, type GraphQLQueryResult } from '@iota/iota-sdk/graphql';
+    import { graphql, type MoveTypeLayout } from '@iota/iota-sdk/graphql/schemas/2025.2';
+    import { toB64 } from '@iota/iota-sdk/utils';
+    import { writable } from 'svelte/store';
+    import { untrack } from 'svelte';
+
+    import JsonToggleView from '../components/JsonToggleView.svelte';
+    import { getSelectedNetworkConfig } from '../lib/client';
+
+    let objectId = $state('0x35af1c0c5d8ee4878b2686a35639eba6a830c8a99e2e126df560265122bd6c9c');
+    let dynamicFields: any = $state(null);
+    let error: string = $state('');
+    let loading = $state(false);
+    let endCursor: string | null = null;
+    let hasNextPage: boolean = $state(false);
+    let pageSize: number = $state(10);
+
+    let fieldType: string = $state('bool');
+    let fieldBcs: string = $state('AA==');
+    let dynamicFieldResult: any = $state(null);
+    let dynamicObjectFieldResult: any = $state(null);
+    let fieldError: string = $state('');
+    let fieldLoading: boolean = $state(false);
+
+    let bcsInputMode: 'base64' | 'json' = $state('json');
+    let fieldStructType: string = $state('Bool');
+
+    interface StructDefinition {
+        name: string;
+        fieldType: string;
+        layout: any; // JSON representation of the layout
+        value: string;
+    }
+
+    let structDefinitions: StructDefinition[] = $state([
+        {
+            name: 'VectorU8',
+            fieldType: 'vector<u8>',
+            layout: {
+                vector: 'u8'
+            },
+            value: '[118,101,99,95,117,56,95,107,101,121]',
+        },
+        {
+            name: 'Bool',
+            fieldType: 'bool',
+            layout: 'bool',
+            value: 'true',
+        },
+        {
+            name: 'U8',
+            fieldType: 'u8',
+            layout: 'u8',
+            value: '42',
+        },
+        {
+            name: 'U32',
+            fieldType: 'u32',
+            layout: 'u32',
+            value: '42',
+        },
+        {
+            name: 'StringStruct',
+            fieldType: '0x1::string::String',
+            layout: {
+                struct: {
+                    type: '0x1::string::String',
+                    fields: [
+                        {
+                            name: 'bytes',
+                            layout: { vector: 'u8' }
+                        }
+                    ]
+                }
+            },
+            value: '"string_key"',
+        },
+        {
+            name: 'StructWithDummyField',
+            fieldType:
+                '0x25ee69608c70f9d614790e8a46aa32c18798c4fa9cfc20e5dd0ec1f7505bd5ef::dynamic_fields::StructWithoutFieldKey',
+            layout: {
+                struct: {
+                    type: '0x25ee69608c70f9d614790e8a46aa32c18798c4fa9cfc20e5dd0ec1f7505bd5ef::dynamic_fields::StructWithoutFieldKey',
+                    fields: [
+                        {
+                            name: 'dummy_field',
+                            layout: 'bool'
+                        }
+                    ]
+                }
+            },
+            value: '{"dummy_field": false}',
+        },
+        {
+            name: 'Domain',
+            fieldType:
+                '0x3ec4826f1d6e0d9f00680b2e9a7a41f03788ee610b3d11c24f41ab0ae71da39f::domain::Domain',
+            layout: {
+                struct: {
+                    type: '0x3ec4826f1d6e0d9f00680b2e9a7a41f03788ee610b3d11c24f41ab0ae71da39f::domain::Domain',
+                    fields: [
+                        {
+                            name: 'labels',
+                            layout: {
+                                vector: {
+                                    struct: {
+                                        type: '0x1::string::String',
+                                        fields: [
+                                            {
+                                                name: 'bytes',
+                                                layout: { vector: 'u8' }
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            value: '{"labels": ["iota", "name"]}',
+        },
+    ]);
+
+    let selectedStructJson = $state('');
+    let structsError = $state('');
+    let isUpdatingFromSelection = false;
+
+    // Initialize on load
+    $effect(() => {
+        if (!selectedStructJson) {
+            updateSelectedStructJson();
+        }
+    });
+
+    // Initialize the selected struct JSON
+    function updateSelectedStructJson() {
+        if (isUpdatingFromSelection) return;
+        const selected = getSelectedStruct();
+        if (selected) {
+            isUpdatingFromSelection = true;
+            try {
+                // Try to parse the value as JSON, fall back to treating it as a string
+                let valueObj;
+                try {
+                    valueObj = JSON.parse(selected.value);
+                } catch {
+                    // If parsing fails, treat as a string (shouldn't happen with our data structure)
+                    valueObj = selected.value;
+                }
+
+                selectedStructJson = JSON.stringify(
+                    {
+                        name: selected.name,
+                        fieldType: selected.fieldType,
+                        layout: selected.layout,
+                        value: valueObj,
+                    },
+                    null,
+                    2,
+                );
+            } catch (e) {
+                console.error('Error updating selected struct JSON:', e);
+                selectedStructJson = JSON.stringify(
+                    {
+                        name: selected.name,
+                        fieldType: selected.fieldType,
+                        layout: {},
+                        value: {},
+                    },
+                    null,
+                    2,
+                );
+            }
+            isUpdatingFromSelection = false;
+        }
+    }
+
+    // Update when selection changes
+    $effect(() => {
+        fieldStructType; // Track the dependency
+        updateSelectedStructJson();
+    });
+
+    // Update fieldType when struct selection changes
+    $effect(() => {
+        const selected = getSelectedStruct();
+        if (selected && selected.fieldType) {
+            fieldType = selected.fieldType;
+        }
+    });
+
+    function getBcsBase64(): string {
+        if (bcsInputMode === 'base64') {
+            return fieldBcs;
+        }
+        try {
+            const struct = getSelectedStruct();
+            if (!struct) throw new Error('Unknown struct type');
+            const json = JSON.parse(struct.value);
+            
+            // Convert the JSON layout to BCS schema using layoutToBcs
+            const bcsSchema = layoutToBcs(struct.layout);
+            return toB64(bcsSchema.serialize(json).toBytes());
+        } catch (e) {
+            fieldError = 'BCS serialization error: ' + e;
+            return '';
+        }
+    }
+
+    async function queryDynamicFields(cursor?: string) {
+        error = '';
+        if (!cursor) {
+            dynamicFields = [];
+            endCursor = null;
+        }
+        loading = true;
+        try {
+            const gqlClient = new IotaGraphQLClient({
+                url: getSelectedNetworkConfig().graphql,
+            });
+            const cursorSection = cursor
+                ? `(first: ${pageSize}, after: \"${cursor}\")`
+                : `(first: ${pageSize})`;
+            const objectQuery = `query ($address: IotaAddress!) {
+            owner(address: $address) {
+                dynamicFields${cursorSection} {
+                    nodes {
+                        name { type { repr }, json }
+                        value {
+                            ... on MoveValue { json }
+                            ... on MoveObject {
+                              contents {
+                                type {
+                                  repr
+                                }
+                                json
+                              }
+                            }
+                        }
+                    }
+                    pageInfo { hasNextPage endCursor }
+                }
+            }
+        }`;
+            let result: GraphQLQueryResult = await gqlClient.query({
+                query: graphql(objectQuery),
+                variables: { address: objectId },
+            });
+            if (result.errors) {
+                error = JSON.stringify(result.errors, null, 2);
+            } else {
+                const nodes = (result.data as any)?.owner?.dynamicFields?.nodes ?? [];
+                if (cursor) {
+                    dynamicFields = [...dynamicFields, ...nodes];
+                } else {
+                    dynamicFields = nodes;
+                    // If we have elements and this is the first query (not pagination),
+                    // update fieldType with the first element's type repr
+                    if (nodes.length > 0 && nodes[0]?.name?.type?.repr) {
+                        fieldType = nodes[0].name.type.repr;
+                    }
+                }
+                hasNextPage = (result.data as any)?.owner?.dynamicFields?.pageInfo?.hasNextPage;
+                endCursor = (result.data as any)?.owner?.dynamicFields?.pageInfo?.endCursor;
+            }
+        } catch (e: any) {
+            error = e.message || String(e);
+        }
+        loading = false;
+    }
+
+    function loadMore() {
+        if (hasNextPage && endCursor) {
+            queryDynamicFields(endCursor);
+        }
+    }
+
+    async function getLayoutsAndBcsValues() {
+        if (!dynamicFields || dynamicFields.length === 0) return;
+
+        loading = true;
+        error = '';
+
+        try {
+            const gqlClient = new IotaGraphQLClient({
+                url: getSelectedNetworkConfig().graphql,
+            });
+
+            // Process each dynamic field
+            const updatedFields = await Promise.all(
+                dynamicFields.map(async (field: any) => {
+                    try {
+                        const fieldType = field.name?.type?.repr;
+                        if (!fieldType) {
+                            return { ...field, error: 'No type information available' };
+                        }
+
+                        // Get the move layout for this field type
+                        const query = `query getLayout($type: String!) {
+                            type(type: $type) {
+                                layout
+                            }
+                        }`;
+
+                        const result = await gqlClient.query({
+                            query: graphql(query),
+                            variables: { type: fieldType },
+                        });
+
+                        if (result.errors) {
+                            return { ...field, error: JSON.stringify(result.errors) };
+                        }
+
+                        const typeResult = (result.data as any)?.type;
+                        if (!typeResult || !typeResult.layout) {
+                            return { ...field, error: 'Layout not found for this type' };
+                        }
+
+                        const moveLayout = typeResult.layout;
+
+                        // Compute BCS value using the layout and existing field value
+                        let bcsValue = null;
+                        let bcsError = null;
+
+                        try {
+                            if (field.name?.json) {
+                                // field.name.json is already a parsed object, not a JSON string
+                                const jsonValue = field.name.json;
+                                bcsValue = mapJsonToBcs(jsonValue, moveLayout);
+                            }
+                        } catch (e) {
+                            bcsError = `BCS computation error: ${e}`;
+                        }
+
+                        return {
+                            ...field,
+                            moveLayout,
+                            bcsValue,
+                            bcsError,
+                        };
+                    } catch (e) {
+                        return { ...field, error: `Processing error: ${e}` };
+                    }
+                }),
+            );
+
+            dynamicFields = updatedFields;
+        } catch (e: any) {
+            error = `Error processing layouts: ${e.message || String(e)}`;
+        }
+
+        loading = false;
+    }
+
+    async function queryDynamicField() {
+        fieldError = '';
+        dynamicFieldResult = null;
+        fieldLoading = true;
+        try {
+            const gqlClient = new IotaGraphQLClient({
+                url: getSelectedNetworkConfig().graphql,
+            });
+            const bcsValue = getBcsBase64();
+            if (!bcsValue) {
+                fieldLoading = false;
+                return;
+            }
+            const query = `query ($address: IotaAddress!, $type: String!, $bcs: Base64!) {
+            owner(address: $address) {
+                dynamicField(name: {type: $type, bcs: $bcs}) {
+                    name { type { repr }, json }
+                    value { ... on MoveValue { 
+                        type {
+                          repr
+                        }
+                        json
+                        }
+                    }
+                }
+            }
+        }`;
+            let result: GraphQLQueryResult = await gqlClient.query({
+                query: graphql(query),
+                variables: { address: objectId, type: fieldType, bcs: bcsValue },
+            });
+            if (result.errors) {
+                fieldError = JSON.stringify(result.errors, null, 2);
+            } else {
+                const fieldResult = (result.data as any)?.owner?.dynamicField;
+                if (fieldResult === null) {
+                    fieldError =
+                        'Dynamic field not found. The specified field does not exist on this object.';
+                    dynamicFieldResult = null;
+                } else {
+                    dynamicFieldResult = fieldResult;
+                }
+            }
+        } catch (e: any) {
+            fieldError = e.message || String(e);
+        }
+        fieldLoading = false;
+    }
+
+    async function queryDynamicObjectField() {
+        fieldError = '';
+        dynamicObjectFieldResult = null;
+        fieldLoading = true;
+        try {
+            const gqlClient = new IotaGraphQLClient({
+                url: getSelectedNetworkConfig().graphql,
+            });
+            const bcsValue = getBcsBase64();
+            if (!bcsValue) {
+                fieldLoading = false;
+                return;
+            }
+            const query = `query ($address: IotaAddress!, $name: DynamicFieldName!) {
+            owner(address: $address) {
+                dynamicObjectField(name: $name) {
+                    name { type { repr }, json }
+                    value { 
+                        ... on MoveObject { 
+                            contents { 
+                                type {
+                                  repr
+                                }
+                                json 
+                            } 
+                        }
+                    }
+                }
+            }
+        }`;
+            let result: GraphQLQueryResult = await gqlClient.query({
+                query: graphql(query),
+                variables: { address: objectId, name: { type: fieldType, bcs: bcsValue } },
+            });
+            if (result.errors) {
+                fieldError = JSON.stringify(result.errors, null, 2);
+            } else {
+                const objectFieldResult = (result.data as any)?.owner?.dynamicObjectField;
+                if (objectFieldResult === null) {
+                    fieldError =
+                        'Dynamic object field not found. The specified field does not exist on this object.';
+                    dynamicObjectFieldResult = null;
+                } else {
+                    dynamicObjectFieldResult = objectFieldResult;
+                }
+            }
+        } catch (e: any) {
+            fieldError = e.message || String(e);
+        }
+        fieldLoading = false;
+    }
+
+    let customStructs = writable<Record<string, any>>({});
+
+    // Add state for layout query
+    let layoutType = $state('0x2::vec_set::VecSet<u64>');
+    let layoutResult: any = $state(null);
+    let layoutError = $state('');
+    let layoutLoading = $state(false);
+
+    // Initialize on load
+    $effect(() => {
+        if (!selectedStructJson) {
+            updateSelectedStructJson();
+        }
+    });
+
+    async function getMoveLayout() {
+        layoutError = '';
+        layoutResult = null;
+        layoutLoading = true;
+
+        try {
+            const gqlClient = new IotaGraphQLClient({
+                url: getSelectedNetworkConfig().graphql,
+            });
+
+            const query = `query getLayout($type: String!) {
+                type(type: $type) {
+                    layout
+                }
+            }`;
+
+            let result: GraphQLQueryResult = await gqlClient.query({
+                query: graphql(query),
+                variables: { type: layoutType },
+            });
+
+            if (result.errors) {
+                layoutError = JSON.stringify(result.errors, null, 2);
+            } else {
+                const typeResult = (result.data as any)?.type;
+                if (typeResult === null) {
+                    layoutError = 'Type not found. The specified type does not exist.';
+                    layoutResult = null;
+                } else {
+                    layoutResult = typeResult;
+                }
+            }
+        } catch (e: any) {
+            layoutError = e.message || String(e);
+        }
+        layoutLoading = false;
+    }
+
+    function updateStructFromJson() {
+        if (!selectedStructJson.trim() || isUpdatingFromSelection) return;
+
+        untrack(() => {
+            try {
+                const parsed = JSON.parse(selectedStructJson);
+                if (parsed && parsed.name && parsed.value !== undefined) {
+                    // Update the selected struct in the definitions array
+                    const index = structDefinitions.findIndex((s) => s.name === parsed.name);
+                    if (index >= 0) {
+                        // Update existing struct - convert value back to JSON string
+                        structDefinitions[index] = {
+                            ...structDefinitions[index],
+                            fieldType: parsed.fieldType || structDefinitions[index].fieldType,
+                            layout: parsed.layout || structDefinitions[index].layout,
+                            value:
+                                typeof parsed.value === 'string'
+                                    ? parsed.value
+                                    : JSON.stringify(parsed.value),
+                        };
+                    } else {
+                        // Add new struct if it doesn't exist
+                        structDefinitions.push({
+                            name: parsed.name,
+                            fieldType: parsed.fieldType || '',
+                            layout: parsed.layout || { struct: { type: parsed.name, fields: [] } },
+                            value:
+                                typeof parsed.value === 'string'
+                                    ? parsed.value
+                                    : JSON.stringify(parsed.value),
+                        });
+                    }
+                    structsError = '';
+                } else {
+                    structsError = 'Struct definition must have name and value properties';
+                }
+            } catch (e) {
+                structsError = 'Invalid JSON in struct definition';
+            }
+        });
+    }
+
+    function getSelectedStruct(): StructDefinition | null {
+        return structDefinitions.find((s) => s.name === fieldStructType) || null;
+    }
+
+    function addNewStruct() {
+        const newName = prompt('Enter new struct name:');
+        if (newName && !structDefinitions.find((s) => s.name === newName)) {
+            structDefinitions.push({
+                name: newName,
+                fieldType: '',
+                layout: { struct: { type: newName, fields: [] } },
+                value: '{}',
+            });
+            fieldStructType = newName;
+            updateSelectedStructJson();
+        }
+    }
+
+    export function layoutToBcs(layout: MoveTypeLayout): BcsType<any> {
+        switch (layout) {
+            case 'address':
+                return bcs.Address;
+            case 'bool':
+                return bcs.Bool;
+            case 'u8':
+                return bcs.U8;
+            case 'u16':
+                return bcs.U16;
+            case 'u32':
+                return bcs.U32;
+            case 'u64':
+                return bcs.U64;
+            case 'u128':
+                return bcs.U128;
+            case 'u256':
+                return bcs.U256;
+        }
+
+        if ('vector' in layout) {
+            const innerType = layoutToBcs(layout.vector);
+            const vectorType = bcs.vector(innerType);
+
+            // Special handling for vector<u8> which is often used for string bytes
+            if (layout.vector === 'u8') {
+                return vectorType.transform({
+                    input: (value: any) => {
+                        // If it's a string, convert to bytes array
+                        if (typeof value === 'string') {
+                            return Array.from(new TextEncoder().encode(value));
+                        }
+                        return value;
+                    },
+                    output: (value: any) => {
+                        // Convert bytes array back to string
+                        if (Array.isArray(value)) {
+                            return new TextDecoder().decode(new Uint8Array(value));
+                        }
+                        return value;
+                    },
+                });
+            }
+
+            return vectorType;
+        }
+
+        if ('struct' in layout) {
+            const fields: Record<string, BcsType<any>> = {};
+
+            for (const { name, layout: field } of layout.struct.fields) {
+                fields[name] = layoutToBcs(field);
+            }
+
+            let struct = bcs.struct(layout.struct.type, fields);
+
+            const structName = toShortTypeString(layout.struct.type);
+
+            if (structName === '0x2::object::ID') {
+                struct = struct.transform({
+                    input: (id: any) => (typeof id === 'string' ? { bytes: id } : id) as never,
+                    output: (id) => id.id,
+                });
+            }
+
+            // Handle String type - convert JavaScript string to Move String format
+            if (structName === '0x1::string::String') {
+                struct = struct.transform({
+                    input: (str: any) => (typeof str === 'string' ? { bytes: str } : str) as never,
+                    output: (obj) => obj.bytes,
+                });
+            }
+
+            return struct;
+        }
+
+        throw new Error(`Unknown layout: ${JSON.stringify(layout)}`);
+    }
+
+    export function mapJsonToBcs(json: unknown, layout: MoveTypeLayout) {
+        const schema = layoutToBcs(layout);
+        return toB64(schema.serialize(json).toBytes());
+    }
+
+    export function toShortTypeString<T extends string | null | undefined>(type?: T): T {
+        return type?.replace(/0x0{31,}(\d)/g, '0x$1').replace(/,\b/g, ', ') as T;
+    }
+
+    let decodedFieldValue: any = $state(null);
+    let decodeError: string = $state('');
+    let isDecodingInProgress = $state(false);
+
+    // Add this function after the existing helper functions
+    async function decodeFieldBcs() {
+        if (isDecodingInProgress) return;
+        
+        isDecodingInProgress = true;
+        decodedFieldValue = null;
+        decodeError = '';
+        
+        if (!fieldBcs.trim() || !fieldType.trim()) {
+            isDecodingInProgress = false;
+            return;
+        }
+        
+        try {
+            let currentLayout = layoutResult?.layout;
+            
+            // If no layout available, automatically fetch it
+            if (!currentLayout) {
+                try {
+                    const gqlClient = new IotaGraphQLClient({
+                        url: getSelectedNetworkConfig().graphql,
+                    });
+
+                    const query = `query getLayout($type: String!) {
+                        type(type: $type) {
+                            layout
+                        }
+                    }`;
+
+                    let result: GraphQLQueryResult = await gqlClient.query({
+                        query: graphql(query),
+                        variables: { type: fieldType },
+                    });
+
+                    if (result.errors) {
+                        decodeError = `Failed to fetch layout: ${JSON.stringify(result.errors)}`;
+                        isDecodingInProgress = false;
+                        return;
+                    }
+
+                    const typeResult = (result.data as any)?.type;
+                    if (!typeResult?.layout) {
+                        decodeError = 'Layout not found for this type.';
+                        isDecodingInProgress = false;
+                        return;
+                    }
+
+                    currentLayout = typeResult.layout;
+                } catch (e: any) {
+                    decodeError = `Failed to fetch layout: ${e.message || String(e)}`;
+                    isDecodingInProgress = false;
+                    return;
+                }
+            }
+            
+            const schema = layoutToBcs(currentLayout);
+            
+            // Decode the base64 BCS data
+            const bcsBytes = new Uint8Array(atob(fieldBcs).split('').map(c => c.charCodeAt(0)));
+            decodedFieldValue = schema.parse(bcsBytes);
+            
+        } catch (e: any) {
+            decodeError = `Decode error: ${e.message || String(e)}`;
+        } finally {
+            isDecodingInProgress = false;
+        }
+    }
+
+    // Add reactive effect with debounce to decode when fieldBcs or fieldType changes
+    let decodeTimeout: any;
+    $effect(() => {
+        if (fieldBcs && fieldType && !layoutLoading) {
+            clearTimeout(decodeTimeout);
+            decodeTimeout = setTimeout(() => {
+                decodeFieldBcs();
+            }, 300); // 300ms debounce
+        }
+    });
+</script>
+
+<main>
+    <h2>Dynamic Fields</h2>
+    <div>
+        <label>
+            Object ID:
+            <input bind:value={objectId} placeholder="0x..." size="67" />
+        </label>
+        <br />
+        <label style="margin-left:1em;">
+            Page size:
+            <input type="number" min="1" max="100" bind:value={pageSize} style="width:4em;" />
+        </label>
+        <button onclick={() => queryDynamicFields()} disabled={loading || !objectId}>
+            {loading ? 'Loading...' : 'Query Dynamic Fields'}
+        </button>
+        <button
+            onclick={getLayoutsAndBcsValues}
+            disabled={loading || !dynamicFields || dynamicFields.length === 0}
+            style="margin-left:1em;"
+        >
+            Get Layouts and BCS Values
+        </button>
+    </div>
+    {#if error}
+        <div style="color: red; margin-top: 1em;">{error}</div>
+    {/if}
+    {#if dynamicFields}
+        {#if dynamicFields.length === 0 && !loading}
+            <div>No dynamic fields found for this object.</div>
+        {:else}
+            <JsonToggleView value={dynamicFields} />
+            {#if hasNextPage}
+                <button onclick={loadMore} disabled={loading} style="margin-top:1em;"
+                    >{loading ? 'Loading...' : 'Load more'}</button
+                >
+            {/if}
+        {/if}
+    {/if}
+    <hr style="margin:2em 0;" />
+    <h3>Query Dynamic Field / Dynamic Object Field</h3>
+    <div style="margin-bottom:1em;">
+        <label>
+            Field type (primitive or name.type.repr, like &lt;package&gt;::&lt;module&gt;::&lt;struct&gt;):
+            <input bind:value={fieldType} placeholder="e.g. 0x1::string::String" size="180" />
+        </label>
+        <br />
+        <button
+            onclick={() => {
+                layoutType = fieldType;
+                getMoveLayout();
+            }}
+            disabled={layoutLoading || !fieldType}
+            style="margin-top:0.5em; margin-bottom:1em;"
+        >
+            {layoutLoading ? 'Loading...' : 'Get Layout for this type'}
+        </button>
+        <br />
+        {#if layoutResult}
+            <JsonToggleView value={layoutResult} />
+        {/if}
+        <br />
+        Field value (default is for structs without fields):
+        <div>
+            <button
+                type="button"
+                onclick={() => {
+                    bcsInputMode = bcsInputMode === 'base64' ? 'json' : 'base64';
+                }}
+                style="margin-right:0.5em; display: inline-block;"
+            >
+                {bcsInputMode === 'base64' ? 'Switch to JSON' : 'Switch to Base64'}
+            </button>
+        </div>
+        {#if bcsInputMode === 'base64'}
+            Field BCS (Base64):
+            <input bind:value={fieldBcs} placeholder="Base64 BCS" size="32" />
+            {#if fieldBcs.trim()}
+                <div style="margin-top: 0.5em;">
+                    <button 
+                        onclick={decodeFieldBcs}
+                        style="padding: 2px 8px; font-size: 0.9em;"
+                    >
+                        Decode BCS
+                    </button>
+                </div>
+                {#if decodeError}
+                    <div style="color: red; margin-top: 0.5em; font-size: 0.9em;">{decodeError}</div>
+                {/if}
+                {#if decodedFieldValue !== null}
+                    <div style="margin-top: 0.5em;">
+                        <strong>Decoded value:</strong>
+                        {#if typeof decodedFieldValue === 'object' && decodedFieldValue !== null}
+                            <JsonToggleView value={decodedFieldValue} />
+                        {:else}
+                            <span style="font-family: monospace; padding: 2px 4px; border-radius: 2px;">
+                                {decodedFieldValue}
+                            </span>
+                            <span style="color: #666; font-size: 0.9em; margin-left: 0.5em;">
+                                ({typeof decodedFieldValue})
+                            </span>
+                        {/if}
+                    </div>
+                {/if}
+            {/if}
+        {:else}
+            Struct type:
+                    Examples apart from Domain are from this package:
+        <a
+            target="_blank"
+            rel="noopener noreferrer"
+            style="color: #007bff; text-decoration: none;"
+            href="https://github.com/Thoralf-M/iota-examples/tree/main/move/dynamic_fields"
+            >https://github.com/Thoralf-M/iota-examples/tree/main/move/dynamic_fields</a
+        >
+        <br />
+        In devnet:
+        <a
+            target="_blank"
+            rel="noopener noreferrer"
+            style="color: #007bff; text-decoration: none;"
+            href="https://explorer.iota.org/object/0x25ee69608c70f9d614790e8a46aa32c18798c4fa9cfc20e5dd0ec1f7505bd5ef?module=dynamic_fields&network=devnet"
+            >0x25ee69608c70f9d614790e8a46aa32c18798c4fa9cfc20e5dd0ec1f7505bd5ef</a
+        >
+        <br />
+
+            <select
+                bind:value={fieldStructType}
+                style="margin-right:0.5em;"
+                onchange={updateSelectedStructJson}
+            >
+                {#each structDefinitions as structDef}
+                    <option value={structDef.name}>{structDef.name}</option>
+                {/each}
+                {#each Object.keys($customStructs || {}) as structType}
+                    <option value={structType}>{structType}</option>
+                {/each}
+            </select>
+            <button
+                type="button"
+                onclick={addNewStruct}
+                style="margin-left:0.5em; padding:2px 8px; font-size:0.9em;">+ Add New</button
+            >
+            <div style="margin-top:1em;">
+                <h4 style="margin-bottom:0.5em;">Selected Struct Definition</h4>
+                <p style="font-size:0.9em; color:#666;">
+                    Edit the selected struct. Object should have: name, fieldType, layout (JSON), and
+                    value (JSON). The layout defines the structure of the data and will be converted to BCS for serialization.
+                </p>
+                {#if structsError}
+                    <div style="color: red; margin-bottom: 0.5em;">{structsError}</div>
+                {/if}
+                <textarea
+                    bind:value={selectedStructJson}
+                    oninput={updateStructFromJson}
+                    rows="12"
+                    cols="130"
+                    style="font-family: monospace;"
+                ></textarea>
+            </div>
+        {/if}
+    </div>
+    <div style="margin-bottom:1em;">
+        <button
+            onclick={queryDynamicField}
+            disabled={fieldLoading ||
+                !objectId ||
+                !fieldType ||
+                (bcsInputMode === 'base64' ? !fieldBcs : !fieldStructType || getBcsBase64() === '')}
+        >
+            {fieldLoading ? 'Loading...' : 'Query dynamicField'}
+        </button>
+        <button
+            onclick={queryDynamicObjectField}
+            disabled={fieldLoading ||
+                !objectId ||
+                !fieldType ||
+                (bcsInputMode === 'base64' ? !fieldBcs : !fieldStructType || getBcsBase64() === '')}
+            style="margin-left:1em;"
+        >
+            {fieldLoading ? 'Loading...' : 'Query dynamicObjectField'}
+        </button>
+    </div>
+    {#if fieldError}
+        <div style="color: red; margin-top: 1em;">{fieldError}</div>
+    {/if}
+    {#if dynamicFieldResult}
+        <h4>dynamicField Result</h4>
+        <JsonToggleView value={dynamicFieldResult} />
+    {/if}
+    {#if dynamicObjectFieldResult}
+        <h4>dynamicObjectField Result</h4>
+        <JsonToggleView value={dynamicObjectFieldResult} />
+    {/if}
+    {#if layoutError}
+        <div style="color: red; margin-top: 1em;">{layoutError}</div>
+    {/if}
+</main>
