@@ -1,5 +1,6 @@
 <script>
     import Options from './lib/Options.svelte';
+    import BulkTransfer from './lib/pages/BulkTransfer.svelte';
     import Converter from './lib/pages/Converter.svelte';
     import Ed25519AddressGeneration from './lib/pages/Ed25519AddressGeneration.svelte';
     import Faucet from './lib/pages/Faucet.svelte';
@@ -27,6 +28,7 @@
         { label: 'Publish Data', component: PublishData },
         { label: 'PTB Code', component: ProgrammableTransactionBlock },
         { label: 'Split Merge Coins', component: SplitMergeCoins },
+        { label: 'Bulk Transfer', component: BulkTransfer },
         { label: 'Stake', component: Stake },
         { label: 'IOTA-Names', component: IotaNames },
         { label: 'LedgerNano', component: LedgerNano },
