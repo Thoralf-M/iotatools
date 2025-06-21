@@ -4,8 +4,8 @@
     import { IotaGraphQLClient, type GraphQLQueryResult } from '@iota/iota-sdk/graphql';
     import { graphql, type MoveTypeLayout } from '@iota/iota-sdk/graphql/schemas/2025.2';
     import { toB64 } from '@iota/iota-sdk/utils';
-    import { writable } from 'svelte/store';
     import { untrack } from 'svelte';
+    import { writable } from 'svelte/store';
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
     import { getSelectedNetworkConfig } from '../lib/client';
@@ -40,7 +40,7 @@
             name: 'VectorU8',
             fieldType: 'vector<u8>',
             layout: {
-                vector: 'u8'
+                vector: 'u8',
             },
             value: '[118,101,99,95,117,56,95,107,101,121]',
         },
@@ -71,10 +71,10 @@
                     fields: [
                         {
                             name: 'bytes',
-                            layout: { vector: 'u8' }
-                        }
-                    ]
-                }
+                            layout: { vector: 'u8' },
+                        },
+                    ],
+                },
             },
             value: '"string_key"',
         },
@@ -88,10 +88,10 @@
                     fields: [
                         {
                             name: 'dummy_field',
-                            layout: 'bool'
-                        }
-                    ]
-                }
+                            layout: 'bool',
+                        },
+                    ],
+                },
             },
             value: '{"dummy_field": false}',
         },
@@ -112,15 +112,15 @@
                                         fields: [
                                             {
                                                 name: 'bytes',
-                                                layout: { vector: 'u8' }
-                                            }
-                                        ]
-                                    }
-                                }
-                            }
-                        }
-                    ]
-                }
+                                                layout: { vector: 'u8' },
+                                            },
+                                        ],
+                                    },
+                                },
+                            },
+                        },
+                    ],
+                },
             },
             value: '{"labels": ["iota", "name"]}',
         },
@@ -202,7 +202,7 @@
             const struct = getSelectedStruct();
             if (!struct) throw new Error('Unknown struct type');
             const json = JSON.parse(struct.value);
-            
+
             // Convert the JSON layout to BCS schema using layoutToBcs
             const bcsSchema = layoutToBcs(struct.layout);
             return toB64(bcsSchema.serialize(json).toBytes());
@@ -666,19 +666,19 @@
     // Add this function after the existing helper functions
     async function decodeFieldBcs() {
         if (isDecodingInProgress) return;
-        
+
         isDecodingInProgress = true;
         decodedFieldValue = null;
         decodeError = '';
-        
+
         if (!fieldBcs.trim() || !fieldType.trim()) {
             isDecodingInProgress = false;
             return;
         }
-        
+
         try {
             let currentLayout = layoutResult?.layout;
-            
+
             // If no layout available, automatically fetch it
             if (!currentLayout) {
                 try {
@@ -717,13 +717,16 @@
                     return;
                 }
             }
-            
+
             const schema = layoutToBcs(currentLayout);
-            
+
             // Decode the base64 BCS data
-            const bcsBytes = new Uint8Array(atob(fieldBcs).split('').map(c => c.charCodeAt(0)));
+            const bcsBytes = new Uint8Array(
+                atob(fieldBcs)
+                    .split('')
+                    .map((c) => c.charCodeAt(0)),
+            );
             decodedFieldValue = schema.parse(bcsBytes);
-            
         } catch (e: any) {
             decodeError = `Decode error: ${e.message || String(e)}`;
         } finally {
@@ -785,7 +788,8 @@
     <h3>Query Dynamic Field / Dynamic Object Field</h3>
     <div style="margin-bottom:1em;">
         <label>
-            Field type (primitive or name.type.repr, like &lt;package&gt;::&lt;module&gt;::&lt;struct&gt;):
+            Field type (primitive or name.type.repr, like
+            &lt;package&gt;::&lt;module&gt;::&lt;struct&gt;):
             <input bind:value={fieldType} placeholder="e.g. 0x1::string::String" size="180" />
         </label>
         <br />
@@ -821,15 +825,14 @@
             <input bind:value={fieldBcs} placeholder="Base64 BCS" size="32" />
             {#if fieldBcs.trim()}
                 <div style="margin-top: 0.5em;">
-                    <button 
-                        onclick={decodeFieldBcs}
-                        style="padding: 2px 8px; font-size: 0.9em;"
-                    >
+                    <button onclick={decodeFieldBcs} style="padding: 2px 8px; font-size: 0.9em;">
                         Decode BCS
                     </button>
                 </div>
                 {#if decodeError}
-                    <div style="color: red; margin-top: 0.5em; font-size: 0.9em;">{decodeError}</div>
+                    <div style="color: red; margin-top: 0.5em; font-size: 0.9em;">
+                        {decodeError}
+                    </div>
                 {/if}
                 {#if decodedFieldValue !== null}
                     <div style="margin-top: 0.5em;">
@@ -837,7 +840,9 @@
                         {#if typeof decodedFieldValue === 'object' && decodedFieldValue !== null}
                             <JsonToggleView value={decodedFieldValue} />
                         {:else}
-                            <span style="font-family: monospace; padding: 2px 4px; border-radius: 2px;">
+                            <span
+                                style="font-family: monospace; padding: 2px 4px; border-radius: 2px;"
+                            >
                                 {decodedFieldValue}
                             </span>
                             <span style="color: #666; font-size: 0.9em; margin-left: 0.5em;">
@@ -848,25 +853,24 @@
                 {/if}
             {/if}
         {:else}
-            Struct type:
-                    Examples apart from Domain are from this package:
-        <a
-            target="_blank"
-            rel="noopener noreferrer"
-            style="color: #007bff; text-decoration: none;"
-            href="https://github.com/Thoralf-M/iota-examples/tree/main/move/dynamic_fields"
-            >https://github.com/Thoralf-M/iota-examples/tree/main/move/dynamic_fields</a
-        >
-        <br />
-        In devnet:
-        <a
-            target="_blank"
-            rel="noopener noreferrer"
-            style="color: #007bff; text-decoration: none;"
-            href="https://explorer.iota.org/object/0x25ee69608c70f9d614790e8a46aa32c18798c4fa9cfc20e5dd0ec1f7505bd5ef?module=dynamic_fields&network=devnet"
-            >0x25ee69608c70f9d614790e8a46aa32c18798c4fa9cfc20e5dd0ec1f7505bd5ef</a
-        >
-        <br />
+            Struct type: Examples apart from Domain are from this package:
+            <a
+                target="_blank"
+                rel="noopener noreferrer"
+                style="color: #007bff; text-decoration: none;"
+                href="https://github.com/Thoralf-M/iota-examples/tree/main/move/dynamic_fields"
+                >https://github.com/Thoralf-M/iota-examples/tree/main/move/dynamic_fields</a
+            >
+            <br />
+            In devnet:
+            <a
+                target="_blank"
+                rel="noopener noreferrer"
+                style="color: #007bff; text-decoration: none;"
+                href="https://explorer.iota.org/object/0x25ee69608c70f9d614790e8a46aa32c18798c4fa9cfc20e5dd0ec1f7505bd5ef?module=dynamic_fields&network=devnet"
+                >0x25ee69608c70f9d614790e8a46aa32c18798c4fa9cfc20e5dd0ec1f7505bd5ef</a
+            >
+            <br />
 
             <select
                 bind:value={fieldStructType}
@@ -888,8 +892,9 @@
             <div style="margin-top:1em;">
                 <h4 style="margin-bottom:0.5em;">Selected Struct Definition</h4>
                 <p style="font-size:0.9em; color:#666;">
-                    Edit the selected struct. Object should have: name, fieldType, layout (JSON), and
-                    value (JSON). The layout defines the structure of the data and will be converted to BCS for serialization.
+                    Edit the selected struct. Object should have: name, fieldType, layout (JSON),
+                    and value (JSON). The layout defines the structure of the data and will be
+                    converted to BCS for serialization.
                 </p>
                 {#if structsError}
                     <div style="color: red; margin-bottom: 0.5em;">{structsError}</div>

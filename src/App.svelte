@@ -2,6 +2,7 @@
     import Options from './lib/Options.svelte';
     import BulkTransfer from './lib/pages/BulkTransfer.svelte';
     import Converter from './lib/pages/Converter.svelte';
+    import DynamicFields from './lib/pages/DynamicFields.svelte';
     import Ed25519AddressGeneration from './lib/pages/Ed25519AddressGeneration.svelte';
     import Faucet from './lib/pages/Faucet.svelte';
     import IotaNames from './lib/pages/IotaNames.svelte';
@@ -13,9 +14,9 @@
     import Settings from './lib/pages/Settings.svelte';
     import SplitMergeCoins from './lib/pages/SplitMergeCoins.svelte';
     import Stake from './lib/pages/Stake.svelte';
+    import TextAnalyzer from './lib/pages/TextAnalyzer.svelte';
     import Signer from './lib/Signer.svelte';
     import Tabs from './lib/Tabs.svelte';
-    import DynamicFields from './lib/pages/DynamicFields.svelte';
 
     // List of tab items with labels, values and assigned components
     let items = [
@@ -33,6 +34,7 @@
         { label: 'Stake', component: Stake },
         { label: 'IOTA-Names', component: IotaNames },
         { label: 'Dynamic Fields', component: DynamicFields },
+        { label: 'Text Analyzer', component: TextAnalyzer },
         { label: 'LedgerNano', component: LedgerNano },
         { label: 'Multi Account View', component: MultiAccountView },
         { label: '⚙ Settings', component: Settings },
