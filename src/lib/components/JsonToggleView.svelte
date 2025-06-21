@@ -2,7 +2,7 @@
     import JSONTree from '@sveltejs/svelte-json-tree';
 
     export let value: any = {};
-    let showJsonTree = true;
+    let showJsonTree = false;
 </script>
 
 <div class="value" hidden={Object.keys(value).length == 0}>
