@@ -480,7 +480,7 @@
         border-radius: 12px 12px 0 0;
         font-weight: bold;
         color: #ffffff;
-        background-color: rgb(35, 63, 63);
+        background-color: rgb(36, 47, 77);
     }
     .handle {
         background-color: #232324;

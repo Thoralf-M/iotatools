@@ -411,7 +411,7 @@
         <br />
         <label style="margin-left:1em;">
             Page size:
-            <input type="number" min="1" max="100" bind:value={pageSize} style="width:4em;" />
+            <input type="number" min="1" max="100" bind:value={pageSize} style="width:6rem;" />
         </label>
         <button onclick={() => handleQueryDynamicFields()} disabled={loading || !objectId}>
             {loading ? 'Loading...' : 'Query Dynamic Fields'}
@@ -445,7 +445,11 @@
         <label>
             Field type (primitive or name.type.repr, like
             &lt;package&gt;::&lt;module&gt;::&lt;struct&gt;):
-            <input bind:value={fieldType} placeholder="e.g. 0x1::string::String" size="180" />
+            <input
+                bind:value={fieldType}
+                placeholder="e.g. 0x1::string::String"
+                style="width: 100%"
+            />
         </label>
         <br />
         <button

@@ -541,7 +541,13 @@
     <br />
     <span>
         amount (min 1 IOTA, to unstake with rewards even more):
-        <input type="number" bind:value={amount} placeholder="amount in NANO" min="1000000000" />
+        <input
+            type="number"
+            bind:value={amount}
+            placeholder="amount in NANO"
+            min="1000000000"
+            style="width: 14rem;"
+        />
         <input
             type="number"
             value={(amount / 1_000_000_000).toFixed(9)}
@@ -551,6 +557,7 @@
             }}
             placeholder="amount in IOTA"
             min="1"
+            style="width: 14rem;"
         />
     </span>
     <br />

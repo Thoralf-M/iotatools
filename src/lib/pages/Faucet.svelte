@@ -111,7 +111,12 @@
     </span>
     <span>
         milliseconds between requests:
-        <input type="number" bind:value={msBetweenRequests} placeholder="1000" size="4" />
+        <input
+            type="number"
+            bind:value={msBetweenRequests}
+            placeholder="1000"
+            style="width: 7rem;"
+        />
     </span>
     <br />
 
