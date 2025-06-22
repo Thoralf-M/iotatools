@@ -1,4 +1,5 @@
 <script lang="ts">
+    // @ts-ignore - Module resolution issue with svelte-json-tree
     import JSONTree from '@sveltejs/svelte-json-tree';
 
     export let value: any = {};

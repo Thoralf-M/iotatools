@@ -1,13 +1,23 @@
 <script lang="ts">
-    import type { BcsType } from '@iota/bcs';
-    import { bcs } from '@iota/iota-sdk/bcs';
-    import { IotaGraphQLClient, type GraphQLQueryResult } from '@iota/iota-sdk/graphql';
-    import { graphql, type MoveTypeLayout } from '@iota/iota-sdk/graphql/schemas/2025.2';
     import { toB64 } from '@iota/iota-sdk/utils';
     import { untrack } from 'svelte';
     import { writable } from 'svelte/store';
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
+    import { decodeBcs, layoutToBcs, type BcsDecodeResult } from '../dynamic-fields/bcs-conversion';
+    import {
+        enhanceFieldsWithLayoutsAndBcs,
+        getMoveLayout,
+        queryDynamicField,
+        queryDynamicFields,
+        queryDynamicObjectField,
+        type DynamicFieldsResult,
+        type LayoutResult,
+    } from '../dynamic-fields/dynamic-fields-utils';
+    import {
+        defaultStructDefinitions,
+        type StructDefinition,
+    } from '../dynamic-fields/struct-definitions';
     import { getSelectedNetworkConfig } from '../lib/client';
 
     let objectId = $state('0x35af1c0c5d8ee4878b2686a35639eba6a830c8a99e2e126df560265122bd6c9c');
@@ -28,103 +38,7 @@
     let bcsInputMode: 'base64' | 'json' = $state('json');
     let fieldStructType: string = $state('Bool');
 
-    interface StructDefinition {
-        name: string;
-        fieldType: string;
-        layout: any; // JSON representation of the layout
-        value: string;
-    }
-
-    let structDefinitions: StructDefinition[] = $state([
-        {
-            name: 'VectorU8',
-            fieldType: 'vector<u8>',
-            layout: {
-                vector: 'u8',
-            },
-            value: '[118,101,99,95,117,56,95,107,101,121]',
-        },
-        {
-            name: 'Bool',
-            fieldType: 'bool',
-            layout: 'bool',
-            value: 'true',
-        },
-        {
-            name: 'U8',
-            fieldType: 'u8',
-            layout: 'u8',
-            value: '42',
-        },
-        {
-            name: 'U32',
-            fieldType: 'u32',
-            layout: 'u32',
-            value: '42',
-        },
-        {
-            name: 'StringStruct',
-            fieldType: '0x1::string::String',
-            layout: {
-                struct: {
-                    type: '0x1::string::String',
-                    fields: [
-                        {
-                            name: 'bytes',
-                            layout: { vector: 'u8' },
-                        },
-                    ],
-                },
-            },
-            value: '"string_key"',
-        },
-        {
-            name: 'StructWithDummyField',
-            fieldType:
-                '0x25ee69608c70f9d614790e8a46aa32c18798c4fa9cfc20e5dd0ec1f7505bd5ef::dynamic_fields::StructWithoutFieldKey',
-            layout: {
-                struct: {
-                    type: '0x25ee69608c70f9d614790e8a46aa32c18798c4fa9cfc20e5dd0ec1f7505bd5ef::dynamic_fields::StructWithoutFieldKey',
-                    fields: [
-                        {
-                            name: 'dummy_field',
-                            layout: 'bool',
-                        },
-                    ],
-                },
-            },
-            value: '{"dummy_field": false}',
-        },
-        {
-            name: 'Domain',
-            fieldType:
-                '0x3ec4826f1d6e0d9f00680b2e9a7a41f03788ee610b3d11c24f41ab0ae71da39f::domain::Domain',
-            layout: {
-                struct: {
-                    type: '0x3ec4826f1d6e0d9f00680b2e9a7a41f03788ee610b3d11c24f41ab0ae71da39f::domain::Domain',
-                    fields: [
-                        {
-                            name: 'labels',
-                            layout: {
-                                vector: {
-                                    struct: {
-                                        type: '0x1::string::String',
-                                        fields: [
-                                            {
-                                                name: 'bytes',
-                                                layout: { vector: 'u8' },
-                                            },
-                                        ],
-                                    },
-                                },
-                            },
-                        },
-                    ],
-                },
-            },
-            value: '{"labels": ["iota", "name"]}',
-        },
-    ]);
+    let structDefinitions: StructDefinition[] = $state([...defaultStructDefinitions]);
 
     let selectedStructJson = $state('');
     let structsError = $state('');
@@ -212,143 +126,58 @@
         }
     }
 
-    async function queryDynamicFields(cursor?: string) {
+    async function handleQueryDynamicFields(cursor?: string) {
         error = '';
         if (!cursor) {
             dynamicFields = [];
             endCursor = null;
         }
         loading = true;
-        try {
-            const gqlClient = new IotaGraphQLClient({
-                url: getSelectedNetworkConfig().graphql,
-            });
-            const cursorSection = cursor
-                ? `(first: ${pageSize}, after: \"${cursor}\")`
-                : `(first: ${pageSize})`;
-            const objectQuery = `query ($address: IotaAddress!) {
-            owner(address: $address) {
-                dynamicFields${cursorSection} {
-                    nodes {
-                        name { type { repr }, json }
-                        value {
-                            ... on MoveValue { json }
-                            ... on MoveObject {
-                              contents {
-                                type {
-                                  repr
-                                }
-                                json
-                              }
-                            }
-                        }
-                    }
-                    pageInfo { hasNextPage endCursor }
-                }
-            }
-        }`;
-            let result: GraphQLQueryResult = await gqlClient.query({
-                query: graphql(objectQuery),
-                variables: { address: objectId },
-            });
-            if (result.errors) {
-                error = JSON.stringify(result.errors, null, 2);
+
+        const result: DynamicFieldsResult = await queryDynamicFields({
+            objectId,
+            pageSize,
+            cursor,
+            graphqlUrl: getSelectedNetworkConfig().graphql,
+        });
+
+        if (result.error) {
+            error = result.error;
+        } else {
+            if (cursor) {
+                dynamicFields = [...dynamicFields, ...result.nodes];
             } else {
-                const nodes = (result.data as any)?.owner?.dynamicFields?.nodes ?? [];
-                if (cursor) {
-                    dynamicFields = [...dynamicFields, ...nodes];
-                } else {
-                    dynamicFields = nodes;
-                    // If we have elements and this is the first query (not pagination),
-                    // update fieldType with the first element's type repr
-                    if (nodes.length > 0 && nodes[0]?.name?.type?.repr) {
-                        fieldType = nodes[0].name.type.repr;
-                    }
+                dynamicFields = result.nodes;
+                // If we have elements and this is the first query (not pagination),
+                // update fieldType with the first element's type repr
+                if (result.nodes.length > 0 && result.nodes[0]?.name?.type?.repr) {
+                    fieldType = result.nodes[0].name.type.repr;
                 }
-                hasNextPage = (result.data as any)?.owner?.dynamicFields?.pageInfo?.hasNextPage;
-                endCursor = (result.data as any)?.owner?.dynamicFields?.pageInfo?.endCursor;
             }
-        } catch (e: any) {
-            error = e.message || String(e);
+            hasNextPage = result.hasNextPage;
+            endCursor = result.endCursor;
         }
+
         loading = false;
     }
 
     function loadMore() {
         if (hasNextPage && endCursor) {
-            queryDynamicFields(endCursor);
+            handleQueryDynamicFields(endCursor);
         }
     }
 
-    async function getLayoutsAndBcsValues() {
+    async function handleGetLayoutsAndBcsValues() {
         if (!dynamicFields || dynamicFields.length === 0) return;
 
         loading = true;
         error = '';
 
         try {
-            const gqlClient = new IotaGraphQLClient({
-                url: getSelectedNetworkConfig().graphql,
-            });
-
-            // Process each dynamic field
-            const updatedFields = await Promise.all(
-                dynamicFields.map(async (field: any) => {
-                    try {
-                        const fieldType = field.name?.type?.repr;
-                        if (!fieldType) {
-                            return { ...field, error: 'No type information available' };
-                        }
-
-                        // Get the move layout for this field type
-                        const query = `query getLayout($type: String!) {
-                            type(type: $type) {
-                                layout
-                            }
-                        }`;
-
-                        const result = await gqlClient.query({
-                            query: graphql(query),
-                            variables: { type: fieldType },
-                        });
-
-                        if (result.errors) {
-                            return { ...field, error: JSON.stringify(result.errors) };
-                        }
-
-                        const typeResult = (result.data as any)?.type;
-                        if (!typeResult || !typeResult.layout) {
-                            return { ...field, error: 'Layout not found for this type' };
-                        }
-
-                        const moveLayout = typeResult.layout;
-
-                        // Compute BCS value using the layout and existing field value
-                        let bcsValue = null;
-                        let bcsError = null;
-
-                        try {
-                            if (field.name?.json) {
-                                // field.name.json is already a parsed object, not a JSON string
-                                const jsonValue = field.name.json;
-                                bcsValue = mapJsonToBcs(jsonValue, moveLayout);
-                            }
-                        } catch (e) {
-                            bcsError = `BCS computation error: ${e}`;
-                        }
-
-                        return {
-                            ...field,
-                            moveLayout,
-                            bcsValue,
-                            bcsError,
-                        };
-                    } catch (e) {
-                        return { ...field, error: `Processing error: ${e}` };
-                    }
-                }),
+            const updatedFields = await enhanceFieldsWithLayoutsAndBcs(
+                dynamicFields,
+                getSelectedNetworkConfig().graphql,
             );
-
             dynamicFields = updatedFields;
         } catch (e: any) {
             error = `Error processing layouts: ${e.message || String(e)}`;
@@ -357,104 +186,59 @@
         loading = false;
     }
 
-    async function queryDynamicField() {
+    async function handleQueryDynamicField() {
         fieldError = '';
         dynamicFieldResult = null;
         fieldLoading = true;
-        try {
-            const gqlClient = new IotaGraphQLClient({
-                url: getSelectedNetworkConfig().graphql,
-            });
-            const bcsValue = getBcsBase64();
-            if (!bcsValue) {
-                fieldLoading = false;
-                return;
-            }
-            const query = `query ($address: IotaAddress!, $type: String!, $bcs: Base64!) {
-            owner(address: $address) {
-                dynamicField(name: {type: $type, bcs: $bcs}) {
-                    name { type { repr }, json }
-                    value { ... on MoveValue { 
-                        type {
-                          repr
-                        }
-                        json
-                        }
-                    }
-                }
-            }
-        }`;
-            let result: GraphQLQueryResult = await gqlClient.query({
-                query: graphql(query),
-                variables: { address: objectId, type: fieldType, bcs: bcsValue },
-            });
-            if (result.errors) {
-                fieldError = JSON.stringify(result.errors, null, 2);
-            } else {
-                const fieldResult = (result.data as any)?.owner?.dynamicField;
-                if (fieldResult === null) {
-                    fieldError =
-                        'Dynamic field not found. The specified field does not exist on this object.';
-                    dynamicFieldResult = null;
-                } else {
-                    dynamicFieldResult = fieldResult;
-                }
-            }
-        } catch (e: any) {
-            fieldError = e.message || String(e);
+
+        const bcsValue = getBcsBase64();
+        if (!bcsValue) {
+            fieldLoading = false;
+            return;
         }
+
+        const result = await queryDynamicField({
+            objectId,
+            fieldType,
+            bcsValue,
+            graphqlUrl: getSelectedNetworkConfig().graphql,
+        });
+
+        if (result.error) {
+            fieldError = result.error;
+            dynamicFieldResult = null;
+        } else {
+            dynamicFieldResult = result.field;
+        }
+
         fieldLoading = false;
     }
 
-    async function queryDynamicObjectField() {
+    async function handleQueryDynamicObjectField() {
         fieldError = '';
         dynamicObjectFieldResult = null;
         fieldLoading = true;
-        try {
-            const gqlClient = new IotaGraphQLClient({
-                url: getSelectedNetworkConfig().graphql,
-            });
-            const bcsValue = getBcsBase64();
-            if (!bcsValue) {
-                fieldLoading = false;
-                return;
-            }
-            const query = `query ($address: IotaAddress!, $name: DynamicFieldName!) {
-            owner(address: $address) {
-                dynamicObjectField(name: $name) {
-                    name { type { repr }, json }
-                    value { 
-                        ... on MoveObject { 
-                            contents { 
-                                type {
-                                  repr
-                                }
-                                json 
-                            } 
-                        }
-                    }
-                }
-            }
-        }`;
-            let result: GraphQLQueryResult = await gqlClient.query({
-                query: graphql(query),
-                variables: { address: objectId, name: { type: fieldType, bcs: bcsValue } },
-            });
-            if (result.errors) {
-                fieldError = JSON.stringify(result.errors, null, 2);
-            } else {
-                const objectFieldResult = (result.data as any)?.owner?.dynamicObjectField;
-                if (objectFieldResult === null) {
-                    fieldError =
-                        'Dynamic object field not found. The specified field does not exist on this object.';
-                    dynamicObjectFieldResult = null;
-                } else {
-                    dynamicObjectFieldResult = objectFieldResult;
-                }
-            }
-        } catch (e: any) {
-            fieldError = e.message || String(e);
+
+        const bcsValue = getBcsBase64();
+        if (!bcsValue) {
+            fieldLoading = false;
+            return;
         }
+
+        const result = await queryDynamicObjectField({
+            objectId,
+            fieldType,
+            bcsValue,
+            graphqlUrl: getSelectedNetworkConfig().graphql,
+        });
+
+        if (result.error) {
+            fieldError = result.error;
+            dynamicObjectFieldResult = null;
+        } else {
+            dynamicObjectFieldResult = result.field;
+        }
+
         fieldLoading = false;
     }
 
@@ -466,6 +250,10 @@
     let layoutError = $state('');
     let layoutLoading = $state(false);
 
+    let decodedFieldValue: any = $state(null);
+    let decodeError: string = $state('');
+    let isDecodingInProgress = $state(false);
+
     // Initialize on load
     $effect(() => {
         if (!selectedStructJson) {
@@ -473,41 +261,23 @@
         }
     });
 
-    async function getMoveLayout() {
+    async function handleGetMoveLayout() {
         layoutError = '';
         layoutResult = null;
         layoutLoading = true;
 
-        try {
-            const gqlClient = new IotaGraphQLClient({
-                url: getSelectedNetworkConfig().graphql,
-            });
+        const result: LayoutResult = await getMoveLayout(
+            layoutType,
+            getSelectedNetworkConfig().graphql,
+        );
 
-            const query = `query getLayout($type: String!) {
-                type(type: $type) {
-                    layout
-                }
-            }`;
-
-            let result: GraphQLQueryResult = await gqlClient.query({
-                query: graphql(query),
-                variables: { type: layoutType },
-            });
-
-            if (result.errors) {
-                layoutError = JSON.stringify(result.errors, null, 2);
-            } else {
-                const typeResult = (result.data as any)?.type;
-                if (typeResult === null) {
-                    layoutError = 'Type not found. The specified type does not exist.';
-                    layoutResult = null;
-                } else {
-                    layoutResult = typeResult;
-                }
-            }
-        } catch (e: any) {
-            layoutError = e.message || String(e);
+        if (result.error) {
+            layoutError = result.error;
+            layoutResult = null;
+        } else {
+            layoutResult = { layout: result.layout };
         }
+
         layoutLoading = false;
     }
 
@@ -571,99 +341,17 @@
         }
     }
 
-    export function layoutToBcs(layout: MoveTypeLayout): BcsType<any> {
-        switch (layout) {
-            case 'address':
-                return bcs.Address;
-            case 'bool':
-                return bcs.Bool;
-            case 'u8':
-                return bcs.U8;
-            case 'u16':
-                return bcs.U16;
-            case 'u32':
-                return bcs.U32;
-            case 'u64':
-                return bcs.U64;
-            case 'u128':
-                return bcs.U128;
-            case 'u256':
-                return bcs.U256;
+    // Add reactive effect with debounce to decode when fieldBcs or fieldType changes
+    let decodeTimeout: any;
+    $effect(() => {
+        if (fieldBcs && fieldType && !layoutLoading) {
+            clearTimeout(decodeTimeout);
+            decodeTimeout = setTimeout(() => {
+                decodeFieldBcs();
+            }, 300); // 300ms debounce
         }
+    });
 
-        if ('vector' in layout) {
-            const innerType = layoutToBcs(layout.vector);
-            const vectorType = bcs.vector(innerType);
-
-            // Special handling for vector<u8> which is often used for string bytes
-            if (layout.vector === 'u8') {
-                return vectorType.transform({
-                    input: (value: any) => {
-                        // If it's a string, convert to bytes array
-                        if (typeof value === 'string') {
-                            return Array.from(new TextEncoder().encode(value));
-                        }
-                        return value;
-                    },
-                    output: (value: any) => {
-                        // Convert bytes array back to string
-                        if (Array.isArray(value)) {
-                            return new TextDecoder().decode(new Uint8Array(value));
-                        }
-                        return value;
-                    },
-                });
-            }
-
-            return vectorType;
-        }
-
-        if ('struct' in layout) {
-            const fields: Record<string, BcsType<any>> = {};
-
-            for (const { name, layout: field } of layout.struct.fields) {
-                fields[name] = layoutToBcs(field);
-            }
-
-            let struct = bcs.struct(layout.struct.type, fields);
-
-            const structName = toShortTypeString(layout.struct.type);
-
-            if (structName === '0x2::object::ID') {
-                struct = struct.transform({
-                    input: (id: any) => (typeof id === 'string' ? { bytes: id } : id) as never,
-                    output: (id) => id.id,
-                });
-            }
-
-            // Handle String type - convert JavaScript string to Move String format
-            if (structName === '0x1::string::String') {
-                struct = struct.transform({
-                    input: (str: any) => (typeof str === 'string' ? { bytes: str } : str) as never,
-                    output: (obj) => obj.bytes,
-                });
-            }
-
-            return struct;
-        }
-
-        throw new Error(`Unknown layout: ${JSON.stringify(layout)}`);
-    }
-
-    export function mapJsonToBcs(json: unknown, layout: MoveTypeLayout) {
-        const schema = layoutToBcs(layout);
-        return toB64(schema.serialize(json).toBytes());
-    }
-
-    export function toShortTypeString<T extends string | null | undefined>(type?: T): T {
-        return type?.replace(/0x0{31,}(\d)/g, '0x$1').replace(/,\b/g, ', ') as T;
-    }
-
-    let decodedFieldValue: any = $state(null);
-    let decodeError: string = $state('');
-    let isDecodingInProgress = $state(false);
-
-    // Add this function after the existing helper functions
     async function decodeFieldBcs() {
         if (isDecodingInProgress) return;
 
@@ -681,69 +369,36 @@
 
             // If no layout available, automatically fetch it
             if (!currentLayout) {
-                try {
-                    const gqlClient = new IotaGraphQLClient({
-                        url: getSelectedNetworkConfig().graphql,
-                    });
+                const result = await getMoveLayout(fieldType, getSelectedNetworkConfig().graphql);
 
-                    const query = `query getLayout($type: String!) {
-                        type(type: $type) {
-                            layout
-                        }
-                    }`;
-
-                    let result: GraphQLQueryResult = await gqlClient.query({
-                        query: graphql(query),
-                        variables: { type: fieldType },
-                    });
-
-                    if (result.errors) {
-                        decodeError = `Failed to fetch layout: ${JSON.stringify(result.errors)}`;
-                        isDecodingInProgress = false;
-                        return;
-                    }
-
-                    const typeResult = (result.data as any)?.type;
-                    if (!typeResult?.layout) {
-                        decodeError = 'Layout not found for this type.';
-                        isDecodingInProgress = false;
-                        return;
-                    }
-
-                    currentLayout = typeResult.layout;
-                } catch (e: any) {
-                    decodeError = `Failed to fetch layout: ${e.message || String(e)}`;
+                if (result.error) {
+                    decodeError = `Failed to fetch layout: ${result.error}`;
                     isDecodingInProgress = false;
                     return;
                 }
+
+                if (!result.layout) {
+                    decodeError = 'Layout not found for this type.';
+                    isDecodingInProgress = false;
+                    return;
+                }
+
+                currentLayout = result.layout;
             }
 
-            const schema = layoutToBcs(currentLayout);
+            const decodeResult: BcsDecodeResult = decodeBcs(fieldBcs, currentLayout);
 
-            // Decode the base64 BCS data
-            const bcsBytes = new Uint8Array(
-                atob(fieldBcs)
-                    .split('')
-                    .map((c) => c.charCodeAt(0)),
-            );
-            decodedFieldValue = schema.parse(bcsBytes);
+            if (decodeResult.error) {
+                decodeError = `Decode error: ${decodeResult.error}`;
+            } else {
+                decodedFieldValue = decodeResult.value;
+            }
         } catch (e: any) {
             decodeError = `Decode error: ${e.message || String(e)}`;
         } finally {
             isDecodingInProgress = false;
         }
     }
-
-    // Add reactive effect with debounce to decode when fieldBcs or fieldType changes
-    let decodeTimeout: any;
-    $effect(() => {
-        if (fieldBcs && fieldType && !layoutLoading) {
-            clearTimeout(decodeTimeout);
-            decodeTimeout = setTimeout(() => {
-                decodeFieldBcs();
-            }, 300); // 300ms debounce
-        }
-    });
 </script>
 
 <main>
@@ -758,11 +413,11 @@
             Page size:
             <input type="number" min="1" max="100" bind:value={pageSize} style="width:4em;" />
         </label>
-        <button onclick={() => queryDynamicFields()} disabled={loading || !objectId}>
+        <button onclick={() => handleQueryDynamicFields()} disabled={loading || !objectId}>
             {loading ? 'Loading...' : 'Query Dynamic Fields'}
         </button>
         <button
-            onclick={getLayoutsAndBcsValues}
+            onclick={handleGetLayoutsAndBcsValues}
             disabled={loading || !dynamicFields || dynamicFields.length === 0}
             style="margin-left:1em;"
         >
@@ -796,7 +451,7 @@
         <button
             onclick={() => {
                 layoutType = fieldType;
-                getMoveLayout();
+                handleGetMoveLayout();
             }}
             disabled={layoutLoading || !fieldType}
             style="margin-top:0.5em; margin-bottom:1em;"
@@ -911,7 +566,7 @@
     </div>
     <div style="margin-bottom:1em;">
         <button
-            onclick={queryDynamicField}
+            onclick={handleQueryDynamicField}
             disabled={fieldLoading ||
                 !objectId ||
                 !fieldType ||
@@ -920,7 +575,7 @@
             {fieldLoading ? 'Loading...' : 'Query dynamicField'}
         </button>
         <button
-            onclick={queryDynamicObjectField}
+            onclick={handleQueryDynamicObjectField}
             disabled={fieldLoading ||
                 !objectId ||
                 !fieldType ||
