@@ -120,7 +120,9 @@
             try {
                 transfers = parseTransfers(transfersJson);
             } catch (parseErr) {
-                throw new Error(`Parse error: ${parseErr.message}`);
+                const errorMessage =
+                    parseErr instanceof Error ? parseErr.message : String(parseErr);
+                throw new Error(`Parse error: ${errorMessage}`);
             }
 
             // Validate transfers array
