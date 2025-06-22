@@ -1,5 +1,5 @@
 import { IotaClientGraphQLTransport } from '@iota/graphql-transport';
-import { IotaClient } from '@iota/iota-sdk/client';
+import { IotaClient, type IotaClientOptions } from '@iota/iota-sdk/client';
 import { get } from 'svelte/store';
 
 import type { NetworkConfig } from './default-client-config';
@@ -8,16 +8,25 @@ import { sharedClientConfig } from './local-storage-store';
 // Used to determine if the client should be initialized with a new node
 let previousInitializedNodeUrl = '';
 let client: any = undefined;
-export function getClient(): IotaClient {
+export function getClient(graphql: boolean = false): IotaClient {
     let networkConfig = getSelectedNetworkConfig();
     let selectedNetworkUrl = networkConfig.node;
     if (client == undefined || selectedNetworkUrl != previousInitializedNodeUrl) {
-        client = new IotaClient({
-            transport: new IotaClientGraphQLTransport({
-                url: networkConfig.graphql,
-                fallbackTransportUrl: selectedNetworkUrl,
-            }),
-        });
+        let clientOptions: IotaClientOptions;
+        if (graphql) {
+            clientOptions = {
+                transport: new IotaClientGraphQLTransport({
+                    url: networkConfig.graphql,
+                    fallbackTransportUrl: selectedNetworkUrl,
+                }),
+            };
+
+        } else {
+            clientOptions = {
+                url: selectedNetworkUrl,
+            };
+        }
+        client = new IotaClient(clientOptions);
         previousInitializedNodeUrl = selectedNetworkUrl;
     }
     return client;
