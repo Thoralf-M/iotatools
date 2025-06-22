@@ -829,7 +829,7 @@
     Auction:
     <span>
         bid price:
-        <input bind:value={bidPrice} type="number" placeholder="0" />
+        <input bind:value={bidPrice} type="number" placeholder="0" style="width: 14rem;" />
     </span>
     <button onclick={startAuctionAndPlaceBid}> start auction and place bid </button>
     <button onclick={placeBid}> place bid </button>

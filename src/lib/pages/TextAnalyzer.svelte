@@ -265,7 +265,7 @@
     }
 
     .metric-box {
-        border: 1px solid #ddd;
+        border: 1px solid #545454;
         border-radius: 8px;
         padding: 1em;
         margin-top: 1em;

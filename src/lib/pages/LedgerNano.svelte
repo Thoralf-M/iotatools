@@ -407,29 +407,6 @@
         collapse all
     </button>
     <JsonToggleView {value} />
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        th,
-        td {
-            padding: 0.75rem;
-            border: 1px solid #ccc;
-            text-align: left;
-        }
-        td.accountEntries {
-            font-family: monospace;
-        }
-        tr.clickable {
-            cursor: pointer;
-            background-color: #f9f9f9;
-        }
-        tr.clickable:hover {
-            background-color: #eee;
-        }
-    </style>
 
     <table>
         <thead>
@@ -481,6 +458,9 @@
     button {
         margin: 0.5rem;
     }
+    input {
+        min-width: 6rem;
+    }
     .inner-table {
         width: 100%;
         margin-top: 0.5rem;
@@ -501,5 +481,24 @@
 
     .mono {
         font-family: monospace;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+    th,
+    td {
+        padding: 0.75rem;
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+    tr.clickable {
+        cursor: pointer;
+        background-color: #f9f9f9;
+    }
+    tr.clickable:hover {
+        background-color: #eee;
     }
 </style>

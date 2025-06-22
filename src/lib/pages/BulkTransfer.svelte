@@ -254,7 +254,6 @@
                     rows="15"
                     cols="120"
                     class:error={!!errorMsg}
-                    style="background-color: #2d2d2d; color: #fff;"
                     placeholder="Enter transfers in JSON, CSV, or space-separated format"
                 ></textarea>
             </div>

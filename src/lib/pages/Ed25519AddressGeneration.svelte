@@ -172,6 +172,7 @@
     <button on:click={() => generate()}>Generate new</button>
     <button on:click={() => generateShort()}>Generate new short (&#60;130 chars)</button>
     <input
+        id="mnemonic"
         type="string"
         size="140"
         bind:value={mnemonic}
@@ -182,6 +183,7 @@
 
     BIP 44 path:
     <input
+        id="coinType"
         type="number"
         list="coinTypes"
         bind:value={coinType}
@@ -195,17 +197,19 @@
     </datalist>
 
     <input
+        id="accountIndex"
         type="number"
         min="0"
         bind:value={accountIndex}
         placeholder="account index"
         on:input={() => generateAddressFromSeed()}
     />
-    <select bind:value={change} on:input={() => generateAddressFromSeed()}>
+    <select id="change" bind:value={change} on:input={() => generateAddressFromSeed()}>
         <option value={0}>0</option>
         <option value={1}>1</option>
     </select>
     <input
+        id="addressIndex"
         type="number"
         width="1"
         min="0"
@@ -217,7 +221,9 @@
     <br />
     <div>Insert anything and it will generate/convert what's possible:</div>
     <div>
-        Mnemonic entropy: &nbsp;&nbsp;<input
+        <label for="mnemonicEntropy">Mnemonic entropy:</label>
+        <input
+            id="mnemonicEntropy"
             type="string"
             size="70"
             bind:value={mnemonicEntropy}
@@ -226,7 +232,9 @@
         />
     </div>
     <div>
-        Seed: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input
+        <label for="seed">Seed:</label>
+        <input
+            id="seed"
             type="string"
             size="130"
             bind:value={seed}
@@ -235,7 +243,9 @@
         />
     </div>
     <div>
-        Private key bech32:&nbsp;<input
+        <label for="privateKeyBech32">Private key bech32:</label>
+        <input
+            id="privateKeyBech32"
             type="string"
             size="75"
             bind:value={privateKeyBech32}
@@ -244,7 +254,9 @@
         />
     </div>
     <div>
-        Private key hex: &nbsp;&nbsp;&nbsp;<input
+        <label for="privateKeyHex">Private key hex:</label>
+        <input
+            id="privateKeyHex"
             type="string"
             size="70"
             bind:value={privateKeyHex}
@@ -253,7 +265,9 @@
         />
     </div>
     <div>
-        Public key base64:&nbsp;&nbsp;<input
+        <label for="publicKeyBase64">Public key base64:</label>
+        <input
+            id="publicKeyBase64"
             type="string"
             size="70"
             bind:value={publicKeyBase64}
@@ -262,7 +276,9 @@
         />
     </div>
     <div>
-        Public key:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input
+        <label for="publicKey">Public key:</label>
+        <input
+            id="publicKey"
             type="string"
             size="70"
             bind:value={publicKey}
@@ -271,7 +287,8 @@
         />
     </div>
     <div>
-        Address: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{address}
+        <span class="label">Address:</span>
+        <span style="text-align: left;">&nbsp;{address}</span>
     </div>
     <br />
     {error}
@@ -280,9 +297,113 @@
 <style>
     div {
         display: flex;
+        align-items: center;
+        margin-bottom: 0.2rem;
+        gap: 0.5rem;
+    }
+
+    div:has(input[type='string']:not([size='140'])),
+    div:has(.label) {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    label,
+    .label {
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.8);
+        text-align: left;
+        font-size: 0.9rem;
+    }
+
+    /* Address output styling */
+    span:not(.label) {
+        font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.8rem;
+        word-break: break-all;
     }
 
     input[type='number'] {
-        width: 5rem;
+        width: 8rem;
+        text-align: center;
+    }
+
+    input[type='string'] {
+        min-width: 300px;
+        font-size: 0.8rem;
+    }
+
+    /* Larger input fields for better usability */
+    input[size='130'] {
+        min-width: min(100%, 450px);
+    }
+
+    input[size='75'] {
+        min-width: min(100%, 350px);
+    }
+
+    input[size='70'] {
+        min-width: min(100%, 320px);
+    }
+
+    button {
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    select {
+        width: 4rem;
+        text-align: center;
+    }
+
+    /* Error output styling */
+    div:last-of-type:not(:has(label)):not(:has(.label)) {
+        display: block;
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: rgba(31, 41, 55, 0.6);
+        border: 1px solid rgba(156, 163, 175, 0.2);
+        border-radius: 8px;
+        word-break: break-all;
+        font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+        font-size: 0.85rem;
+        text-align: left;
+    }
+
+    div:last-of-type:not(:has(label)):not(:has(.label))::before {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-family:
+            'Inter',
+            'Segoe UI',
+            -apple-system,
+            BlinkMacSystemFont,
+            system-ui,
+            sans-serif;
+    }
+
+    @media (max-width: 768px) {
+        div:has(input[type='string']:not([size='140'])),
+        div:has(.label) {
+            grid-template-columns: 1fr;
+            gap: 0.25rem;
+        }
+
+        input[type='string'] {
+            min-width: 100%;
+        }
+
+        input[type='number'] {
+            width: 5rem;
+        }
+
+        select {
+            width: 4rem;
+        }
     }
 </style>

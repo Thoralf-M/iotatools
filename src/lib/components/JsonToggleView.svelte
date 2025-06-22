@@ -18,6 +18,9 @@
     .value,
     pre {
         text-align: left;
+        word-break: break-all;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
     }
     button {
         margin: 0.5rem;

@@ -269,9 +269,7 @@
         text-align: left;
         grid-template-columns: auto 1fr; /* label auto, input takes remaining space */
     }
-    .box {
-        padding: 2px;
-    }
+
     textarea {
         width: 100%;
         height: 100px;
