@@ -6,6 +6,8 @@
     import JsonToggleView from '../components/JsonToggleView.svelte';
     import { decodeBcs, layoutToBcs, type BcsDecodeResult } from '../dynamic-fields/bcs-conversion';
     import {
+        deriveDynamicFieldId,
+        deriveDynamicFieldIdWithBcs,
         enhanceFieldsWithLayoutsAndBcs,
         getMoveLayout,
         queryDynamicField,
@@ -34,6 +36,7 @@
     let dynamicObjectFieldResult: any = $state(null);
     let fieldError: string = $state('');
     let fieldLoading: boolean = $state(false);
+    let computedDynamicFieldId: string = $state('');
 
     let bcsInputMode: 'base64' | 'json' = $state('json');
     let fieldStructType: string = $state('Bool');
@@ -125,6 +128,41 @@
             return '';
         }
     }
+
+    function computeDynamicFieldId(): string {
+        if (!objectId || !fieldType) {
+            return '';
+        }
+
+        try {
+            if (bcsInputMode === 'base64') {
+                if (!fieldBcs.trim()) return '';
+                return deriveDynamicFieldIdWithBcs(objectId, fieldType, fieldBcs);
+            } else {
+                const struct = getSelectedStruct();
+                if (!struct) return '';
+                const json = JSON.parse(struct.value);
+
+                // Convert the JSON layout to BCS schema using layoutToBcs
+                const bcsSchema = layoutToBcs(struct.layout);
+                return deriveDynamicFieldId(objectId, fieldType, bcsSchema, json);
+            }
+        } catch (e) {
+            console.error('Error computing dynamic field ID:', e);
+            return '';
+        }
+    }
+
+    // Update computed dynamic field ID when relevant values change
+    $effect(() => {
+        // Track dependencies
+        objectId;
+        fieldType;
+        fieldBcs;
+        fieldStructType;
+        bcsInputMode;
+        computedDynamicFieldId = computeDynamicFieldId();
+    });
 
     async function handleQueryDynamicFields(cursor?: string) {
         error = '';
@@ -565,6 +603,53 @@
                     cols="130"
                     style="font-family: monospace;"
                 ></textarea>
+            </div>
+            {#if fieldStructType}
+                {@const bcsValue = getBcsBase64()}
+                {#if bcsValue}
+                    <div
+                        style="margin-top: 0.5em; padding: 0.5em; border-radius: 4px; font-family: monospace; word-break: break-all;"
+                    >
+                        <strong>Computed BCS Base64 encoded:</strong>
+                        {bcsValue}
+                        <button
+                            onclick={() => navigator.clipboard.writeText(bcsValue)}
+                            style="margin-left: 0.5em; padding: 2px 6px; font-size: 0.8em; cursor: pointer;"
+                            title="Copy to clipboard"
+                        >
+                            📋 Copy
+                        </button>
+                    </div>
+                {:else}
+                    <div style="margin-top: 0.5em; color: #999; font-style: italic;">
+                        Unable to compute BCS value - check struct definition and value
+                    </div>
+                {/if}
+            {:else}
+                <div style="margin-top: 0.5em; color: #999; font-style: italic;">
+                    Select a struct type to see computed BCS value
+                </div>
+            {/if}
+        {/if}
+        {#if computedDynamicFieldId}
+            <div
+                style="margin-top: 0.5em; padding: 0.5em; border-radius: 4px; font-family: monospace; word-break: break-all;"
+            >
+                <strong>Computed Dynamic Field ID:</strong>
+                {computedDynamicFieldId}
+                <button
+                    onclick={() => navigator.clipboard.writeText(computedDynamicFieldId)}
+                    style="margin-left: 0.5em; padding: 2px 6px; font-size: 0.8em; cursor: pointer;"
+                    title="Copy to clipboard"
+                >
+                    📋 Copy
+                </button>
+            </div>
+        {:else if objectId && fieldType && (bcsInputMode === 'base64' ? fieldBcs : fieldStructType)}
+            <div style="margin-top: 0.5em; color: #666; font-style: italic;">Computing...</div>
+        {:else}
+            <div style="margin-top: 0.5em; color: #999; font-style: italic;">
+                Enter object ID, field type, and field value to compute dynamic field ID
             </div>
         {/if}
     </div>

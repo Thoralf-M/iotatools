@@ -20,7 +20,6 @@ export function getClient(graphql: boolean = false): IotaClient {
                     fallbackTransportUrl: selectedNetworkUrl,
                 }),
             };
-
         } else {
             clientOptions = {
                 url: selectedNetworkUrl,
