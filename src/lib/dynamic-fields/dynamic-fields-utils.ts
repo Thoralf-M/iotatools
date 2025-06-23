@@ -1,7 +1,66 @@
+import { fromB64, type BcsType } from '@iota/bcs';
+import { bcs } from '@iota/iota-sdk/bcs';
 import { IotaGraphQLClient, type GraphQLQueryResult } from '@iota/iota-sdk/graphql';
 import { graphql, type MoveTypeLayout } from '@iota/iota-sdk/graphql/schemas/2025.2';
+import { blake2b } from '@noble/hashes/blake2';
+import { bytesToHex } from '@noble/hashes/utils';
 
 import { mapJsonToBcs } from './bcs-conversion';
+
+// Derive a dynamic field ID
+export function deriveDynamicFieldId<T>(
+    parentObjectId: string,
+    tag: string,
+    valueType: BcsType<T>,
+    value: T,
+): string {
+    const typeTagBytes = bcs.TypeTag.serialize(tag).toBytes();
+    const valueBcsBytes = valueType.serialize(value).toBytes();
+
+    const valueBcsBytesLen = new Uint8Array(8);
+    const view = new DataView(valueBcsBytesLen.buffer);
+    view.setUint32(0, valueBcsBytes.length, true); // little-endian
+
+    const input = new Uint8Array([
+        // HashingIntentScope::ChildObjectId
+        0xf0,
+        ...bcs.Address.serialize(parentObjectId).toBytes(),
+        ...valueBcsBytesLen,
+        ...valueBcsBytes,
+        ...typeTagBytes,
+    ]);
+
+    const hash = blake2b(input, { dkLen: 32 });
+
+    return `0x${bytesToHex(hash)}`;
+}
+
+// Derive a dynamic field ID with value BCS bytes base64 encoded
+export function deriveDynamicFieldIdWithBcs(
+    parentObjectId: string,
+    tag: string,
+    valueBytesB64: string,
+): string {
+    const typeTagBytes = bcs.TypeTag.serialize(tag).toBytes();
+    const valueBcsBytes = fromB64(valueBytesB64);
+
+    const valueBcsBytesLen = new Uint8Array(8);
+    const view = new DataView(valueBcsBytesLen.buffer);
+    view.setUint32(0, valueBcsBytes.length, true); // little-endian
+
+    const input = new Uint8Array([
+        // HashingIntentScope::ChildObjectId
+        0xf0,
+        ...bcs.Address.serialize(parentObjectId).toBytes(),
+        ...valueBcsBytesLen,
+        ...valueBcsBytes,
+        ...typeTagBytes,
+    ]);
+
+    const hash = blake2b(input, { dkLen: 32 });
+
+    return `0x${bytesToHex(hash)}`;
+}
 
 export interface DynamicFieldsQueryOptions {
     objectId: string;

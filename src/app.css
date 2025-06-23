@@ -1,5 +1,11 @@
 :root {
-    font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-family:
+        'Inter',
+        'Segoe UI',
+        -apple-system,
+        BlinkMacSystemFont,
+        system-ui,
+        sans-serif;
     line-height: 1.6;
     font-weight: 400;
 
@@ -87,7 +93,8 @@ body::before {
     left: -10px;
     width: calc(100vw + 20px);
     height: calc(100vh + 20px);
-    background: radial-gradient(circle at 30% 20%, rgba(79, 122, 255, 0.05) 0%, transparent 50%),
+    background:
+        radial-gradient(circle at 30% 20%, rgba(79, 122, 255, 0.05) 0%, transparent 50%),
         radial-gradient(circle at 80% 80%, rgba(101, 90, 184, 0.05) 0%, transparent 50%),
         radial-gradient(circle at 40% 40%, rgba(75, 92, 212, 0.05) 0%, transparent 50%);
     pointer-events: none;
@@ -165,7 +172,7 @@ input::placeholder {
 }
 
 /* Number inputs should be smaller */
-input[type="number"] {
+input[type='number'] {
     width: 4rem;
     text-align: center;
 }
