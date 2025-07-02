@@ -1,5 +1,6 @@
 <script lang="ts">
     let textContent: string = $state('');
+    let limit: number = $state(64);
 
     // Separate reactive variables for each metric to avoid derived state issues
     let totalChars = $derived(textContent.length);
@@ -111,13 +112,51 @@
 </script>
 
 <main>
-    <div style="margin-bottom: 1em;">
+    <div class="text-input-container">
         <textarea
             id="textInput"
             bind:value={textContent}
             placeholder="Paste your text here for analysis..."
-            style="width: 98%; height: 150px; font-family: monospace; border: 1px solid #ccc; border-radius: 4px; padding: 0.5em;"
+            class="text-input"
         ></textarea>
+        <div class="controls">
+            <label for="limitInput">Show first</label>
+            <input
+                id="limitInput"
+                type="number"
+                bind:value={limit}
+                min="0"
+                max="10000"
+                class="limit-input"
+            />
+            <span>chars:</span>
+            <button
+                class="repeat-button"
+                onclick={() => {
+                    if (textContent.length > 0) {
+                        const repeatCount = Math.ceil(limit / textContent.length);
+                        textContent = textContent.repeat(repeatCount).slice(0, limit);
+                    }
+                }}
+                disabled={textContent.length === 0}
+            >
+                Repeat to limit
+            </button>
+            <div class="preview-text">
+                <span class="highlighted-text">{textContent.slice(0, limit)}</span
+                >{#if textContent.length > limit}<span class="remaining-text">...</span>{/if}
+            </div>
+            {#if totalChars < limit && totalChars > 0}
+                <span class="status-missing">
+                    ({limit - totalChars} missing)
+                </span>
+            {/if}
+            {#if totalChars > limit}
+                <span class="status-more">
+                    ({totalChars - limit} more)
+                </span>
+            {/if}
+        </div>
     </div>
     <div class="metrics-grid">
         <!-- Basic Metrics -->
@@ -255,6 +294,82 @@
         max-width: 1200px;
         margin: 0 auto;
         padding: 1em;
+    }
+
+    .text-input-container {
+        margin-bottom: 1em;
+    }
+
+    .text-input {
+        width: 98%;
+        height: 150px;
+        font-family: monospace;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 0.5em;
+        resize: vertical;
+        box-sizing: border-box;
+        margin: 0;
+        outline: none;
+    }
+
+    .controls {
+        display: flex;
+        align-items: center;
+        gap: 1em;
+        margin-top: 0.5em;
+    }
+
+    .limit-input {
+        width: 80px;
+        padding: 0.25em;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .repeat-button {
+        padding: 0.25em 0.5em;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9em;
+        white-space: nowrap;
+    }
+
+    .repeat-button:hover:not(:disabled) {
+        background: #e9ecef;
+    }
+
+    .repeat-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .preview-text {
+        font-family: monospace;
+        background-color: rgba(55, 65, 81, 0.5);
+        padding: 0.25em 0.5em;
+        border-radius: 4px;
+        word-break: break-all;
+        flex: 1;
+    }
+
+    .highlighted-text {
+        color: rgba(59, 130, 246, 1);
+    }
+
+    .remaining-text {
+        color: #666;
+    }
+
+    .status-missing {
+        color: #ff6b6b;
+        font-size: 0.9em;
+    }
+
+    .status-more {
+        color: #4ade80;
+        font-size: 0.9em;
     }
 
     .metrics-grid {
