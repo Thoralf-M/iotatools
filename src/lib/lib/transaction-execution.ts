@@ -1,3 +1,4 @@
+import { toB64 } from '@iota/bcs';
 import type {
     DevInspectResults,
     DryRunTransactionBlockResponse,
@@ -42,6 +43,11 @@ export async function executeTransaction(
                 options,
                 account: { address: senderAddress },
             });
+        case TransactionExecution.Prepare:
+            let json = JSON.parse(await transaction.toJSON());
+            let transactionBytes = toB64(await transaction.build({ client }));
+            // @ts-ignore
+            return { json, transactionBytes };
         default:
             throw new Error(`Unknown transaction execution mode: ${executionMode}`);
     }

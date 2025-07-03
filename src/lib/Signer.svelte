@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { isValidIotaAddress } from '@iota/iota-sdk/utils';
+
     import { sharedSignerType, SignerType } from './lib/local-storage-store';
     import {
         activeAddress,
@@ -10,6 +12,11 @@
 
     // Init the first time if localstorage is selected
     updateSelectedSignerAccounts();
+    let foreignAddress = '0x0000000000000000000000000000000000000000000000000000000000000000';
+
+    $: isAddressValid = (() => {
+        return isValidIotaAddress(foreignAddress);
+    })();
 </script>
 
 <main>
@@ -21,7 +28,7 @@
                         <label class="control-label" for="signer-select">Signer:</label>
                         <select
                             bind:value={$sharedSignerType}
-                            onchange={() => updateSelectedSignerAccounts()}
+                            onchange={() => updateSelectedSignerAccounts(foreignAddress)}
                             class="select-input"
                             id="signer-select"
                         >
@@ -34,6 +41,26 @@
                             <button onclick={() => connectWallet()} class="connect-btn">
                                 Connect
                             </button>
+                        {/if}
+                        {#if $sharedSignerType == SignerType.ForeignAddress}
+                            <input
+                                type="string"
+                                class="foreign-address-input"
+                                class:invalid-address={!isAddressValid}
+                                bind:value={foreignAddress}
+                                oninput={() => {
+                                    console.log(
+                                        'Input changed:',
+                                        foreignAddress,
+                                        'Valid:',
+                                        isValidIotaAddress(foreignAddress),
+                                    );
+                                    if (isValidIotaAddress(foreignAddress)) {
+                                        updateSelectedSignerAccounts(foreignAddress);
+                                    }
+                                }}
+                                placeholder="any address, can't be used for signing"
+                            />
                         {/if}
                     </div>
                 </div>
@@ -205,6 +232,43 @@
 
     .copy-btn:hover {
         box-shadow: 0 4px 8px rgba(99, 102, 241, 0.2);
+    }
+
+    .foreign-address-input {
+        width: 37rem;
+        max-width: 100%;
+        padding: 0.4rem 0.6rem;
+        border: 1px solid rgba(156, 163, 175, 0.2);
+        border-radius: 6px;
+        background: rgba(55, 65, 81, 0.4);
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.8rem;
+        font-weight: 400;
+        transition: all 0.2s ease;
+        backdrop-filter: blur(3px);
+        font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+    }
+
+    .foreign-address-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+        background: rgba(55, 65, 81, 0.6);
+    }
+
+    .foreign-address-input:hover {
+        border-color: rgba(156, 163, 175, 0.3);
+        background: rgba(55, 65, 81, 0.5);
+    }
+
+    .invalid-address {
+        border-color: #ef4444 !important;
+        background: rgba(239, 68, 68, 0.1) !important;
+    }
+
+    .invalid-address:focus {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15) !important;
     }
 
     @media (max-width: 768px) {
