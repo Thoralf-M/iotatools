@@ -32,7 +32,9 @@ export const sharedPrivateKeyAccounts: Writable<PrivateKeyAccounts> = persistent
 export enum SignerType {
     WebWallet = 'WebWallet',
     Localstorage = 'Localstorage',
+    ForeignAddress = 'ForeignAddress',
 }
+
 export const selectedSignerType = writable<SignerType>(SignerType.Localstorage);
 export const sharedSignerType: Writable<SignerType> = persistentWritableStore(
     SELECTED_SIGNER_TYPE_KEY,
