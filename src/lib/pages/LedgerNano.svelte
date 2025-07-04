@@ -98,6 +98,7 @@
 
     type AddressWithIndex = {
         address: string;
+        publicKey: string;
         internal: boolean;
         index: number;
         totalBalance?: string;
@@ -129,6 +130,7 @@
 
             grouped[accountIndex].push({
                 address: address.address,
+                publicKey: address.publicKey,
                 internal: change == 1,
                 index: addressIndex,
                 totalBalance: address.totalBalance,
@@ -430,6 +432,7 @@
                                         <th>Index</th>
                                         <th>Internal</th>
                                         <th>Address</th>
+                                        <th>PublicKey</th>
                                         <th>Balance</th>
                                         <th>Owned Objects</th>
                                     </tr>
@@ -440,6 +443,7 @@
                                             <td>{addr.index}</td>
                                             <td>{addr.internal}</td>
                                             <td class="mono">{addr.address}</td>
+                                            <td class="mono">{addr.publicKey}</td>
                                             <td>{addr.totalBalance}</td>
                                             <td>{addr.objectCount}</td>
                                         </tr>
