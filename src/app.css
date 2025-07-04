@@ -471,6 +471,53 @@ tr:hover td {
     background: linear-gradient(135deg, var(--primary-hover), var(--accent-color));
 }
 
+/* Ultra-compact transaction display styles */
+.ultra-compact .transaction-effects,
+.ultra-compact .transaction-raw {
+    margin: 0.1rem 0;
+}
+
+.ultra-compact .status-line,
+.ultra-compact .info-line,
+.ultra-compact .gas-compact,
+.ultra-compact .ptb-compact {
+    margin: 0.1rem 0;
+    padding: 0.3rem;
+    font-size: 0.65rem;
+}
+
+.ultra-compact .section-label {
+    font-size: 0.7rem;
+    margin-right: 0.25rem;
+}
+
+.ultra-compact .balance-item,
+.ultra-compact .object-item {
+    padding: 0.15rem 0.2rem;
+    min-width: 70px;
+}
+
+.ultra-compact .inputs-compact,
+.ultra-compact .commands-compact,
+.ultra-compact .balance-changes-compact,
+.ultra-compact .objects-compact,
+.ultra-compact .events-compact {
+    margin: 0.15rem 0;
+    gap: 0.25rem;
+}
+
+.ultra-compact .inline-value,
+.ultra-compact .input-compact,
+.ultra-compact .command-compact,
+.ultra-compact .event-item-compact {
+    font-size: 0.6rem;
+    padding: 1px 2px;
+}
+
+.ultra-compact .formatted-view {
+    gap: 0.25rem;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     #app {

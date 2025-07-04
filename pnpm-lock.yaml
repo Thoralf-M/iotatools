@@ -23,8 +23,8 @@ importers:
                 specifier: ^0.6.0
                 version: 0.6.0(typescript@5.8.3)
             '@iota/iota-sdk':
-                specifier: ^1.2.0
-                version: 1.2.0(typescript@5.8.3)
+                specifier: ^1.3.0
+                version: 1.3.0(typescript@5.8.3)
             '@iota/ledgerjs-hw-app-iota':
                 specifier: ^0.2.2
                 version: 0.2.2
@@ -55,9 +55,21 @@ importers:
             buffer:
                 specifier: ^6.0.3
                 version: 6.0.3
+            chart.js:
+                specifier: ^4.5.0
+                version: 4.5.0
+            chartjs-adapter-date-fns:
+                specifier: ^3.0.0
+                version: 3.0.0(chart.js@4.5.0)(date-fns@4.1.0)
+            chartjs-plugin-zoom:
+                specifier: ^2.2.0
+                version: 2.2.0(chart.js@4.5.0)
             codemirror:
                 specifier: ^6.0.2
                 version: 6.0.2
+            date-fns:
+                specifier: ^4.1.0
+                version: 4.1.0
             svelte-dnd-action:
                 specifier: ^0.9.61
                 version: 0.9.61(svelte@5.34.7)
@@ -531,6 +543,13 @@ packages:
             }
         engines: { node: '>=20' }
 
+    '@iota/iota-sdk@1.3.0':
+        resolution:
+            {
+                integrity: sha512-RMoyUwJtI4/RN9U2AQuoP234MSAUYI9uE4Sv4nS0/PmGLINksts1NAZ4EOf9nQ8dhKXO0bCNDr2951sx4k0yKw==,
+            }
+        engines: { node: '>=20' }
+
     '@iota/ledgerjs-hw-app-iota@0.2.2':
         resolution:
             {
@@ -574,6 +593,12 @@ packages:
         resolution:
             {
                 integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==,
+            }
+
+    '@kurkle/color@0.3.4':
+        resolution:
+            {
+                integrity: sha512-M5UknZPHRu3DEDWoipU6sE8PdkZ6Z/S+v4dD+Ke8IaNlpdSQah50lz1KtcFBa2vsdOnwbbnxJwVM4wty6udA5w==,
             }
 
     '@ledgerhq/devices@8.4.7':
@@ -914,6 +939,12 @@ packages:
                 integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==,
             }
 
+    '@types/hammerjs@2.0.46':
+        resolution:
+            {
+                integrity: sha512-ynRvcq6wvqexJ9brDMS4BnBLzmr0e14d6ZJTEShTBWKymQiHwlAyGu0ZPEFI2Fh1U53F7tN9ufClWM5KvqkKOw==,
+            }
+
     '@types/tern@0.23.9':
         resolution:
             {
@@ -1023,6 +1054,30 @@ packages:
                 integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==,
             }
 
+    chart.js@4.5.0:
+        resolution:
+            {
+                integrity: sha512-aYeC/jDgSEx8SHWZvANYMioYMZ2KX02W6f6uVfyteuCGcadDLcYVHdfdygsTQkQ4TKn5lghoojAsPj5pu0SnvQ==,
+            }
+        engines: { pnpm: '>=8' }
+
+    chartjs-adapter-date-fns@3.0.0:
+        resolution:
+            {
+                integrity: sha512-Rs3iEB3Q5pJ973J93OBTpnP7qoGwvq3nUnoMdtxO+9aoJof7UFcRbWcIDteXuYd1fgAvct/32T9qaLyLuZVwCg==,
+            }
+        peerDependencies:
+            chart.js: '>=2.8.0'
+            date-fns: '>=2.0.0'
+
+    chartjs-plugin-zoom@2.2.0:
+        resolution:
+            {
+                integrity: sha512-in6kcdiTlP6npIVLMd4zXZ08PDUXC52gZ4FAy5oyjk1zX3gKarXMAof7B9eFiisf9WOC3bh2saHg+J5WtLXZeA==,
+            }
+        peerDependencies:
+            chart.js: '>=3.2.0'
+
     chokidar@4.0.3:
         resolution:
             {
@@ -1047,6 +1102,12 @@ packages:
         resolution:
             {
                 integrity: sha512-VQ2MBenTq1fWZUH9DJNGti7kKv6EeAuYr3cLwxUWhIu1baTaXh4Ib5W2CqHVqib4/MqbYGJqiL3Zb8GJZr3l4g==,
+            }
+
+    date-fns@4.1.0:
+        resolution:
+            {
+                integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==,
             }
 
     debug@4.4.1:
@@ -1148,6 +1209,13 @@ packages:
                 integrity: sha512-mS1lbMsxgQj6hge1XZ6p7GPhbrtFwUFYi3wRzXAC/FmYnyXMTvvI3td3rjmQ2u8ewXueaSvRPWaEcgVVOT9Jnw==,
             }
         engines: { node: ^12.22.0 || ^14.16.0 || ^16.0.0 || >=17.0.0 }
+
+    hammerjs@2.0.8:
+        resolution:
+            {
+                integrity: sha512-tSQXBXS/MWQOn/RKckawJ61vvsDpCom87JgxiYdGwHdOa0ht0vzUWDlfioofFCRU0L+6NGDt6XzbgoJvZkMeRQ==,
+            }
+        engines: { node: '>=0.8.0' }
 
     ieee754@1.2.1:
         resolution:
@@ -1686,6 +1754,25 @@ snapshots:
             - '@gql.tada/vue-support'
             - typescript
 
+    '@iota/iota-sdk@1.3.0(typescript@5.8.3)':
+        dependencies:
+            '@graphql-typed-document-node/core': 3.2.0(graphql@16.11.0)
+            '@iota/bcs': 1.0.0
+            '@noble/curves': 1.9.2
+            '@noble/hashes': 1.8.0
+            '@scure/bip32': 1.7.0
+            '@scure/bip39': 1.6.0
+            '@suchipi/femver': 1.0.0
+            bech32: 2.0.0
+            gql.tada: 1.8.10(graphql@16.11.0)(typescript@5.8.3)
+            graphql: 16.11.0
+            tweetnacl: 1.0.3
+            valibot: 0.36.0
+        transitivePeerDependencies:
+            - '@gql.tada/svelte-support'
+            - '@gql.tada/vue-support'
+            - typescript
+
     '@iota/ledgerjs-hw-app-iota@0.2.2':
         dependencies:
             '@ledgerhq/hw-transport': 6.31.7
@@ -1716,6 +1803,8 @@ snapshots:
         dependencies:
             '@jridgewell/resolve-uri': 3.1.2
             '@jridgewell/sourcemap-codec': 1.5.0
+
+    '@kurkle/color@0.3.4': {}
 
     '@ledgerhq/devices@8.4.7':
         dependencies:
@@ -1895,6 +1984,8 @@ snapshots:
 
     '@types/estree@1.0.8': {}
 
+    '@types/hammerjs@2.0.46': {}
+
     '@types/tern@0.23.9':
         dependencies:
             '@types/estree': 1.0.8
@@ -1955,6 +2046,21 @@ snapshots:
             base64-js: 1.5.1
             ieee754: 1.2.1
 
+    chart.js@4.5.0:
+        dependencies:
+            '@kurkle/color': 0.3.4
+
+    chartjs-adapter-date-fns@3.0.0(chart.js@4.5.0)(date-fns@4.1.0):
+        dependencies:
+            chart.js: 4.5.0
+            date-fns: 4.1.0
+
+    chartjs-plugin-zoom@2.2.0(chart.js@4.5.0):
+        dependencies:
+            '@types/hammerjs': 2.0.46
+            chart.js: 4.5.0
+            hammerjs: 2.0.8
+
     chokidar@4.0.3:
         dependencies:
             readdirp: 4.1.2
@@ -1972,6 +2078,8 @@ snapshots:
             '@codemirror/view': 6.37.2
 
     crelt@1.0.6: {}
+
+    date-fns@4.1.0: {}
 
     debug@4.4.1:
         dependencies:
@@ -2041,6 +2149,8 @@ snapshots:
             - graphql
 
     graphql@16.11.0: {}
+
+    hammerjs@2.0.8: {}
 
     ieee754@1.2.1: {}
 
