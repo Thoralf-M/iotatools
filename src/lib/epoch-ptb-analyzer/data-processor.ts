@@ -23,6 +23,7 @@ export interface PublishedPackage {
     sender: string;
     version: string;
     txId: string;
+    modules?: string[];
 }
 
 export interface TransactionData {
@@ -215,7 +216,11 @@ export class TransactionDataProcessor {
         const txId = tx.digest || '';
 
         for (const change of objectChanges) {
+            // Check for package from asMoveObject
             if (change.outputState?.asMoveObject?.contents?.json?.package) {
+                if (!change.outputState?.asMoveObject?.contents?.json?.package.startsWith('0x')) {
+                    continue; // Skip without 0x prefix, because then it's not from a publish command
+                }
                 const packageData = change.outputState.asMoveObject.contents.json;
                 const publishedPackage: PublishedPackage = {
                     packageId: packageData.package,
@@ -226,6 +231,33 @@ export class TransactionDataProcessor {
 
                 // Use package ID as key to avoid duplicates
                 this.transactionData.publishedPackages.set(packageData.package, publishedPackage);
+            }
+
+            // Check for modules from asMovePackage
+            if (change.outputState?.asMovePackage?.modules?.nodes) {
+                // Find the corresponding package ID from the same change or use the address
+                const packageId = change.address || change.idCreated;
+                if (packageId && packageId.startsWith('0x')) {
+                    const moduleNames = change.outputState.asMovePackage.modules.nodes
+                        .map((module: any) => module.name)
+                        .filter((name: string) => name);
+
+                    // If we already have this package, update it with modules
+                    const existingPackage = this.transactionData.publishedPackages.get(packageId);
+                    if (existingPackage) {
+                        existingPackage.modules = moduleNames;
+                    } else {
+                        // Create new package entry
+                        const publishedPackage: PublishedPackage = {
+                            packageId: packageId,
+                            sender: senderAddress,
+                            version: '1',
+                            txId: txId,
+                            modules: moduleNames,
+                        };
+                        this.transactionData.publishedPackages.set(packageId, publishedPackage);
+                    }
+                }
             }
         }
     }
@@ -320,11 +352,9 @@ export class TransactionDataProcessor {
 
     getCheckpointTransactions(checkpointNum: string | number): ProcessedTransaction[] {
         const sequenceNumber = parseInt(checkpointNum.toString());
-        console.log(`Looking up transactions for checkpoint ${sequenceNumber}`);
 
         const transactions =
             this.transactionData.transactionsByCheckpoint.get(sequenceNumber) || [];
-        console.log(`Found ${transactions.length} transactions in checkpoint ${sequenceNumber}`);
 
         return transactions.map((tx: any) => ({
             digest: tx.digest,
