@@ -75,12 +75,6 @@
         }
     }
 
-    // Track when user manually changes bucket time
-    $: if (bucketTime && userOverrideBucketTime === undefined) {
-        // This is the first time bucketTime is being set, don't mark as override
-        userOverrideBucketTime = false;
-    }
-
     // Function to filter data based on zoom state
     function filterDataByZoom(data: CheckpointData[]): CheckpointData[] {
         if (!zoomState.min || !zoomState.max) {
@@ -835,8 +829,11 @@
             <label for="bucket-time">Time bucket:</label>
             <select
                 id="bucket-time"
-                bind:value={bucketTime}
-                on:change={() => (userOverrideBucketTime = true)}
+                value={bucketTime}
+                on:change={(e) => {
+                    userOverrideBucketTime = true;
+                    bucketTime = parseInt(e.target.value);
+                }}
             >
                 {#each bucketOptions as option}
                     <option value={option.value}>{option.label}</option>
@@ -878,7 +875,7 @@
 
     {#if isDataFiltered}
         <div class="data-filter-info">
-            📊 <strong>Data Filtered:</strong> Showing {filteredDataLength} of {originalDataLength} checkpoints
+            📊 <strong>Data Filtered:</strong> Showing {filteredDataLength} of {originalDataLength} transactions
             ({Math.round((filteredDataLength / originalDataLength) * 100)}% of total data)
         </div>
     {/if}

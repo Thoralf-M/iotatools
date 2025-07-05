@@ -20,6 +20,7 @@
     let selectedCheckpoint = '';
     let checkpointTransactions: any[] = [];
     let loadingCheckpointTransactions = false;
+    let stopRequested = false; // Track if user requested to stop fetching
 
     let displayData: DisplayData = {
         totalPTBs: 0,
@@ -124,6 +125,12 @@
         getCurrentEpoch();
     });
 
+    function stopFetching() {
+        stopRequested = true;
+        // The analyzer will check this flag during processing
+        analyzer.requestStop();
+    }
+
     async function fetchEpochTransactionBlocks() {
         // Validate input based on selected mode
         if (inputMode === 'epoch') {
@@ -151,6 +158,7 @@
 
         loading = true;
         isLimitedQuery = false;
+        stopRequested = false;
         error = '';
         processedTransactions = 0;
         processedCheckpoints = 0;
@@ -205,10 +213,16 @@
                 },
             );
         } catch (err: any) {
-            error = err.toString();
-            console.error('Error fetching epoch transaction blocks:', err);
+            if (stopRequested) {
+                console.log('Fetch stopped by user request');
+                // Don't show error for user-requested stops
+            } else {
+                error = err.toString();
+                console.error('Error fetching epoch transaction blocks:', err);
+            }
         } finally {
             loading = false;
+            stopRequested = false; // Reset stop flag when done
         }
     }
 
@@ -239,6 +253,7 @@
 
         loading = true;
         isLimitedQuery = true;
+        stopRequested = false;
         error = '';
         processedTransactions = 0;
         processedCheckpoints = 0;
@@ -294,10 +309,16 @@
                 },
             );
         } catch (err: any) {
-            error = err.toString();
-            console.error('Error fetching limited epoch transaction blocks:', err);
+            if (stopRequested) {
+                console.log('Limited fetch stopped by user request');
+                // Don't show error for user-requested stops
+            } else {
+                error = err.toString();
+                console.error('Error fetching limited epoch transaction blocks:', err);
+            }
         } finally {
             loading = false;
+            stopRequested = false; // Reset stop flag when done
         }
     }
 
@@ -519,10 +540,20 @@
             {/if}
             {#if processedTransactions > 0}
                 <div class="progress-info">
-                    <p>
-                        <strong>Progress:</strong>
-                        {processedTransactions.toLocaleString()} transactions processed
-                    </p>
+                    <div class="progress-header">
+                        <p>
+                            <strong>Progress:</strong>
+                            {processedTransactions.toLocaleString()} transactions processed
+                        </p>
+                        <button
+                            class="stop-btn"
+                            on:click={stopFetching}
+                            disabled={stopRequested}
+                            title="Stop fetching data"
+                        >
+                            {stopRequested ? 'Stopping...' : 'Stop'}
+                        </button>
+                    </div>
                     {#if totalCheckpoints > 0}
                         <div class="progress-section">
                             <div class="progress-label">
@@ -751,6 +782,18 @@
                                                     📋
                                                 </button>
                                             </div>
+                                            {#if pkg.modules && pkg.modules.length > 0}
+                                                <div class="modules-row">
+                                                    <span class="modules-label">Modules:</span>
+                                                    <div class="modules-list">
+                                                        {#each pkg.modules as moduleName}
+                                                            <span class="module-name"
+                                                                >{moduleName}</span
+                                                            >
+                                                        {/each}
+                                                    </div>
+                                                </div>
+                                            {/if}
                                             <div class="sender-row">
                                                 <span class="sender-label">Sender:</span>
                                                 <span class="sender-address">{pkg.sender}</span>
@@ -816,6 +859,9 @@
                                 ✕
                             </button>
                         {/if}
+                        <h5>
+                            Transactions: {checkpointTransactions.length}
+                        </h5>
                     </div>
 
                     {#if loadingCheckpointTransactions}
@@ -824,9 +870,6 @@
                         </div>
                     {:else if selectedCheckpoint && checkpointTransactions.length > 0}
                         <div class="checkpoint-transactions">
-                            <h5>
-                                Transactions in Checkpoint {selectedCheckpoint} ({checkpointTransactions.length})
-                            </h5>
                             <div class="transaction-list">
                                 {#each checkpointTransactions as tx, index}
                                     <details class="transaction-details">
@@ -890,8 +933,8 @@
     }
 
     .input-section {
-        padding: 20px;
-        margin-bottom: 20px;
+        padding: 5px;
+        margin: 0;
     }
 
     .input-row-single {
@@ -978,6 +1021,48 @@
         margin-top: 15px;
         padding-top: 15px;
         border-top: 1px solid rgba(9, 132, 227, 0.3);
+    }
+
+    .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 10px;
+    }
+
+    .progress-header p {
+        margin: 0;
+        flex: 1;
+    }
+
+    .stop-btn {
+        padding: 6px 12px;
+        border: 1px solid #d63031;
+        border-radius: 4px;
+        background: #d63031;
+        color: white;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        font-weight: bold;
+    }
+
+    .stop-btn:hover:not(:disabled) {
+        background: #a02622;
+        border-color: #a02622;
+    }
+
+    .stop-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background: #999;
+        border-color: #999;
+    }
+
+    .stop-btn:active:not(:disabled) {
+        transform: translateY(1px);
     }
 
     .progress-section {
@@ -1308,14 +1393,13 @@
     }
 
     .checkpoint-inspector {
-        margin: 30px 0;
         padding: 20px;
         border: 1px solid #ddd;
         border-radius: 8px;
     }
 
     .checkpoint-inspector h4 {
-        margin: 0 0 15px 0;
+        margin: 0;
         color: #007acc;
         font-size: 18px;
     }
@@ -1324,7 +1408,6 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        margin-bottom: 20px;
         flex-wrap: wrap;
     }
 
@@ -1344,12 +1427,6 @@
         padding: 20px;
         text-align: center;
         font-style: italic;
-    }
-
-    .checkpoint-transactions h5 {
-        margin: 0 0 15px 0;
-        color: #00b894;
-        font-size: 16px;
     }
 
     .transaction-list {
@@ -1479,24 +1556,26 @@
     }
 
     .package-info {
-        flex: 1;
         min-width: 0;
     }
 
     .package-id-row,
-    .sender-row {
+    .sender-row,
+    .modules-row {
         display: flex;
         align-items: center;
         gap: 8px;
         margin-bottom: 2px;
     }
 
-    .sender-row:last-child {
+    .sender-row:last-child,
+    .modules-row:last-child {
         margin-bottom: 0;
     }
 
     .package-label,
-    .sender-label {
+    .sender-label,
+    .modules-label {
         font-size: 11px;
         color: #888;
         min-width: 60px;
@@ -1504,51 +1583,21 @@
         letter-spacing: 0.5px;
     }
 
-    .package-id {
-        color: #007acc;
-        word-break: break-all;
-        flex: 1;
-    }
-
-    .sender-address {
-        color: #00b894;
-        word-break: break-all;
-        flex: 1;
-    }
-
-    .package-meta {
+    .modules-list {
         display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-shrink: 0;
-    }
-
-    .version-info {
-        display: flex;
-        align-items: center;
+        flex-wrap: wrap;
         gap: 4px;
-        font-size: 12px;
-        padding: 4px 8px;
-        border-radius: 4px;
-        background: rgba(214, 48, 49, 0.1);
-        white-space: nowrap;
+        flex: 1;
     }
 
-    .version-label {
-        color: #d63031;
-        font-weight: bold;
-    }
-
-    .tx-btn {
-        font-size: 10px;
-        padding: 2px 6px;
+    .module-name {
         background: rgba(0, 184, 148, 0.1);
         color: #00b894;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 10px;
         font-weight: bold;
-    }
-
-    .tx-btn:hover {
-        background: rgba(0, 184, 148, 0.2);
+        border: 1px solid rgba(0, 184, 148, 0.2);
     }
 
     @media (max-width: 768px) {
@@ -1572,6 +1621,16 @@
             flex-direction: column;
             align-items: flex-start;
             gap: 5px;
+        }
+
+        .progress-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        .progress-header p {
+            text-align: center;
         }
 
         .address-item {
@@ -1629,7 +1688,8 @@
         }
 
         .package-id-row,
-        .sender-row {
+        .sender-row,
+        .modules-row {
             flex-wrap: wrap;
         }
 

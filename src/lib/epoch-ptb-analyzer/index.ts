@@ -12,10 +12,19 @@ export { type CheckpointRange } from './graphql-fetcher';
 export class EpochPTBAnalyzer {
     private fetcher: GraphQLDataFetcher;
     private processor: TransactionDataProcessor;
+    private stopRequested: boolean = false;
 
     constructor() {
         this.fetcher = new GraphQLDataFetcher();
         this.processor = new TransactionDataProcessor();
+    }
+
+    requestStop(): void {
+        this.stopRequested = true;
+    }
+
+    private resetStopFlag(): void {
+        this.stopRequested = false;
     }
 
     async getCurrentEpoch(): Promise<string | null> {
@@ -83,6 +92,12 @@ export class EpochPTBAnalyzer {
             checkpointRange,
             maxTransactions,
         )) {
+            // Check if stop was requested at the beginning of each iteration
+            if (this.stopRequested) {
+                console.log('Stopping fetchTransactionBlocksWithProgress due to user request');
+                break;
+            }
+
             // Process the batch of transactions
             this.processor.processTransactionBatch(fetchResult.transactions);
 
@@ -128,6 +143,7 @@ export class EpochPTBAnalyzer {
             totalCheckpoints: number,
         ) => void,
     ): Promise<DisplayData> {
+        this.resetStopFlag(); // Reset stop flag at the beginning
         const checkpointRange = await this.resolveCheckpointRange(
             epoch,
             startCheckpoint,
@@ -136,6 +152,12 @@ export class EpochPTBAnalyzer {
         let finalData: DisplayData | null = null;
 
         for await (const progress of this.fetchTransactionBlocksWithProgress(checkpointRange)) {
+            // Check if stop was requested
+            if (this.stopRequested) {
+                console.log('Stopping transaction fetch due to user request');
+                break;
+            }
+
             finalData = progress.data;
             if (onProgress) {
                 onProgress(
@@ -164,6 +186,7 @@ export class EpochPTBAnalyzer {
             totalCheckpoints: number,
         ) => void,
     ): Promise<DisplayData> {
+        this.resetStopFlag(); // Reset stop flag at the beginning
         const checkpointRange = await this.resolveCheckpointRange(
             epoch,
             startCheckpoint,
@@ -175,6 +198,12 @@ export class EpochPTBAnalyzer {
             checkpointRange,
             transactionLimit,
         )) {
+            // Check if stop was requested
+            if (this.stopRequested) {
+                console.log('Stopping limited transaction fetch due to user request');
+                break;
+            }
+
             finalData = progress.data;
             if (onProgress) {
                 onProgress(

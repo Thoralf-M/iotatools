@@ -181,13 +181,20 @@ export class GraphQLDataFetcher {
                                       }
                                     }
                                     outputState {
-                                      asMoveObject {
-                                        contents {
-                                          json
+                                        asMoveObject {
+                                            contents {
+                                                json
+                                            }
+                                        }
+                                        asMovePackage {
+                                            modules {
+                                                nodes {
+                                                    name
+                                                }
+                                            }
                                         }
                                     }
                                 }
-                              }
                             }
                             events {
                               nodes {
