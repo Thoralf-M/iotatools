@@ -4,6 +4,7 @@
     import { TransactionDataBuilder } from '@iota/iota-sdk/transactions';
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
+    import { bcsBytesToU64, bytesToUtf8, hexToBytes } from '../lib/converter';
     import { iotaToNano, nanoToIota } from '../lib/iota-nano-conversion';
 
     let bytes: any;
@@ -49,7 +50,7 @@
                     if (hex.length % 2 != 0) {
                         return;
                     }
-                    sourceBytes = hexToBytes(hex);
+                    sourceBytes = hexToBytesLocal(hex);
                     break;
                 case SourceType.Base58:
                     sourceBytes = fromB58(base58);
@@ -81,7 +82,7 @@
         }
     }
 
-    function hexToBytes(hex: string) {
+    function hexToBytesLocal(hex: string) {
         var re = /^(0[xX])?[A-Fa-f0-9]+$/;
 
         if (!re.test(hex)) {
@@ -92,20 +93,7 @@
         if (hex.toLowerCase().startsWith('0x')) {
             hex = hex.slice(2, hex.length);
         }
-        for (var bytes = [], c = 0; c < hex.length; c += 2) {
-            let int = parseInt(hex.substr(c, 2), 16);
-            bytes.push(int);
-        }
-        return bytes;
-    }
-
-    function bytesToUtf8(bytes: number[]) {
-        let bytes_utf8 = new TextDecoder().decode(new Uint8Array(bytes));
-        return bytes_utf8;
-    }
-
-    function bcsBytesToU64(bytes: number[]) {
-        return bcs.u64().parse(new Uint8Array(bytes));
+        return hexToBytes(hex);
     }
 
     function convertToIota() {
