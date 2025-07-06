@@ -1,6 +1,7 @@
 <script lang="ts">
     import { decodeBase64Bytes } from '../lib/converter';
     import { formatNumberWithUnderscores, nanoToIota } from '../lib/iota-nano-conversion';
+    import { formatJsonWithCompactArrays, removeKindFields } from '../lib/transaction-view';
 
     export let transactionData: any;
 
@@ -37,8 +38,11 @@
         return `${objectId.slice(0, 8)}...${objectId.slice(-8)}`;
     }
 
-    function getStatusColor(status: string): string {
-        switch (status?.toUpperCase()) {
+    function getStatusColor(status: string | any): string {
+        // Handle both string format and object format
+        const statusString = typeof status === 'string' ? status : status?.status;
+
+        switch (statusString?.toUpperCase()) {
             case 'SUCCESS':
                 return '#28a745';
             case 'FAILURE':
@@ -49,35 +53,55 @@
         }
     }
 
-    function removeKindFields(obj: any): any {
-        if (obj === null || obj === undefined) return obj;
-
-        if (Array.isArray(obj)) {
-            return obj.map((item) => removeKindFields(item));
-        }
-
-        if (typeof obj === 'object') {
-            const cleaned: any = {};
-            for (const [key, value] of Object.entries(obj)) {
-                if (key !== '$kind') {
-                    cleaned[key] = removeKindFields(value);
-                }
-            }
-            return cleaned;
-        }
-
-        return obj;
+    function getStatusString(status: string | any): string {
+        return typeof status === 'string' ? status : status?.status || 'Unknown';
     }
 
     $: effects = transactionData?.effects;
-    $: balanceChanges = effects?.balanceChanges?.nodes || [];
-    $: objectChanges = effects?.objectChanges?.nodes || [];
-    $: events = effects?.events?.nodes || [];
-    $: deletedObjects = objectChanges.filter((change: any) => change.idDeleted === true);
-    $: createdObjects = objectChanges.filter((change: any) => change.idCreated === true);
-    $: mutatedObjects = objectChanges.filter(
-        (change: any) => change.idDeleted === false && change.idCreated === false,
+    $: balanceChanges =
+        transactionData?.balanceChanges ||
+        effects?.balanceChanges?.nodes ||
+        effects?.balanceChanges ||
+        [];
+    $: objectChanges =
+        transactionData?.objectChanges ||
+        effects?.objectChanges?.nodes ||
+        effects?.objectChanges ||
+        [];
+    $: events = transactionData?.events || effects?.events?.nodes || effects?.events || [];
+
+    // Handle both normalized objectChanges and direct created/mutated arrays
+    $: deletedObjects = objectChanges.filter(
+        (change: any) => change.idDeleted === true || change.type === 'deleted',
     );
+    $: createdObjects = [
+        ...objectChanges.filter(
+            (change: any) => change.idCreated === true || change.type === 'created',
+        ),
+        ...(effects?.created || []).map((obj: any) => ({
+            type: 'created',
+            objectId: obj.reference?.objectId,
+            version: obj.reference?.version,
+            digest: obj.reference?.digest,
+            owner: obj.owner,
+            objectType: '',
+        })),
+    ];
+    $: mutatedObjects = [
+        ...objectChanges.filter(
+            (change: any) =>
+                (change.idDeleted === false && change.idCreated === false) ||
+                change.type === 'mutated',
+        ),
+        ...(effects?.mutated || []).map((obj: any) => ({
+            type: 'mutated',
+            objectId: obj.reference?.objectId,
+            version: obj.reference?.version,
+            digest: obj.reference?.digest,
+            owner: obj.owner,
+            objectType: '',
+        })),
+    ];
     $: hasValidData =
         effects && (effects.status || effects.checkpoint || balanceChanges.length > 0);
 </script>
@@ -91,18 +115,20 @@
                 >{transactionData?.digest}</span
             >
             <span class="status" style="color: {getStatusColor(effects.status)}"
-                >{effects.status}</span
+                >{getStatusString(effects.status)}</span
             >
             <span class="checkpoint-info"
                 >Checkpoint: {formatNumberWithUnderscores(
                     effects.checkpoint?.sequenceNumber || '',
                 )}</span
             >
-            <span class="time-info"
-                >{new Date(
-                    effects.checkpoint?.timestamp || transactionData?.timestamp,
-                ).toLocaleString()}</span
-            >
+            {#if effects.checkpoint?.timestamp || transactionData?.timestamp}
+                <span class="time-info"
+                    >{new Date(
+                        effects.checkpoint?.timestamp || transactionData?.timestamp,
+                    ).toLocaleString()}</span
+                >
+            {/if}
         </div>
 
         <!-- Second line with sender and fee info -->
@@ -179,9 +205,14 @@
         {/if}
 
         <!-- Object Changes Section -->
-        {#if objectChanges.length > 0}
+        {#if objectChanges.length > 0 || createdObjects.length > 0 || mutatedObjects.length > 0 || deletedObjects.length > 0}
             <div class="section">
-                <h4>Object Changes ({objectChanges.length}):</h4>
+                <h4>
+                    Object Changes ({objectChanges.length +
+                        createdObjects.length +
+                        mutatedObjects.length +
+                        deletedObjects.length}):
+                </h4>
                 <div class="object-columns-three">
                     <div class="deleted-objects">
                         <h5 class="column-header deleted">Deleted ({deletedObjects.length}):</h5>
@@ -193,14 +224,12 @@
                                         <details class="state-collapsible" open>
                                             <summary class="state-summary">Previous State:</summary>
                                             <div class="object-json">
-                                                <pre>{JSON.stringify(
+                                                <pre>{formatJsonWithCompactArrays(
                                                         removeKindFields({
                                                             ...change.inputState.asMoveObject
                                                                 .contents.json,
                                                             id: undefined,
                                                         }),
-                                                        null,
-                                                        2,
                                                     )}</pre>
                                             </div>
                                         </details>
@@ -224,14 +253,12 @@
                                                     >Previous State:</summary
                                                 >
                                                 <div class="object-json">
-                                                    <pre>{JSON.stringify(
+                                                    <pre>{formatJsonWithCompactArrays(
                                                             removeKindFields({
                                                                 ...change.inputState.asMoveObject
                                                                     .contents.json,
                                                                 id: undefined,
                                                             }),
-                                                            null,
-                                                            2,
                                                         )}</pre>
                                                 </div>
                                             </details>
@@ -239,17 +266,37 @@
                                         <details class="state-collapsible" open>
                                             <summary class="state-summary">Current State:</summary>
                                             <div class="object-json">
-                                                <pre>{JSON.stringify(
+                                                <pre>{formatJsonWithCompactArrays(
                                                         removeKindFields({
                                                             ...change.outputState.asMoveObject
                                                                 .contents.json,
                                                             id: undefined,
                                                         }),
-                                                        null,
-                                                        2,
                                                     )}</pre>
                                             </div>
                                         </details>
+                                    {:else if change.objectId}
+                                        <div class="object-id">{change.objectId}</div>
+                                        {#if change.objectType}
+                                            <div class="object-type">
+                                                {change.objectType}
+                                            </div>
+                                        {/if}
+                                        {#if change.owner}
+                                            <div class="object-owner">
+                                                Owner: {change.owner.AddressOwner || change.owner}
+                                            </div>
+                                        {/if}
+                                        {#if change.version}
+                                            <div class="object-version">
+                                                Version: {change.version}
+                                            </div>
+                                        {/if}
+                                        {#if change.previousVersion}
+                                            <div class="object-previous-version">
+                                                Previous Version: {change.previousVersion}
+                                            </div>
+                                        {/if}
                                     {:else}
                                         <div class="object-id">{change.address}</div>
                                         {#if change.inputState?.asMoveObject?.contents?.json}
@@ -258,14 +305,12 @@
                                                     >Previous State:</summary
                                                 >
                                                 <div class="object-json">
-                                                    <pre>{JSON.stringify(
+                                                    <pre>{formatJsonWithCompactArrays(
                                                             removeKindFields({
                                                                 ...change.inputState.asMoveObject
                                                                     .contents.json,
                                                                 id: undefined,
                                                             }),
-                                                            null,
-                                                            2,
                                                         )}</pre>
                                                 </div>
                                             </details>
@@ -287,17 +332,32 @@
                                         <details class="state-collapsible" open>
                                             <summary class="state-summary">Object State:</summary>
                                             <div class="object-json">
-                                                <pre>{JSON.stringify(
+                                                <pre>{formatJsonWithCompactArrays(
                                                         removeKindFields({
                                                             ...change.outputState.asMoveObject
                                                                 .contents.json,
                                                             id: undefined,
                                                         }),
-                                                        null,
-                                                        2,
                                                     )}</pre>
                                             </div>
                                         </details>
+                                    {:else if change.objectId}
+                                        <div class="object-id">{change.objectId}</div>
+                                        {#if change.objectType}
+                                            <div class="object-type">
+                                                {change.objectType}
+                                            </div>
+                                        {/if}
+                                        {#if change.owner}
+                                            <div class="object-owner">
+                                                Owner: {change.owner.AddressOwner || change.owner}
+                                            </div>
+                                        {/if}
+                                        {#if change.version}
+                                            <div class="object-version">
+                                                Version: {change.version}
+                                            </div>
+                                        {/if}
                                     {:else}
                                         <div class="object-id">{change.address}</div>
                                     {/if}
@@ -320,10 +380,8 @@
                                 <span class="event-index">#{index + 1}</span>
                                 <span class="event-type">{event.type || 'Unknown'}</span>
                                 {#if event.parsedJson}
-                                    <pre class="event-data">{JSON.stringify(
+                                    <pre class="event-data">{formatJsonWithCompactArrays(
                                             event.parsedJson,
-                                            null,
-                                            2,
                                         )}</pre>
                                 {/if}
                             </div>
@@ -333,7 +391,7 @@
             </div>
         {/if}
 
-        <!-- Tx Commands Section (moved from TransactionRawData) -->
+        <!-- Tx Commands Section -->
         {#if transactionData?.decodedBCS?.intentMessage?.value?.V1?.kind?.ProgrammableTransaction?.commands?.length}
             <div class="section">
                 <span
@@ -346,11 +404,63 @@
                             <span class="command-index">{index}</span>
                             <span class="command-kind">{command.$kind}</span>
                             <div class="command-data">
-                                <pre>{JSON.stringify(
-                                        removeKindFields(command)[command.$kind],
-                                        null,
-                                        2,
-                                    )}</pre>
+                                {#if command.$kind === 'MoveCall' && command.MoveCall}
+                                    {@const moveCall = command.MoveCall}
+                                    {@const signature = `${moveCall.package}::${moveCall.module}::${moveCall.function}`}
+                                    {@const cleanData = {
+                                        function: signature,
+                                        typeArguments: moveCall.typeArguments,
+                                        arguments: moveCall.arguments,
+                                    }}
+                                    <pre>{formatJsonWithCompactArrays(
+                                            removeKindFields(cleanData),
+                                        )}</pre>
+                                {:else}
+                                    <pre>{formatJsonWithCompactArrays(
+                                            removeKindFields(command)[command.$kind],
+                                        )}</pre>
+                                {/if}
+                            </div>
+                        </div>
+                    {/each}
+                </div>
+            </div>
+        {:else if transactionData?.input?.transaction?.transactions?.length}
+            <div class="section">
+                <span>Tx commands ({transactionData.input.transaction.transactions.length}):</span>
+                <div class="commands-list">
+                    {#each transactionData.input.transaction.transactions as command, index}
+                        <div class="command-item">
+                            <span class="command-index">{index}</span>
+                            <span class="command-kind">{Object.keys(command)[0]}</span>
+                            <div class="command-data">
+                                {#if Object.keys(command)[0] === 'MoveCall'}
+                                    {@const commandValue = Object.values(command)[0]}
+                                    {#if commandValue && typeof commandValue === 'object' && commandValue !== null && 'package' in commandValue}
+                                        {@const moveCall = commandValue as {
+                                            package: string;
+                                            module: string;
+                                            function: string;
+                                            typeArguments: any[];
+                                            arguments: any[];
+                                        }}
+                                        {@const signature = `${moveCall.package}::${moveCall.module}::${moveCall.function}`}
+                                        {@const cleanData = {
+                                            function: signature,
+                                            typeArguments: moveCall.typeArguments,
+                                            arguments: moveCall.arguments,
+                                        }}
+                                        <pre>{formatJsonWithCompactArrays(
+                                                removeKindFields(cleanData),
+                                            )}</pre>
+                                    {:else}
+                                        <pre>{formatJsonWithCompactArrays(commandValue)}</pre>
+                                    {/if}
+                                {:else}
+                                    <pre>{formatJsonWithCompactArrays(
+                                            Object.values(command)[0],
+                                        )}</pre>
+                                {/if}
                             </div>
                         </div>
                     {/each}
@@ -358,7 +468,7 @@
             </div>
         {/if}
 
-        <!-- Inputs Section (moved from TransactionRawData) -->
+        <!-- Inputs Section -->
         {#if transactionData?.decodedBCS?.intentMessage?.value?.V1?.kind?.ProgrammableTransaction?.inputs?.length}
             <div class="section">
                 <span>Inputs:</span>
@@ -368,10 +478,8 @@
                             <span class="input-index">{index}</span>
                             <span class="input-kind">{input.$kind}</span>
                             <div class="input-data">
-                                <pre>{JSON.stringify(
+                                <pre>{formatJsonWithCompactArrays(
                                         removeKindFields(input)[input.$kind],
-                                        null,
-                                        2,
                                     )}</pre>
                                 {#if input.$kind === 'Pure' && input[input.$kind].bytes}
                                     {@const decoded = decodeBase64Bytes(input[input.$kind].bytes)}
@@ -399,9 +507,25 @@
                     {/each}
                 </div>
             </div>
+        {:else if transactionData?.input?.transaction?.inputs?.length}
+            <div class="section">
+                <span>Inputs:</span>
+                <div class="inputs-list">
+                    {#each transactionData.input.transaction.inputs as input, index}
+                        {@const inputData = { valueType: input.valueType, value: input.value }}
+                        <div class="input-item">
+                            <span class="input-index">{index}</span>
+                            <span class="input-kind">{input.type}</span>
+                            <div class="input-data">
+                                <pre>{formatJsonWithCompactArrays(inputData)}</pre>
+                            </div>
+                        </div>
+                    {/each}
+                </div>
+            </div>
         {/if}
 
-        <!-- Gas Data Section (moved from TransactionRawData) -->
+        <!-- Gas Data Section -->
         {#if transactionData?.decodedBCS?.intentMessage?.value?.V1?.gasData}
             <div class="section">
                 <span>Gas Data:</span>
@@ -414,6 +538,9 @@
                                     <span class="payment-object"
                                         >{payment.objectId} (v{payment.version})</span
                                     >
+                                    {#if index < transactionData.decodedBCS.intentMessage.value.V1.gasData.payment.length - 1}
+                                        <span class="separator">, </span>
+                                    {/if}
                                 {/each}
                             {:else}
                                 N/A
@@ -422,12 +549,180 @@
                     </div>
                     <div class="gas-field">
                         <span class="field-label">Owner:</span>
-                        <span
-                            class="field-value"
-                            title={transactionData.decodedBCS.intentMessage.value.V1.gasData.owner}
-                            >{transactionData.decodedBCS.intentMessage.value.V1.gasData.owner}</span
+                        <span class="field-value"
+                            >{transactionData.decodedBCS.intentMessage.value.V1.gasData.owner ||
+                                'N/A'}</span
                         >
                     </div>
+                    <div class="gas-field">
+                        <span class="field-label">Price:</span>
+                        <span class="field-value"
+                            >{formatNumberWithUnderscores(
+                                transactionData.decodedBCS.intentMessage.value.V1.gasData.price ||
+                                    '0',
+                            )} nanos</span
+                        >
+                    </div>
+                    <div class="gas-field">
+                        <span class="field-label">Budget:</span>
+                        <span class="field-value"
+                            >{formatNumberWithUnderscores(
+                                transactionData.decodedBCS.intentMessage.value.V1.gasData.budget ||
+                                    '0',
+                            )} nanos</span
+                        >
+                    </div>
+                </div>
+            </div>
+        {:else if transactionData?.input?.gasData}
+            <div class="section">
+                <span>Gas Data:</span>
+                <div class="gas-info">
+                    <div class="gas-field">
+                        <span class="field-label">Payment:</span>
+                        <span class="field-value">
+                            {#if transactionData.input.gasData.payment?.length}
+                                {#each transactionData.input.gasData.payment as payment, index}
+                                    <span class="payment-object"
+                                        >{payment.objectId} (v{payment.version})</span
+                                    >
+                                    {#if index < transactionData.input.gasData.payment.length - 1}
+                                        <span class="separator">, </span>
+                                    {/if}
+                                {/each}
+                            {:else}
+                                N/A
+                            {/if}
+                        </span>
+                    </div>
+                    <div class="gas-field">
+                        <span class="field-label">Owner:</span>
+                        <span class="field-value"
+                            >{transactionData.input.gasData.owner || 'N/A'}</span
+                        >
+                    </div>
+                    <div class="gas-field">
+                        <span class="field-label">Price:</span>
+                        <span class="field-value"
+                            >{formatNumberWithUnderscores(
+                                transactionData.input.gasData.price || '0',
+                            )} nanos</span
+                        >
+                    </div>
+                    <div class="gas-field">
+                        <span class="field-label">Budget:</span>
+                        <span class="field-value"
+                            >{formatNumberWithUnderscores(
+                                transactionData.input.gasData.budget || '0',
+                            )} nanos</span
+                        >
+                    </div>
+                </div>
+            </div>
+        {/if}
+
+        <!-- Dev Inspect Results Section -->
+        {#if transactionData?.devInspectResults?.length}
+            <div class="section">
+                <span>Dev Inspect Results ({transactionData.devInspectResults.length}):</span>
+                <div class="dev-inspect-results">
+                    {#each transactionData.devInspectResults as result, index}
+                        <div class="dev-inspect-item">
+                            <div class="result-header">
+                                <span class="result-index">Result #{index}</span>
+                            </div>
+
+                            {#if result.mutableReferenceOutputs?.length}
+                                <div class="mutable-references">
+                                    <h6>
+                                        Mutable Reference Outputs ({result.mutableReferenceOutputs
+                                            .length}):
+                                    </h6>
+                                    {#each result.mutableReferenceOutputs as output, outputIndex}
+                                        <div class="reference-output">
+                                            <div class="output-header">
+                                                <span class="output-index"
+                                                    >Output #{outputIndex}</span
+                                                >
+                                                <span class="output-type">{output[0]}</span>
+                                            </div>
+                                            {#if output[1]?.length}
+                                                <div class="output-bytes">
+                                                    <span class="bytes-label">Bytes:</span>
+                                                    <div class="bytes-array">
+                                                        [{output[1].join(', ')}]
+                                                    </div>
+                                                </div>
+                                            {/if}
+                                            {#if output[2]}
+                                                <div class="output-object-type">
+                                                    <span class="type-label">Type:</span>
+                                                    <span class="type-value">{output[2]}</span>
+                                                </div>
+                                            {/if}
+                                        </div>
+                                    {/each}
+                                </div>
+                            {/if}
+
+                            {#if result.returnValues?.length}
+                                <div class="return-values">
+                                    <h6>Return Values ({result.returnValues.length}):</h6>
+                                    {#each result.returnValues as returnValue, returnIndex}
+                                        <div class="return-value">
+                                            <div class="return-header">
+                                                <span class="return-index"
+                                                    >Value #{returnIndex}</span
+                                                >
+                                            </div>
+                                            {#if returnValue[0]?.length}
+                                                <div class="return-bytes">
+                                                    <span class="bytes-label">Bytes:</span>
+                                                    <div class="bytes-array">
+                                                        [{returnValue[0].join(', ')}]
+                                                    </div>
+                                                </div>
+                                            {/if}
+                                            {#if returnValue[1]}
+                                                <div class="return-object-type">
+                                                    <span class="type-label">Type:</span>
+                                                    <span class="type-value">{returnValue[1]}</span>
+                                                </div>
+                                            {/if}
+                                        </div>
+                                    {/each}
+                                </div>
+                            {/if}
+
+                            {#if Object.keys(result).length > 2 || (Object.keys(result).length === 1 && !result.mutableReferenceOutputs && !result.returnValues)}
+                                <div class="result-raw">
+                                    <details class="raw-collapsible">
+                                        <summary>Raw Result Data</summary>
+                                        <pre>{formatJsonWithCompactArrays(result)}</pre>
+                                    </details>
+                                </div>
+                            {/if}
+                        </div>
+                    {/each}
+                </div>
+            </div>
+        {/if}
+
+        <!-- Raw Results Section (for dev inspect) -->
+        {#if transactionData?.results?.length}
+            <div class="section">
+                <span>Raw Results ({transactionData.results.length}):</span>
+                <div class="raw-results">
+                    {#each transactionData.results as rawResult, index}
+                        <div class="raw-result-item">
+                            <div class="raw-result-header">
+                                <span class="raw-result-index">Raw Result #{index}</span>
+                            </div>
+                            <div class="raw-result-content">
+                                <pre>{formatJsonWithCompactArrays(rawResult)}</pre>
+                            </div>
+                        </div>
+                    {/each}
                 </div>
             </div>
         {/if}
@@ -904,5 +1199,201 @@
         border-radius: 3px;
         margin-right: 0.5rem;
         margin-bottom: 0.25rem;
+    }
+
+    /* Dev Inspect Results Styles */
+    .dev-inspect-results {
+        background: var(--background-light);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 0.5rem;
+        max-height: 700px;
+        overflow-y: auto;
+    }
+
+    .dev-inspect-item {
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 6px;
+        border-left: 3px solid #3b82f6;
+    }
+
+    .result-header {
+        margin-bottom: 0.5rem;
+    }
+
+    .result-index {
+        font-weight: 600;
+        color: #3b82f6;
+        font-size: 0.9rem;
+    }
+
+    .mutable-references,
+    .return-values {
+        margin-bottom: 0.5rem;
+    }
+
+    .mutable-references h6,
+    .return-values h6 {
+        margin: 0 0 0.25rem 0;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .reference-output,
+    .return-value {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 0.375rem;
+        margin-bottom: 0.25rem;
+        border-radius: 4px;
+        border-left: 2px solid #10b981;
+    }
+
+    .output-header,
+    .return-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .output-index,
+    .return-index {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #10b981;
+    }
+
+    .output-type {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .output-bytes,
+    .return-bytes,
+    .output-object-type,
+    .return-object-type {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .bytes-label,
+    .type-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.6);
+        min-width: 3rem;
+    }
+
+    .bytes-array {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.8);
+        background: rgba(0, 0, 0, 0.4);
+        padding: 2px 6px;
+        border-radius: 3px;
+        word-break: break-all;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+    }
+
+    .type-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.9);
+        background: rgba(0, 0, 0, 0.4);
+        padding: 2px 6px;
+        border-radius: 3px;
+    }
+
+    .result-raw {
+        margin-top: 0.5rem;
+    }
+
+    .raw-collapsible {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 4px;
+        padding: 0.25rem;
+    }
+
+    .raw-collapsible summary {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+        list-style: none;
+        padding: 0.25rem;
+    }
+
+    .raw-collapsible summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .raw-collapsible summary::before {
+        content: '▶ ';
+        margin-right: 0.5rem;
+    }
+
+    .raw-collapsible[open] summary::before {
+        content: '▼ ';
+    }
+
+    .raw-collapsible pre {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.8);
+        background: rgba(0, 0, 0, 0.4);
+        padding: 0.375rem;
+        border-radius: 4px;
+        margin: 0.25rem 0 0 0;
+        overflow-x: auto;
+        word-break: break-all;
+        white-space: pre-wrap;
+    }
+
+    /* Raw Results Styles */
+    .raw-results {
+        background: var(--background-light);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 0.5rem;
+        max-height: 700px;
+        overflow-y: auto;
+    }
+
+    .raw-result-item {
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 6px;
+        border-left: 3px solid #8b5cf6;
+    }
+
+    .raw-result-header {
+        margin-bottom: 0.5rem;
+    }
+
+    .raw-result-index {
+        font-weight: 600;
+        color: #8b5cf6;
+        font-size: 0.9rem;
+    }
+
+    .raw-result-content pre {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.8);
+        background: rgba(0, 0, 0, 0.4);
+        padding: 0.375rem;
+        border-radius: 4px;
+        margin: 0;
+        overflow-x: auto;
+        word-break: break-all;
+        white-space: pre-wrap;
     }
 </style>

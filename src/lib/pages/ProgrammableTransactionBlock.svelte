@@ -5,7 +5,7 @@
     import { basicSetup, EditorView } from 'codemirror';
     import { onMount } from 'svelte';
 
-    import JsonToggleView from '../components/JsonToggleView.svelte';
+    import TransactionView from '../components/TransactionView.svelte';
     import { getClient } from '../lib/client';
     import { activeAddress, iota_wallets } from '../lib/signer-data';
 
@@ -283,7 +283,7 @@
     <button onclick={dryRun}> dry run </button>
     <button onclick={execute}> execute </button>
 
-    <JsonToggleView {value} />
+    <TransactionView {value} />
 </main>
 
 <style>

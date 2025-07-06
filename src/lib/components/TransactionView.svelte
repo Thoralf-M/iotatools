@@ -2,26 +2,26 @@
     // @ts-ignore - Module resolution issue with svelte-json-tree
     import JSONTree from '@sveltejs/svelte-json-tree';
 
+    import {
+        formatJsonWithCompactArrays,
+        getTransactionData,
+        isTransactionData,
+        normalizeOwner,
+    } from '../lib/transaction-view';
     import TransactionEffects from './TransactionEffects.svelte';
 
     export let value: any;
 
     let viewMode: 'formatted' | 'json' | 'tree' = 'formatted';
 
-    // Set default view mode based on data type, but only when value first loads
-    $: if (value && viewMode === 'formatted') {
-        // Only change viewMode if we're in the default state and data is not transaction data
-        if (!isTransactionData(value)) {
+    // Set default view mode based on data type when value changes
+    $: if (value) {
+        // If the data is transaction data, use formatted view, otherwise use json view
+        if (isTransactionData(value)) {
+            viewMode = 'formatted';
+        } else {
             viewMode = 'json';
         }
-    }
-
-    function isTransactionData(data: any): boolean {
-        return (
-            data &&
-            typeof data === 'object' &&
-            (data.digest || data.effects || data.decodedBCS || (data.sender && data.timestamp))
-        );
     }
 </script>
 
@@ -44,15 +44,15 @@
 
     {#if viewMode === 'formatted' && isTransactionData(value)}
         <div class="formatted-view">
-            <TransactionEffects transactionData={value} />
+            <TransactionEffects transactionData={getTransactionData(value)} />
         </div>
     {:else if viewMode === 'tree'}
         <div class="tree-view">
-            <JSONTree {value} />
+            <JSONTree {value} defaultExpandedLevel={1} />
         </div>
     {:else}
         <div class="json-view">
-            <pre>{JSON.stringify(value, null, 2)}</pre>
+            <pre>{formatJsonWithCompactArrays(value)}</pre>
         </div>
     {/if}
 </div>

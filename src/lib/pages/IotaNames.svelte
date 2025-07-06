@@ -8,7 +8,7 @@
     import { Transaction } from '@iota/iota-sdk/transactions';
     import { IOTA_CLOCK_OBJECT_ID, isValidIotaAddress, toHEX } from '@iota/iota-sdk/utils';
 
-    import JsonToggleView from '../components/JsonToggleView.svelte';
+    import TransactionView from '../components/TransactionView.svelte';
     import { getClient, getSelectedNetworkConfig } from '../lib/client';
     import { activeAddress } from '../lib/signer-data';
     import { executeTransaction } from '../lib/transaction-execution';
@@ -839,7 +839,7 @@
     <button onclick={claim}> claim </button>
     <button onclick={listAuctions}> list auctions </button>
 
-    <JsonToggleView {value} />
+    <TransactionView {value} />
 </main>
 
 <style>

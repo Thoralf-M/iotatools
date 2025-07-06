@@ -3,6 +3,7 @@
     import { Transaction } from '@iota/iota-sdk/transactions';
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
+    import TransactionView from '../components/TransactionView.svelte';
     import { getClient } from '../lib/client';
     import { activeAddress } from '../lib/signer-data';
     import { executeTransaction } from '../lib/transaction-execution';
@@ -12,6 +13,7 @@
     // Will be updated with the result
     let value = {};
     let iotaBalance = 0;
+    let isTransactionResult = false;
 
     const mergeAllIotaCoins = async () => {
         try {
@@ -45,8 +47,10 @@
             ]);
 
             value = await executeTransaction(tx);
+            isTransactionResult = true;
         } catch (err: any) {
             value = err.toString();
+            isTransactionResult = false;
             console.error(err);
         }
     };
@@ -65,8 +69,10 @@
             tx.transferObjects(coinArgs, $activeAddress);
 
             value = await executeTransaction(tx);
+            isTransactionResult = true;
         } catch (err: any) {
             value = err.toString();
+            isTransactionResult = false;
             console.error(err);
         }
     };
@@ -79,8 +85,10 @@
                 iotaBalance += parseInt(coin.balance);
             }
             value = coins;
+            isTransactionResult = false;
         } catch (err: any) {
             value = err.toString();
+            isTransactionResult = false;
             console.error(err);
         }
     };
@@ -123,7 +131,11 @@
     <br />
     <button on:click={() => splitIotaCoins()}>Split IOTA coins (max 2048)</button>
 
-    <JsonToggleView {value} />
+    {#if isTransactionResult}
+        <TransactionView {value} />
+    {:else}
+        <JsonToggleView {value} />
+    {/if}
 </main>
 
 <style>
