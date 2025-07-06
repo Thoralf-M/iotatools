@@ -2,7 +2,7 @@
     import { Transaction } from '@iota/iota-sdk/transactions';
     import { dragHandle, dragHandleZone, type DndEvent } from 'svelte-dnd-action';
 
-    import JsonToggleView from '../components/JsonToggleView.svelte';
+    import TransactionView from '../components/TransactionView.svelte';
     import { getClient } from '../lib/client';
     import { nanoToIota } from '../lib/iota-nano-conversion';
     import { iota_accounts, iota_wallets } from '../lib/signer-data';
@@ -303,7 +303,7 @@
     <button onclick={dryRun}> dry run </button>
     <button onclick={send}> send </button>
 
-    <JsonToggleView {value} />
+    <TransactionView {value} />
 
     <br />
     <div style="text-align:left">Balance of all accounts: {allAccountsTotalBalance} IOTA</div>

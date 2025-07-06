@@ -2,6 +2,8 @@
     // @ts-ignore - Module resolution issue with svelte-json-tree
     import JSONTree from '@sveltejs/svelte-json-tree';
 
+    import { formatJsonWithCompactArrays } from '../lib/transaction-view';
+
     export let value: any = {};
     let showJsonTree = false;
 </script>
@@ -9,9 +11,9 @@
 <div class="value" hidden={Object.keys(value).length == 0}>
     <button on:click={() => (showJsonTree = !showJsonTree)}> toggle JSON tree </button>
     <div hidden={!showJsonTree}>
-        <JSONTree {value} />
+        <JSONTree {value} defaultExpandedLevel={1} />
     </div>
-    <pre hidden={showJsonTree}>{JSON.stringify(value, null, 2)}</pre>
+    <pre hidden={showJsonTree}>{formatJsonWithCompactArrays(value)}</pre>
 </div>
 
 <style>

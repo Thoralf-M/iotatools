@@ -832,7 +832,7 @@
                 value={bucketTime}
                 on:change={(e) => {
                     userOverrideBucketTime = true;
-                    bucketTime = parseInt(e.target.value);
+                    bucketTime = parseInt((e.target as HTMLSelectElement).value);
                 }}
             >
                 {#each bucketOptions as option}

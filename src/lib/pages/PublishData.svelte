@@ -1,7 +1,7 @@
 <script lang="ts">
     import { Transaction } from '@iota/iota-sdk/transactions';
 
-    import JsonToggleView from '../components/JsonToggleView.svelte';
+    import TransactionView from '../components/TransactionView.svelte';
     import { executeTransaction } from '../lib/transaction-execution';
 
     let pureInputData = 'some data';
@@ -32,7 +32,7 @@
 
     <button on:click={() => publishData()}> publish data in tx </button>
 
-    <JsonToggleView {value} />
+    <TransactionView {value} />
 </main>
 
 <style>

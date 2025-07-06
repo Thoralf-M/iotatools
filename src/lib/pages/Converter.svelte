@@ -1,9 +1,11 @@
 <script lang="ts">
     import { bcs, fromB58, fromB64, toB58, toB64, toHEX } from '@iota/bcs';
     import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
+    import { messageWithIntent } from '@iota/iota-sdk/cryptography';
     import { TransactionDataBuilder } from '@iota/iota-sdk/transactions';
+    import { blake2b } from '@noble/hashes/blake2';
 
-    import JsonToggleView from '../components/JsonToggleView.svelte';
+    import TransactionView from '../components/TransactionView.svelte';
     import { bcsBytesToU64, bytesToUtf8, hexToBytes } from '../lib/converter';
     import { iotaToNano, nanoToIota } from '../lib/iota-nano-conversion';
 
@@ -21,6 +23,19 @@
     let nanoWithUnderscore = '';
     let iota = '';
     let iotaWithUnderscore = '';
+
+    let txBytesTextarea: HTMLTextAreaElement;
+    const exampleTx =
+        'AQAAAAAABQAgAADITWzmvxDdFgAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAQOrTZ5H0khvmeaMM7Q+RqIE3kXhhUmg8Ye1x03DM1/oxo+fFQAAAAABAQC1UdUC/HAd21HmDkcdewfnQ/8ZyCdSznxVvhX2A+UdkhQ/8xUAAAAAIGvBzsOprOdLXmvbV4WNEAdCeVyxUQC4casadEmSiOz8AQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgEAAAAAAAAAAAEBVB+vemIenOWjJKPeaiUWCEN25jsEPmTpIlut31oacd9AaKkVAAAAAAEEAKBMDds1kJoNC+au685RIk/bcqEzZUlnLfnwjJpgx1omB2ZpeGVkMTgNZnJvbV9yYXdfdTI1NgABAQAAAHS7cwUfi9jmrdrHu2LvhWKLCdye6W294+RBZ4pEgCvbC21vY2tfc291cmNlCXNldF92YWx1ZQADAQEAAQIAAgAAAHS7cwUfi9jmrdrHu2LvhWKLCdye6W294+RBZ4pEgCvbC21vY2tfc291cmNlBXByaWNlAAIBAQABAwAADSboscHb0PENnJ/ZKPsb8EgfRLahSRbrPfEuFCT0XaoGbWFya2V0DHVwZGF0ZV9wcmljZQEHVk0OWNWfzsxej+coc1GWFdn7sceB009VRe4/PcHNRf0Gc3RhYmxlBlNUQUJMRQACAQQAAgIAKncQef3db67TtP+AYhEsoc86M8mLAnwGhbj7/3IK0mEBRfaRcZkkQl7YnEMWcsyOrUsBJtE2Di3bqK/2JiFVZP0UP/MVAAAAACDNN3mgas1+l1nWysvP0pprzh7yATGvFfv+hKdhxMIwiyp3EHn93W+u07T/gGIRLKHPOjPJiwJ8BoW4+/9yCtJh6AMAAAAAAACcxWVRAAAAAAABYQBuCFSJ1RJeUMmPez2iX78Kz4uLyOBFD+mUii8dqFUHgMeg+ioHP3cI/3LnNc+id/JHyjRpl1Lgc9tXdRpnPoADDR2pqxdjx19PH7B5MVEMS2PLUy97CDQNgDC1vbQqPXQ=';
+
+    function insertExampleTx() {
+        if (txBytesTextarea) {
+            txBytesTextarea.value = exampleTx;
+            // Trigger the input event to process the transaction
+            const event = new Event('input', { bubbles: true });
+            txBytesTextarea.dispatchEvent(event);
+        }
+    }
 
     enum SourceType {
         Bytes,
@@ -222,18 +237,44 @@
     </div>
     <br />
     <div>
-        <div style="float: left">Tx bytes base64:</div>
+        <div style="float: left; display: flex; align-items: center; gap: 10px;">
+            <span>Tx bytes base64:</span>
+            <button on:click={insertExampleTx} style="padding: 4px 8px; font-size: 12px;">
+                Example tx
+            </button>
+        </div>
         <div class="box">
             <textarea
+                bind:this={txBytesTextarea}
                 on:input={(event) => {
                     // @ts-ignore
                     let inputString = event.target.value;
                     try {
                         value = TransactionDataBuilder.fromBytes(fromB64(inputString));
+                        const intentMessage = messageWithIntent(
+                            'TransactionData',
+                            fromB64(inputString),
+                        );
+                        const digest = toB58(blake2b(intentMessage, { dkLen: 32 }));
+                        // TODO: why is this digest different from the one for the API?
+                        console.log('1 ' + digest);
                     } catch (e) {
                         console.log('error TransactionDataBuilder', e);
                         try {
-                            value = IotaBcs.SenderSignedData.parse(fromB64(inputString));
+                            value = IotaBcs.SenderSignedData.parse(fromB64(inputString))[0];
+                            const [
+                                {
+                                    txSignatures: [signature],
+                                    intentMessage: { value: bcsTransaction },
+                                },
+                            ] = IotaBcs.SenderSignedData.parse(fromB64(inputString));
+
+                            const bytes =
+                                IotaBcs.TransactionData.serialize(bcsTransaction).toBytes();
+                            console.log('bytes: ', toB64(bytes));
+                            const intentMessage = messageWithIntent('TransactionData', bytes);
+                            const digest = toB58(blake2b(intentMessage, { dkLen: 32 }));
+                            console.log('2 ' + digest);
                         } catch (e) {
                             console.log('error SenderSignedData', e);
                             value = e;
@@ -245,7 +286,7 @@
         </div>
     </div>
 
-    <JsonToggleView {value} />
+    <TransactionView {value} />
     <br />
     {error}
 </main>
