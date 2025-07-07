@@ -225,11 +225,14 @@
                                             <summary class="state-summary">Previous State:</summary>
                                             <div class="object-json">
                                                 <pre>{formatJsonWithCompactArrays(
-                                                        removeKindFields({
-                                                            ...change.inputState.asMoveObject
-                                                                .contents.json,
-                                                            id: undefined,
-                                                        }),
+                                                        removeKindFields(
+                                                            Object.fromEntries(
+                                                                Object.entries({
+                                                                    ...change.inputState
+                                                                        .asMoveObject.contents.json,
+                                                                }).filter(([key]) => key !== 'id'),
+                                                            ),
+                                                        ),
                                                     )}</pre>
                                             </div>
                                         </details>
@@ -254,11 +257,17 @@
                                                 >
                                                 <div class="object-json">
                                                     <pre>{formatJsonWithCompactArrays(
-                                                            removeKindFields({
-                                                                ...change.inputState.asMoveObject
-                                                                    .contents.json,
-                                                                id: undefined,
-                                                            }),
+                                                            removeKindFields(
+                                                                Object.fromEntries(
+                                                                    Object.entries({
+                                                                        ...change.inputState
+                                                                            .asMoveObject.contents
+                                                                            .json,
+                                                                    }).filter(
+                                                                        ([key]) => key !== 'id',
+                                                                    ),
+                                                                ),
+                                                            ),
                                                         )}</pre>
                                                 </div>
                                             </details>
@@ -267,11 +276,14 @@
                                             <summary class="state-summary">Current State:</summary>
                                             <div class="object-json">
                                                 <pre>{formatJsonWithCompactArrays(
-                                                        removeKindFields({
-                                                            ...change.outputState.asMoveObject
-                                                                .contents.json,
-                                                            id: undefined,
-                                                        }),
+                                                        removeKindFields(
+                                                            Object.fromEntries(
+                                                                Object.entries({
+                                                                    ...change.outputState
+                                                                        .asMoveObject.contents.json,
+                                                                }).filter(([key]) => key !== 'id'),
+                                                            ),
+                                                        ),
                                                     )}</pre>
                                             </div>
                                         </details>
@@ -306,11 +318,17 @@
                                                 >
                                                 <div class="object-json">
                                                     <pre>{formatJsonWithCompactArrays(
-                                                            removeKindFields({
-                                                                ...change.inputState.asMoveObject
-                                                                    .contents.json,
-                                                                id: undefined,
-                                                            }),
+                                                            removeKindFields(
+                                                                Object.fromEntries(
+                                                                    Object.entries({
+                                                                        ...change.inputState
+                                                                            .asMoveObject.contents
+                                                                            .json,
+                                                                    }).filter(
+                                                                        ([key]) => key !== 'id',
+                                                                    ),
+                                                                ),
+                                                            ),
                                                         )}</pre>
                                                 </div>
                                             </details>
@@ -333,11 +351,14 @@
                                             <summary class="state-summary">Object State:</summary>
                                             <div class="object-json">
                                                 <pre>{formatJsonWithCompactArrays(
-                                                        removeKindFields({
-                                                            ...change.outputState.asMoveObject
-                                                                .contents.json,
-                                                            id: undefined,
-                                                        }),
+                                                        removeKindFields(
+                                                            Object.fromEntries(
+                                                                Object.entries({
+                                                                    ...change.outputState
+                                                                        .asMoveObject.contents.json,
+                                                                }).filter(([key]) => key !== 'id'),
+                                                            ),
+                                                        ),
                                                     )}</pre>
                                             </div>
                                         </details>
