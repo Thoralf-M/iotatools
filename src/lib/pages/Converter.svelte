@@ -6,7 +6,7 @@
     import { blake2b } from '@noble/hashes/blake2';
 
     import TransactionView from '../components/TransactionView.svelte';
-    import { bcsBytesToU64, bytesToUtf8, hexToBytes } from '../lib/converter';
+    import { bcsBytesToInteger, bytesToUtf8, hexToBytes } from '../lib/converter';
     import { iotaToNano, nanoToIota } from '../lib/iota-nano-conversion';
 
     let bytes: any;
@@ -14,7 +14,8 @@
     let base58 = '';
     let base64 = '';
     let utf8 = '';
-    let u64 = '';
+    let bcsNumber = '';
+    let bcsNumberType = '';
     let error = '';
 
     let value: any;
@@ -43,7 +44,7 @@
         Base58,
         Base64,
         UTF8,
-        U64,
+        BcsNumber,
     }
 
     function convert(source: SourceType) {
@@ -76,8 +77,13 @@
                 case SourceType.UTF8:
                     sourceBytes = new TextEncoder().encode(utf8);
                     break;
-                case SourceType.U64:
-                    sourceBytes = bcs.u64().serialize(u64).toBytes();
+                case SourceType.BcsNumber:
+                    if (bcsNumber === '') {
+                        sourceBytes = [];
+                        bcsNumberType = '';
+                        break;
+                    }
+                    sourceBytes = bcs.u64().serialize(bcsNumber).toBytes();
                     break;
             }
             if (source != SourceType.Bytes) {
@@ -87,7 +93,14 @@
             base58 = toB58(sourceBytes);
             base64 = toB64(sourceBytes);
             utf8 = bytesToUtf8(sourceBytes);
-            u64 = bcsBytesToU64(sourceBytes);
+            const integerResult = bcsBytesToInteger(sourceBytes);
+            bcsNumber = integerResult.value;
+            if (bytes.length === 0) {
+                bcsNumber = '';
+                bcsNumberType = '';
+            } else {
+                bcsNumberType = integerResult.type;
+            }
         } catch (err: any) {
             try {
                 error = JSON.stringify(JSON.parse(err.message).payload.error);
@@ -199,14 +212,14 @@
             />
         </div>
 
-        <div class="box">u64 (from/to BCS bytes):</div>
+        <div class="box">number (from/to BCS bytes): {bcsNumberType}</div>
         <div class="box">
             <input
                 type="string"
                 style="width: 100%;"
-                bind:value={u64}
-                on:input={() => convert(SourceType.U64)}
-                placeholder="u64 number"
+                bind:value={bcsNumber}
+                on:input={() => convert(SourceType.BcsNumber)}
+                placeholder="number"
             />
         </div>
     </div>

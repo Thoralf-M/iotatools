@@ -549,8 +549,12 @@
                                                 <span class="decode-value">{decoded.utf8}</span>
                                             </div>
                                             <div class="decoded-item">
-                                                <span class="decode-label">u64:</span>
-                                                <span class="decode-value">{decoded.u64}</span>
+                                                <span class="decode-label"
+                                                    >{decoded.integer.type}:</span
+                                                >
+                                                <span class="decode-value"
+                                                    >{decoded.integer.value}</span
+                                                >
                                             </div>
                                             <div class="decoded-item">
                                                 <span class="decode-label">Bytes:</span>

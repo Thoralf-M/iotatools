@@ -9,6 +9,8 @@
     let startCheckpoint = '';
     let endCheckpoint = '';
     let transactionLimit = 10;
+    let inputObjectFilter = '';
+    let functionFilter = '';
     let loading = false;
     let epochLoading = false;
     let error = '';
@@ -211,6 +213,8 @@
                         }
                     }
                 },
+                inputObjectFilter || undefined,
+                functionFilter || undefined,
             );
         } catch (err: any) {
             if (stopRequested) {
@@ -307,6 +311,8 @@
                         }
                     }
                 },
+                inputObjectFilter || undefined,
+                functionFilter || undefined,
             );
         } catch (err: any) {
             if (stopRequested) {
@@ -379,9 +385,63 @@
 </script>
 
 <div class="epoch-transaction-blocks">
-    <p>Query programmable transaction blocks data for a specific epoch or checkpoint range</p>
+    <p style="margin-top:0;">
+        Query programmable transaction blocks data for a specific epoch or checkpoint range
+    </p>
 
     <div class="input-section">
+        <!-- Optional Filters Section -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="input-object-filter">Input Object:</label>
+                    <div class="input-with-button">
+                        <input
+                            id="input-object-filter"
+                            type="text"
+                            bind:value={inputObjectFilter}
+                            placeholder="0x... object ID"
+                            disabled={loading}
+                            style="width: 30rem; font-size: 12px;"
+                        />
+                        <button
+                            class="example-btn"
+                            on:click={() =>
+                                (inputObjectFilter =
+                                    '0xa92a67ae8a8c644acfa6dd5a4d8098a20b07b6061cbf36aff8daef3ba892913f')}
+                            disabled={loading}
+                            title="Insert example object ID"
+                        >
+                            Example
+                        </button>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label for="function-filter">Function:</label>
+                    <div class="input-with-button">
+                        <input
+                            id="function-filter"
+                            type="text"
+                            bind:value={functionFilter}
+                            placeholder="package::module::function"
+                            disabled={loading}
+                            style="width: 30rem; font-size: 12px;"
+                        />
+                        <button
+                            class="example-btn"
+                            on:click={() =>
+                                (functionFilter =
+                                    '0x1efac8bf200acca64b62ce75557cd7232310fc8c4ea90960487d2908055fc94f::payments::handle_base_payment')}
+                            disabled={loading}
+                            title="Insert example function"
+                        >
+                            Example
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="input-row-single">
             <div class="mode-selection-column">
                 <label class="mode-option-stacked">
@@ -932,6 +992,77 @@
         margin: 0 auto;
     }
 
+    .filter-section {
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        padding: 8px 12px;
+        margin-bottom: 16px;
+        background-color: transparent;
+    }
+
+    .filter-row {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        align-items: end;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .filter-group label {
+        font-size: 11px;
+        color: #6b7280;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    .filter-group input[type='text'] {
+        padding: 8px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        font-size: 11px;
+    }
+
+    .filter-group input[type='text']:focus {
+        outline: none;
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    .input-with-button {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .example-btn {
+        padding: 6px 10px;
+        border: 1px solid #6c757d;
+        border-radius: 4px;
+        background: transparent;
+        color: #6c757d;
+        font-size: 11px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        font-weight: 500;
+    }
+
+    .example-btn:hover:not(:disabled) {
+        background: #6c757d;
+        color: white;
+    }
+
+    .example-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
     .input-section {
         padding: 5px;
         margin: 0;
@@ -1433,7 +1564,6 @@
         overflow-y: auto;
         border: 1px solid #333;
         border-radius: 4px;
-        max-height: 600px;
     }
 
     .transaction-details {

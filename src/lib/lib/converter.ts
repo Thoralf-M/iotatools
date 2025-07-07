@@ -8,22 +8,69 @@ export function bytesToUtf8(bytes: number[]): string {
     }
 }
 
-export function bcsBytesToU64(bytes: number[]): string {
+export function bcsBytesToInteger(bytes: number[]): { type: string; value: string } {
     try {
-        return bcs.u64().parse(new Uint8Array(bytes)).toString();
+        const length = bytes.length;
+        let type: string;
+        let value: string;
+
+        switch (length) {
+            case 1:
+                type = 'u8';
+                value = bcs.u8().parse(new Uint8Array(bytes)).toString();
+                break;
+            case 2:
+                type = 'u16';
+                value = bcs.u16().parse(new Uint8Array(bytes)).toString();
+                break;
+            case 4:
+                type = 'u32';
+                value = bcs.u32().parse(new Uint8Array(bytes)).toString();
+                break;
+            case 8:
+                type = 'u64';
+                value = bcs.u64().parse(new Uint8Array(bytes)).toString();
+                break;
+            case 16:
+                type = 'u128';
+                value = bcs.u128().parse(new Uint8Array(bytes)).toString();
+                break;
+            case 32:
+                type = 'u256';
+                value = bcs.u256().parse(new Uint8Array(bytes)).toString();
+                break;
+            default:
+                // For other lengths, try u64 as fallback or return raw bytes info
+                if (length <= 8) {
+                    type = `u${length * 8}`;
+                    try {
+                        value = bcs
+                            .u64()
+                            .parse(new Uint8Array(bytes.slice(0, 8)))
+                            .toString();
+                    } catch {
+                        value = `Raw bytes (${length} bytes)`;
+                    }
+                } else {
+                    type = `bytes(${length})`;
+                    value = `Raw bytes (${length} bytes)`;
+                }
+        }
+
+        return { type, value };
     } catch {
-        return 'Invalid u64';
+        return { type: `bytes(${bytes.length})`, value: 'Invalid integer' };
     }
 }
 
 export function decodeBase64Bytes(
     base64: string,
-): { bytes: number[]; utf8: string; u64: string } | null {
+): { bytes: number[]; utf8: string; integer: { type: string; value: string } } | null {
     try {
         const bytes = fromB64(base64) as any;
         const utf8 = bytesToUtf8(bytes);
-        const u64 = bcsBytesToU64(bytes);
-        return { bytes, utf8, u64 };
+        const integer = bcsBytesToInteger(bytes);
+        return { bytes, utf8, integer };
     } catch {
         return null;
     }
