@@ -5,17 +5,40 @@
 
     export let transactionData: any;
 
-    function formatAmount(amount: string, coinType?: string): string {
+    function formatAmount(amount: string, coinType?: string | { repr: string }): string {
         if (!amount) return '';
         const isNegative = amount.startsWith('-');
         const absAmount = amount.replace('-', '');
 
+        // Extract coin type string from either string or object format
+        let coinTypeStr = '';
+        if (typeof coinType === 'string') {
+            coinTypeStr = coinType;
+        } else if (coinType && typeof coinType === 'object' && 'repr' in coinType) {
+            coinTypeStr = coinType.repr;
+        }
+
+        // Extract coin symbol from coinType
+        let coinSymbol = 'Unknown';
+        if (coinTypeStr) {
+            const parts = coinTypeStr.split('::');
+            coinSymbol = parts.length > 2 ? parts[parts.length - 1].toUpperCase() : 'Unknown';
+        }
+
         try {
-            const iotaAmount = nanoToIota(absAmount);
-            const prefix = isNegative ? '-' : '+';
-            return `${prefix}${iotaAmount} IOTA`;
+            // Only use nanoToIota conversion for IOTA
+            if (coinTypeStr === '0x2::iota::IOTA') {
+                const iotaAmount = nanoToIota(absAmount);
+                const prefix = isNegative ? '-' : '+';
+                return `${prefix}${iotaAmount} ${coinSymbol}`;
+            } else {
+                // For other coins, display the raw amount
+                const prefix = isNegative ? '-' : '+';
+                const formattedAmount = parseInt(absAmount).toLocaleString();
+                return `${prefix}${formattedAmount} ${coinSymbol}`;
+            }
         } catch {
-            return `${amount} nanos`;
+            return `${amount} ${coinSymbol}`;
         }
     }
 
@@ -175,7 +198,7 @@
                                         {change.owner?.address}
                                     </div>
                                     <div class="amount-value">
-                                        {formatAmount(change.amount, change.coinType?.repr)}
+                                        {formatAmount(change.amount, change.coinType)}
                                     </div>
                                 </div>
                             {/each}
@@ -194,7 +217,7 @@
                                         {change.owner?.address}
                                     </div>
                                     <div class="amount-value">
-                                        {formatAmount(change.amount, change.coinType?.repr)}
+                                        {formatAmount(change.amount, change.coinType)}
                                     </div>
                                 </div>
                             {/each}
@@ -219,7 +242,22 @@
                         <div class="object-content">
                             {#each deletedObjects as change}
                                 <div class="object-box deleted">
-                                    <div class="object-id">{change.address}</div>
+                                    <div class="object-id">{change.objectId || change.address}</div>
+                                    {#if change.objectType}
+                                        <div class="object-type">
+                                            {change.objectType}
+                                        </div>
+                                    {/if}
+                                    {#if change.version}
+                                        <div class="object-version">
+                                            Version: {change.version}
+                                        </div>
+                                    {/if}
+                                    {#if change.sender}
+                                        <div class="object-sender">
+                                            Sender: {change.sender}
+                                        </div>
+                                    {/if}
                                     {#if change.inputState?.asMoveObject?.contents?.json}
                                         <details class="state-collapsible" open>
                                             <summary class="state-summary">Previous State:</summary>
@@ -977,6 +1015,23 @@
         font-size: 0.75rem;
         color: rgba(255, 255, 255, 0.7);
         margin-bottom: 0.25rem;
+        word-break: break-all;
+    }
+
+    .object-type,
+    .object-version,
+    .object-sender,
+    .object-owner,
+    .object-previous-version {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 0.25rem;
+    }
+
+    .object-type,
+    .object-sender,
+    .object-owner {
         word-break: break-all;
     }
     .state-summary {
