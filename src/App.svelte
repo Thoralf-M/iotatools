@@ -4,13 +4,13 @@
     import Converter from './lib/pages/Converter.svelte';
     import DynamicFields from './lib/pages/DynamicFields.svelte';
     import Ed25519AddressGeneration from './lib/pages/Ed25519AddressGeneration.svelte';
-    import EpochPtBs from './lib/pages/EpochPTBs.svelte';
     import Faucet from './lib/pages/Faucet.svelte';
     import IotaNames from './lib/pages/IotaNames.svelte';
     import IotaSystemState from './lib/pages/IotaSystemState.svelte';
     import LedgerNano from './lib/pages/LedgerNano.svelte';
     import MultiAccountView from './lib/pages/MultiAccountView.svelte';
     import ProgrammableTransactionBlock from './lib/pages/ProgrammableTransactionBlock.svelte';
+    import PTBs from './lib/pages/PTBs.svelte';
     import PublishData from './lib/pages/PublishData.svelte';
     import Settings from './lib/pages/Settings.svelte';
     import SplitMergeCoins from './lib/pages/SplitMergeCoins.svelte';
@@ -35,7 +35,7 @@
         { label: 'Stake', component: Stake },
         { label: 'IOTA-Names', component: IotaNames },
         { label: 'Dynamic Fields', component: DynamicFields },
-        { label: 'Epoch PTBs', component: EpochPtBs },
+        { label: 'PTBs', component: PTBs },
         { label: 'LedgerNano', component: LedgerNano },
         { label: 'Multi Account View', component: MultiAccountView },
         { label: 'Text Analyzer', component: TextAnalyzer },

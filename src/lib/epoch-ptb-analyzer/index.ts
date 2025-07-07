@@ -78,6 +78,8 @@ export class EpochPTBAnalyzer {
     async *fetchTransactionBlocksWithProgress(
         checkpointRange: CheckpointRange,
         maxTransactions?: number,
+        inputObject?: string,
+        functionFilter?: string,
     ): AsyncGenerator<{
         data: DisplayData;
         isComplete: boolean;
@@ -91,6 +93,8 @@ export class EpochPTBAnalyzer {
         for await (const fetchResult of this.fetcher.fetchAllTransactionBlocks(
             checkpointRange,
             maxTransactions,
+            inputObject,
+            functionFilter,
         )) {
             // Check if stop was requested at the beginning of each iteration
             if (this.stopRequested) {
@@ -142,6 +146,8 @@ export class EpochPTBAnalyzer {
             processedCheckpoints: number,
             totalCheckpoints: number,
         ) => void,
+        inputObject?: string,
+        functionFilter?: string,
     ): Promise<DisplayData> {
         this.resetStopFlag(); // Reset stop flag at the beginning
         const checkpointRange = await this.resolveCheckpointRange(
@@ -151,7 +157,12 @@ export class EpochPTBAnalyzer {
         );
         let finalData: DisplayData | null = null;
 
-        for await (const progress of this.fetchTransactionBlocksWithProgress(checkpointRange)) {
+        for await (const progress of this.fetchTransactionBlocksWithProgress(
+            checkpointRange,
+            undefined,
+            inputObject,
+            functionFilter,
+        )) {
             // Check if stop was requested
             if (this.stopRequested) {
                 console.log('Stopping transaction fetch due to user request');
@@ -185,6 +196,8 @@ export class EpochPTBAnalyzer {
             processedCheckpoints: number,
             totalCheckpoints: number,
         ) => void,
+        inputObject?: string,
+        functionFilter?: string,
     ): Promise<DisplayData> {
         this.resetStopFlag(); // Reset stop flag at the beginning
         const checkpointRange = await this.resolveCheckpointRange(
@@ -197,6 +210,8 @@ export class EpochPTBAnalyzer {
         for await (const progress of this.fetchTransactionBlocksWithProgress(
             checkpointRange,
             transactionLimit,
+            inputObject,
+            functionFilter,
         )) {
             // Check if stop was requested
             if (this.stopRequested) {

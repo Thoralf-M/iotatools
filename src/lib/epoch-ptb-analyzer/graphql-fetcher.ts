@@ -128,14 +128,38 @@ export class GraphQLDataFetcher {
         checkpointRange: CheckpointRange,
         batchSize: number = 50,
         cursor?: string | null,
+        inputObject?: string,
+        functionFilter?: string,
     ): Promise<TransactionBatchResult> {
         const cursorSection = cursor ? `, after: "${cursor}"` : '';
+
+        // Build filter object dynamically
+        const filterParts = [
+            `afterCheckpoint: ${checkpointRange.first}`,
+            `beforeCheckpoint: ${checkpointRange.last}`,
+            `kind: PROGRAMMABLE_TX`,
+        ];
+
+        if (inputObject && inputObject.trim()) {
+            filterParts.push(`inputObject: "${inputObject.trim()}"`);
+        }
+
+        if (functionFilter && functionFilter.trim()) {
+            filterParts.push(`function: "${functionFilter.trim()}"`);
+        }
+
+        const filterString = filterParts.join(', ');
+
+        // Add scanLimit if optional filters are provided
+        const hasOptionalFilters =
+            (inputObject && inputObject.trim()) || (functionFilter && functionFilter.trim());
+        const scanLimitSection = hasOptionalFilters ? 'scanLimit: 100000000,' : '';
+
         const txQuery = `query {
                 transactionBlocks(
+                    ${scanLimitSection}
                     filter: {
-                        afterCheckpoint: ${checkpointRange.first},
-                        beforeCheckpoint: ${checkpointRange.last},
-                        kind: PROGRAMMABLE_TX
+                        ${filterString}
                     }
                     first: ${batchSize}${cursorSection}
                 ) {
@@ -243,6 +267,8 @@ export class GraphQLDataFetcher {
     async *fetchAllTransactionBlocks(
         checkpointRange: CheckpointRange,
         maxTransactions?: number,
+        inputObject?: string,
+        functionFilter?: string,
     ): AsyncGenerator<{
         transactions: RawTransactionBlock[];
         isComplete: boolean;
@@ -261,6 +287,8 @@ export class GraphQLDataFetcher {
                 checkpointRange,
                 batchSize,
                 cursor,
+                inputObject,
+                functionFilter,
             );
 
             // Process transactions up to the limit
