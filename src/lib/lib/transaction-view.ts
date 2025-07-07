@@ -2,6 +2,9 @@
  * Utility functions for formatting and displaying transaction data
  */
 
+import { fromB64 } from '@iota/bcs';
+import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
+
 /**
  * Recursively removes $kind fields from objects to clean up display data
  */
@@ -105,6 +108,59 @@ export function normalizeOwner(owner: any): any {
 }
 
 /**
+ * Converts GraphQL object changes format to standard object changes format
+ */
+function convertGraphQLObjectChanges(graphqlObjectChanges: any[]): any[] {
+    return graphqlObjectChanges.map((change: any) => {
+        // Determine the type of change
+        let type = 'mutated'; // default
+        if (change.idCreated) {
+            type = 'created';
+        } else if (change.idDeleted) {
+            type = 'deleted';
+        }
+
+        // Extract object ID
+        const objectId = change.idCreated || change.address || change.idDeleted;
+
+        // Extract object type from contents if available
+        let objectType = '';
+        if (change.outputState?.asMoveObject?.contents?.json?.type) {
+            objectType = change.outputState.asMoveObject.contents.json.type;
+        } else if (change.inputState?.asMoveObject?.contents?.json?.type) {
+            objectType = change.inputState.asMoveObject.contents.json.type;
+        }
+
+        // Fix the GraphQL data by ensuring the `id` field is properly handled
+        // Note: We don't set the id field because TransactionEffects component
+        // intentionally sets it to undefined and displays object ID separately
+        let fixedInputState = change.inputState;
+        let fixedOutputState = change.outputState;
+
+        // For GraphQL, preserve the original structure but add standard fields for compatibility
+        return {
+            // Standard fields for compatibility with other formats
+            type,
+            objectId,
+            version: null, // GraphQL doesn't provide version in this format
+            digest: null, // GraphQL doesn't provide digest in this format
+            owner: change.address || null, // Use address as owner for GraphQL format
+            objectType,
+
+            // Preserve GraphQL-specific structure for the TransactionEffects component
+            idCreated: change.idCreated,
+            idDeleted: change.idDeleted,
+            address: change.address,
+            inputState: fixedInputState,
+            outputState: fixedOutputState,
+
+            // Mark this as GraphQL data for the component to handle appropriately
+            isGraphQLFormat: true,
+        };
+    });
+}
+
+/**
  * Determines if the provided data represents transaction data in any of the supported formats
  */
 export function isTransactionData(data: any): boolean {
@@ -165,6 +221,19 @@ export function isTransactionData(data: any): boolean {
         return true;
     }
 
+    // Handle GraphQL response format (from graphql-fetcher.ts)
+    if (
+        data &&
+        typeof data === 'object' &&
+        data.digest &&
+        data.sender &&
+        data.effects &&
+        data.effects.objectChanges &&
+        data.effects.objectChanges.nodes
+    ) {
+        return true;
+    }
+
     return false;
 }
 
@@ -173,6 +242,76 @@ export function isTransactionData(data: any): boolean {
  * that the TransactionEffects component can work with
  */
 export function getTransactionData(data: any): any {
+    // Handle GraphQL response format (from graphql-fetcher.ts) first
+    if (
+        data &&
+        data.digest &&
+        data.sender &&
+        data.effects &&
+        data.effects.objectChanges &&
+        data.effects.objectChanges.nodes
+    ) {
+        // Convert GraphQL object changes to standard format
+        const objectChanges = convertGraphQLObjectChanges(data.effects.objectChanges.nodes);
+
+        // Convert GraphQL balance changes to standard format
+        const balanceChanges = data.effects.balanceChanges?.nodes || [];
+
+        // Convert GraphQL events to standard format
+        const events = data.effects.events?.nodes || [];
+
+        // Decode BCS transaction data if available
+        let decodedBCS: any = null;
+        if (data.effects.transactionBlock?.bcs) {
+            try {
+                decodedBCS = IotaBcs.SenderSignedData.parse(
+                    fromB64(data.effects.transactionBlock.bcs),
+                )[0];
+            } catch (e) {
+                console.warn('Failed to decode BCS data for transaction:', data.digest, e);
+            }
+        }
+
+        const normalized = {
+            digest: data.digest,
+            sender: data.sender?.address || data.sender,
+            timestamp: data.effects.checkpoint?.timestamp,
+            effects: {
+                transactionDigest: data.digest,
+                status: { status: data.effects.status },
+                executedEpoch: data.effects.checkpoint?.sequenceNumber,
+                gasUsed: data.effects.gasEffects?.gasSummary,
+                checkpoint: {
+                    sequenceNumber: data.effects.checkpoint?.sequenceNumber,
+                    timestamp: data.effects.checkpoint?.timestamp,
+                },
+                gasEffects: {
+                    gasSummary: data.effects.gasEffects?.gasSummary,
+                },
+                balanceChanges: {
+                    nodes: balanceChanges,
+                },
+                objectChanges: {
+                    nodes: objectChanges,
+                },
+                events: {
+                    nodes: events,
+                },
+                // Include transaction block BCS data if available
+                transactionBlock: data.effects.transactionBlock,
+            },
+            // Include the original arrays at the top level too for compatibility
+            objectChanges: objectChanges,
+            balanceChanges: balanceChanges,
+            events: events,
+            // Include decoded BCS data if available
+            decodedBCS: decodedBCS,
+            // Include original GraphQL data
+            graphqlData: data,
+        };
+        return normalized;
+    }
+
     // Handle signed transaction format (Format 2) - extract transaction data first
     if (data && data.intentMessage && data.txSignatures && data.intentMessage.value) {
         let transactionData;
