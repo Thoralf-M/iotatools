@@ -17,7 +17,7 @@
     let nameName = 'name.iota';
     let bidPrice = 10000000;
     let IOTA_NAMES_PACKAGE_ID =
-        '0xe1284870018484a7a12255aebb737b6b98b47d652b842ea2f324499ff163a648';
+        '0xb9d617f24c84826bf660a2f4031951678cc80c264aebc4413459fb2a95ada9ba';
     let AUCTION_PACKAGE_ID = '';
     let AUCTION_HOUSE_OBJECT_ID = '';
     let COUPONS_PACKAGE_ID = '';
