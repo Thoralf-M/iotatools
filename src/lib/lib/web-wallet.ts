@@ -49,7 +49,6 @@ function get_wallets() {
                         name,
                         version,
                     }) => {
-                        console.log('connect', connect);
                         return {
                             accounts,
                             chains,
@@ -84,6 +83,7 @@ export const connectWallet = async () => {
     get_wallets();
     // @ts-ignore
     let connectResult = await get(iota_wallets)[0].connect();
+    console.log('web wallet connectResult', connectResult);
     iota_accounts.set(connectResult.accounts);
     activeAddress.set(connectResult.accounts[0].address);
 };

@@ -1,5 +1,6 @@
 <script lang="ts">
     import { isValidIotaAddress } from '@iota/iota-sdk/utils';
+    import { onMount } from 'svelte';
 
     import { sharedSignerType, SignerType } from './lib/local-storage-store';
     import {
@@ -10,9 +11,11 @@
     } from './lib/signer-data';
     import { connectWallet } from './lib/web-wallet';
 
-    // Init the first time if localstorage is selected
-    updateSelectedSignerAccounts();
     let foreignAddress = '0x0000000000000000000000000000000000000000000000000000000000000000';
+
+    onMount(() => {
+        updateSelectedSignerAccounts();
+    });
 
     $: isAddressValid = (() => {
         return isValidIotaAddress(foreignAddress);

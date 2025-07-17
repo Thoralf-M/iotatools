@@ -1,5 +1,6 @@
 <script>
     import Options from './lib/Options.svelte';
+    import AccountsList from './lib/pages/AccountsList.svelte';
     import BulkTransfer from './lib/pages/BulkTransfer.svelte';
     import Converter from './lib/pages/Converter.svelte';
     import DynamicFields from './lib/pages/DynamicFields.svelte';
@@ -38,6 +39,7 @@
         { label: 'PTBs', component: PTBs },
         { label: 'LedgerNano', component: LedgerNano },
         { label: 'Multi Account View', component: MultiAccountView },
+        { label: 'Accounts List', component: AccountsList },
         { label: 'Text Analyzer', component: TextAnalyzer },
         { label: '⚙ Settings', component: Settings },
     ].map((e, index) => {
