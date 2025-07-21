@@ -4,6 +4,7 @@
 
 import { fromB64 } from '@iota/bcs';
 import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
+import { TransactionDataBuilder } from '@iota/iota-sdk/transactions';
 
 /**
  * Recursively removes $kind fields from objects to clean up display data
@@ -342,9 +343,23 @@ export function getTransactionData(data: any): any {
     // Handle raw transaction data format (Format 1)
     if (data && data.sender && data.inputs && data.commands && data.gasData) {
         // This is a raw transaction data format - normalize it
+        let txDigest = null;
+        try {
+            let txData = new TransactionDataBuilder(data);
+            let txBytes = txData.build();
+            txDigest = TransactionDataBuilder.getDigestFromBytes(txBytes);
+        } catch (e) {
+            try {
+                let txData = new TransactionDataBuilder(data);
+                let txBytes = txData.build();
+                txDigest = TransactionDataBuilder.getDigestFromBytes(txBytes);
+            } catch (e) {
+                console.log('error SenderSignedData', e);
+            }
+        }
+
         const normalized = {
-            // Create a mock digest since this is unsigned transaction data
-            digest: null,
+            digest: txDigest,
             sender: data.sender,
             timestamp: null,
             // Create effects structure for compatibility

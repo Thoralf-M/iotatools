@@ -1,9 +1,7 @@
 <script lang="ts">
     import { bcs, fromB58, fromB64, toB58, toB64, toHEX } from '@iota/bcs';
     import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
-    import { messageWithIntent } from '@iota/iota-sdk/cryptography';
     import { TransactionDataBuilder } from '@iota/iota-sdk/transactions';
-    import { blake2b } from '@noble/hashes/blake2';
 
     import TransactionView from '../components/TransactionView.svelte';
     import { bcsBytesToInteger, bytesToUtf8, hexToBytes } from '../lib/converter';
@@ -263,31 +261,12 @@
                     // @ts-ignore
                     let inputString = event.target.value;
                     try {
-                        value = TransactionDataBuilder.fromBytes(fromB64(inputString));
-                        const intentMessage = messageWithIntent(
-                            'TransactionData',
-                            fromB64(inputString),
-                        );
-                        const digest = toB58(blake2b(intentMessage, { dkLen: 32 }));
-                        // TODO: why is this digest different from the one for the API?
-                        console.log('1 ' + digest);
+                        let txBytes = fromB64(inputString);
+                        value = TransactionDataBuilder.fromBytes(txBytes);
                     } catch (e) {
                         console.log('error TransactionDataBuilder', e);
                         try {
                             value = IotaBcs.SenderSignedData.parse(fromB64(inputString))[0];
-                            const [
-                                {
-                                    txSignatures: [signature],
-                                    intentMessage: { value: bcsTransaction },
-                                },
-                            ] = IotaBcs.SenderSignedData.parse(fromB64(inputString));
-
-                            const bytes =
-                                IotaBcs.TransactionData.serialize(bcsTransaction).toBytes();
-                            console.log('bytes: ', toB64(bytes));
-                            const intentMessage = messageWithIntent('TransactionData', bytes);
-                            const digest = toB58(blake2b(intentMessage, { dkLen: 32 }));
-                            console.log('2 ' + digest);
                         } catch (e) {
                             console.log('error SenderSignedData', e);
                             value = e;
