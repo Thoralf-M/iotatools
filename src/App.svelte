@@ -8,6 +8,7 @@
     import Faucet from './lib/pages/Faucet.svelte';
     import IotaNames from './lib/pages/IotaNames.svelte';
     import IotaSystemState from './lib/pages/IotaSystemState.svelte';
+    import Keystone from './lib/pages/Keystone.svelte';
     import LedgerNano from './lib/pages/LedgerNano.svelte';
     import MultiAccountView from './lib/pages/MultiAccountView.svelte';
     import ProgrammableTransactionBlock from './lib/pages/ProgrammableTransactionBlock.svelte';
@@ -41,6 +42,7 @@
         { label: 'Multi Account View', component: MultiAccountView },
         { label: 'Accounts List', component: AccountsList },
         { label: 'Text Analyzer', component: TextAnalyzer },
+        { label: 'Keystone', component: Keystone },
         { label: '⚙ Settings', component: Settings },
     ].map((e, index) => {
         // @ts-ignore
