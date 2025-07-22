@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Buffer } from 'buffer';
-    import { UR as BCURType, UREncoder } from '@ngraveio/bc-ur';
+    import { UR as BCURType, UREncoder } from '@gandlaf21/bc-ur';
     import qrcode from 'qrcode-generator';
     import { onDestroy, onMount } from 'svelte';
 

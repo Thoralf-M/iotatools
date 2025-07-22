@@ -24,8 +24,12 @@ export default defineConfig({
     },
     define: {
         global: 'globalThis',
+        'process.env.NODE_DEBUG': JSON.stringify(''), // or 'my-module'
     },
     optimizeDeps: {
-        include: ['process', 'buffer'],
+        include: ['process', 'buffer', 'debug'],
+    },
+    build: {
+        minify: false,
     },
 });

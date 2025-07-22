@@ -1,15 +1,20 @@
 <script lang="ts">
     import { Buffer } from 'buffer';
-    import { toB64 } from '@iota/bcs';
-    import { messageWithIntent } from '@iota/iota-sdk/cryptography';
-    // @ts-ignore - bc-ur-registry-iota doesn't have complete type definitions
-    import * as KeystoneUrRegistryIota from '@keystonehq/bc-ur-registry-iota';
     // @ts-ignore - bc-ur doesn't have complete type definitions
-    import { URDecoder } from '@ngraveio/bc-ur';
+    import { URDecoder } from '@gandlaf21/bc-ur';
+    import { toB64, toHEX } from '@iota/bcs';
+    import { messageWithIntent } from '@iota/iota-sdk/cryptography';
 
     import QrGeneratorComponent from '../components/QrGenerator.svelte';
     import QrScannerComponent from '../components/QrScanner.svelte';
     import TransactionView from '../components/TransactionView.svelte';
+    // @ts-ignore - bc-ur-registry-iota doesn't have complete type definitions
+    import {
+        CryptoKeypath,
+        IotaSignature,
+        IotaSignRequest,
+        PathComponent,
+    } from '../lib/bc-ur-registry-iota/src';
     import { getClient } from '../lib/client';
     import {
         ADDRESS_PREFIXES,
@@ -32,11 +37,6 @@
         uuidStringify,
         type UrProcessorState,
     } from '../lib/ur-processor.js';
-
-    const CryptoKeypath = (KeystoneUrRegistryIota as any).CryptoKeypath;
-    const IotaSignature = (KeystoneUrRegistryIota as any).IotaSignature;
-    const IotaSignRequest = (KeystoneUrRegistryIota as any).IotaSignRequest;
-    const PathComponent = (KeystoneUrRegistryIota as any).PathComponent;
 
     // State variables
     let activeStep: 'connect' | 'prepare' | 'scan-signature' | 'ur-decode' = 'connect';
@@ -116,6 +116,7 @@
             if (result.accountAddress) accountAddress = result.accountAddress;
             if (result.keystoneAccountData) {
                 keystoneAccountData = result.keystoneAccountData;
+                console.log('Keystone account data:', keystoneAccountData);
                 selectedAccountIndex = result.selectedAccountIndex || 0;
             }
             if (result.scanResult) scanResult = result.scanResult;
@@ -240,7 +241,7 @@
             derivationPaths = '';
             derivationPaths = selectedAccount.path + '';
             masterFingerprint = keystoneAccountData.masterFingerprint;
-            accountAddress = deriveIotaAddress(selectedAccount.publicKey);
+            accountAddress = deriveIotaAddress(toHEX(selectedAccount.getKey()));
         }
     }
 
@@ -340,7 +341,7 @@
             const parsed = JSON.parse(scanResult);
             const txBytes = new Uint8Array(Buffer.from(rawTransactionBytes, 'base64'));
             const signatureHex = parsed.specific.signature;
-            const publicKeyHex = parsed.specific.publicKey;
+            const publicKeyHex = parsed.specific.key;
             const signatureBytes = Buffer.from(signatureHex, 'hex');
             const publicKeyBytes = Buffer.from(publicKeyHex, 'hex');
             // BCS encoding: 0x00 (Ed25519) + signature + publicKey
@@ -395,6 +396,26 @@
     const data = getExampleData();
     requestId = data.requestId;
     walletOrigin = data.walletOrigin;
+
+    // Simulated UR parts from animated QR codes
+    const simulatedUrParts = [
+        'UR:CRYPTO-MULTI-ACCOUNTS/56-4/LPCSETAACFAXBTCYMKWSWELPHDSSOTADCYJOWYFNPSAOLETAADDLOXAOWKAXHDCXSAFTGRSESGFLCSISVWGAPYKEOSKBGWEOTKCXGDFPBWOXBBIOIDVEIDDTTDHKAMAOAMTAADDYOTADLECSDWYKCFBEKNYKAEYKAEYKAEYKAOCYJOWYFNPSAXAHASIHGUGOGADPDYTAADDLOXAOWKAXHDCXBEKOSTZCRSWMTLSFASFXNLROHGNYCPYKVLNSVYGRROTAEOWPGDSSWEBALFTKGYCXAMTAADDYOTADLECSDWYKCFBEKNYKADYKAEYKAEYKAOCYJOWYFNPSAXAHASIHGUGOGADPEHTAADDLOXAOWKAXHDCXWZWKHTGRBSGRDIRSHNNTJPVAVDDYAOQDJYPROLZSJLHTAXAMNYDMIDESTIPL',
+        'UR:CRYPTO-MULTI-ACCOUNTS/57-4/LPCSESAACFAXBTCYMKWSWELPHDSSDMBEWZHHAYFSIDJZMNOTBYKNWMLODMWFPSTNJKECIDSKHLKBIDIYLUCAPFFYCLZTCSHPRDRNCXLKYAFHJSESNNGMSRMNRNNYRKCHCNEEGMJYJEGRCKSTQZFRVOYLDPHHCSBZHEVOFHBDUYJELESTPLKGMWKNHFAAFWSOESWYWKETJKCWFLWTHHVORKREDPECBYAOEMPAWNWFIAJTSAMSATLACEPAFLVTJOIHKGDYBEOLPTGMBSFHJLSAHGDYNDMKLEKOAMZTEMKBRPREUORPKEKEZTMWWMDYTSKGAYIHOSGWAERNHKRTVLDMETFRCEGAJEWPDTDSHEHKCPADNDJLZSAMVYLDHPTDAHFZBNDNOELBCSPMLRESHGNECTAMFEMNAHWSETAESEGYVWJL',
+        'UR:CRYPTO-MULTI-ACCOUNTS/58-4/LPCSFTAACFAXBTCYMKWSWELPHDSSOTADCYJOWYFNPSAOLETAADDLOXAOWKAXHDCXSAFTGRSESGFLCSISVWGAPYKEOSKBGWEOTKCXGDFPBWOXBBIOIDVEIDDTTDHKAMAOAMTAADDYOTADLECSDWYKCFBEKNYKAEYKAEYKAEYKAOCYJOWYFNPSAXAHASIHGUGOGADPDYTAADDLOXAOWKAXHDCXBEKOSTZCRSWMTLSFASFXNLROHGNYCPYKVLNSVYGRROTAEOWPGDSSWEBALFTKGYCXAMTAADDYOTADLECSDWYKCFBEKNYKADYKAEYKAEYKAOCYJOWYFNPSAXAHASIHGUGOGADPEHTAADDLOXAOWKAXHDCXWZWKHTGRBSGRDIRSHNNTJPVAVDDYAOQDJYPROLZSJLHTAXAMNYDMPRJTIMDY',
+        'UR:CRYPTO-MULTI-ACCOUNTS/59-4/LPCSFRAACFAXBTCYMKWSWELPHDSSDMCYTPYNFPDYSPRLAHGEQDGHSKMOYNAHWEWDSBZSDNWNMSSFKNZOJZGLJETBRDDMGHJNKEZOCNMKOERPHGLTZCNLAHONMKRTVWECNBZSYNURGTEHAEUTKBWNLFCTTNJSSSKTCYNETPAEGWWKEEWLOEDMDMCYTPYNFPDYKOCYSKTTTTECINWDLRBBZSLPFLRPTLBKLOPEDKSGISEMDNSEJZRPFSFPPMCFSAKGLESSBEMUYARHFGEOCFBAHYDYRNYALEGYIDYAPEVSFMSPRNBKAXGWENQDVSVEJTQDGWWKEMWLOEDMDMCYTPYNFPDYGURYHPAHLUAYJSFXZSYLTNHEJPATRSEMGHJZCPBKJTPSNBKTSREHLPMYDRFDWDPTIAYTEYDYOTADMNONIYFT',
+        'UR:CRYPTO-MULTI-ACCOUNTS/60-4/LPCSFNAACFAXBTCYMKWSWELPHDSSAEBKDRPKGABTPKUYLUWLOEDMDMCYTPYNFPDYROTKGAEESGPRCSNTVDGUUYMONDTDGSENSWFEAXBBHTLDDSRNIASBSWDNDSHTHYCPLSTOOXPYDSKNCKCYSGSGHNVSYLDPUOIDFEKIVDBDMWNERNDMBNGORDHNMNWZAXYTGWWKEHWLOEDMDMCYTPYNFPDYIMLSSSAYRSCKTLESBDHKWLHFJEENCLWTWDYTPRCKWNWKAEECGYWMGABNKOSFASAEDAHNAEDIIEAAMKMTLOKIIDRFLBEOSGDIAXTYRHSPFLMEMHOLOEMHKTTNFRTPKKBDGWWKDYWLOEDMDMCYTPYNFPDYLOADHYRNBSRNDIGEIDLTAOAYUYNSADRPKITSYKPEDSKTEMURNDADPEJTVALY',
+        'UR:CRYPTO-MULTI-ACCOUNTS/61-4/LPCSFSAACFAXBTCYMKWSWELPHDSSOTADCYJOWYFNPSAOLETAADDLOXAOWKAXHDCXSAFTGRSESGFLCSISVWGAPYKEOSKBGWEOTKCXGDFPBWOXBBIOIDVEIDDTTDHKAMAOAMTAADDYOTADLECSDWYKCFBEKNYKAEYKAEYKAEYKAOCYJOWYFNPSAXAHASIHGUGOGADPDYTAADDLOXAOWKAXHDCXBEKOSTZCRSWMTLSFASFXNLROHGNYCPYKVLNSVYGRROTAEOWPGDSSWEBALFTKGYCXAMTAADDYOTADLECSDWYKCFBEKNYKADYKAEYKAEYKAOCYJOWYFNPSAXAHASIHGUGOGADPEHTAADDLOXAOWKAXHDCXWZWKHTGRBSGRDIRSHNNTJPVAVDDYAOQDJYPROLZSJLHTAXAMNYDMJSSFKBNS',
+        'UR:CRYPTO-MULTI-ACCOUNTS/62-4/LPCSFMAACFAXBTCYMKWSWELPHDSSOXAOWKAXHDCXPRFWAORSQDOYSKIOWKCTNTAAYLHFDEWKNNPTDTPLDAIAHHBSRKADWTJLLOYAKGROAMTAADDYOTADLECSDWYKCFBEKNYKAHYKAEYKAEYKAOCYJOWYFNPSAXAHASIHGUGOGADPECTAADDLOXAOWKAXHDCXBNWSSNDKTTRTINCTLNBALEJEKGCYTBBSLYSGKTNECLCYBWCSJNNLNLFXHKCYNYHPAMTAADDYOTADLECSDWYKCFBEKNYKAMYKAEYKAEYKAOCYJOWYFNPSAXAHASIHGUGOGADPENTAADDLOXAOWKAXHDCXDTFDGMWTLUZCJSRPYAWEPKPAGLPYRFEYHLASJSHEDILYNLJYPTHTVTYNHKFNLPSTAMTAADDYOTADSNGYPRCT',
+    ];
+
+    function simulateScanUrParts() {
+        for (const part of simulatedUrParts) {
+            handleScanResult(part);
+        }
+    }
+    function simulateScanUrPartsSignature() {
+        handleScanResult(EXAMPLE_SIGNATURE_UR);
+    }
 </script>
 
 <div class="keystone-container">
@@ -412,7 +433,9 @@
             >
                 {#each keystoneAccountData.keys as account, index}
                     <option value={index}>
-                        Account {index} - {account.path} - {deriveIotaAddress(account.publicKey)}
+                        Account {index} - {account.path} - {deriveIotaAddress(
+                            toHEX(account.getKey()),
+                        )}
                     </option>
                 {/each}
             </select>
@@ -431,7 +454,7 @@
                     <strong>Address:</strong>
                     <code
                         >{deriveIotaAddress(
-                            keystoneAccountData.keys[selectedAccountIndex]?.publicKey || '',
+                            toHEX(keystoneAccountData.keys[selectedAccountIndex]?.key) || '',
                         )}</code
                     >
                 </p>
@@ -492,6 +515,7 @@
                 </div>
             {/if}
 
+            <button on:click={simulateScanUrParts} style="margin: 0;"> Simulate Scan </button>
             {#if connectedDevice}
                 <div class="success">
                     <p>✅ Connected to: {connectedDevice}</p>
@@ -583,6 +607,10 @@
                 on:scanResult={(event) => handleScanResult(event.detail)}
                 on:error={(event) => (scanError = event.detail)}
             />
+
+            <button on:click={simulateScanUrPartsSignature} style="margin: 0;">
+                Simulate Scan
+            </button>
 
             {#if scanResult}
                 <div class="result">

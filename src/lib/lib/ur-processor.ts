@@ -1,16 +1,25 @@
 import { Buffer } from 'buffer';
-import { Ed25519PublicKey } from '@iota/iota-sdk/keypairs/ed25519';
-import * as IotaRegistry from '@keystonehq/bc-ur-registry-iota';
-// @ts-ignore - keystone-sdk doesn't have complete type definitions
-import * as KeystoneSdk from '@keystonehq/keystone-sdk';
 // @ts-ignore - bc-ur doesn't have complete type definitions
-import { URDecoder } from '@ngraveio/bc-ur';
+import { URDecoder } from '@gandlaf21/bc-ur';
+import { fromHEX } from '@iota/bcs';
+import { Ed25519PublicKey } from '@iota/iota-sdk/keypairs/ed25519';
 
+// Use direct registry exports
+import { CryptoHDKey, CryptoMultiAccounts } from './bc-ur-registry-iota/bc-ur-registry';
+import { IotaSignature } from './bc-ur-registry-iota/src';
 import { ADDRESS_PREFIXES, UI_LABELS, UR_TYPES } from './keystone';
 
-const UR = (KeystoneSdk as any).UR;
-
-const IotaSignature = IotaRegistry.IotaSignature;
+/**
+ * Utility to extract Buffer from Buffer, {type: 'Buffer', data: [...]}, or array-like
+ */
+function extractBuffer(val: any): Buffer {
+    if (!val) return Buffer.alloc(0);
+    if (Buffer.isBuffer(val)) return val;
+    if (typeof val === 'object' && val.type === 'Buffer' && Array.isArray(val.data)) {
+        return Buffer.from(val.data);
+    }
+    return Buffer.from(val);
+}
 
 // Types for the processor
 export interface UrProcessorState {
@@ -76,19 +85,23 @@ export const uuidStringify = (bytes: Uint8Array | Buffer): string => {
  */
 export function deriveIotaAddress(publicKeyHex: string): string {
     try {
+        if (publicKeyHex === undefined) {
+            console.error('deriveIotaAddress called with undefined! This is a bug in the caller.');
+            return 'Error deriving address';
+        }
+        if (!publicKeyHex || typeof publicKeyHex !== 'string' || publicKeyHex.length === 0) {
+            console.error('deriveIotaAddress: Public key is undefined or empty', publicKeyHex);
+            return 'Error deriving address';
+        }
         // Ensure the public key is in the correct format
         let cleanHex = publicKeyHex;
         if (cleanHex.startsWith(ADDRESS_PREFIXES.HEX)) {
             cleanHex = cleanHex.slice(2);
         }
 
-        // Convert hex string to Uint8Array
-        const publicKeyBytes = new Uint8Array(
-            cleanHex.match(/.{1,2}/g)?.map((byte) => parseInt(byte, 16)) || [],
-        );
-
         // Create Ed25519PublicKey from bytes
-        const publicKey = new Ed25519PublicKey(publicKeyBytes);
+        let bytes = fromHEX(cleanHex);
+        const publicKey = new Ed25519PublicKey(bytes);
         return publicKey.toIotaAddress();
     } catch (error) {
         console.error('Failed to derive IOTA address:', error, 'for public key:', publicKeyHex);
@@ -219,9 +232,6 @@ export function processCompleteUR(
 
         console.log('Processing UR type:', type, 'CBOR hex:', cborHex);
 
-        // Initialize Keystone SDK
-        const keystoneSDK = new (KeystoneSdk as any).default();
-
         // Handle different UR types
         if (type === UR_TYPES.IOTA_SIGNATURE) {
             const signature = IotaSignature.fromCBOR(Buffer.from(cborHex, 'hex'));
@@ -229,9 +239,13 @@ export function processCompleteUR(
                 type: type,
                 cborHex: cborHex,
                 specific: {
-                    requestId: uuidStringify(signature.getRequestId()),
-                    signature: Buffer.from(signature.getSignature()).toString('hex'),
-                    publicKey: Buffer.from(signature.getPublicKey()).toString('hex'),
+                    requestId: uuidStringify(signature.getRequestId() ?? new Uint8Array()),
+                    signature: Buffer.from(signature.getSignature() ?? new Uint8Array()).toString(
+                        'hex',
+                    ),
+                    publicKey: Buffer.from(signature.getPublicKey() ?? new Uint8Array()).toString(
+                        'hex',
+                    ),
                 },
             };
             return {
@@ -241,7 +255,7 @@ export function processCompleteUR(
                 needsMoreParts: false,
             };
         } else {
-            return processAccountData(type, cborHex, keystoneSDK);
+            return processAccountData(type, cborHex);
         }
     } catch (error) {
         console.error('Failed to process complete UR:', error);
@@ -256,13 +270,11 @@ export function processCompleteUR(
 /**
  * Process account data UR (multi-accounts or HD key)
  */
-function processAccountData(type: string, cborHex: string, keystoneSDK: any): ProcessorResult {
+function processAccountData(type: string, cborHex: string): ProcessorResult {
     const onSucceed = ({ type, cbor }: { type: string; cbor: string }) => {
         try {
             console.log('Attempting to parse as multi-accounts...');
-            const multiAccounts = keystoneSDK.parseMultiAccounts(
-                new UR(Buffer.from(cbor, 'hex'), type),
-            );
+            const multiAccounts = CryptoMultiAccounts.fromCBOR(Buffer.from(cbor, 'hex'));
             console.log('MultiAccounts: ', multiAccounts);
 
             // Store the full data for display
@@ -270,19 +282,39 @@ function processAccountData(type: string, cborHex: string, keystoneSDK: any): Pr
 
             // Populate keystoneAccountData from scanned data
             const keystoneAccountData = {
-                device: multiAccounts.device || 'Keystone Device',
-                masterFingerprint: multiAccounts.masterFingerprint || '',
-                keys: multiAccounts.keys || [],
+                device: multiAccounts.getDevice() || 'Keystone Device',
+                masterFingerprint: multiAccounts.getMasterFingerprint()?.toString('hex') || '',
+                keys: multiAccounts.getKeys() || [],
             };
 
             // Extract information from parsed multi-accounts
-            if (multiAccounts && multiAccounts.keys && multiAccounts.keys.length > 0) {
-                const firstAccount = multiAccounts.keys[0];
-                const connectedDevice = multiAccounts.device || 'Keystone Device';
-                const devicePublicKey = (firstAccount as any).key || firstAccount.publicKey || '';
-                const deviceChainCode = (firstAccount as any).chainCode || '';
-                const accountAddress = deriveIotaAddress(devicePublicKey);
-                const debugInfo = `Successfully parsed multi-accounts (${multiAccounts.keys.length} keys)`;
+            if (multiAccounts && multiAccounts.getKeys && multiAccounts.getKeys().length > 0) {
+                const firstAccount = multiAccounts.getKeys()[0];
+                const connectedDevice = multiAccounts.getDevice() || 'Keystone Device';
+                const devicePublicKeyBuf = extractBuffer(firstAccount.getKey?.());
+                const deviceChainCodeBuf = extractBuffer(firstAccount.getChainCode?.());
+                const devicePublicKey =
+                    devicePublicKeyBuf && devicePublicKeyBuf.length > 0
+                        ? devicePublicKeyBuf.toString('hex')
+                        : undefined;
+                const deviceChainCode =
+                    deviceChainCodeBuf && deviceChainCodeBuf.length > 0
+                        ? deviceChainCodeBuf.toString('hex')
+                        : undefined;
+                // Derive address from keystoneAccountData.keys[n].key
+                let accountAddressDecoded = 'Error deriving address';
+                if (
+                    keystoneAccountData.keys &&
+                    keystoneAccountData.keys.length > 0 &&
+                    typeof keystoneAccountData.keys[0].getKey === 'function'
+                ) {
+                    const keyBuf = extractBuffer(keystoneAccountData.keys[0].getKey());
+                    const keyHex = keyBuf.length > 0 ? keyBuf.toString('hex') : undefined;
+                    if (typeof keyHex === 'string' && keyHex.length > 0) {
+                        accountAddressDecoded = deriveIotaAddress(keyHex);
+                    }
+                }
+                const debugInfo = `Successfully parsed multi-accounts (${multiAccounts.getKeys().length} keys)`;
 
                 return {
                     success: true,
@@ -290,7 +322,7 @@ function processAccountData(type: string, cborHex: string, keystoneSDK: any): Pr
                     connectedDevice,
                     devicePublicKey,
                     deviceChainCode,
-                    accountAddress,
+                    accountAddress: accountAddressDecoded,
                     fullMultiAccountsData,
                     keystoneAccountData,
                     selectedAccountIndex: 0,
@@ -313,16 +345,32 @@ function processAccountData(type: string, cborHex: string, keystoneSDK: any): Pr
 
             try {
                 // Fallback: try parsing as HD Key
-                const hdKey = keystoneSDK.parseHDKey(new UR(Buffer.from(cbor, 'hex'), type));
+                const hdKey = CryptoHDKey.fromCBOR(Buffer.from(cbor, 'hex'));
                 console.log('HD Key: ', hdKey);
 
                 // Store the full HD Key data for display
                 const fullMultiAccountsData = JSON.stringify(hdKey, null, 2);
 
                 const connectedDevice = (hdKey as any).name || 'Keystone Device';
-                const devicePublicKey = (hdKey as any).bip32Key || '';
-                const deviceChainCode = (hdKey as any).chainCode || '';
-                const accountAddress = deriveIotaAddress(devicePublicKey);
+                // Ensure bip32Key and chainCode are Buffers or {type: 'Buffer', data: [...]}
+                const hdKeyPublicKeyBuf = extractBuffer((hdKey as any).bip32Key);
+                const hdKeyChainCodeBuf = extractBuffer((hdKey as any).chainCode);
+                const devicePublicKey =
+                    hdKeyPublicKeyBuf && hdKeyPublicKeyBuf.length > 0
+                        ? hdKeyPublicKeyBuf.toString('hex')
+                        : undefined;
+                const deviceChainCode =
+                    hdKeyChainCodeBuf && hdKeyChainCodeBuf.length > 0
+                        ? hdKeyChainCodeBuf.toString('hex')
+                        : undefined;
+                let accountAddress = 'Error deriving address';
+                if (typeof hdKey.getKey === 'function') {
+                    const keyBuf = extractBuffer(hdKey.getKey());
+                    const keyHex = keyBuf.length > 0 ? keyBuf.toString('hex') : undefined;
+                    if (typeof keyHex === 'string' && keyHex.length > 0) {
+                        accountAddress = deriveIotaAddress(keyHex);
+                    }
+                }
 
                 return {
                     success: true,
