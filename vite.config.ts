@@ -10,14 +10,26 @@ export default defineConfig({
         // Required for the HID connection for Ledger devices
         NodeGlobalsPolyfillPlugin({
             buffer: true,
+            process: true,
         }),
         inject({
             Buffer: ['buffer', 'Buffer'],
+            process: 'process',
         }),
     ],
     resolve: {
         alias: {
             buffer: 'buffer/',
         },
+    },
+    define: {
+        global: 'globalThis',
+        'process.env.NODE_DEBUG': JSON.stringify(''), // or 'my-module'
+    },
+    optimizeDeps: {
+        include: ['process', 'buffer', 'debug'],
+    },
+    build: {
+        minify: false,
     },
 });
