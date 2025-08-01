@@ -6,7 +6,7 @@ var __commonJS = (cb, mod) => function __require() {
 };
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 var require_index_001 = __commonJS({
-  "assets/index-DKVErkSR.js"(exports, module) {
+  "assets/index-XEU1S-iO.js"(exports, module) {
     var _a2, _b;
     (function polyfill() {
       const relList = document.createElement("link").relList;
@@ -3008,18 +3008,18 @@ var require_index_001 = __commonJS({
         return false;
       },
       ownKeys(target2) {
-        const keys2 = [];
+        const keys = [];
         for (let p of target2.props) {
           if (is_function(p)) p = p();
           if (!p) continue;
           for (const key in p) {
-            if (!keys2.includes(key)) keys2.push(key);
+            if (!keys.includes(key)) keys.push(key);
           }
           for (const key of Object.getOwnPropertySymbols(p)) {
-            if (!keys2.includes(key)) keys2.push(key);
+            if (!keys.includes(key)) keys.push(key);
           }
         }
-        return keys2;
+        return keys;
       }
     };
     function spread_props(...props) {
@@ -4414,15 +4414,15 @@ var require_index_001 = __commonJS({
             if (typeof value2 !== "object" || value2 == null) {
               throw new TypeError(`Expected object, found ${typeof value2}`);
             }
-            const keys2 = Object.keys(value2).filter(
+            const keys = Object.keys(value2).filter(
               (k) => value2[k] !== void 0 && Object.hasOwn(values, k)
             );
-            if (keys2.length !== 1) {
+            if (keys.length !== 1) {
               throw new TypeError(
-                `Expected object with one key, but found ${keys2.length} for type ${name2}}`
+                `Expected object with one key, but found ${keys.length} for type ${name2}}`
               );
             }
-            const [variant] = keys2;
+            const [variant] = keys;
             if (!Object.hasOwn(values, variant)) {
               throw new TypeError(`Invalid enum variant ${variant}`);
             }
@@ -5844,7 +5844,7 @@ var require_index_001 = __commonJS({
     const rotrBL = (h, l, s) => h >>> s - 32 | l << 64 - s;
     const rotr32H = (_h, l) => l;
     const rotr32L = (h, _l) => h;
-    function add$1(Ah, Al, Bh, Bl2) {
+    function add(Ah, Al, Bh, Bl2) {
       const l = (Al >>> 0) + (Bl2 >>> 0);
       return { h: Ah + Bh + (l / 2 ** 32 | 0) | 0, l: l | 0 };
     }
@@ -6159,7 +6159,7 @@ var require_index_001 = __commonJS({
           Gl = Fl | 0;
           Fh = Eh | 0;
           Fl = El | 0;
-          ({ h: Eh, l: El } = add$1(Dh | 0, Dl | 0, T1h | 0, T1l | 0));
+          ({ h: Eh, l: El } = add(Dh | 0, Dl | 0, T1h | 0, T1l | 0));
           Dh = Ch | 0;
           Dl = Cl | 0;
           Ch = Bh | 0;
@@ -6170,14 +6170,14 @@ var require_index_001 = __commonJS({
           Ah = add3H(All, T1h, sigma0h, MAJh);
           Al = All | 0;
         }
-        ({ h: Ah, l: Al } = add$1(this.Ah | 0, this.Al | 0, Ah | 0, Al | 0));
-        ({ h: Bh, l: Bl2 } = add$1(this.Bh | 0, this.Bl | 0, Bh | 0, Bl2 | 0));
-        ({ h: Ch, l: Cl } = add$1(this.Ch | 0, this.Cl | 0, Ch | 0, Cl | 0));
-        ({ h: Dh, l: Dl } = add$1(this.Dh | 0, this.Dl | 0, Dh | 0, Dl | 0));
-        ({ h: Eh, l: El } = add$1(this.Eh | 0, this.El | 0, Eh | 0, El | 0));
-        ({ h: Fh, l: Fl } = add$1(this.Fh | 0, this.Fl | 0, Fh | 0, Fl | 0));
-        ({ h: Gh, l: Gl } = add$1(this.Gh | 0, this.Gl | 0, Gh | 0, Gl | 0));
-        ({ h: Hh, l: Hl } = add$1(this.Hh | 0, this.Hl | 0, Hh | 0, Hl | 0));
+        ({ h: Ah, l: Al } = add(this.Ah | 0, this.Al | 0, Ah | 0, Al | 0));
+        ({ h: Bh, l: Bl2 } = add(this.Bh | 0, this.Bl | 0, Bh | 0, Bl2 | 0));
+        ({ h: Ch, l: Cl } = add(this.Ch | 0, this.Cl | 0, Ch | 0, Cl | 0));
+        ({ h: Dh, l: Dl } = add(this.Dh | 0, this.Dl | 0, Dh | 0, Dl | 0));
+        ({ h: Eh, l: El } = add(this.Eh | 0, this.El | 0, Eh | 0, El | 0));
+        ({ h: Fh, l: Fl } = add(this.Fh | 0, this.Fl | 0, Fh | 0, Fl | 0));
+        ({ h: Gh, l: Gl } = add(this.Gh | 0, this.Gl | 0, Gh | 0, Gl | 0));
+        ({ h: Hh, l: Hl } = add(this.Hh | 0, this.Hl | 0, Hh | 0, Hl | 0));
         this.set(Ah, Al, Bh, Bl2, Ch, Cl, Dh, Dl, Eh, El, Fh, Fl, Gh, Gl, Hh, Hl);
       }
       roundClean() {
@@ -6297,12 +6297,12 @@ var require_index_001 = __commonJS({
     }
     function calcWOpts(W, scalarBits) {
       validateW(W, scalarBits);
-      const windows2 = Math.ceil(scalarBits / W) + 1;
+      const windows = Math.ceil(scalarBits / W) + 1;
       const windowSize = 2 ** (W - 1);
       const maxNumber = 2 ** W;
       const mask = bitMask(W);
       const shiftBy = BigInt(W);
-      return { windows: windows2, windowSize, mask, maxNumber, shiftBy };
+      return { windows, windowSize, mask, maxNumber, shiftBy };
     }
     function calcOffsets(n2, window2, wOpts) {
       const { windowSize, mask, maxNumber, shiftBy } = wOpts;
@@ -6375,11 +6375,11 @@ var require_index_001 = __commonJS({
          * @returns precomputed point tables flattened to a single array
          */
         precomputeWindow(elm, W) {
-          const { windows: windows2, windowSize } = calcWOpts(W, bits);
+          const { windows, windowSize } = calcWOpts(W, bits);
           const points = [];
           let p = elm;
           let base2 = p;
-          for (let window2 = 0; window2 < windows2; window2++) {
+          for (let window2 = 0; window2 < windows; window2++) {
             base2 = p;
             points.push(base2);
             for (let i2 = 1; i2 < windowSize; i2++) {
@@ -7799,7 +7799,7 @@ var require_index_001 = __commonJS({
       Al = ll | 0;
       ({ Dh, Dl } = { Dh: Dh ^ Ah, Dl: Dl ^ Al });
       ({ Dh, Dl } = { Dh: rotr32H(Dh, Dl), Dl: rotr32L(Dh) });
-      ({ h: Ch, l: Cl } = add$1(Ch, Cl, Dh, Dl));
+      ({ h: Ch, l: Cl } = add(Ch, Cl, Dh, Dl));
       ({ Bh, Bl: Bl2 } = { Bh: Bh ^ Ch, Bl: Bl2 ^ Cl });
       ({ Bh, Bl: Bl2 } = { Bh: rotrSH(Bh, Bl2, 24), Bl: rotrSL(Bh, Bl2, 24) });
       BBUF[2 * a2] = Al, BBUF[2 * a2 + 1] = Ah;
@@ -7818,7 +7818,7 @@ var require_index_001 = __commonJS({
       Al = ll | 0;
       ({ Dh, Dl } = { Dh: Dh ^ Ah, Dl: Dl ^ Al });
       ({ Dh, Dl } = { Dh: rotrSH(Dh, Dl, 16), Dl: rotrSL(Dh, Dl, 16) });
-      ({ h: Ch, l: Cl } = add$1(Ch, Cl, Dh, Dl));
+      ({ h: Ch, l: Cl } = add(Ch, Cl, Dh, Dl));
       ({ Bh, Bl: Bl2 } = { Bh: Bh ^ Ch, Bl: Bl2 ^ Cl });
       ({ Bh, Bl: Bl2 } = { Bh: rotrBH(Bh, Bl2, 63), Bl: rotrBL(Bh, Bl2, 63) });
       BBUF[2 * a2] = Al, BBUF[2 * a2 + 1] = Ah;
@@ -9558,7 +9558,7 @@ var require_index_001 = __commonJS({
             this.h[8] = h8;
             this.h[9] = h9;
           };
-          poly1305.prototype.finish = function(mac2, macpos) {
+          poly1305.prototype.finish = function(mac, macpos) {
             var g = new Uint16Array(10);
             var c, mask, f, i2;
             if (this.leftover) {
@@ -9609,22 +9609,22 @@ var require_index_001 = __commonJS({
               f = (this.h[i2] + this.pad[i2] | 0) + (f >>> 16) | 0;
               this.h[i2] = f & 65535;
             }
-            mac2[macpos + 0] = this.h[0] >>> 0 & 255;
-            mac2[macpos + 1] = this.h[0] >>> 8 & 255;
-            mac2[macpos + 2] = this.h[1] >>> 0 & 255;
-            mac2[macpos + 3] = this.h[1] >>> 8 & 255;
-            mac2[macpos + 4] = this.h[2] >>> 0 & 255;
-            mac2[macpos + 5] = this.h[2] >>> 8 & 255;
-            mac2[macpos + 6] = this.h[3] >>> 0 & 255;
-            mac2[macpos + 7] = this.h[3] >>> 8 & 255;
-            mac2[macpos + 8] = this.h[4] >>> 0 & 255;
-            mac2[macpos + 9] = this.h[4] >>> 8 & 255;
-            mac2[macpos + 10] = this.h[5] >>> 0 & 255;
-            mac2[macpos + 11] = this.h[5] >>> 8 & 255;
-            mac2[macpos + 12] = this.h[6] >>> 0 & 255;
-            mac2[macpos + 13] = this.h[6] >>> 8 & 255;
-            mac2[macpos + 14] = this.h[7] >>> 0 & 255;
-            mac2[macpos + 15] = this.h[7] >>> 8 & 255;
+            mac[macpos + 0] = this.h[0] >>> 0 & 255;
+            mac[macpos + 1] = this.h[0] >>> 8 & 255;
+            mac[macpos + 2] = this.h[1] >>> 0 & 255;
+            mac[macpos + 3] = this.h[1] >>> 8 & 255;
+            mac[macpos + 4] = this.h[2] >>> 0 & 255;
+            mac[macpos + 5] = this.h[2] >>> 8 & 255;
+            mac[macpos + 6] = this.h[3] >>> 0 & 255;
+            mac[macpos + 7] = this.h[3] >>> 8 & 255;
+            mac[macpos + 8] = this.h[4] >>> 0 & 255;
+            mac[macpos + 9] = this.h[4] >>> 8 & 255;
+            mac[macpos + 10] = this.h[5] >>> 0 & 255;
+            mac[macpos + 11] = this.h[5] >>> 8 & 255;
+            mac[macpos + 12] = this.h[6] >>> 0 & 255;
+            mac[macpos + 13] = this.h[6] >>> 8 & 255;
+            mac[macpos + 14] = this.h[7] >>> 0 & 255;
+            mac[macpos + 15] = this.h[7] >>> 8 & 255;
           };
           poly1305.prototype.update = function(m, mpos, bytes) {
             var i2, want;
@@ -14440,80 +14440,80 @@ var require_index_001 = __commonJS({
         },
         inputs,
         transactions: transactionData.commands.map(
-          (command2) => {
-            if (command2.MakeMoveVec) {
+          (command) => {
+            if (command.MakeMoveVec) {
               return {
                 kind: "MakeMoveVec",
-                type: command2.MakeMoveVec.type === null ? { None: true } : {
+                type: command.MakeMoveVec.type === null ? { None: true } : {
                   Some: TypeTagSerializer.parseFromStr(
-                    command2.MakeMoveVec.type
+                    command.MakeMoveVec.type
                   )
                 },
-                objects: command2.MakeMoveVec.elements.map(
+                objects: command.MakeMoveVec.elements.map(
                   (arg) => convertTransactionArgument$1(arg, inputs)
                 )
               };
             }
-            if (command2.MergeCoins) {
+            if (command.MergeCoins) {
               return {
                 kind: "MergeCoins",
                 destination: convertTransactionArgument$1(
-                  command2.MergeCoins.destination,
+                  command.MergeCoins.destination,
                   inputs
                 ),
-                sources: command2.MergeCoins.sources.map(
+                sources: command.MergeCoins.sources.map(
                   (arg) => convertTransactionArgument$1(arg, inputs)
                 )
               };
             }
-            if (command2.MoveCall) {
+            if (command.MoveCall) {
               return {
                 kind: "MoveCall",
-                target: `${command2.MoveCall.package}::${command2.MoveCall.module}::${command2.MoveCall.function}`,
-                typeArguments: command2.MoveCall.typeArguments,
-                arguments: command2.MoveCall.arguments.map(
+                target: `${command.MoveCall.package}::${command.MoveCall.module}::${command.MoveCall.function}`,
+                typeArguments: command.MoveCall.typeArguments,
+                arguments: command.MoveCall.arguments.map(
                   (arg) => convertTransactionArgument$1(arg, inputs)
                 )
               };
             }
-            if (command2.Publish) {
+            if (command.Publish) {
               return {
                 kind: "Publish",
-                modules: command2.Publish.modules.map((mod2) => Array.from(fromB64(mod2))),
-                dependencies: command2.Publish.dependencies
+                modules: command.Publish.modules.map((mod2) => Array.from(fromB64(mod2))),
+                dependencies: command.Publish.dependencies
               };
             }
-            if (command2.SplitCoins) {
+            if (command.SplitCoins) {
               return {
                 kind: "SplitCoins",
-                coin: convertTransactionArgument$1(command2.SplitCoins.coin, inputs),
-                amounts: command2.SplitCoins.amounts.map(
+                coin: convertTransactionArgument$1(command.SplitCoins.coin, inputs),
+                amounts: command.SplitCoins.amounts.map(
                   (arg) => convertTransactionArgument$1(arg, inputs)
                 )
               };
             }
-            if (command2.TransferObjects) {
+            if (command.TransferObjects) {
               return {
                 kind: "TransferObjects",
-                objects: command2.TransferObjects.objects.map(
+                objects: command.TransferObjects.objects.map(
                   (arg) => convertTransactionArgument$1(arg, inputs)
                 ),
                 address: convertTransactionArgument$1(
-                  command2.TransferObjects.address,
+                  command.TransferObjects.address,
                   inputs
                 )
               };
             }
-            if (command2.Upgrade) {
+            if (command.Upgrade) {
               return {
                 kind: "Upgrade",
-                modules: command2.Upgrade.modules.map((mod2) => Array.from(fromB64(mod2))),
-                dependencies: command2.Upgrade.dependencies,
-                packageId: command2.Upgrade.package,
-                ticket: convertTransactionArgument$1(command2.Upgrade.ticket, inputs)
+                modules: command.Upgrade.modules.map((mod2) => Array.from(fromB64(mod2))),
+                dependencies: command.Upgrade.dependencies,
+                packageId: command.Upgrade.package,
+                ticket: convertTransactionArgument$1(command.Upgrade.ticket, inputs)
               };
             }
-            throw new Error(`Unknown transaction ${Object.keys(command2)}`);
+            throw new Error(`Unknown transaction ${Object.keys(command)}`);
           }
         )
       };
@@ -14957,12 +14957,12 @@ var require_index_001 = __commonJS({
       const { inputs, commands } = transactionData;
       const moveCallsToResolve = [];
       const moveFunctionsToResolve = /* @__PURE__ */ new Set();
-      commands.forEach((command2) => {
-        if (command2.MoveCall) {
-          if (command2.MoveCall._argumentTypes) {
+      commands.forEach((command) => {
+        if (command.MoveCall) {
+          if (command.MoveCall._argumentTypes) {
             return;
           }
-          const inputs2 = command2.MoveCall.arguments.map((arg) => {
+          const inputs2 = command.MoveCall.arguments.map((arg) => {
             if (arg.$kind === "Input") {
               return transactionData.inputs[arg.Input];
             }
@@ -14972,19 +14972,19 @@ var require_index_001 = __commonJS({
             (input) => (input == null ? void 0 : input.UnresolvedPure) || (input == null ? void 0 : input.UnresolvedObject)
           );
           if (needsResolution) {
-            const functionName = `${command2.MoveCall.package}::${command2.MoveCall.module}::${command2.MoveCall.function}`;
+            const functionName = `${command.MoveCall.package}::${command.MoveCall.module}::${command.MoveCall.function}`;
             moveFunctionsToResolve.add(functionName);
-            moveCallsToResolve.push(command2.MoveCall);
+            moveCallsToResolve.push(command.MoveCall);
           }
         }
-        switch (command2.$kind) {
+        switch (command.$kind) {
           case "SplitCoins":
-            command2.SplitCoins.amounts.forEach((amount) => {
+            command.SplitCoins.amounts.forEach((amount) => {
               normalizeRawArgument$1(amount, iotaBcs.U64, transactionData);
             });
             break;
           case "TransferObjects":
-            normalizeRawArgument$1(command2.TransferObjects.address, iotaBcs.Address, transactionData);
+            normalizeRawArgument$1(command.TransferObjects.address, iotaBcs.Address, transactionData);
             break;
         }
       });
@@ -15021,17 +15021,17 @@ var require_index_001 = __commonJS({
           })
         );
       }
-      commands.forEach((command2) => {
-        if (!command2.MoveCall) {
+      commands.forEach((command) => {
+        if (!command.MoveCall) {
           return;
         }
-        const moveCall = command2.MoveCall;
+        const moveCall = command.MoveCall;
         const fnName = `${moveCall.package}::${moveCall.module}::${moveCall.function}`;
         const params = moveCall._argumentTypes;
         if (!params) {
           return;
         }
-        if (params.length !== command2.MoveCall.arguments.length) {
+        if (params.length !== command.MoveCall.arguments.length) {
           throw new Error(`Incorrect number of arguments for ${fnName}`);
         }
         params.forEach((param, i2) => {
@@ -15347,59 +15347,59 @@ var require_index_001 = __commonJS({
         return { Input: index2, type: type2, $kind: "Input" };
       }
       getInputUses(index2, fn) {
-        this.mapArguments((arg, command2) => {
+        this.mapArguments((arg, command) => {
           if (arg.$kind === "Input" && arg.Input === index2) {
-            fn(arg, command2);
+            fn(arg, command);
           }
           return arg;
         });
       }
       mapArguments(fn) {
-        for (const command2 of this.commands) {
-          switch (command2.$kind) {
+        for (const command of this.commands) {
+          switch (command.$kind) {
             case "MoveCall":
-              command2.MoveCall.arguments = command2.MoveCall.arguments.map(
-                (arg) => fn(arg, command2)
+              command.MoveCall.arguments = command.MoveCall.arguments.map(
+                (arg) => fn(arg, command)
               );
               break;
             case "TransferObjects":
-              command2.TransferObjects.objects = command2.TransferObjects.objects.map(
-                (arg) => fn(arg, command2)
+              command.TransferObjects.objects = command.TransferObjects.objects.map(
+                (arg) => fn(arg, command)
               );
-              command2.TransferObjects.address = fn(command2.TransferObjects.address, command2);
+              command.TransferObjects.address = fn(command.TransferObjects.address, command);
               break;
             case "SplitCoins":
-              command2.SplitCoins.coin = fn(command2.SplitCoins.coin, command2);
-              command2.SplitCoins.amounts = command2.SplitCoins.amounts.map(
-                (arg) => fn(arg, command2)
+              command.SplitCoins.coin = fn(command.SplitCoins.coin, command);
+              command.SplitCoins.amounts = command.SplitCoins.amounts.map(
+                (arg) => fn(arg, command)
               );
               break;
             case "MergeCoins":
-              command2.MergeCoins.destination = fn(command2.MergeCoins.destination, command2);
-              command2.MergeCoins.sources = command2.MergeCoins.sources.map(
-                (arg) => fn(arg, command2)
+              command.MergeCoins.destination = fn(command.MergeCoins.destination, command);
+              command.MergeCoins.sources = command.MergeCoins.sources.map(
+                (arg) => fn(arg, command)
               );
               break;
             case "MakeMoveVec":
-              command2.MakeMoveVec.elements = command2.MakeMoveVec.elements.map(
-                (arg) => fn(arg, command2)
+              command.MakeMoveVec.elements = command.MakeMoveVec.elements.map(
+                (arg) => fn(arg, command)
               );
               break;
             case "Upgrade":
-              command2.Upgrade.ticket = fn(command2.Upgrade.ticket, command2);
+              command.Upgrade.ticket = fn(command.Upgrade.ticket, command);
               break;
             case "$Intent":
-              const inputs = command2.$Intent.inputs;
-              command2.$Intent.inputs = {};
+              const inputs = command.$Intent.inputs;
+              command.$Intent.inputs = {};
               for (const [key, value2] of Object.entries(inputs)) {
-                command2.$Intent.inputs[key] = Array.isArray(value2) ? value2.map((arg) => fn(arg, command2)) : fn(value2, command2);
+                command.$Intent.inputs[key] = Array.isArray(value2) ? value2.map((arg) => fn(arg, command)) : fn(value2, command);
               }
               break;
             case "Publish":
               break;
             default:
               throw new Error(
-                `Unexpected transaction kind: ${command2.$kind}`
+                `Unexpected transaction kind: ${command.$kind}`
               );
           }
         }
@@ -15695,11 +15695,11 @@ var require_index_001 = __commonJS({
         return this.object(Inputs$1.SharedObjectRef(...args));
       }
       /** Add a transaction to the transaction */
-      add(command2) {
-        if (typeof command2 === "function") {
-          return command2(this);
+      add(command) {
+        if (typeof command === "function") {
+          return command(this);
         }
-        const index2 = __privateGet$6(this, _data$1).commands.push(command2);
+        const index2 = __privateGet$6(this, _data$1).commands.push(command);
         return createTransactionResult$1(index2 - 1);
       }
       // Method shorthands:
@@ -15813,9 +15813,9 @@ var require_index_001 = __commonJS({
       async prepareForSerialization(options) {
         var _a3;
         const intents = /* @__PURE__ */ new Set();
-        for (const command2 of __privateGet$6(this, _data$1).commands) {
-          if (command2.$Intent) {
-            intents.add(command2.$Intent.name);
+        for (const command of __privateGet$6(this, _data$1).commands) {
+          if (command.$Intent) {
+            intents.add(command.$Intent.name);
           }
         }
         const steps2 = [...__privateGet$6(this, _serializationPlugins$1)];
@@ -16477,7 +16477,7 @@ var require_index_001 = __commonJS({
       }
       let stack = void 0;
       let inArray = Array.isArray(root2);
-      let keys2 = [root2];
+      let keys = [root2];
       let index2 = -1;
       let edits = [];
       let node = root2;
@@ -16487,7 +16487,7 @@ var require_index_001 = __commonJS({
       const ancestors = [];
       do {
         index2++;
-        const isLeaving = index2 === keys2.length;
+        const isLeaving = index2 === keys.length;
         const isEdited = isLeaving && edits.length !== 0;
         if (isLeaving) {
           key = ancestors.length === 0 ? void 0 : path[path.length - 1];
@@ -16514,12 +16514,12 @@ var require_index_001 = __commonJS({
             }
           }
           index2 = stack.index;
-          keys2 = stack.keys;
+          keys = stack.keys;
           edits = stack.edits;
           inArray = stack.inArray;
           stack = stack.prev;
         } else if (parent) {
-          key = inArray ? index2 : keys2[index2];
+          key = inArray ? index2 : keys[index2];
           node = parent[key];
           if (node === null || node === void 0) {
             continue;
@@ -16562,12 +16562,12 @@ var require_index_001 = __commonJS({
           stack = {
             inArray,
             index: index2,
-            keys: keys2,
+            keys,
             edits,
             prev: stack
           };
           inArray = Array.isArray(node);
-          keys2 = inArray ? node : (_node$kind = visitorKeys[node.kind]) !== null && _node$kind !== void 0 ? _node$kind : [];
+          keys = inArray ? node : (_node$kind = visitorKeys[node.kind]) !== null && _node$kind !== void 0 ? _node$kind : [];
           index2 = -1;
           edits = [];
           if (parent) {
@@ -20620,7 +20620,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         };
       },
       async getCoins(transport, [owner, coinType, cursor, limit]) {
-        const { nodes: coins, pageInfo: pageInfo2 } = await transport.graphqlQuery(
+        const { nodes: coins, pageInfo } = await transport.graphqlQuery(
           {
             query: GetCoinsDocument,
             variables: {
@@ -20649,12 +20649,12 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
               version: String(coin.version)
             };
           }),
-          nextCursor: pageInfo2.endCursor,
-          hasNextPage: pageInfo2.hasNextPage
+          nextCursor: pageInfo.endCursor,
+          hasNextPage: pageInfo.hasNextPage
         };
       },
       async getAllCoins(transport, inputs) {
-        const { nodes: coins, pageInfo: pageInfo2 } = await transport.graphqlQuery(
+        const { nodes: coins, pageInfo } = await transport.graphqlQuery(
           {
             query: GetCoinsDocument,
             variables: {
@@ -20682,8 +20682,8 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
               version: String(coin.version)
             };
           }),
-          nextCursor: pageInfo2.endCursor,
-          hasNextPage: pageInfo2.hasNextPage
+          nextCursor: pageInfo.endCursor,
+          hasNextPage: pageInfo.hasNextPage
         };
       },
       async getBalance(transport, inputs) {
@@ -20975,7 +20975,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
             }
           }
         }
-        const { nodes: objects, pageInfo: pageInfo2 } = await transport.graphqlQuery(
+        const { nodes: objects, pageInfo } = await transport.graphqlQuery(
           {
             query: GetOwnedObjectsDocument,
             variables: {
@@ -20997,8 +20997,8 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           }
         );
         return {
-          hasNextPage: pageInfo2.hasNextPage,
-          nextCursor: pageInfo2.endCursor,
+          hasNextPage: pageInfo.hasNextPage,
+          nextCursor: pageInfo.endCursor,
           data: objects.map((object2) => ({
             data: mapGraphQLMoveObjectToRpcObject(object2, options ?? {})
           }))
@@ -21128,7 +21128,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
               break;
           }
         }
-        const { nodes: transactionBlocks, pageInfo: pageInfo2 } = await transport.graphqlQuery(
+        const { nodes: transactionBlocks, pageInfo } = await transport.graphqlQuery(
           {
             query: QueryTransactionBlocksDocument,
             variables: {
@@ -21159,8 +21159,8 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           transactionBlocks.reverse();
         }
         return {
-          hasNextPage: pagination.last ? pageInfo2.hasPreviousPage : pageInfo2.hasNextPage,
-          nextCursor: pagination.last ? pageInfo2.startCursor : pageInfo2.endCursor,
+          hasNextPage: pagination.last ? pageInfo.hasPreviousPage : pageInfo.hasNextPage,
+          nextCursor: pagination.last ? pageInfo.startCursor : pageInfo.endCursor,
           data: transactionBlocks.map(
             (transactionBlock) => mapGraphQLTransactionBlockToRpcTransactionBlock(transactionBlock, options ?? {})
           )
@@ -21406,7 +21406,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
             }
           }
         }
-        const { nodes: events2, pageInfo: pageInfo2 } = await transport.graphqlQuery(
+        const { nodes: events2, pageInfo } = await transport.graphqlQuery(
           {
             query: QueryEventsDocument,
             variables: {
@@ -21420,8 +21420,8 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           events2.reverse();
         }
         return {
-          hasNextPage: pagination.last ? pageInfo2.hasPreviousPage : pageInfo2.hasNextPage,
-          nextCursor: pagination.last ? pageInfo2.startCursor : pageInfo2.endCursor,
+          hasNextPage: pagination.last ? pageInfo.hasPreviousPage : pageInfo.hasNextPage,
+          nextCursor: pagination.last ? pageInfo.startCursor : pageInfo.endCursor,
           data: events2.map((event2) => {
             var _a3, _b2, _c, _d, _e;
             return {
@@ -21494,7 +21494,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         };
       },
       async getDynamicFields(transport, [parentId, cursor, limit]) {
-        const { nodes: fields, pageInfo: pageInfo2 } = await transport.graphqlQuery(
+        const { nodes: fields, pageInfo } = await transport.graphqlQuery(
           {
             query: GetDynamicFieldsDocument,
             variables: {
@@ -21525,8 +21525,8 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
               version: ((_j = field.value) == null ? void 0 : _j.__typename) === "MoveObject" ? field.value.version : void 0
             };
           }),
-          nextCursor: pageInfo2.endCursor ?? null,
-          hasNextPage: pageInfo2.hasNextPage
+          nextCursor: pageInfo.endCursor ?? null,
+          hasNextPage: pageInfo.hasNextPage
         };
       },
       async getDynamicFieldObject(transport, [parentId, name2]) {
@@ -21674,7 +21674,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       },
       async getCheckpoints(transport, [cursor, limit, descendingOrder]) {
         const pagination = descendingOrder ? { last: limit, before: cursor } : { first: limit, after: cursor };
-        const { nodes: checkpoints, pageInfo: pageInfo2 } = await transport.graphqlQuery(
+        const { nodes: checkpoints, pageInfo } = await transport.graphqlQuery(
           {
             query: GetCheckpointsDocument,
             variables: {
@@ -21690,8 +21690,8 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           checkpoints.reverse();
         }
         return {
-          hasNextPage: pagination.last ? pageInfo2.hasPreviousPage : pageInfo2.hasNextPage,
-          nextCursor: pagination.last ? pageInfo2.startCursor : pageInfo2.endCursor,
+          hasNextPage: pagination.last ? pageInfo.hasPreviousPage : pageInfo.hasNextPage,
+          nextCursor: pagination.last ? pageInfo.startCursor : pageInfo.endCursor,
           data: checkpoints.map((checkpoint) => mapGraphQLCheckpointToRpcCheckpoint(checkpoint))
         };
       },
@@ -23078,80 +23078,80 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         },
         inputs,
         transactions: transactionData.commands.map(
-          (command2) => {
-            if (command2.MakeMoveVec) {
+          (command) => {
+            if (command.MakeMoveVec) {
               return {
                 kind: "MakeMoveVec",
-                type: command2.MakeMoveVec.type === null ? { None: true } : {
+                type: command.MakeMoveVec.type === null ? { None: true } : {
                   Some: TypeTagSerializer$1.parseFromStr(
-                    command2.MakeMoveVec.type
+                    command.MakeMoveVec.type
                   )
                 },
-                objects: command2.MakeMoveVec.elements.map(
+                objects: command.MakeMoveVec.elements.map(
                   (arg) => convertTransactionArgument(arg, inputs)
                 )
               };
             }
-            if (command2.MergeCoins) {
+            if (command.MergeCoins) {
               return {
                 kind: "MergeCoins",
                 destination: convertTransactionArgument(
-                  command2.MergeCoins.destination,
+                  command.MergeCoins.destination,
                   inputs
                 ),
-                sources: command2.MergeCoins.sources.map(
+                sources: command.MergeCoins.sources.map(
                   (arg) => convertTransactionArgument(arg, inputs)
                 )
               };
             }
-            if (command2.MoveCall) {
+            if (command.MoveCall) {
               return {
                 kind: "MoveCall",
-                target: `${command2.MoveCall.package}::${command2.MoveCall.module}::${command2.MoveCall.function}`,
-                typeArguments: command2.MoveCall.typeArguments,
-                arguments: command2.MoveCall.arguments.map(
+                target: `${command.MoveCall.package}::${command.MoveCall.module}::${command.MoveCall.function}`,
+                typeArguments: command.MoveCall.typeArguments,
+                arguments: command.MoveCall.arguments.map(
                   (arg) => convertTransactionArgument(arg, inputs)
                 )
               };
             }
-            if (command2.Publish) {
+            if (command.Publish) {
               return {
                 kind: "Publish",
-                modules: command2.Publish.modules.map((mod2) => Array.from(fromB64(mod2))),
-                dependencies: command2.Publish.dependencies
+                modules: command.Publish.modules.map((mod2) => Array.from(fromB64(mod2))),
+                dependencies: command.Publish.dependencies
               };
             }
-            if (command2.SplitCoins) {
+            if (command.SplitCoins) {
               return {
                 kind: "SplitCoins",
-                coin: convertTransactionArgument(command2.SplitCoins.coin, inputs),
-                amounts: command2.SplitCoins.amounts.map(
+                coin: convertTransactionArgument(command.SplitCoins.coin, inputs),
+                amounts: command.SplitCoins.amounts.map(
                   (arg) => convertTransactionArgument(arg, inputs)
                 )
               };
             }
-            if (command2.TransferObjects) {
+            if (command.TransferObjects) {
               return {
                 kind: "TransferObjects",
-                objects: command2.TransferObjects.objects.map(
+                objects: command.TransferObjects.objects.map(
                   (arg) => convertTransactionArgument(arg, inputs)
                 ),
                 address: convertTransactionArgument(
-                  command2.TransferObjects.address,
+                  command.TransferObjects.address,
                   inputs
                 )
               };
             }
-            if (command2.Upgrade) {
+            if (command.Upgrade) {
               return {
                 kind: "Upgrade",
-                modules: command2.Upgrade.modules.map((mod2) => Array.from(fromB64(mod2))),
-                dependencies: command2.Upgrade.dependencies,
-                packageId: command2.Upgrade.package,
-                ticket: convertTransactionArgument(command2.Upgrade.ticket, inputs)
+                modules: command.Upgrade.modules.map((mod2) => Array.from(fromB64(mod2))),
+                dependencies: command.Upgrade.dependencies,
+                packageId: command.Upgrade.package,
+                ticket: convertTransactionArgument(command.Upgrade.ticket, inputs)
               };
             }
-            throw new Error(`Unknown transaction ${Object.keys(command2)}`);
+            throw new Error(`Unknown transaction ${Object.keys(command)}`);
           }
         )
       };
@@ -23595,12 +23595,12 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       const { inputs, commands } = transactionData;
       const moveCallsToResolve = [];
       const moveFunctionsToResolve = /* @__PURE__ */ new Set();
-      commands.forEach((command2) => {
-        if (command2.MoveCall) {
-          if (command2.MoveCall._argumentTypes) {
+      commands.forEach((command) => {
+        if (command.MoveCall) {
+          if (command.MoveCall._argumentTypes) {
             return;
           }
-          const inputs2 = command2.MoveCall.arguments.map((arg) => {
+          const inputs2 = command.MoveCall.arguments.map((arg) => {
             if (arg.$kind === "Input") {
               return transactionData.inputs[arg.Input];
             }
@@ -23610,19 +23610,19 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
             (input) => (input == null ? void 0 : input.UnresolvedPure) || (input == null ? void 0 : input.UnresolvedObject)
           );
           if (needsResolution) {
-            const functionName = `${command2.MoveCall.package}::${command2.MoveCall.module}::${command2.MoveCall.function}`;
+            const functionName = `${command.MoveCall.package}::${command.MoveCall.module}::${command.MoveCall.function}`;
             moveFunctionsToResolve.add(functionName);
-            moveCallsToResolve.push(command2.MoveCall);
+            moveCallsToResolve.push(command.MoveCall);
           }
         }
-        switch (command2.$kind) {
+        switch (command.$kind) {
           case "SplitCoins":
-            command2.SplitCoins.amounts.forEach((amount) => {
+            command.SplitCoins.amounts.forEach((amount) => {
               normalizeRawArgument(amount, iotaBcs$1.U64, transactionData);
             });
             break;
           case "TransferObjects":
-            normalizeRawArgument(command2.TransferObjects.address, iotaBcs$1.Address, transactionData);
+            normalizeRawArgument(command.TransferObjects.address, iotaBcs$1.Address, transactionData);
             break;
         }
       });
@@ -23659,17 +23659,17 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           })
         );
       }
-      commands.forEach((command2) => {
-        if (!command2.MoveCall) {
+      commands.forEach((command) => {
+        if (!command.MoveCall) {
           return;
         }
-        const moveCall = command2.MoveCall;
+        const moveCall = command.MoveCall;
         const fnName = `${moveCall.package}::${moveCall.module}::${moveCall.function}`;
         const params = moveCall._argumentTypes;
         if (!params) {
           return;
         }
-        if (params.length !== command2.MoveCall.arguments.length) {
+        if (params.length !== command.MoveCall.arguments.length) {
           throw new Error(`Incorrect number of arguments for ${fnName}`);
         }
         params.forEach((param, i2) => {
@@ -23985,59 +23985,59 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         return { Input: index2, type: type2, $kind: "Input" };
       }
       getInputUses(index2, fn) {
-        this.mapArguments((arg, command2) => {
+        this.mapArguments((arg, command) => {
           if (arg.$kind === "Input" && arg.Input === index2) {
-            fn(arg, command2);
+            fn(arg, command);
           }
           return arg;
         });
       }
       mapArguments(fn) {
-        for (const command2 of this.commands) {
-          switch (command2.$kind) {
+        for (const command of this.commands) {
+          switch (command.$kind) {
             case "MoveCall":
-              command2.MoveCall.arguments = command2.MoveCall.arguments.map(
-                (arg) => fn(arg, command2)
+              command.MoveCall.arguments = command.MoveCall.arguments.map(
+                (arg) => fn(arg, command)
               );
               break;
             case "TransferObjects":
-              command2.TransferObjects.objects = command2.TransferObjects.objects.map(
-                (arg) => fn(arg, command2)
+              command.TransferObjects.objects = command.TransferObjects.objects.map(
+                (arg) => fn(arg, command)
               );
-              command2.TransferObjects.address = fn(command2.TransferObjects.address, command2);
+              command.TransferObjects.address = fn(command.TransferObjects.address, command);
               break;
             case "SplitCoins":
-              command2.SplitCoins.coin = fn(command2.SplitCoins.coin, command2);
-              command2.SplitCoins.amounts = command2.SplitCoins.amounts.map(
-                (arg) => fn(arg, command2)
+              command.SplitCoins.coin = fn(command.SplitCoins.coin, command);
+              command.SplitCoins.amounts = command.SplitCoins.amounts.map(
+                (arg) => fn(arg, command)
               );
               break;
             case "MergeCoins":
-              command2.MergeCoins.destination = fn(command2.MergeCoins.destination, command2);
-              command2.MergeCoins.sources = command2.MergeCoins.sources.map(
-                (arg) => fn(arg, command2)
+              command.MergeCoins.destination = fn(command.MergeCoins.destination, command);
+              command.MergeCoins.sources = command.MergeCoins.sources.map(
+                (arg) => fn(arg, command)
               );
               break;
             case "MakeMoveVec":
-              command2.MakeMoveVec.elements = command2.MakeMoveVec.elements.map(
-                (arg) => fn(arg, command2)
+              command.MakeMoveVec.elements = command.MakeMoveVec.elements.map(
+                (arg) => fn(arg, command)
               );
               break;
             case "Upgrade":
-              command2.Upgrade.ticket = fn(command2.Upgrade.ticket, command2);
+              command.Upgrade.ticket = fn(command.Upgrade.ticket, command);
               break;
             case "$Intent":
-              const inputs = command2.$Intent.inputs;
-              command2.$Intent.inputs = {};
+              const inputs = command.$Intent.inputs;
+              command.$Intent.inputs = {};
               for (const [key, value2] of Object.entries(inputs)) {
-                command2.$Intent.inputs[key] = Array.isArray(value2) ? value2.map((arg) => fn(arg, command2)) : fn(value2, command2);
+                command.$Intent.inputs[key] = Array.isArray(value2) ? value2.map((arg) => fn(arg, command)) : fn(value2, command);
               }
               break;
             case "Publish":
               break;
             default:
               throw new Error(
-                `Unexpected transaction kind: ${command2.$kind}`
+                `Unexpected transaction kind: ${command.$kind}`
               );
           }
         }
@@ -24333,11 +24333,11 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         return this.object(Inputs.SharedObjectRef(...args));
       }
       /** Add a transaction to the transaction */
-      add(command2) {
-        if (typeof command2 === "function") {
-          return command2(this);
+      add(command) {
+        if (typeof command === "function") {
+          return command(this);
         }
-        const index2 = __privateGet$2(this, _data).commands.push(command2);
+        const index2 = __privateGet$2(this, _data).commands.push(command);
         return createTransactionResult(index2 - 1);
       }
       // Method shorthands:
@@ -24451,9 +24451,9 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       async prepareForSerialization(options) {
         var _a3;
         const intents = /* @__PURE__ */ new Set();
-        for (const command2 of __privateGet$2(this, _data).commands) {
-          if (command2.$Intent) {
-            intents.add(command2.$Intent.name);
+        for (const command of __privateGet$2(this, _data).commands) {
+          if (command.$Intent) {
+            intents.add(command.$Intent.name);
           }
         }
         const steps2 = [...__privateGet$2(this, _serializationPlugins)];
@@ -25232,8 +25232,8 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       return client;
     }
     function getSelectedNetworkConfig() {
-      let config2 = get$1(sharedClientConfig);
-      return config2.networks.find((network) => network.name == config2.selected);
+      let config = get$1(sharedClientConfig);
+      return config.networks.find((network) => network.name == config.selected);
     }
     const defaultPrivateKeyAccounts = {
       accounts: {
@@ -25407,16 +25407,16 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       "dry-run (simulation, free)"
       /* DryRun */
     );
-    var root_1$n = /* @__PURE__ */ from_html(`<option class="svelte-v9ucm2"> </option>`);
+    var root_1$m = /* @__PURE__ */ from_html(`<option class="svelte-v9ucm2"> </option>`);
     var root_2$i = /* @__PURE__ */ from_html(`<option class="svelte-v9ucm2"> </option>`);
-    var root$v = /* @__PURE__ */ from_html(`<main><div class="options-container svelte-v9ucm2"><div class="option-group svelte-v9ucm2"><label class="option-label svelte-v9ucm2" for="network-select">Network:</label> <select class="select-input svelte-v9ucm2" id="network-select"></select></div> <div class="option-group svelte-v9ucm2"><label class="option-label svelte-v9ucm2" for="transaction-execution-select">Transaction execution:</label> <select id="transaction-execution-select"></select></div></div></main>`);
+    var root$u = /* @__PURE__ */ from_html(`<main><div class="options-container svelte-v9ucm2"><div class="option-group svelte-v9ucm2"><label class="option-label svelte-v9ucm2" for="network-select">Network:</label> <select class="select-input svelte-v9ucm2" id="network-select"></select></div> <div class="option-group svelte-v9ucm2"><label class="option-label svelte-v9ucm2" for="transaction-execution-select">Transaction execution:</label> <select id="transaction-execution-select"></select></div></div></main>`);
     function Options($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
       const $sharedClientConfig = () => store_get(sharedClientConfig, "$sharedClientConfig", $$stores);
       const $sharedTransactionExecution = () => store_get(sharedTransactionExecution, "$sharedTransactionExecution", $$stores);
       init();
-      var main = root$v();
+      var main = root$u();
       var div = child(main);
       var div_1 = child(div);
       var select = sibling(child(div_1), 2);
@@ -25431,7 +25431,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         () => ($sharedClientConfig(), untrack(() => $sharedClientConfig().networks)),
         index$1,
         ($$anchor2, network) => {
-          var option = root_1$n();
+          var option = root_1$m();
           var option_value = {};
           var text2 = child(option);
           template_effect(() => {
@@ -25706,28 +25706,28 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         setSigningWithForeignAddress(foreignAddress);
       }
     }
-    var root_1$m = /* @__PURE__ */ from_html(`<p>No accounts connected.</p>`);
-    var root_3$l = /* @__PURE__ */ from_html(`<tr class="account-block"><td class="account-label svelte-ahwfn5" rowspan="2"><span class="account-label-text"> </span></td><td class="account-key svelte-ahwfn5">Address:</td><td class="account-value svelte-ahwfn5"> </td></tr> <tr class="account-block public-key-row svelte-ahwfn5"><td class="account-key svelte-ahwfn5">Public Key:</td><td class="account-value svelte-ahwfn5"> </td></tr>`, 1);
+    var root_1$l = /* @__PURE__ */ from_html(`<p>No accounts connected.</p>`);
+    var root_3$m = /* @__PURE__ */ from_html(`<tr class="account-block"><td class="account-label svelte-ahwfn5" rowspan="2"><span class="account-label-text"> </span></td><td class="account-key svelte-ahwfn5">Address:</td><td class="account-value svelte-ahwfn5"> </td></tr> <tr class="account-block public-key-row svelte-ahwfn5"><td class="account-key svelte-ahwfn5">Public Key:</td><td class="account-value svelte-ahwfn5"> </td></tr>`, 1);
     var root_2$h = /* @__PURE__ */ from_html(`<table class="accounts-table svelte-ahwfn5"><tbody></tbody></table>`);
-    var root$u = /* @__PURE__ */ from_html(`<main><div class="wallet-accounts-container svelte-ahwfn5"><h2 class="svelte-ahwfn5">Connected Wallet Accounts</h2> <!></div></main>`);
+    var root$t = /* @__PURE__ */ from_html(`<main><div class="wallet-accounts-container svelte-ahwfn5"><h2 class="svelte-ahwfn5">Connected Wallet Accounts</h2> <!></div></main>`);
     function AccountsList($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
       const $iota_accounts = () => store_get(iota_accounts, "$iota_accounts", $$stores);
       init();
-      var main = root$u();
+      var main = root$t();
       var div = child(main);
       var node = sibling(child(div), 2);
       {
         var consequent = ($$anchor2) => {
-          var p = root_1$m();
+          var p = root_1$l();
           append($$anchor2, p);
         };
         var alternate = ($$anchor2) => {
           var table = root_2$h();
           var tbody = child(table);
           each$1(tbody, 5, $iota_accounts, index$1, ($$anchor3, account) => {
-            var fragment = root_3$l();
+            var fragment = root_3$m();
             var tr = first_child(fragment);
             var td = child(tr);
             var span = child(td);
@@ -25771,7 +25771,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       setContext(STATE, nextState);
       return currentState;
     }
-    var root_1$l = /* @__PURE__ */ from_html(`<span class="container svelte-1qd6nto"><span></span></span>`);
+    var root_1$k = /* @__PURE__ */ from_html(`<span class="container svelte-1qd6nto"><span></span></span>`);
     function JSONArrow($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
@@ -25784,7 +25784,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       var node = first_child(fragment);
       {
         var consequent = ($$anchor2) => {
-          var span = root_1$l();
+          var span = root_1$k();
           var span_1 = child(span);
           let classes;
           span_1.textContent = "▶";
@@ -25841,13 +25841,13 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
     var root_8$8 = /* @__PURE__ */ from_html(`<span class="label svelte-19drypg"><!><!><!></span><!>`, 1);
     var root_7$a = /* @__PURE__ */ from_html(`<li><!></li>`);
     var root_6$9 = /* @__PURE__ */ from_html(`<ul></ul>`);
-    var root_3$k = /* @__PURE__ */ from_html(`<span class="root svelte-19drypg"><!> <!></span> <!>`, 1);
+    var root_3$l = /* @__PURE__ */ from_html(`<span class="root svelte-19drypg"><!> <!></span> <!>`, 1);
     function JSONNested($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
       const $expanded = () => store_get(expanded, "$expanded", $$stores);
       const child_expanded = /* @__PURE__ */ mutable_source();
-      let keys2 = prop($$props, "keys", 8);
+      let keys = prop($$props, "keys", 8);
       let shouldShowColon = prop($$props, "shouldShowColon", 24, () => void 0);
       let expandKey = prop($$props, "expandKey", 8, (key) => key);
       let defaultExpanded = prop($$props, "defaultExpanded", 12, false);
@@ -25879,8 +25879,8 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       function toggleExpand() {
         store_set(expanded, !$expanded());
       }
-      legacy_pre_effect(() => (deep_read_state(keys2()), writable), () => {
-        set$1(child_expanded, keys2().map(() => writable(false)));
+      legacy_pre_effect(() => (deep_read_state(keys()), writable), () => {
+        set$1(child_expanded, keys().map(() => writable(false)));
       });
       legacy_pre_effect_reset();
       init();
@@ -25894,7 +25894,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           append($$anchor2, fragment_1);
         };
         var alternate = ($$anchor2) => {
-          var fragment_2 = root_3$k();
+          var fragment_2 = root_3$l();
           var span = first_child(fragment_2);
           var node_2 = child(span);
           {
@@ -25932,7 +25932,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           {
             var consequent_3 = ($$anchor3) => {
               var ul = root_6$9();
-              each$1(ul, 5, keys2, index$1, ($$anchor4, key, index2) => {
+              each$1(ul, 5, keys, index$1, ($$anchor4, key, index2) => {
                 var li = root_7$a();
                 let classes;
                 var node_6 = child(li);
@@ -26014,7 +26014,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       $$cleanup();
     }
     var root_4$f = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
-    var root_3$j = /* @__PURE__ */ from_html(`<!><span class="operator"> </span>`, 1);
+    var root_3$k = /* @__PURE__ */ from_html(`<!><span class="operator"> </span>`, 1);
     var root_6$8 = /* @__PURE__ */ from_html(`<span class="comma operator svelte-150ffaa">,</span>`);
     var root_5$a = /* @__PURE__ */ from_html(`<!> <!>`, 1);
     var root_7$9 = /* @__PURE__ */ from_html(`<span class="comma operator svelte-150ffaa">,</span> <span class="operator">…</span>`, 1);
@@ -26038,7 +26038,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           var node_1 = first_child(fragment_1);
           {
             var consequent_1 = ($$anchor3) => {
-              var fragment_2 = root_3$j();
+              var fragment_2 = root_3$k();
               var node_2 = first_child(fragment_2);
               {
                 var consequent = ($$anchor4) => {
@@ -26118,37 +26118,37 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       append($$anchor, fragment);
       pop();
     }
-    var root_3$i = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
+    var root_3$j = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
     var root_7$8 = /* @__PURE__ */ from_html(`<span class="property"> </span><span class="operator"></span><!>`, 1);
     var root_9$c = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
     function JSONObjectNode($$anchor, $$props) {
       push($$props, false);
-      const keys2 = /* @__PURE__ */ mutable_source();
+      const keys = /* @__PURE__ */ mutable_source();
       const previewKeys = /* @__PURE__ */ mutable_source();
       let value2 = prop($$props, "value", 8);
       let summary = prop($$props, "summary", 8);
       legacy_pre_effect(() => deep_read_state(value2()), () => {
-        set$1(keys2, Object.getOwnPropertyNames(value2()));
+        set$1(keys, Object.getOwnPropertyNames(value2()));
       });
-      legacy_pre_effect(() => get$2(keys2), () => {
-        set$1(previewKeys, get$2(keys2).slice(0, 5));
+      legacy_pre_effect(() => get$2(keys), () => {
+        set$1(previewKeys, get$2(keys).slice(0, 5));
       });
       legacy_pre_effect_reset();
       init();
       JSONNested($$anchor, {
         get keys() {
-          return get$2(keys2);
+          return get$2(keys);
         },
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_3$i();
+            var span = root_3$j();
             var text2 = child(span);
             template_effect(() => set_text(text2, summary() ?? "{…}"));
             append($$anchor2, span);
           },
           preview: ($$anchor2, $$slotProps) => {
             const root2 = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.root);
-            const expression = /* @__PURE__ */ derived_safe_equal(() => (get$2(previewKeys), get$2(keys2), untrack(() => get$2(previewKeys).length < get$2(keys2).length)));
+            const expression = /* @__PURE__ */ derived_safe_equal(() => (get$2(previewKeys), get$2(keys), untrack(() => get$2(previewKeys).length < get$2(keys).length)));
             const expression_1 = /* @__PURE__ */ derived_safe_equal(() => summary() ? `${summary()} {` : "{");
             PreviewList($$anchor2, {
               get list() {
@@ -26203,15 +26203,15 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       });
       pop();
     }
-    var root_3$h = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
+    var root_3$i = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
     var root_9$b = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
     function JSONArrayNode($$anchor, $$props) {
       push($$props, false);
-      const keys2 = /* @__PURE__ */ mutable_source();
+      const keys = /* @__PURE__ */ mutable_source();
       const preview = /* @__PURE__ */ mutable_source();
       let value2 = prop($$props, "value", 8);
       legacy_pre_effect(() => deep_read_state(value2()), () => {
-        set$1(keys2, Object.getOwnPropertyNames(value2()));
+        set$1(keys, Object.getOwnPropertyNames(value2()));
       });
       legacy_pre_effect(() => deep_read_state(value2()), () => {
         set$1(preview, value2().slice(0, 5));
@@ -26220,11 +26220,11 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       init();
       JSONNested($$anchor, {
         get keys() {
-          return get$2(keys2);
+          return get$2(keys);
         },
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_3$h();
+            var span = root_3$i();
             var text2 = child(span);
             template_effect(() => set_text(text2, `Array(${(deep_read_state(value2()), untrack(() => value2().length)) ?? ""})`));
             append($$anchor2, span);
@@ -26284,7 +26284,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       });
       pop();
     }
-    var root_3$g = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
+    var root_3$h = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
     var root_9$a = /* @__PURE__ */ from_html(`<span> </span>`);
     var root_14$5 = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
     function JSONIterableArrayNode($$anchor, $$props) {
@@ -26316,7 +26316,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         shouldShowColon: (key) => key !== ENTRIES,
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_3$g();
+            var span = root_3$h();
             var text2 = child(span);
             template_effect(() => set_text(text2, `${nodeType() ?? ""}(${(get$2(indexes), untrack(() => get$2(indexes).length)) ?? ""})`));
             append($$anchor2, span);
@@ -26410,7 +26410,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       });
       pop();
     }
-    var root_3$f = /* @__PURE__ */ from_html(`<span color="label"> </span>`);
+    var root_3$g = /* @__PURE__ */ from_html(`<span color="label"> </span>`);
     var root_7$7 = /* @__PURE__ */ from_html(`<!><span class="operator"></span><!>`, 1);
     var root_9$9 = /* @__PURE__ */ from_html(`<span> </span>`);
     var root_14$4 = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
@@ -26422,7 +26422,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       let value2 = prop($$props, "value", 8);
       useState();
       let indexes = /* @__PURE__ */ mutable_source([]);
-      let keys2 = /* @__PURE__ */ mutable_source([]);
+      let keys = /* @__PURE__ */ mutable_source([]);
       let values = /* @__PURE__ */ mutable_source([]);
       const ENTRIES = "[[Entries]]";
       legacy_pre_effect(() => deep_read_state(value2()), () => {
@@ -26436,7 +26436,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           _values.push(entry[1]);
         }
         set$1(indexes, _indexes);
-        set$1(keys2, _keys);
+        set$1(keys, _keys);
         set$1(values, _values);
       });
       legacy_pre_effect(() => deep_read_state(value2()), () => {
@@ -26449,15 +26449,15 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         shouldShowColon: (key) => key !== ENTRIES,
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_3$f();
+            var span = root_3$g();
             var text2 = child(span);
-            template_effect(() => set_text(text2, `Map(${(get$2(keys2), untrack(() => get$2(keys2).length)) ?? ""})`));
+            template_effect(() => set_text(text2, `Map(${(get$2(keys), untrack(() => get$2(keys).length)) ?? ""})`));
             append($$anchor2, span);
           },
           preview: ($$anchor2, $$slotProps) => {
             const root2 = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.root);
             const expression = /* @__PURE__ */ derived_safe_equal(() => (get$2(previewKeys), deep_read_state(value2()), untrack(() => get$2(previewKeys).length < value2().size)));
-            const expression_1 = /* @__PURE__ */ derived_safe_equal(() => (get$2(keys2), untrack(() => `Map(${get$2(keys2).length}) `)));
+            const expression_1 = /* @__PURE__ */ derived_safe_equal(() => (get$2(keys), untrack(() => `Map(${get$2(keys).length}) `)));
             PreviewList($$anchor2, {
               get list() {
                 return get$2(previewKeys);
@@ -26517,7 +26517,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
                   get keys() {
                     return get$2(indexes);
                   },
-                  expandKey: (index2) => get$2(keys2)[index2],
+                  expandKey: (index2) => get$2(keys)[index2],
                   defaultExpanded: true,
                   $$slots: {
                     item_key: ($$anchor4, $$slotProps2) => {
@@ -26539,7 +26539,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
                             var node_3 = sibling(span_4);
                             JSONNode(node_3, {
                               get value() {
-                                return get$2(keys2), deep_read_state(get$2(index2)), untrack(() => get$2(keys2)[get$2(index2)]);
+                                return get$2(keys), deep_read_state(get$2(index2)), untrack(() => get$2(keys)[get$2(index2)]);
                               }
                             });
                             var span_5 = sibling(node_3);
@@ -26563,7 +26563,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
                           },
                           item_value: ($$anchor5, $$slotProps3) => {
                             const name2 = /* @__PURE__ */ derived_safe_equal(() => $$slotProps3.key);
-                            const expression_3 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(get$2(name2)), get$2(keys2), deep_read_state(get$2(index2)), get$2(values), untrack(() => get$2(name2) === "key" ? get$2(keys2)[get$2(index2)] : get$2(values)[get$2(index2)])));
+                            const expression_3 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(get$2(name2)), get$2(keys), deep_read_state(get$2(index2)), get$2(values), untrack(() => get$2(name2) === "key" ? get$2(keys)[get$2(index2)] : get$2(values)[get$2(index2)])));
                             JSONNode($$anchor5, {
                               get value() {
                                 return get$2(expression_3);
@@ -26594,10 +26594,10 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       });
       pop();
     }
-    var root$t = /* @__PURE__ */ from_html(`<span> </span>`);
+    var root$s = /* @__PURE__ */ from_html(`<span> </span>`);
     function JSONValueNode($$anchor, $$props) {
       let value2 = prop($$props, "value", 8), nodeType = prop($$props, "nodeType", 8);
-      var span = root$t();
+      var span = root$s();
       var text2 = child(span);
       template_effect(() => {
         set_class(span, 1, clsx(nodeType()), "svelte-l95iub");
@@ -26606,8 +26606,8 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       append($$anchor, span);
     }
     var root_2$f = /* @__PURE__ */ from_html(`<span><!><span class="operator"> </span></span><br/>`, 1);
-    var root_3$e = /* @__PURE__ */ from_html(`<span><!></span>`);
-    var root$s = /* @__PURE__ */ from_html(`<span><!></span>`);
+    var root_3$f = /* @__PURE__ */ from_html(`<span><!></span>`);
+    var root$r = /* @__PURE__ */ from_html(`<span><!></span>`);
     function ErrorStack($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
@@ -26616,7 +26616,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       const { expanded, expandable } = useState();
       store_set(expandable, true);
       init();
-      var span = root$s();
+      var span = root$r();
       var node = child(span);
       {
         var consequent = ($$anchor2) => {
@@ -26642,7 +26642,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           append($$anchor2, fragment);
         };
         var alternate = ($$anchor2) => {
-          var span_3 = root_3$e();
+          var span_3 = root_3$f();
           var node_3 = child(span_3);
           const expression_1 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(stack()), untrack(() => stack()[0] + "…")));
           JSONNode(node_3, {
@@ -26748,7 +26748,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       }
       return type2;
     }
-    var root_1$k = /* @__PURE__ */ from_html(`<span class="svelte-1fvwa9c"> </span>`);
+    var root_1$j = /* @__PURE__ */ from_html(`<span class="svelte-1fvwa9c"> </span>`);
     var root_2$d = /* @__PURE__ */ from_html(`<span class="svelte-1fvwa9c"> </span>`);
     function JSONStringNode($$anchor, $$props) {
       push($$props, false);
@@ -26765,7 +26765,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       var node = first_child(fragment);
       {
         var consequent = ($$anchor2) => {
-          var span = root_1$k();
+          var span = root_1$j();
           var text2 = child(span);
           template_effect(
             ($0) => set_text(text2, `"${$0 ?? ""}"`),
@@ -26800,7 +26800,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       push($$props, false);
       const str = /* @__PURE__ */ mutable_source();
       const ctx = /* @__PURE__ */ mutable_source();
-      const keys2 = /* @__PURE__ */ mutable_source();
+      const keys = /* @__PURE__ */ mutable_source();
       let value2 = prop($$props, "value", 8);
       function parseFunction(str2) {
         const match2 = str2.match(/^(?:(async)\s+)?(?:function)?(\*)?\s*([^(]+)?(\([^)]*\))\s*(=>)?/);
@@ -26861,7 +26861,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       });
       legacy_pre_effect(() => {
       }, () => {
-        set$1(keys2, [
+        set$1(keys, [
           "length",
           "name",
           "prototype",
@@ -26873,7 +26873,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       init();
       JSONNested($$anchor, {
         get keys() {
-          return get$2(keys2);
+          return get$2(keys);
         },
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
@@ -26980,7 +26980,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       });
       pop();
     }
-    var root_3$d = /* @__PURE__ */ from_html(`<span class="label"> <!> </span>`);
+    var root_3$e = /* @__PURE__ */ from_html(`<span class="label"> <!> </span>`);
     var root_7$6 = /* @__PURE__ */ from_html(`<span class="property"> </span><span class="operator"></span><!>`, 1);
     var root_9$8 = /* @__PURE__ */ from_html(`<span> </span>`);
     function JSONSvelteStoreNode($$anchor, $$props) {
@@ -26988,7 +26988,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       const [$$stores, $$cleanup] = setup_stores();
       const $value = () => store_get(value2(), "$value", $$stores);
       const objectKeys = /* @__PURE__ */ mutable_source();
-      const keys2 = /* @__PURE__ */ mutable_source();
+      const keys = /* @__PURE__ */ mutable_source();
       const previewKeys = /* @__PURE__ */ mutable_source();
       const storeValue = /* @__PURE__ */ mutable_source();
       const isWritableStore = /* @__PURE__ */ mutable_source();
@@ -27002,7 +27002,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         set$1(objectKeys, Object.getOwnPropertyNames(value2()));
       });
       legacy_pre_effect(() => get$2(objectKeys), () => {
-        set$1(keys2, [STORE_VALUE, ...get$2(objectKeys)]);
+        set$1(keys, [STORE_VALUE, ...get$2(objectKeys)]);
       });
       legacy_pre_effect(() => get$2(objectKeys), () => {
         set$1(previewKeys, get$2(objectKeys).slice(0, 5));
@@ -27017,11 +27017,11 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       init();
       JSONNested($$anchor, {
         get keys() {
-          return get$2(keys2);
+          return get$2(keys);
         },
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_3$d();
+            var span = root_3$e();
             var text2 = child(span);
             var node = sibling(text2);
             JSONNode(node, {
@@ -27093,11 +27093,11 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       pop();
       $$cleanup();
     }
-    var root_3$c = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
+    var root_3$d = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
     var root_9$7 = /* @__PURE__ */ from_html(`<span> </span>`);
     function TypedArrayNode($$anchor, $$props) {
       push($$props, false);
-      const keys2 = /* @__PURE__ */ mutable_source();
+      const keys = /* @__PURE__ */ mutable_source();
       const preview = /* @__PURE__ */ mutable_source();
       let value2 = prop($$props, "value", 8);
       let nodeType = prop($$props, "nodeType", 8);
@@ -27116,7 +27116,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         return value2()[key];
       }
       legacy_pre_effect(() => deep_read_state(value2()), () => {
-        set$1(keys2, [
+        set$1(keys, [
           ...Object.getOwnPropertyNames(value2()),
           ...internalKeys
         ]);
@@ -27128,11 +27128,11 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       init();
       JSONNested($$anchor, {
         get keys() {
-          return get$2(keys2);
+          return get$2(keys);
         },
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_3$c();
+            var span = root_3$d();
             var text2 = child(span);
             template_effect(() => set_text(text2, `${nodeType() ?? ""}(${(deep_read_state(value2()), untrack(() => value2().length)) ?? ""})`));
             append($$anchor2, span);
@@ -27204,7 +27204,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       push($$props, false);
       const str = /* @__PURE__ */ mutable_source();
       let value2 = prop($$props, "value", 8);
-      const keys2 = [
+      const keys = [
         "lastIndex",
         "dotAll",
         "flags",
@@ -27223,7 +27223,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       init();
       JSONNested($$anchor, {
         get keys() {
-          return keys2;
+          return keys;
         },
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
@@ -27417,7 +27417,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       };
     }
     var root_4$b = /* @__PURE__ */ from_html(`<span class="svelte-jzynja"> </span>`);
-    var root$r = /* @__PURE__ */ from_html(`<span><!></span>`);
+    var root$q = /* @__PURE__ */ from_html(`<span><!></span>`);
     function Root($$anchor, $$props) {
       push($$props, false);
       const expandable = /* @__PURE__ */ mutable_source();
@@ -27452,7 +27452,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       );
       legacy_pre_effect_reset();
       init();
-      var span = root$r();
+      var span = root$q();
       let classes;
       var node = child(span);
       {
@@ -27543,9 +27543,9 @@ ${indentStr}]`;
         }
       }
       if (typeof obj === "object") {
-        const keys2 = Object.keys(obj);
-        if (keys2.length === 0) return "{}";
-        const items = keys2.map((key) => {
+        const keys = Object.keys(obj);
+        if (keys.length === 0) return "{}";
+        const items = keys.map((key) => {
           const value2 = formatJsonWithCompactArrays(obj[key], indent2 + 1);
           return `${nextIndentStr}${JSON.stringify(key)}: ${value2}`;
         }).join(",\n");
@@ -28116,7 +28116,7 @@ ${indentStr}}`;
       return process2(obj);
     }
     var root_2$a = /* @__PURE__ */ from_html(`<span class="time-info svelte-zt1cxl"> </span>`);
-    var root_3$b = /* @__PURE__ */ from_html(`<div class="fee-main"><span class="field-label svelte-zt1cxl">Fee:</span> <span class="gas-fee svelte-zt1cxl"> </span> <span class="field-label svelte-zt1cxl">Storage cost:</span> <span class="field-value svelte-zt1cxl"> </span> <span class="field-label svelte-zt1cxl">Rebate:</span> <span class="field-value svelte-zt1cxl"> </span></div>`);
+    var root_3$c = /* @__PURE__ */ from_html(`<div class="fee-main"><span class="field-label svelte-zt1cxl">Fee:</span> <span class="gas-fee svelte-zt1cxl"> </span> <span class="field-label svelte-zt1cxl">Storage cost:</span> <span class="field-value svelte-zt1cxl"> </span> <span class="field-label svelte-zt1cxl">Rebate:</span> <span class="field-value svelte-zt1cxl"> </span></div>`);
     var root_5$8 = /* @__PURE__ */ from_html(`<div class="balance-box negative svelte-zt1cxl"><div class="full-address svelte-zt1cxl"> </div> <div class="amount-value svelte-zt1cxl"> </div></div>`);
     var root_6$4 = /* @__PURE__ */ from_html(`<div class="balance-box positive svelte-zt1cxl"><div class="full-address svelte-zt1cxl"> </div> <div class="amount-value svelte-zt1cxl"> </div></div>`);
     var root_4$a = /* @__PURE__ */ from_html(`<div class="section svelte-zt1cxl"><h4 class="svelte-zt1cxl"> </h4> <div class="balance-columns svelte-zt1cxl"><div class="negative-changes svelte-zt1cxl"><h5 class="column-header deleted svelte-zt1cxl"> </h5> <div class="balance-content svelte-zt1cxl"></div></div> <div class="positive-changes svelte-zt1cxl"><h5 class="column-header created svelte-zt1cxl"> </h5> <div class="balance-content svelte-zt1cxl"></div></div></div></div>`);
@@ -28179,9 +28179,9 @@ ${indentStr}}`;
     var root_64 = /* @__PURE__ */ from_html(`<div class="section svelte-zt1cxl"><span class="svelte-zt1cxl"> </span> <div class="dev-inspect-results svelte-zt1cxl"></div></div>`);
     var root_76 = /* @__PURE__ */ from_html(`<div class="raw-result-item svelte-zt1cxl"><div class="raw-result-header svelte-zt1cxl"><span class="raw-result-index svelte-zt1cxl"></span></div> <div class="raw-result-content svelte-zt1cxl"><pre class="svelte-zt1cxl"> </pre></div></div>`);
     var root_75 = /* @__PURE__ */ from_html(`<div class="section svelte-zt1cxl"><span class="svelte-zt1cxl"> </span> <div class="raw-results svelte-zt1cxl"></div></div>`);
-    var root_1$j = /* @__PURE__ */ from_html(`<div class="header-line svelte-zt1cxl"><span class="tx-header svelte-zt1cxl">Transaction</span> <span class="tx-id-short svelte-zt1cxl"> </span> <span class="status svelte-zt1cxl"> </span> <span class="checkpoint-info svelte-zt1cxl"> </span> <!></div> <div class="sender-fee-line svelte-zt1cxl"><div class="sender-section"><span class="field-label svelte-zt1cxl">Sender:</span> <span class="field-value svelte-zt1cxl"> </span></div> <div class="fee-section"><!></div></div> <!> <!> <!> <!> <!> <!> <!> <!>`, 1);
+    var root_1$i = /* @__PURE__ */ from_html(`<div class="header-line svelte-zt1cxl"><span class="tx-header svelte-zt1cxl">Transaction</span> <span class="tx-id-short svelte-zt1cxl"> </span> <span class="status svelte-zt1cxl"> </span> <span class="checkpoint-info svelte-zt1cxl"> </span> <!></div> <div class="sender-fee-line svelte-zt1cxl"><div class="sender-section"><span class="field-label svelte-zt1cxl">Sender:</span> <span class="field-value svelte-zt1cxl"> </span></div> <div class="fee-section"><!></div></div> <!> <!> <!> <!> <!> <!> <!> <!>`, 1);
     var root_78 = /* @__PURE__ */ from_html(`<div class="no-data svelte-zt1cxl">No transaction effects data available</div>`);
-    var root$q = /* @__PURE__ */ from_html(`<div class="transaction-effects svelte-zt1cxl"><!></div>`);
+    var root$p = /* @__PURE__ */ from_html(`<div class="transaction-effects svelte-zt1cxl"><!></div>`);
     function TransactionEffects($$anchor, $$props) {
       push($$props, false);
       const effects2 = /* @__PURE__ */ mutable_source();
@@ -28313,11 +28313,11 @@ ${indentStr}}`;
       });
       legacy_pre_effect_reset();
       init();
-      var div = root$q();
+      var div = root$p();
       var node = child(div);
       {
         var consequent_47 = ($$anchor2) => {
-          var fragment = root_1$j();
+          var fragment = root_1$i();
           var div_1 = first_child(fragment);
           var span = sibling(child(div_1), 2);
           var text$1 = child(span);
@@ -28357,7 +28357,7 @@ ${indentStr}}`;
           var node_2 = child(div_4);
           {
             var consequent_1 = ($$anchor3) => {
-              var div_5 = root_3$b();
+              var div_5 = root_3$c();
               var span_5 = sibling(child(div_5), 2);
               var text_5 = child(span_5);
               var span_6 = sibling(span_5, 4);
@@ -28891,7 +28891,7 @@ ${indentStr}}`;
                 5,
                 () => (deep_read_state(transactionData()), untrack(() => transactionData().decodedBCS.intentMessage.value.V1.kind.ProgrammableTransaction.commands)),
                 index$1,
-                ($$anchor4, command2, index2) => {
+                ($$anchor4, command, index2) => {
                   var div_56 = root_36$1();
                   var span_11 = child(div_56);
                   span_11.textContent = index2;
@@ -28902,7 +28902,7 @@ ${indentStr}}`;
                   {
                     var consequent_23 = ($$anchor5) => {
                       var pre_6 = root_37();
-                      const moveCall = /* @__PURE__ */ derived_safe_equal(() => (get$2(command2), untrack(() => get$2(command2).MoveCall)));
+                      const moveCall = /* @__PURE__ */ derived_safe_equal(() => (get$2(command), untrack(() => get$2(command).MoveCall)));
                       const signature = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(get$2(moveCall)), untrack(() => `${get$2(moveCall).package}::${get$2(moveCall).module}::${get$2(moveCall).function}`)));
                       const cleanData = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(get$2(signature)), deep_read_state(get$2(moveCall)), untrack(() => ({
                         function: get$2(signature),
@@ -28925,18 +28925,18 @@ ${indentStr}}`;
                       template_effect(
                         ($0) => set_text(text_47, $0),
                         [
-                          () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), get$2(command2), untrack(() => formatJsonWithCompactArrays(removeKindFields(get$2(command2))[get$2(command2).$kind])))
+                          () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), get$2(command), untrack(() => formatJsonWithCompactArrays(removeKindFields(get$2(command))[get$2(command).$kind])))
                         ],
                         derived_safe_equal
                       );
                       append($$anchor5, pre_7);
                     };
                     if_block(node_23, ($$render) => {
-                      if (get$2(command2), untrack(() => get$2(command2).$kind === "MoveCall" && get$2(command2).MoveCall)) $$render(consequent_23);
+                      if (get$2(command), untrack(() => get$2(command).$kind === "MoveCall" && get$2(command).MoveCall)) $$render(consequent_23);
                       else $$render(alternate_4, false);
                     });
                   }
-                  template_effect(() => set_text(text_45, (get$2(command2), untrack(() => get$2(command2).$kind))));
+                  template_effect(() => set_text(text_45, (get$2(command), untrack(() => get$2(command).$kind))));
                   append($$anchor4, div_56);
                 }
               );
@@ -28955,7 +28955,7 @@ ${indentStr}}`;
                     5,
                     () => (deep_read_state(transactionData()), untrack(() => transactionData().input.transaction.transactions)),
                     index$1,
-                    ($$anchor5, command2, index2) => {
+                    ($$anchor5, command, index2) => {
                       var div_60 = root_41$1();
                       var span_14 = child(div_60);
                       span_14.textContent = index2;
@@ -28966,7 +28966,7 @@ ${indentStr}}`;
                       {
                         var consequent_26 = ($$anchor6) => {
                           var fragment_6 = comment$1();
-                          const commandValue = /* @__PURE__ */ derived_safe_equal(() => (get$2(command2), untrack(() => Object.values(get$2(command2))[0])));
+                          const commandValue = /* @__PURE__ */ derived_safe_equal(() => (get$2(command), untrack(() => Object.values(get$2(command))[0])));
                           var node_25 = first_child(fragment_6);
                           {
                             var consequent_25 = ($$anchor7) => {
@@ -29013,21 +29013,21 @@ ${indentStr}}`;
                           template_effect(
                             ($0) => set_text(text_52, $0),
                             [
-                              () => (deep_read_state(formatJsonWithCompactArrays), get$2(command2), untrack(() => formatJsonWithCompactArrays(Object.values(get$2(command2))[0])))
+                              () => (deep_read_state(formatJsonWithCompactArrays), get$2(command), untrack(() => formatJsonWithCompactArrays(Object.values(get$2(command))[0])))
                             ],
                             derived_safe_equal
                           );
                           append($$anchor6, pre_10);
                         };
                         if_block(node_24, ($$render) => {
-                          if (get$2(command2), untrack(() => Object.keys(get$2(command2))[0] === "MoveCall")) $$render(consequent_26);
+                          if (get$2(command), untrack(() => Object.keys(get$2(command))[0] === "MoveCall")) $$render(consequent_26);
                           else $$render(alternate_7, false);
                         });
                       }
                       template_effect(
                         ($0) => set_text(text_49, $0),
                         [
-                          () => (get$2(command2), untrack(() => Object.keys(get$2(command2))[0]))
+                          () => (get$2(command), untrack(() => Object.keys(get$2(command))[0]))
                         ],
                         derived_safe_equal
                       );
@@ -29637,10 +29637,10 @@ ${indentStr}}`;
       append($$anchor, div);
       pop();
     }
-    var root_1$i = /* @__PURE__ */ from_html(`<div class="formatted-view svelte-150bnt9"><!></div>`);
-    var root_3$a = /* @__PURE__ */ from_html(`<div class="tree-view svelte-150bnt9"><!></div>`);
+    var root_1$h = /* @__PURE__ */ from_html(`<div class="formatted-view svelte-150bnt9"><!></div>`);
+    var root_3$b = /* @__PURE__ */ from_html(`<div class="tree-view svelte-150bnt9"><!></div>`);
     var root_4$9 = /* @__PURE__ */ from_html(`<div class="json-view svelte-150bnt9"><pre class="svelte-150bnt9"> </pre></div>`);
-    var root$p = /* @__PURE__ */ from_html(`<div class="transaction-view ultra-compact svelte-150bnt9"><div class="view-controls svelte-150bnt9"><button>Formatted View</button> <button>Raw JSON</button> <button>JSON Tree</button></div> <!></div>`);
+    var root$o = /* @__PURE__ */ from_html(`<div class="transaction-view ultra-compact svelte-150bnt9"><div class="view-controls svelte-150bnt9"><button>Formatted View</button> <button>Raw JSON</button> <button>JSON Tree</button></div> <!></div>`);
     function TransactionView($$anchor, $$props) {
       push($$props, false);
       let value2 = prop($$props, "value", 8);
@@ -29659,7 +29659,7 @@ ${indentStr}}`;
       );
       legacy_pre_effect_reset();
       init();
-      var div = root$p();
+      var div = root$o();
       var div_1 = child(div);
       var button = child(div_1);
       let classes;
@@ -29670,7 +29670,7 @@ ${indentStr}}`;
       var node = sibling(div_1, 2);
       {
         var consequent = ($$anchor2) => {
-          var div_2 = root_1$i();
+          var div_2 = root_1$h();
           var node_1 = child(div_2);
           const expression = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(getTransactionData), deep_read_state(value2()), untrack(() => getTransactionData(value2()))));
           TransactionEffects(node_1, {
@@ -29683,7 +29683,7 @@ ${indentStr}}`;
         var alternate = ($$anchor2, $$elseif) => {
           {
             var consequent_1 = ($$anchor3) => {
-              var div_3 = root_3$a();
+              var div_3 = root_3$b();
               var node_2 = child(div_3);
               Root(node_2, {
                 get value() {
@@ -29894,13 +29894,13 @@ ${indentStr}}`;
         set$1(errorMsg, err.toString());
       }
     }
-    var root_1$h = /* @__PURE__ */ from_html(`<div style="color: red; font-size: 0.9rem; margin-top: 0.25rem;"> </div>`);
+    var root_1$g = /* @__PURE__ */ from_html(`<div style="color: red; font-size: 0.9rem; margin-top: 0.25rem;"> </div>`);
     var on_change$2 = (e2, selectCoinFromDropdown) => selectCoinFromDropdown(e2.target.value);
-    var root_3$9 = /* @__PURE__ */ from_html(`<option> </option>`);
+    var root_3$a = /* @__PURE__ */ from_html(`<option> </option>`);
     var root_2$9 = /* @__PURE__ */ from_html(`<div style="margin-bottom: 1rem;"><label for="coinDropdown" style="display: inline-block; margin-bottom: 0.5rem; font-weight: bold;">Select from Available Coins:</label> <br/> <select id="coinDropdown" style="padding: 0.5rem; font-family: monospace; font-size: 14px; border: 1px solid #cccccc; min-width: 300px;"><option>-- Select a coin --</option><!></select> <div style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;"> </div></div>`);
     var root_4$8 = /* @__PURE__ */ from_html(`<div style="color: red; margin-top: 0.5rem; font-size: 0.9rem;"> </div>`);
     var root_5$7 = /* @__PURE__ */ from_html(`<div style="margin: 1rem 0; text-align: left; display: inline-block;"> <br/> </div>`);
-    var root$o = /* @__PURE__ */ from_html(`<main><div><h3>Bulk Transfer</h3> <p>Transfer coins to multiple addresses in a single transaction.</p> <div style="margin-bottom: 1rem;"><div style="margin-bottom: 1rem;"><button style="padding: 0.5rem 1rem; margin-bottom: 0.5rem;" class="svelte-12h7i3q"> </button> <!></div> <!></div> <div><details style="margin-bottom: 1rem;"><summary>Example formats</summary> <div style="display: flex; gap: 2rem; justify-content: center;"><div><h4>JSON format:</h4> <pre style="padding: 1rem; text-align: left;"></pre></div> <div><h4>CSV format:</h4> <pre style="padding: 1rem; text-align: left;"></pre></div> <div><h4>Space-separated:</h4> <pre style="padding: 1rem;"></pre></div></div></details> <div style="display: inline-block;"><div style="text-align: left;">Transfers (amount in the smallest unit (NANO for IOTA)) - JSON, CSV, or
+    var root$n = /* @__PURE__ */ from_html(`<main><div><h3>Bulk Transfer</h3> <p>Transfer coins to multiple addresses in a single transaction.</p> <div style="margin-bottom: 1rem;"><div style="margin-bottom: 1rem;"><button style="padding: 0.5rem 1rem; margin-bottom: 0.5rem;" class="svelte-12h7i3q"> </button> <!></div> <!></div> <div><details style="margin-bottom: 1rem;"><summary>Example formats</summary> <div style="display: flex; gap: 2rem; justify-content: center;"><div><h4>JSON format:</h4> <pre style="padding: 1rem; text-align: left;"></pre></div> <div><h4>CSV format:</h4> <pre style="padding: 1rem; text-align: left;"></pre></div> <div><h4>Space-separated:</h4> <pre style="padding: 1rem;"></pre></div></div></details> <div style="display: inline-block;"><div style="text-align: left;">Transfers (amount in the smallest unit (NANO for IOTA)) - JSON, CSV, or
                     space-separated:</div> <textarea rows="15" cols="120" placeholder="Enter transfers in JSON, CSV, or space-separated format"></textarea></div> <!></div> <!> <br/> <button class="svelte-12h7i3q">Execute Bulk Transfer</button></div> <!></main>`);
     function BulkTransfer($$anchor, $$props) {
       push($$props, false);
@@ -30005,7 +30005,7 @@ ${indentStr}}`;
       );
       legacy_pre_effect_reset();
       init();
-      var main = root$o();
+      var main = root$n();
       var div = child(main);
       var div_1 = sibling(child(div), 4);
       var div_2 = child(div_1);
@@ -30022,7 +30022,7 @@ ${indentStr}}`;
       var node = sibling(button, 2);
       {
         var consequent = ($$anchor2) => {
-          var div_3 = root_1$h();
+          var div_3 = root_1$g();
           var text_1 = child(div_3);
           template_effect(() => set_text(text_1, `Error: ${get$2(fetchError) ?? ""}`));
           append($$anchor2, div_3);
@@ -30041,7 +30041,7 @@ ${indentStr}}`;
           option.value = option.__value = "";
           var node_2 = sibling(option);
           each$1(node_2, 1, () => get$2(availableCoins), index$1, ($$anchor3, coin) => {
-            var option_1 = root_3$9();
+            var option_1 = root_3$a();
             var option_1_value = {};
             var text_2 = child(option_1);
             template_effect(
@@ -30162,7 +30162,7 @@ ${indentStr}}`;
       $$cleanup();
     }
     delegate(["click", "change", "input"]);
-    var root$n = /* @__PURE__ */ from_html(`<main><div class="wrapper svelte-xku9c2"><div class="box">Bytes:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="bytes like: 1, 2, 3"/></div> <div class="box">Hex:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="hex string"/></div> <div class="box">Base64:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="base64 string"/></div> <div class="box">Base58:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="base58 string"/></div> <div class="box">UTF-8:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="UTF-8 string"/></div> <div class="box"> </div> <div class="box"><input type="string" style="width: 100%;" placeholder="number"/></div></div> <br/> <div class="wrapper svelte-xku9c2"><div class="box">NANO:</div> <div class="box"><input type="string" size="40" placeholder="NANO amount"/> </div> <div class="box">IOTA:</div> <div class="box"><input type="string" size="40" placeholder="IOTA amount"/> </div></div> <br/> <div><div style="float: left; display: flex; align-items: center; gap: 10px;"><span>Tx bytes base64:</span> <button style="padding: 4px 8px; font-size: 12px;">Example tx</button></div> <div class="box"><textarea placeholder="base64 transaction bytes" class="svelte-xku9c2"></textarea></div></div> <!> <br/> </main>`);
+    var root$m = /* @__PURE__ */ from_html(`<main><div class="wrapper svelte-xku9c2"><div class="box">Bytes:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="bytes like: 1, 2, 3"/></div> <div class="box">Hex:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="hex string"/></div> <div class="box">Base64:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="base64 string"/></div> <div class="box">Base58:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="base58 string"/></div> <div class="box">UTF-8:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="UTF-8 string"/></div> <div class="box"> </div> <div class="box"><input type="string" style="width: 100%;" placeholder="number"/></div></div> <br/> <div class="wrapper svelte-xku9c2"><div class="box">NANO:</div> <div class="box"><input type="string" size="40" placeholder="NANO amount"/> </div> <div class="box">IOTA:</div> <div class="box"><input type="string" size="40" placeholder="IOTA amount"/> </div></div> <br/> <div><div style="float: left; display: flex; align-items: center; gap: 10px;"><span>Tx bytes base64:</span> <button style="padding: 4px 8px; font-size: 12px;">Example tx</button></div> <div class="box"><textarea placeholder="base64 transaction bytes" class="svelte-xku9c2"></textarea></div></div> <!> <br/> </main>`);
     function Converter($$anchor, $$props) {
       push($$props, false);
       let bytes = /* @__PURE__ */ mutable_source();
@@ -30302,7 +30302,7 @@ ${indentStr}}`;
         }
       }
       init();
-      var main = root$n();
+      var main = root$m();
       var div = child(main);
       var div_1 = sibling(child(div), 2);
       var input = child(div_1);
@@ -30379,13 +30379,13 @@ ${indentStr}}`;
       append($$anchor, main);
       pop();
     }
-    var root$m = /* @__PURE__ */ from_html(`<div class="value svelte-tyd1uw"><button class="svelte-tyd1uw">toggle JSON tree</button> <div><!></div> <pre class="svelte-tyd1uw"> </pre></div>`);
+    var root$l = /* @__PURE__ */ from_html(`<div class="value svelte-tyd1uw"><button class="svelte-tyd1uw">toggle JSON tree</button> <div><!></div> <pre class="svelte-tyd1uw"> </pre></div>`);
     function JsonToggleView($$anchor, $$props) {
       push($$props, false);
       let value2 = prop($$props, "value", 24, () => ({}));
       let showJsonTree = /* @__PURE__ */ mutable_source(false);
       init();
-      var div = root$m();
+      var div = root$l();
       var button = child(div);
       var div_1 = sibling(button, 2);
       var node = child(div_1);
@@ -31514,9 +31514,9 @@ ${indentStr}}`;
         updateSelectedStructJson();
       }
     }
-    var on_click$6 = (__4, handleQueryDynamicFields) => handleQueryDynamicFields();
-    var root_1$g = /* @__PURE__ */ from_html(`<div style="color: red; margin-top: 1em;"> </div>`);
-    var root_3$8 = /* @__PURE__ */ from_html(`<div>No dynamic fields found for this object.</div>`);
+    var on_click$5 = (__4, handleQueryDynamicFields) => handleQueryDynamicFields();
+    var root_1$f = /* @__PURE__ */ from_html(`<div style="color: red; margin-top: 1em;"> </div>`);
+    var root_3$9 = /* @__PURE__ */ from_html(`<div>No dynamic fields found for this object.</div>`);
     var root_5$6 = /* @__PURE__ */ from_html(`<button style="margin-top:1em;"> </button>`);
     var root_4$7 = /* @__PURE__ */ from_html(`<!> <!>`, 1);
     var on_click_1$2 = (__5, layoutType, fieldType, handleGetMoveLayout) => {
@@ -31552,7 +31552,7 @@ ${indentStr}}`;
     var root_26$1 = /* @__PURE__ */ from_html(`<h4>dynamicField Result</h4> <!>`, 1);
     var root_27$1 = /* @__PURE__ */ from_html(`<h4>dynamicObjectField Result</h4> <!>`, 1);
     var root_28$1 = /* @__PURE__ */ from_html(`<div style="color: red; margin-top: 1em;"> </div>`);
-    var root$l = /* @__PURE__ */ from_html(`<main><h2>Dynamic Fields</h2> <div><label>Object ID: <input placeholder="0x..." size="67"/></label> <br/> <label style="margin-left:1em;">Page size: <input type="number" min="1" max="100" style="width:6rem;"/></label> <button> </button> <button style="margin-left:1em;">Get Layouts and BCS Values</button></div> <!> <!> <hr style="margin:2em 0;"/> <h3>Query Dynamic Field / Dynamic Object Field</h3> <div style="margin-bottom:1em;"><label>Field type (primitive or name.type.repr, like
+    var root$k = /* @__PURE__ */ from_html(`<main><h2>Dynamic Fields</h2> <div><label>Object ID: <input placeholder="0x..." size="67"/></label> <br/> <label style="margin-left:1em;">Page size: <input type="number" min="1" max="100" style="width:6rem;"/></label> <button> </button> <button style="margin-left:1em;">Get Layouts and BCS Values</button></div> <!> <!> <hr style="margin:2em 0;"/> <h3>Query Dynamic Field / Dynamic Object Field</h3> <div style="margin-bottom:1em;"><label>Field type (primitive or name.type.repr, like
             &lt;package&gt;::&lt;module&gt;::&lt;struct&gt;): <input placeholder="e.g. 0x1::string::String" style="width: 100%"/></label> <br/> <button style="margin-top:0.5em; margin-bottom:1em;"> </button> <br/> <!> <br/> Field value (default is for structs without fields): <div><button type="button" style="margin-right:0.5em; display: inline-block;"> </button></div> <!> <!></div> <div style="margin-bottom:1em;"><button> </button> <button style="margin-left:1em;"> </button></div> <!> <!> <!> <!></main>`);
     function DynamicFields($$anchor, $$props) {
       push($$props, true);
@@ -31827,14 +31827,14 @@ ${indentStr}}`;
           set$1(isDecodingInProgress, false);
         }
       }
-      var main = root$l();
+      var main = root$k();
       var div = sibling(child(main), 2);
       var label = child(div);
       var input = sibling(child(label));
       var label_1 = sibling(label, 4);
       var input_1 = sibling(child(label_1));
       var button = sibling(label_1, 2);
-      button.__click = [on_click$6, handleQueryDynamicFields];
+      button.__click = [on_click$5, handleQueryDynamicFields];
       var text2 = child(button);
       var button_1 = sibling(button, 2);
       button_1.__click = [
@@ -31846,7 +31846,7 @@ ${indentStr}}`;
       var node = sibling(div, 2);
       {
         var consequent = ($$anchor2) => {
-          var div_1 = root_1$g();
+          var div_1 = root_1$f();
           var text_1 = child(div_1);
           template_effect(() => set_text(text_1, get$2(error2)));
           append($$anchor2, div_1);
@@ -31862,7 +31862,7 @@ ${indentStr}}`;
           var node_2 = first_child(fragment);
           {
             var consequent_1 = ($$anchor3) => {
-              var div_2 = root_3$8();
+              var div_2 = root_3$9();
               append($$anchor3, div_2);
             };
             var alternate = ($$anchor3) => {
@@ -34333,7 +34333,7 @@ zoo`.split("\n");
         chainCode
       });
     };
-    var root$k = /* @__PURE__ */ from_html(`<main class="svelte-1rwp9og"><div class="svelte-1rwp9og">For development purposes only, never use with real funds!</div> <br/> <button class="svelte-1rwp9og">Generate new</button> <button class="svelte-1rwp9og">Generate new short (&#60;130 chars)</button> <input id="mnemonic" type="string" size="140" placeholder="24 word BIP-39 mnemonic. For development purposes only, never use with real funds!" class="svelte-1rwp9og"/> <br/> BIP 44 path: <input id="coinType" type="number" list="coinTypes" placeholder="BIP-44 coin type" class="svelte-1rwp9og"/> <datalist id="coinTypes"><option>IOTA</option><option>Shimmer</option><option>Testnet</option></datalist> <input id="accountIndex" type="number" min="0" placeholder="account index" class="svelte-1rwp9og"/> <select id="change" class="svelte-1rwp9og"><option>0</option><option>1</option></select> <input id="addressIndex" type="number" width="1" min="0" placeholder="address index" class="svelte-1rwp9og"/> <br/> <div class="svelte-1rwp9og">Insert anything and it will generate/convert what's possible:</div> <div class="svelte-1rwp9og"><label for="mnemonicEntropy" class="svelte-1rwp9og">Mnemonic entropy:</label> <input id="mnemonicEntropy" type="string" size="70" placeholder="hex mnemonic entropy" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="seed" class="svelte-1rwp9og">Seed:</label> <input id="seed" type="string" size="130" placeholder="hex seed" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="privateKeyBech32" class="svelte-1rwp9og">Private key bech32:</label> <input id="privateKeyBech32" type="string" size="75" placeholder="bech32 iotaprivkey" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="privateKeyHex" class="svelte-1rwp9og">Private key hex:</label> <input id="privateKeyHex" type="string" size="70" placeholder="hex Ed25519 private key" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="publicKeyBase64" class="svelte-1rwp9og">Public key base64:</label> <input id="publicKeyBase64" type="string" size="70" placeholder="base64 Ed25519 public key" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="publicKey" class="svelte-1rwp9og">Public key:</label> <input id="publicKey" type="string" size="70" placeholder="hex Ed25519 public key" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><span class="label svelte-1rwp9og">Address:</span> <span style="text-align: left;" class="svelte-1rwp9og"> </span></div> <br/> </main>`);
+    var root$j = /* @__PURE__ */ from_html(`<main class="svelte-1rwp9og"><div class="svelte-1rwp9og">For development purposes only, never use with real funds!</div> <br/> <button class="svelte-1rwp9og">Generate new</button> <button class="svelte-1rwp9og">Generate new short (&#60;130 chars)</button> <input id="mnemonic" type="string" size="140" placeholder="24 word BIP-39 mnemonic. For development purposes only, never use with real funds!" class="svelte-1rwp9og"/> <br/> BIP 44 path: <input id="coinType" type="number" list="coinTypes" placeholder="BIP-44 coin type" class="svelte-1rwp9og"/> <datalist id="coinTypes"><option>IOTA</option><option>Shimmer</option><option>Testnet</option></datalist> <input id="accountIndex" type="number" min="0" placeholder="account index" class="svelte-1rwp9og"/> <select id="change" class="svelte-1rwp9og"><option>0</option><option>1</option></select> <input id="addressIndex" type="number" width="1" min="0" placeholder="address index" class="svelte-1rwp9og"/> <br/> <div class="svelte-1rwp9og">Insert anything and it will generate/convert what's possible:</div> <div class="svelte-1rwp9og"><label for="mnemonicEntropy" class="svelte-1rwp9og">Mnemonic entropy:</label> <input id="mnemonicEntropy" type="string" size="70" placeholder="hex mnemonic entropy" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="seed" class="svelte-1rwp9og">Seed:</label> <input id="seed" type="string" size="130" placeholder="hex seed" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="privateKeyBech32" class="svelte-1rwp9og">Private key bech32:</label> <input id="privateKeyBech32" type="string" size="75" placeholder="bech32 iotaprivkey" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="privateKeyHex" class="svelte-1rwp9og">Private key hex:</label> <input id="privateKeyHex" type="string" size="70" placeholder="hex Ed25519 private key" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="publicKeyBase64" class="svelte-1rwp9og">Public key base64:</label> <input id="publicKeyBase64" type="string" size="70" placeholder="base64 Ed25519 public key" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="publicKey" class="svelte-1rwp9og">Public key:</label> <input id="publicKey" type="string" size="70" placeholder="hex Ed25519 public key" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><span class="label svelte-1rwp9og">Address:</span> <span style="text-align: left;" class="svelte-1rwp9og"> </span></div> <br/> </main>`);
     function Ed25519AddressGeneration($$anchor, $$props) {
       push($$props, false);
       const IOTA_BIP44_COIN_TYPE = 4218;
@@ -34469,7 +34469,7 @@ zoo`.split("\n");
         return Ed25519Keypair.fromSecretKey(key);
       }
       init();
-      var main = root$k();
+      var main = root$j();
       var button = sibling(child(main), 4);
       var button_1 = sibling(button, 2);
       var input = sibling(button_1, 2);
@@ -34603,8 +34603,8 @@ zoo`.split("\n");
         method: "GET"
       });
     }
-    var root_1$f = /* @__PURE__ */ from_html(`<option> </option>`);
-    var root$j = /* @__PURE__ */ from_html(`<main><button class="svelte-8fa537">Set to current network and active address</button> <br/> <span>faucet URL: <input type="string" list="faucetUrls" size="60" placeholder="faucet URL, like http://127.0.0.1:9123/gas"/> <datalist id="faucetUrls"></datalist></span> <br/> <span>address: <input placeholder="address" size="67"/></span> <br/> <span>amount of requests: <input type="number" placeholder="1" size="4"/></span> <span>milliseconds between requests: <input type="number" placeholder="1000" style="width: 7rem;"/></span> <br/> <button class="svelte-8fa537">Request funds</button> <!></main>`);
+    var root_1$e = /* @__PURE__ */ from_html(`<option> </option>`);
+    var root$i = /* @__PURE__ */ from_html(`<main><button class="svelte-8fa537">Set to current network and active address</button> <br/> <span>faucet URL: <input type="string" list="faucetUrls" size="60" placeholder="faucet URL, like http://127.0.0.1:9123/gas"/> <datalist id="faucetUrls"></datalist></span> <br/> <span>address: <input placeholder="address" size="67"/></span> <br/> <span>amount of requests: <input type="number" placeholder="1" size="4"/></span> <span>milliseconds between requests: <input type="number" placeholder="1000" style="width: 7rem;"/></span> <br/> <button class="svelte-8fa537">Request funds</button> <!></main>`);
     function Faucet($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
@@ -34659,7 +34659,7 @@ zoo`.split("\n");
         }
       };
       init();
-      var main = root$j();
+      var main = root$i();
       var button = child(main);
       var span = sibling(button, 4);
       var input = sibling(child(span));
@@ -34670,7 +34670,7 @@ zoo`.split("\n");
         () => ($sharedClientConfig(), untrack(() => $sharedClientConfig().networks)),
         index$1,
         ($$anchor2, network) => {
-          var option = root_1$f();
+          var option = root_1$e();
           var option_value = {};
           var text2 = child(option);
           template_effect(() => {
@@ -35041,9 +35041,9 @@ zoo`.split("\n");
       set$1(AUCTION_PACKAGE_ID, "");
       set$1(COUPONS_PACKAGE_ID, "");
     };
-    var root_3$7 = /* @__PURE__ */ from_html(` <br/>`, 1);
-    var root_1$e = /* @__PURE__ */ from_html(`<details><summary>IOTA-Names IDs</summary> <div> <br/> <!></div></details>`);
-    var root$i = /* @__PURE__ */ from_html(`<main><span>IotaNames package id (default for devnet): <input placeholder="package id 0x..." size="67"/></span> <br/> <br/> <span>address: <input placeholder="address 0x..." size="67"/></span> <span>name: <input placeholder="name.iota"/></span> <br/> <br/> <!> General information: <button class="svelte-8fa537">list registered names</button> <button class="svelte-8fa537">get reverse registered addresses</button> <button class="svelte-8fa537">show package ids</button> <button class="svelte-8fa537">get dynamic fields</button> <hr/> Resolver: <button class="svelte-8fa537">resolve address (by name)</button> <button class="svelte-8fa537">resolve name (by address)</button> <hr/> Tx actions: <button class="svelte-8fa537">register name</button> <button class="svelte-8fa537">set target address</button> <button class="svelte-8fa537">set reverse lookup</button> <hr/> Auction: <span>bid price: <input type="number" placeholder="0" style="width: 14rem;"/></span> <button class="svelte-8fa537">start auction and place bid</button> <button class="svelte-8fa537">place bid</button> <button class="svelte-8fa537">claim</button> <button class="svelte-8fa537">list auctions</button> <!></main>`);
+    var root_3$8 = /* @__PURE__ */ from_html(` <br/>`, 1);
+    var root_1$d = /* @__PURE__ */ from_html(`<details><summary>IOTA-Names IDs</summary> <div> <br/> <!></div></details>`);
+    var root$h = /* @__PURE__ */ from_html(`<main><span>IotaNames package id (default for devnet): <input placeholder="package id 0x..." size="67"/></span> <br/> <br/> <span>address: <input placeholder="address 0x..." size="67"/></span> <span>name: <input placeholder="name.iota"/></span> <br/> <br/> <!> General information: <button class="svelte-8fa537">list registered names</button> <button class="svelte-8fa537">get reverse registered addresses</button> <button class="svelte-8fa537">show package ids</button> <button class="svelte-8fa537">get dynamic fields</button> <hr/> Resolver: <button class="svelte-8fa537">resolve address (by name)</button> <button class="svelte-8fa537">resolve name (by address)</button> <hr/> Tx actions: <button class="svelte-8fa537">register name</button> <button class="svelte-8fa537">set target address</button> <button class="svelte-8fa537">set reverse lookup</button> <hr/> Auction: <span>bid price: <input type="number" placeholder="0" style="width: 14rem;"/></span> <button class="svelte-8fa537">start auction and place bid</button> <button class="svelte-8fa537">place bid</button> <button class="svelte-8fa537">claim</button> <button class="svelte-8fa537">list auctions</button> <!></main>`);
     function IotaNames($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
@@ -35380,7 +35380,7 @@ zoo`.split("\n");
         }
       }
       init();
-      var main = root$i();
+      var main = root$h();
       var span = child(main);
       var input = sibling(child(span));
       input.__change = [
@@ -35399,7 +35399,7 @@ zoo`.split("\n");
       var node = sibling(span_2, 6);
       {
         var consequent_1 = ($$anchor2) => {
-          var details = root_1$e();
+          var details = root_1$d();
           var div = sibling(child(details), 2);
           var text2 = child(div);
           var node_1 = sibling(text2, 3);
@@ -35422,7 +35422,7 @@ zoo`.split("\n");
               var node_2 = first_child(fragment);
               {
                 var consequent = ($$anchor4) => {
-                  var fragment_1 = root_3$7();
+                  var fragment_1 = root_3$8();
                   var text_1 = first_child(fragment_1);
                   template_effect(() => set_text(text_1, `${(get$2(item), untrack(() => get$2(item)[0])) ?? ""} Package ID: ${(get$2(item), untrack(() => get$2(item)[1])) ?? ""} `));
                   append($$anchor4, fragment_1);
@@ -35541,8 +35541,8 @@ zoo`.split("\n");
       $$cleanup();
     }
     delegate(["change", "click"]);
-    var root_1$d = /* @__PURE__ */ from_html(`<div> </div>`);
-    var root$h = /* @__PURE__ */ from_html(`<main><button class="svelte-8fa537">get latest IOTA system state</button> <button class="svelte-8fa537">candidate validators</button> <button class="svelte-8fa537">pending validators</button> show full data (set before requesting): <select><option></option><option></option></select> <!> <!> <pre class="value" style="text-align: left"> </pre></main>`);
+    var root_1$c = /* @__PURE__ */ from_html(`<div> </div>`);
+    var root$g = /* @__PURE__ */ from_html(`<main><button class="svelte-8fa537">get latest IOTA system state</button> <button class="svelte-8fa537">candidate validators</button> <button class="svelte-8fa537">pending validators</button> show full data (set before requesting): <select><option></option><option></option></select> <!> <!> <pre class="value" style="text-align: left"> </pre></main>`);
     function IotaSystemState($$anchor, $$props) {
       push($$props, false);
       let value2 = /* @__PURE__ */ mutable_source({});
@@ -35710,7 +35710,7 @@ zoo`.split("\n");
         delete validator.staking_pool.fields.id;
       }
       init();
-      var main = root$h();
+      var main = root$g();
       var button = child(main);
       var button_1 = sibling(button, 2);
       var button_2 = sibling(button_1, 2);
@@ -35729,7 +35729,7 @@ zoo`.split("\n");
       var node = sibling(select, 2);
       {
         var consequent = ($$anchor2) => {
-          var div = root_1$d();
+          var div = root_1$c();
           var text2 = child(div);
           template_effect(() => set_text(text2, `API Version: ${get$2(apiVersion) ?? ""}`));
           append($$anchor2, div);
@@ -39041,8 +39041,8 @@ zoo`.split("\n");
        */
       Object(obj, typ, options, refStack) {
         const isMap = typ !== "Object";
-        const keys2 = isMap ? obj.keys() : Object.keys(obj);
-        const length = isMap ? obj.size : keys2.length;
+        const keys = isMap ? obj.keys() : Object.keys(obj);
+        const length = isMap ? obj.size : keys.length;
         if (!length) {
           if (options.addBreakTokens === true) {
             return [simpleTokens.emptyMap, new Token(Type.break)];
@@ -39052,7 +39052,7 @@ zoo`.split("\n");
         refStack = Ref.createCheck(refStack, obj);
         const entries = [];
         let i2 = 0;
-        for (const key of keys2) {
+        for (const key of keys) {
           entries[i2++] = [
             objectToTokens(key, options, refStack),
             objectToTokens(isMap ? obj.get(key) : obj[key], options, refStack)
@@ -39686,7 +39686,7 @@ zoo`.split("\n");
           return arr.reverse();
         }
         return function(str, baseIn, baseOut, sign2, callerIsToString) {
-          var alphabet2, d, e2, k, r2, x, xc, y, i2 = str.indexOf("."), dp = DECIMAL_PLACES, rm2 = ROUNDING_MODE;
+          var alphabet2, d, e2, k, r2, x, xc, y, i2 = str.indexOf("."), dp = DECIMAL_PLACES, rm = ROUNDING_MODE;
           if (i2 >= 0) {
             k = POW_PRECISION;
             POW_PRECISION = 0;
@@ -39712,7 +39712,7 @@ zoo`.split("\n");
             x.c = xc;
             x.e = e2;
             x.s = sign2;
-            x = div(x, y, dp, rm2, baseOut);
+            x = div(x, y, dp, rm, baseOut);
             xc = x.c;
             r2 = x.r;
             e2 = x.e;
@@ -39721,7 +39721,7 @@ zoo`.split("\n");
           i2 = xc[d];
           k = baseOut / 2;
           r2 = r2 || d < 0 || xc[d + 1] != null;
-          r2 = rm2 < 4 ? (i2 != null || r2) && (rm2 == 0 || rm2 == (x.s < 0 ? 3 : 2)) : i2 > k || i2 == k && (rm2 == 4 || r2 || rm2 == 6 && xc[d - 1] & 1 || rm2 == (x.s < 0 ? 8 : 7));
+          r2 = rm < 4 ? (i2 != null || r2) && (rm == 0 || rm == (x.s < 0 ? 3 : 2)) : i2 > k || i2 == k && (rm == 4 || r2 || rm == 6 && xc[d - 1] & 1 || rm == (x.s < 0 ? 8 : 7));
           if (d < 1 || !xc[0]) {
             str = r2 ? toFixedPoint(alphabet2.charAt(1), -dp, alphabet2.charAt(0)) : alphabet2.charAt(0);
           } else {
@@ -39779,7 +39779,7 @@ zoo`.split("\n");
           }
           for (; !a2[0] && a2.length > 1; a2.splice(0, 1)) ;
         }
-        return function(x, y, dp, rm2, base2) {
+        return function(x, y, dp, rm, base2) {
           var cmp, e2, i2, more, n2, prod, prodL, q, qc, rem, remL, rem0, xi, xL, yc0, yL, yz, s = x.s == y.s ? 1 : -1, xc = x.c, yc = y.c;
           if (!xc || !xc[0] || !yc || !yc[0]) {
             return new BigNumber2(
@@ -39876,7 +39876,7 @@ zoo`.split("\n");
           }
           if (base2 == BASE) {
             for (i2 = 1, s = qc[0]; s >= 10; s /= 10, i2++) ;
-            round2(q, dp + (q.e = i2 + e2 * LOG_BASE - 1) + 1, rm2, more);
+            round2(q, dp + (q.e = i2 + e2 * LOG_BASE - 1) + 1, rm, more);
           } else {
             q.e = e2;
             q.r = +more;
@@ -39884,10 +39884,10 @@ zoo`.split("\n");
           return q;
         };
       }();
-      function format2(n2, i2, rm2, id2) {
+      function format2(n2, i2, rm, id2) {
         var c0, e2, ne, len, str;
-        if (rm2 == null) rm2 = ROUNDING_MODE;
-        else intCheck(rm2, 0, 8);
+        if (rm == null) rm = ROUNDING_MODE;
+        else intCheck(rm, 0, 8);
         if (!n2.c) return n2.toString();
         c0 = n2.c[0];
         ne = n2.e;
@@ -39895,7 +39895,7 @@ zoo`.split("\n");
           str = coeffToString(n2.c);
           str = id2 == 1 || id2 == 2 && (ne <= TO_EXP_NEG || ne >= TO_EXP_POS) ? toExponential(str, ne) : toFixedPoint(str, ne, "0");
         } else {
-          n2 = round2(new BigNumber2(n2), i2, rm2);
+          n2 = round2(new BigNumber2(n2), i2, rm);
           e2 = n2.e;
           str = coeffToString(n2.c);
           len = str.length;
@@ -39968,7 +39968,7 @@ zoo`.split("\n");
           x.c = x.e = null;
         };
       }();
-      function round2(x, sd, rm2, r2) {
+      function round2(x, sd, rm, r2) {
         var d, i2, j, k, n2, ni, rd, xc = x.c, pows10 = POWS_TEN;
         if (xc) {
           out: {
@@ -40003,8 +40003,8 @@ zoo`.split("\n");
             // The expression  n % pows10[d - j - 1]  returns all digits of n to the right
             // of the digit at j, e.g. if n is 908714 and j is 2, the expression gives 714.
             xc[ni + 1] != null || (j < 0 ? n2 : n2 % pows10[d - j - 1]);
-            r2 = rm2 < 4 ? (rd || r2) && (rm2 == 0 || rm2 == (x.s < 0 ? 3 : 2)) : rd > 5 || rd == 5 && (rm2 == 4 || r2 || rm2 == 6 && // Check whether the digit to the left of the rounding digit is odd.
-            (i2 > 0 ? j > 0 ? n2 / pows10[d - j] : 0 : xc[ni - 1]) % 10 & 1 || rm2 == (x.s < 0 ? 8 : 7));
+            r2 = rm < 4 ? (rd || r2) && (rm == 0 || rm == (x.s < 0 ? 3 : 2)) : rd > 5 || rd == 5 && (rm == 4 || r2 || rm == 6 && // Check whether the digit to the left of the rounding digit is odd.
+            (i2 > 0 ? j > 0 ? n2 / pows10[d - j] : 0 : xc[ni - 1]) % 10 & 1 || rm == (x.s < 0 ? 8 : 7));
             if (sd < 1 || !xc[0]) {
               xc.length = 0;
               if (r2) {
@@ -40069,13 +40069,13 @@ zoo`.split("\n");
       P.comparedTo = function(y, b) {
         return compare$1(this, new BigNumber2(y, b));
       };
-      P.decimalPlaces = P.dp = function(dp, rm2) {
+      P.decimalPlaces = P.dp = function(dp, rm) {
         var c, n2, v, x = this;
         if (dp != null) {
           intCheck(dp, 0, MAX);
-          if (rm2 == null) rm2 = ROUNDING_MODE;
-          else intCheck(rm2, 0, 8);
-          return round2(new BigNumber2(x), dp + x.e + 1, rm2);
+          if (rm == null) rm = ROUNDING_MODE;
+          else intCheck(rm, 0, 8);
+          return round2(new BigNumber2(x), dp + x.e + 1, rm);
         }
         if (!(c = x.c)) return null;
         n2 = ((v = c.length - 1) - bitFloor(this.e / LOG_BASE)) * LOG_BASE;
@@ -40158,11 +40158,11 @@ zoo`.split("\n");
         if (nIsNeg) y = ONE.div(y);
         return m ? y.mod(m) : k ? round2(y, POW_PRECISION, ROUNDING_MODE, more) : y;
       };
-      P.integerValue = function(rm2) {
+      P.integerValue = function(rm) {
         var n2 = new BigNumber2(this);
-        if (rm2 == null) rm2 = ROUNDING_MODE;
-        else intCheck(rm2, 0, 8);
-        return round2(n2, n2.e + 1, rm2);
+        if (rm == null) rm = ROUNDING_MODE;
+        else intCheck(rm, 0, 8);
+        return round2(n2, n2.e + 1, rm);
       };
       P.isEqualTo = P.eq = function(y, b) {
         return compare$1(this, new BigNumber2(y, b)) === 0;
@@ -40389,13 +40389,13 @@ zoo`.split("\n");
         }
         return normalise(y, xc, ye);
       };
-      P.precision = P.sd = function(sd, rm2) {
+      P.precision = P.sd = function(sd, rm) {
         var c, n2, v, x = this;
         if (sd != null && sd !== !!sd) {
           intCheck(sd, 1, MAX);
-          if (rm2 == null) rm2 = ROUNDING_MODE;
-          else intCheck(rm2, 0, 8);
-          return round2(new BigNumber2(x), sd, rm2);
+          if (rm == null) rm = ROUNDING_MODE;
+          else intCheck(rm, 0, 8);
+          return round2(new BigNumber2(x), sd, rm);
         }
         if (!(c = x.c)) return null;
         v = c.length - 1;
@@ -40465,36 +40465,36 @@ zoo`.split("\n");
         }
         return round2(r2, r2.e + DECIMAL_PLACES + 1, ROUNDING_MODE, m);
       };
-      P.toExponential = function(dp, rm2) {
+      P.toExponential = function(dp, rm) {
         if (dp != null) {
           intCheck(dp, 0, MAX);
           dp++;
         }
-        return format2(this, dp, rm2, 1);
+        return format2(this, dp, rm, 1);
       };
-      P.toFixed = function(dp, rm2) {
+      P.toFixed = function(dp, rm) {
         if (dp != null) {
           intCheck(dp, 0, MAX);
           dp = dp + this.e + 1;
         }
-        return format2(this, dp, rm2);
+        return format2(this, dp, rm);
       };
-      P.toFormat = function(dp, rm2, format3) {
+      P.toFormat = function(dp, rm, format3) {
         var str, x = this;
         if (format3 == null) {
-          if (dp != null && rm2 && typeof rm2 == "object") {
-            format3 = rm2;
-            rm2 = null;
+          if (dp != null && rm && typeof rm == "object") {
+            format3 = rm;
+            rm = null;
           } else if (dp && typeof dp == "object") {
             format3 = dp;
-            dp = rm2 = null;
+            dp = rm = null;
           } else {
             format3 = FORMAT;
           }
         } else if (typeof format3 != "object") {
           throw Error(bignumberError + "Argument not an object: " + format3);
         }
-        str = x.toFixed(dp, rm2);
+        str = x.toFixed(dp, rm);
         if (x.c) {
           var i2, arr = str.split("."), g1 = +format3.groupSize, g2 = +format3.secondaryGroupSize, groupSeparator = format3.groupSeparator || "", intPart = arr[0], fractionPart = arr[1], isNeg = x.s < 0, intDigits = isNeg ? intPart.slice(1) : intPart, len = intDigits.length;
           if (g2) {
@@ -40562,9 +40562,9 @@ zoo`.split("\n");
       P.toNumber = function() {
         return +valueOf(this);
       };
-      P.toPrecision = function(sd, rm2) {
+      P.toPrecision = function(sd, rm) {
         if (sd != null) intCheck(sd, 1, MAX);
-        return format2(this, sd, rm2, 2);
+        return format2(this, sd, rm, 2);
       };
       P.toString = function(b) {
         var str, n2 = this, s = n2.s, e2 = n2.e;
@@ -44239,14 +44239,14 @@ zoo`.split("\n");
     var root_2$8 = /* @__PURE__ */ from_html(`<span class="animation-status svelte-p4ja95"> </span> <span class="part-indicator svelte-p4ja95"> </span> <button class="control-btn svelte-p4ja95">Stop Animation</button>`, 1);
     var root_4$6 = /* @__PURE__ */ from_html(`<span class="part-indicator svelte-p4ja95"> </span> <button class="control-btn svelte-p4ja95">Start Animation</button>`, 1);
     var root_5$5 = /* @__PURE__ */ from_html(`<span class="part-indicator svelte-p4ja95">Single QR code - no animation needed</span>`);
-    var root_3$6 = /* @__PURE__ */ from_html(`<span class="animation-status svelte-p4ja95">📱 Static QR</span> <!>`, 1);
+    var root_3$7 = /* @__PURE__ */ from_html(`<span class="animation-status svelte-p4ja95">📱 Static QR</span> <!>`, 1);
     var root_6$3 = /* @__PURE__ */ from_html(`<button class="control-btn svelte-p4ja95">Next Part</button>`);
     var root_8$3 = /* @__PURE__ */ from_html(`<div><div class="part-header svelte-p4ja95"><strong class="svelte-p4ja95"></strong> <span> </span> <span class="part-sequence svelte-p4ja95"> </span></div> <code class="part-data svelte-p4ja95"> </code></div>`);
     var root_7$3 = /* @__PURE__ */ from_html(`<div class="all-parts-section svelte-p4ja95"><h4 class="svelte-p4ja95"> </h4> <div class="fountain-explanation svelte-p4ja95"><p class="svelte-p4ja95"><strong class="svelte-p4ja95">📡 Fountain Code Structure:</strong></p> <ul class="svelte-p4ja95"><li class="svelte-p4ja95"><strong class="svelte-p4ja95">Basic Parts:</strong> </li> <li class="svelte-p4ja95"><strong class="svelte-p4ja95">Fountain Parts:</strong> Redundant parts beyond the basic sequence
                             (for error recovery)</li> <li class="svelte-p4ja95"><strong class="svelte-p4ja95">Collection:</strong> You need to collect <em class="svelte-p4ja95"> </em> parts total to decode reliably</li> <li class="svelte-p4ja95"><strong class="svelte-p4ja95">Redundancy:</strong> </li></ul></div> <div class="parts-list svelte-p4ja95"></div></div>`);
-    var root_1$c = /* @__PURE__ */ from_html(`<div class="qr-section svelte-p4ja95"><h3 class="svelte-p4ja95">Scan with Keystone to Sign</h3> <div class="qr-controls svelte-p4ja95"><!> <!></div> <div class="qr-container svelte-p4ja95"><canvas class="qr-canvas svelte-p4ja95" width="400" height="400"></canvas></div> <div class="qr-data svelte-p4ja95"><strong class="svelte-p4ja95">Current UR Data:</strong> <code class="svelte-p4ja95"> </code></div> <!></div>`);
+    var root_1$b = /* @__PURE__ */ from_html(`<div class="qr-section svelte-p4ja95"><h3 class="svelte-p4ja95">Scan with Keystone to Sign</h3> <div class="qr-controls svelte-p4ja95"><!> <!></div> <div class="qr-container svelte-p4ja95"><canvas class="qr-canvas svelte-p4ja95" width="400" height="400"></canvas></div> <div class="qr-data svelte-p4ja95"><strong class="svelte-p4ja95">Current UR Data:</strong> <code class="svelte-p4ja95"> </code></div> <!></div>`);
     var root_9$4 = /* @__PURE__ */ from_html(`<div class="error-message svelte-p4ja95"><strong class="svelte-p4ja95">QR Generation Error:</strong> </div>`);
-    var root$g = /* @__PURE__ */ from_html(`<!> <!>`, 1);
+    var root$f = /* @__PURE__ */ from_html(`<!> <!>`, 1);
     function QrGenerator($$anchor, $$props) {
       push($$props, false);
       let cbor = prop($$props, "cbor", 8, "");
@@ -44443,11 +44443,11 @@ zoo`.split("\n");
       );
       legacy_pre_effect_reset();
       init();
-      var fragment = root$g();
+      var fragment = root$f();
       var node = first_child(fragment);
       {
         var consequent_4 = ($$anchor2) => {
-          var div = root_1$c();
+          var div = root_1$b();
           var div_1 = sibling(child(div), 2);
           var node_1 = child(div_1);
           {
@@ -44466,7 +44466,7 @@ zoo`.split("\n");
               append($$anchor3, fragment_1);
             };
             var alternate = ($$anchor3) => {
-              var fragment_2 = root_3$6();
+              var fragment_2 = root_3$7();
               var node_2 = sibling(first_child(fragment_2), 2);
               {
                 var consequent_1 = ($$anchor4) => {
@@ -45052,16 +45052,16 @@ zoo`.split("\n");
     e.NO_QR_CODE_FOUND = "No QR code found";
     e._disableBarcodeDetector = false;
     e._workerMessageId = 0;
-    var root_1$b = /* @__PURE__ */ from_html(`<button class="action-btn svelte-57l17z">Start Camera</button>`);
+    var root_1$a = /* @__PURE__ */ from_html(`<button class="action-btn svelte-57l17z">Start Camera</button>`);
     var root_2$7 = /* @__PURE__ */ from_html(`<button class="action-btn danger svelte-57l17z">Stop Camera</button>`);
-    var root_3$5 = /* @__PURE__ */ from_html(`<button class="control-btn svelte-57l17z">Reset Scanner</button>`);
+    var root_3$6 = /* @__PURE__ */ from_html(`<button class="control-btn svelte-57l17z">Reset Scanner</button>`);
     var root_5$4 = /* @__PURE__ */ from_html(`<div class="multipart-message svelte-57l17z"><strong>Multipart mode:</strong> Keep scanning until all parts are collected<br/> <span> </span></div>`);
     var root_4$5 = /* @__PURE__ */ from_html(`<div class="video-container svelte-57l17z"><video autoplay playsinline="" width="500" height="300" class="svelte-57l17z"></video> <p class="scanner-instructions svelte-57l17z">Position the QR code displayed on the Keystone within the camera view</p> <!></div>`, 2);
     var root_6$2 = /* @__PURE__ */ from_html(`<div class="error-message svelte-57l17z"><strong>Error:</strong> </div>`);
     var root_7$2 = /* @__PURE__ */ from_html(`<div class="error-message svelte-57l17z"><strong>Scan Error:</strong> </div>`);
     var root_9$3 = /* @__PURE__ */ from_html(`<div class="multipart-progress svelte-57l17z"><div class="progress-bar svelte-57l17z"><div class="progress-fill svelte-57l17z"></div></div> <span class="progress-text svelte-57l17z"> </span></div>`);
     var root_8$2 = /* @__PURE__ */ from_html(`<div class="debug-info svelte-57l17z"><strong>Debug:</strong> <!></div>`);
-    var root$f = /* @__PURE__ */ from_html(`<div class="qr-scanner svelte-57l17z"><p class="info svelte-57l17z">On your Keystone device, navigate to the IOTA wallet and generate a connection QR code. Then
+    var root$e = /* @__PURE__ */ from_html(`<div class="qr-scanner svelte-57l17z"><p class="info svelte-57l17z">On your Keystone device, navigate to the IOTA wallet and generate a connection QR code. Then
         use the camera scanner below to scan it and capture your account information.</p> <div class="scanner-controls svelte-57l17z"><!> <button class="control-btn svelte-57l17z">Check Camera</button> <!></div> <!> <!> <!> <!></div>`);
     function QrScanner_1($$anchor, $$props) {
       push($$props, false);
@@ -45198,12 +45198,12 @@ zoo`.split("\n");
         stopScanning();
       });
       init();
-      var div = root$f();
+      var div = root$e();
       var div_1 = sibling(child(div), 2);
       var node = child(div_1);
       {
         var consequent = ($$anchor2) => {
-          var button = root_1$b();
+          var button = root_1$a();
           event("click", button, startScanning);
           append($$anchor2, button);
         };
@@ -45221,7 +45221,7 @@ zoo`.split("\n");
       var node_1 = sibling(button_2, 2);
       {
         var consequent_1 = ($$anchor2) => {
-          var button_3 = root_3$5();
+          var button_3 = root_3$6();
           event("click", button_3, reset);
           append($$anchor2, button_3);
         };
@@ -45420,9 +45420,9 @@ zoo`.split("\n");
     BinaryHex.fromLatinString = function(latinString) {
       var hex2 = "";
       for (var i2 = 0; i2 < latinString.length; i2++) {
-        var pair2 = latinString.charCodeAt(i2).toString(16);
-        if (pair2.length === 1) pair2 = "0" + pair2;
-        hex2 += pair2;
+        var pair = latinString.charCodeAt(i2).toString(16);
+        if (pair.length === 1) pair = "0" + pair;
+        hex2 += pair;
       }
       return new BinaryHex(hex2);
     };
@@ -45697,16 +45697,16 @@ zoo`.split("\n");
             encodeWriter(data[i2], writer);
           }
         } else {
-          var keys2 = Object.keys(data);
-          writeHeader(5, keys2.length, writer);
-          for (var i2 = 0; i2 < keys2.length; i2++) {
-            const number2 = parseInt(keys2[i2]);
+          var keys = Object.keys(data);
+          writeHeader(5, keys.length, writer);
+          for (var i2 = 0; i2 < keys.length; i2++) {
+            const number2 = parseInt(keys[i2]);
             if (isNaN(number2)) {
-              encodeWriter(keys2[i2], writer);
-              encodeWriter(data[keys2[i2]], writer);
+              encodeWriter(keys[i2], writer);
+              encodeWriter(data[keys[i2]], writer);
             } else {
               encodeWriter(number2, writer);
-              encodeWriter(data[keys2[i2]], writer);
+              encodeWriter(data[keys[i2]], writer);
             }
           }
         }
@@ -45913,13 +45913,13 @@ zoo`.split("\n");
     }
     HexReader.prototype = Object.create(Reader.prototype);
     HexReader.prototype.peekByte = function() {
-      var pair2 = this.hex.substring(this.pos, 2);
-      return parseInt(pair2, 16);
+      var pair = this.hex.substring(this.pos, 2);
+      return parseInt(pair, 16);
     };
     HexReader.prototype.readByte = function() {
-      var pair2 = this.hex.substring(this.pos, this.pos + 2);
+      var pair = this.hex.substring(this.pos, this.pos + 2);
       this.pos += 2;
-      return parseInt(pair2, 16);
+      return parseInt(pair, 16);
     };
     HexReader.prototype.readChunk = function(length) {
       var hex2 = this.hex.substring(this.pos, this.pos + length * 2);
@@ -46487,7 +46487,7 @@ zoo`.split("\n");
     });
     let CryptoHDKey = _CryptoHDKey;
     const _CryptoMultiAccounts = class _CryptoMultiAccounts extends RegistryItem {
-      constructor(masterFingerprint, keys2, device, deviceId, version2) {
+      constructor(masterFingerprint, keys, device, deviceId, version2) {
         super();
         __publicField(this, "getRegistryType", () => RegistryTypes$2.CRYPTO_MULTI_ACCOUNTS);
         __publicField(this, "getMasterFingerprint", () => this.masterFingerprint);
@@ -46534,7 +46534,7 @@ zoo`.split("\n");
           return new DataItem(map2);
         });
         this.masterFingerprint = masterFingerprint;
-        this.keys = keys2;
+        this.keys = keys;
         this.device = device;
         this.deviceId = deviceId;
         this.version = version2;
@@ -46550,11 +46550,11 @@ zoo`.split("\n");
       if (_masterFingerprint) {
         masterFingerprint.writeUInt32BE(_masterFingerprint, 0);
       }
-      const keys2 = map2[
+      const keys = map2[
         2
         /* keys */
       ];
-      const cryptoHDKeys = keys2.map((item) => CryptoHDKey.fromDataItem(item));
+      const cryptoHDKeys = keys.map((item) => CryptoHDKey.fromDataItem(item));
       const device = map2[
         3
         /* device */
@@ -47081,10 +47081,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       return onSucceed({ type: type2, cbor: cborHex });
     }
     var root_2$6 = /* @__PURE__ */ from_html(`<option> </option>`);
-    var root_1$a = /* @__PURE__ */ from_html(`<div class="account-info svelte-18r9j1v"><h2 class="svelte-18r9j1v">Connected Keystone Device</h2> <label for="account-select">Select Account:</label> <select id="account-select" class="svelte-18r9j1v"></select> <div class="account-details svelte-18r9j1v"><p class="svelte-18r9j1v"><strong>Device:</strong> </p> <p class="svelte-18r9j1v"><strong>Master Fingerprint:</strong> <code class="svelte-18r9j1v"> </code></p> <p class="svelte-18r9j1v"><strong>Selected Path:</strong> <code class="svelte-18r9j1v"> </code></p> <p class="svelte-18r9j1v"><strong>Address:</strong> <code class="svelte-18r9j1v"> </code></p></div></div>`);
+    var root_1$9 = /* @__PURE__ */ from_html(`<div class="account-info svelte-18r9j1v"><h2 class="svelte-18r9j1v">Connected Keystone Device</h2> <label for="account-select">Select Account:</label> <select id="account-select" class="svelte-18r9j1v"></select> <div class="account-details svelte-18r9j1v"><p class="svelte-18r9j1v"><strong>Device:</strong> </p> <p class="svelte-18r9j1v"><strong>Master Fingerprint:</strong> <code class="svelte-18r9j1v"> </code></p> <p class="svelte-18r9j1v"><strong>Selected Path:</strong> <code class="svelte-18r9j1v"> </code></p> <p class="svelte-18r9j1v"><strong>Address:</strong> <code class="svelte-18r9j1v"> </code></p></div></div>`);
     var root_4$4 = /* @__PURE__ */ from_html(`<div class="controls svelte-18r9j1v"><button class="svelte-18r9j1v">Reset Multipart</button></div>`);
     var root_5$3 = /* @__PURE__ */ from_html(`<div class="success svelte-18r9j1v"><p> </p> <button>Clear Connection</button></div>`);
-    var root_3$4 = /* @__PURE__ */ from_html(`<div class="step-content svelte-18r9j1v"><h2>Step 1: Connect Keystone Device</h2> <p>Display the wallet connect QR code on your Keystone device and scan it with the
+    var root_3$5 = /* @__PURE__ */ from_html(`<div class="step-content svelte-18r9j1v"><h2>Step 1: Connect Keystone Device</h2> <p>Display the wallet connect QR code on your Keystone device and scan it with the
                 camera below.</p> <!> <!> <button style="margin: 0;">Simulate Scan</button> <!></div>`);
     var root_7$1 = /* @__PURE__ */ from_html(`<div class="qr-section svelte-18r9j1v"><h3 class="svelte-18r9j1v">3. Scan this QR code with your Keystone device to approve the transaction</h3> <!></div>`);
     var root_6$1 = /* @__PURE__ */ from_html(`<div class="step-content svelte-18r9j1v"><h2>Step 2: Prepare Transaction</h2> <p>Configure the transaction parameters and generate a signing request QR code.</p> <div class="form-section svelte-18r9j1v"><div class="form-row svelte-18r9j1v"><label for="request-id" class="svelte-18r9j1v">Request ID:</label> <input id="request-id" class="svelte-18r9j1v"/></div> <label for="raw-tx" class="full-width svelte-18r9j1v">Transaction Bytes (Base64):</label> <textarea id="raw-tx" rows="4" class="full-width svelte-18r9j1v"></textarea> <div class="example-buttons svelte-18r9j1v"><button class="svelte-18r9j1v"> </button> <button class="svelte-18r9j1v"> </button></div> <div class="form-row svelte-18r9j1v"><label for="account-address" class="svelte-18r9j1v">Account Address:</label> <input id="account-address" class="svelte-18r9j1v"/></div> <div class="form-row svelte-18r9j1v"><label for="derivation-path" class="svelte-18r9j1v">Derivation Path:</label> <input id="derivation-path" class="svelte-18r9j1v"/></div> <div class="form-row svelte-18r9j1v"><label for="master-fingerprint" class="svelte-18r9j1v">Master Fingerprint:</label> <input id="master-fingerprint" class="svelte-18r9j1v"/></div> <div class="form-row svelte-18r9j1v"><label for="wallet-origin" class="svelte-18r9j1v">Wallet Origin:</label> <input id="wallet-origin" class="svelte-18r9j1v"/></div></div> <!></div>`);
@@ -47095,7 +47095,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     var root_13$1 = /* @__PURE__ */ from_html(`<div class="result svelte-18r9j1v"><h3 class="svelte-18r9j1v">Decoded Data:</h3> <pre class="svelte-18r9j1v"> </pre></div>`);
     var root_12$2 = /* @__PURE__ */ from_html(`<div class="step-content svelte-18r9j1v"><h2>UR Decode Tool</h2> <p>Decode and analyze UR strings from Keystone devices.</p> <div class="form-section svelte-18r9j1v"><label for="ur-input" class="full-width svelte-18r9j1v">UR String:</label> <textarea id="ur-input" rows="4" placeholder="Paste UR string here..." class="full-width svelte-18r9j1v"></textarea> <div class="example-buttons svelte-18r9j1v"><button class="svelte-18r9j1v">Load Sign Request Example</button> <button class="svelte-18r9j1v">Load Signature Example</button> <button class="svelte-18r9j1v">Load Multipart Example</button></div></div> <!></div>`);
     var root_14$1 = /* @__PURE__ */ from_html(`<div class="error svelte-18r9j1v"><p> </p></div>`);
-    var root$e = /* @__PURE__ */ from_html(`<div class="keystone-container svelte-18r9j1v"><h1 class="svelte-18r9j1v">Keystone Hardware Wallet - IOTA Integration</h1> <!> <div class="steps svelte-18r9j1v"><button>1. Connect Wallet</button> <button>2. Prepare Transaction</button> <button>4. Scan Signature</button> <button>UR Decode Tool</button></div> <!> <!> <!> <!> <!></div>`);
+    var root$d = /* @__PURE__ */ from_html(`<div class="keystone-container svelte-18r9j1v"><h1 class="svelte-18r9j1v">Keystone Hardware Wallet - IOTA Integration</h1> <!> <div class="steps svelte-18r9j1v"><button>1. Connect Wallet</button> <button>2. Prepare Transaction</button> <button>4. Scan Signature</button> <button>UR Decode Tool</button></div> <!> <!> <!> <!> <!></div>`);
     function Keystone($$anchor, $$props) {
       push($$props, false);
       const isMultipart = /* @__PURE__ */ mutable_source();
@@ -47375,11 +47375,11 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       });
       legacy_pre_effect_reset();
       init();
-      var div = root$e();
+      var div = root$d();
       var node = sibling(child(div), 2);
       {
         var consequent = ($$anchor2) => {
-          var div_1 = root_1$a();
+          var div_1 = root_1$9();
           var select = sibling(child(div_1), 4);
           template_effect(() => {
             get$2(selectedAccountIndex);
@@ -47452,7 +47452,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       var node_1 = sibling(div_3, 2);
       {
         var consequent_3 = ($$anchor2) => {
-          var div_4 = root_3$4();
+          var div_4 = root_3$5();
           var node_2 = sibling(child(div_4), 4);
           bind_this(
             QrScanner_1(node_2, {
@@ -48169,10 +48169,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       return LedgerToHost2;
     })(LedgerToHost || {});
     class Iota {
-      constructor(transport, scrambleKey = "default_iota_scramble_key", verbose2 = false) {
+      constructor(transport, scrambleKey = "default_iota_scramble_key", verbose = false) {
         __privateAdd(this, _Iota_instances);
         __privateAdd(this, _verbose);
-        __privateSet(this, _verbose, verbose2);
+        __privateSet(this, _verbose, verbose);
         this.transport = transport;
         this.transport.decorateAppAPIMethods(
           this,
@@ -48254,8 +48254,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       for (let j = 0; j < payload.length; j++) {
         const chunkList = [];
         for (let i2 = 0; i2 < payload[j].length; i2 += chunkSize) {
-          const cur2 = payload[j].slice(i2, i2 + chunkSize);
-          chunkList.push(cur2);
+          const cur = payload[j].slice(i2, i2 + chunkSize);
+          chunkList.push(cur);
         }
         let lastHash = bufferExports.Buffer.alloc(32);
         __privateMethod(this, _Iota_instances, log_fn).call(this, lastHash);
@@ -48600,10 +48600,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           return this;
         }
         if (arguments.length === 0) {
-          var keys2 = Object.keys(events2);
+          var keys = Object.keys(events2);
           var key;
-          for (i2 = 0; i2 < keys2.length; ++i2) {
-            key = keys2[i2];
+          for (i2 = 0; i2 < keys.length; ++i2) {
+            key = keys[i2];
             if (key === "removeListener") continue;
             this.removeAllListeners(key);
           }
@@ -49016,12 +49016,12 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
     }
     addCustomErrorDeserializer("TransportStatusError", (e2) => new TransportStatusError(e2.statusCode));
-    let id$1 = 0;
+    let id = 0;
     const subscribers = [];
     const log = (type2, message2, data) => {
       const obj = {
         type: type2,
-        id: String(++id$1),
+        id: String(++id),
         date: /* @__PURE__ */ new Date()
       };
       if (message2)
@@ -49031,7 +49031,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     const trace = ({ type: type2, message: message2, data, context }) => {
       const obj = {
         type: type2,
-        id: String(++id$1),
+        id: String(++id),
         date: /* @__PURE__ */ new Date()
       };
       if (message2)
@@ -50201,8 +50201,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       if (hasRequiredLt) return lt_1;
       hasRequiredLt = 1;
       const compare2 = requireCompare();
-      const lt2 = (a2, b, loose) => compare2(a2, b, loose) < 0;
-      lt_1 = lt2;
+      const lt = (a2, b, loose) => compare2(a2, b, loose) < 0;
+      lt_1 = lt;
       return lt_1;
     }
     var eq_1;
@@ -50254,7 +50254,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       const neq = requireNeq();
       const gt = requireGt();
       const gte = requireGte();
-      const lt2 = requireLt();
+      const lt = requireLt();
       const lte = requireLte();
       const cmp = (a2, op, b, loose) => {
         switch (op) {
@@ -50285,7 +50285,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           case ">=":
             return gte(a2, b, loose);
           case "<":
-            return lt2(a2, b, loose);
+            return lt(a2, b, loose);
           case "<=":
             return lte(a2, b, loose);
           default:
@@ -50452,7 +50452,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         parseRange(range2) {
           const memoOpts = (this.options.includePrerelease && FLAG_INCLUDE_PRERELEASE) | (this.options.loose && FLAG_LOOSE);
           const memoKey = memoOpts + ":" + range2;
-          const cached = cache2.get(memoKey);
+          const cached = cache.get(memoKey);
           if (cached) {
             return cached;
           }
@@ -50486,7 +50486,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             rangeMap.delete("");
           }
           const result = [...rangeMap.values()];
-          cache2.set(memoKey, result);
+          cache.set(memoKey, result);
           return result;
         }
         intersects(range2, options) {
@@ -50525,7 +50525,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
       range = Range2;
       const LRU = requireLrucache();
-      const cache2 = new LRU();
+      const cache = new LRU();
       const parseOptions = requireParseOptions();
       const Comparator = requireComparator();
       const debug2 = require$$3;
@@ -51039,7 +51039,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       const Range2 = requireRange();
       const satisfies = requireSatisfies();
       const gt = requireGt();
-      const lt2 = requireLt();
+      const lt = requireLt();
       const lte = requireLte();
       const gte = requireGte();
       const outside = (version2, range2, hilo, options) => {
@@ -51050,12 +51050,12 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           case ">":
             gtfn = gt;
             ltefn = lte;
-            ltfn = lt2;
+            ltfn = lt;
             comp = ">";
             ecomp = ">=";
             break;
           case "<":
-            gtfn = lt2;
+            gtfn = lt;
             ltefn = gte;
             ltfn = gt;
             comp = "<";
@@ -51235,12 +51235,12 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           }
         }
         const eqSet = /* @__PURE__ */ new Set();
-        let gt, lt2;
+        let gt, lt;
         for (const c of sub) {
           if (c.operator === ">" || c.operator === ">=") {
             gt = higherGT(gt, c, options);
           } else if (c.operator === "<" || c.operator === "<=") {
-            lt2 = lowerLT(lt2, c, options);
+            lt = lowerLT(lt, c, options);
           } else {
             eqSet.add(c.semver);
           }
@@ -51249,11 +51249,11 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           return null;
         }
         let gtltComp;
-        if (gt && lt2) {
-          gtltComp = compare2(gt.semver, lt2.semver, options);
+        if (gt && lt) {
+          gtltComp = compare2(gt.semver, lt.semver, options);
           if (gtltComp > 0) {
             return null;
-          } else if (gtltComp === 0 && (gt.operator !== ">=" || lt2.operator !== "<=")) {
+          } else if (gtltComp === 0 && (gt.operator !== ">=" || lt.operator !== "<=")) {
             return null;
           }
         }
@@ -51261,7 +51261,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           if (gt && !satisfies(eq2, String(gt), options)) {
             return null;
           }
-          if (lt2 && !satisfies(eq2, String(lt2), options)) {
+          if (lt && !satisfies(eq2, String(lt), options)) {
             return null;
           }
           for (const c of dom) {
@@ -51273,9 +51273,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         }
         let higher, lower;
         let hasDomLT, hasDomGT;
-        let needDomLTPre = lt2 && !options.includePrerelease && lt2.semver.prerelease.length ? lt2.semver : false;
+        let needDomLTPre = lt && !options.includePrerelease && lt.semver.prerelease.length ? lt.semver : false;
         let needDomGTPre = gt && !options.includePrerelease && gt.semver.prerelease.length ? gt.semver : false;
-        if (needDomLTPre && needDomLTPre.prerelease.length === 1 && lt2.operator === "<" && needDomLTPre.prerelease[0] === 0) {
+        if (needDomLTPre && needDomLTPre.prerelease.length === 1 && lt.operator === "<" && needDomLTPre.prerelease[0] === 0) {
           needDomLTPre = false;
         }
         for (const c of dom) {
@@ -51296,29 +51296,29 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
               return false;
             }
           }
-          if (lt2) {
+          if (lt) {
             if (needDomLTPre) {
               if (c.semver.prerelease && c.semver.prerelease.length && c.semver.major === needDomLTPre.major && c.semver.minor === needDomLTPre.minor && c.semver.patch === needDomLTPre.patch) {
                 needDomLTPre = false;
               }
             }
             if (c.operator === "<" || c.operator === "<=") {
-              lower = lowerLT(lt2, c, options);
-              if (lower === c && lower !== lt2) {
+              lower = lowerLT(lt, c, options);
+              if (lower === c && lower !== lt) {
                 return false;
               }
-            } else if (lt2.operator === "<=" && !satisfies(lt2.semver, String(c), options)) {
+            } else if (lt.operator === "<=" && !satisfies(lt.semver, String(c), options)) {
               return false;
             }
           }
-          if (!c.operator && (lt2 || gt) && gtltComp !== 0) {
+          if (!c.operator && (lt || gt) && gtltComp !== 0) {
             return false;
           }
         }
-        if (gt && hasDomLT && !lt2 && gtltComp !== 0) {
+        if (gt && hasDomLT && !lt && gtltComp !== 0) {
           return false;
         }
-        if (lt2 && hasDomGT && !gt && gtltComp !== 0) {
+        if (lt && hasDomGT && !gt && gtltComp !== 0) {
           return false;
         }
         if (needDomGTPre || needDomLTPre) {
@@ -51368,7 +51368,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       const sort = requireSort();
       const rsort = requireRsort();
       const gt = requireGt();
-      const lt2 = requireLt();
+      const lt = requireLt();
       const eq2 = requireEq();
       const neq = requireNeq();
       const gte = requireGte();
@@ -51406,7 +51406,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         sort,
         rsort,
         gt,
-        lt: lt2,
+        lt,
         eq: eq2,
         neq,
         gte,
@@ -51756,7 +51756,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       };
     });
     let TransportWebHID = _TransportWebHID;
-    var on_click$5 = (_, connect) => connect();
+    var on_click$4 = (_, connect) => connect();
     var on_click_1$1 = (__1, generateAddress) => generateAddress();
     var on_click_2 = (__2, generateMultipleAddresses) => generateMultipleAddresses();
     var on_click_3 = (__3, getAllBalances) => getAllBalances(true);
@@ -51777,10 +51777,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       set$1(expanded, [], true);
     };
     var on_click_12 = (__12, toggle, index2) => toggle(index2());
-    var root_3$3 = /* @__PURE__ */ from_html(`<tr><td class="svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td><td class="mono svelte-s5ncdi"> </td><td class="mono svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td></tr>`);
+    var root_3$4 = /* @__PURE__ */ from_html(`<tr><td class="svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td><td class="mono svelte-s5ncdi"> </td><td class="mono svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td></tr>`);
     var root_2$5 = /* @__PURE__ */ from_html(`<tr><td colspan="2" class="svelte-s5ncdi"><table class="inner-table svelte-s5ncdi"><thead><tr><th class="svelte-s5ncdi">Index</th><th class="svelte-s5ncdi">Internal</th><th class="svelte-s5ncdi">Address</th><th class="svelte-s5ncdi">PublicKey</th><th class="svelte-s5ncdi">Balance</th><th class="svelte-s5ncdi">Owned Objects</th></tr></thead><tbody></tbody></table></td></tr>`);
-    var root_1$9 = /* @__PURE__ */ from_html(`<tr class="clickable svelte-s5ncdi"><td class="svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td></tr> <!>`, 1);
-    var root$d = /* @__PURE__ */ from_html(`<main><button class="svelte-s5ncdi">connect</button> <br/> BIP 44 path: (m/44'/coinType'/accountIndex'/change'/addressIndex') <br/> <input type="number" list="coinTypes" placeholder="BIP-44 coin type" class="svelte-s5ncdi"/> <datalist id="coinTypes"><option>IOTA</option><option>Testnet</option></datalist> <input type="number" min="0" placeholder="account index" class="svelte-s5ncdi"/> <select><option>0</option><option>1</option></select> <input type="number" width="1" min="0" placeholder="address index" class="svelte-s5ncdi"/> <button class="svelte-s5ncdi">generate address</button> <br/> increase <select><option>account</option><option>address</option></select> index by: <input type="number" min="1" placeholder="number to generate" class="svelte-s5ncdi"/> <button class="svelte-s5ncdi">generate multiple addresses</button> <hr/> <button class="svelte-s5ncdi">get unknown balances</button> <button class="svelte-s5ncdi">get all balances</button> <button class="svelte-s5ncdi">get unknown objects</button> <button class="svelte-s5ncdi">get all objects</button> <hr/> <div>Sender address: <input type="string" size="70" placeholder="sender address" class="svelte-s5ncdi"/></div> <div>Recipient address: <input type="string" size="70" placeholder="recipient address" class="svelte-s5ncdi"/></div> <select><option>dry run</option><option>send</option></select> <button class="svelte-s5ncdi">send all objects</button> IOTA amount(in Nanos) to send: <input type="number" min="0" placeholder="IOTA amount to send" class="svelte-s5ncdi"/> <button class="svelte-s5ncdi">send IOTA</button> <hr/> <button class="svelte-s5ncdi">clear address list</button> <button class="svelte-s5ncdi">expand all</button> <button class="svelte-s5ncdi">collapse all</button> <!> <table class="svelte-s5ncdi"><thead><tr><th class="svelte-s5ncdi">Account</th><th class="svelte-s5ncdi">Addresses</th></tr></thead><tbody></tbody></table></main>`);
+    var root_1$8 = /* @__PURE__ */ from_html(`<tr class="clickable svelte-s5ncdi"><td class="svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td></tr> <!>`, 1);
+    var root$c = /* @__PURE__ */ from_html(`<main><button class="svelte-s5ncdi">connect</button> <br/> BIP 44 path: (m/44'/coinType'/accountIndex'/change'/addressIndex') <br/> <input type="number" list="coinTypes" placeholder="BIP-44 coin type" class="svelte-s5ncdi"/> <datalist id="coinTypes"><option>IOTA</option><option>Testnet</option></datalist> <input type="number" min="0" placeholder="account index" class="svelte-s5ncdi"/> <select><option>0</option><option>1</option></select> <input type="number" width="1" min="0" placeholder="address index" class="svelte-s5ncdi"/> <button class="svelte-s5ncdi">generate address</button> <br/> increase <select><option>account</option><option>address</option></select> index by: <input type="number" min="1" placeholder="number to generate" class="svelte-s5ncdi"/> <button class="svelte-s5ncdi">generate multiple addresses</button> <hr/> <button class="svelte-s5ncdi">get unknown balances</button> <button class="svelte-s5ncdi">get all balances</button> <button class="svelte-s5ncdi">get unknown objects</button> <button class="svelte-s5ncdi">get all objects</button> <hr/> <div>Sender address: <input type="string" size="70" placeholder="sender address" class="svelte-s5ncdi"/></div> <div>Recipient address: <input type="string" size="70" placeholder="recipient address" class="svelte-s5ncdi"/></div> <select><option>dry run</option><option>send</option></select> <button class="svelte-s5ncdi">send all objects</button> IOTA amount(in Nanos) to send: <input type="number" min="0" placeholder="IOTA amount to send" class="svelte-s5ncdi"/> <button class="svelte-s5ncdi">send IOTA</button> <hr/> <button class="svelte-s5ncdi">clear address list</button> <button class="svelte-s5ncdi">expand all</button> <button class="svelte-s5ncdi">collapse all</button> <!> <table class="svelte-s5ncdi"><thead><tr><th class="svelte-s5ncdi">Account</th><th class="svelte-s5ncdi">Addresses</th></tr></thead><tbody></tbody></table></main>`);
     function LedgerNano($$anchor, $$props) {
       push($$props, true);
       const IOTA_BIP44_COIN_TYPE = 4218;
@@ -52019,9 +52019,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           console.error(err);
         }
       }
-      var main = root$d();
+      var main = root$c();
       var button = child(main);
-      button.__click = [on_click$5, connect];
+      button.__click = [on_click$4, connect];
       var input = sibling(button, 6);
       var datalist = sibling(input, 2);
       var option = child(datalist);
@@ -52090,7 +52090,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         var $$array = /* @__PURE__ */ user_derived(() => to_array(get$2($$item), 2));
         let index2 = () => get$2($$array)[0];
         let addresses = () => get$2($$array)[1];
-        var fragment = root_1$9();
+        var fragment = root_1$8();
         var tr = first_child(fragment);
         tr.__click = [on_click_12, toggle, index2];
         var td = child(tr);
@@ -52105,7 +52105,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             var table_1 = child(td_2);
             var tbody_1 = sibling(child(table_1));
             each$1(tbody_1, 21, addresses, index$1, ($$anchor4, addr) => {
-              var tr_2 = root_3$3();
+              var tr_2 = root_3$4();
               var td_3 = child(tr_2);
               var text_2 = child(td_3);
               var td_4 = sibling(td_3);
@@ -52160,14 +52160,14 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     }
     delegate(["click"]);
     function ownKeys(object2, enumerableOnly) {
-      var keys2 = Object.keys(object2);
+      var keys = Object.keys(object2);
       if (Object.getOwnPropertySymbols) {
         var symbols = Object.getOwnPropertySymbols(object2);
         enumerableOnly && (symbols = symbols.filter(function(sym) {
           return Object.getOwnPropertyDescriptor(object2, sym).enumerable;
-        })), keys2.push.apply(keys2, symbols);
+        })), keys.push.apply(keys, symbols);
       }
-      return keys2;
+      return keys;
     }
     function _objectSpread2(target2) {
       for (var i2 = 1; i2 < arguments.length; i2++) {
@@ -53082,7 +53082,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       el.style.minHeight = window.getComputedStyle(el).getPropertyValue("height");
       var originalMinWidth = el.style.minWidth;
       el.style.minWidth = window.getComputedStyle(el).getPropertyValue("width");
-      return function undo2() {
+      return function undo() {
         el.style.minHeight = originalMinHeight;
         el.style.minWidth = originalMinWidth;
       };
@@ -53377,7 +53377,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     }
     function dndzone$2(node, options) {
       var initialized = false;
-      var config2 = {
+      var config = {
         items: void 0,
         type: void 0,
         flipDurationMs: 0,
@@ -53466,7 +53466,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         originDropZone = originalDragTarget.parentElement;
         var rootNode = originDropZone.closest("dialog") || originDropZone.closest("[popover]") || originDropZone.getRootNode();
         var originDropZoneRoot = rootNode.body || rootNode;
-        var originalItems = config2.items, type2 = config2.type, centreDraggedOnCursor = config2.centreDraggedOnCursor;
+        var originalItems = config.items, type2 = config.type, centreDraggedOnCursor = config.centreDraggedOnCursor;
         var items = _toConsumableArray(originalItems);
         draggedElData = items[currentIdx];
         draggedElType = type2;
@@ -53486,7 +53486,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           }
         }
         window.requestAnimationFrame(keepOriginalElementInDom);
-        styleActiveDropZones(Array.from(typeToDropZones$1.get(config2.type)).filter(function(dz) {
+        styleActiveDropZones(Array.from(typeToDropZones$1.get(config.type)).filter(function(dz) {
           return dz === originDropZone || !dzToConfig$1.get(dz).dropFromOthersDisabled;
         }), function(dz) {
           return dzToConfig$1.get(dz).dropTargetStyle;
@@ -53517,20 +53517,20 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       function configure(_ref2) {
         var _ref2$items = _ref2.items, items = _ref2$items === void 0 ? void 0 : _ref2$items, _ref2$flipDurationMs = _ref2.flipDurationMs, dropAnimationDurationMs = _ref2$flipDurationMs === void 0 ? 0 : _ref2$flipDurationMs, _ref2$type = _ref2.type, newType = _ref2$type === void 0 ? DEFAULT_DROP_ZONE_TYPE$1 : _ref2$type, _ref2$dragDisabled = _ref2.dragDisabled, dragDisabled = _ref2$dragDisabled === void 0 ? false : _ref2$dragDisabled, _ref2$morphDisabled = _ref2.morphDisabled, morphDisabled = _ref2$morphDisabled === void 0 ? false : _ref2$morphDisabled, _ref2$dropFromOthersD = _ref2.dropFromOthersDisabled, dropFromOthersDisabled = _ref2$dropFromOthersD === void 0 ? false : _ref2$dropFromOthersD, _ref2$dropTargetStyle = _ref2.dropTargetStyle, dropTargetStyle = _ref2$dropTargetStyle === void 0 ? DEFAULT_DROP_TARGET_STYLE$1 : _ref2$dropTargetStyle, _ref2$dropTargetClass = _ref2.dropTargetClasses, dropTargetClasses = _ref2$dropTargetClass === void 0 ? [] : _ref2$dropTargetClass, _ref2$transformDragge = _ref2.transformDraggedElement, transformDraggedElement = _ref2$transformDragge === void 0 ? function() {
         } : _ref2$transformDragge, _ref2$centreDraggedOn = _ref2.centreDraggedOnCursor, centreDraggedOnCursor = _ref2$centreDraggedOn === void 0 ? false : _ref2$centreDraggedOn, _ref2$dropAnimationDi = _ref2.dropAnimationDisabled, dropAnimationDisabled = _ref2$dropAnimationDi === void 0 ? false : _ref2$dropAnimationDi;
-        config2.dropAnimationDurationMs = dropAnimationDurationMs;
-        if (config2.type && newType !== config2.type) {
-          unregisterDropZone$1(node, config2.type);
+        config.dropAnimationDurationMs = dropAnimationDurationMs;
+        if (config.type && newType !== config.type) {
+          unregisterDropZone$1(node, config.type);
         }
-        config2.type = newType;
-        config2.items = _toConsumableArray(items);
-        config2.dragDisabled = dragDisabled;
-        config2.morphDisabled = morphDisabled;
-        config2.transformDraggedElement = transformDraggedElement;
-        config2.centreDraggedOnCursor = centreDraggedOnCursor;
-        config2.dropAnimationDisabled = dropAnimationDisabled;
-        if (initialized && isWorkingOnPreviousDrag && !finalizingPreviousDrag && (!areObjectsShallowEqual(dropTargetStyle, config2.dropTargetStyle) || !areArraysShallowEqualSameOrder(dropTargetClasses, config2.dropTargetClasses))) {
+        config.type = newType;
+        config.items = _toConsumableArray(items);
+        config.dragDisabled = dragDisabled;
+        config.morphDisabled = morphDisabled;
+        config.transformDraggedElement = transformDraggedElement;
+        config.centreDraggedOnCursor = centreDraggedOnCursor;
+        config.dropAnimationDisabled = dropAnimationDisabled;
+        if (initialized && isWorkingOnPreviousDrag && !finalizingPreviousDrag && (!areObjectsShallowEqual(dropTargetStyle, config.dropTargetStyle) || !areArraysShallowEqualSameOrder(dropTargetClasses, config.dropTargetClasses))) {
           styleInactiveDropZones([node], function() {
-            return config2.dropTargetStyle;
+            return config.dropTargetStyle;
           }, function() {
             return dropTargetClasses;
           });
@@ -53540,12 +53540,12 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             return dropTargetClasses;
           });
         }
-        config2.dropTargetStyle = dropTargetStyle;
-        config2.dropTargetClasses = _toConsumableArray(dropTargetClasses);
+        config.dropTargetStyle = dropTargetStyle;
+        config.dropTargetClasses = _toConsumableArray(dropTargetClasses);
         function getConfigProp(dz, propName) {
-          return dzToConfig$1.get(dz) ? dzToConfig$1.get(dz)[propName] : config2[propName];
+          return dzToConfig$1.get(dz) ? dzToConfig$1.get(dz)[propName] : config[propName];
         }
-        if (initialized && isWorkingOnPreviousDrag && config2.dropFromOthersDisabled !== dropFromOthersDisabled) {
+        if (initialized && isWorkingOnPreviousDrag && config.dropFromOthersDisabled !== dropFromOthersDisabled) {
           if (dropFromOthersDisabled) {
             styleInactiveDropZones([node], function(dz) {
               return getConfigProp(dz, "dropTargetStyle");
@@ -53560,10 +53560,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             });
           }
         }
-        config2.dropFromOthersDisabled = dropFromOthersDisabled;
-        dzToConfig$1.set(node, config2);
+        config.dropFromOthersDisabled = dropFromOthersDisabled;
+        dzToConfig$1.set(node, config);
         registerDropZone$1(node, newType);
-        var shadowElIdx = isWorkingOnPreviousDrag ? findShadowElementIdx(config2.items) : -1;
+        var shadowElIdx = isWorkingOnPreviousDrag ? findShadowElementIdx(config.items) : -1;
         for (var idx = 0; idx < node.children.length; idx++) {
           var draggableEl = node.children[idx];
           styleDraggable(draggableEl, dragDisabled);
@@ -53571,7 +53571,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             if (!morphDisabled) {
               morphDraggedElementToBeLike(draggedEl, draggableEl, currentMousePosition.x, currentMousePosition.y);
             }
-            config2.transformDraggedElement(draggedEl, draggedElData, idx);
+            config.transformDraggedElement(draggedEl, draggedElData, idx);
             decorateShadowEl(draggableEl);
             continue;
           }
@@ -53809,7 +53809,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       triggerAllDzsUpdate();
     }
     function dndzone$1(node, options) {
-      var config2 = {
+      var config = {
         items: void 0,
         type: void 0,
         dragDisabled: false,
@@ -53849,7 +53849,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             var children = Array.from(node.children);
             var idx = children.indexOf(e2.currentTarget);
             if (idx < children.length - 1) {
-              if (!config2.autoAriaDisabled) {
+              if (!config.autoAriaDisabled) {
                 alertToScreenReader("Moved item ".concat(focusedItemLabel, " to position ").concat(idx + 2, " in the list ").concat(focusedDzLabel));
               }
               swap2(items, idx, idx + 1);
@@ -53870,7 +53870,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             var _children = Array.from(node.children);
             var _idx = _children.indexOf(e2.currentTarget);
             if (_idx > 0) {
-              if (!config2.autoAriaDisabled) {
+              if (!config.autoAriaDisabled) {
                 alertToScreenReader("Moved item ".concat(focusedItemLabel, " to position ").concat(_idx, " in the list ").concat(focusedDzLabel));
               }
               swap2(_items, _idx, _idx - 1);
@@ -53887,9 +53887,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       function handleDragStart(e2) {
         setCurrentFocusedItem(e2.currentTarget);
         focusedDz = node;
-        draggedItemType = config2.type;
+        draggedItemType = config.type;
         isDragging = true;
-        var dropTargets = Array.from(typeToDropZones.get(config2.type)).filter(function(dz) {
+        var dropTargets = Array.from(typeToDropZones.get(config.type)).filter(function(dz) {
           return dz === focusedDz || !dzToConfig.get(dz).dropFromOthersDisabled;
         });
         styleActiveDropZones(dropTargets, function(dz) {
@@ -53897,7 +53897,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         }, function(dz) {
           return dzToConfig.get(dz).dropTargetClasses;
         });
-        if (!config2.autoAriaDisabled) {
+        if (!config.autoAriaDisabled) {
           var msg = "Started dragging item ".concat(focusedItemLabel, ". Use the arrow keys to move it within its list ").concat(focusedDzLabel);
           if (dropTargets.length > 1) {
             msg += ", or tab to another list in order to move the item into it";
@@ -53923,41 +53923,41 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         var children = Array.from(node.children);
         var focusedItemIdx = children.indexOf(draggableEl);
         focusedItem = draggableEl;
-        focusedItem.tabIndex = config2.zoneItemTabIndex;
+        focusedItem.tabIndex = config.zoneItemTabIndex;
         focusedItemId = items[focusedItemIdx][ITEM_ID_KEY];
         focusedItemLabel = children[focusedItemIdx].getAttribute("aria-label") || "";
       }
       function configure(_ref2) {
         var _ref2$items = _ref2.items, items = _ref2$items === void 0 ? [] : _ref2$items, _ref2$type = _ref2.type, newType = _ref2$type === void 0 ? DEFAULT_DROP_ZONE_TYPE : _ref2$type, _ref2$dragDisabled = _ref2.dragDisabled, dragDisabled = _ref2$dragDisabled === void 0 ? false : _ref2$dragDisabled, _ref2$zoneTabIndex = _ref2.zoneTabIndex, zoneTabIndex = _ref2$zoneTabIndex === void 0 ? 0 : _ref2$zoneTabIndex, _ref2$zoneItemTabInde = _ref2.zoneItemTabIndex, zoneItemTabIndex = _ref2$zoneItemTabInde === void 0 ? 0 : _ref2$zoneItemTabInde, _ref2$dropFromOthersD = _ref2.dropFromOthersDisabled, dropFromOthersDisabled = _ref2$dropFromOthersD === void 0 ? false : _ref2$dropFromOthersD, _ref2$dropTargetStyle = _ref2.dropTargetStyle, dropTargetStyle = _ref2$dropTargetStyle === void 0 ? DEFAULT_DROP_TARGET_STYLE : _ref2$dropTargetStyle, _ref2$dropTargetClass = _ref2.dropTargetClasses, dropTargetClasses = _ref2$dropTargetClass === void 0 ? [] : _ref2$dropTargetClass, _ref2$autoAriaDisable = _ref2.autoAriaDisabled, autoAriaDisabled = _ref2$autoAriaDisable === void 0 ? false : _ref2$autoAriaDisable;
-        config2.items = _toConsumableArray(items);
-        config2.dragDisabled = dragDisabled;
-        config2.dropFromOthersDisabled = dropFromOthersDisabled;
-        config2.zoneTabIndex = zoneTabIndex;
-        config2.zoneItemTabIndex = zoneItemTabIndex;
-        config2.dropTargetStyle = dropTargetStyle;
-        config2.dropTargetClasses = dropTargetClasses;
-        config2.autoAriaDisabled = autoAriaDisabled;
-        if (config2.type && newType !== config2.type) {
-          unregisterDropZone(node, config2.type);
+        config.items = _toConsumableArray(items);
+        config.dragDisabled = dragDisabled;
+        config.dropFromOthersDisabled = dropFromOthersDisabled;
+        config.zoneTabIndex = zoneTabIndex;
+        config.zoneItemTabIndex = zoneItemTabIndex;
+        config.dropTargetStyle = dropTargetStyle;
+        config.dropTargetClasses = dropTargetClasses;
+        config.autoAriaDisabled = autoAriaDisabled;
+        if (config.type && newType !== config.type) {
+          unregisterDropZone(node, config.type);
         }
-        config2.type = newType;
+        config.type = newType;
         registerDropZone(node, newType);
         if (!autoAriaDisabled) {
           node.setAttribute("aria-disabled", dragDisabled);
           node.setAttribute("role", "list");
           node.setAttribute("aria-describedby", dragDisabled ? INSTRUCTION_IDs.DND_ZONE_DRAG_DISABLED : INSTRUCTION_IDs.DND_ZONE_ACTIVE);
         }
-        dzToConfig.set(node, config2);
+        dzToConfig.set(node, config);
         if (isDragging) {
-          node.tabIndex = node === focusedDz || focusedItem.contains(node) || config2.dropFromOthersDisabled || focusedDz && config2.type !== dzToConfig.get(focusedDz).type ? -1 : 0;
+          node.tabIndex = node === focusedDz || focusedItem.contains(node) || config.dropFromOthersDisabled || focusedDz && config.type !== dzToConfig.get(focusedDz).type ? -1 : 0;
         } else {
-          node.tabIndex = config2.zoneTabIndex;
+          node.tabIndex = config.zoneTabIndex;
         }
         node.addEventListener("focus", handleZoneFocus);
         var _loop = function _loop2(i22) {
           var draggableEl = node.children[i22];
           allDragTargets.add(draggableEl);
-          draggableEl.tabIndex = isDragging ? -1 : config2.zoneItemTabIndex;
+          draggableEl.tabIndex = isDragging ? -1 : config.zoneItemTabIndex;
           if (!autoAriaDisabled) {
             draggableEl.setAttribute("role", "listitem");
           }
@@ -53969,9 +53969,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             draggableEl.addEventListener("click", handleClick);
             elToFocusListeners.set(draggableEl, handleClick);
           }
-          if (isDragging && config2.items[i22][ITEM_ID_KEY] === focusedItemId) {
+          if (isDragging && config.items[i22][ITEM_ID_KEY] === focusedItemId) {
             focusedItem = draggableEl;
-            focusedItem.tabIndex = config2.zoneItemTabIndex;
+            focusedItem.tabIndex = config.zoneItemTabIndex;
             draggableEl.focus();
           }
         };
@@ -53985,7 +53985,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           configure(newOptions);
         },
         destroy: function destroy() {
-          unregisterDropZone(node, config2.type);
+          unregisterDropZone(node, config.type);
           dzToConfig["delete"](node);
           dzToHandles["delete"](node);
         }
@@ -54209,7 +54209,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         console.error(err);
       }
     };
-    async function dryRun$1(__1, prepareTxs, value2) {
+    async function dryRun(__1, prepareTxs, value2) {
       try {
         const client2 = getClient();
         let preparedTxs = await prepareTxs();
@@ -54262,8 +54262,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     var root_19$1 = /* @__PURE__ */ from_html(`<div> </div>`);
     var root_12$1 = /* @__PURE__ */ from_html(`<div style="border-top: 1px solid #525252;"><span style="word-break: break-all;"><!></span> <!></div> <div class="item"><details><summary>Show object data</summary> <pre style="font-size:0.7rem;  text-align: left;" class="svelte-197n9ug"> </pre></details></div>`, 1);
     var root_11$1 = /* @__PURE__ */ from_html(`<details><summary style="color: #ff9991;">Timelocked objects</summary> <!></details>`);
-    var root_1$8 = /* @__PURE__ */ from_html(`<div class="account svelte-197n9ug"><div class="accountHeader svelte-197n9ug"> </div> <div style="text-align: left;"> </div> <div style="max-height: 300px; overflow-y: auto;"><!> <!> <!></div></div>`);
-    var root$c = /* @__PURE__ */ from_html(`<main><span style="float:left">Drag and drop objects between accounts.</span> <br/> <button class="svelte-197n9ug">sync/reset</button> <button class="svelte-197n9ug">dry run</button> <button class="svelte-197n9ug">send</button> <!> <br/> <div style="text-align:left"> </div> <div class="grid svelte-197n9ug"></div></main>`);
+    var root_1$7 = /* @__PURE__ */ from_html(`<div class="account svelte-197n9ug"><div class="accountHeader svelte-197n9ug"> </div> <div style="text-align: left;"> </div> <div style="max-height: 300px; overflow-y: auto;"><!> <!> <!></div></div>`);
+    var root$b = /* @__PURE__ */ from_html(`<main><span style="float:left">Drag and drop objects between accounts.</span> <br/> <button class="svelte-197n9ug">sync/reset</button> <button class="svelte-197n9ug">dry run</button> <button class="svelte-197n9ug">send</button> <!> <br/> <div style="text-align:left"> </div> <div class="grid svelte-197n9ug"></div></main>`);
     function MultiAccountView($$anchor, $$props) {
       push($$props, true);
       const [$$stores, $$cleanup] = setup_stores();
@@ -54404,7 +54404,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         }
         return preparedTxs;
       }
-      var main = root$c();
+      var main = root$b();
       var button = sibling(child(main), 4);
       button.__click = [
         syncReset,
@@ -54415,7 +54415,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         value2
       ];
       var button_1 = sibling(button, 2);
-      button_1.__click = [dryRun$1, prepareTxs, value2];
+      button_1.__click = [dryRun, prepareTxs, value2];
       var button_2 = sibling(button_1, 2);
       button_2.__click = [send, prepareTxs, $iota_wallets, value2];
       var node = sibling(button_2, 2);
@@ -54428,7 +54428,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       var text$1 = child(div);
       var div_1 = sibling(div, 2);
       each$1(div_1, 21, () => get$2(extendedAccounts), (account) => account.id, ($$anchor2, account) => {
-        var div_2 = root_1$8();
+        var div_2 = root_1$7();
         var div_3 = child(div_2);
         var text_1 = child(div_3);
         var div_4 = sibling(div_3, 2);
@@ -54719,10 +54719,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       /**
       Create a new node prop type.
       */
-      constructor(config2 = {}) {
+      constructor(config = {}) {
         this.id = nextPropID++;
-        this.perNode = !!config2.perNode;
-        this.deserialize = config2.deserialize || (() => {
+        this.perNode = !!config.perNode;
+        this.deserialize = config.deserialize || (() => {
           throw new Error("This node type doesn't define a deserialize function");
         });
       }
@@ -54758,10 +54758,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     NodeProp.lookAhead = new NodeProp({ perNode: true });
     NodeProp.mounted = new NodeProp({ perNode: true });
     class MountedTree {
-      constructor(tree, overlay, parser2) {
+      constructor(tree, overlay, parser) {
         this.tree = tree;
         this.overlay = overlay;
-        this.parser = parser2;
+        this.parser = parser;
       }
       /**
       @internal
@@ -54874,39 +54874,6 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       8
       /* NodeFlag.Anonymous */
     );
-    class NodeSet {
-      /**
-      Create a set with the given types. The `id` property of each
-      type should correspond to its position within the array.
-      */
-      constructor(types2) {
-        this.types = types2;
-        for (let i2 = 0; i2 < types2.length; i2++)
-          if (types2[i2].id != i2)
-            throw new RangeError("Node type ids should correspond to array positions when creating a node set");
-      }
-      /**
-      Create a copy of this set with some node properties added. The
-      arguments to this method can be created with
-      [`NodeProp.add`](#common.NodeProp.add).
-      */
-      extend(...props) {
-        let newTypes = [];
-        for (let type2 of this.types) {
-          let newProps = null;
-          for (let source2 of props) {
-            let add2 = source2(type2);
-            if (add2) {
-              if (!newProps)
-                newProps = Object.assign({}, type2.props);
-              newProps[add2[0].id] = add2[1];
-            }
-          }
-          newTypes.push(newProps ? new NodeType(type2.name, newProps, type2.id, type2.flags) : type2);
-        }
-        return new NodeSet(newTypes);
-      }
-    }
     const CachedNode = /* @__PURE__ */ new WeakMap(), CachedInnerNode = /* @__PURE__ */ new WeakMap();
     var IterMode;
     (function(IterMode2) {
@@ -55066,8 +55033,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       which may have children grouped into subtrees with type
       [`NodeType.none`](#common.NodeType^none).
       */
-      balance(config2 = {}) {
-        return this.children.length <= 8 ? this : balanceRange(NodeType.none, this.children, this.positions, 0, this.children.length, 0, this.length, (children, positions2, length) => new Tree(this.type, children, positions2, length, this.propValues), config2.makeTree || ((children, positions2, length) => new Tree(NodeType.none, children, positions2, length)));
+      balance(config = {}) {
+        return this.children.length <= 8 ? this : balanceRange(NodeType.none, this.children, this.positions, 0, this.children.length, 0, this.length, (children, positions2, length) => new Tree(this.type, children, positions2, length, this.propValues), config.makeTree || ((children, positions2, length) => new Tree(NodeType.none, children, positions2, length)));
       }
       /**
       Build a tree from a postfix-ordered buffer of node information,
@@ -55394,21 +55361,21 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
     }
     function getChildren(node, type2, before, after) {
-      let cur2 = node.cursor(), result = [];
-      if (!cur2.firstChild())
+      let cur = node.cursor(), result = [];
+      if (!cur.firstChild())
         return result;
       if (before != null)
         for (let found = false; !found; ) {
-          found = cur2.type.is(before);
-          if (!cur2.nextSibling())
+          found = cur.type.is(before);
+          if (!cur.nextSibling())
             return result;
         }
       for (; ; ) {
-        if (after != null && cur2.type.is(after))
+        if (after != null && cur.type.is(after))
           return result;
-        if (cur2.type.is(type2))
-          result.push(cur2.node);
-        if (!cur2.nextSibling())
+        if (cur.type.is(type2))
+          result.push(cur.node);
+        if (!cur.nextSibling())
           return after == null ? result : [];
       }
     }
@@ -55853,10 +55820,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       get node() {
         if (!this.buffer)
           return this._tree;
-        let cache2 = this.bufferNode, result = null, depth = 0;
-        if (cache2 && cache2.context == this.buffer) {
+        let cache = this.bufferNode, result = null, depth = 0;
+        if (cache && cache.context == this.buffer) {
           scan: for (let index2 = this.index, d = this.stack.length; d >= 0; ) {
-            for (let c = cache2; c; c = c._parent)
+            for (let c = cache; c; c = c._parent)
               if (c.index == index2) {
                 if (index2 == this.index)
                   return c;
@@ -56057,12 +56024,12 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
       function makeTree(type2, children2, positions3, length2, lookAhead2, contextHash2, props) {
         if (contextHash2) {
-          let pair2 = [NodeProp.contextHash, contextHash2];
-          props = props ? [pair2].concat(props) : [pair2];
+          let pair = [NodeProp.contextHash, contextHash2];
+          props = props ? [pair].concat(props) : [pair];
         }
         if (lookAhead2 > 25) {
-          let pair2 = [NodeProp.lookAhead, lookAhead2];
-          props = props ? [pair2].concat(props) : [pair2];
+          let pair = [NodeProp.lookAhead, lookAhead2];
+          props = props ? [pair].concat(props) : [pair];
         }
         return new Tree(type2, children2, positions3, length2, props);
       }
@@ -56085,7 +56052,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           if (nodeSize2 < 0 || startPos < minPos || fork.start < minStart)
             break;
           let localSkipped = fork.id >= minRepeatType ? 4 : 0;
-          let nodeStart2 = fork.start;
+          let nodeStart = fork.start;
           fork.next();
           while (fork.pos > startPos) {
             if (fork.size < 0) {
@@ -56098,7 +56065,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             }
             fork.next();
           }
-          start = nodeStart2;
+          start = nodeStart;
           size += nodeSize2;
           skip2 += localSkipped;
         }
@@ -56189,52 +56156,6 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
       divide(children, positions2, from2, to2, 0);
       return (mkTop || mkTree)(localChildren, localPositions, length);
-    }
-    class NodeWeakMap {
-      constructor() {
-        this.map = /* @__PURE__ */ new WeakMap();
-      }
-      setBuffer(buffer2, index2, value2) {
-        let inner = this.map.get(buffer2);
-        if (!inner)
-          this.map.set(buffer2, inner = /* @__PURE__ */ new Map());
-        inner.set(index2, value2);
-      }
-      getBuffer(buffer2, index2) {
-        let inner = this.map.get(buffer2);
-        return inner && inner.get(index2);
-      }
-      /**
-      Set the value for this syntax node.
-      */
-      set(node, value2) {
-        if (node instanceof BufferNode)
-          this.setBuffer(node.context.buffer, node.index, value2);
-        else if (node instanceof TreeNode)
-          this.map.set(node.tree, value2);
-      }
-      /**
-      Retrieve value for this syntax node, if it exists in the map.
-      */
-      get(node) {
-        return node instanceof BufferNode ? this.getBuffer(node.context.buffer, node.index) : node instanceof TreeNode ? this.map.get(node.tree) : void 0;
-      }
-      /**
-      Set the value for the node that a cursor currently points to.
-      */
-      cursorSet(cursor, value2) {
-        if (cursor.buffer)
-          this.setBuffer(cursor.buffer.buffer, cursor.index, value2);
-        else
-          this.map.set(cursor.tree, value2);
-      }
-      /**
-      Retrieve the value for the node that a cursor currently points
-      to.
-      */
-      cursorGet(cursor) {
-        return cursor.buffer ? this.getBuffer(cursor.buffer.buffer, cursor.index) : this.map.get(cursor.tree);
-      }
     }
     class TreeFragment {
       /**
@@ -56362,1763 +56283,6 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
     }
     new NodeProp({ perNode: true });
-    class Stack {
-      /**
-      @internal
-      */
-      constructor(p, stack, state2, reducePos, pos, score2, buffer2, bufferBase, curContext, lookAhead = 0, parent) {
-        this.p = p;
-        this.stack = stack;
-        this.state = state2;
-        this.reducePos = reducePos;
-        this.pos = pos;
-        this.score = score2;
-        this.buffer = buffer2;
-        this.bufferBase = bufferBase;
-        this.curContext = curContext;
-        this.lookAhead = lookAhead;
-        this.parent = parent;
-      }
-      /**
-      @internal
-      */
-      toString() {
-        return `[${this.stack.filter((_, i2) => i2 % 3 == 0).concat(this.state)}]@${this.pos}${this.score ? "!" + this.score : ""}`;
-      }
-      // Start an empty stack
-      /**
-      @internal
-      */
-      static start(p, state2, pos = 0) {
-        let cx = p.parser.context;
-        return new Stack(p, [], state2, pos, pos, 0, [], 0, cx ? new StackContext(cx, cx.start) : null, 0, null);
-      }
-      /**
-      The stack's current [context](#lr.ContextTracker) value, if
-      any. Its type will depend on the context tracker's type
-      parameter, or it will be `null` if there is no context
-      tracker.
-      */
-      get context() {
-        return this.curContext ? this.curContext.context : null;
-      }
-      // Push a state onto the stack, tracking its start position as well
-      // as the buffer base at that point.
-      /**
-      @internal
-      */
-      pushState(state2, start) {
-        this.stack.push(this.state, start, this.bufferBase + this.buffer.length);
-        this.state = state2;
-      }
-      // Apply a reduce action
-      /**
-      @internal
-      */
-      reduce(action2) {
-        var _a3;
-        let depth = action2 >> 19, type2 = action2 & 65535;
-        let { parser: parser2 } = this.p;
-        let lookaheadRecord = this.reducePos < this.pos - 25;
-        if (lookaheadRecord)
-          this.setLookAhead(this.pos);
-        let dPrec = parser2.dynamicPrecedence(type2);
-        if (dPrec)
-          this.score += dPrec;
-        if (depth == 0) {
-          this.pushState(parser2.getGoto(this.state, type2, true), this.reducePos);
-          if (type2 < parser2.minRepeatTerm)
-            this.storeNode(type2, this.reducePos, this.reducePos, lookaheadRecord ? 8 : 4, true);
-          this.reduceContext(type2, this.reducePos);
-          return;
-        }
-        let base2 = this.stack.length - (depth - 1) * 3 - (action2 & 262144 ? 6 : 0);
-        let start = base2 ? this.stack[base2 - 2] : this.p.ranges[0].from, size = this.reducePos - start;
-        if (size >= 2e3 && !((_a3 = this.p.parser.nodeSet.types[type2]) === null || _a3 === void 0 ? void 0 : _a3.isAnonymous)) {
-          if (start == this.p.lastBigReductionStart) {
-            this.p.bigReductionCount++;
-            this.p.lastBigReductionSize = size;
-          } else if (this.p.lastBigReductionSize < size) {
-            this.p.bigReductionCount = 1;
-            this.p.lastBigReductionStart = start;
-            this.p.lastBigReductionSize = size;
-          }
-        }
-        let bufferBase = base2 ? this.stack[base2 - 1] : 0, count = this.bufferBase + this.buffer.length - bufferBase;
-        if (type2 < parser2.minRepeatTerm || action2 & 131072) {
-          let pos = parser2.stateFlag(
-            this.state,
-            1
-            /* StateFlag.Skipped */
-          ) ? this.pos : this.reducePos;
-          this.storeNode(type2, start, pos, count + 4, true);
-        }
-        if (action2 & 262144) {
-          this.state = this.stack[base2];
-        } else {
-          let baseStateID = this.stack[base2 - 3];
-          this.state = parser2.getGoto(baseStateID, type2, true);
-        }
-        while (this.stack.length > base2)
-          this.stack.pop();
-        this.reduceContext(type2, start);
-      }
-      // Shift a value into the buffer
-      /**
-      @internal
-      */
-      storeNode(term, start, end, size = 4, mustSink = false) {
-        if (term == 0 && (!this.stack.length || this.stack[this.stack.length - 1] < this.buffer.length + this.bufferBase)) {
-          let cur2 = this, top2 = this.buffer.length;
-          if (top2 == 0 && cur2.parent) {
-            top2 = cur2.bufferBase - cur2.parent.bufferBase;
-            cur2 = cur2.parent;
-          }
-          if (top2 > 0 && cur2.buffer[top2 - 4] == 0 && cur2.buffer[top2 - 1] > -1) {
-            if (start == end)
-              return;
-            if (cur2.buffer[top2 - 2] >= start) {
-              cur2.buffer[top2 - 2] = end;
-              return;
-            }
-          }
-        }
-        if (!mustSink || this.pos == end) {
-          this.buffer.push(term, start, end, size);
-        } else {
-          let index2 = this.buffer.length;
-          if (index2 > 0 && this.buffer[index2 - 4] != 0) {
-            let mustMove = false;
-            for (let scan = index2; scan > 0 && this.buffer[scan - 2] > end; scan -= 4) {
-              if (this.buffer[scan - 1] >= 0) {
-                mustMove = true;
-                break;
-              }
-            }
-            if (mustMove)
-              while (index2 > 0 && this.buffer[index2 - 2] > end) {
-                this.buffer[index2] = this.buffer[index2 - 4];
-                this.buffer[index2 + 1] = this.buffer[index2 - 3];
-                this.buffer[index2 + 2] = this.buffer[index2 - 2];
-                this.buffer[index2 + 3] = this.buffer[index2 - 1];
-                index2 -= 4;
-                if (size > 4)
-                  size -= 4;
-              }
-          }
-          this.buffer[index2] = term;
-          this.buffer[index2 + 1] = start;
-          this.buffer[index2 + 2] = end;
-          this.buffer[index2 + 3] = size;
-        }
-      }
-      // Apply a shift action
-      /**
-      @internal
-      */
-      shift(action2, type2, start, end) {
-        if (action2 & 131072) {
-          this.pushState(action2 & 65535, this.pos);
-        } else if ((action2 & 262144) == 0) {
-          let nextState = action2, { parser: parser2 } = this.p;
-          if (end > this.pos || type2 <= parser2.maxNode) {
-            this.pos = end;
-            if (!parser2.stateFlag(
-              nextState,
-              1
-              /* StateFlag.Skipped */
-            ))
-              this.reducePos = end;
-          }
-          this.pushState(nextState, start);
-          this.shiftContext(type2, start);
-          if (type2 <= parser2.maxNode)
-            this.buffer.push(type2, start, end, 4);
-        } else {
-          this.pos = end;
-          this.shiftContext(type2, start);
-          if (type2 <= this.p.parser.maxNode)
-            this.buffer.push(type2, start, end, 4);
-        }
-      }
-      // Apply an action
-      /**
-      @internal
-      */
-      apply(action2, next2, nextStart, nextEnd) {
-        if (action2 & 65536)
-          this.reduce(action2);
-        else
-          this.shift(action2, next2, nextStart, nextEnd);
-      }
-      // Add a prebuilt (reused) node into the buffer.
-      /**
-      @internal
-      */
-      useNode(value2, next2) {
-        let index2 = this.p.reused.length - 1;
-        if (index2 < 0 || this.p.reused[index2] != value2) {
-          this.p.reused.push(value2);
-          index2++;
-        }
-        let start = this.pos;
-        this.reducePos = this.pos = start + value2.length;
-        this.pushState(next2, start);
-        this.buffer.push(
-          index2,
-          start,
-          this.reducePos,
-          -1
-          /* size == -1 means this is a reused value */
-        );
-        if (this.curContext)
-          this.updateContext(this.curContext.tracker.reuse(this.curContext.context, value2, this, this.p.stream.reset(this.pos - value2.length)));
-      }
-      // Split the stack. Due to the buffer sharing and the fact
-      // that `this.stack` tends to stay quite shallow, this isn't very
-      // expensive.
-      /**
-      @internal
-      */
-      split() {
-        let parent = this;
-        let off = parent.buffer.length;
-        while (off > 0 && parent.buffer[off - 2] > parent.reducePos)
-          off -= 4;
-        let buffer2 = parent.buffer.slice(off), base2 = parent.bufferBase + off;
-        while (parent && base2 == parent.bufferBase)
-          parent = parent.parent;
-        return new Stack(this.p, this.stack.slice(), this.state, this.reducePos, this.pos, this.score, buffer2, base2, this.curContext, this.lookAhead, parent);
-      }
-      // Try to recover from an error by 'deleting' (ignoring) one token.
-      /**
-      @internal
-      */
-      recoverByDelete(next2, nextEnd) {
-        let isNode2 = next2 <= this.p.parser.maxNode;
-        if (isNode2)
-          this.storeNode(next2, this.pos, nextEnd, 4);
-        this.storeNode(0, this.pos, nextEnd, isNode2 ? 8 : 4);
-        this.pos = this.reducePos = nextEnd;
-        this.score -= 190;
-      }
-      /**
-      Check if the given term would be able to be shifted (optionally
-      after some reductions) on this stack. This can be useful for
-      external tokenizers that want to make sure they only provide a
-      given token when it applies.
-      */
-      canShift(term) {
-        for (let sim = new SimulatedStack(this); ; ) {
-          let action2 = this.p.parser.stateSlot(
-            sim.state,
-            4
-            /* ParseState.DefaultReduce */
-          ) || this.p.parser.hasAction(sim.state, term);
-          if (action2 == 0)
-            return false;
-          if ((action2 & 65536) == 0)
-            return true;
-          sim.reduce(action2);
-        }
-      }
-      // Apply up to Recover.MaxNext recovery actions that conceptually
-      // inserts some missing token or rule.
-      /**
-      @internal
-      */
-      recoverByInsert(next2) {
-        if (this.stack.length >= 300)
-          return [];
-        let nextStates = this.p.parser.nextStates(this.state);
-        if (nextStates.length > 4 << 1 || this.stack.length >= 120) {
-          let best = [];
-          for (let i2 = 0, s; i2 < nextStates.length; i2 += 2) {
-            if ((s = nextStates[i2 + 1]) != this.state && this.p.parser.hasAction(s, next2))
-              best.push(nextStates[i2], s);
-          }
-          if (this.stack.length < 120)
-            for (let i2 = 0; best.length < 4 << 1 && i2 < nextStates.length; i2 += 2) {
-              let s = nextStates[i2 + 1];
-              if (!best.some((v, i22) => i22 & 1 && v == s))
-                best.push(nextStates[i2], s);
-            }
-          nextStates = best;
-        }
-        let result = [];
-        for (let i2 = 0; i2 < nextStates.length && result.length < 4; i2 += 2) {
-          let s = nextStates[i2 + 1];
-          if (s == this.state)
-            continue;
-          let stack = this.split();
-          stack.pushState(s, this.pos);
-          stack.storeNode(0, stack.pos, stack.pos, 4, true);
-          stack.shiftContext(nextStates[i2], this.pos);
-          stack.reducePos = this.pos;
-          stack.score -= 200;
-          result.push(stack);
-        }
-        return result;
-      }
-      // Force a reduce, if possible. Return false if that can't
-      // be done.
-      /**
-      @internal
-      */
-      forceReduce() {
-        let { parser: parser2 } = this.p;
-        let reduce = parser2.stateSlot(
-          this.state,
-          5
-          /* ParseState.ForcedReduce */
-        );
-        if ((reduce & 65536) == 0)
-          return false;
-        if (!parser2.validAction(this.state, reduce)) {
-          let depth = reduce >> 19, term = reduce & 65535;
-          let target2 = this.stack.length - depth * 3;
-          if (target2 < 0 || parser2.getGoto(this.stack[target2], term, false) < 0) {
-            let backup = this.findForcedReduction();
-            if (backup == null)
-              return false;
-            reduce = backup;
-          }
-          this.storeNode(0, this.pos, this.pos, 4, true);
-          this.score -= 100;
-        }
-        this.reducePos = this.pos;
-        this.reduce(reduce);
-        return true;
-      }
-      /**
-      Try to scan through the automaton to find some kind of reduction
-      that can be applied. Used when the regular ForcedReduce field
-      isn't a valid action. @internal
-      */
-      findForcedReduction() {
-        let { parser: parser2 } = this.p, seen2 = [];
-        let explore = (state2, depth) => {
-          if (seen2.includes(state2))
-            return;
-          seen2.push(state2);
-          return parser2.allActions(state2, (action2) => {
-            if (action2 & (262144 | 131072)) ;
-            else if (action2 & 65536) {
-              let rDepth = (action2 >> 19) - depth;
-              if (rDepth > 1) {
-                let term = action2 & 65535, target2 = this.stack.length - rDepth * 3;
-                if (target2 >= 0 && parser2.getGoto(this.stack[target2], term, false) >= 0)
-                  return rDepth << 19 | 65536 | term;
-              }
-            } else {
-              let found = explore(action2, depth + 1);
-              if (found != null)
-                return found;
-            }
-          });
-        };
-        return explore(this.state, 0);
-      }
-      /**
-      @internal
-      */
-      forceAll() {
-        while (!this.p.parser.stateFlag(
-          this.state,
-          2
-          /* StateFlag.Accepting */
-        )) {
-          if (!this.forceReduce()) {
-            this.storeNode(0, this.pos, this.pos, 4, true);
-            break;
-          }
-        }
-        return this;
-      }
-      /**
-      Check whether this state has no further actions (assumed to be a direct descendant of the
-      top state, since any other states must be able to continue
-      somehow). @internal
-      */
-      get deadEnd() {
-        if (this.stack.length != 3)
-          return false;
-        let { parser: parser2 } = this.p;
-        return parser2.data[parser2.stateSlot(
-          this.state,
-          1
-          /* ParseState.Actions */
-        )] == 65535 && !parser2.stateSlot(
-          this.state,
-          4
-          /* ParseState.DefaultReduce */
-        );
-      }
-      /**
-      Restart the stack (put it back in its start state). Only safe
-      when this.stack.length == 3 (state is directly below the top
-      state). @internal
-      */
-      restart() {
-        this.storeNode(0, this.pos, this.pos, 4, true);
-        this.state = this.stack[0];
-        this.stack.length = 0;
-      }
-      /**
-      @internal
-      */
-      sameState(other) {
-        if (this.state != other.state || this.stack.length != other.stack.length)
-          return false;
-        for (let i2 = 0; i2 < this.stack.length; i2 += 3)
-          if (this.stack[i2] != other.stack[i2])
-            return false;
-        return true;
-      }
-      /**
-      Get the parser used by this stack.
-      */
-      get parser() {
-        return this.p.parser;
-      }
-      /**
-      Test whether a given dialect (by numeric ID, as exported from
-      the terms file) is enabled.
-      */
-      dialectEnabled(dialectID) {
-        return this.p.parser.dialect.flags[dialectID];
-      }
-      shiftContext(term, start) {
-        if (this.curContext)
-          this.updateContext(this.curContext.tracker.shift(this.curContext.context, term, this, this.p.stream.reset(start)));
-      }
-      reduceContext(term, start) {
-        if (this.curContext)
-          this.updateContext(this.curContext.tracker.reduce(this.curContext.context, term, this, this.p.stream.reset(start)));
-      }
-      /**
-      @internal
-      */
-      emitContext() {
-        let last = this.buffer.length - 1;
-        if (last < 0 || this.buffer[last] != -3)
-          this.buffer.push(this.curContext.hash, this.pos, this.pos, -3);
-      }
-      /**
-      @internal
-      */
-      emitLookAhead() {
-        let last = this.buffer.length - 1;
-        if (last < 0 || this.buffer[last] != -4)
-          this.buffer.push(this.lookAhead, this.pos, this.pos, -4);
-      }
-      updateContext(context) {
-        if (context != this.curContext.context) {
-          let newCx = new StackContext(this.curContext.tracker, context);
-          if (newCx.hash != this.curContext.hash)
-            this.emitContext();
-          this.curContext = newCx;
-        }
-      }
-      /**
-      @internal
-      */
-      setLookAhead(lookAhead) {
-        if (lookAhead > this.lookAhead) {
-          this.emitLookAhead();
-          this.lookAhead = lookAhead;
-        }
-      }
-      /**
-      @internal
-      */
-      close() {
-        if (this.curContext && this.curContext.tracker.strict)
-          this.emitContext();
-        if (this.lookAhead > 0)
-          this.emitLookAhead();
-      }
-    }
-    class StackContext {
-      constructor(tracker, context) {
-        this.tracker = tracker;
-        this.context = context;
-        this.hash = tracker.strict ? tracker.hash(context) : 0;
-      }
-    }
-    class SimulatedStack {
-      constructor(start) {
-        this.start = start;
-        this.state = start.state;
-        this.stack = start.stack;
-        this.base = this.stack.length;
-      }
-      reduce(action2) {
-        let term = action2 & 65535, depth = action2 >> 19;
-        if (depth == 0) {
-          if (this.stack == this.start.stack)
-            this.stack = this.stack.slice();
-          this.stack.push(this.state, 0, 0);
-          this.base += 3;
-        } else {
-          this.base -= (depth - 1) * 3;
-        }
-        let goto = this.start.p.parser.getGoto(this.stack[this.base - 3], term, true);
-        this.state = goto;
-      }
-    }
-    class StackBufferCursor {
-      constructor(stack, pos, index2) {
-        this.stack = stack;
-        this.pos = pos;
-        this.index = index2;
-        this.buffer = stack.buffer;
-        if (this.index == 0)
-          this.maybeNext();
-      }
-      static create(stack, pos = stack.bufferBase + stack.buffer.length) {
-        return new StackBufferCursor(stack, pos, pos - stack.bufferBase);
-      }
-      maybeNext() {
-        let next2 = this.stack.parent;
-        if (next2 != null) {
-          this.index = this.stack.bufferBase - next2.bufferBase;
-          this.stack = next2;
-          this.buffer = next2.buffer;
-        }
-      }
-      get id() {
-        return this.buffer[this.index - 4];
-      }
-      get start() {
-        return this.buffer[this.index - 3];
-      }
-      get end() {
-        return this.buffer[this.index - 2];
-      }
-      get size() {
-        return this.buffer[this.index - 1];
-      }
-      next() {
-        this.index -= 4;
-        this.pos -= 4;
-        if (this.index == 0)
-          this.maybeNext();
-      }
-      fork() {
-        return new StackBufferCursor(this.stack, this.pos, this.index);
-      }
-    }
-    function decodeArray(input, Type2 = Uint16Array) {
-      if (typeof input != "string")
-        return input;
-      let array2 = null;
-      for (let pos = 0, out = 0; pos < input.length; ) {
-        let value2 = 0;
-        for (; ; ) {
-          let next2 = input.charCodeAt(pos++), stop = false;
-          if (next2 == 126) {
-            value2 = 65535;
-            break;
-          }
-          if (next2 >= 92)
-            next2--;
-          if (next2 >= 34)
-            next2--;
-          let digit = next2 - 32;
-          if (digit >= 46) {
-            digit -= 46;
-            stop = true;
-          }
-          value2 += digit;
-          if (stop)
-            break;
-          value2 *= 46;
-        }
-        if (array2)
-          array2[out++] = value2;
-        else
-          array2 = new Type2(value2);
-      }
-      return array2;
-    }
-    class CachedToken {
-      constructor() {
-        this.start = -1;
-        this.value = -1;
-        this.end = -1;
-        this.extended = -1;
-        this.lookAhead = 0;
-        this.mask = 0;
-        this.context = 0;
-      }
-    }
-    const nullToken = new CachedToken();
-    class InputStream {
-      /**
-      @internal
-      */
-      constructor(input, ranges) {
-        this.input = input;
-        this.ranges = ranges;
-        this.chunk = "";
-        this.chunkOff = 0;
-        this.chunk2 = "";
-        this.chunk2Pos = 0;
-        this.next = -1;
-        this.token = nullToken;
-        this.rangeIndex = 0;
-        this.pos = this.chunkPos = ranges[0].from;
-        this.range = ranges[0];
-        this.end = ranges[ranges.length - 1].to;
-        this.readNext();
-      }
-      /**
-      @internal
-      */
-      resolveOffset(offset, assoc) {
-        let range2 = this.range, index2 = this.rangeIndex;
-        let pos = this.pos + offset;
-        while (pos < range2.from) {
-          if (!index2)
-            return null;
-          let next2 = this.ranges[--index2];
-          pos -= range2.from - next2.to;
-          range2 = next2;
-        }
-        while (assoc < 0 ? pos > range2.to : pos >= range2.to) {
-          if (index2 == this.ranges.length - 1)
-            return null;
-          let next2 = this.ranges[++index2];
-          pos += next2.from - range2.to;
-          range2 = next2;
-        }
-        return pos;
-      }
-      /**
-      @internal
-      */
-      clipPos(pos) {
-        if (pos >= this.range.from && pos < this.range.to)
-          return pos;
-        for (let range2 of this.ranges)
-          if (range2.to > pos)
-            return Math.max(pos, range2.from);
-        return this.end;
-      }
-      /**
-      Look at a code unit near the stream position. `.peek(0)` equals
-      `.next`, `.peek(-1)` gives you the previous character, and so
-      on.
-      
-      Note that looking around during tokenizing creates dependencies
-      on potentially far-away content, which may reduce the
-      effectiveness incremental parsing—when looking forward—or even
-      cause invalid reparses when looking backward more than 25 code
-      units, since the library does not track lookbehind.
-      */
-      peek(offset) {
-        let idx = this.chunkOff + offset, pos, result;
-        if (idx >= 0 && idx < this.chunk.length) {
-          pos = this.pos + offset;
-          result = this.chunk.charCodeAt(idx);
-        } else {
-          let resolved = this.resolveOffset(offset, 1);
-          if (resolved == null)
-            return -1;
-          pos = resolved;
-          if (pos >= this.chunk2Pos && pos < this.chunk2Pos + this.chunk2.length) {
-            result = this.chunk2.charCodeAt(pos - this.chunk2Pos);
-          } else {
-            let i2 = this.rangeIndex, range2 = this.range;
-            while (range2.to <= pos)
-              range2 = this.ranges[++i2];
-            this.chunk2 = this.input.chunk(this.chunk2Pos = pos);
-            if (pos + this.chunk2.length > range2.to)
-              this.chunk2 = this.chunk2.slice(0, range2.to - pos);
-            result = this.chunk2.charCodeAt(0);
-          }
-        }
-        if (pos >= this.token.lookAhead)
-          this.token.lookAhead = pos + 1;
-        return result;
-      }
-      /**
-      Accept a token. By default, the end of the token is set to the
-      current stream position, but you can pass an offset (relative to
-      the stream position) to change that.
-      */
-      acceptToken(token, endOffset = 0) {
-        let end = endOffset ? this.resolveOffset(endOffset, -1) : this.pos;
-        if (end == null || end < this.token.start)
-          throw new RangeError("Token end out of bounds");
-        this.token.value = token;
-        this.token.end = end;
-      }
-      /**
-      Accept a token ending at a specific given position.
-      */
-      acceptTokenTo(token, endPos) {
-        this.token.value = token;
-        this.token.end = endPos;
-      }
-      getChunk() {
-        if (this.pos >= this.chunk2Pos && this.pos < this.chunk2Pos + this.chunk2.length) {
-          let { chunk: chunk2, chunkPos } = this;
-          this.chunk = this.chunk2;
-          this.chunkPos = this.chunk2Pos;
-          this.chunk2 = chunk2;
-          this.chunk2Pos = chunkPos;
-          this.chunkOff = this.pos - this.chunkPos;
-        } else {
-          this.chunk2 = this.chunk;
-          this.chunk2Pos = this.chunkPos;
-          let nextChunk = this.input.chunk(this.pos);
-          let end = this.pos + nextChunk.length;
-          this.chunk = end > this.range.to ? nextChunk.slice(0, this.range.to - this.pos) : nextChunk;
-          this.chunkPos = this.pos;
-          this.chunkOff = 0;
-        }
-      }
-      readNext() {
-        if (this.chunkOff >= this.chunk.length) {
-          this.getChunk();
-          if (this.chunkOff == this.chunk.length)
-            return this.next = -1;
-        }
-        return this.next = this.chunk.charCodeAt(this.chunkOff);
-      }
-      /**
-      Move the stream forward N (defaults to 1) code units. Returns
-      the new value of [`next`](#lr.InputStream.next).
-      */
-      advance(n2 = 1) {
-        this.chunkOff += n2;
-        while (this.pos + n2 >= this.range.to) {
-          if (this.rangeIndex == this.ranges.length - 1)
-            return this.setDone();
-          n2 -= this.range.to - this.pos;
-          this.range = this.ranges[++this.rangeIndex];
-          this.pos = this.range.from;
-        }
-        this.pos += n2;
-        if (this.pos >= this.token.lookAhead)
-          this.token.lookAhead = this.pos + 1;
-        return this.readNext();
-      }
-      setDone() {
-        this.pos = this.chunkPos = this.end;
-        this.range = this.ranges[this.rangeIndex = this.ranges.length - 1];
-        this.chunk = "";
-        return this.next = -1;
-      }
-      /**
-      @internal
-      */
-      reset(pos, token) {
-        if (token) {
-          this.token = token;
-          token.start = pos;
-          token.lookAhead = pos + 1;
-          token.value = token.extended = -1;
-        } else {
-          this.token = nullToken;
-        }
-        if (this.pos != pos) {
-          this.pos = pos;
-          if (pos == this.end) {
-            this.setDone();
-            return this;
-          }
-          while (pos < this.range.from)
-            this.range = this.ranges[--this.rangeIndex];
-          while (pos >= this.range.to)
-            this.range = this.ranges[++this.rangeIndex];
-          if (pos >= this.chunkPos && pos < this.chunkPos + this.chunk.length) {
-            this.chunkOff = pos - this.chunkPos;
-          } else {
-            this.chunk = "";
-            this.chunkOff = 0;
-          }
-          this.readNext();
-        }
-        return this;
-      }
-      /**
-      @internal
-      */
-      read(from2, to2) {
-        if (from2 >= this.chunkPos && to2 <= this.chunkPos + this.chunk.length)
-          return this.chunk.slice(from2 - this.chunkPos, to2 - this.chunkPos);
-        if (from2 >= this.chunk2Pos && to2 <= this.chunk2Pos + this.chunk2.length)
-          return this.chunk2.slice(from2 - this.chunk2Pos, to2 - this.chunk2Pos);
-        if (from2 >= this.range.from && to2 <= this.range.to)
-          return this.input.read(from2, to2);
-        let result = "";
-        for (let r2 of this.ranges) {
-          if (r2.from >= to2)
-            break;
-          if (r2.to > from2)
-            result += this.input.read(Math.max(r2.from, from2), Math.min(r2.to, to2));
-        }
-        return result;
-      }
-    }
-    class TokenGroup {
-      constructor(data, id2) {
-        this.data = data;
-        this.id = id2;
-      }
-      token(input, stack) {
-        let { parser: parser2 } = stack.p;
-        readToken(this.data, input, stack, this.id, parser2.data, parser2.tokenPrecTable);
-      }
-    }
-    TokenGroup.prototype.contextual = TokenGroup.prototype.fallback = TokenGroup.prototype.extend = false;
-    class LocalTokenGroup {
-      constructor(data, precTable, elseToken) {
-        this.precTable = precTable;
-        this.elseToken = elseToken;
-        this.data = typeof data == "string" ? decodeArray(data) : data;
-      }
-      token(input, stack) {
-        let start = input.pos, skipped = 0;
-        for (; ; ) {
-          let atEof = input.next < 0, nextPos = input.resolveOffset(1, 1);
-          readToken(this.data, input, stack, 0, this.data, this.precTable);
-          if (input.token.value > -1)
-            break;
-          if (this.elseToken == null)
-            return;
-          if (!atEof)
-            skipped++;
-          if (nextPos == null)
-            break;
-          input.reset(nextPos, input.token);
-        }
-        if (skipped) {
-          input.reset(start, input.token);
-          input.acceptToken(this.elseToken, skipped);
-        }
-      }
-    }
-    LocalTokenGroup.prototype.contextual = TokenGroup.prototype.fallback = TokenGroup.prototype.extend = false;
-    class ExternalTokenizer {
-      /**
-      Create a tokenizer. The first argument is the function that,
-      given an input stream, scans for the types of tokens it
-      recognizes at the stream's position, and calls
-      [`acceptToken`](#lr.InputStream.acceptToken) when it finds
-      one.
-      */
-      constructor(token, options = {}) {
-        this.token = token;
-        this.contextual = !!options.contextual;
-        this.fallback = !!options.fallback;
-        this.extend = !!options.extend;
-      }
-    }
-    function readToken(data, input, stack, group, precTable, precOffset) {
-      let state2 = 0, groupMask = 1 << group, { dialect } = stack.p.parser;
-      scan: for (; ; ) {
-        if ((groupMask & data[state2]) == 0)
-          break;
-        let accEnd = data[state2 + 1];
-        for (let i2 = state2 + 3; i2 < accEnd; i2 += 2)
-          if ((data[i2 + 1] & groupMask) > 0) {
-            let term = data[i2];
-            if (dialect.allows(term) && (input.token.value == -1 || input.token.value == term || overrides$1(term, input.token.value, precTable, precOffset))) {
-              input.acceptToken(term);
-              break;
-            }
-          }
-        let next2 = input.next, low = 0, high = data[state2 + 2];
-        if (input.next < 0 && high > low && data[accEnd + high * 3 - 3] == 65535) {
-          state2 = data[accEnd + high * 3 - 1];
-          continue scan;
-        }
-        for (; low < high; ) {
-          let mid = low + high >> 1;
-          let index2 = accEnd + mid + (mid << 1);
-          let from2 = data[index2], to2 = data[index2 + 1] || 65536;
-          if (next2 < from2)
-            high = mid;
-          else if (next2 >= to2)
-            low = mid + 1;
-          else {
-            state2 = data[index2 + 2];
-            input.advance();
-            continue scan;
-          }
-        }
-        break;
-      }
-    }
-    function findOffset(data, start, term) {
-      for (let i2 = start, next2; (next2 = data[i2]) != 65535; i2++)
-        if (next2 == term)
-          return i2 - start;
-      return -1;
-    }
-    function overrides$1(token, prev, tableData, tableOffset) {
-      let iPrev = findOffset(tableData, tableOffset, prev);
-      return iPrev < 0 || findOffset(tableData, tableOffset, token) < iPrev;
-    }
-    const verbose = typeof process != "undefined" && process.env && /\bparse\b/.test(process.env.LOG);
-    let stackIDs = null;
-    function cutAt(tree, pos, side) {
-      let cursor = tree.cursor(IterMode.IncludeAnonymous);
-      cursor.moveTo(pos);
-      for (; ; ) {
-        if (!(side < 0 ? cursor.childBefore(pos) : cursor.childAfter(pos)))
-          for (; ; ) {
-            if ((side < 0 ? cursor.to < pos : cursor.from > pos) && !cursor.type.isError)
-              return side < 0 ? Math.max(0, Math.min(
-                cursor.to - 1,
-                pos - 25
-                /* Lookahead.Margin */
-              )) : Math.min(tree.length, Math.max(
-                cursor.from + 1,
-                pos + 25
-                /* Lookahead.Margin */
-              ));
-            if (side < 0 ? cursor.prevSibling() : cursor.nextSibling())
-              break;
-            if (!cursor.parent())
-              return side < 0 ? 0 : tree.length;
-          }
-      }
-    }
-    class FragmentCursor {
-      constructor(fragments, nodeSet) {
-        this.fragments = fragments;
-        this.nodeSet = nodeSet;
-        this.i = 0;
-        this.fragment = null;
-        this.safeFrom = -1;
-        this.safeTo = -1;
-        this.trees = [];
-        this.start = [];
-        this.index = [];
-        this.nextFragment();
-      }
-      nextFragment() {
-        let fr = this.fragment = this.i == this.fragments.length ? null : this.fragments[this.i++];
-        if (fr) {
-          this.safeFrom = fr.openStart ? cutAt(fr.tree, fr.from + fr.offset, 1) - fr.offset : fr.from;
-          this.safeTo = fr.openEnd ? cutAt(fr.tree, fr.to + fr.offset, -1) - fr.offset : fr.to;
-          while (this.trees.length) {
-            this.trees.pop();
-            this.start.pop();
-            this.index.pop();
-          }
-          this.trees.push(fr.tree);
-          this.start.push(-fr.offset);
-          this.index.push(0);
-          this.nextStart = this.safeFrom;
-        } else {
-          this.nextStart = 1e9;
-        }
-      }
-      // `pos` must be >= any previously given `pos` for this cursor
-      nodeAt(pos) {
-        if (pos < this.nextStart)
-          return null;
-        while (this.fragment && this.safeTo <= pos)
-          this.nextFragment();
-        if (!this.fragment)
-          return null;
-        for (; ; ) {
-          let last = this.trees.length - 1;
-          if (last < 0) {
-            this.nextFragment();
-            return null;
-          }
-          let top2 = this.trees[last], index2 = this.index[last];
-          if (index2 == top2.children.length) {
-            this.trees.pop();
-            this.start.pop();
-            this.index.pop();
-            continue;
-          }
-          let next2 = top2.children[index2];
-          let start = this.start[last] + top2.positions[index2];
-          if (start > pos) {
-            this.nextStart = start;
-            return null;
-          }
-          if (next2 instanceof Tree) {
-            if (start == pos) {
-              if (start < this.safeFrom)
-                return null;
-              let end = start + next2.length;
-              if (end <= this.safeTo) {
-                let lookAhead = next2.prop(NodeProp.lookAhead);
-                if (!lookAhead || end + lookAhead < this.fragment.to)
-                  return next2;
-              }
-            }
-            this.index[last]++;
-            if (start + next2.length >= Math.max(this.safeFrom, pos)) {
-              this.trees.push(next2);
-              this.start.push(start);
-              this.index.push(0);
-            }
-          } else {
-            this.index[last]++;
-            this.nextStart = start + next2.length;
-          }
-        }
-      }
-    }
-    class TokenCache {
-      constructor(parser2, stream) {
-        this.stream = stream;
-        this.tokens = [];
-        this.mainToken = null;
-        this.actions = [];
-        this.tokens = parser2.tokenizers.map((_) => new CachedToken());
-      }
-      getActions(stack) {
-        let actionIndex = 0;
-        let main = null;
-        let { parser: parser2 } = stack.p, { tokenizers } = parser2;
-        let mask = parser2.stateSlot(
-          stack.state,
-          3
-          /* ParseState.TokenizerMask */
-        );
-        let context = stack.curContext ? stack.curContext.hash : 0;
-        let lookAhead = 0;
-        for (let i2 = 0; i2 < tokenizers.length; i2++) {
-          if ((1 << i2 & mask) == 0)
-            continue;
-          let tokenizer = tokenizers[i2], token = this.tokens[i2];
-          if (main && !tokenizer.fallback)
-            continue;
-          if (tokenizer.contextual || token.start != stack.pos || token.mask != mask || token.context != context) {
-            this.updateCachedToken(token, tokenizer, stack);
-            token.mask = mask;
-            token.context = context;
-          }
-          if (token.lookAhead > token.end + 25)
-            lookAhead = Math.max(token.lookAhead, lookAhead);
-          if (token.value != 0) {
-            let startIndex = actionIndex;
-            if (token.extended > -1)
-              actionIndex = this.addActions(stack, token.extended, token.end, actionIndex);
-            actionIndex = this.addActions(stack, token.value, token.end, actionIndex);
-            if (!tokenizer.extend) {
-              main = token;
-              if (actionIndex > startIndex)
-                break;
-            }
-          }
-        }
-        while (this.actions.length > actionIndex)
-          this.actions.pop();
-        if (lookAhead)
-          stack.setLookAhead(lookAhead);
-        if (!main && stack.pos == this.stream.end) {
-          main = new CachedToken();
-          main.value = stack.p.parser.eofTerm;
-          main.start = main.end = stack.pos;
-          actionIndex = this.addActions(stack, main.value, main.end, actionIndex);
-        }
-        this.mainToken = main;
-        return this.actions;
-      }
-      getMainToken(stack) {
-        if (this.mainToken)
-          return this.mainToken;
-        let main = new CachedToken(), { pos, p } = stack;
-        main.start = pos;
-        main.end = Math.min(pos + 1, p.stream.end);
-        main.value = pos == p.stream.end ? p.parser.eofTerm : 0;
-        return main;
-      }
-      updateCachedToken(token, tokenizer, stack) {
-        let start = this.stream.clipPos(stack.pos);
-        tokenizer.token(this.stream.reset(start, token), stack);
-        if (token.value > -1) {
-          let { parser: parser2 } = stack.p;
-          for (let i2 = 0; i2 < parser2.specialized.length; i2++)
-            if (parser2.specialized[i2] == token.value) {
-              let result = parser2.specializers[i2](this.stream.read(token.start, token.end), stack);
-              if (result >= 0 && stack.p.parser.dialect.allows(result >> 1)) {
-                if ((result & 1) == 0)
-                  token.value = result >> 1;
-                else
-                  token.extended = result >> 1;
-                break;
-              }
-            }
-        } else {
-          token.value = 0;
-          token.end = this.stream.clipPos(start + 1);
-        }
-      }
-      putAction(action2, token, end, index2) {
-        for (let i2 = 0; i2 < index2; i2 += 3)
-          if (this.actions[i2] == action2)
-            return index2;
-        this.actions[index2++] = action2;
-        this.actions[index2++] = token;
-        this.actions[index2++] = end;
-        return index2;
-      }
-      addActions(stack, token, end, index2) {
-        let { state: state2 } = stack, { parser: parser2 } = stack.p, { data } = parser2;
-        for (let set2 = 0; set2 < 2; set2++) {
-          for (let i2 = parser2.stateSlot(
-            state2,
-            set2 ? 2 : 1
-            /* ParseState.Actions */
-          ); ; i2 += 3) {
-            if (data[i2] == 65535) {
-              if (data[i2 + 1] == 1) {
-                i2 = pair(data, i2 + 2);
-              } else {
-                if (index2 == 0 && data[i2 + 1] == 2)
-                  index2 = this.putAction(pair(data, i2 + 2), token, end, index2);
-                break;
-              }
-            }
-            if (data[i2] == token)
-              index2 = this.putAction(pair(data, i2 + 1), token, end, index2);
-          }
-        }
-        return index2;
-      }
-    }
-    class Parse {
-      constructor(parser2, input, fragments, ranges) {
-        this.parser = parser2;
-        this.input = input;
-        this.ranges = ranges;
-        this.recovering = 0;
-        this.nextStackID = 9812;
-        this.minStackPos = 0;
-        this.reused = [];
-        this.stoppedAt = null;
-        this.lastBigReductionStart = -1;
-        this.lastBigReductionSize = 0;
-        this.bigReductionCount = 0;
-        this.stream = new InputStream(input, ranges);
-        this.tokens = new TokenCache(parser2, this.stream);
-        this.topTerm = parser2.top[1];
-        let { from: from2 } = ranges[0];
-        this.stacks = [Stack.start(this, parser2.top[0], from2)];
-        this.fragments = fragments.length && this.stream.end - from2 > parser2.bufferLength * 4 ? new FragmentCursor(fragments, parser2.nodeSet) : null;
-      }
-      get parsedPos() {
-        return this.minStackPos;
-      }
-      // Move the parser forward. This will process all parse stacks at
-      // `this.pos` and try to advance them to a further position. If no
-      // stack for such a position is found, it'll start error-recovery.
-      //
-      // When the parse is finished, this will return a syntax tree. When
-      // not, it returns `null`.
-      advance() {
-        let stacks = this.stacks, pos = this.minStackPos;
-        let newStacks = this.stacks = [];
-        let stopped, stoppedTokens;
-        if (this.bigReductionCount > 300 && stacks.length == 1) {
-          let [s] = stacks;
-          while (s.forceReduce() && s.stack.length && s.stack[s.stack.length - 2] >= this.lastBigReductionStart) {
-          }
-          this.bigReductionCount = this.lastBigReductionSize = 0;
-        }
-        for (let i2 = 0; i2 < stacks.length; i2++) {
-          let stack = stacks[i2];
-          for (; ; ) {
-            this.tokens.mainToken = null;
-            if (stack.pos > pos) {
-              newStacks.push(stack);
-            } else if (this.advanceStack(stack, newStacks, stacks)) {
-              continue;
-            } else {
-              if (!stopped) {
-                stopped = [];
-                stoppedTokens = [];
-              }
-              stopped.push(stack);
-              let tok = this.tokens.getMainToken(stack);
-              stoppedTokens.push(tok.value, tok.end);
-            }
-            break;
-          }
-        }
-        if (!newStacks.length) {
-          let finished = stopped && findFinished(stopped);
-          if (finished) {
-            if (verbose)
-              console.log("Finish with " + this.stackID(finished));
-            return this.stackToTree(finished);
-          }
-          if (this.parser.strict) {
-            if (verbose && stopped)
-              console.log("Stuck with token " + (this.tokens.mainToken ? this.parser.getName(this.tokens.mainToken.value) : "none"));
-            throw new SyntaxError("No parse at " + pos);
-          }
-          if (!this.recovering)
-            this.recovering = 5;
-        }
-        if (this.recovering && stopped) {
-          let finished = this.stoppedAt != null && stopped[0].pos > this.stoppedAt ? stopped[0] : this.runRecovery(stopped, stoppedTokens, newStacks);
-          if (finished) {
-            if (verbose)
-              console.log("Force-finish " + this.stackID(finished));
-            return this.stackToTree(finished.forceAll());
-          }
-        }
-        if (this.recovering) {
-          let maxRemaining = this.recovering == 1 ? 1 : this.recovering * 3;
-          if (newStacks.length > maxRemaining) {
-            newStacks.sort((a2, b) => b.score - a2.score);
-            while (newStacks.length > maxRemaining)
-              newStacks.pop();
-          }
-          if (newStacks.some((s) => s.reducePos > pos))
-            this.recovering--;
-        } else if (newStacks.length > 1) {
-          outer: for (let i2 = 0; i2 < newStacks.length - 1; i2++) {
-            let stack = newStacks[i2];
-            for (let j = i2 + 1; j < newStacks.length; j++) {
-              let other = newStacks[j];
-              if (stack.sameState(other) || stack.buffer.length > 500 && other.buffer.length > 500) {
-                if ((stack.score - other.score || stack.buffer.length - other.buffer.length) > 0) {
-                  newStacks.splice(j--, 1);
-                } else {
-                  newStacks.splice(i2--, 1);
-                  continue outer;
-                }
-              }
-            }
-          }
-          if (newStacks.length > 12)
-            newStacks.splice(
-              12,
-              newStacks.length - 12
-              /* Rec.MaxStackCount */
-            );
-        }
-        this.minStackPos = newStacks[0].pos;
-        for (let i2 = 1; i2 < newStacks.length; i2++)
-          if (newStacks[i2].pos < this.minStackPos)
-            this.minStackPos = newStacks[i2].pos;
-        return null;
-      }
-      stopAt(pos) {
-        if (this.stoppedAt != null && this.stoppedAt < pos)
-          throw new RangeError("Can't move stoppedAt forward");
-        this.stoppedAt = pos;
-      }
-      // Returns an updated version of the given stack, or null if the
-      // stack can't advance normally. When `split` and `stacks` are
-      // given, stacks split off by ambiguous operations will be pushed to
-      // `split`, or added to `stacks` if they move `pos` forward.
-      advanceStack(stack, stacks, split2) {
-        let start = stack.pos, { parser: parser2 } = this;
-        let base2 = verbose ? this.stackID(stack) + " -> " : "";
-        if (this.stoppedAt != null && start > this.stoppedAt)
-          return stack.forceReduce() ? stack : null;
-        if (this.fragments) {
-          let strictCx = stack.curContext && stack.curContext.tracker.strict, cxHash = strictCx ? stack.curContext.hash : 0;
-          for (let cached = this.fragments.nodeAt(start); cached; ) {
-            let match2 = this.parser.nodeSet.types[cached.type.id] == cached.type ? parser2.getGoto(stack.state, cached.type.id) : -1;
-            if (match2 > -1 && cached.length && (!strictCx || (cached.prop(NodeProp.contextHash) || 0) == cxHash)) {
-              stack.useNode(cached, match2);
-              if (verbose)
-                console.log(base2 + this.stackID(stack) + ` (via reuse of ${parser2.getName(cached.type.id)})`);
-              return true;
-            }
-            if (!(cached instanceof Tree) || cached.children.length == 0 || cached.positions[0] > 0)
-              break;
-            let inner = cached.children[0];
-            if (inner instanceof Tree && cached.positions[0] == 0)
-              cached = inner;
-            else
-              break;
-          }
-        }
-        let defaultReduce = parser2.stateSlot(
-          stack.state,
-          4
-          /* ParseState.DefaultReduce */
-        );
-        if (defaultReduce > 0) {
-          stack.reduce(defaultReduce);
-          if (verbose)
-            console.log(base2 + this.stackID(stack) + ` (via always-reduce ${parser2.getName(
-              defaultReduce & 65535
-              /* Action.ValueMask */
-            )})`);
-          return true;
-        }
-        if (stack.stack.length >= 8400) {
-          while (stack.stack.length > 6e3 && stack.forceReduce()) {
-          }
-        }
-        let actions = this.tokens.getActions(stack);
-        for (let i2 = 0; i2 < actions.length; ) {
-          let action2 = actions[i2++], term = actions[i2++], end = actions[i2++];
-          let last = i2 == actions.length || !split2;
-          let localStack = last ? stack : stack.split();
-          let main = this.tokens.mainToken;
-          localStack.apply(action2, term, main ? main.start : localStack.pos, end);
-          if (verbose)
-            console.log(base2 + this.stackID(localStack) + ` (via ${(action2 & 65536) == 0 ? "shift" : `reduce of ${parser2.getName(
-              action2 & 65535
-              /* Action.ValueMask */
-            )}`} for ${parser2.getName(term)} @ ${start}${localStack == stack ? "" : ", split"})`);
-          if (last)
-            return true;
-          else if (localStack.pos > start)
-            stacks.push(localStack);
-          else
-            split2.push(localStack);
-        }
-        return false;
-      }
-      // Advance a given stack forward as far as it will go. Returns the
-      // (possibly updated) stack if it got stuck, or null if it moved
-      // forward and was given to `pushStackDedup`.
-      advanceFully(stack, newStacks) {
-        let pos = stack.pos;
-        for (; ; ) {
-          if (!this.advanceStack(stack, null, null))
-            return false;
-          if (stack.pos > pos) {
-            pushStackDedup(stack, newStacks);
-            return true;
-          }
-        }
-      }
-      runRecovery(stacks, tokens, newStacks) {
-        let finished = null, restarted = false;
-        for (let i2 = 0; i2 < stacks.length; i2++) {
-          let stack = stacks[i2], token = tokens[i2 << 1], tokenEnd = tokens[(i2 << 1) + 1];
-          let base2 = verbose ? this.stackID(stack) + " -> " : "";
-          if (stack.deadEnd) {
-            if (restarted)
-              continue;
-            restarted = true;
-            stack.restart();
-            if (verbose)
-              console.log(base2 + this.stackID(stack) + " (restarted)");
-            let done = this.advanceFully(stack, newStacks);
-            if (done)
-              continue;
-          }
-          let force = stack.split(), forceBase = base2;
-          for (let j = 0; force.forceReduce() && j < 10; j++) {
-            if (verbose)
-              console.log(forceBase + this.stackID(force) + " (via force-reduce)");
-            let done = this.advanceFully(force, newStacks);
-            if (done)
-              break;
-            if (verbose)
-              forceBase = this.stackID(force) + " -> ";
-          }
-          for (let insert2 of stack.recoverByInsert(token)) {
-            if (verbose)
-              console.log(base2 + this.stackID(insert2) + " (via recover-insert)");
-            this.advanceFully(insert2, newStacks);
-          }
-          if (this.stream.end > stack.pos) {
-            if (tokenEnd == stack.pos) {
-              tokenEnd++;
-              token = 0;
-            }
-            stack.recoverByDelete(token, tokenEnd);
-            if (verbose)
-              console.log(base2 + this.stackID(stack) + ` (via recover-delete ${this.parser.getName(token)})`);
-            pushStackDedup(stack, newStacks);
-          } else if (!finished || finished.score < stack.score) {
-            finished = stack;
-          }
-        }
-        return finished;
-      }
-      // Convert the stack's buffer to a syntax tree.
-      stackToTree(stack) {
-        stack.close();
-        return Tree.build({
-          buffer: StackBufferCursor.create(stack),
-          nodeSet: this.parser.nodeSet,
-          topID: this.topTerm,
-          maxBufferLength: this.parser.bufferLength,
-          reused: this.reused,
-          start: this.ranges[0].from,
-          length: stack.pos - this.ranges[0].from,
-          minRepeatType: this.parser.minRepeatTerm
-        });
-      }
-      stackID(stack) {
-        let id2 = (stackIDs || (stackIDs = /* @__PURE__ */ new WeakMap())).get(stack);
-        if (!id2)
-          stackIDs.set(stack, id2 = String.fromCodePoint(this.nextStackID++));
-        return id2 + stack;
-      }
-    }
-    function pushStackDedup(stack, newStacks) {
-      for (let i2 = 0; i2 < newStacks.length; i2++) {
-        let other = newStacks[i2];
-        if (other.pos == stack.pos && other.sameState(stack)) {
-          if (newStacks[i2].score < stack.score)
-            newStacks[i2] = stack;
-          return;
-        }
-      }
-      newStacks.push(stack);
-    }
-    class Dialect {
-      constructor(source2, flags, disabled) {
-        this.source = source2;
-        this.flags = flags;
-        this.disabled = disabled;
-      }
-      allows(term) {
-        return !this.disabled || this.disabled[term] == 0;
-      }
-    }
-    const id = (x) => x;
-    class ContextTracker {
-      /**
-      Define a context tracker.
-      */
-      constructor(spec) {
-        this.start = spec.start;
-        this.shift = spec.shift || id;
-        this.reduce = spec.reduce || id;
-        this.reuse = spec.reuse || id;
-        this.hash = spec.hash || (() => 0);
-        this.strict = spec.strict !== false;
-      }
-    }
-    class LRParser extends Parser$1 {
-      /**
-      @internal
-      */
-      constructor(spec) {
-        super();
-        this.wrappers = [];
-        if (spec.version != 14)
-          throw new RangeError(`Parser version (${spec.version}) doesn't match runtime version (${14})`);
-        let nodeNames = spec.nodeNames.split(" ");
-        this.minRepeatTerm = nodeNames.length;
-        for (let i2 = 0; i2 < spec.repeatNodeCount; i2++)
-          nodeNames.push("");
-        let topTerms = Object.keys(spec.topRules).map((r2) => spec.topRules[r2][1]);
-        let nodeProps = [];
-        for (let i2 = 0; i2 < nodeNames.length; i2++)
-          nodeProps.push([]);
-        function setProp(nodeID, prop2, value2) {
-          nodeProps[nodeID].push([prop2, prop2.deserialize(String(value2))]);
-        }
-        if (spec.nodeProps)
-          for (let propSpec of spec.nodeProps) {
-            let prop2 = propSpec[0];
-            if (typeof prop2 == "string")
-              prop2 = NodeProp[prop2];
-            for (let i2 = 1; i2 < propSpec.length; ) {
-              let next2 = propSpec[i2++];
-              if (next2 >= 0) {
-                setProp(next2, prop2, propSpec[i2++]);
-              } else {
-                let value2 = propSpec[i2 + -next2];
-                for (let j = -next2; j > 0; j--)
-                  setProp(propSpec[i2++], prop2, value2);
-                i2++;
-              }
-            }
-          }
-        this.nodeSet = new NodeSet(nodeNames.map((name2, i2) => NodeType.define({
-          name: i2 >= this.minRepeatTerm ? void 0 : name2,
-          id: i2,
-          props: nodeProps[i2],
-          top: topTerms.indexOf(i2) > -1,
-          error: i2 == 0,
-          skipped: spec.skippedNodes && spec.skippedNodes.indexOf(i2) > -1
-        })));
-        if (spec.propSources)
-          this.nodeSet = this.nodeSet.extend(...spec.propSources);
-        this.strict = false;
-        this.bufferLength = DefaultBufferLength;
-        let tokenArray = decodeArray(spec.tokenData);
-        this.context = spec.context;
-        this.specializerSpecs = spec.specialized || [];
-        this.specialized = new Uint16Array(this.specializerSpecs.length);
-        for (let i2 = 0; i2 < this.specializerSpecs.length; i2++)
-          this.specialized[i2] = this.specializerSpecs[i2].term;
-        this.specializers = this.specializerSpecs.map(getSpecializer);
-        this.states = decodeArray(spec.states, Uint32Array);
-        this.data = decodeArray(spec.stateData);
-        this.goto = decodeArray(spec.goto);
-        this.maxTerm = spec.maxTerm;
-        this.tokenizers = spec.tokenizers.map((value2) => typeof value2 == "number" ? new TokenGroup(tokenArray, value2) : value2);
-        this.topRules = spec.topRules;
-        this.dialects = spec.dialects || {};
-        this.dynamicPrecedences = spec.dynamicPrecedences || null;
-        this.tokenPrecTable = spec.tokenPrec;
-        this.termNames = spec.termNames || null;
-        this.maxNode = this.nodeSet.types.length - 1;
-        this.dialect = this.parseDialect();
-        this.top = this.topRules[Object.keys(this.topRules)[0]];
-      }
-      createParse(input, fragments, ranges) {
-        let parse2 = new Parse(this, input, fragments, ranges);
-        for (let w of this.wrappers)
-          parse2 = w(parse2, input, fragments, ranges);
-        return parse2;
-      }
-      /**
-      Get a goto table entry @internal
-      */
-      getGoto(state2, term, loose = false) {
-        let table = this.goto;
-        if (term >= table[0])
-          return -1;
-        for (let pos = table[term + 1]; ; ) {
-          let groupTag = table[pos++], last = groupTag & 1;
-          let target2 = table[pos++];
-          if (last && loose)
-            return target2;
-          for (let end = pos + (groupTag >> 1); pos < end; pos++)
-            if (table[pos] == state2)
-              return target2;
-          if (last)
-            return -1;
-        }
-      }
-      /**
-      Check if this state has an action for a given terminal @internal
-      */
-      hasAction(state2, terminal) {
-        let data = this.data;
-        for (let set2 = 0; set2 < 2; set2++) {
-          for (let i2 = this.stateSlot(
-            state2,
-            set2 ? 2 : 1
-            /* ParseState.Actions */
-          ), next2; ; i2 += 3) {
-            if ((next2 = data[i2]) == 65535) {
-              if (data[i2 + 1] == 1)
-                next2 = data[i2 = pair(data, i2 + 2)];
-              else if (data[i2 + 1] == 2)
-                return pair(data, i2 + 2);
-              else
-                break;
-            }
-            if (next2 == terminal || next2 == 0)
-              return pair(data, i2 + 1);
-          }
-        }
-        return 0;
-      }
-      /**
-      @internal
-      */
-      stateSlot(state2, slot2) {
-        return this.states[state2 * 6 + slot2];
-      }
-      /**
-      @internal
-      */
-      stateFlag(state2, flag) {
-        return (this.stateSlot(
-          state2,
-          0
-          /* ParseState.Flags */
-        ) & flag) > 0;
-      }
-      /**
-      @internal
-      */
-      validAction(state2, action2) {
-        return !!this.allActions(state2, (a2) => a2 == action2 ? true : null);
-      }
-      /**
-      @internal
-      */
-      allActions(state2, action2) {
-        let deflt = this.stateSlot(
-          state2,
-          4
-          /* ParseState.DefaultReduce */
-        );
-        let result = deflt ? action2(deflt) : void 0;
-        for (let i2 = this.stateSlot(
-          state2,
-          1
-          /* ParseState.Actions */
-        ); result == null; i2 += 3) {
-          if (this.data[i2] == 65535) {
-            if (this.data[i2 + 1] == 1)
-              i2 = pair(this.data, i2 + 2);
-            else
-              break;
-          }
-          result = action2(pair(this.data, i2 + 1));
-        }
-        return result;
-      }
-      /**
-      Get the states that can follow this one through shift actions or
-      goto jumps. @internal
-      */
-      nextStates(state2) {
-        let result = [];
-        for (let i2 = this.stateSlot(
-          state2,
-          1
-          /* ParseState.Actions */
-        ); ; i2 += 3) {
-          if (this.data[i2] == 65535) {
-            if (this.data[i2 + 1] == 1)
-              i2 = pair(this.data, i2 + 2);
-            else
-              break;
-          }
-          if ((this.data[i2 + 2] & 65536 >> 16) == 0) {
-            let value2 = this.data[i2 + 1];
-            if (!result.some((v, i22) => i22 & 1 && v == value2))
-              result.push(this.data[i2], value2);
-          }
-        }
-        return result;
-      }
-      /**
-      Configure the parser. Returns a new parser instance that has the
-      given settings modified. Settings not provided in `config` are
-      kept from the original parser.
-      */
-      configure(config2) {
-        let copy = Object.assign(Object.create(LRParser.prototype), this);
-        if (config2.props)
-          copy.nodeSet = this.nodeSet.extend(...config2.props);
-        if (config2.top) {
-          let info = this.topRules[config2.top];
-          if (!info)
-            throw new RangeError(`Invalid top rule name ${config2.top}`);
-          copy.top = info;
-        }
-        if (config2.tokenizers)
-          copy.tokenizers = this.tokenizers.map((t2) => {
-            let found = config2.tokenizers.find((r2) => r2.from == t2);
-            return found ? found.to : t2;
-          });
-        if (config2.specializers) {
-          copy.specializers = this.specializers.slice();
-          copy.specializerSpecs = this.specializerSpecs.map((s, i2) => {
-            let found = config2.specializers.find((r2) => r2.from == s.external);
-            if (!found)
-              return s;
-            let spec = Object.assign(Object.assign({}, s), { external: found.to });
-            copy.specializers[i2] = getSpecializer(spec);
-            return spec;
-          });
-        }
-        if (config2.contextTracker)
-          copy.context = config2.contextTracker;
-        if (config2.dialect)
-          copy.dialect = this.parseDialect(config2.dialect);
-        if (config2.strict != null)
-          copy.strict = config2.strict;
-        if (config2.wrap)
-          copy.wrappers = copy.wrappers.concat(config2.wrap);
-        if (config2.bufferLength != null)
-          copy.bufferLength = config2.bufferLength;
-        return copy;
-      }
-      /**
-      Tells you whether any [parse wrappers](#lr.ParserConfig.wrap)
-      are registered for this parser.
-      */
-      hasWrappers() {
-        return this.wrappers.length > 0;
-      }
-      /**
-      Returns the name associated with a given term. This will only
-      work for all terms when the parser was generated with the
-      `--names` option. By default, only the names of tagged terms are
-      stored.
-      */
-      getName(term) {
-        return this.termNames ? this.termNames[term] : String(term <= this.maxNode && this.nodeSet.types[term].name || term);
-      }
-      /**
-      The eof term id is always allocated directly after the node
-      types. @internal
-      */
-      get eofTerm() {
-        return this.maxNode + 1;
-      }
-      /**
-      The type of top node produced by the parser.
-      */
-      get topNode() {
-        return this.nodeSet.types[this.top[1]];
-      }
-      /**
-      @internal
-      */
-      dynamicPrecedence(term) {
-        let prec2 = this.dynamicPrecedences;
-        return prec2 == null ? 0 : prec2[term] || 0;
-      }
-      /**
-      @internal
-      */
-      parseDialect(dialect) {
-        let values = Object.keys(this.dialects), flags = values.map(() => false);
-        if (dialect)
-          for (let part of dialect.split(" ")) {
-            let id2 = values.indexOf(part);
-            if (id2 >= 0)
-              flags[id2] = true;
-          }
-        let disabled = null;
-        for (let i2 = 0; i2 < values.length; i2++)
-          if (!flags[i2]) {
-            for (let j = this.dialects[values[i2]], id2; (id2 = this.data[j++]) != 65535; )
-              (disabled || (disabled = new Uint8Array(this.maxTerm + 1)))[id2] = 1;
-          }
-        return new Dialect(dialect, flags, disabled);
-      }
-      /**
-      Used by the output of the parser generator. Not available to
-      user code. @hide
-      */
-      static deserialize(spec) {
-        return new LRParser(spec);
-      }
-    }
-    function pair(data, off) {
-      return data[off] | data[off + 1] << 16;
-    }
-    function findFinished(stacks) {
-      let best = null;
-      for (let stack of stacks) {
-        let stopped = stack.p.stoppedAt;
-        if ((stack.pos == stack.p.stream.end || stopped != null && stack.pos > stopped) && stack.p.parser.stateFlag(
-          stack.state,
-          2
-          /* StateFlag.Accepting */
-        ) && (!best || best.score < stack.score))
-          best = stack;
-      }
-      return best;
-    }
-    function getSpecializer(spec) {
-      if (spec.external) {
-        let mask = spec.extend ? 1 : 0;
-        return (value2, stack) => spec.external(value2, stack) << 1 | mask;
-      }
-      return spec.get;
-    }
     let nextTagID = 0;
     class Tag {
       /**
@@ -58191,8 +56355,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         let configs = powerSet(mods);
         for (let parent of base2.set)
           if (!parent.modified.length)
-            for (let config2 of configs)
-              set2.push(Modifier.get(parent, config2));
+            for (let config of configs)
+              set2.push(Modifier.get(parent, config));
         return tag;
       }
     }
@@ -58806,195 +56970,6 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       { tag: tags.invalid, class: "tok-invalid" },
       { tag: tags.punctuation, class: "tok-punctuation" }
     ]);
-    const noSemi = 315, noSemiType = 316, incdec = 1, incdecPrefix = 2, questionDot = 3, JSXStartTag = 4, insertSemi = 317, spaces = 319, newline = 320, LineComment = 5, BlockComment = 6, Dialect_jsx = 0;
-    const space = [
-      9,
-      10,
-      11,
-      12,
-      13,
-      32,
-      133,
-      160,
-      5760,
-      8192,
-      8193,
-      8194,
-      8195,
-      8196,
-      8197,
-      8198,
-      8199,
-      8200,
-      8201,
-      8202,
-      8232,
-      8233,
-      8239,
-      8287,
-      12288
-    ];
-    const braceR = 125, semicolon = 59, slash = 47, star = 42, plus = 43, minus = 45, lt = 60, comma = 44, question = 63, dot = 46, bracketL = 91;
-    const trackNewline = new ContextTracker({
-      start: false,
-      shift(context, term) {
-        return term == LineComment || term == BlockComment || term == spaces ? context : term == newline;
-      },
-      strict: false
-    });
-    const insertSemicolon = new ExternalTokenizer((input, stack) => {
-      let { next: next2 } = input;
-      if (next2 == braceR || next2 == -1 || stack.context)
-        input.acceptToken(insertSemi);
-    }, { contextual: true, fallback: true });
-    const noSemicolon = new ExternalTokenizer((input, stack) => {
-      let { next: next2 } = input, after;
-      if (space.indexOf(next2) > -1) return;
-      if (next2 == slash && ((after = input.peek(1)) == slash || after == star)) return;
-      if (next2 != braceR && next2 != semicolon && next2 != -1 && !stack.context)
-        input.acceptToken(noSemi);
-    }, { contextual: true });
-    const noSemicolonType = new ExternalTokenizer((input, stack) => {
-      if (input.next == bracketL && !stack.context) input.acceptToken(noSemiType);
-    }, { contextual: true });
-    const operatorToken = new ExternalTokenizer((input, stack) => {
-      let { next: next2 } = input;
-      if (next2 == plus || next2 == minus) {
-        input.advance();
-        if (next2 == input.next) {
-          input.advance();
-          let mayPostfix = !stack.context && stack.canShift(incdec);
-          input.acceptToken(mayPostfix ? incdec : incdecPrefix);
-        }
-      } else if (next2 == question && input.peek(1) == dot) {
-        input.advance();
-        input.advance();
-        if (input.next < 48 || input.next > 57)
-          input.acceptToken(questionDot);
-      }
-    }, { contextual: true });
-    function identifierChar(ch, start) {
-      return ch >= 65 && ch <= 90 || ch >= 97 && ch <= 122 || ch == 95 || ch >= 192 || !start && ch >= 48 && ch <= 57;
-    }
-    const jsx = new ExternalTokenizer((input, stack) => {
-      if (input.next != lt || !stack.dialectEnabled(Dialect_jsx)) return;
-      input.advance();
-      if (input.next == slash) return;
-      let back = 0;
-      while (space.indexOf(input.next) > -1) {
-        input.advance();
-        back++;
-      }
-      if (identifierChar(input.next, true)) {
-        input.advance();
-        back++;
-        while (identifierChar(input.next, false)) {
-          input.advance();
-          back++;
-        }
-        while (space.indexOf(input.next) > -1) {
-          input.advance();
-          back++;
-        }
-        if (input.next == comma) return;
-        for (let i2 = 0; ; i2++) {
-          if (i2 == 7) {
-            if (!identifierChar(input.next, true)) return;
-            break;
-          }
-          if (input.next != "extends".charCodeAt(i2)) break;
-          input.advance();
-          back++;
-        }
-      }
-      input.acceptToken(JSXStartTag, -back);
-    });
-    const jsHighlight = styleTags({
-      "get set async static": tags.modifier,
-      "for while do if else switch try catch finally return throw break continue default case": tags.controlKeyword,
-      "in of await yield void typeof delete instanceof as satisfies": tags.operatorKeyword,
-      "let var const using function class extends": tags.definitionKeyword,
-      "import export from": tags.moduleKeyword,
-      "with debugger new": tags.keyword,
-      TemplateString: tags.special(tags.string),
-      super: tags.atom,
-      BooleanLiteral: tags.bool,
-      this: tags.self,
-      null: tags.null,
-      Star: tags.modifier,
-      VariableName: tags.variableName,
-      "CallExpression/VariableName TaggedTemplateExpression/VariableName": tags.function(tags.variableName),
-      VariableDefinition: tags.definition(tags.variableName),
-      Label: tags.labelName,
-      PropertyName: tags.propertyName,
-      PrivatePropertyName: tags.special(tags.propertyName),
-      "CallExpression/MemberExpression/PropertyName": tags.function(tags.propertyName),
-      "FunctionDeclaration/VariableDefinition": tags.function(tags.definition(tags.variableName)),
-      "ClassDeclaration/VariableDefinition": tags.definition(tags.className),
-      "NewExpression/VariableName": tags.className,
-      PropertyDefinition: tags.definition(tags.propertyName),
-      PrivatePropertyDefinition: tags.definition(tags.special(tags.propertyName)),
-      UpdateOp: tags.updateOperator,
-      "LineComment Hashbang": tags.lineComment,
-      BlockComment: tags.blockComment,
-      Number: tags.number,
-      String: tags.string,
-      Escape: tags.escape,
-      ArithOp: tags.arithmeticOperator,
-      LogicOp: tags.logicOperator,
-      BitOp: tags.bitwiseOperator,
-      CompareOp: tags.compareOperator,
-      RegExp: tags.regexp,
-      Equals: tags.definitionOperator,
-      Arrow: tags.function(tags.punctuation),
-      ": Spread": tags.punctuation,
-      "( )": tags.paren,
-      "[ ]": tags.squareBracket,
-      "{ }": tags.brace,
-      "InterpolationStart InterpolationEnd": tags.special(tags.brace),
-      ".": tags.derefOperator,
-      ", ;": tags.separator,
-      "@": tags.meta,
-      TypeName: tags.typeName,
-      TypeDefinition: tags.definition(tags.typeName),
-      "type enum interface implements namespace module declare": tags.definitionKeyword,
-      "abstract global Privacy readonly override": tags.modifier,
-      "is keyof unique infer asserts": tags.operatorKeyword,
-      JSXAttributeValue: tags.attributeValue,
-      JSXText: tags.content,
-      "JSXStartTag JSXStartCloseTag JSXSelfCloseEndTag JSXEndTag": tags.angleBracket,
-      "JSXIdentifier JSXNameSpacedName": tags.tagName,
-      "JSXAttribute/JSXIdentifier JSXAttribute/JSXNameSpacedName": tags.attributeName,
-      "JSXBuiltin/JSXIdentifier": tags.standard(tags.tagName)
-    });
-    const spec_identifier = { __proto__: null, export: 20, as: 25, from: 33, default: 36, async: 41, function: 42, in: 52, out: 55, const: 56, extends: 60, this: 64, true: 72, false: 72, null: 84, void: 88, typeof: 92, super: 108, new: 142, delete: 154, yield: 163, await: 167, class: 172, public: 235, private: 235, protected: 235, readonly: 237, instanceof: 256, satisfies: 259, import: 292, keyof: 349, unique: 353, infer: 359, asserts: 395, is: 397, abstract: 417, implements: 419, type: 421, let: 424, var: 426, using: 429, interface: 435, enum: 439, namespace: 445, module: 447, declare: 451, global: 455, for: 474, of: 483, while: 486, with: 490, do: 494, if: 498, else: 500, switch: 504, case: 510, try: 516, catch: 520, finally: 524, return: 528, throw: 532, break: 536, continue: 540, debugger: 544 };
-    const spec_word = { __proto__: null, async: 129, get: 131, set: 133, declare: 195, public: 197, private: 197, protected: 197, static: 199, abstract: 201, override: 203, readonly: 209, accessor: 211, new: 401 };
-    const spec_LessThan = { __proto__: null, "<": 193 };
-    const parser = LRParser.deserialize({
-      version: 14,
-      states: "$EOQ%TQlOOO%[QlOOO'_QpOOP(lO`OOO*zQ!0MxO'#CiO+RO#tO'#CjO+aO&jO'#CjO+oO#@ItO'#DaO.QQlO'#DgO.bQlO'#DrO%[QlO'#DzO0fQlO'#ESOOQ!0Lf'#E['#E[O1PQ`O'#EXOOQO'#Ep'#EpOOQO'#Ik'#IkO1XQ`O'#GsO1dQ`O'#EoO1iQ`O'#EoO3hQ!0MxO'#JqO6[Q!0MxO'#JrO6uQ`O'#F]O6zQ,UO'#FtOOQ!0Lf'#Ff'#FfO7VO7dO'#FfO7eQMhO'#F|O9[Q`O'#F{OOQ!0Lf'#Jr'#JrOOQ!0Lb'#Jq'#JqO9aQ`O'#GwOOQ['#K^'#K^O9lQ`O'#IXO9qQ!0LrO'#IYOOQ['#J_'#J_OOQ['#I^'#I^Q`QlOOQ`QlOOO9yQ!L^O'#DvO:QQlO'#EOO:XQlO'#EQO9gQ`O'#GsO:`QMhO'#CoO:nQ`O'#EnO:yQ`O'#EyO;OQMhO'#FeO;mQ`O'#GsOOQO'#K_'#K_O;rQ`O'#K_O<QQ`O'#G{O<QQ`O'#G|O<QQ`O'#HOO9gQ`O'#HRO<wQ`O'#HUO>`Q`O'#CeO>pQ`O'#HbO>xQ`O'#HhO>xQ`O'#HjO`QlO'#HlO>xQ`O'#HnO>xQ`O'#HqO>}Q`O'#HwO?SQ!0LsO'#H}O%[QlO'#IPO?_Q!0LsO'#IRO?jQ!0LsO'#ITO9qQ!0LrO'#IVO?uQ!0MxO'#CiO@wQpO'#DlQOQ`OOO%[QlO'#EQOA_Q`O'#ETO:`QMhO'#EnOAjQ`O'#EnOAuQ!bO'#FeOOQ['#Cg'#CgOOQ!0Lb'#Dq'#DqOOQ!0Lb'#Ju'#JuO%[QlO'#JuOOQO'#Jx'#JxOOQO'#Ig'#IgOBuQpO'#EgOOQ!0Lb'#Ef'#EfOOQ!0Lb'#J|'#J|OCqQ!0MSO'#EgOC{QpO'#EWOOQO'#Jw'#JwODaQpO'#JxOEnQpO'#EWOC{QpO'#EgPE{O&2DjO'#CbPOOO)CD|)CD|OOOO'#I_'#I_OFWO#tO,59UOOQ!0Lh,59U,59UOOOO'#I`'#I`OFfO&jO,59UOFtQ!L^O'#DcOOOO'#Ib'#IbOF{O#@ItO,59{OOQ!0Lf,59{,59{OGZQlO'#IcOGnQ`O'#JsOImQ!fO'#JsO+}QlO'#JsOItQ`O,5:ROJ[Q`O'#EpOJiQ`O'#KSOJtQ`O'#KROJtQ`O'#KROJ|Q`O,5;^OKRQ`O'#KQOOQ!0Ln,5:^,5:^OKYQlO,5:^OMWQ!0MxO,5:fOMwQ`O,5:nONbQ!0LrO'#KPONiQ`O'#KOO9aQ`O'#KOON}Q`O'#KOO! VQ`O,5;]O! [Q`O'#KOO!#aQ!fO'#JrOOQ!0Lh'#Ci'#CiO%[QlO'#ESO!$PQ!fO,5:sOOQS'#Jy'#JyOOQO-E<i-E<iO9gQ`O,5=_O!$gQ`O,5=_O!$lQlO,5;ZO!&oQMhO'#EkO!(YQ`O,5;ZO!(_QlO'#DyO!(iQpO,5;dO!(qQpO,5;dO%[QlO,5;dOOQ['#FT'#FTOOQ['#FV'#FVO%[QlO,5;eO%[QlO,5;eO%[QlO,5;eO%[QlO,5;eO%[QlO,5;eO%[QlO,5;eO%[QlO,5;eO%[QlO,5;eO%[QlO,5;eO%[QlO,5;eOOQ['#FZ'#FZO!)PQlO,5;tOOQ!0Lf,5;y,5;yOOQ!0Lf,5;z,5;zOOQ!0Lf,5;|,5;|O%[QlO'#IoO!+SQ!0LrO,5<iO%[QlO,5;eO!&oQMhO,5;eO!+qQMhO,5;eO!-cQMhO'#E^O%[QlO,5;wOOQ!0Lf,5;{,5;{O!-jQ,UO'#FjO!.gQ,UO'#KWO!.RQ,UO'#KWO!.nQ,UO'#KWOOQO'#KW'#KWO!/SQ,UO,5<SOOOW,5<`,5<`O!/eQlO'#FvOOOW'#In'#InO7VO7dO,5<QO!/lQ,UO'#FxOOQ!0Lf,5<Q,5<QO!0]Q$IUO'#CyOOQ!0Lh'#C}'#C}O!0pO#@ItO'#DRO!1^QMjO,5<eO!1eQ`O,5<hO!3QQ(CWO'#GXO!3_Q`O'#GYO!3dQ`O'#GYO!5SQ(CWO'#G^O!6XQpO'#GbOOQO'#Gn'#GnO!+xQMhO'#GmOOQO'#Gp'#GpO!+xQMhO'#GoO!6zQ$IUO'#JkOOQ!0Lh'#Jk'#JkO!7UQ`O'#JjO!7dQ`O'#JiO!7lQ`O'#CuOOQ!0Lh'#C{'#C{O!7}Q`O'#C}OOQ!0Lh'#DV'#DVOOQ!0Lh'#DX'#DXO1SQ`O'#DZO!+xQMhO'#GPO!+xQMhO'#GRO!8SQ`O'#GTO!8XQ`O'#GUO!3dQ`O'#G[O!+xQMhO'#GaO<QQ`O'#JjO!8^Q`O'#EqO!8{Q`O,5<gOOQ!0Lb'#Cr'#CrO!9TQ`O'#ErO!9}QpO'#EsOOQ!0Lb'#KQ'#KQO!:UQ!0LrO'#K`O9qQ!0LrO,5=cO`QlO,5>sOOQ['#Jg'#JgOOQ[,5>t,5>tOOQ[-E<[-E<[O!<TQ!0MxO,5:bO!9xQpO,5:`O!>nQ!0MxO,5:jO%[QlO,5:jO!AUQ!0MxO,5:lOOQO,5@y,5@yO!AuQMhO,5=_O!BTQ!0LrO'#JhO9[Q`O'#JhO!BfQ!0LrO,59ZO!BqQpO,59ZO!ByQMhO,59ZO:`QMhO,59ZO!CUQ`O,5;ZO!C^Q`O'#HaO!CrQ`O'#KcO%[QlO,5;}O!9xQpO,5<PO!CzQ`O,5=zO!DPQ`O,5=zO!DUQ`O,5=zO9qQ!0LrO,5=zO<QQ`O,5=jOOQO'#Cy'#CyO!DdQpO,5=gO!DlQMhO,5=hO!DwQ`O,5=jO!D|Q!bO,5=mO!EUQ`O'#K_O>}Q`O'#HWO9gQ`O'#HYO!EZQ`O'#HYO:`QMhO'#H[O!E`Q`O'#H[OOQ[,5=p,5=pO!EeQ`O'#H]O!EvQ`O'#CoO!E{Q`O,59PO!FVQ`O,59PO!H[QlO,59POOQ[,59P,59PO!HlQ!0LrO,59PO%[QlO,59PO!JwQlO'#HdOOQ['#He'#HeOOQ['#Hf'#HfO`QlO,5=|O!K_Q`O,5=|O`QlO,5>SO`QlO,5>UO!KdQ`O,5>WO`QlO,5>YO!KiQ`O,5>]O!KnQlO,5>cOOQ[,5>i,5>iO%[QlO,5>iO9qQ!0LrO,5>kOOQ[,5>m,5>mO# xQ`O,5>mOOQ[,5>o,5>oO# xQ`O,5>oOOQ[,5>q,5>qO#!fQpO'#D_O%[QlO'#JuO##XQpO'#JuO##cQpO'#DmO##tQpO'#DmO#&VQlO'#DmO#&^Q`O'#JtO#&fQ`O,5:WO#&kQ`O'#EtO#&yQ`O'#KTO#'RQ`O,5;_O#'WQpO'#DmO#'eQpO'#EVOOQ!0Lf,5:o,5:oO%[QlO,5:oO#'lQ`O,5:oO>}Q`O,5;YO!BqQpO,5;YO!ByQMhO,5;YO:`QMhO,5;YO#'tQ`O,5@aO#'yQ07dO,5:sOOQO-E<e-E<eO#)PQ!0MSO,5;ROC{QpO,5:rO#)ZQpO,5:rOC{QpO,5;RO!BfQ!0LrO,5:rOOQ!0Lb'#Ej'#EjOOQO,5;R,5;RO%[QlO,5;RO#)hQ!0LrO,5;RO#)sQ!0LrO,5;RO!BqQpO,5:rOOQO,5;X,5;XO#*RQ!0LrO,5;RPOOO'#I]'#I]P#*gO&2DjO,58|POOO,58|,58|OOOO-E<]-E<]OOQ!0Lh1G.p1G.pOOOO-E<^-E<^OOOO,59},59}O#*rQ!bO,59}OOOO-E<`-E<`OOQ!0Lf1G/g1G/gO#*wQ!fO,5>}O+}QlO,5>}OOQO,5?T,5?TO#+RQlO'#IcOOQO-E<a-E<aO#+`Q`O,5@_O#+hQ!fO,5@_O#+oQ`O,5@mOOQ!0Lf1G/m1G/mO%[QlO,5@nO#+wQ`O'#IiOOQO-E<g-E<gO#+oQ`O,5@mOOQ!0Lb1G0x1G0xOOQ!0Ln1G/x1G/xOOQ!0Ln1G0Y1G0YO%[QlO,5@kO#,]Q!0LrO,5@kO#,nQ!0LrO,5@kO#,uQ`O,5@jO9aQ`O,5@jO#,}Q`O,5@jO#-]Q`O'#IlO#,uQ`O,5@jOOQ!0Lb1G0w1G0wO!(iQpO,5:uO!(tQpO,5:uOOQS,5:w,5:wO#-}QdO,5:wO#.VQMhO1G2yO9gQ`O1G2yOOQ!0Lf1G0u1G0uO#.eQ!0MxO1G0uO#/jQ!0MvO,5;VOOQ!0Lh'#GW'#GWO#0WQ!0MzO'#JkO!$lQlO1G0uO#2cQ!fO'#JvO%[QlO'#JvO#2mQ`O,5:eOOQ!0Lh'#D_'#D_OOQ!0Lf1G1O1G1OO%[QlO1G1OOOQ!0Lf1G1f1G1fO#2rQ`O1G1OO#5WQ!0MxO1G1PO#5_Q!0MxO1G1PO#7uQ!0MxO1G1PO#7|Q!0MxO1G1PO#:dQ!0MxO1G1PO#<zQ!0MxO1G1PO#=RQ!0MxO1G1PO#=YQ!0MxO1G1PO#?pQ!0MxO1G1PO#?wQ!0MxO1G1PO#BUQ?MtO'#CiO#DPQ?MtO1G1`O#DWQ?MtO'#JrO#DkQ!0MxO,5?ZOOQ!0Lb-E<m-E<mO#FxQ!0MxO1G1PO#GuQ!0MzO1G1POOQ!0Lf1G1P1G1PO#HxQMjO'#J{O#ISQ`O,5:xO#IXQ!0MxO1G1cO#I{Q,UO,5<WO#JTQ,UO,5<XO#J]Q,UO'#FoO#JtQ`O'#FnOOQO'#KX'#KXOOQO'#Im'#ImO#JyQ,UO1G1nOOQ!0Lf1G1n1G1nOOOW1G1y1G1yO#K[Q?MtO'#JqO#KfQ`O,5<bO!)PQlO,5<bOOOW-E<l-E<lOOQ!0Lf1G1l1G1lO#KkQpO'#KWOOQ!0Lf,5<d,5<dO#KsQpO,5<dO#KxQMhO'#DTOOOO'#Ia'#IaO#LPO#@ItO,59mOOQ!0Lh,59m,59mO%[QlO1G2PO!8XQ`O'#IqO#L[Q`O,5<zOOQ!0Lh,5<w,5<wO!+xQMhO'#ItO#LxQMjO,5=XO!+xQMhO'#IvO#MkQMjO,5=ZO!&oQMhO,5=]OOQO1G2S1G2SO#MuQ!dO'#CrO#NYQ(CWO'#ErO$ _QpO'#GbO$ uQ!dO,5<sO$ |Q`O'#KZO9aQ`O'#KZO$![Q`O,5<uO!+xQMhO,5<tO$!aQ`O'#GZO$!rQ`O,5<tO$!wQ!dO'#GWO$#UQ!dO'#K[O$#`Q`O'#K[O!&oQMhO'#K[O$#eQ`O,5<xO$#jQlO'#JuO$#tQpO'#GcO##tQpO'#GcO$$VQ`O'#GgO!3dQ`O'#GkO$$[Q!0LrO'#IsO$$gQpO,5<|OOQ!0Lp,5<|,5<|O$$nQpO'#GcO$${QpO'#GdO$%^QpO'#GdO$%cQMjO,5=XO$%sQMjO,5=ZOOQ!0Lh,5=^,5=^O!+xQMhO,5@UO!+xQMhO,5@UO$&TQ`O'#IxO$&iQ`O,5@TO$&qQ`O,59aOOQ!0Lh,59i,59iO$'hQ$IYO,59uOOQ!0Lh'#Jo'#JoO$(ZQMjO,5<kO$(|QMjO,5<mO@oQ`O,5<oOOQ!0Lh,5<p,5<pO$)WQ`O,5<vO$)]QMjO,5<{O$)mQ`O,5@UO$){Q`O'#KOO!$lQlO1G2RO$*QQ`O1G2RO9aQ`O'#KRO9aQ`O'#EtO%[QlO'#EtO9aQ`O'#IzO$*VQ!0LrO,5@zOOQ[1G2}1G2}OOQ[1G4_1G4_OOQ!0Lf1G/|1G/|OOQ!0Lf1G/z1G/zO$,XQ!0MxO1G0UOOQ[1G2y1G2yO!&oQMhO1G2yO%[QlO1G2yO#.YQ`O1G2yO$.]QMhO'#EkOOQ!0Lb,5@S,5@SO$.jQ!0LrO,5@SOOQ[1G.u1G.uO!BfQ!0LrO1G.uO!BqQpO1G.uO!ByQMhO1G.uO$.{Q`O1G0uO$/QQ`O'#CiO$/]Q`O'#KdO$/eQ`O,5={O$/jQ`O'#KdO$/oQ`O'#KdO$/}Q`O'#JQO$0]Q`O,5@}O$0eQ!fO1G1iOOQ!0Lf1G1k1G1kO9gQ`O1G3fO@oQ`O1G3fO$0lQ`O1G3fO$0qQ`O1G3fOOQ[1G3f1G3fO!DwQ`O1G3UO!&oQMhO1G3RO$0vQ`O1G3ROOQ[1G3S1G3SO!&oQMhO1G3SO$0{Q`O1G3SO$1TQpO'#HQOOQ[1G3U1G3UO!6SQpO'#I|O!D|Q!bO1G3XOOQ[1G3X1G3XOOQ[,5=r,5=rO$1]QMhO,5=tO9gQ`O,5=tO$$VQ`O,5=vO9[Q`O,5=vO!BqQpO,5=vO!ByQMhO,5=vO:`QMhO,5=vO$1kQ`O'#KbO$1vQ`O,5=wOOQ[1G.k1G.kO$1{Q!0LrO1G.kO@oQ`O1G.kO$2WQ`O1G.kO9qQ!0LrO1G.kO$4`Q!fO,5APO$4mQ`O,5APO9aQ`O,5APO$4xQlO,5>OO$5PQ`O,5>OOOQ[1G3h1G3hO`QlO1G3hOOQ[1G3n1G3nOOQ[1G3p1G3pO>xQ`O1G3rO$5UQlO1G3tO$9YQlO'#HsOOQ[1G3w1G3wO$9gQ`O'#HyO>}Q`O'#H{OOQ[1G3}1G3}O$9oQlO1G3}O9qQ!0LrO1G4TOOQ[1G4V1G4VOOQ!0Lb'#G_'#G_O9qQ!0LrO1G4XO9qQ!0LrO1G4ZO$=vQ`O,5@aO!)PQlO,5;`O9aQ`O,5;`O>}Q`O,5:XO!)PQlO,5:XO!BqQpO,5:XO$={Q?MtO,5:XOOQO,5;`,5;`O$>VQpO'#IdO$>mQ`O,5@`OOQ!0Lf1G/r1G/rO$>uQpO'#IjO$?PQ`O,5@oOOQ!0Lb1G0y1G0yO##tQpO,5:XOOQO'#If'#IfO$?XQpO,5:qOOQ!0Ln,5:q,5:qO#'oQ`O1G0ZOOQ!0Lf1G0Z1G0ZO%[QlO1G0ZOOQ!0Lf1G0t1G0tO>}Q`O1G0tO!BqQpO1G0tO!ByQMhO1G0tOOQ!0Lb1G5{1G5{O!BfQ!0LrO1G0^OOQO1G0m1G0mO%[QlO1G0mO$?`Q!0LrO1G0mO$?kQ!0LrO1G0mO!BqQpO1G0^OC{QpO1G0^O$?yQ!0LrO1G0mOOQO1G0^1G0^O$@_Q!0MxO1G0mPOOO-E<Z-E<ZPOOO1G.h1G.hOOOO1G/i1G/iO$@iQ!bO,5<iO$@qQ!fO1G4iOOQO1G4o1G4oO%[QlO,5>}O$@{Q`O1G5yO$ATQ`O1G6XO$A]Q!fO1G6YO9aQ`O,5?TO$AgQ!0MxO1G6VO%[QlO1G6VO$AwQ!0LrO1G6VO$BYQ`O1G6UO$BYQ`O1G6UO9aQ`O1G6UO$BbQ`O,5?WO9aQ`O,5?WOOQO,5?W,5?WO$BvQ`O,5?WO$){Q`O,5?WOOQO-E<j-E<jOOQS1G0a1G0aOOQS1G0c1G0cO#.QQ`O1G0cOOQ[7+(e7+(eO!&oQMhO7+(eO%[QlO7+(eO$CUQ`O7+(eO$CaQMhO7+(eO$CoQ!0MzO,5=XO$EzQ!0MzO,5=ZO$HVQ!0MzO,5=XO$JhQ!0MzO,5=ZO$LyQ!0MzO,59uO% OQ!0MzO,5<kO%#ZQ!0MzO,5<mO%%fQ!0MzO,5<{OOQ!0Lf7+&a7+&aO%'wQ!0MxO7+&aO%(kQlO'#IeO%(xQ`O,5@bO%)QQ!fO,5@bOOQ!0Lf1G0P1G0PO%)[Q`O7+&jOOQ!0Lf7+&j7+&jO%)aQ?MtO,5:fO%[QlO7+&zO%)kQ?MtO,5:bO%)xQ?MtO,5:jO%*SQ?MtO,5:lO%*^QMhO'#IhO%*hQ`O,5@gOOQ!0Lh1G0d1G0dOOQO1G1r1G1rOOQO1G1s1G1sO%*pQ!jO,5<ZO!)PQlO,5<YOOQO-E<k-E<kOOQ!0Lf7+'Y7+'YOOOW7+'e7+'eOOOW1G1|1G1|O%*{Q`O1G1|OOQ!0Lf1G2O1G2OOOOO,59o,59oO%+QQ!dO,59oOOOO-E<_-E<_OOQ!0Lh1G/X1G/XO%+XQ!0MxO7+'kOOQ!0Lh,5?],5?]O%+{QMhO1G2fP%,SQ`O'#IqPOQ!0Lh-E<o-E<oO%,pQMjO,5?`OOQ!0Lh-E<r-E<rO%-cQMjO,5?bOOQ!0Lh-E<t-E<tO%-mQ!dO1G2wO%-tQ!dO'#CrO%.[QMhO'#KRO$#jQlO'#JuOOQ!0Lh1G2_1G2_O%.cQ`O'#IpO%.wQ`O,5@uO%.wQ`O,5@uO%/PQ`O,5@uO%/[Q`O,5@uOOQO1G2a1G2aO%/jQMjO1G2`O!+xQMhO1G2`O%/zQ(CWO'#IrO%0XQ`O,5@vO!&oQMhO,5@vO%0aQ!dO,5@vOOQ!0Lh1G2d1G2dO%2qQ!fO'#CiO%2{Q`O,5=POOQ!0Lb,5<},5<}O%3TQpO,5<}OOQ!0Lb,5=O,5=OOClQ`O,5<}O%3`QpO,5<}OOQ!0Lb,5=R,5=RO$){Q`O,5=VOOQO,5?_,5?_OOQO-E<q-E<qOOQ!0Lp1G2h1G2hO##tQpO,5<}O$#jQlO,5=PO%3nQ`O,5=OO%3yQpO,5=OO!+xQMhO'#ItO%4sQMjO1G2sO!+xQMhO'#IvO%5fQMjO1G2uO%5pQMjO1G5pO%5zQMjO1G5pOOQO,5?d,5?dOOQO-E<v-E<vOOQO1G.{1G.{O!9xQpO,59wO%[QlO,59wOOQ!0Lh,5<j,5<jO%6XQ`O1G2ZO!+xQMhO1G2bO!+xQMhO1G5pO!+xQMhO1G5pO%6^Q!0MxO7+'mOOQ!0Lf7+'m7+'mO!$lQlO7+'mO%7QQ`O,5;`OOQ!0Lb,5?f,5?fOOQ!0Lb-E<x-E<xO%7VQ!dO'#K]O#'oQ`O7+(eO4UQ!fO7+(eO$CXQ`O7+(eO%7aQ!0MvO'#CiO%7tQ!0MvO,5=SO%8fQ`O,5=SO%8nQ`O,5=SOOQ!0Lb1G5n1G5nOOQ[7+$a7+$aO!BfQ!0LrO7+$aO!BqQpO7+$aO!$lQlO7+&aO%8sQ`O'#JPO%9[Q`O,5AOOOQO1G3g1G3gO9gQ`O,5AOO%9[Q`O,5AOO%9dQ`O,5AOOOQO,5?l,5?lOOQO-E=O-E=OOOQ!0Lf7+'T7+'TO%9iQ`O7+)QO9qQ!0LrO7+)QO9gQ`O7+)QO@oQ`O7+)QOOQ[7+(p7+(pO%9nQ!0MvO7+(mO!&oQMhO7+(mO!DrQ`O7+(nOOQ[7+(n7+(nO!&oQMhO7+(nO%9xQ`O'#KaO%:TQ`O,5=lOOQO,5?h,5?hOOQO-E<z-E<zOOQ[7+(s7+(sO%;gQpO'#HZOOQ[1G3`1G3`O!&oQMhO1G3`O%[QlO1G3`O%;nQ`O1G3`O%;yQMhO1G3`O9qQ!0LrO1G3bO$$VQ`O1G3bO9[Q`O1G3bO!BqQpO1G3bO!ByQMhO1G3bO%<XQ`O'#JOO%<mQ`O,5@|O%<uQpO,5@|OOQ!0Lb1G3c1G3cOOQ[7+$V7+$VO@oQ`O7+$VO9qQ!0LrO7+$VO%=QQ`O7+$VO%[QlO1G6kO%[QlO1G6lO%=VQ!0LrO1G6kO%=aQlO1G3jO%=hQ`O1G3jO%=mQlO1G3jOOQ[7+)S7+)SO9qQ!0LrO7+)^O`QlO7+)`OOQ['#Kg'#KgOOQ['#JR'#JRO%=tQlO,5>_OOQ[,5>_,5>_O%[QlO'#HtO%>RQ`O'#HvOOQ[,5>e,5>eO9aQ`O,5>eOOQ[,5>g,5>gOOQ[7+)i7+)iOOQ[7+)o7+)oOOQ[7+)s7+)sOOQ[7+)u7+)uO%>WQpO1G5{O%>rQ?MtO1G0zO%>|Q`O1G0zOOQO1G/s1G/sO%?XQ?MtO1G/sO>}Q`O1G/sO!)PQlO'#DmOOQO,5?O,5?OOOQO-E<b-E<bOOQO,5?U,5?UOOQO-E<h-E<hO!BqQpO1G/sOOQO-E<d-E<dOOQ!0Ln1G0]1G0]OOQ!0Lf7+%u7+%uO#'oQ`O7+%uOOQ!0Lf7+&`7+&`O>}Q`O7+&`O!BqQpO7+&`OOQO7+%x7+%xO$@_Q!0MxO7+&XOOQO7+&X7+&XO%[QlO7+&XO%?cQ!0LrO7+&XO!BfQ!0LrO7+%xO!BqQpO7+%xO%?nQ!0LrO7+&XO%?|Q!0MxO7++qO%[QlO7++qO%@^Q`O7++pO%@^Q`O7++pOOQO1G4r1G4rO9aQ`O1G4rO%@fQ`O1G4rOOQS7+%}7+%}O#'oQ`O<<LPO4UQ!fO<<LPO%@tQ`O<<LPOOQ[<<LP<<LPO!&oQMhO<<LPO%[QlO<<LPO%@|Q`O<<LPO%AXQ!0MzO,5?`O%CdQ!0MzO,5?bO%EoQ!0MzO1G2`O%HQQ!0MzO1G2sO%J]Q!0MzO1G2uO%LhQ!fO,5?PO%[QlO,5?POOQO-E<c-E<cO%LrQ`O1G5|OOQ!0Lf<<JU<<JUO%LzQ?MtO1G0uO& RQ?MtO1G1PO& YQ?MtO1G1PO&#ZQ?MtO1G1PO&#bQ?MtO1G1PO&%cQ?MtO1G1PO&'dQ?MtO1G1PO&'kQ?MtO1G1PO&'rQ?MtO1G1PO&)sQ?MtO1G1PO&)zQ?MtO1G1PO&*RQ!0MxO<<JfO&+yQ?MtO1G1PO&,vQ?MvO1G1PO&-yQ?MvO'#JkO&0PQ?MtO1G1cO&0^Q?MtO1G0UO&0hQMjO,5?SOOQO-E<f-E<fO!)PQlO'#FqOOQO'#KY'#KYOOQO1G1u1G1uO&0rQ`O1G1tO&0wQ?MtO,5?ZOOOW7+'h7+'hOOOO1G/Z1G/ZO&1RQ!dO1G4wOOQ!0Lh7+(Q7+(QP!&oQMhO,5?]O!+xQMhO7+(cO&1YQ`O,5?[O9aQ`O,5?[OOQO-E<n-E<nO&1hQ`O1G6aO&1hQ`O1G6aO&1pQ`O1G6aO&1{QMjO7+'zO&2]Q!dO,5?^O&2gQ`O,5?^O!&oQMhO,5?^OOQO-E<p-E<pO&2lQ!dO1G6bO&2vQ`O1G6bO&3OQ`O1G2kO!&oQMhO1G2kOOQ!0Lb1G2i1G2iOOQ!0Lb1G2j1G2jO%3TQpO1G2iO!BqQpO1G2iOClQ`O1G2iOOQ!0Lb1G2q1G2qO&3TQpO1G2iO&3cQ`O1G2kO$){Q`O1G2jOClQ`O1G2jO$#jQlO1G2kO&3kQ`O1G2jO&4_QMjO,5?`OOQ!0Lh-E<s-E<sO&5QQMjO,5?bOOQ!0Lh-E<u-E<uO!+xQMhO7++[OOQ!0Lh1G/c1G/cO&5[Q`O1G/cOOQ!0Lh7+'u7+'uO&5aQMjO7+'|O&5qQMjO7++[O&5{QMjO7++[O&6YQ!0MxO<<KXOOQ!0Lf<<KX<<KXO&6|Q`O1G0zO!&oQMhO'#IyO&7RQ`O,5@wO&9TQ!fO<<LPO!&oQMhO1G2nO&9[Q!0LrO1G2nOOQ[<<G{<<G{O!BfQ!0LrO<<G{O&9mQ!0MxO<<I{OOQ!0Lf<<I{<<I{OOQO,5?k,5?kO&:aQ`O,5?kO&:fQ`O,5?kOOQO-E<}-E<}O&:tQ`O1G6jO&:tQ`O1G6jO9gQ`O1G6jO@oQ`O<<LlOOQ[<<Ll<<LlO&:|Q`O<<LlO9qQ!0LrO<<LlOOQ[<<LX<<LXO%9nQ!0MvO<<LXOOQ[<<LY<<LYO!DrQ`O<<LYO&;RQpO'#I{O&;^Q`O,5@{O!)PQlO,5@{OOQ[1G3W1G3WOOQO'#I}'#I}O9qQ!0LrO'#I}O&;fQpO,5=uOOQ[,5=u,5=uO&;mQpO'#EgO&;tQpO'#GeO&;yQ`O7+(zO&<OQ`O7+(zOOQ[7+(z7+(zO!&oQMhO7+(zO%[QlO7+(zO&<WQ`O7+(zOOQ[7+(|7+(|O9qQ!0LrO7+(|O$$VQ`O7+(|O9[Q`O7+(|O!BqQpO7+(|O&<cQ`O,5?jOOQO-E<|-E<|OOQO'#H^'#H^O&<nQ`O1G6hO9qQ!0LrO<<GqOOQ[<<Gq<<GqO@oQ`O<<GqO&<vQ`O7+,VO&<{Q`O7+,WO%[QlO7+,VO%[QlO7+,WOOQ[7+)U7+)UO&=QQ`O7+)UO&=VQlO7+)UO&=^Q`O7+)UOOQ[<<Lx<<LxOOQ[<<Lz<<LzOOQ[-E=P-E=POOQ[1G3y1G3yO&=cQ`O,5>`OOQ[,5>b,5>bO&=hQ`O1G4PO9aQ`O7+&fO!)PQlO7+&fOOQO7+%_7+%_O&=mQ?MtO1G6YO>}Q`O7+%_OOQ!0Lf<<Ia<<IaOOQ!0Lf<<Iz<<IzO>}Q`O<<IzOOQO<<Is<<IsO$@_Q!0MxO<<IsO%[QlO<<IsOOQO<<Id<<IdO!BfQ!0LrO<<IdO&=wQ!0LrO<<IsO&>SQ!0MxO<= ]O&>dQ`O<= [OOQO7+*^7+*^O9aQ`O7+*^OOQ[ANAkANAkO&>lQ!fOANAkO!&oQMhOANAkO#'oQ`OANAkO4UQ!fOANAkO&>sQ`OANAkO%[QlOANAkO&>{Q!0MzO7+'zO&A^Q!0MzO,5?`O&CiQ!0MzO,5?bO&EtQ!0MzO7+'|O&HVQ!fO1G4kO&HaQ?MtO7+&aO&JeQ?MvO,5=XO&LlQ?MvO,5=ZO&L|Q?MvO,5=XO&M^Q?MvO,5=ZO&MnQ?MvO,59uO' tQ?MvO,5<kO'#wQ?MvO,5<mO'&]Q?MvO,5<{O'(RQ?MtO7+'kO'(`Q?MtO7+'mO'(mQ`O,5<]OOQO7+'`7+'`OOQ!0Lh7+*c7+*cO'(rQMjO<<K}OOQO1G4v1G4vO'(yQ`O1G4vO')UQ`O1G4vO')dQ`O7++{O')dQ`O7++{O!&oQMhO1G4xO')lQ!dO1G4xO')vQ`O7++|O'*OQ`O7+(VO'*ZQ!dO7+(VOOQ!0Lb7+(T7+(TOOQ!0Lb7+(U7+(UO!BqQpO7+(TOClQ`O7+(TO'*eQ`O7+(VO!&oQMhO7+(VO$){Q`O7+(UO'*jQ`O7+(VOClQ`O7+(UO'*rQMjO<<NvOOQ!0Lh7+$}7+$}O!+xQMhO<<NvO'*|Q!dO,5?eOOQO-E<w-E<wO'+WQ!0MvO7+(YO!&oQMhO7+(YOOQ[AN=gAN=gO9gQ`O1G5VOOQO1G5V1G5VO'+hQ`O1G5VO'+mQ`O7+,UO'+mQ`O7+,UO9qQ!0LrOANBWO@oQ`OANBWOOQ[ANBWANBWOOQ[ANAsANAsOOQ[ANAtANAtO'+uQ`O,5?gOOQO-E<y-E<yO',QQ?MtO1G6gOOQO,5?i,5?iOOQO-E<{-E<{OOQ[1G3a1G3aO',[Q`O,5=POOQ[<<Lf<<LfO!&oQMhO<<LfO&;yQ`O<<LfO',aQ`O<<LfO%[QlO<<LfOOQ[<<Lh<<LhO9qQ!0LrO<<LhO$$VQ`O<<LhO9[Q`O<<LhO',iQpO1G5UO',tQ`O7+,SOOQ[AN=]AN=]O9qQ!0LrOAN=]OOQ[<= q<= qOOQ[<= r<= rO',|Q`O<= qO'-RQ`O<= rOOQ[<<Lp<<LpO'-WQ`O<<LpO'-]QlO<<LpOOQ[1G3z1G3zO>}Q`O7+)kO'-dQ`O<<JQO'-oQ?MtO<<JQOOQO<<Hy<<HyOOQ!0LfAN?fAN?fOOQOAN?_AN?_O$@_Q!0MxOAN?_OOQOAN?OAN?OO%[QlOAN?_OOQO<<Mx<<MxOOQ[G27VG27VO!&oQMhOG27VO#'oQ`OG27VO'-yQ!fOG27VO4UQ!fOG27VO'.QQ`OG27VO'.YQ?MtO<<JfO'.gQ?MvO1G2`O'0]Q?MvO,5?`O'2`Q?MvO,5?bO'4cQ?MvO1G2sO'6fQ?MvO1G2uO'8iQ?MtO<<KXO'8vQ?MtO<<I{OOQO1G1w1G1wO!+xQMhOANAiOOQO7+*b7+*bO'9TQ`O7+*bO'9`Q`O<= gO'9hQ!dO7+*dOOQ!0Lb<<Kq<<KqO$){Q`O<<KqOClQ`O<<KqO'9rQ`O<<KqO!&oQMhO<<KqOOQ!0Lb<<Ko<<KoO!BqQpO<<KoO'9}Q!dO<<KqOOQ!0Lb<<Kp<<KpO':XQ`O<<KqO!&oQMhO<<KqO$){Q`O<<KpO':^QMjOANDbO':hQ!0MvO<<KtOOQO7+*q7+*qO9gQ`O7+*qO':xQ`O<= pOOQ[G27rG27rO9qQ!0LrOG27rO!)PQlO1G5RO';QQ`O7+,RO';YQ`O1G2kO&;yQ`OANBQOOQ[ANBQANBQO!&oQMhOANBQO';_Q`OANBQOOQ[ANBSANBSO9qQ!0LrOANBSO$$VQ`OANBSOOQO'#H_'#H_OOQO7+*p7+*pOOQ[G22wG22wOOQ[ANE]ANE]OOQ[ANE^ANE^OOQ[ANB[ANB[O';gQ`OANB[OOQ[<<MV<<MVO!)PQlOAN?lOOQOG24yG24yO$@_Q!0MxOG24yO#'oQ`OLD,qOOQ[LD,qLD,qO!&oQMhOLD,qO';lQ!fOLD,qO';sQ?MvO7+'zO'=iQ?MvO,5?`O'?lQ?MvO,5?bO'AoQ?MvO7+'|O'CeQMjOG27TOOQO<<M|<<M|OOQ!0LbANA]ANA]O$){Q`OANA]OClQ`OANA]O'CuQ!dOANA]OOQ!0LbANAZANAZO'C|Q`OANA]O!&oQMhOANA]O'DXQ!dOANA]OOQ!0LbANA[ANA[OOQO<<N]<<N]OOQ[LD-^LD-^O'DcQ?MtO7+*mOOQO'#Gf'#GfOOQ[G27lG27lO&;yQ`OG27lO!&oQMhOG27lOOQ[G27nG27nO9qQ!0LrOG27nOOQ[G27vG27vO'DmQ?MtOG25WOOQOLD*eLD*eOOQ[!$(!]!$(!]O#'oQ`O!$(!]O!&oQMhO!$(!]O'DwQ!0MzOG27TOOQ!0LbG26wG26wO$){Q`OG26wO'GYQ`OG26wOClQ`OG26wO'GeQ!dOG26wO!&oQMhOG26wOOQ[LD-WLD-WO&;yQ`OLD-WOOQ[LD-YLD-YOOQ[!)9Ew!)9EwO#'oQ`O!)9EwOOQ!0LbLD,cLD,cO$){Q`OLD,cOClQ`OLD,cO'GlQ`OLD,cO'GwQ!dOLD,cOOQ[!$(!r!$(!rOOQ[!.K;c!.K;cO'HOQ?MvOG27TOOQ!0Lb!$( }!$( }O$){Q`O!$( }OClQ`O!$( }O'ItQ`O!$( }OOQ!0Lb!)9Ei!)9EiO$){Q`O!)9EiOClQ`O!)9EiOOQ!0Lb!.K;T!.K;TO$){Q`O!.K;TOOQ!0Lb!4/0o!4/0oO!)PQlO'#DzO1PQ`O'#EXO'JPQ!fO'#JqO'JWQ!L^O'#DvO'J_QlO'#EOO'JfQ!fO'#CiO'L|Q!fO'#CiO!)PQlO'#EQO'M^QlO,5;ZO!)PQlO,5;eO!)PQlO,5;eO!)PQlO,5;eO!)PQlO,5;eO!)PQlO,5;eO!)PQlO,5;eO!)PQlO,5;eO!)PQlO,5;eO!)PQlO,5;eO!)PQlO,5;eO!)PQlO'#IoO( aQ`O,5<iO!)PQlO,5;eO( iQMhO,5;eO(#SQMhO,5;eO!)PQlO,5;wO!&oQMhO'#GmO( iQMhO'#GmO!&oQMhO'#GoO( iQMhO'#GoO1SQ`O'#DZO1SQ`O'#DZO!&oQMhO'#GPO( iQMhO'#GPO!&oQMhO'#GRO( iQMhO'#GRO!&oQMhO'#GaO( iQMhO'#GaO!)PQlO,5:jO(#ZQpO'#D_O(#eQpO'#JuO!)PQlO,5@nO'M^QlO1G0uO(#oQ?MtO'#CiO!)PQlO1G2PO!&oQMhO'#ItO( iQMhO'#ItO!&oQMhO'#IvO( iQMhO'#IvO(#yQ!dO'#CrO!&oQMhO,5<tO( iQMhO,5<tO'M^QlO1G2RO!)PQlO7+&zO!&oQMhO1G2`O( iQMhO1G2`O!&oQMhO'#ItO( iQMhO'#ItO!&oQMhO'#IvO( iQMhO'#IvO!&oQMhO1G2bO( iQMhO1G2bO'M^QlO7+'mO'M^QlO7+&aO!&oQMhOANAiO( iQMhOANAiO($^Q`O'#EoO($cQ`O'#EoO($kQ`O'#F]O($pQ`O'#EyO($uQ`O'#KSO(%QQ`O'#KQO(%]Q`O,5;ZO(%bQMjO,5<eO(%iQ`O'#GYO(%nQ`O'#GYO(%sQ`O,5<gO(%{Q`O,5;ZO(&TQ?MtO1G1`O(&[Q`O,5<tO(&aQ`O,5<tO(&fQ`O,5<vO(&kQ`O,5<vO(&pQ`O1G2RO(&uQ`O1G0uO(&zQMjO<<K}O('RQMjO<<K}O7eQMhO'#F|O9[Q`O'#F{OAjQ`O'#EnO!)PQlO,5;tO!3dQ`O'#GYO!3dQ`O'#GYO!3dQ`O'#G[O!3dQ`O'#G[O!+xQMhO7+(cO!+xQMhO7+(cO%-mQ!dO1G2wO%-mQ!dO1G2wO!&oQMhO,5=]O!&oQMhO,5=]",
-      stateData: "((X~O'{OS'|OSTOS'}RQ~OPYOQYOSfOY!VOaqOdzOeyOl!POpkOrYOskOtkOzkO|YO!OYO!SWO!WkO!XkO!_XO!iuO!lZO!oYO!pYO!qYO!svO!uwO!xxO!|]O$W|O$niO%h}O%j!QO%l!OO%m!OO%n!OO%q!RO%s!SO%v!TO%w!TO%y!UO&V!WO&]!XO&_!YO&a!ZO&c![O&f!]O&l!^O&r!_O&t!`O&v!aO&x!bO&z!cO(SSO(UTO(XUO(`VO(n[O~OWtO~P`OPYOQYOSfOd!jOe!iOpkOrYOskOtkOzkO|YO!OYO!SWO!WkO!XkO!_!eO!iuO!lZO!oYO!pYO!qYO!svO!u!gO!x!hO$W!kO$niO(S!dO(UTO(XUO(`VO(n[O~Oa!wOs!nO!S!oO!b!yO!c!vO!d!vO!|;wO#T!pO#U!pO#V!xO#W!pO#X!pO#[!zO#]!zO(T!lO(UTO(XUO(d!mO(n!sO~O'}!{O~OP]XR]X[]Xa]Xj]Xr]X!Q]X!S]X!]]X!l]X!p]X#R]X#S]X#`]X#kfX#n]X#o]X#p]X#q]X#r]X#s]X#t]X#u]X#v]X#x]X#z]X#{]X$Q]X'y]X(`]X(q]X(x]X(y]X~O!g%RX~P(qO_!}O(U#PO(V!}O(W#PO~O_#QO(W#PO(X#PO(Y#QO~Ox#SO!U#TO(a#TO(b#VO~OPYOQYOSfOd!jOe!iOpkOrYOskOtkOzkO|YO!OYO!SWO!WkO!XkO!_!eO!iuO!lZO!oYO!pYO!qYO!svO!u!gO!x!hO$W!kO$niO(S;{O(UTO(XUO(`VO(n[O~O![#ZO!]#WO!Y(gP!Y(uP~P+}O!^#cO~P`OPYOQYOSfOd!jOe!iOrYOskOtkOzkO|YO!OYO!SWO!WkO!XkO!_!eO!iuO!lZO!oYO!pYO!qYO!svO!u!gO!x!hO$W!kO$niO(UTO(XUO(`VO(n[O~Op#mO![#iO!|]O#i#lO#j#iO(S;|O!k(rP~P.iO!l#oO(S#nO~O!x#sO!|]O%h#tO~O#k#uO~O!g#vO#k#uO~OP$[OR#zO[$cOj$ROr$aO!Q#yO!S#{O!]$_O!l#xO!p$[O#R$RO#n$OO#o$PO#p$PO#q$PO#r$QO#s$RO#t$RO#u$bO#v$SO#x$UO#z$WO#{$XO(`VO(q$YO(x#|O(y#}O~Oa(eX'y(eX'v(eX!k(eX!Y(eX!_(eX%i(eX!g(eX~P1qO#S$dO#`$eO$Q$eOP(fXR(fX[(fXj(fXr(fX!Q(fX!S(fX!](fX!l(fX!p(fX#R(fX#n(fX#o(fX#p(fX#q(fX#r(fX#s(fX#t(fX#u(fX#v(fX#x(fX#z(fX#{(fX(`(fX(q(fX(x(fX(y(fX!_(fX%i(fX~Oa(fX'y(fX'v(fX!Y(fX!k(fXv(fX!g(fX~P4UO#`$eO~O$]$hO$_$gO$f$mO~OSfO!_$nO$i$oO$k$qO~Oh%VOj%cOk%cOl%cOp%WOr%XOs$tOt$tOz%YO|%ZO!O%[O!S${O!_$|O!i%aO!l$xO#j%bO$W%_O$t%]O$v%^O$y%`O(S$sO(UTO(XUO(`$uO(x$}O(y%POg(]P~O!l%dO~O!S%gO!_%hO(S%fO~O!g%lO~Oa%mO'y%mO~O!Q%qO~P%[O(T!lO~P%[O%n%uO~P%[Oh%VO!l%dO(S%fO(T!lO~Oe%|O!l%dO(S%fO~Oj$RO~O!Q&RO!_&OO!l&QO%j&UO(S%fO(T!lO(UTO(XUO`)VP~O!x#sO~O%s&WO!S)RX!_)RX(S)RX~O(S&XO~Ol!PO!u&^O%j!QO%l!OO%m!OO%n!OO%q!RO%s!SO%v!TO%w!TO~Od&cOe&bO!x&`O%h&aO%{&_O~P<VOd&fOeyOl!PO!_&eO!u&^O!xxO!|]O%h}O%l!OO%m!OO%n!OO%q!RO%s!SO%v!TO%w!TO%y!UO~Ob&iO#`&lO%j&gO(T!lO~P=[O!l&mO!u&qO~O!l#oO~O!_XO~Oa%mO'w&yO'y%mO~Oa%mO'w&|O'y%mO~Oa%mO'w'OO'y%mO~O'v]X!Y]Xv]X!k]X&Z]X!_]X%i]X!g]X~P(qO!b']O!c'UO!d'UO(T!lO(UTO(XUO~Os'SO!S'RO!['VO(d'QO!^(hP!^(wP~P@cOn'`O!_'^O(S%fO~Oe'eO!l%dO(S%fO~O!Q&RO!l&QO~Os!nO!S!oO!|;wO#T!pO#U!pO#W!pO#X!pO(T!lO(UTO(XUO(d!mO(n!sO~O!b'kO!c'jO!d'jO#V!pO#['lO#]'lO~PA}Oa%mOh%VO!g#vO!l%dO'y%mO(q'nO~O!p'rO#`'pO~PC]Os!nO!S!oO(UTO(XUO(d!mO(n!sO~O!_XOs(lX!S(lX!b(lX!c(lX!d(lX!|(lX#T(lX#U(lX#V(lX#W(lX#X(lX#[(lX#](lX(T(lX(U(lX(X(lX(d(lX(n(lX~O!c'jO!d'jO(T!lO~PC{O(O'vO(P'vO(Q'xO~O_!}O(U'zO(V!}O(W'zO~O_#QO(W'zO(X'zO(Y#QO~Ov'|O~P%[Ox#SO!U#TO(a#TO(b(PO~O![(RO!Y'VX!Y']X!]'VX!]']X~P+}O!](TO!Y(gX~OP$[OR#zO[$cOj$ROr$aO!Q#yO!S#{O!](TO!l#xO!p$[O#R$RO#n$OO#o$PO#p$PO#q$PO#r$QO#s$RO#t$RO#u$bO#v$SO#x$UO#z$WO#{$XO(`VO(q$YO(x#|O(y#}O~O!Y(gX~PGvO!Y(YO~O!Y(tX!](tX!g(tX!k(tX(q(tX~O#`(tX#k#dX!^(tX~PIyO#`(ZO!Y(vX!](vX~O!]([O!Y(uX~O!Y(_O~O#`$eO~PIyO!^(`O~P`OR#zO!Q#yO!S#{O!l#xO(`VOP!na[!naj!nar!na!]!na!p!na#R!na#n!na#o!na#p!na#q!na#r!na#s!na#t!na#u!na#v!na#x!na#z!na#{!na(q!na(x!na(y!na~Oa!na'y!na'v!na!Y!na!k!nav!na!_!na%i!na!g!na~PKaO!k(aO~O!g#vO#`(bO(q'nO!](sXa(sX'y(sX~O!k(sX~PM|O!S%gO!_%hO!|]O#i(gO#j(fO(S%fO~O!](hO!k(rX~O!k(jO~O!S%gO!_%hO#j(fO(S%fO~OP(fXR(fX[(fXj(fXr(fX!Q(fX!S(fX!](fX!l(fX!p(fX#R(fX#n(fX#o(fX#p(fX#q(fX#r(fX#s(fX#t(fX#u(fX#v(fX#x(fX#z(fX#{(fX(`(fX(q(fX(x(fX(y(fX~O!g#vO!k(fX~P! jOR(lO!Q(kO!l#xO#S$dO!|!{a!S!{a~O!x!{a%h!{a!_!{a#i!{a#j!{a(S!{a~P!#kO!x(pO~OPYOQYOSfOd!jOe!iOpkOrYOskOtkOzkO|YO!OYO!SWO!WkO!XkO!_XO!iuO!lZO!oYO!pYO!qYO!svO!u!gO!x!hO$W!kO$niO(S!dO(UTO(XUO(`VO(n[O~Oh%VOp%WOr%XOs$tOt$tOz%YO|%ZO!O<eO!S${O!_$|O!i=vO!l$xO#j<kO$W%_O$t<gO$v<iO$y%`O(S(tO(UTO(XUO(`$uO(x$}O(y%PO~O#k(vO~O![(xO!k(jP~P%[O(d(zO(n[O~O!S(|O!l#xO(d(zO(n[O~OP;vOQ;vOSfOd=rOe!iOpkOr;vOskOtkOzkO|;vO!O;vO!SWO!WkO!XkO!_!eO!i;yO!lZO!o;vO!p;vO!q;vO!s;zO!u;}O!x!hO$W!kO$n=pO(S)ZO(UTO(XUO(`VO(n[O~O!]$_Oa$qa'y$qa'v$qa!k$qa!Y$qa!_$qa%i$qa!g$qa~Ol)bO~P!&oOh%VOp%WOr%XOs$tOt$tOz%YO|%ZO!O%[O!S${O!_$|O!i%aO!l$xO#j%bO$W%_O$t%]O$v%^O$y%`O(S(tO(UTO(XUO(`$uO(x$}O(y%PO~Og(oP~P!+xO!Q)gO!g)fO!_$^X$Z$^X$]$^X$_$^X$f$^X~O!g)fO!_(zX$Z(zX$](zX$_(zX$f(zX~O!Q)gO~P!.RO!Q)gO!_(zX$Z(zX$](zX$_(zX$f(zX~O!_)iO$Z)mO$])hO$_)hO$f)nO~O![)qO~P!)PO$]$hO$_$gO$f)uO~On$zX!Q$zX#S$zX'x$zX(x$zX(y$zX~OgmXg$zXnmX!]mX#`mX~P!/wOx)wO(a)xO(b)zO~On*TO!Q)|O'x)}O(x$}O(y%PO~Og){O~P!0{Og*UO~Oh%VOp%WOr%XOs$tOt$tOz%YO|%ZO!O<eO!S*WO!_*XO!i=vO!l$xO#j<kO$W%_O$t<gO$v<iO$y%`O(UTO(XUO(`$uO(x$}O(y%PO~O![*[O(S*VO!k(}P~P!1jO#k*^O~O!l*_O~Oh%VOp%WOr%XOs$tOt$tOz%YO|%ZO!O<eO!S${O!_$|O!i=vO!l$xO#j<kO$W%_O$t<gO$v<iO$y%`O(S*aO(UTO(XUO(`$uO(x$}O(y%PO~O![*dO!Y)OP~P!3iOr*pOs!nO!S*fO!b*nO!c*hO!d*hO!l*_O#[*oO%`*jO(T!lO(UTO(XUO(d!mO~O!^*mO~P!5^O#S$dOn(_X!Q(_X'x(_X(x(_X(y(_X!](_X#`(_X~Og(_X$O(_X~P!6`On*uO#`*tOg(^X!](^X~O!]*vOg(]X~Oj%cOk%cOl%cO(S&XOg(]P~Os*yO~O!l+OO~O(S(tO~Op+TO!S%gO![#iO!_%hO!|]O#i#lO#j#iO(S%fO!k(rP~O!g#vO#k+UO~O!S%gO![+WO!]([O!_%hO(S%fO!Y(uP~Os'YO!S+YO![+XO(UTO(XUO(d(zO~O!^(wP~P!9iO!]+ZOa)SX'y)SX~OP$[OR#zO[$cOj$ROr$aO!Q#yO!S#{O!l#xO!p$[O#R$RO#n$OO#o$PO#p$PO#q$PO#r$QO#s$RO#t$RO#u$bO#v$SO#x$UO#z$WO#{$XO(`VO(q$YO(x#|O(y#}O~Oa!ja!]!ja'y!ja'v!ja!Y!ja!k!jav!ja!_!ja%i!ja!g!ja~P!:aOR#zO!Q#yO!S#{O!l#xO(`VOP!ra[!raj!rar!ra!]!ra!p!ra#R!ra#n!ra#o!ra#p!ra#q!ra#r!ra#s!ra#t!ra#u!ra#v!ra#x!ra#z!ra#{!ra(q!ra(x!ra(y!ra~Oa!ra'y!ra'v!ra!Y!ra!k!rav!ra!_!ra%i!ra!g!ra~P!<wOR#zO!Q#yO!S#{O!l#xO(`VOP!ta[!taj!tar!ta!]!ta!p!ta#R!ta#n!ta#o!ta#p!ta#q!ta#r!ta#s!ta#t!ta#u!ta#v!ta#x!ta#z!ta#{!ta(q!ta(x!ta(y!ta~Oa!ta'y!ta'v!ta!Y!ta!k!tav!ta!_!ta%i!ta!g!ta~P!?_Oh%VOn+dO!_'^O%i+cO~O!g+fOa([X!_([X'y([X!]([X~Oa%mO!_XO'y%mO~Oh%VO!l%dO~Oh%VO!l%dO(S%fO~O!g#vO#k(vO~Ob+qO%j+rO(S+nO(UTO(XUO!^)WP~O!]+sO`)VX~O[+wO~O`+xO~O!_&OO(S%fO(T!lO`)VP~Oh%VO#`+}O~Oh%VOn,QO!_$|O~O!_,SO~O!Q,UO!_XO~O%n%uO~O!x,ZO~Oe,`O~Ob,aO(S#nO(UTO(XUO!^)UP~Oe%|O~O%j!QO(S&XO~P=[O[,fO`,eO~OPYOQYOSfOdzOeyOpkOrYOskOtkOzkO|YO!OYO!SWO!WkO!XkO!iuO!lZO!oYO!pYO!qYO!svO!xxO!|]O$niO%h}O(UTO(XUO(`VO(n[O~O!_!eO!u!gO$W!kO(S!dO~P!F_O`,eOa%mO'y%mO~OPYOQYOSfOd!jOe!iOpkOrYOskOtkOzkO|YO!OYO!SWO!WkO!XkO!_!eO!iuO!lZO!oYO!pYO!qYO!svO!x!hO$W!kO$niO(S!dO(UTO(XUO(`VO(n[O~Oa,kOl!OO!uwO%l!OO%m!OO%n!OO~P!HwO!l&mO~O&],qO~O!_,sO~O&n,uO&p,vOP&kaQ&kaS&kaY&kaa&kad&kae&kal&kap&kar&kas&kat&kaz&ka|&ka!O&ka!S&ka!W&ka!X&ka!_&ka!i&ka!l&ka!o&ka!p&ka!q&ka!s&ka!u&ka!x&ka!|&ka$W&ka$n&ka%h&ka%j&ka%l&ka%m&ka%n&ka%q&ka%s&ka%v&ka%w&ka%y&ka&V&ka&]&ka&_&ka&a&ka&c&ka&f&ka&l&ka&r&ka&t&ka&v&ka&x&ka&z&ka'v&ka(S&ka(U&ka(X&ka(`&ka(n&ka!^&ka&d&kab&ka&i&ka~O(S,{O~Oh!eX!]!RX!^!RX!g!RX!g!eX!l!eX#`!RX~O!]!eX!^!eX~P# }O!g-QO#`-POh(iX!]#hX!^#hX!g(iX!l(iX~O!](iX!^(iX~P#!pOh%VO!g-SO!l%dO!]!aX!^!aX~Os!nO!S!oO(UTO(XUO(d!mO~OP;vOQ;vOSfOd=rOe!iOpkOr;vOskOtkOzkO|;vO!O;vO!SWO!WkO!XkO!_!eO!i;yO!lZO!o;vO!p;vO!q;vO!s;zO!u;}O!x!hO$W!kO$n=pO(UTO(XUO(`VO(n[O~O(S<rO~P#$VO!]-WO!^(hX~O!^-YO~O!g-QO#`-PO!]#hX!^#hX~O!]-ZO!^(wX~O!^-]O~O!c-^O!d-^O(T!lO~P##tO!^-aO~P'_On-dO!_'^O~O!Y-iO~Os!{a!b!{a!c!{a!d!{a#T!{a#U!{a#V!{a#W!{a#X!{a#[!{a#]!{a(T!{a(U!{a(X!{a(d!{a(n!{a~P!#kO!p-nO#`-lO~PC]O!c-pO!d-pO(T!lO~PC{Oa%mO#`-lO'y%mO~Oa%mO!g#vO#`-lO'y%mO~Oa%mO!g#vO!p-nO#`-lO'y%mO(q'nO~O(O'vO(P'vO(Q-uO~Ov-vO~O!Y'Va!]'Va~P!:aO![-zO!Y'VX!]'VX~P%[O!](TO!Y(ga~O!Y(ga~PGvO!]([O!Y(ua~O!S%gO![.OO!_%hO(S%fO!Y']X!]']X~O#`.QO!](sa!k(saa(sa'y(sa~O!g#vO~P#,]O!](hO!k(ra~O!S%gO!_%hO#j.UO(S%fO~Op.ZO!S%gO![.WO!_%hO!|]O#i.YO#j.WO(S%fO!]'`X!k'`X~OR._O!l#xO~Oh%VOn.bO!_'^O%i.aO~Oa#ci!]#ci'y#ci'v#ci!Y#ci!k#civ#ci!_#ci%i#ci!g#ci~P!:aOn=|O!Q)|O'x)}O(x$}O(y%PO~O#k#_aa#_a#`#_a'y#_a!]#_a!k#_a!_#_a!Y#_a~P#/XO#k(_XP(_XR(_X[(_Xa(_Xj(_Xr(_X!S(_X!l(_X!p(_X#R(_X#n(_X#o(_X#p(_X#q(_X#r(_X#s(_X#t(_X#u(_X#v(_X#x(_X#z(_X#{(_X'y(_X(`(_X(q(_X!k(_X!Y(_X'v(_Xv(_X!_(_X%i(_X!g(_X~P!6`O!].oO!k(jX~P!:aO!k.rO~O!Y.tO~OP$[OR#zO!Q#yO!S#{O!l#xO!p$[O(`VO[#mia#mij#mir#mi!]#mi#R#mi#o#mi#p#mi#q#mi#r#mi#s#mi#t#mi#u#mi#v#mi#x#mi#z#mi#{#mi'y#mi(q#mi(x#mi(y#mi'v#mi!Y#mi!k#miv#mi!_#mi%i#mi!g#mi~O#n#mi~P#2wO#n$OO~P#2wOP$[OR#zOr$aO!Q#yO!S#{O!l#xO!p$[O#n$OO#o$PO#p$PO#q$PO(`VO[#mia#mij#mi!]#mi#R#mi#s#mi#t#mi#u#mi#v#mi#x#mi#z#mi#{#mi'y#mi(q#mi(x#mi(y#mi'v#mi!Y#mi!k#miv#mi!_#mi%i#mi!g#mi~O#r#mi~P#5fO#r$QO~P#5fOP$[OR#zO[$cOj$ROr$aO!Q#yO!S#{O!l#xO!p$[O#R$RO#n$OO#o$PO#p$PO#q$PO#r$QO#s$RO#t$RO#u$bO(`VOa#mi!]#mi#x#mi#z#mi#{#mi'y#mi(q#mi(x#mi(y#mi'v#mi!Y#mi!k#miv#mi!_#mi%i#mi!g#mi~O#v#mi~P#8TOP$[OR#zO[$cOj$ROr$aO!Q#yO!S#{O!l#xO!p$[O#R$RO#n$OO#o$PO#p$PO#q$PO#r$QO#s$RO#t$RO#u$bO#v$SO(`VO(y#}Oa#mi!]#mi#z#mi#{#mi'y#mi(q#mi(x#mi'v#mi!Y#mi!k#miv#mi!_#mi%i#mi!g#mi~O#x$UO~P#:kO#x#mi~P#:kO#v$SO~P#8TOP$[OR#zO[$cOj$ROr$aO!Q#yO!S#{O!l#xO!p$[O#R$RO#n$OO#o$PO#p$PO#q$PO#r$QO#s$RO#t$RO#u$bO#v$SO#x$UO(`VO(x#|O(y#}Oa#mi!]#mi#{#mi'y#mi(q#mi'v#mi!Y#mi!k#miv#mi!_#mi%i#mi!g#mi~O#z#mi~P#=aO#z$WO~P#=aOP]XR]X[]Xj]Xr]X!Q]X!S]X!l]X!p]X#R]X#S]X#`]X#kfX#n]X#o]X#p]X#q]X#r]X#s]X#t]X#u]X#v]X#x]X#z]X#{]X$Q]X(`]X(q]X(x]X(y]X!]]X!^]X~O$O]X~P#@OOP$[OR#zO[<_Oj<SOr<]O!Q#yO!S#{O!l#xO!p$[O#R<SO#n<PO#o<QO#p<QO#q<QO#r<RO#s<SO#t<SO#u<^O#v<TO#x<VO#z<XO#{<YO(`VO(q$YO(x#|O(y#}O~O$O.vO~P#B]O#S$dO#`<`O$Q<`O$O(fX!^(fX~P! jOa'ca!]'ca'y'ca'v'ca!k'ca!Y'cav'ca!_'ca%i'ca!g'ca~P!:aO[#mia#mij#mir#mi!]#mi#R#mi#r#mi#s#mi#t#mi#u#mi#v#mi#x#mi#z#mi#{#mi'y#mi(q#mi'v#mi!Y#mi!k#miv#mi!_#mi%i#mi!g#mi~OP$[OR#zO!Q#yO!S#{O!l#xO!p$[O#n$OO#o$PO#p$PO#q$PO(`VO(x#mi(y#mi~P#E_On=|O!Q)|O'x)}O(x$}O(y%POP#miR#mi!S#mi!l#mi!p#mi#n#mi#o#mi#p#mi#q#mi(`#mi~P#E_O!].zOg(oX~P!0{Og.|O~Oa$Pi!]$Pi'y$Pi'v$Pi!Y$Pi!k$Piv$Pi!_$Pi%i$Pi!g$Pi~P!:aO$].}O$_.}O~O$]/OO$_/OO~O!g)fO#`/PO!_$cX$Z$cX$]$cX$_$cX$f$cX~O![/QO~O!_)iO$Z/SO$])hO$_)hO$f/TO~O!]<ZO!^(eX~P#B]O!^/UO~O!g)fO$f(zX~O$f/WO~Ov/XO~P!&oOx)wO(a)xO(b/[O~O!S/_O~O(x$}On%aa!Q%aa'x%aa(y%aa!]%aa#`%aa~Og%aa$O%aa~P#LaO(y%POn%ca!Q%ca'x%ca(x%ca!]%ca#`%ca~Og%ca$O%ca~P#MSO!]fX!gfX!kfX!k$zX(qfX~P!/wO![/hO!]([O(S/gO!Y(uP!Y)OP~P!1jOr*pO!b*nO!c*hO!d*hO!l*_O#[*oO%`*jO(T!lO(UTO(XUO~Os<oO!S/iO![+XO!^*mO(d<nO!^(wP~P#NmO!k/jO~P#/XO!]/kO!g#vO(q'nO!k(}X~O!k/pO~O!S%gO![*[O!_%hO(S%fO!k(}P~O#k/rO~O!Y$zX!]$zX!g%RX~P!/wO!]/sO!Y)OX~P#/XO!g/uO~O!Y/wO~OpkO(S/xO~P.iOh%VOr/}O!g#vO!l%dO(q'nO~O!g+fO~Oa%mO!]0RO'y%mO~O!^0TO~P!5^O!c0UO!d0UO(T!lO~P##tOs!nO!S0VO(UTO(XUO(d!mO~O#[0XO~Og%aa!]%aa#`%aa$O%aa~P!0{Og%ca!]%ca#`%ca$O%ca~P!0{Oj%cOk%cOl%cO(S&XOg'lX!]'lX~O!]*vOg(]a~Og0bO~OR0cO!Q0cO!S0dO#S$dOn}a'x}a(x}a(y}a!]}a#`}a~Og}a$O}a~P$&vO!Q)|O'x)}On$sa(x$sa(y$sa!]$sa#`$sa~Og$sa$O$sa~P$'rO!Q)|O'x)}On$ua(x$ua(y$ua!]$ua#`$ua~Og$ua$O$ua~P$(eO#k0gO~Og%Ta!]%Ta#`%Ta$O%Ta~P!0{On0iO#`0hOg(^a!](^a~O!g#vO~O#k0lO~O!]+ZOa)Sa'y)Sa~OR#zO!Q#yO!S#{O!l#xO(`VOP!ri[!rij!rir!ri!]!ri!p!ri#R!ri#n!ri#o!ri#p!ri#q!ri#r!ri#s!ri#t!ri#u!ri#v!ri#x!ri#z!ri#{!ri(q!ri(x!ri(y!ri~Oa!ri'y!ri'v!ri!Y!ri!k!riv!ri!_!ri%i!ri!g!ri~P$*bOh%VOr%XOs$tOt$tOz%YO|%ZO!O<eO!S${O!_$|O!i=vO!l$xO#j<kO$W%_O$t<gO$v<iO$y%`O(UTO(XUO(`$uO(x$}O(y%PO~Op0uO%]0vO(S0tO~P$,xO!g+fOa([a!_([a'y([a!]([a~O#k0|O~O[]X!]fX!^fX~O!]0}O!^)WX~O!^1PO~O[1QO~Ob1SO(S+nO(UTO(XUO~O!_&OO(S%fO`'tX!]'tX~O!]+sO`)Va~O!k1VO~P!:aO[1YO~O`1ZO~O#`1^O~On1aO!_$|O~O(d(zO!^)TP~Oh%VOn1jO!_1gO%i1iO~O[1tO!]1rO!^)UX~O!^1uO~O`1wOa%mO'y%mO~O(S#nO(UTO(XUO~O#S$dO#`$eO$Q$eOP(fXR(fX[(fXr(fX!Q(fX!S(fX!](fX!l(fX!p(fX#R(fX#n(fX#o(fX#p(fX#q(fX#r(fX#s(fX#t(fX#u(fX#v(fX#x(fX#z(fX#{(fX(`(fX(q(fX(x(fX(y(fX~Oj1zO&Z1{Oa(fX~P$2cOj1zO#`$eO&Z1{O~Oa1}O~P%[Oa2PO~O&d2SOP&biQ&biS&biY&bia&bid&bie&bil&bip&bir&bis&bit&biz&bi|&bi!O&bi!S&bi!W&bi!X&bi!_&bi!i&bi!l&bi!o&bi!p&bi!q&bi!s&bi!u&bi!x&bi!|&bi$W&bi$n&bi%h&bi%j&bi%l&bi%m&bi%n&bi%q&bi%s&bi%v&bi%w&bi%y&bi&V&bi&]&bi&_&bi&a&bi&c&bi&f&bi&l&bi&r&bi&t&bi&v&bi&x&bi&z&bi'v&bi(S&bi(U&bi(X&bi(`&bi(n&bi!^&bib&bi&i&bi~Ob2YO!^2WO&i2XO~P`O!_XO!l2[O~O&p,vOP&kiQ&kiS&kiY&kia&kid&kie&kil&kip&kir&kis&kit&kiz&ki|&ki!O&ki!S&ki!W&ki!X&ki!_&ki!i&ki!l&ki!o&ki!p&ki!q&ki!s&ki!u&ki!x&ki!|&ki$W&ki$n&ki%h&ki%j&ki%l&ki%m&ki%n&ki%q&ki%s&ki%v&ki%w&ki%y&ki&V&ki&]&ki&_&ki&a&ki&c&ki&f&ki&l&ki&r&ki&t&ki&v&ki&x&ki&z&ki'v&ki(S&ki(U&ki(X&ki(`&ki(n&ki!^&ki&d&kib&ki&i&ki~O!Y2bO~O!]!aa!^!aa~P#B]Os!nO!S!oO![2hO(d!mO!]'WX!^'WX~P@cO!]-WO!^(ha~O!]'^X!^'^X~P!9iO!]-ZO!^(wa~O!^2oO~P'_Oa%mO#`2xO'y%mO~Oa%mO!g#vO#`2xO'y%mO~Oa%mO!g#vO!p2|O#`2xO'y%mO(q'nO~Oa%mO'y%mO~P!:aO!]$_Ov$qa~O!Y'Vi!]'Vi~P!:aO!](TO!Y(gi~O!]([O!Y(ui~O!Y(vi!](vi~P!:aO!](si!k(sia(si'y(si~P!:aO#`3OO!](si!k(sia(si'y(si~O!](hO!k(ri~O!S%gO!_%hO!|]O#i3TO#j3SO(S%fO~O!S%gO!_%hO#j3SO(S%fO~On3[O!_'^O%i3ZO~Oh%VOn3[O!_'^O%i3ZO~O#k%aaP%aaR%aa[%aaa%aaj%aar%aa!S%aa!l%aa!p%aa#R%aa#n%aa#o%aa#p%aa#q%aa#r%aa#s%aa#t%aa#u%aa#v%aa#x%aa#z%aa#{%aa'y%aa(`%aa(q%aa!k%aa!Y%aa'v%aav%aa!_%aa%i%aa!g%aa~P#LaO#k%caP%caR%ca[%caa%caj%car%ca!S%ca!l%ca!p%ca#R%ca#n%ca#o%ca#p%ca#q%ca#r%ca#s%ca#t%ca#u%ca#v%ca#x%ca#z%ca#{%ca'y%ca(`%ca(q%ca!k%ca!Y%ca'v%cav%ca!_%ca%i%ca!g%ca~P#MSO#k%aaP%aaR%aa[%aaa%aaj%aar%aa!S%aa!]%aa!l%aa!p%aa#R%aa#n%aa#o%aa#p%aa#q%aa#r%aa#s%aa#t%aa#u%aa#v%aa#x%aa#z%aa#{%aa'y%aa(`%aa(q%aa!k%aa!Y%aa'v%aa#`%aav%aa!_%aa%i%aa!g%aa~P#/XO#k%caP%caR%ca[%caa%caj%car%ca!S%ca!]%ca!l%ca!p%ca#R%ca#n%ca#o%ca#p%ca#q%ca#r%ca#s%ca#t%ca#u%ca#v%ca#x%ca#z%ca#{%ca'y%ca(`%ca(q%ca!k%ca!Y%ca'v%ca#`%cav%ca!_%ca%i%ca!g%ca~P#/XO#k}aP}a[}aa}aj}ar}a!l}a!p}a#R}a#n}a#o}a#p}a#q}a#r}a#s}a#t}a#u}a#v}a#x}a#z}a#{}a'y}a(`}a(q}a!k}a!Y}a'v}av}a!_}a%i}a!g}a~P$&vO#k$saP$saR$sa[$saa$saj$sar$sa!S$sa!l$sa!p$sa#R$sa#n$sa#o$sa#p$sa#q$sa#r$sa#s$sa#t$sa#u$sa#v$sa#x$sa#z$sa#{$sa'y$sa(`$sa(q$sa!k$sa!Y$sa'v$sav$sa!_$sa%i$sa!g$sa~P$'rO#k$uaP$uaR$ua[$uaa$uaj$uar$ua!S$ua!l$ua!p$ua#R$ua#n$ua#o$ua#p$ua#q$ua#r$ua#s$ua#t$ua#u$ua#v$ua#x$ua#z$ua#{$ua'y$ua(`$ua(q$ua!k$ua!Y$ua'v$uav$ua!_$ua%i$ua!g$ua~P$(eO#k%TaP%TaR%Ta[%Taa%Taj%Tar%Ta!S%Ta!]%Ta!l%Ta!p%Ta#R%Ta#n%Ta#o%Ta#p%Ta#q%Ta#r%Ta#s%Ta#t%Ta#u%Ta#v%Ta#x%Ta#z%Ta#{%Ta'y%Ta(`%Ta(q%Ta!k%Ta!Y%Ta'v%Ta#`%Tav%Ta!_%Ta%i%Ta!g%Ta~P#/XOa#cq!]#cq'y#cq'v#cq!Y#cq!k#cqv#cq!_#cq%i#cq!g#cq~P!:aO![3dO!]'XX!k'XX~P%[O!].oO!k(ja~O!].oO!k(ja~P!:aO!Y3gO~O$O!na!^!na~PKaO$O!ja!]!ja!^!ja~P#B]O$O!ra!^!ra~P!<wO$O!ta!^!ta~P!?_Og'[X!]'[X~P!+xO!].zOg(oa~OSfO!_3{O$d3|O~O!^4QO~Ov4RO~P#/XOa$mq!]$mq'y$mq'v$mq!Y$mq!k$mqv$mq!_$mq%i$mq!g$mq~P!:aO!Y4TO~P!&oO!S4UO~O!Q)|O'x)}O(y%POn'ha(x'ha!]'ha#`'ha~Og'ha$O'ha~P%,XO!Q)|O'x)}On'ja(x'ja(y'ja!]'ja#`'ja~Og'ja$O'ja~P%,zO(q$YO~P#/XO!YfX!Y$zX!]fX!]$zX!g%RX#`fX~P!/wO(S<xO~P!1jO!S%gO![4XO!_%hO(S%fO!]'dX!k'dX~O!]/kO!k(}a~O!]/kO!g#vO!k(}a~O!]/kO!g#vO(q'nO!k(}a~Og$|i!]$|i#`$|i$O$|i~P!0{O![4aO!Y'fX!]'fX~P!3iO!]/sO!Y)Oa~O!]/sO!Y)Oa~P#/XOP]XR]X[]Xj]Xr]X!Q]X!S]X!Y]X!]]X!l]X!p]X#R]X#S]X#`]X#kfX#n]X#o]X#p]X#q]X#r]X#s]X#t]X#u]X#v]X#x]X#z]X#{]X$Q]X(`]X(q]X(x]X(y]X~Oj%YX!g%YX~P%0kOj4fO!g#vO~Oh%VO!g#vO!l%dO~Oh%VOr4kO!l%dO(q'nO~Or4pO!g#vO(q'nO~Os!nO!S4qO(UTO(XUO(d!mO~O(x$}On%ai!Q%ai'x%ai(y%ai!]%ai#`%ai~Og%ai$O%ai~P%4[O(y%POn%ci!Q%ci'x%ci(x%ci!]%ci#`%ci~Og%ci$O%ci~P%4}Og(^i!](^i~P!0{O#`4wOg(^i!](^i~P!0{O!k4zO~Oa$oq!]$oq'y$oq'v$oq!Y$oq!k$oqv$oq!_$oq%i$oq!g$oq~P!:aO!Y5QO~O!]5RO!_)PX~P#/XOa$zX!_$zX%^]X'y$zX!]$zX~P!/wO%^5UOaoXnoX!QoX!_oX'xoX'yoX(xoX(yoX!]oX~Op5VO(S#nO~O%^5UO~Ob5]O%j5^O(S+nO(UTO(XUO!]'sX!^'sX~O!]0}O!^)Wa~O[5bO~O`5cO~Oa%mO'y%mO~P#/XO!]5kO#`5mO!^)TX~O!^5nO~Or5tOs!nO!S*fO!b!yO!c!vO!d!vO!|;wO#T!pO#U!pO#V!pO#W!pO#X!pO#[5sO#]!zO(T!lO(UTO(XUO(d!mO(n!sO~O!^5rO~P%:YOn5yO!_1gO%i5xO~Oh%VOn5yO!_1gO%i5xO~Ob6QO(S#nO(UTO(XUO!]'rX!^'rX~O!]1rO!^)Ua~O(UTO(XUO(d6SO~O`6WO~Oj6ZO&Z6[O~PM|O!k6]O~P%[Oa6_O~Oa6_O~P%[Ob2YO!^6dO&i2XO~P`O!g6fO~O!g6hOh(ii!](ii!^(ii!g(ii!l(iir(ii(q(ii~O!]#hi!^#hi~P#B]O#`6iO!]#hi!^#hi~O!]!ai!^!ai~P#B]Oa%mO#`6rO'y%mO~Oa%mO!g#vO#`6rO'y%mO~O!](sq!k(sqa(sq'y(sq~P!:aO!](hO!k(rq~O!S%gO!_%hO#j6yO(S%fO~O!_'^O%i6|O~On7QO!_'^O%i6|O~O#k'haP'haR'ha['haa'haj'har'ha!S'ha!l'ha!p'ha#R'ha#n'ha#o'ha#p'ha#q'ha#r'ha#s'ha#t'ha#u'ha#v'ha#x'ha#z'ha#{'ha'y'ha(`'ha(q'ha!k'ha!Y'ha'v'hav'ha!_'ha%i'ha!g'ha~P%,XO#k'jaP'jaR'ja['jaa'jaj'jar'ja!S'ja!l'ja!p'ja#R'ja#n'ja#o'ja#p'ja#q'ja#r'ja#s'ja#t'ja#u'ja#v'ja#x'ja#z'ja#{'ja'y'ja(`'ja(q'ja!k'ja!Y'ja'v'jav'ja!_'ja%i'ja!g'ja~P%,zO#k$|iP$|iR$|i[$|ia$|ij$|ir$|i!S$|i!]$|i!l$|i!p$|i#R$|i#n$|i#o$|i#p$|i#q$|i#r$|i#s$|i#t$|i#u$|i#v$|i#x$|i#z$|i#{$|i'y$|i(`$|i(q$|i!k$|i!Y$|i'v$|i#`$|iv$|i!_$|i%i$|i!g$|i~P#/XO#k%aiP%aiR%ai[%aia%aij%air%ai!S%ai!l%ai!p%ai#R%ai#n%ai#o%ai#p%ai#q%ai#r%ai#s%ai#t%ai#u%ai#v%ai#x%ai#z%ai#{%ai'y%ai(`%ai(q%ai!k%ai!Y%ai'v%aiv%ai!_%ai%i%ai!g%ai~P%4[O#k%ciP%ciR%ci[%cia%cij%cir%ci!S%ci!l%ci!p%ci#R%ci#n%ci#o%ci#p%ci#q%ci#r%ci#s%ci#t%ci#u%ci#v%ci#x%ci#z%ci#{%ci'y%ci(`%ci(q%ci!k%ci!Y%ci'v%civ%ci!_%ci%i%ci!g%ci~P%4}O!]'Xa!k'Xa~P!:aO!].oO!k(ji~O$O#ci!]#ci!^#ci~P#B]OP$[OR#zO!Q#yO!S#{O!l#xO!p$[O(`VO[#mij#mir#mi#R#mi#o#mi#p#mi#q#mi#r#mi#s#mi#t#mi#u#mi#v#mi#x#mi#z#mi#{#mi$O#mi(q#mi(x#mi(y#mi!]#mi!^#mi~O#n#mi~P%MXO#n<PO~P%MXOP$[OR#zOr<]O!Q#yO!S#{O!l#xO!p$[O#n<PO#o<QO#p<QO#q<QO(`VO[#mij#mi#R#mi#s#mi#t#mi#u#mi#v#mi#x#mi#z#mi#{#mi$O#mi(q#mi(x#mi(y#mi!]#mi!^#mi~O#r#mi~P& aO#r<RO~P& aOP$[OR#zO[<_Oj<SOr<]O!Q#yO!S#{O!l#xO!p$[O#R<SO#n<PO#o<QO#p<QO#q<QO#r<RO#s<SO#t<SO#u<^O(`VO#x#mi#z#mi#{#mi$O#mi(q#mi(x#mi(y#mi!]#mi!^#mi~O#v#mi~P&#iOP$[OR#zO[<_Oj<SOr<]O!Q#yO!S#{O!l#xO!p$[O#R<SO#n<PO#o<QO#p<QO#q<QO#r<RO#s<SO#t<SO#u<^O#v<TO(`VO(y#}O#z#mi#{#mi$O#mi(q#mi(x#mi!]#mi!^#mi~O#x<VO~P&%jO#x#mi~P&%jO#v<TO~P&#iOP$[OR#zO[<_Oj<SOr<]O!Q#yO!S#{O!l#xO!p$[O#R<SO#n<PO#o<QO#p<QO#q<QO#r<RO#s<SO#t<SO#u<^O#v<TO#x<VO(`VO(x#|O(y#}O#{#mi$O#mi(q#mi!]#mi!^#mi~O#z#mi~P&'yO#z<XO~P&'yOa#|y!]#|y'y#|y'v#|y!Y#|y!k#|yv#|y!_#|y%i#|y!g#|y~P!:aO[#mij#mir#mi#R#mi#r#mi#s#mi#t#mi#u#mi#v#mi#x#mi#z#mi#{#mi$O#mi(q#mi!]#mi!^#mi~OP$[OR#zO!Q#yO!S#{O!l#xO!p$[O#n<PO#o<QO#p<QO#q<QO(`VO(x#mi(y#mi~P&*uOn=}O!Q)|O'x)}O(x$}O(y%POP#miR#mi!S#mi!l#mi!p#mi#n#mi#o#mi#p#mi#q#mi(`#mi~P&*uO#S$dOP(_XR(_X[(_Xj(_Xn(_Xr(_X!Q(_X!S(_X!l(_X!p(_X#R(_X#n(_X#o(_X#p(_X#q(_X#r(_X#s(_X#t(_X#u(_X#v(_X#x(_X#z(_X#{(_X$O(_X'x(_X(`(_X(q(_X(x(_X(y(_X!](_X!^(_X~O$O$Pi!]$Pi!^$Pi~P#B]O$O!ri!^!ri~P$*bOg'[a!]'[a~P!0{O!^7dO~O!]'ca!^'ca~P#B]O!Y7eO~P#/XO!g#vO(q'nO!]'da!k'da~O!]/kO!k(}i~O!]/kO!g#vO!k(}i~Og$|q!]$|q#`$|q$O$|q~P!0{O!Y'fa!]'fa~P#/XO!g7lO~O!]/sO!Y)Oi~P#/XO!]/sO!Y)Oi~O!Y7oO~Oh%VOr7tO!l%dO(q'nO~Oj7vO!g#vO~Or7yO!g#vO(q'nO~O!Q)|O'x)}O(y%POn'ia(x'ia!]'ia#`'ia~Og'ia$O'ia~P&3vO!Q)|O'x)}On'ka(x'ka(y'ka!]'ka#`'ka~Og'ka$O'ka~P&4iO!Y7{O~Og%Oq!]%Oq#`%Oq$O%Oq~P!0{Og(^q!](^q~P!0{O#`7|Og(^q!](^q~P!0{Oa$oy!]$oy'y$oy'v$oy!Y$oy!k$oyv$oy!_$oy%i$oy!g$oy~P!:aO!g6hO~O!]5RO!_)Pa~O!_'^OP$TaR$Ta[$Taj$Tar$Ta!Q$Ta!S$Ta!]$Ta!l$Ta!p$Ta#R$Ta#n$Ta#o$Ta#p$Ta#q$Ta#r$Ta#s$Ta#t$Ta#u$Ta#v$Ta#x$Ta#z$Ta#{$Ta(`$Ta(q$Ta(x$Ta(y$Ta~O%i6|O~P&7ZO%^8QOa%[i!_%[i'y%[i!]%[i~Oa#cy!]#cy'y#cy'v#cy!Y#cy!k#cyv#cy!_#cy%i#cy!g#cy~P!:aO[8SO~Ob8UO(S+nO(UTO(XUO~O!]0}O!^)Wi~O`8YO~O(d(zO!]'oX!^'oX~O!]5kO!^)Ta~O!^8cO~P%:YO(n!sO~P$${O#[8dO~O!_1gO~O!_1gO%i8fO~On8iO!_1gO%i8fO~O[8nO!]'ra!^'ra~O!]1rO!^)Ui~O!k8rO~O!k8sO~O!k8vO~O!k8vO~P%[Oa8xO~O!g8yO~O!k8zO~O!](vi!^(vi~P#B]Oa%mO#`9SO'y%mO~O!](sy!k(sya(sy'y(sy~P!:aO!](hO!k(ry~O%i9VO~P&7ZO!_'^O%i9VO~O#k$|qP$|qR$|q[$|qa$|qj$|qr$|q!S$|q!]$|q!l$|q!p$|q#R$|q#n$|q#o$|q#p$|q#q$|q#r$|q#s$|q#t$|q#u$|q#v$|q#x$|q#z$|q#{$|q'y$|q(`$|q(q$|q!k$|q!Y$|q'v$|q#`$|qv$|q!_$|q%i$|q!g$|q~P#/XO#k'iaP'iaR'ia['iaa'iaj'iar'ia!S'ia!l'ia!p'ia#R'ia#n'ia#o'ia#p'ia#q'ia#r'ia#s'ia#t'ia#u'ia#v'ia#x'ia#z'ia#{'ia'y'ia(`'ia(q'ia!k'ia!Y'ia'v'iav'ia!_'ia%i'ia!g'ia~P&3vO#k'kaP'kaR'ka['kaa'kaj'kar'ka!S'ka!l'ka!p'ka#R'ka#n'ka#o'ka#p'ka#q'ka#r'ka#s'ka#t'ka#u'ka#v'ka#x'ka#z'ka#{'ka'y'ka(`'ka(q'ka!k'ka!Y'ka'v'kav'ka!_'ka%i'ka!g'ka~P&4iO#k%OqP%OqR%Oq[%Oqa%Oqj%Oqr%Oq!S%Oq!]%Oq!l%Oq!p%Oq#R%Oq#n%Oq#o%Oq#p%Oq#q%Oq#r%Oq#s%Oq#t%Oq#u%Oq#v%Oq#x%Oq#z%Oq#{%Oq'y%Oq(`%Oq(q%Oq!k%Oq!Y%Oq'v%Oq#`%Oqv%Oq!_%Oq%i%Oq!g%Oq~P#/XO!]'Xi!k'Xi~P!:aO$O#cq!]#cq!^#cq~P#B]O(x$}OP%aaR%aa[%aaj%aar%aa!S%aa!l%aa!p%aa#R%aa#n%aa#o%aa#p%aa#q%aa#r%aa#s%aa#t%aa#u%aa#v%aa#x%aa#z%aa#{%aa$O%aa(`%aa(q%aa!]%aa!^%aa~On%aa!Q%aa'x%aa(y%aa~P&HnO(y%POP%caR%ca[%caj%car%ca!S%ca!l%ca!p%ca#R%ca#n%ca#o%ca#p%ca#q%ca#r%ca#s%ca#t%ca#u%ca#v%ca#x%ca#z%ca#{%ca$O%ca(`%ca(q%ca!]%ca!^%ca~On%ca!Q%ca'x%ca(x%ca~P&JuOn=}O!Q)|O'x)}O(y%PO~P&HnOn=}O!Q)|O'x)}O(x$}O~P&JuOR0cO!Q0cO!S0dO#S$dOP}a[}aj}an}ar}a!l}a!p}a#R}a#n}a#o}a#p}a#q}a#r}a#s}a#t}a#u}a#v}a#x}a#z}a#{}a$O}a'x}a(`}a(q}a(x}a(y}a!]}a!^}a~O!Q)|O'x)}OP$saR$sa[$saj$san$sar$sa!S$sa!l$sa!p$sa#R$sa#n$sa#o$sa#p$sa#q$sa#r$sa#s$sa#t$sa#u$sa#v$sa#x$sa#z$sa#{$sa$O$sa(`$sa(q$sa(x$sa(y$sa!]$sa!^$sa~O!Q)|O'x)}OP$uaR$ua[$uaj$uan$uar$ua!S$ua!l$ua!p$ua#R$ua#n$ua#o$ua#p$ua#q$ua#r$ua#s$ua#t$ua#u$ua#v$ua#x$ua#z$ua#{$ua$O$ua(`$ua(q$ua(x$ua(y$ua!]$ua!^$ua~On=}O!Q)|O'x)}O(x$}O(y%PO~OP%TaR%Ta[%Taj%Tar%Ta!S%Ta!l%Ta!p%Ta#R%Ta#n%Ta#o%Ta#p%Ta#q%Ta#r%Ta#s%Ta#t%Ta#u%Ta#v%Ta#x%Ta#z%Ta#{%Ta$O%Ta(`%Ta(q%Ta!]%Ta!^%Ta~P'%zO$O$mq!]$mq!^$mq~P#B]O$O$oq!]$oq!^$oq~P#B]O!^9dO~O$O9eO~P!0{O!g#vO!]'di!k'di~O!g#vO(q'nO!]'di!k'di~O!]/kO!k(}q~O!Y'fi!]'fi~P#/XO!]/sO!Y)Oq~Or9lO!g#vO(q'nO~O[9nO!Y9mO~P#/XO!Y9mO~Oj9tO!g#vO~Og(^y!](^y~P!0{O!]'ma!_'ma~P#/XOa%[q!_%[q'y%[q!]%[q~P#/XO[9yO~O!]0}O!^)Wq~O#`9}O!]'oa!^'oa~O!]5kO!^)Ti~P#B]O!S:PO~O!_1gO%i:SO~O(UTO(XUO(d:XO~O!]1rO!^)Uq~O!k:[O~O!k:]O~O!k:^O~O!k:^O~P%[O#`:aO!]#hy!^#hy~O!]#hy!^#hy~P#B]O%i:fO~P&7ZO!_'^O%i:fO~O$O#|y!]#|y!^#|y~P#B]OP$|iR$|i[$|ij$|ir$|i!S$|i!l$|i!p$|i#R$|i#n$|i#o$|i#p$|i#q$|i#r$|i#s$|i#t$|i#u$|i#v$|i#x$|i#z$|i#{$|i$O$|i(`$|i(q$|i!]$|i!^$|i~P'%zO!Q)|O'x)}O(y%POP'haR'ha['haj'han'har'ha!S'ha!l'ha!p'ha#R'ha#n'ha#o'ha#p'ha#q'ha#r'ha#s'ha#t'ha#u'ha#v'ha#x'ha#z'ha#{'ha$O'ha(`'ha(q'ha(x'ha!]'ha!^'ha~O!Q)|O'x)}OP'jaR'ja['jaj'jan'jar'ja!S'ja!l'ja!p'ja#R'ja#n'ja#o'ja#p'ja#q'ja#r'ja#s'ja#t'ja#u'ja#v'ja#x'ja#z'ja#{'ja$O'ja(`'ja(q'ja(x'ja(y'ja!]'ja!^'ja~O(x$}OP%aiR%ai[%aij%ain%air%ai!Q%ai!S%ai!l%ai!p%ai#R%ai#n%ai#o%ai#p%ai#q%ai#r%ai#s%ai#t%ai#u%ai#v%ai#x%ai#z%ai#{%ai$O%ai'x%ai(`%ai(q%ai(y%ai!]%ai!^%ai~O(y%POP%ciR%ci[%cij%cin%cir%ci!Q%ci!S%ci!l%ci!p%ci#R%ci#n%ci#o%ci#p%ci#q%ci#r%ci#s%ci#t%ci#u%ci#v%ci#x%ci#z%ci#{%ci$O%ci'x%ci(`%ci(q%ci(x%ci!]%ci!^%ci~O$O$oy!]$oy!^$oy~P#B]O$O#cy!]#cy!^#cy~P#B]O!g#vO!]'dq!k'dq~O!]/kO!k(}y~O!Y'fq!]'fq~P#/XOr:pO!g#vO(q'nO~O[:tO!Y:sO~P#/XO!Y:sO~Og(^!R!](^!R~P!0{Oa%[y!_%[y'y%[y!]%[y~P#/XO!]0}O!^)Wy~O!]5kO!^)Tq~O(S:zO~O!_1gO%i:}O~O!k;QO~O%i;VO~P&7ZOP$|qR$|q[$|qj$|qr$|q!S$|q!l$|q!p$|q#R$|q#n$|q#o$|q#p$|q#q$|q#r$|q#s$|q#t$|q#u$|q#v$|q#x$|q#z$|q#{$|q$O$|q(`$|q(q$|q!]$|q!^$|q~P'%zO!Q)|O'x)}O(y%POP'iaR'ia['iaj'ian'iar'ia!S'ia!l'ia!p'ia#R'ia#n'ia#o'ia#p'ia#q'ia#r'ia#s'ia#t'ia#u'ia#v'ia#x'ia#z'ia#{'ia$O'ia(`'ia(q'ia(x'ia!]'ia!^'ia~O!Q)|O'x)}OP'kaR'ka['kaj'kan'kar'ka!S'ka!l'ka!p'ka#R'ka#n'ka#o'ka#p'ka#q'ka#r'ka#s'ka#t'ka#u'ka#v'ka#x'ka#z'ka#{'ka$O'ka(`'ka(q'ka(x'ka(y'ka!]'ka!^'ka~OP%OqR%Oq[%Oqj%Oqr%Oq!S%Oq!l%Oq!p%Oq#R%Oq#n%Oq#o%Oq#p%Oq#q%Oq#r%Oq#s%Oq#t%Oq#u%Oq#v%Oq#x%Oq#z%Oq#{%Oq$O%Oq(`%Oq(q%Oq!]%Oq!^%Oq~P'%zOg%e!Z!]%e!Z#`%e!Z$O%e!Z~P!0{O!Y;ZO~P#/XOr;[O!g#vO(q'nO~O[;^O!Y;ZO~P#/XO!]'oq!^'oq~P#B]O!]#h!Z!^#h!Z~P#B]O#k%e!ZP%e!ZR%e!Z[%e!Za%e!Zj%e!Zr%e!Z!S%e!Z!]%e!Z!l%e!Z!p%e!Z#R%e!Z#n%e!Z#o%e!Z#p%e!Z#q%e!Z#r%e!Z#s%e!Z#t%e!Z#u%e!Z#v%e!Z#x%e!Z#z%e!Z#{%e!Z'y%e!Z(`%e!Z(q%e!Z!k%e!Z!Y%e!Z'v%e!Z#`%e!Zv%e!Z!_%e!Z%i%e!Z!g%e!Z~P#/XOr;fO!g#vO(q'nO~O!Y;gO~P#/XOr;nO!g#vO(q'nO~O!Y;oO~P#/XOP%e!ZR%e!Z[%e!Zj%e!Zr%e!Z!S%e!Z!l%e!Z!p%e!Z#R%e!Z#n%e!Z#o%e!Z#p%e!Z#q%e!Z#r%e!Z#s%e!Z#t%e!Z#u%e!Z#v%e!Z#x%e!Z#z%e!Z#{%e!Z$O%e!Z(`%e!Z(q%e!Z!]%e!Z!^%e!Z~P'%zOr;rO!g#vO(q'nO~Ov(eX~P1qO!Q%qO~P!)PO(T!lO~P!)PO!YfX!]fX#`fX~P%0kOP]XR]X[]Xj]Xr]X!Q]X!S]X!]]X!]fX!l]X!p]X#R]X#S]X#`]X#`fX#kfX#n]X#o]X#p]X#q]X#r]X#s]X#t]X#u]X#v]X#x]X#z]X#{]X$Q]X(`]X(q]X(x]X(y]X~O!gfX!k]X!kfX(qfX~P'JsOP;vOQ;vOSfOd=rOe!iOpkOr;vOskOtkOzkO|;vO!O;vO!SWO!WkO!XkO!_XO!i;yO!lZO!o;vO!p;vO!q;vO!s;zO!u;}O!x!hO$W!kO$n=pO(S)ZO(UTO(XUO(`VO(n[O~O!]<ZO!^$qa~Oh%VOp%WOr%XOs$tOt$tOz%YO|%ZO!O<fO!S${O!_$|O!i=wO!l$xO#j<lO$W%_O$t<hO$v<jO$y%`O(S(tO(UTO(XUO(`$uO(x$}O(y%PO~Ol)bO~P( iOr!eX(q!eX~P# }Or(iX(q(iX~P#!pO!^]X!^fX~P'JsO!YfX!Y$zX!]fX!]$zX#`fX~P!/wO#k<OO~O!g#vO#k<OO~O#`<`O~Oj<SO~O#`<pO!](vX!^(vX~O#`<`O!](tX!^(tX~O#k<qO~Og<sO~P!0{O#k<yO~O#k<zO~O!g#vO#k<{O~O!g#vO#k<qO~O$O<|O~P#B]O#k<}O~O#k=OO~O#k=TO~O#k=UO~O#k=VO~O#k=WO~O$O=XO~P!0{O$O=YO~P!0{Ok#S#T#U#W#X#[#i#j#u$n$t$v$y%]%^%h%i%j%q%s%v%w%y%{~'}T#o!X'{(T#ps#n#qr!Q'|$]'|(S$_(d~",
-      goto: "$8g)[PPPPPP)]PP)`P)qP+R/WPPPP6bPP6xPP<pPPP@dP@zP@zPPP@zPCSP@zP@zP@zPCWPC]PCzPHtPPPHxPPPPHxK{PPPLRLsPHxPHxPP! RHxPPPHxPHxP!#YHxP!&p!'u!(OP!(r!(v!(r!,TPPPPPPP!,t!'uPP!-U!.vP!2SHxHx!2X!5e!:R!:R!>QPPP!>YHxPPPPPPPPP!AiP!BvPPHx!DXPHxPHxHxHxHxHxPHx!EkP!HuP!K{P!LP!LZ!L_!L_P!HrP!Lc!LcP# iP# mHxPHx# s#$xCW@zP@zP@z@zP#&V@z@z#(i@z#+a@z#-m@z@z#.]#0q#0q#0v#1P#0q#1[PP#0qP@z#1t@z#5s@z@z6bPPP#9xPPP#:c#:cP#:cP#:y#:cPP#;PP#:vP#:v#;d#:v#<O#<U#<X)`#<[)`P#<c#<c#<cP)`P)`P)`P)`PP)`P#<i#<lP#<l)`P#<pP#<sP)`P)`P)`P)`P)`P)`)`PP#<y#=P#=[#=b#=h#=n#=t#>S#>Y#>d#>j#>t#>z#?[#?b#@S#@f#@l#@r#AQ#Ag#C[#Cj#Cq#E]#Ek#G]#Gk#Gq#Gw#G}#HX#H_#He#Ho#IR#IXPPPPPPPPPPP#I_PPPPPPP#JS#MZ#Ns#Nz$ SPPP$&nP$&w$)p$0Z$0^$0a$1`$1c$1j$1rP$1x$1{P$2i$2m$3e$4s$4x$5`PP$5e$5k$5o$5r$5v$5z$6v$7_$7v$7z$7}$8Q$8W$8Z$8_$8cR!|RoqOXst!Z#d%l&p&r&s&u,n,s2S2VY!vQ'^-`1g5qQ%svQ%{yQ&S|Q&h!VS'U!e-WQ'd!iS'j!r!yU*h$|*X*lQ+l%|Q+y&UQ,_&bQ-^']Q-h'eQ-p'kQ0U*nQ1q,`R<m;z%SdOPWXYZstuvw!Z!`!g!o#S#W#Z#d#o#u#x#{$O$P$Q$R$S$T$U$V$W$X$_$a$e%l%s&Q&i&l&p&r&s&u&y'R'`'p(R(T(Z(b(v(x(|){*f+U+Y,k,n,s-d-l-z.Q.o.v/i0V0d0l0|1j1z1{1}2P2S2V2X2x3O3d4q5y6Z6[6_6r8i8x9SS#q];w!r)]$Z$n'V)q-P-S/Q2h3{5m6i9}:a;v;y;z;}<O<P<Q<R<S<T<U<V<W<X<Y<Z<]<`<m<p<q<s<{<|=V=W=sU*{%[<e<fQ+q&OQ,a&eQ,h&mQ0r+dQ0w+fQ1S+rQ1y,fQ3W.bQ5V0vQ5]0}Q6Q1rQ7O3[Q8U5^R9Y7Q'QkOPWXYZstuvw!Z!`!g!o#S#W#Z#d#o#u#x#{$O$P$Q$R$S$T$U$V$W$X$Z$_$a$e$n%l%s&Q&i&l&m&p&r&s&u&y'R'V'`'p(R(T(Z(b(v(x(|)q){*f+U+Y+d,k,n,s-P-S-d-l-z.Q.b.o.v/Q/i0V0d0l0|1j1z1{1}2P2S2V2X2h2x3O3[3d3{4q5m5y6Z6[6_6i6r7Q8i8x9S9}:a;v;y;z;}<O<P<Q<R<S<T<U<V<W<X<Y<Z<]<`<m<p<q<s<{<|=V=W=s!S!nQ!r!v!y!z$|'U']'^'j'k'l*h*l*n*o-W-^-`-p0U0X1g5q5s%[$ti#v$b$c$d$x${%O%Q%]%^%b)w*P*R*T*W*^*d*t*u+c+f+},Q.a.z/_/h/r/s/u0Y0[0g0h0i1^1a1i3Z4U4V4a4f4w5R5U5x6|7l7v7|8Q8f9V9e9n9t:S:f:t:};V;^<^<_<a<b<c<d<g<h<i<j<k<l<t<u<v<w<y<z<}=O=P=Q=R=S=T=U=X=Y=p=x=y=|=}Q&V|Q'S!eS'Y%h-ZQ+q&OQ,a&eQ0f+OQ1S+rQ1X+xQ1x,eQ1y,fQ5]0}Q5f1ZQ6Q1rQ6T1tQ6U1wQ8U5^Q8X5cQ8q6WQ9|8YQ:Y8nR<o*XrnOXst!V!Z#d%l&g&p&r&s&u,n,s2S2VR,c&i&z^OPXYstuvwz!Z!`!g!j!o#S#d#o#u#x#{$O$P$Q$R$S$T$U$V$W$X$Z$_$a$e$n%l%s&Q&i&l&m&p&r&s&u&y'R'`'p(T(Z(b(v(x(|)q){*f+U+Y+d,k,n,s-P-S-d-l-z.Q.b.o.v/Q/i0V0d0l0|1j1z1{1}2P2S2V2X2h2x3O3[3d3{4q5m5y6Z6[6_6i6r7Q8i8x9S9}:a;v;y;z;}<O<P<Q<R<S<T<U<V<W<X<Y<Z<]<`<m<p<q<s<{<|=V=W=r=s[#]WZ#W#Z'V(R!b%im#h#i#l$x%d%g([(f(g(h*W*[*_+W+X+Z,j-Q.O.U.V.W.Y/h/k2[3S3T4X6h6yQ%vxQ%zyS&P|&UQ&]!TQ'a!hQ'c!iQ(o#sS+k%{%|Q+o&OQ,Y&`Q,^&bS-g'd'eQ.d(pQ0{+lQ1R+rQ1T+sQ1W+wQ1l,ZS1p,_,`Q2t-hQ5[0}Q5`1QQ5e1YQ6P1qQ8T5^Q8W5bQ9x8SR:w9y!U$zi$d%O%Q%]%^%b*P*R*^*t*u.z/r0Y0[0g0h0i4V4w7|9e=p=x=y!^%xy!i!u%z%{%|'T'c'd'e'i's*g+k+l-T-g-h-o/{0O0{2m2t2{4i4j4m7s9pQ+e%vQ,O&YQ,R&ZQ,]&bQ.c(oQ1k,YU1o,^,_,`Q3].dQ5z1lS6O1p1qQ8m6P#f=t#v$b$c$x${)w*T*W*d+c+f+},Q.a/_/h/s/u1^1a1i3Z4U4a4f5R5U5x6|7l7v8Q8f9V9n9t:S:f:t:};V;^<a<c<g<i<k<t<v<y<}=P=R=T=X=|=}o=u<^<_<b<d<h<j<l<u<w<z=O=Q=S=U=YW%Ti%V*v=pS&Y!Q&gQ&Z!RQ&[!SQ+S%cR+|&W%]%Si#v$b$c$d$x${%O%Q%]%^%b)w*P*R*T*W*^*d*t*u+c+f+},Q.a.z/_/h/r/s/u0Y0[0g0h0i1^1a1i3Z4U4V4a4f4w5R5U5x6|7l7v7|8Q8f9V9e9n9t:S:f:t:};V;^<^<_<a<b<c<d<g<h<i<j<k<l<t<u<v<w<y<z<}=O=P=Q=R=S=T=U=X=Y=p=x=y=|=}T)x$u)yV*{%[<e<fW'Y!e%h*X-ZS({#y#zQ+`%qQ+v&RS.](k(lQ1b,SQ4x0cR8^5k'QkOPWXYZstuvw!Z!`!g!o#S#W#Z#d#o#u#x#{$O$P$Q$R$S$T$U$V$W$X$Z$_$a$e$n%l%s&Q&i&l&m&p&r&s&u&y'R'V'`'p(R(T(Z(b(v(x(|)q){*f+U+Y+d,k,n,s-P-S-d-l-z.Q.b.o.v/Q/i0V0d0l0|1j1z1{1}2P2S2V2X2h2x3O3[3d3{4q5m5y6Z6[6_6i6r7Q8i8x9S9}:a;v;y;z;}<O<P<Q<R<S<T<U<V<W<X<Y<Z<]<`<m<p<q<s<{<|=V=W=s$i$^c#Y#e%p%r%t(Q(W(r(w)P)Q)R)S)T)U)V)W)X)Y)[)^)`)e)o+a+u-U-s-x-}.P.n.q.u.w.x.y/]0j2c2f2v2}3c3h3i3j3k3l3m3n3o3p3q3r3s3t3w3x4P5O5Y6k6q6v7V7W7a7b8`8|9Q9[9b9c:c:y;R;x=gT#TV#U'RkOPWXYZstuvw!Z!`!g!o#S#W#Z#d#o#u#x#{$O$P$Q$R$S$T$U$V$W$X$Z$_$a$e$n%l%s&Q&i&l&m&p&r&s&u&y'R'V'`'p(R(T(Z(b(v(x(|)q){*f+U+Y+d,k,n,s-P-S-d-l-z.Q.b.o.v/Q/i0V0d0l0|1j1z1{1}2P2S2V2X2h2x3O3[3d3{4q5m5y6Z6[6_6i6r7Q8i8x9S9}:a;v;y;z;}<O<P<Q<R<S<T<U<V<W<X<Y<Z<]<`<m<p<q<s<{<|=V=W=sQ'W!eR2i-W!W!nQ!e!r!v!y!z$|'U']'^'j'k'l*X*h*l*n*o-W-^-`-p0U0X1g5q5sR1d,UnqOXst!Z#d%l&p&r&s&u,n,s2S2VQ&w!^Q't!xS(q#u<OQ+i%yQ,W&]Q,X&_Q-e'bQ-r'mS.m(v<qS0k+U<{Q0y+jQ1f,VQ2Z,uQ2],vQ2e-RQ2r-fQ2u-jS5P0l=VQ5W0zS5Z0|=WQ6j2gQ6n2sQ6s2zQ8R5XQ8}6lQ9O6oQ9R6tR:`8z$d$]c#Y#e%r%t(Q(W(r(w)P)Q)R)S)T)U)V)W)X)Y)[)^)`)e)o+a+u-U-s-x-}.P.n.q.u.x.y/]0j2c2f2v2}3c3h3i3j3k3l3m3n3o3p3q3r3s3t3w3x4P5O5Y6k6q6v7V7W7a7b8`8|9Q9[9b9c:c:y;R;x=gS(m#p'gQ(}#zS+_%p.wS.^(l(nR3U._'QkOPWXYZstuvw!Z!`!g!o#S#W#Z#d#o#u#x#{$O$P$Q$R$S$T$U$V$W$X$Z$_$a$e$n%l%s&Q&i&l&m&p&r&s&u&y'R'V'`'p(R(T(Z(b(v(x(|)q){*f+U+Y+d,k,n,s-P-S-d-l-z.Q.b.o.v/Q/i0V0d0l0|1j1z1{1}2P2S2V2X2h2x3O3[3d3{4q5m5y6Z6[6_6i6r7Q8i8x9S9}:a;v;y;z;}<O<P<Q<R<S<T<U<V<W<X<Y<Z<]<`<m<p<q<s<{<|=V=W=sS#q];wQ&r!XQ&s!YQ&u![Q&v!]R2R,qQ'_!hQ+b%vQ-c'aS.`(o+eQ2p-bW3Y.c.d0q0sQ6m2qW6z3V3X3]5TU9U6{6}7PU:e9W9X9ZS;T:d:gQ;b;UR;j;cU!wQ'^-`T5o1g5q!Q_OXZ`st!V!Z#d#h%d%l&g&i&p&r&s&u(h,n,s.V2S2V]!pQ!r'^-`1g5qT#q];w%^{OPWXYZstuvw!Z!`!g!o#S#W#Z#d#o#u#x#{$O$P$Q$R$S$T$U$V$W$X$_$a$e%l%s&Q&i&l&m&p&r&s&u&y'R'`'p(R(T(Z(b(v(x(|){*f+U+Y+d,k,n,s-d-l-z.Q.b.o.v/i0V0d0l0|1j1z1{1}2P2S2V2X2x3O3[3d4q5y6Z6[6_6r7Q8i8x9SS({#y#zS.](k(l!s=^$Z$n'V)q-P-S/Q2h3{5m6i9}:a;v;y;z;}<O<P<Q<R<S<T<U<V<W<X<Y<Z<]<`<m<p<q<s<{<|=V=W=sU$fd)],hS(n#p'gU*s%R(u3vU0e*z.i7]Q5T0rQ6{3WQ9X7OR:g9Ym!tQ!r!v!y!z'^'j'k'l-`-p1g5q5sQ'r!uS(d#g1|S-n'i'uQ/n*ZQ/{*gQ2|-qQ4]/oQ4i/}Q4j0OQ4o0WQ7h4WS7s4k4mS7w4p4rQ9g7iQ9k7oQ9p7tQ9u7yS:o9l9mS;Y:p:sS;e;Z;[S;m;f;gS;q;n;oR;t;rQ#wbQ'q!uS(c#g1|S(e#m+TQ+V%eQ+g%wQ+m%}U-m'i'r'uQ.R(dQ/m*ZQ/|*gQ0P*iQ0x+hQ1m,[S2y-n-qQ3R.ZS4[/n/oQ4e/yS4h/{0WQ4l0QQ5|1nQ6u2|Q7g4WQ7k4]U7r4i4o4rQ7u4nQ8k5}S9f7h7iQ9j7oQ9r7wQ9s7xQ:V8lQ:m9gS:n9k9mQ:v9uQ;P:WS;X:o:sS;d;Y;ZS;l;e;gS;p;m;oQ;s;qQ;u;tQ=a=[Q=l=eR=m=fV!wQ'^-`%^aOPWXYZstuvw!Z!`!g!o#S#W#Z#d#o#u#x#{$O$P$Q$R$S$T$U$V$W$X$_$a$e%l%s&Q&i&l&m&p&r&s&u&y'R'`'p(R(T(Z(b(v(x(|){*f+U+Y+d,k,n,s-d-l-z.Q.b.o.v/i0V0d0l0|1j1z1{1}2P2S2V2X2x3O3[3d4q5y6Z6[6_6r7Q8i8x9SS#wz!j!r=Z$Z$n'V)q-P-S/Q2h3{5m6i9}:a;v;y;z;}<O<P<Q<R<S<T<U<V<W<X<Y<Z<]<`<m<p<q<s<{<|=V=W=sR=a=r%^bOPWXYZstuvw!Z!`!g!o#S#W#Z#d#o#u#x#{$O$P$Q$R$S$T$U$V$W$X$_$a$e%l%s&Q&i&l&m&p&r&s&u&y'R'`'p(R(T(Z(b(v(x(|){*f+U+Y+d,k,n,s-d-l-z.Q.b.o.v/i0V0d0l0|1j1z1{1}2P2S2V2X2x3O3[3d4q5y6Z6[6_6r7Q8i8x9SQ%ej!^%wy!i!u%z%{%|'T'c'd'e'i's*g+k+l-T-g-h-o/{0O0{2m2t2{4i4j4m7s9pS%}z!jQ+h%xQ,[&bW1n,],^,_,`U5}1o1p1qS8l6O6PQ:W8m!r=[$Z$n'V)q-P-S/Q2h3{5m6i9}:a;v;y;z;}<O<P<Q<R<S<T<U<V<W<X<Y<Z<]<`<m<p<q<s<{<|=V=W=sQ=e=qR=f=r%QeOPXYstuvw!Z!`!g!o#S#d#o#u#x#{$O$P$Q$R$S$T$U$V$W$X$_$a$e%l%s&Q&i&l&p&r&s&u&y'R'`'p(T(Z(b(v(x(|){*f+U+Y+d,k,n,s-d-l-z.Q.b.o.v/i0V0d0l0|1j1z1{1}2P2S2V2X2x3O3[3d4q5y6Z6[6_6r7Q8i8x9SY#bWZ#W#Z(R!b%im#h#i#l$x%d%g([(f(g(h*W*[*_+W+X+Z,j-Q.O.U.V.W.Y/h/k2[3S3T4X6h6yQ,i&m!p=]$Z$n)q-P-S/Q2h3{5m6i9}:a;v;y;z;}<O<P<Q<R<S<T<U<V<W<X<Y<Z<]<`<m<p<q<s<{<|=V=W=sR=`'VU'Z!e%h*XR2k-Z%SdOPWXYZstuvw!Z!`!g!o#S#W#Z#d#o#u#x#{$O$P$Q$R$S$T$U$V$W$X$_$a$e%l%s&Q&i&l&p&r&s&u&y'R'`'p(R(T(Z(b(v(x(|){*f+U+Y,k,n,s-d-l-z.Q.o.v/i0V0d0l0|1j1z1{1}2P2S2V2X2x3O3d4q5y6Z6[6_6r8i8x9S!r)]$Z$n'V)q-P-S/Q2h3{5m6i9}:a;v;y;z;}<O<P<Q<R<S<T<U<V<W<X<Y<Z<]<`<m<p<q<s<{<|=V=W=sQ,h&mQ0r+dQ3W.bQ7O3[R9Y7Q!b$Tc#Y%p(Q(W(r(w)X)Y)^)e+u-s-x-}.P.n.q/]0j2v2}3c3s5O5Y6q6v7V9Q:c;x!P<U)[)o-U.w2c2f3h3q3r3w4P6k7W7a7b8`8|9[9b9c:y;R=g!f$Vc#Y%p(Q(W(r(w)U)V)X)Y)^)e+u-s-x-}.P.n.q/]0j2v2}3c3s5O5Y6q6v7V9Q:c;x!T<W)[)o-U.w2c2f3h3n3o3q3r3w4P6k7W7a7b8`8|9[9b9c:y;R=g!^$Zc#Y%p(Q(W(r(w)^)e+u-s-x-}.P.n.q/]0j2v2}3c3s5O5Y6q6v7V9Q:c;xQ4V/fz=s)[)o-U.w2c2f3h3w4P6k7W7a7b8`8|9[9b9c:y;R=gQ=x=zR=y={'QkOPWXYZstuvw!Z!`!g!o#S#W#Z#d#o#u#x#{$O$P$Q$R$S$T$U$V$W$X$Z$_$a$e$n%l%s&Q&i&l&m&p&r&s&u&y'R'V'`'p(R(T(Z(b(v(x(|)q){*f+U+Y+d,k,n,s-P-S-d-l-z.Q.b.o.v/Q/i0V0d0l0|1j1z1{1}2P2S2V2X2h2x3O3[3d3{4q5m5y6Z6[6_6i6r7Q8i8x9S9}:a;v;y;z;}<O<P<Q<R<S<T<U<V<W<X<Y<Z<]<`<m<p<q<s<{<|=V=W=sS$oh$pR3|/P'XgOPWXYZhstuvw!Z!`!g!o#S#W#Z#d#o#u#x#{$O$P$Q$R$S$T$U$V$W$X$Z$_$a$e$n$p%l%s&Q&i&l&m&p&r&s&u&y'R'V'`'p(R(T(Z(b(v(x(|)q){*f+U+Y+d,k,n,s-P-S-d-l-z.Q.b.o.v/P/Q/i0V0d0l0|1j1z1{1}2P2S2V2X2h2x3O3[3d3{4q5m5y6Z6[6_6i6r7Q8i8x9S9}:a;v;y;z;}<O<P<Q<R<S<T<U<V<W<X<Y<Z<]<`<m<p<q<s<{<|=V=W=sT$kf$qQ$ifS)h$l)lR)t$qT$jf$qT)j$l)l'XhOPWXYZhstuvw!Z!`!g!o#S#W#Z#d#o#u#x#{$O$P$Q$R$S$T$U$V$W$X$Z$_$a$e$n$p%l%s&Q&i&l&m&p&r&s&u&y'R'V'`'p(R(T(Z(b(v(x(|)q){*f+U+Y+d,k,n,s-P-S-d-l-z.Q.b.o.v/P/Q/i0V0d0l0|1j1z1{1}2P2S2V2X2h2x3O3[3d3{4q5m5y6Z6[6_6i6r7Q8i8x9S9}:a;v;y;z;}<O<P<Q<R<S<T<U<V<W<X<Y<Z<]<`<m<p<q<s<{<|=V=W=sT$oh$pQ$rhR)s$p%^jOPWXYZstuvw!Z!`!g!o#S#W#Z#d#o#u#x#{$O$P$Q$R$S$T$U$V$W$X$_$a$e%l%s&Q&i&l&m&p&r&s&u&y'R'`'p(R(T(Z(b(v(x(|){*f+U+Y+d,k,n,s-d-l-z.Q.b.o.v/i0V0d0l0|1j1z1{1}2P2S2V2X2x3O3[3d4q5y6Z6[6_6r7Q8i8x9S!s=q$Z$n'V)q-P-S/Q2h3{5m6i9}:a;v;y;z;}<O<P<Q<R<S<T<U<V<W<X<Y<Z<]<`<m<p<q<s<{<|=V=W=s#glOPXZst!Z!`!o#S#d#o#{$n%l&i&l&m&p&r&s&u&y'R'`(|)q*f+Y+d,k,n,s-d.b/Q/i0V0d1j1z1{1}2P2S2V2X3[3{4q5y6Z6[6_7Q8i8x!U%Ri$d%O%Q%]%^%b*P*R*^*t*u.z/r0Y0[0g0h0i4V4w7|9e=p=x=y#f(u#v$b$c$x${)w*T*W*d+c+f+},Q.a/_/h/s/u1^1a1i3Z4U4a4f5R5U5x6|7l7v8Q8f9V9n9t:S:f:t:};V;^<a<c<g<i<k<t<v<y<}=P=R=T=X=|=}Q+P%`Q/^)|o3v<^<_<b<d<h<j<l<u<w<z=O=Q=S=U=Y!U$yi$d%O%Q%]%^%b*P*R*^*t*u.z/r0Y0[0g0h0i4V4w7|9e=p=x=yQ*`$zU*i$|*X*lQ+Q%aQ0Q*j#f=c#v$b$c$x${)w*T*W*d+c+f+},Q.a/_/h/s/u1^1a1i3Z4U4a4f5R5U5x6|7l7v8Q8f9V9n9t:S:f:t:};V;^<a<c<g<i<k<t<v<y<}=P=R=T=X=|=}n=d<^<_<b<d<h<j<l<u<w<z=O=Q=S=U=YQ=h=tQ=i=uQ=j=vR=k=w!U%Ri$d%O%Q%]%^%b*P*R*^*t*u.z/r0Y0[0g0h0i4V4w7|9e=p=x=y#f(u#v$b$c$x${)w*T*W*d+c+f+},Q.a/_/h/s/u1^1a1i3Z4U4a4f5R5U5x6|7l7v8Q8f9V9n9t:S:f:t:};V;^<a<c<g<i<k<t<v<y<}=P=R=T=X=|=}o3v<^<_<b<d<h<j<l<u<w<z=O=Q=S=U=YnoOXst!Z#d%l&p&r&s&u,n,s2S2VS*c${*WQ,|&|Q,}'OR4`/s%[%Si#v$b$c$d$x${%O%Q%]%^%b)w*P*R*T*W*^*d*t*u+c+f+},Q.a.z/_/h/r/s/u0Y0[0g0h0i1^1a1i3Z4U4V4a4f4w5R5U5x6|7l7v7|8Q8f9V9e9n9t:S:f:t:};V;^<^<_<a<b<c<d<g<h<i<j<k<l<t<u<v<w<y<z<}=O=P=Q=R=S=T=U=X=Y=p=x=y=|=}Q,P&ZQ1`,RQ5i1_R8]5jV*k$|*X*lU*k$|*X*lT5p1g5qS/y*f/iQ4n0VT7x4q:PQ+g%wQ0P*iQ0x+hQ1m,[Q5|1nQ8k5}Q:V8lR;P:W!U%Oi$d%O%Q%]%^%b*P*R*^*t*u.z/r0Y0[0g0h0i4V4w7|9e=p=x=yx*P$v)c*Q*r+R/q0^0_3y4^4{4|4}7f7z9v:l=b=n=oS0Y*q0Z#f<a#v$b$c$x${)w*T*W*d+c+f+},Q.a/_/h/s/u1^1a1i3Z4U4a4f5R5U5x6|7l7v8Q8f9V9n9t:S:f:t:};V;^<a<c<g<i<k<t<v<y<}=P=R=T=X=|=}n<b<^<_<b<d<h<j<l<u<w<z=O=Q=S=U=Y!d<t(s)a*Y*b.e.h.l/Y/f/v0p1]3`4S4_4c5h7R7U7m7p7}8P9i9q9w:q:u;W;];h=z={`<u3u7X7[7`9]:h:k;kS=P.g3aT=Q7Z9`!U%Qi$d%O%Q%]%^%b*P*R*^*t*u.z/r0Y0[0g0h0i4V4w7|9e=p=x=y|*R$v)c*S*q+R/b/q0^0_3y4^4s4{4|4}7f7z9v:l=b=n=oS0[*r0]#f<c#v$b$c$x${)w*T*W*d+c+f+},Q.a/_/h/s/u1^1a1i3Z4U4a4f5R5U5x6|7l7v8Q8f9V9n9t:S:f:t:};V;^<a<c<g<i<k<t<v<y<}=P=R=T=X=|=}n<d<^<_<b<d<h<j<l<u<w<z=O=Q=S=U=Y!h<v(s)a*Y*b.f.g.l/Y/f/v0p1]3^3`4S4_4c5h7R7S7U7m7p7}8P9i9q9w:q:u;W;];h=z={d<w3u7Y7Z7`9]9^:h:i:k;kS=R.h3bT=S7[9arnOXst!V!Z#d%l&g&p&r&s&u,n,s2S2VQ&d!UR,k&mrnOXst!V!Z#d%l&g&p&r&s&u,n,s2S2VR&d!UQ,T&[R1[+|snOXst!V!Z#d%l&g&p&r&s&u,n,s2S2VQ1h,YS5w1k1lU8e5u5v5zS:R8g8hS:{:Q:TQ;_:|R;i;`Q&k!VR,d&gR6T1tR:Y8nS&P|&UR1T+sQ&p!WR,n&qR,t&vT2T,s2VR,x&wQ,w&wR2^,xQ'w!{R-t'wSsOtQ#dXT%os#dQ#OTR'y#OQ#RUR'{#RQ)y$uR/Z)yQ#UVR(O#UQ#XWU(U#X(V-{Q(V#YR-{(WQ-X'WR2j-XQ.p(wS3e.p3fR3f.qQ-`'^R2n-`Y!rQ'^-`1g5qR'h!rQ.{)cR3z.{U#_W%g*WU(]#_(^-|Q(^#`R-|(XQ-['ZR2l-[t`OXst!V!Z#d%l&g&i&p&r&s&u,n,s2S2VS#hZ%dU#r`#h.VR.V(hQ(i#jQ.S(eW.[(i.S3P6wQ3P.TR6w3QQ)l$lR/R)lQ$phR)r$pQ$`cU)_$`-w<[Q-w;xR<[)oQ/l*ZW4Y/l4Z7j9hU4Z/m/n/oS7j4[4]R9h7k$e*O$v(s)a)c*Y*b*q*r*|*}+R.g.h.j.k.l/Y/b/d/f/q/v0^0_0p1]3^3_3`3u3y4S4^4_4c4s4u4{4|4}5h7R7S7T7U7Z7[7^7_7`7f7m7p7z7}8P9]9^9_9i9q9v9w:h:i:j:k:l:q:u;W;];h;k=b=n=o=z={Q/t*bU4b/t4d7nQ4d/vR7n4cS*l$|*XR0S*lx*Q$v)c*q*r+R/q0^0_3y4^4{4|4}7f7z9v:l=b=n=o!d.e(s)a*Y*b.g.h.l/Y/f/v0p1]3`4S4_4c5h7R7U7m7p7}8P9i9q9w:q:u;W;];h=z={U/c*Q.e7Xa7X3u7Z7[7`9]:h:k;kQ0Z*qQ3a.gU4t0Z3a9`R9`7Z|*S$v)c*q*r+R/b/q0^0_3y4^4s4{4|4}7f7z9v:l=b=n=o!h.f(s)a*Y*b.g.h.l/Y/f/v0p1]3^3`4S4_4c5h7R7S7U7m7p7}8P9i9q9w:q:u;W;];h=z={U/e*S.f7Ye7Y3u7Z7[7`9]9^:h:i:k;kQ0]*rQ3b.hU4v0]3b9aR9a7[Q*w%UR0a*wQ5S0pR8O5SQ+[%jR0o+[Q5l1bS8_5l:OR:O8`Q,V&]R1e,VQ5q1gR8b5qQ1s,aS6R1s8oR8o6TQ1O+oW5_1O5a8V9zQ5a1RQ8V5`R9z8WQ+t&PR1U+tQ2V,sR6c2VYrOXst#dQ&t!ZQ+^%lQ,m&pQ,o&rQ,p&sQ,r&uQ2Q,nS2T,s2VR6b2SQ%npQ&x!_Q&{!aQ&}!bQ'P!cQ'o!uQ+]%kQ+i%yQ+{&VQ,c&kQ,z&zW-k'i'q'r'uQ-r'mQ0R*kQ0y+jS1v,d,gQ2_,yQ2`,|Q2a,}Q2u-jW2w-m-n-q-sQ5W0zQ5d1XQ5g1]Q5{1mQ6V1xQ6a2RU6p2v2y2|Q6s2zQ8R5XQ8Z5fQ8[5hQ8a5pQ8j5|Q8p6US9P6q6uQ9R6tQ9{8XQ:U8kQ:Z8qQ:b9QQ:x9|Q;O:VQ;S:cR;a;PQ%yyQ'b!iQ'm!uU+j%z%{%|Q-R'TU-f'c'd'eS-j'i'sQ/z*gS0z+k+lQ2g-TS2s-g-hQ2z-oS4g/{0OQ5X0{Q6l2mQ6o2tQ6t2{U7q4i4j4mQ9o7sR:r9pS$wi=pR*x%VU%Ui%V=pR0`*vQ$viS(s#v+fS)a$b$cQ)c$dQ*Y$xS*b${*WQ*q%OQ*r%QQ*|%]Q*}%^Q+R%bQ.g<aQ.h<cQ.j<gQ.k<iQ.l<kQ/Y)wQ/b*PQ/d*RQ/f*TQ/q*^S/v*d/hQ0^*tQ0_*ul0p+c,Q.a1a1i3Z5x6|8f9V:S:f:};VQ1]+}Q3^<tQ3_<vQ3`<yS3u<^<_Q3y.zS4S/_4UQ4^/rQ4_/sQ4c/uQ4s0YQ4u0[Q4{0gQ4|0hQ4}0iQ5h1^Q7R<}Q7S=PQ7T=RQ7U=TQ7Z<bQ7[<dQ7^<hQ7_<jQ7`<lQ7f4VQ7m4aQ7p4fQ7z4wQ7}5RQ8P5UQ9]<zQ9^<uQ9_<wQ9i7lQ9q7vQ9v7|Q9w8QQ:h=OQ:i=QQ:j=SQ:k=UQ:l9eQ:q9nQ:u9tQ;W=XQ;]:tQ;h;^Q;k=YQ=b=pQ=n=xQ=o=yQ=z=|R={=}Q*z%[Q.i<eR7]<fnpOXst!Z#d%l&p&r&s&u,n,s2S2VQ!fPS#fZ#oQ&z!`W'f!o*f0V4qQ'}#SQ)O#{Q)p$nS,g&i&lQ,l&mQ,y&yS-O'R/iQ-b'`Q.s(|Q/V)qQ0m+YQ0s+dQ2O,kQ2q-dQ3X.bQ4O/QQ4y0dQ5v1jQ6X1zQ6Y1{Q6^1}Q6`2PQ6e2XQ7P3[Q7c3{Q8h5yQ8t6ZQ8u6[Q8w6_Q9Z7QQ:T8iR:_8x#[cOPXZst!Z!`!o#d#o#{%l&i&l&m&p&r&s&u&y'R'`(|*f+Y+d,k,n,s-d.b/i0V0d1j1z1{1}2P2S2V2X3[4q5y6Z6[6_7Q8i8xQ#YWQ#eYQ%puQ%rvS%tw!gS(Q#W(TQ(W#ZQ(r#uQ(w#xQ)P$OQ)Q$PQ)R$QQ)S$RQ)T$SQ)U$TQ)V$UQ)W$VQ)X$WQ)Y$XQ)[$ZQ)^$_Q)`$aQ)e$eW)o$n)q/Q3{Q+a%sQ+u&QS-U'V2hQ-s'pS-x(R-zQ-}(ZQ.P(bQ.n(vQ.q(xQ.u;vQ.w;yQ.x;zQ.y;}Q/]){Q0j+UQ2c-PQ2f-SQ2v-lQ2}.QQ3c.oQ3h<OQ3i<PQ3j<QQ3k<RQ3l<SQ3m<TQ3n<UQ3o<VQ3p<WQ3q<XQ3r<YQ3s.vQ3t<]Q3w<`Q3x<mQ4P<ZQ5O0lQ5Y0|Q6k<pQ6q2xQ6v3OQ7V3dQ7W<qQ7a<sQ7b<{Q8`5mQ8|6iQ9Q6rQ9[<|Q9b=VQ9c=WQ:c9SQ:y9}Q;R:aQ;x#SR=g=sR#[WR'X!el!tQ!r!v!y!z'^'j'k'l-`-p1g5q5sS'T!e-WU*g$|*X*lS-T'U']S0O*h*nQ0W*oQ2m-^Q4m0UR4r0XR(y#xQ!fQT-_'^-`]!qQ!r'^-`1g5qQ#p]R'g;wR)d$dY!uQ'^-`1g5qQ'i!rS's!v!yS'u!z5sS-o'j'kQ-q'lR2{-pT#kZ%dS#jZ%dS%jm,jU(e#h#i#lS.T(f(gQ.X(hQ0n+ZQ3Q.UU3R.V.W.YS6x3S3TR9T6yd#^W#W#Z%g(R([*W+W.O/hr#gZm#h#i#l%d(f(g(h+Z.U.V.W.Y3S3T6yS*Z$x*_Q/o*[Q1|,jQ2d-QQ4W/kQ6g2[Q7i4XQ8{6hT=_'V+XV#aW%g*WU#`W%g*WS(S#W([U(X#Z+W/hS-V'V+XT-y(R.OV'[!e%h*XQ$lfR)v$qT)k$l)lR3}/PT*]$x*_T*e${*WQ0q+cQ1_,QQ3V.aQ5j1aQ5u1iQ6}3ZQ8g5xQ9W6|Q:Q8fQ:d9VQ:|:SQ;U:fQ;`:}R;c;VnqOXst!Z#d%l&p&r&s&u,n,s2S2VQ&j!VR,c&gtmOXst!U!V!Z#d%l&g&p&r&s&u,n,s2S2VR,j&mT%km,jR1c,SR,b&eQ&T|R+z&UR+p&OT&n!W&qT&o!W&qT2U,s2V",
-      nodeNames: "⚠ ArithOp ArithOp ?. JSXStartTag LineComment BlockComment Script Hashbang ExportDeclaration export Star as VariableName String Escape from ; default FunctionDeclaration async function VariableDefinition > < TypeParamList in out const TypeDefinition extends ThisType this LiteralType ArithOp Number BooleanLiteral TemplateType InterpolationEnd Interpolation InterpolationStart NullType null VoidType void TypeofType typeof MemberExpression . PropertyName [ TemplateString Escape Interpolation super RegExp ] ArrayExpression Spread , } { ObjectExpression Property async get set PropertyDefinition Block : NewTarget new NewExpression ) ( ArgList UnaryExpression delete LogicOp BitOp YieldExpression yield AwaitExpression await ParenthesizedExpression ClassExpression class ClassBody MethodDeclaration Decorator @ MemberExpression PrivatePropertyName CallExpression TypeArgList CompareOp < declare Privacy static abstract override PrivatePropertyDefinition PropertyDeclaration readonly accessor Optional TypeAnnotation Equals StaticBlock FunctionExpression ArrowFunction ParamList ParamList ArrayPattern ObjectPattern PatternProperty Privacy readonly Arrow MemberExpression BinaryExpression ArithOp ArithOp ArithOp ArithOp BitOp CompareOp instanceof satisfies CompareOp BitOp BitOp BitOp LogicOp LogicOp ConditionalExpression LogicOp LogicOp AssignmentExpression UpdateOp PostfixExpression CallExpression InstantiationExpression TaggedTemplateExpression DynamicImport import ImportMeta JSXElement JSXSelfCloseEndTag JSXSelfClosingTag JSXIdentifier JSXBuiltin JSXIdentifier JSXNamespacedName JSXMemberExpression JSXSpreadAttribute JSXAttribute JSXAttributeValue JSXEscape JSXEndTag JSXOpenTag JSXFragmentTag JSXText JSXEscape JSXStartCloseTag JSXCloseTag PrefixCast < ArrowFunction TypeParamList SequenceExpression InstantiationExpression KeyofType keyof UniqueType unique ImportType InferredType infer TypeName ParenthesizedType FunctionSignature ParamList NewSignature IndexedType TupleType Label ArrayType ReadonlyType ObjectType MethodType PropertyType IndexSignature PropertyDefinition CallSignature TypePredicate asserts is NewSignature new UnionType LogicOp IntersectionType LogicOp ConditionalType ParameterizedType ClassDeclaration abstract implements type VariableDeclaration let var using TypeAliasDeclaration InterfaceDeclaration interface EnumDeclaration enum EnumBody NamespaceDeclaration namespace module AmbientDeclaration declare GlobalDeclaration global ClassDeclaration ClassBody AmbientFunctionDeclaration ExportGroup VariableName VariableName ImportDeclaration ImportGroup ForStatement for ForSpec ForInSpec ForOfSpec of WhileStatement while WithStatement with DoStatement do IfStatement if else SwitchStatement switch SwitchBody CaseLabel case DefaultLabel TryStatement try CatchClause catch FinallyClause finally ReturnStatement return ThrowStatement throw BreakStatement break ContinueStatement continue DebuggerStatement debugger LabeledStatement ExpressionStatement SingleExpression SingleClassItem",
-      maxTerm: 379,
-      context: trackNewline,
-      nodeProps: [
-        ["isolate", -8, 5, 6, 14, 37, 39, 51, 53, 55, ""],
-        ["group", -26, 9, 17, 19, 68, 207, 211, 215, 216, 218, 221, 224, 234, 236, 242, 244, 246, 248, 251, 257, 263, 265, 267, 269, 271, 273, 274, "Statement", -34, 13, 14, 32, 35, 36, 42, 51, 54, 55, 57, 62, 70, 72, 76, 80, 82, 84, 85, 110, 111, 120, 121, 136, 139, 141, 142, 143, 144, 145, 147, 148, 167, 169, 171, "Expression", -23, 31, 33, 37, 41, 43, 45, 173, 175, 177, 178, 180, 181, 182, 184, 185, 186, 188, 189, 190, 201, 203, 205, 206, "Type", -3, 88, 103, 109, "ClassItem"],
-        ["openedBy", 23, "<", 38, "InterpolationStart", 56, "[", 60, "{", 73, "(", 160, "JSXStartCloseTag"],
-        ["closedBy", -2, 24, 168, ">", 40, "InterpolationEnd", 50, "]", 61, "}", 74, ")", 165, "JSXEndTag"]
-      ],
-      propSources: [jsHighlight],
-      skippedNodes: [0, 5, 6, 277],
-      repeatNodeCount: 37,
-      tokenData: "$Fq07[R!bOX%ZXY+gYZ-yZ[+g[]%Z]^.c^p%Zpq+gqr/mrs3cst:_tuEruvJSvwLkwx! Yxy!'iyz!(sz{!)}{|!,q|}!.O}!O!,q!O!P!/Y!P!Q!9j!Q!R#:O!R![#<_![!]#I_!]!^#Jk!^!_#Ku!_!`$![!`!a$$v!a!b$*T!b!c$,r!c!}Er!}#O$-|#O#P$/W#P#Q$4o#Q#R$5y#R#SEr#S#T$7W#T#o$8b#o#p$<r#p#q$=h#q#r$>x#r#s$@U#s$f%Z$f$g+g$g#BYEr#BY#BZ$A`#BZ$ISEr$IS$I_$A`$I_$I|Er$I|$I}$Dk$I}$JO$Dk$JO$JTEr$JT$JU$A`$JU$KVEr$KV$KW$A`$KW&FUEr&FU&FV$A`&FV;'SEr;'S;=`I|<%l?HTEr?HT?HU$A`?HUOEr(n%d_$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z&j&hT$i&jO!^&c!_#o&c#p;'S&c;'S;=`&w<%lO&c&j&zP;=`<%l&c'|'U]$i&j(Y!bOY&}YZ&cZw&}wx&cx!^&}!^!_'}!_#O&}#O#P&c#P#o&}#o#p'}#p;'S&};'S;=`(l<%lO&}!b(SU(Y!bOY'}Zw'}x#O'}#P;'S'};'S;=`(f<%lO'}!b(iP;=`<%l'}'|(oP;=`<%l&}'[(y]$i&j(VpOY(rYZ&cZr(rrs&cs!^(r!^!_)r!_#O(r#O#P&c#P#o(r#o#p)r#p;'S(r;'S;=`*a<%lO(rp)wU(VpOY)rZr)rs#O)r#P;'S)r;'S;=`*Z<%lO)rp*^P;=`<%l)r'[*dP;=`<%l(r#S*nX(Vp(Y!bOY*gZr*grs'}sw*gwx)rx#O*g#P;'S*g;'S;=`+Z<%lO*g#S+^P;=`<%l*g(n+dP;=`<%l%Z07[+rq$i&j(Vp(Y!b'{0/lOX%ZXY+gYZ&cZ[+g[p%Zpq+gqr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p$f%Z$f$g+g$g#BY%Z#BY#BZ+g#BZ$IS%Z$IS$I_+g$I_$JT%Z$JT$JU+g$JU$KV%Z$KV$KW+g$KW&FU%Z&FU&FV+g&FV;'S%Z;'S;=`+a<%l?HT%Z?HT?HU+g?HUO%Z07[.ST(W#S$i&j'|0/lO!^&c!_#o&c#p;'S&c;'S;=`&w<%lO&c07[.n_$i&j(Vp(Y!b'|0/lOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z)3p/x`$i&j!p),Q(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_!`0z!`#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z(KW1V`#v(Ch$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_!`2X!`#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z(KW2d_#v(Ch$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z'At3l_(U':f$i&j(Y!bOY4kYZ5qZr4krs7nsw4kwx5qx!^4k!^!_8p!_#O4k#O#P5q#P#o4k#o#p8p#p;'S4k;'S;=`:X<%lO4k(^4r_$i&j(Y!bOY4kYZ5qZr4krs7nsw4kwx5qx!^4k!^!_8p!_#O4k#O#P5q#P#o4k#o#p8p#p;'S4k;'S;=`:X<%lO4k&z5vX$i&jOr5qrs6cs!^5q!^!_6y!_#o5q#o#p6y#p;'S5q;'S;=`7h<%lO5q&z6jT$d`$i&jO!^&c!_#o&c#p;'S&c;'S;=`&w<%lO&c`6|TOr6yrs7]s;'S6y;'S;=`7b<%lO6y`7bO$d``7eP;=`<%l6y&z7kP;=`<%l5q(^7w]$d`$i&j(Y!bOY&}YZ&cZw&}wx&cx!^&}!^!_'}!_#O&}#O#P&c#P#o&}#o#p'}#p;'S&};'S;=`(l<%lO&}!r8uZ(Y!bOY8pYZ6yZr8prs9hsw8pwx6yx#O8p#O#P6y#P;'S8p;'S;=`:R<%lO8p!r9oU$d`(Y!bOY'}Zw'}x#O'}#P;'S'};'S;=`(f<%lO'}!r:UP;=`<%l8p(^:[P;=`<%l4k%9[:hh$i&j(Vp(Y!bOY%ZYZ&cZq%Zqr<Srs&}st%ZtuCruw%Zwx(rx!^%Z!^!_*g!_!c%Z!c!}Cr!}#O%Z#O#P&c#P#R%Z#R#SCr#S#T%Z#T#oCr#o#p*g#p$g%Z$g;'SCr;'S;=`El<%lOCr(r<__WS$i&j(Vp(Y!bOY<SYZ&cZr<Srs=^sw<Swx@nx!^<S!^!_Bm!_#O<S#O#P>`#P#o<S#o#pBm#p;'S<S;'S;=`Cl<%lO<S(Q=g]WS$i&j(Y!bOY=^YZ&cZw=^wx>`x!^=^!^!_?q!_#O=^#O#P>`#P#o=^#o#p?q#p;'S=^;'S;=`@h<%lO=^&n>gXWS$i&jOY>`YZ&cZ!^>`!^!_?S!_#o>`#o#p?S#p;'S>`;'S;=`?k<%lO>`S?XSWSOY?SZ;'S?S;'S;=`?e<%lO?SS?hP;=`<%l?S&n?nP;=`<%l>`!f?xWWS(Y!bOY?qZw?qwx?Sx#O?q#O#P?S#P;'S?q;'S;=`@b<%lO?q!f@eP;=`<%l?q(Q@kP;=`<%l=^'`@w]WS$i&j(VpOY@nYZ&cZr@nrs>`s!^@n!^!_Ap!_#O@n#O#P>`#P#o@n#o#pAp#p;'S@n;'S;=`Bg<%lO@ntAwWWS(VpOYApZrAprs?Ss#OAp#O#P?S#P;'SAp;'S;=`Ba<%lOAptBdP;=`<%lAp'`BjP;=`<%l@n#WBvYWS(Vp(Y!bOYBmZrBmrs?qswBmwxApx#OBm#O#P?S#P;'SBm;'S;=`Cf<%lOBm#WCiP;=`<%lBm(rCoP;=`<%l<S%9[C}i$i&j(n%1l(Vp(Y!bOY%ZYZ&cZr%Zrs&}st%ZtuCruw%Zwx(rx!Q%Z!Q![Cr![!^%Z!^!_*g!_!c%Z!c!}Cr!}#O%Z#O#P&c#P#R%Z#R#SCr#S#T%Z#T#oCr#o#p*g#p$g%Z$g;'SCr;'S;=`El<%lOCr%9[EoP;=`<%lCr07[FRk$i&j(Vp(Y!b$]#t(S,2j(d$I[OY%ZYZ&cZr%Zrs&}st%ZtuEruw%Zwx(rx}%Z}!OGv!O!Q%Z!Q![Er![!^%Z!^!_*g!_!c%Z!c!}Er!}#O%Z#O#P&c#P#R%Z#R#SEr#S#T%Z#T#oEr#o#p*g#p$g%Z$g;'SEr;'S;=`I|<%lOEr+dHRk$i&j(Vp(Y!b$]#tOY%ZYZ&cZr%Zrs&}st%ZtuGvuw%Zwx(rx}%Z}!OGv!O!Q%Z!Q![Gv![!^%Z!^!_*g!_!c%Z!c!}Gv!}#O%Z#O#P&c#P#R%Z#R#SGv#S#T%Z#T#oGv#o#p*g#p$g%Z$g;'SGv;'S;=`Iv<%lOGv+dIyP;=`<%lGv07[JPP;=`<%lEr(KWJ_`$i&j(Vp(Y!b#p(ChOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_!`Ka!`#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z(KWKl_$i&j$Q(Ch(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z,#xLva(y+JY$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sv%ZvwM{wx(rx!^%Z!^!_*g!_!`Ka!`#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z(KWNW`$i&j#z(Ch(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_!`Ka!`#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z'At! c_(X';W$i&j(VpOY!!bYZ!#hZr!!brs!#hsw!!bwx!$xx!^!!b!^!_!%z!_#O!!b#O#P!#h#P#o!!b#o#p!%z#p;'S!!b;'S;=`!'c<%lO!!b'l!!i_$i&j(VpOY!!bYZ!#hZr!!brs!#hsw!!bwx!$xx!^!!b!^!_!%z!_#O!!b#O#P!#h#P#o!!b#o#p!%z#p;'S!!b;'S;=`!'c<%lO!!b&z!#mX$i&jOw!#hwx6cx!^!#h!^!_!$Y!_#o!#h#o#p!$Y#p;'S!#h;'S;=`!$r<%lO!#h`!$]TOw!$Ywx7]x;'S!$Y;'S;=`!$l<%lO!$Y`!$oP;=`<%l!$Y&z!$uP;=`<%l!#h'l!%R]$d`$i&j(VpOY(rYZ&cZr(rrs&cs!^(r!^!_)r!_#O(r#O#P&c#P#o(r#o#p)r#p;'S(r;'S;=`*a<%lO(r!Q!&PZ(VpOY!%zYZ!$YZr!%zrs!$Ysw!%zwx!&rx#O!%z#O#P!$Y#P;'S!%z;'S;=`!']<%lO!%z!Q!&yU$d`(VpOY)rZr)rs#O)r#P;'S)r;'S;=`*Z<%lO)r!Q!'`P;=`<%l!%z'l!'fP;=`<%l!!b/5|!'t_!l/.^$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z#&U!)O_!k!Lf$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z-!n!*[b$i&j(Vp(Y!b(T%&f#q(ChOY%ZYZ&cZr%Zrs&}sw%Zwx(rxz%Zz{!+d{!^%Z!^!_*g!_!`Ka!`#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z(KW!+o`$i&j(Vp(Y!b#n(ChOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_!`Ka!`#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z+;x!,|`$i&j(Vp(Y!br+4YOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_!`Ka!`#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z,$U!.Z_!]+Jf$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z07[!/ec$i&j(Vp(Y!b!Q.2^OY%ZYZ&cZr%Zrs&}sw%Zwx(rx!O%Z!O!P!0p!P!Q%Z!Q![!3Y![!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z#%|!0ya$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!O%Z!O!P!2O!P!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z#%|!2Z_![!L^$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z'Ad!3eg$i&j(Vp(Y!bs'9tOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!Q%Z!Q![!3Y![!^%Z!^!_*g!_!g%Z!g!h!4|!h#O%Z#O#P&c#P#R%Z#R#S!3Y#S#X%Z#X#Y!4|#Y#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z'Ad!5Vg$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx{%Z{|!6n|}%Z}!O!6n!O!Q%Z!Q![!8S![!^%Z!^!_*g!_#O%Z#O#P&c#P#R%Z#R#S!8S#S#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z'Ad!6wc$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!Q%Z!Q![!8S![!^%Z!^!_*g!_#O%Z#O#P&c#P#R%Z#R#S!8S#S#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z'Ad!8_c$i&j(Vp(Y!bs'9tOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!Q%Z!Q![!8S![!^%Z!^!_*g!_#O%Z#O#P&c#P#R%Z#R#S!8S#S#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z07[!9uf$i&j(Vp(Y!b#o(ChOY!;ZYZ&cZr!;Zrs!<nsw!;Zwx!Lcxz!;Zz{#-}{!P!;Z!P!Q#/d!Q!^!;Z!^!_#(i!_!`#7S!`!a#8i!a!}!;Z!}#O#,f#O#P!Dy#P#o!;Z#o#p#(i#p;'S!;Z;'S;=`#-w<%lO!;Z?O!;fb$i&j(Vp(Y!b!X7`OY!;ZYZ&cZr!;Zrs!<nsw!;Zwx!Lcx!P!;Z!P!Q#&`!Q!^!;Z!^!_#(i!_!}!;Z!}#O#,f#O#P!Dy#P#o!;Z#o#p#(i#p;'S!;Z;'S;=`#-w<%lO!;Z>^!<w`$i&j(Y!b!X7`OY!<nYZ&cZw!<nwx!=yx!P!<n!P!Q!Eq!Q!^!<n!^!_!Gr!_!}!<n!}#O!KS#O#P!Dy#P#o!<n#o#p!Gr#p;'S!<n;'S;=`!L]<%lO!<n<z!>Q^$i&j!X7`OY!=yYZ&cZ!P!=y!P!Q!>|!Q!^!=y!^!_!@c!_!}!=y!}#O!CW#O#P!Dy#P#o!=y#o#p!@c#p;'S!=y;'S;=`!Ek<%lO!=y<z!?Td$i&j!X7`O!^&c!_#W&c#W#X!>|#X#Z&c#Z#[!>|#[#]&c#]#^!>|#^#a&c#a#b!>|#b#g&c#g#h!>|#h#i&c#i#j!>|#j#k!>|#k#m&c#m#n!>|#n#o&c#p;'S&c;'S;=`&w<%lO&c7`!@hX!X7`OY!@cZ!P!@c!P!Q!AT!Q!}!@c!}#O!Ar#O#P!Bq#P;'S!@c;'S;=`!CQ<%lO!@c7`!AYW!X7`#W#X!AT#Z#[!AT#]#^!AT#a#b!AT#g#h!AT#i#j!AT#j#k!AT#m#n!AT7`!AuVOY!ArZ#O!Ar#O#P!B[#P#Q!@c#Q;'S!Ar;'S;=`!Bk<%lO!Ar7`!B_SOY!ArZ;'S!Ar;'S;=`!Bk<%lO!Ar7`!BnP;=`<%l!Ar7`!BtSOY!@cZ;'S!@c;'S;=`!CQ<%lO!@c7`!CTP;=`<%l!@c<z!C][$i&jOY!CWYZ&cZ!^!CW!^!_!Ar!_#O!CW#O#P!DR#P#Q!=y#Q#o!CW#o#p!Ar#p;'S!CW;'S;=`!Ds<%lO!CW<z!DWX$i&jOY!CWYZ&cZ!^!CW!^!_!Ar!_#o!CW#o#p!Ar#p;'S!CW;'S;=`!Ds<%lO!CW<z!DvP;=`<%l!CW<z!EOX$i&jOY!=yYZ&cZ!^!=y!^!_!@c!_#o!=y#o#p!@c#p;'S!=y;'S;=`!Ek<%lO!=y<z!EnP;=`<%l!=y>^!Ezl$i&j(Y!b!X7`OY&}YZ&cZw&}wx&cx!^&}!^!_'}!_#O&}#O#P&c#P#W&}#W#X!Eq#X#Z&}#Z#[!Eq#[#]&}#]#^!Eq#^#a&}#a#b!Eq#b#g&}#g#h!Eq#h#i&}#i#j!Eq#j#k!Eq#k#m&}#m#n!Eq#n#o&}#o#p'}#p;'S&};'S;=`(l<%lO&}8r!GyZ(Y!b!X7`OY!GrZw!Grwx!@cx!P!Gr!P!Q!Hl!Q!}!Gr!}#O!JU#O#P!Bq#P;'S!Gr;'S;=`!J|<%lO!Gr8r!Hse(Y!b!X7`OY'}Zw'}x#O'}#P#W'}#W#X!Hl#X#Z'}#Z#[!Hl#[#]'}#]#^!Hl#^#a'}#a#b!Hl#b#g'}#g#h!Hl#h#i'}#i#j!Hl#j#k!Hl#k#m'}#m#n!Hl#n;'S'};'S;=`(f<%lO'}8r!JZX(Y!bOY!JUZw!JUwx!Arx#O!JU#O#P!B[#P#Q!Gr#Q;'S!JU;'S;=`!Jv<%lO!JU8r!JyP;=`<%l!JU8r!KPP;=`<%l!Gr>^!KZ^$i&j(Y!bOY!KSYZ&cZw!KSwx!CWx!^!KS!^!_!JU!_#O!KS#O#P!DR#P#Q!<n#Q#o!KS#o#p!JU#p;'S!KS;'S;=`!LV<%lO!KS>^!LYP;=`<%l!KS>^!L`P;=`<%l!<n=l!Ll`$i&j(Vp!X7`OY!LcYZ&cZr!Lcrs!=ys!P!Lc!P!Q!Mn!Q!^!Lc!^!_# o!_!}!Lc!}#O#%P#O#P!Dy#P#o!Lc#o#p# o#p;'S!Lc;'S;=`#&Y<%lO!Lc=l!Mwl$i&j(Vp!X7`OY(rYZ&cZr(rrs&cs!^(r!^!_)r!_#O(r#O#P&c#P#W(r#W#X!Mn#X#Z(r#Z#[!Mn#[#](r#]#^!Mn#^#a(r#a#b!Mn#b#g(r#g#h!Mn#h#i(r#i#j!Mn#j#k!Mn#k#m(r#m#n!Mn#n#o(r#o#p)r#p;'S(r;'S;=`*a<%lO(r8Q# vZ(Vp!X7`OY# oZr# ors!@cs!P# o!P!Q#!i!Q!}# o!}#O#$R#O#P!Bq#P;'S# o;'S;=`#$y<%lO# o8Q#!pe(Vp!X7`OY)rZr)rs#O)r#P#W)r#W#X#!i#X#Z)r#Z#[#!i#[#])r#]#^#!i#^#a)r#a#b#!i#b#g)r#g#h#!i#h#i)r#i#j#!i#j#k#!i#k#m)r#m#n#!i#n;'S)r;'S;=`*Z<%lO)r8Q#$WX(VpOY#$RZr#$Rrs!Ars#O#$R#O#P!B[#P#Q# o#Q;'S#$R;'S;=`#$s<%lO#$R8Q#$vP;=`<%l#$R8Q#$|P;=`<%l# o=l#%W^$i&j(VpOY#%PYZ&cZr#%Prs!CWs!^#%P!^!_#$R!_#O#%P#O#P!DR#P#Q!Lc#Q#o#%P#o#p#$R#p;'S#%P;'S;=`#&S<%lO#%P=l#&VP;=`<%l#%P=l#&]P;=`<%l!Lc?O#&kn$i&j(Vp(Y!b!X7`OY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#W%Z#W#X#&`#X#Z%Z#Z#[#&`#[#]%Z#]#^#&`#^#a%Z#a#b#&`#b#g%Z#g#h#&`#h#i%Z#i#j#&`#j#k#&`#k#m%Z#m#n#&`#n#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z9d#(r](Vp(Y!b!X7`OY#(iZr#(irs!Grsw#(iwx# ox!P#(i!P!Q#)k!Q!}#(i!}#O#+`#O#P!Bq#P;'S#(i;'S;=`#,`<%lO#(i9d#)th(Vp(Y!b!X7`OY*gZr*grs'}sw*gwx)rx#O*g#P#W*g#W#X#)k#X#Z*g#Z#[#)k#[#]*g#]#^#)k#^#a*g#a#b#)k#b#g*g#g#h#)k#h#i*g#i#j#)k#j#k#)k#k#m*g#m#n#)k#n;'S*g;'S;=`+Z<%lO*g9d#+gZ(Vp(Y!bOY#+`Zr#+`rs!JUsw#+`wx#$Rx#O#+`#O#P!B[#P#Q#(i#Q;'S#+`;'S;=`#,Y<%lO#+`9d#,]P;=`<%l#+`9d#,cP;=`<%l#(i?O#,o`$i&j(Vp(Y!bOY#,fYZ&cZr#,frs!KSsw#,fwx#%Px!^#,f!^!_#+`!_#O#,f#O#P!DR#P#Q!;Z#Q#o#,f#o#p#+`#p;'S#,f;'S;=`#-q<%lO#,f?O#-tP;=`<%l#,f?O#-zP;=`<%l!;Z07[#.[b$i&j(Vp(Y!b'}0/l!X7`OY!;ZYZ&cZr!;Zrs!<nsw!;Zwx!Lcx!P!;Z!P!Q#&`!Q!^!;Z!^!_#(i!_!}!;Z!}#O#,f#O#P!Dy#P#o!;Z#o#p#(i#p;'S!;Z;'S;=`#-w<%lO!;Z07[#/o_$i&j(Vp(Y!bT0/lOY#/dYZ&cZr#/drs#0nsw#/dwx#4Ox!^#/d!^!_#5}!_#O#/d#O#P#1p#P#o#/d#o#p#5}#p;'S#/d;'S;=`#6|<%lO#/d06j#0w]$i&j(Y!bT0/lOY#0nYZ&cZw#0nwx#1px!^#0n!^!_#3R!_#O#0n#O#P#1p#P#o#0n#o#p#3R#p;'S#0n;'S;=`#3x<%lO#0n05W#1wX$i&jT0/lOY#1pYZ&cZ!^#1p!^!_#2d!_#o#1p#o#p#2d#p;'S#1p;'S;=`#2{<%lO#1p0/l#2iST0/lOY#2dZ;'S#2d;'S;=`#2u<%lO#2d0/l#2xP;=`<%l#2d05W#3OP;=`<%l#1p01O#3YW(Y!bT0/lOY#3RZw#3Rwx#2dx#O#3R#O#P#2d#P;'S#3R;'S;=`#3r<%lO#3R01O#3uP;=`<%l#3R06j#3{P;=`<%l#0n05x#4X]$i&j(VpT0/lOY#4OYZ&cZr#4Ors#1ps!^#4O!^!_#5Q!_#O#4O#O#P#1p#P#o#4O#o#p#5Q#p;'S#4O;'S;=`#5w<%lO#4O00^#5XW(VpT0/lOY#5QZr#5Qrs#2ds#O#5Q#O#P#2d#P;'S#5Q;'S;=`#5q<%lO#5Q00^#5tP;=`<%l#5Q05x#5zP;=`<%l#4O01p#6WY(Vp(Y!bT0/lOY#5}Zr#5}rs#3Rsw#5}wx#5Qx#O#5}#O#P#2d#P;'S#5};'S;=`#6v<%lO#5}01p#6yP;=`<%l#5}07[#7PP;=`<%l#/d)3h#7ab$i&j$Q(Ch(Vp(Y!b!X7`OY!;ZYZ&cZr!;Zrs!<nsw!;Zwx!Lcx!P!;Z!P!Q#&`!Q!^!;Z!^!_#(i!_!}!;Z!}#O#,f#O#P!Dy#P#o!;Z#o#p#(i#p;'S!;Z;'S;=`#-w<%lO!;ZAt#8vb$Z#t$i&j(Vp(Y!b!X7`OY!;ZYZ&cZr!;Zrs!<nsw!;Zwx!Lcx!P!;Z!P!Q#&`!Q!^!;Z!^!_#(i!_!}!;Z!}#O#,f#O#P!Dy#P#o!;Z#o#p#(i#p;'S!;Z;'S;=`#-w<%lO!;Z'Ad#:Zp$i&j(Vp(Y!bs'9tOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!O%Z!O!P!3Y!P!Q%Z!Q![#<_![!^%Z!^!_*g!_!g%Z!g!h!4|!h#O%Z#O#P&c#P#R%Z#R#S#<_#S#U%Z#U#V#?i#V#X%Z#X#Y!4|#Y#b%Z#b#c#>_#c#d#Bq#d#l%Z#l#m#Es#m#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z'Ad#<jk$i&j(Vp(Y!bs'9tOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!O%Z!O!P!3Y!P!Q%Z!Q![#<_![!^%Z!^!_*g!_!g%Z!g!h!4|!h#O%Z#O#P&c#P#R%Z#R#S#<_#S#X%Z#X#Y!4|#Y#b%Z#b#c#>_#c#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z'Ad#>j_$i&j(Vp(Y!bs'9tOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z'Ad#?rd$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!Q%Z!Q!R#AQ!R!S#AQ!S!^%Z!^!_*g!_#O%Z#O#P&c#P#R%Z#R#S#AQ#S#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z'Ad#A]f$i&j(Vp(Y!bs'9tOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!Q%Z!Q!R#AQ!R!S#AQ!S!^%Z!^!_*g!_#O%Z#O#P&c#P#R%Z#R#S#AQ#S#b%Z#b#c#>_#c#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z'Ad#Bzc$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!Q%Z!Q!Y#DV!Y!^%Z!^!_*g!_#O%Z#O#P&c#P#R%Z#R#S#DV#S#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z'Ad#Dbe$i&j(Vp(Y!bs'9tOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!Q%Z!Q!Y#DV!Y!^%Z!^!_*g!_#O%Z#O#P&c#P#R%Z#R#S#DV#S#b%Z#b#c#>_#c#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z'Ad#E|g$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!Q%Z!Q![#Ge![!^%Z!^!_*g!_!c%Z!c!i#Ge!i#O%Z#O#P&c#P#R%Z#R#S#Ge#S#T%Z#T#Z#Ge#Z#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z'Ad#Gpi$i&j(Vp(Y!bs'9tOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!Q%Z!Q![#Ge![!^%Z!^!_*g!_!c%Z!c!i#Ge!i#O%Z#O#P&c#P#R%Z#R#S#Ge#S#T%Z#T#Z#Ge#Z#b%Z#b#c#>_#c#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z*)x#Il_!g$b$i&j$O)Lv(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z)[#Jv_al$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z04f#LS^h#)`#R-<U(Vp(Y!b$n7`OY*gZr*grs'}sw*gwx)rx!P*g!P!Q#MO!Q!^*g!^!_#Mt!_!`$ f!`#O*g#P;'S*g;'S;=`+Z<%lO*g(n#MXX$k&j(Vp(Y!bOY*gZr*grs'}sw*gwx)rx#O*g#P;'S*g;'S;=`+Z<%lO*g(El#M}Z#r(Ch(Vp(Y!bOY*gZr*grs'}sw*gwx)rx!_*g!_!`#Np!`#O*g#P;'S*g;'S;=`+Z<%lO*g(El#NyX$Q(Ch(Vp(Y!bOY*gZr*grs'}sw*gwx)rx#O*g#P;'S*g;'S;=`+Z<%lO*g(El$ oX#s(Ch(Vp(Y!bOY*gZr*grs'}sw*gwx)rx#O*g#P;'S*g;'S;=`+Z<%lO*g*)x$!ga#`*!Y$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_!`0z!`!a$#l!a#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z(K[$#w_#k(Cl$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z*)x$%Vag!*r#s(Ch$f#|$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_!`$&[!`!a$'f!a#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z(KW$&g_#s(Ch$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z(KW$'qa#r(Ch$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_!`Ka!`!a$(v!a#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z(KW$)R`#r(Ch$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_!`Ka!`#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z(Kd$*`a(q(Ct$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_!a%Z!a!b$+e!b#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z(KW$+p`$i&j#{(Ch(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_!`Ka!`#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z%#`$,}_!|$Ip$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z04f$.X_!S0,v$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z(n$/]Z$i&jO!^$0O!^!_$0f!_#i$0O#i#j$0k#j#l$0O#l#m$2^#m#o$0O#o#p$0f#p;'S$0O;'S;=`$4i<%lO$0O(n$0VT_#S$i&jO!^&c!_#o&c#p;'S&c;'S;=`&w<%lO&c#S$0kO_#S(n$0p[$i&jO!Q&c!Q![$1f![!^&c!_!c&c!c!i$1f!i#T&c#T#Z$1f#Z#o&c#o#p$3|#p;'S&c;'S;=`&w<%lO&c(n$1kZ$i&jO!Q&c!Q![$2^![!^&c!_!c&c!c!i$2^!i#T&c#T#Z$2^#Z#o&c#p;'S&c;'S;=`&w<%lO&c(n$2cZ$i&jO!Q&c!Q![$3U![!^&c!_!c&c!c!i$3U!i#T&c#T#Z$3U#Z#o&c#p;'S&c;'S;=`&w<%lO&c(n$3ZZ$i&jO!Q&c!Q![$0O![!^&c!_!c&c!c!i$0O!i#T&c#T#Z$0O#Z#o&c#p;'S&c;'S;=`&w<%lO&c#S$4PR!Q![$4Y!c!i$4Y#T#Z$4Y#S$4]S!Q![$4Y!c!i$4Y#T#Z$4Y#q#r$0f(n$4lP;=`<%l$0O#1[$4z_!Y#)l$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z(KW$6U`#x(Ch$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_!`Ka!`#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z+;p$7c_$i&j(Vp(Y!b(`+4QOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z07[$8qk$i&j(Vp(Y!b(S,2j$_#t(d$I[OY%ZYZ&cZr%Zrs&}st%Ztu$8buw%Zwx(rx}%Z}!O$:f!O!Q%Z!Q![$8b![!^%Z!^!_*g!_!c%Z!c!}$8b!}#O%Z#O#P&c#P#R%Z#R#S$8b#S#T%Z#T#o$8b#o#p*g#p$g%Z$g;'S$8b;'S;=`$<l<%lO$8b+d$:qk$i&j(Vp(Y!b$_#tOY%ZYZ&cZr%Zrs&}st%Ztu$:fuw%Zwx(rx}%Z}!O$:f!O!Q%Z!Q![$:f![!^%Z!^!_*g!_!c%Z!c!}$:f!}#O%Z#O#P&c#P#R%Z#R#S$:f#S#T%Z#T#o$:f#o#p*g#p$g%Z$g;'S$:f;'S;=`$<f<%lO$:f+d$<iP;=`<%l$:f07[$<oP;=`<%l$8b#Jf$<{X!_#Hb(Vp(Y!bOY*gZr*grs'}sw*gwx)rx#O*g#P;'S*g;'S;=`+Z<%lO*g,#x$=sa(x+JY$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_!`Ka!`#O%Z#O#P&c#P#o%Z#o#p*g#p#q$+e#q;'S%Z;'S;=`+a<%lO%Z)>v$?V_!^(CdvBr$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z?O$@a_!q7`$i&j(Vp(Y!bOY%ZYZ&cZr%Zrs&}sw%Zwx(rx!^%Z!^!_*g!_#O%Z#O#P&c#P#o%Z#o#p*g#p;'S%Z;'S;=`+a<%lO%Z07[$Aq|$i&j(Vp(Y!b'{0/l$]#t(S,2j(d$I[OX%ZXY+gYZ&cZ[+g[p%Zpq+gqr%Zrs&}st%ZtuEruw%Zwx(rx}%Z}!OGv!O!Q%Z!Q![Er![!^%Z!^!_*g!_!c%Z!c!}Er!}#O%Z#O#P&c#P#R%Z#R#SEr#S#T%Z#T#oEr#o#p*g#p$f%Z$f$g+g$g#BYEr#BY#BZ$A`#BZ$ISEr$IS$I_$A`$I_$JTEr$JT$JU$A`$JU$KVEr$KV$KW$A`$KW&FUEr&FU&FV$A`&FV;'SEr;'S;=`I|<%l?HTEr?HT?HU$A`?HUOEr07[$D|k$i&j(Vp(Y!b'|0/l$]#t(S,2j(d$I[OY%ZYZ&cZr%Zrs&}st%ZtuEruw%Zwx(rx}%Z}!OGv!O!Q%Z!Q![Er![!^%Z!^!_*g!_!c%Z!c!}Er!}#O%Z#O#P&c#P#R%Z#R#SEr#S#T%Z#T#oEr#o#p*g#p$g%Z$g;'SEr;'S;=`I|<%lOEr",
-      tokenizers: [noSemicolon, noSemicolonType, operatorToken, jsx, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, insertSemicolon, new LocalTokenGroup("$S~RRtu[#O#Pg#S#T#|~_P#o#pb~gOx~~jVO#i!P#i#j!U#j#l!P#l#m!q#m;'S!P;'S;=`#v<%lO!P~!UO!U~~!XS!Q![!e!c!i!e#T#Z!e#o#p#Z~!hR!Q![!q!c!i!q#T#Z!q~!tR!Q![!}!c!i!}#T#Z!}~#QR!Q![!P!c!i!P#T#Z!P~#^R!Q![#g!c!i#g#T#Z#g~#jS!Q![#g!c!i#g#T#Z#g#q#r!P~#yP;=`<%l!P~$RO(b~~", 141, 339), new LocalTokenGroup("j~RQYZXz{^~^O(P~~aP!P!Qd~iO(Q~~", 25, 322)],
-      topRules: { "Script": [0, 7], "SingleExpression": [1, 275], "SingleClassItem": [2, 276] },
-      dialects: { jsx: 0, ts: 15098 },
-      dynamicPrecedences: { "80": 1, "82": 1, "94": 1, "169": 1, "199": 1 },
-      specialized: [{ term: 326, get: (value2) => spec_identifier[value2] || -1 }, { term: 342, get: (value2) => spec_word[value2] || -1 }, { term: 95, get: (value2) => spec_LessThan[value2] || -1 }],
-      tokenPrec: 15124
-    });
     let rangeFrom = [], rangeTo = [];
     (() => {
       let numbers2 = "lc,34,7n,7,7b,19,,,,2,,2,,,20,b,1c,l,g,,2t,7,2,6,2,2,,4,z,,u,r,2j,b,1m,9,9,,o,4,,9,,3,,5,17,3,3b,f,,w,1j,,,,4,8,4,,3,7,a,2,t,,1m,,,,2,4,8,,9,,a,2,q,,2,2,1l,,4,2,4,2,2,3,3,,u,2,3,,b,2,1l,,4,5,,2,4,,k,2,m,6,,,1m,,,2,,4,8,,7,3,a,2,u,,1n,,,,c,,9,,14,,3,,1l,3,5,3,,4,7,2,b,2,t,,1m,,2,,2,,3,,5,2,7,2,b,2,s,2,1l,2,,,2,4,8,,9,,a,2,t,,20,,4,,2,3,,,8,,29,,2,7,c,8,2q,,2,9,b,6,22,2,r,,,,,,1j,e,,5,,2,5,b,,10,9,,2u,4,,6,,2,2,2,p,2,4,3,g,4,d,,2,2,6,,f,,jj,3,qa,3,t,3,t,2,u,2,1s,2,,7,8,,2,b,9,,19,3,3b,2,y,,3a,3,4,2,9,,6,3,63,2,2,,1m,,,7,,,,,2,8,6,a,2,,1c,h,1r,4,1c,7,,,5,,14,9,c,2,w,4,2,2,,3,1k,,,2,3,,,3,1m,8,2,2,48,3,,d,,7,4,,6,,3,2,5i,1m,,5,ek,,5f,x,2da,3,3x,,2o,w,fe,6,2x,2,n9w,4,,a,w,2,28,2,7k,,3,,4,,p,2,5,,47,2,q,i,d,,12,8,p,b,1a,3,1c,,2,4,2,2,13,,1v,6,2,2,2,2,c,,8,,1b,,1f,,,3,2,2,5,2,,,16,2,8,,6m,,2,,4,,fn4,,kh,g,g,g,a6,2,gt,,6a,,45,5,1ae,3,,2,5,4,14,3,4,,4l,2,fx,4,ar,2,49,b,4w,,1i,f,1k,3,1d,4,2,2,1x,3,10,5,,8,1q,,c,2,1g,9,a,4,2,,2n,3,2,,,2,6,,4g,,3,8,l,2,1l,2,,,,,m,,e,7,3,5,5f,8,2,3,,,n,,29,,2,6,,,2,,,2,,2,6j,,2,4,6,2,,2,r,2,2d,8,2,,,2,2y,,,,2,6,,,2t,3,2,4,,5,77,9,,2,6t,,a,2,,,4,,40,4,2,2,4,,w,a,14,6,2,4,8,,9,6,2,3,1a,d,,2,ba,7,,6,,,2a,m,2,7,,2,,2,3e,6,3,,,2,,7,,,20,2,3,,,,9n,2,f0b,5,1n,7,t4,,1r,4,29,,f5k,2,43q,,,3,4,5,8,8,2,7,u,4,44,3,1iz,1j,4,1e,8,,e,,m,5,,f,11s,7,,h,2,7,,2,,5,79,7,c5,4,15s,7,31,7,240,5,gx7k,2o,3k,6o".split(",").map((s) => s ? parseInt(s, 36) : 1);
@@ -59020,17 +56995,17 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     }
     function nextClusterBreak(str, pos, includeExtending) {
       if (pos == str.length) return pos;
-      if (pos && surrogateLow$1(str.charCodeAt(pos)) && surrogateHigh$1(str.charCodeAt(pos - 1))) pos--;
-      let prev = codePointAt$1(str, pos);
-      pos += codePointSize$1(prev);
+      if (pos && surrogateLow(str.charCodeAt(pos)) && surrogateHigh(str.charCodeAt(pos - 1))) pos--;
+      let prev = codePointAt(str, pos);
+      pos += codePointSize(prev);
       while (pos < str.length) {
-        let next2 = codePointAt$1(str, pos);
+        let next2 = codePointAt(str, pos);
         if (prev == ZWJ || next2 == ZWJ || includeExtending && isExtendingChar(next2)) {
-          pos += codePointSize$1(next2);
+          pos += codePointSize(next2);
           prev = next2;
         } else if (isRegionalIndicator(next2)) {
           let countBefore = 0, i2 = pos - 2;
-          while (i2 >= 0 && isRegionalIndicator(codePointAt$1(str, i2))) {
+          while (i2 >= 0 && isRegionalIndicator(codePointAt(str, i2))) {
             countBefore++;
             i2 -= 2;
           }
@@ -59050,20 +57025,20 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
       return 0;
     }
-    function codePointAt$1(str, pos) {
+    function codePointAt(str, pos) {
       let code0 = str.charCodeAt(pos);
-      if (!surrogateHigh$1(code0) || pos + 1 == str.length) return code0;
+      if (!surrogateHigh(code0) || pos + 1 == str.length) return code0;
       let code1 = str.charCodeAt(pos + 1);
-      if (!surrogateLow$1(code1)) return code0;
+      if (!surrogateLow(code1)) return code0;
       return (code0 - 55296 << 10) + (code1 - 56320) + 65536;
     }
-    function surrogateLow$1(ch) {
+    function surrogateLow(ch) {
       return ch >= 56320 && ch < 57344;
     }
-    function surrogateHigh$1(ch) {
+    function surrogateHigh(ch) {
       return ch >= 55296 && ch < 56320;
     }
-    function codePointSize$1(code2) {
+    function codePointSize(code2) {
       return code2 < 65536 ? 1 : 2;
     }
     let Text$1 = class Text2 {
@@ -59618,30 +57593,6 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     }
     function findClusterBreak(str, pos, forward = true, includeExtending = true) {
       return findClusterBreak$1(str, pos, forward, includeExtending);
-    }
-    function surrogateLow(ch) {
-      return ch >= 56320 && ch < 57344;
-    }
-    function surrogateHigh(ch) {
-      return ch >= 55296 && ch < 56320;
-    }
-    function codePointAt(str, pos) {
-      let code0 = str.charCodeAt(pos);
-      if (!surrogateHigh(code0) || pos + 1 == str.length)
-        return code0;
-      let code1 = str.charCodeAt(pos + 1);
-      if (!surrogateLow(code1))
-        return code0;
-      return (code0 - 55296 << 10) + (code1 - 56320) + 65536;
-    }
-    function fromCodePoint(code2) {
-      if (code2 <= 65535)
-        return String.fromCharCode(code2);
-      code2 -= 65536;
-      return String.fromCharCode((code2 >> 10) + 55296, (code2 & 1023) + 56320);
-    }
-    function codePointSize(code2) {
-      return code2 < 65536 ? 1 : 2;
     }
     const DefaultSplit = /\r\n?|\n/;
     var MapMode = /* @__PURE__ */ function(MapMode2) {
@@ -60492,8 +58443,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       /**
       Define a new facet.
       */
-      static define(config2 = {}) {
-        return new Facet(config2.combine || ((a2) => a2), config2.compareInput || ((a2, b) => a2 === b), config2.compare || (!config2.combine ? sameArray : (a2, b) => a2 === b), !!config2.static, config2.enables);
+      static define(config = {}) {
+        return new Facet(config.combine || ((a2) => a2), config.compareInput || ((a2, b) => a2 === b), config.compare || (!config.combine ? sameArray : (a2, b) => a2 === b), !!config.static, config.enables);
       }
       /**
       Returns an extension that adds the given value to this facet.
@@ -60667,10 +58618,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       /**
       Define a state field.
       */
-      static define(config2) {
-        let field = new StateField(nextID++, config2.create, config2.update, config2.compare || ((a2, b) => a2 === b), config2);
-        if (config2.provide)
-          field.provides = config2.provide(field);
+      static define(config) {
+        let field = new StateField(nextID++, config.create, config.update, config.compare || ((a2, b) => a2 === b), config);
+        if (config.provide)
+          field.provides = config.provide(field);
         return field;
       }
       create(state2) {
@@ -61155,13 +59106,13 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       };
     }
     function resolveTransactionInner(state2, spec, docSize) {
-      let sel = spec.selection, annotations = asArray$1(spec.annotations);
+      let sel = spec.selection, annotations = asArray(spec.annotations);
       if (spec.userEvent)
         annotations = annotations.concat(Transaction.userEvent.of(spec.userEvent));
       return {
         changes: spec.changes instanceof ChangeSet ? spec.changes : ChangeSet.of(spec.changes || [], docSize, state2.facet(lineSeparator)),
         selection: sel && (sel instanceof EditorSelection ? sel : EditorSelection.single(sel.anchor, sel.head)),
-        effects: asArray$1(spec.effects),
+        effects: asArray(spec.effects),
         annotations,
         scrollIntoView: !!spec.scrollIntoView
       };
@@ -61211,7 +59162,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         else if (Array.isArray(filtered) && filtered.length == 1 && filtered[0] instanceof Transaction)
           tr = filtered[0];
         else
-          tr = resolveTransaction(state2, asArray$1(filtered), false);
+          tr = resolveTransaction(state2, asArray(filtered), false);
       }
       return tr;
     }
@@ -61224,9 +59175,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
       return spec == tr ? tr : Transaction.create(state2, tr.changes, tr.selection, spec.effects, spec.annotations, spec.scrollIntoView);
     }
-    const none$2 = [];
-    function asArray$1(value2) {
-      return value2 == null ? none$2 : Array.isArray(value2) ? value2 : [value2];
+    const none = [];
+    function asArray(value2) {
+      return value2 == null ? none : Array.isArray(value2) ? value2 : [value2];
     }
     var CharCategory = /* @__PURE__ */ function(CharCategory2) {
       CharCategory2[CharCategory2["Word"] = 0] = "Word";
@@ -61263,12 +59214,12 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       };
     }
     class EditorState {
-      constructor(config2, doc2, selection, values, computeSlot, tr) {
-        this.config = config2;
+      constructor(config, doc2, selection, values, computeSlot, tr) {
+        this.config = config;
         this.doc = doc2;
         this.selection = selection;
         this.values = values;
-        this.status = config2.statusTemplate.slice();
+        this.status = config.statusTemplate.slice();
         this.computeSlot = computeSlot;
         if (tr)
           tr._state = this;
@@ -61322,7 +59273,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             base2 = effect2.value;
           } else if (effect2.is(StateEffect.appendConfig)) {
             conf = null;
-            base2 = asArray$1(base2).concat(effect2.value);
+            base2 = asArray(base2).concat(effect2.value);
           }
         }
         let startValues;
@@ -61363,7 +59314,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         let sel = this.selection;
         let result1 = f(sel.ranges[0]);
         let changes = this.changes(result1.changes), ranges = [result1.range];
-        let effects2 = asArray$1(result1.effects);
+        let effects2 = asArray(result1.effects);
         for (let i2 = 1; i2 < sel.ranges.length; i2++) {
           let result = f(sel.ranges[i2]);
           let newChanges = this.changes(result.changes), newMapped = newChanges.map(changes);
@@ -61372,7 +59323,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           let mapBy = changes.mapDesc(newChanges, true);
           ranges.push(result.range.map(mapBy));
           changes = changes.compose(newMapped);
-          effects2 = StateEffect.mapEffects(effects2, newMapped).concat(StateEffect.mapEffects(asArray$1(result.effects), mapBy));
+          effects2 = StateEffect.mapEffects(effects2, newMapped).concat(StateEffect.mapEffects(asArray(result.effects), mapBy));
         }
         return {
           changes,
@@ -61439,7 +59390,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       to [`toJSON`](https://codemirror.net/6/docs/ref/#state.EditorState.toJSON) when serializing as
       third argument.
       */
-      static fromJSON(json, config2 = {}, fields) {
+      static fromJSON(json, config = {}, fields) {
         if (!json || typeof json.doc != "string")
           throw new RangeError("Invalid JSON representation for EditorState");
         let fieldInit = [];
@@ -61453,7 +59404,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         return EditorState.create({
           doc: json.doc,
           selection: EditorSelection.fromJSON(json.selection),
-          extensions: config2.extensions ? fieldInit.concat([config2.extensions]) : fieldInit
+          extensions: config.extensions ? fieldInit.concat([config.extensions]) : fieldInit
         });
       }
       /**
@@ -61461,10 +59412,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       initializing an editor—updated states are created by applying
       transactions.
       */
-      static create(config2 = {}) {
-        let configuration = Configuration.resolve(config2.extensions || [], /* @__PURE__ */ new Map());
-        let doc2 = config2.doc instanceof Text$1 ? config2.doc : Text$1.of((config2.doc || "").split(configuration.staticFacet(EditorState.lineSeparator) || DefaultSplit));
-        let selection = !config2.selection ? EditorSelection.single(0) : config2.selection instanceof EditorSelection ? config2.selection : EditorSelection.single(config2.selection.anchor, config2.selection.head);
+      static create(config = {}) {
+        let configuration = Configuration.resolve(config.extensions || [], /* @__PURE__ */ new Map());
+        let doc2 = config.doc instanceof Text$1 ? config.doc : Text$1.of((config.doc || "").split(configuration.staticFacet(EditorState.lineSeparator) || DefaultSplit));
+        let selection = !config.selection ? EditorSelection.single(0) : config.selection instanceof EditorSelection ? config.selection : EditorSelection.single(config.selection.anchor, config.selection.head);
         checkSelection(selection, doc2.length);
         if (!configuration.staticFacet(allowMultipleSelections))
           selection = selection.asSingle();
@@ -61501,20 +59452,20 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       A single `$` is equivalent to `$1`, and `$$` will produce a
       literal dollar sign.
       */
-      phrase(phrase2, ...insert2) {
+      phrase(phrase, ...insert2) {
         for (let map2 of this.facet(EditorState.phrases))
-          if (Object.prototype.hasOwnProperty.call(map2, phrase2)) {
-            phrase2 = map2[phrase2];
+          if (Object.prototype.hasOwnProperty.call(map2, phrase)) {
+            phrase = map2[phrase];
             break;
           }
         if (insert2.length)
-          phrase2 = phrase2.replace(/\$(\$|\d*)/g, (m, i2) => {
+          phrase = phrase.replace(/\$(\$|\d*)/g, (m, i2) => {
             if (i2 == "$")
               return "$";
             let n2 = +(i2 || 1);
             return !n2 || n2 > insert2.length ? m : insert2[n2 - 1];
           });
-        return phrase2;
+        return phrase;
       }
       /**
       Find the values for a given language data field, provided by the
@@ -61598,24 +59549,6 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     EditorState.transactionFilter = transactionFilter;
     EditorState.transactionExtender = transactionExtender;
     Compartment.reconfigure = /* @__PURE__ */ StateEffect.define();
-    function combineConfig(configs, defaults2, combine = {}) {
-      let result = {};
-      for (let config2 of configs)
-        for (let key of Object.keys(config2)) {
-          let value2 = config2[key], current = result[key];
-          if (current === void 0)
-            result[key] = value2;
-          else if (current === value2 || value2 === void 0) ;
-          else if (Object.hasOwnProperty.call(combine, key))
-            result[key] = combine[key](current, value2);
-          else
-            throw new Error("Config merge conflict for field " + key);
-        }
-      for (let key in defaults2)
-        if (result[key] === void 0)
-          result[key] = defaults2[key];
-      return result;
-    }
     class RangeValue {
       /**
       Compare this value with another value. Used when comparing
@@ -61773,21 +59706,21 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           add2 = add2.slice().sort(cmpRange);
         if (this.isEmpty)
           return add2.length ? RangeSet.of(add2) : this;
-        let cur2 = new LayerCursor(this, null, -1).goto(0), i2 = 0, spill = [];
+        let cur = new LayerCursor(this, null, -1).goto(0), i2 = 0, spill = [];
         let builder = new RangeSetBuilder();
-        while (cur2.value || i2 < add2.length) {
-          if (i2 < add2.length && (cur2.from - add2[i2].from || cur2.startSide - add2[i2].value.startSide) >= 0) {
+        while (cur.value || i2 < add2.length) {
+          if (i2 < add2.length && (cur.from - add2[i2].from || cur.startSide - add2[i2].value.startSide) >= 0) {
             let range2 = add2[i2++];
             if (!builder.addInner(range2.from, range2.to, range2.value))
               spill.push(range2);
-          } else if (cur2.rangeIndex == 1 && cur2.chunkIndex < this.chunk.length && (i2 == add2.length || this.chunkEnd(cur2.chunkIndex) < add2[i2].from) && (!filter || filterFrom > this.chunkEnd(cur2.chunkIndex) || filterTo < this.chunkPos[cur2.chunkIndex]) && builder.addChunk(this.chunkPos[cur2.chunkIndex], this.chunk[cur2.chunkIndex])) {
-            cur2.nextChunk();
+          } else if (cur.rangeIndex == 1 && cur.chunkIndex < this.chunk.length && (i2 == add2.length || this.chunkEnd(cur.chunkIndex) < add2[i2].from) && (!filter || filterFrom > this.chunkEnd(cur.chunkIndex) || filterTo < this.chunkPos[cur.chunkIndex]) && builder.addChunk(this.chunkPos[cur.chunkIndex], this.chunk[cur.chunkIndex])) {
+            cur.nextChunk();
           } else {
-            if (!filter || filterFrom > cur2.to || filterTo < cur2.from || filter(cur2.from, cur2.to, cur2.value)) {
-              if (!builder.addInner(cur2.from, cur2.to, cur2.value))
-                spill.push(Range.create(cur2.from, cur2.to, cur2.value));
+            if (!filter || filterFrom > cur.to || filterTo < cur.from || filter(cur.from, cur.to, cur.value)) {
+              if (!builder.addInner(cur.from, cur.to, cur.value))
+                spill.push(Range.create(cur.from, cur.to, cur.value));
             }
-            cur2.next();
+            cur.next();
           }
         }
         return builder.finishInner(this.nextLayer.isEmpty && !spill.length ? RangeSet.empty : this.nextLayer.update({ add: spill, filter, filterFrom, filterTo }));
@@ -61940,8 +59873,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           return RangeSet.empty;
         let result = sets[sets.length - 1];
         for (let i2 = sets.length - 2; i2 >= 0; i2--) {
-          for (let layer2 = sets[i2]; layer2 != RangeSet.empty; layer2 = layer2.nextLayer)
-            result = new RangeSet(layer2.chunkPos, layer2.chunk, result, Math.max(layer2.maxPoint, result.maxPoint));
+          for (let layer = sets[i2]; layer != RangeSet.empty; layer = layer.nextLayer)
+            result = new RangeSet(layer.chunkPos, layer.chunk, result, Math.max(layer.maxPoint, result.maxPoint));
         }
         return result;
       }
@@ -61950,10 +59883,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     function lazySort(ranges) {
       if (ranges.length > 1)
         for (let prev = ranges[0], i2 = 1; i2 < ranges.length; i2++) {
-          let cur2 = ranges[i2];
-          if (cmpRange(prev, cur2) > 0)
+          let cur = ranges[i2];
+          if (cmpRange(prev, cur) > 0)
             return ranges.slice().sort(cmpRange);
-          prev = cur2;
+          prev = cur;
         }
       return ranges;
     }
@@ -62072,8 +60005,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       return shared;
     }
     class LayerCursor {
-      constructor(layer2, skip2, minPoint, rank = 0) {
-        this.layer = layer2;
+      constructor(layer, skip2, minPoint, rank = 0) {
+        this.layer = layer;
         this.skip = skip2;
         this.minPoint = minPoint;
         this.rank = rank;
@@ -62154,9 +60087,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       static from(sets, skip2 = null, minPoint = -1) {
         let heap = [];
         for (let i2 = 0; i2 < sets.length; i2++) {
-          for (let cur2 = sets[i2]; !cur2.isEmpty; cur2 = cur2.nextLayer) {
-            if (cur2.maxPoint >= minPoint)
-              heap.push(new LayerCursor(cur2, skip2, minPoint, i2));
+          for (let cur = sets[i2]; !cur.isEmpty; cur = cur.nextLayer) {
+            if (cur.maxPoint >= minPoint)
+              heap.push(new LayerCursor(cur, skip2, minPoint, i2));
           }
         }
         return heap.length == 1 ? heap[0] : new HeapCursor(heap);
@@ -62165,16 +60098,16 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         return this.value ? this.value.startSide : 0;
       }
       goto(pos, side = -1e9) {
-        for (let cur2 of this.heap)
-          cur2.goto(pos, side);
+        for (let cur of this.heap)
+          cur.goto(pos, side);
         for (let i2 = this.heap.length >> 1; i2 >= 0; i2--)
           heapBubble(this.heap, i2);
         this.next();
         return this;
       }
       forward(pos, side) {
-        for (let cur2 of this.heap)
-          cur2.forward(pos, side);
+        for (let cur of this.heap)
+          cur.forward(pos, side);
         for (let i2 = this.heap.length >> 1; i2 >= 0; i2--)
           heapBubble(this.heap, i2);
         if ((this.to - pos || this.value.endSide - side) < 0)
@@ -62198,7 +60131,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
     }
     function heapBubble(heap, index2) {
-      for (let cur2 = heap[index2]; ; ) {
+      for (let cur = heap[index2]; ; ) {
         let childIndex = (index2 << 1) + 1;
         if (childIndex >= heap.length)
           break;
@@ -62207,9 +60140,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           child2 = heap[childIndex + 1];
           childIndex++;
         }
-        if (cur2.compare(child2) < 0)
+        if (cur.compare(child2) < 0)
           break;
-        heap[childIndex] = cur2;
+        heap[childIndex] = cur;
         heap[index2] = child2;
         index2 = childIndex;
       }
@@ -62382,19 +60315,6 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         }
       return found;
     }
-    function countColumn(string2, tabSize, to2 = string2.length) {
-      let n2 = 0;
-      for (let i2 = 0; i2 < to2 && i2 < string2.length; ) {
-        if (string2.charCodeAt(i2) == 9) {
-          n2 += tabSize - n2 % tabSize;
-          i2++;
-        } else {
-          n2++;
-          i2 = findClusterBreak(string2, i2);
-        }
-      }
-      return n2;
-    }
     function findColumn(string2, col, tabSize, strict) {
       for (let i2 = 0, n2 = 0; ; ) {
         if (n2 >= col)
@@ -62404,7 +60324,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         n2 += string2.charCodeAt(i2) == 9 ? tabSize - n2 % tabSize : 1;
         i2 = findClusterBreak(string2, i2);
       }
-      return strict === true ? -1 : string2.length;
+      return string2.length;
     }
     const C = "ͼ";
     const COUNT = typeof Symbol == "undefined" ? "__" + C : Symbol.for(C);
@@ -62615,8 +60535,6 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       221: "}",
       222: '"'
     };
-    var mac = typeof navigator != "undefined" && /Mac/.test(navigator.platform);
-    var ie$1 = typeof navigator != "undefined" && /MSIE \d|Trident\/(?:[7-9]|\d{2,})\..*rv:(\d+)/.exec(navigator.userAgent);
     for (var i = 0; i < 10; i++) base[48 + i] = base[96 + i] = String(i);
     for (var i = 1; i <= 24; i++) base[i + 111] = "F" + i;
     for (var i = 65; i <= 90; i++) {
@@ -62624,44 +60542,6 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       shift[i] = String.fromCharCode(i);
     }
     for (var code in base) if (!shift.hasOwnProperty(code)) shift[code] = base[code];
-    function keyName(event2) {
-      var ignoreKey = mac && event2.metaKey && event2.shiftKey && !event2.ctrlKey && !event2.altKey || ie$1 && event2.shiftKey && event2.key && event2.key.length == 1 || event2.key == "Unidentified";
-      var name2 = !ignoreKey && event2.key || (event2.shiftKey ? shift : base)[event2.keyCode] || event2.key || "Unidentified";
-      if (name2 == "Esc") name2 = "Escape";
-      if (name2 == "Del") name2 = "Delete";
-      if (name2 == "Left") name2 = "ArrowLeft";
-      if (name2 == "Up") name2 = "ArrowUp";
-      if (name2 == "Right") name2 = "ArrowRight";
-      if (name2 == "Down") name2 = "ArrowDown";
-      return name2;
-    }
-    function crelt() {
-      var elt = arguments[0];
-      if (typeof elt == "string") elt = document.createElement(elt);
-      var i2 = 1, next2 = arguments[1];
-      if (next2 && typeof next2 == "object" && next2.nodeType == null && !Array.isArray(next2)) {
-        for (var name2 in next2) if (Object.prototype.hasOwnProperty.call(next2, name2)) {
-          var value2 = next2[name2];
-          if (typeof value2 == "string") elt.setAttribute(name2, value2);
-          else if (value2 != null) elt[name2] = value2;
-        }
-        i2++;
-      }
-      for (; i2 < arguments.length; i2++) add(elt, arguments[i2]);
-      return elt;
-    }
-    function add(elt, child2) {
-      if (typeof child2 == "string") {
-        elt.appendChild(document.createTextNode(child2));
-      } else if (child2 == null) ;
-      else if (child2.nodeType != null) {
-        elt.appendChild(child2);
-      } else if (Array.isArray(child2)) {
-        for (var i2 = 0; i2 < child2.length; i2++) add(elt, child2[i2]);
-      } else {
-        throw new RangeError("Unsupported child node: " + child2);
-      }
-    }
     function getSelection(root2) {
       let target2;
       if (root2.nodeType == 11) {
@@ -62760,26 +60640,26 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     }
     function scrollRectIntoView(dom, rect, side, x, y, xMargin, yMargin, ltr) {
       let doc2 = dom.ownerDocument, win = doc2.defaultView || window;
-      for (let cur2 = dom, stop = false; cur2 && !stop; ) {
-        if (cur2.nodeType == 1) {
-          let bounding, top2 = cur2 == doc2.body;
+      for (let cur = dom, stop = false; cur && !stop; ) {
+        if (cur.nodeType == 1) {
+          let bounding, top2 = cur == doc2.body;
           let scaleX = 1, scaleY = 1;
           if (top2) {
             bounding = windowRect(win);
           } else {
-            if (/^(fixed|sticky)$/.test(getComputedStyle(cur2).position))
+            if (/^(fixed|sticky)$/.test(getComputedStyle(cur).position))
               stop = true;
-            if (cur2.scrollHeight <= cur2.clientHeight && cur2.scrollWidth <= cur2.clientWidth) {
-              cur2 = cur2.assignedSlot || cur2.parentNode;
+            if (cur.scrollHeight <= cur.clientHeight && cur.scrollWidth <= cur.clientWidth) {
+              cur = cur.assignedSlot || cur.parentNode;
               continue;
             }
-            let rect2 = cur2.getBoundingClientRect();
-            ({ scaleX, scaleY } = getScale(cur2, rect2));
+            let rect2 = cur.getBoundingClientRect();
+            ({ scaleX, scaleY } = getScale(cur, rect2));
             bounding = {
               left: rect2.left,
-              right: rect2.left + cur2.clientWidth * scaleX,
+              right: rect2.left + cur.clientWidth * scaleX,
               top: rect2.top,
-              bottom: rect2.top + cur2.clientHeight * scaleY
+              bottom: rect2.top + cur.clientHeight * scaleY
             };
           }
           let moveX = 0, moveY = 0;
@@ -62818,14 +60698,14 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             } else {
               let movedX = 0, movedY = 0;
               if (moveY) {
-                let start = cur2.scrollTop;
-                cur2.scrollTop += moveY / scaleY;
-                movedY = (cur2.scrollTop - start) * scaleY;
+                let start = cur.scrollTop;
+                cur.scrollTop += moveY / scaleY;
+                movedY = (cur.scrollTop - start) * scaleY;
               }
               if (moveX) {
-                let start = cur2.scrollLeft;
-                cur2.scrollLeft += moveX / scaleX;
-                movedX = (cur2.scrollLeft - start) * scaleX;
+                let start = cur.scrollLeft;
+                cur.scrollLeft += moveX / scaleX;
+                movedX = (cur.scrollLeft - start) * scaleX;
               }
               rect = {
                 left: rect.left - movedX,
@@ -62848,9 +60728,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
               top: Math.max(rect.top, bounding.top),
               bottom: Math.min(rect.bottom, bounding.bottom)
             };
-          cur2 = cur2.assignedSlot || cur2.parentNode;
-        } else if (cur2.nodeType == 11) {
-          cur2 = cur2.host;
+          cur = cur.assignedSlot || cur.parentNode;
+        } else if (cur.nodeType == 11) {
+          cur = cur.host;
         } else {
           break;
         }
@@ -62858,17 +60738,17 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     }
     function scrollableParents(dom) {
       let doc2 = dom.ownerDocument, x, y;
-      for (let cur2 = dom.parentNode; cur2; ) {
-        if (cur2 == doc2.body || x && y) {
+      for (let cur = dom.parentNode; cur; ) {
+        if (cur == doc2.body || x && y) {
           break;
-        } else if (cur2.nodeType == 1) {
-          if (!y && cur2.scrollHeight > cur2.clientHeight)
-            y = cur2;
-          if (!x && cur2.scrollWidth > cur2.clientWidth)
-            x = cur2;
-          cur2 = cur2.assignedSlot || cur2.parentNode;
-        } else if (cur2.nodeType == 11) {
-          cur2 = cur2.host;
+        } else if (cur.nodeType == 1) {
+          if (!y && cur.scrollHeight > cur.clientHeight)
+            y = cur;
+          if (!x && cur.scrollWidth > cur.clientWidth)
+            x = cur;
+          cur = cur.assignedSlot || cur.parentNode;
+        } else if (cur.nodeType == 11) {
+          cur = cur.host;
         } else {
           break;
         }
@@ -62903,9 +60783,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       if (preventScrollSupported)
         return dom.focus(preventScrollSupported);
       let stack = [];
-      for (let cur2 = dom; cur2; cur2 = cur2.parentNode) {
-        stack.push(cur2, cur2.scrollTop, cur2.scrollLeft);
-        if (cur2 == cur2.ownerDocument)
+      for (let cur = dom; cur; cur = cur.parentNode) {
+        stack.push(cur, cur.scrollTop, cur.scrollLeft);
+        if (cur == cur.ownerDocument)
           break;
       }
       dom.focus(preventScrollSupported == null ? {
@@ -63343,9 +61223,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         parent.replaceChildren(fromI, toI, insert2);
     }
     function mergeChildrenInto(parent, from2, to2, insert2, openStart, openEnd) {
-      let cur2 = parent.childCursor();
-      let { i: toI, off: toOff } = cur2.findPos(to2, 1);
-      let { i: fromI, off: fromOff } = cur2.findPos(from2, -1);
+      let cur = parent.childCursor();
+      let { i: toI, off: toOff } = cur.findPos(to2, 1);
+      let { i: fromI, off: fromOff } = cur.findPos(from2, -1);
       let dLen = from2 - to2;
       for (let view of insert2)
         dLen += view.length;
@@ -63365,8 +61245,6 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     const ios = safari && (/* @__PURE__ */ /Mobile\/\w+/.test(nav.userAgent) || nav.maxTouchPoints > 2);
     var browser = {
       mac: ios || /* @__PURE__ */ /Mac/.test(nav.platform),
-      windows: /* @__PURE__ */ /Win/.test(nav.platform),
-      linux: /* @__PURE__ */ /Linux|X11/.test(nav.platform),
       ie,
       ie_version: ie_upto10 ? doc.documentMode || 6 : ie_11up ? +ie_11up[1] : ie_edge ? +ie_edge[1] : 0,
       gecko,
@@ -63754,14 +61632,14 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
       return target2;
     }
-    const noAttrs$1 = /* @__PURE__ */ Object.create(null);
+    const noAttrs = /* @__PURE__ */ Object.create(null);
     function attrsEq(a2, b, ignore) {
       if (a2 == b)
         return true;
       if (!a2)
-        a2 = noAttrs$1;
+        a2 = noAttrs;
       if (!b)
-        b = noAttrs$1;
+        b = noAttrs;
       let keysA = Object.keys(a2), keysB = Object.keys(b);
       if (keysA.length - (ignore && keysA.indexOf(ignore) > -1 ? 1 : 0) != keysB.length - (ignore && keysB.indexOf(ignore) > -1 ? 1 : 0))
         return false;
@@ -64642,13 +62520,13 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             let embed = type2 == outerType;
             context = embed ? 0 : 1;
             for (let sJ = sI - 3; sJ >= 0; sJ -= 3) {
-              let cur2 = BracketStack[sJ + 2];
-              if (cur2 & 2)
+              let cur = BracketStack[sJ + 2];
+              if (cur & 2)
                 break;
               if (embed) {
                 BracketStack[sJ + 2] |= 2;
               } else {
-                if (cur2 & 4)
+                if (cur & 4)
                   break;
                 BracketStack[sJ + 2] |= 4;
               }
@@ -64861,7 +62739,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     const mouseSelectionStyle = /* @__PURE__ */ Facet.define();
     const exceptionSink = /* @__PURE__ */ Facet.define();
     const updateListener = /* @__PURE__ */ Facet.define();
-    const inputHandler$1 = /* @__PURE__ */ Facet.define();
+    const inputHandler = /* @__PURE__ */ Facet.define();
     const focusChangeEffect = /* @__PURE__ */ Facet.define();
     const clipboardInputFilter = /* @__PURE__ */ Facet.define();
     const clipboardOutputFilter = /* @__PURE__ */ Facet.define();
@@ -64888,7 +62766,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         return this.range.to <= state2.doc.length ? this : new ScrollTarget(EditorSelection.cursor(state2.doc.length), this.y, this.x, this.yMargin, this.xMargin, this.isSnapshot);
       }
     }
-    const scrollIntoView$1 = /* @__PURE__ */ StateEffect.define({ map: (t2, ch) => t2.map(ch) });
+    const scrollIntoView = /* @__PURE__ */ StateEffect.define({ map: (t2, ch) => t2.map(ch) });
     const setEditContextFormatting = /* @__PURE__ */ StateEffect.define();
     function logException(state2, exception, context) {
       let handler = state2.facet(exceptionSink);
@@ -65325,12 +63203,12 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             }
       }
       compositionView(composition) {
-        let cur2 = new TextView(composition.text.nodeValue);
-        cur2.flags |= 8;
+        let cur = new TextView(composition.text.nodeValue);
+        cur.flags |= 8;
         for (let { deco } of composition.marks)
-          cur2 = new MarkView(deco, [cur2], cur2.length);
+          cur = new MarkView(deco, [cur], cur.length);
         let line = new LineView();
-        line.append(cur2, 0);
+        line.append(cur, 0);
         return line;
       }
       fixCompositionDOM(composition) {
@@ -65470,11 +63348,11 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         return newPos ? new DOMPos(newPos.node, newPos.offset, true) : pos;
       }
       nearest(dom) {
-        for (let cur2 = dom; cur2; ) {
-          let domView = ContentView.get(cur2);
+        for (let cur = dom; cur; ) {
+          let domView = ContentView.get(cur);
           if (domView && domView.rootView == this)
             return domView;
-          cur2 = cur2.parentNode;
+          cur = cur.parentNode;
         }
         return null;
       }
@@ -65767,8 +63645,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       return comp.changes;
     }
     function inUneditable(node, inside2) {
-      for (let cur2 = node; cur2 && cur2 != inside2; cur2 = cur2.assignedSlot || cur2.parentNode) {
-        if (cur2.nodeType == 1 && cur2.contentEditable == "false") {
+      for (let cur = node; cur && cur != inside2; cur = cur.assignedSlot || cur.parentNode) {
+        if (cur.nodeType == 1 && cur.contentEditable == "false") {
           return true;
         }
       }
@@ -66011,13 +63889,13 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     function isSuspiciousChromeCaretResult(node, offset, x) {
       if (offset != 0)
         return false;
-      for (let cur2 = node; ; ) {
-        let parent = cur2.parentNode;
-        if (!parent || parent.nodeType != 1 || parent.firstChild != cur2)
+      for (let cur = node; ; ) {
+        let parent = cur.parentNode;
+        if (!parent || parent.nodeType != 1 || parent.firstChild != cur)
           return false;
         if (parent.classList.contains("cm-line"))
           break;
-        cur2 = parent;
+        cur = parent;
       }
       let rect = node.nodeType == 1 ? node.getBoundingClientRect() : textRange(node, 0, Math.max(node.nodeValue.length, 1)).getBoundingClientRect();
       return x - rect.left > 5;
@@ -66058,11 +63936,11 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     function moveByChar(view, start, forward, by) {
       let line = view.state.doc.lineAt(start.head), spans = view.bidiSpans(line);
       let direction = view.textDirectionAt(line.from);
-      for (let cur2 = start, check2 = null; ; ) {
-        let next2 = moveVisually(line, spans, direction, cur2, forward), char = movedOver;
+      for (let cur = start, check2 = null; ; ) {
+        let next2 = moveVisually(line, spans, direction, cur, forward), char = movedOver;
         if (!next2) {
           if (line.number == (forward ? view.state.doc.lines : 1))
-            return cur2;
+            return cur;
           char = "\n";
           line = view.state.doc.line(line.number + (forward ? 1 : -1));
           spans = view.bidiSpans(line);
@@ -66073,9 +63951,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             return next2;
           check2 = by(char);
         } else if (!check2(char)) {
-          return cur2;
+          return cur;
         }
-        cur2 = next2;
+        cur = next2;
       }
     }
     function byGroup(view, pos, start) {
@@ -66154,17 +64032,17 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         if (!start)
           return this;
         let parent = start.parentNode;
-        for (let cur2 = start; ; ) {
-          this.findPointBefore(parent, cur2);
+        for (let cur = start; ; ) {
+          this.findPointBefore(parent, cur);
           let oldLen = this.text.length;
-          this.readNode(cur2);
-          let next2 = cur2.nextSibling;
+          this.readNode(cur);
+          let next2 = cur.nextSibling;
           if (next2 == end)
             break;
-          let view = ContentView.get(cur2), nextView = ContentView.get(next2);
-          if (view && nextView ? view.breakAfter : (view ? view.breakAfter : isBlockElement(cur2)) || isBlockElement(next2) && (cur2.nodeName != "BR" || cur2.cmIgnore) && this.text.length > oldLen)
+          let view = ContentView.get(cur), nextView = ContentView.get(next2);
+          if (view && nextView ? view.breakAfter : (view ? view.breakAfter : isBlockElement(cur)) || isBlockElement(next2) && (cur.nodeName != "BR" || cur.cmIgnore) && this.text.length > oldLen)
             this.lineBreak();
-          cur2 = next2;
+          cur = next2;
         }
         this.findPointBefore(parent, end);
         return this;
@@ -66348,7 +64226,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         view.inputState.composing++;
       let defaultTr;
       let defaultInsert = () => defaultTr || (defaultTr = applyDefaultInsert(view, change, newSel));
-      if (!view.state.facet(inputHandler$1).some((h) => h(view, change.from, change.to, text2, defaultInsert)))
+      if (!view.state.facet(inputHandler).some((h) => h(view, change.from, change.to, text2, defaultInsert)))
         view.dispatch(defaultInsert());
       return true;
     }
@@ -66952,16 +64830,16 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           }
         },
         get(event22, extend2, multiple) {
-          let cur2 = queryPos(view, event22), removed;
-          let range2 = rangeForClick(view, cur2.pos, cur2.bias, type2);
-          if (start.pos != cur2.pos && !extend2) {
+          let cur = queryPos(view, event22), removed;
+          let range2 = rangeForClick(view, cur.pos, cur.bias, type2);
+          if (start.pos != cur.pos && !extend2) {
             let startRange = rangeForClick(view, start.pos, start.bias, type2);
             let from2 = Math.min(startRange.from, range2.from), to2 = Math.max(startRange.to, range2.to);
             range2 = from2 < range2.from ? EditorSelection.range(from2, to2) : EditorSelection.range(to2, from2);
           }
           if (extend2)
             return startSel.replaceRange(startSel.main.extend(range2.from, range2.to));
-          else if (multiple && type2 == 1 && startSel.ranges.length > 1 && (removed = removeRangeAround(startSel, cur2.pos)))
+          else if (multiple && type2 == 1 && startSel.ranges.length > 1 && (removed = removeRangeAround(startSel, cur.pos)))
             return removed;
           else if (multiple)
             return startSel.addRange(range2);
@@ -67360,12 +65238,12 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         return new BlockInfo(this.from, this.length + other.length, this.top, this.height + other.height, content2);
       }
     }
-    var QueryType$1 = /* @__PURE__ */ function(QueryType2) {
+    var QueryType = /* @__PURE__ */ function(QueryType2) {
       QueryType2[QueryType2["ByPos"] = 0] = "ByPos";
       QueryType2[QueryType2["ByHeight"] = 1] = "ByHeight";
       QueryType2[QueryType2["ByPosNoHeight"] = 2] = "ByPosNoHeight";
       return QueryType2;
-    }(QueryType$1 || (QueryType$1 = {}));
+    }(QueryType || (QueryType = {}));
     const Epsilon = 1e-3;
     class HeightMap {
       constructor(length, height, flags = 2) {
@@ -67403,8 +65281,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         let me = this, doc2 = oracle.doc;
         for (let i2 = changes.length - 1; i2 >= 0; i2--) {
           let { fromA, toA, fromB, toB } = changes[i2];
-          let start = me.lineAt(fromA, QueryType$1.ByPosNoHeight, oracle.setDoc(oldDoc), 0, 0);
-          let end = start.to >= toA ? start : me.lineAt(toA, QueryType$1.ByPosNoHeight, oracle, 0, 0);
+          let start = me.lineAt(fromA, QueryType.ByPosNoHeight, oracle.setDoc(oldDoc), 0, 0);
+          let end = start.to >= toA ? start : me.lineAt(toA, QueryType.ByPosNoHeight, oracle, 0, 0);
           toB += end.to - toA;
           toA = end.to;
           while (i2 > 0 && start.from <= changes[i2 - 1].toA) {
@@ -67412,7 +65290,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             fromB = changes[i2 - 1].fromB;
             i2--;
             if (fromA < start.from)
-              start = me.lineAt(fromA, QueryType$1.ByPosNoHeight, oracle, 0, 0);
+              start = me.lineAt(fromA, QueryType.ByPosNoHeight, oracle, 0, 0);
           }
           fromB += start.from - fromA;
           fromA = start.from;
@@ -67575,9 +65453,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         }
       }
       lineAt(value2, type2, oracle, top2, offset) {
-        if (type2 == QueryType$1.ByHeight)
+        if (type2 == QueryType.ByHeight)
           return this.blockAt(value2, oracle, top2, offset);
-        if (type2 == QueryType$1.ByPosNoHeight) {
+        if (type2 == QueryType.ByPosNoHeight) {
           let { from: from2, to: to2 } = oracle.doc.lineAt(value2);
           return new BlockInfo(from2, to2 - from2, 0, 0, 0);
         }
@@ -67679,11 +65557,11 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
       lineAt(value2, type2, oracle, top2, offset) {
         let rightTop = top2 + this.left.height, rightOffset = offset + this.left.length + this.break;
-        let left = type2 == QueryType$1.ByHeight ? value2 < rightTop : value2 < rightOffset;
+        let left = type2 == QueryType.ByHeight ? value2 < rightTop : value2 < rightOffset;
         let base2 = left ? this.left.lineAt(value2, type2, oracle, top2, offset) : this.right.lineAt(value2, type2, oracle, rightTop, rightOffset);
         if (this.break || (left ? base2.to < rightOffset : base2.from > rightOffset))
           return base2;
-        let subQuery = type2 == QueryType$1.ByPosNoHeight ? QueryType$1.ByPosNoHeight : QueryType$1.ByPos;
+        let subQuery = type2 == QueryType.ByPosNoHeight ? QueryType.ByPosNoHeight : QueryType.ByPos;
         if (left)
           return base2.join(this.right.lineAt(rightOffset, subQuery, oracle, rightTop, rightOffset));
         else
@@ -67697,7 +65575,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           if (to2 >= rightOffset)
             this.right.forEachLine(from2, to2, oracle, rightTop, rightOffset, f);
         } else {
-          let mid = this.lineAt(rightOffset, QueryType$1.ByPos, oracle, top2, offset);
+          let mid = this.lineAt(rightOffset, QueryType.ByPos, oracle, top2, offset);
           if (from2 < mid.from)
             this.left.forEachLine(from2, mid.from - 1, oracle, top2, offset, f);
           if (mid.to >= from2 && mid.from <= to2)
@@ -68217,34 +66095,34 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         let marginTop = 0.5 - Math.max(-0.5, Math.min(0.5, bias / 1e3 / 2));
         let map2 = this.heightMap, oracle = this.heightOracle;
         let { visibleTop, visibleBottom } = this;
-        let viewport = new Viewport(map2.lineAt(visibleTop - marginTop * 1e3, QueryType$1.ByHeight, oracle, 0, 0).from, map2.lineAt(visibleBottom + (1 - marginTop) * 1e3, QueryType$1.ByHeight, oracle, 0, 0).to);
+        let viewport = new Viewport(map2.lineAt(visibleTop - marginTop * 1e3, QueryType.ByHeight, oracle, 0, 0).from, map2.lineAt(visibleBottom + (1 - marginTop) * 1e3, QueryType.ByHeight, oracle, 0, 0).to);
         if (scrollTarget) {
           let { head } = scrollTarget.range;
           if (head < viewport.from || head > viewport.to) {
             let viewHeight = Math.min(this.editorHeight, this.pixelViewport.bottom - this.pixelViewport.top);
-            let block2 = map2.lineAt(head, QueryType$1.ByPos, oracle, 0, 0), topPos;
+            let block2 = map2.lineAt(head, QueryType.ByPos, oracle, 0, 0), topPos;
             if (scrollTarget.y == "center")
               topPos = (block2.top + block2.bottom) / 2 - viewHeight / 2;
             else if (scrollTarget.y == "start" || scrollTarget.y == "nearest" && head < viewport.from)
               topPos = block2.top;
             else
               topPos = block2.bottom - viewHeight;
-            viewport = new Viewport(map2.lineAt(topPos - 1e3 / 2, QueryType$1.ByHeight, oracle, 0, 0).from, map2.lineAt(topPos + viewHeight + 1e3 / 2, QueryType$1.ByHeight, oracle, 0, 0).to);
+            viewport = new Viewport(map2.lineAt(topPos - 1e3 / 2, QueryType.ByHeight, oracle, 0, 0).from, map2.lineAt(topPos + viewHeight + 1e3 / 2, QueryType.ByHeight, oracle, 0, 0).to);
           }
         }
         return viewport;
       }
       mapViewport(viewport, changes) {
         let from2 = changes.mapPos(viewport.from, -1), to2 = changes.mapPos(viewport.to, 1);
-        return new Viewport(this.heightMap.lineAt(from2, QueryType$1.ByPos, this.heightOracle, 0, 0).from, this.heightMap.lineAt(to2, QueryType$1.ByPos, this.heightOracle, 0, 0).to);
+        return new Viewport(this.heightMap.lineAt(from2, QueryType.ByPos, this.heightOracle, 0, 0).from, this.heightMap.lineAt(to2, QueryType.ByPos, this.heightOracle, 0, 0).to);
       }
       // Checks if a given viewport covers the visible part of the
       // document and not too much beyond that.
       viewportIsAppropriate({ from: from2, to: to2 }, bias = 0) {
         if (!this.inView)
           return true;
-        let { top: top2 } = this.heightMap.lineAt(from2, QueryType$1.ByPos, this.heightOracle, 0, 0);
-        let { bottom } = this.heightMap.lineAt(to2, QueryType$1.ByPos, this.heightOracle, 0, 0);
+        let { top: top2 } = this.heightMap.lineAt(from2, QueryType.ByPos, this.heightOracle, 0, 0);
+        let { bottom } = this.heightMap.lineAt(to2, QueryType.ByPos, this.heightOracle, 0, 0);
         let { visibleTop, visibleBottom } = this;
         return (from2 == 0 || top2 <= visibleTop - Math.max(10, Math.min(
           -bias,
@@ -68405,10 +66283,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         return changed;
       }
       lineBlockAt(pos) {
-        return pos >= this.viewport.from && pos <= this.viewport.to && this.viewportLines.find((b) => b.from <= pos && b.to >= pos) || scaleBlock(this.heightMap.lineAt(pos, QueryType$1.ByPos, this.heightOracle, 0, 0), this.scaler);
+        return pos >= this.viewport.from && pos <= this.viewport.to && this.viewportLines.find((b) => b.from <= pos && b.to >= pos) || scaleBlock(this.heightMap.lineAt(pos, QueryType.ByPos, this.heightOracle, 0, 0), this.scaler);
       }
       lineBlockAtHeight(height) {
-        return height >= this.viewportLines[0].top && height <= this.viewportLines[this.viewportLines.length - 1].bottom && this.viewportLines.find((l) => l.top <= height && l.bottom >= height) || scaleBlock(this.heightMap.lineAt(this.scaler.fromDOM(height), QueryType$1.ByHeight, this.heightOracle, 0, 0), this.scaler);
+        return height >= this.viewportLines[0].top && height <= this.viewportLines[this.viewportLines.length - 1].bottom && this.viewportLines.find((l) => l.top <= height && l.bottom >= height) || scaleBlock(this.heightMap.lineAt(this.scaler.fromDOM(height), QueryType.ByHeight, this.heightOracle, 0, 0), this.scaler);
       }
       scrollAnchorAt(scrollTop) {
         let block2 = this.lineBlockAtHeight(scrollTop + 8);
@@ -68495,8 +66373,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       constructor(oracle, heightMap, viewports) {
         let vpHeight = 0, base2 = 0, domBase = 0;
         this.viewports = viewports.map(({ from: from2, to: to2 }) => {
-          let top2 = heightMap.lineAt(from2, QueryType$1.ByPos, oracle, 0, 0).top;
-          let bottom = heightMap.lineAt(to2, QueryType$1.ByPos, oracle, 0, 0).bottom;
+          let top2 = heightMap.lineAt(from2, QueryType.ByPos, oracle, 0, 0).top;
+          let bottom = heightMap.lineAt(to2, QueryType.ByPos, oracle, 0, 0).bottom;
           vpHeight += bottom - top2;
           return { from: from2, to: to2, top: top2, bottom, domTop: 0, domBottom: 0 };
         });
@@ -68558,7 +66436,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         }
       });
     }
-    const baseTheme$1$2 = /* @__PURE__ */ buildTheme("." + baseThemeID, {
+    const baseTheme$1 = /* @__PURE__ */ buildTheme("." + baseThemeID, {
       "&": {
         position: "relative !important",
         boxSizing: "border-box",
@@ -69532,7 +67410,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       option, or put `view.dom` into your document after creating a
       view, so that the user can see the editor.
       */
-      constructor(config2 = {}) {
+      constructor(config = {}) {
         var _a3;
         this.plugins = [];
         this.pluginMap = /* @__PURE__ */ new Map();
@@ -69554,15 +67432,15 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         this.dom = document.createElement("div");
         this.dom.appendChild(this.announceDOM);
         this.dom.appendChild(this.scrollDOM);
-        if (config2.parent)
-          config2.parent.appendChild(this.dom);
-        let { dispatch: dispatch2 } = config2;
-        this.dispatchTransactions = config2.dispatchTransactions || dispatch2 && ((trs2) => trs2.forEach((tr) => dispatch2(tr, this))) || ((trs2) => this.update(trs2));
+        if (config.parent)
+          config.parent.appendChild(this.dom);
+        let { dispatch: dispatch2 } = config;
+        this.dispatchTransactions = config.dispatchTransactions || dispatch2 && ((trs2) => trs2.forEach((tr) => dispatch2(tr, this))) || ((trs2) => this.update(trs2));
         this.dispatch = this.dispatch.bind(this);
-        this._root = config2.root || getRoot(config2.parent) || document;
-        this.viewState = new ViewState(config2.state || EditorState.create(config2));
-        if (config2.scrollTo && config2.scrollTo.is(scrollIntoView$1))
-          this.viewState.scrollTarget = config2.scrollTo.value.clip(this.viewState.state);
+        this._root = config.root || getRoot(config.parent) || document;
+        this.viewState = new ViewState(config.state || EditorState.create(config));
+        if (config.scrollTo && config.scrollTo.is(scrollIntoView))
+          this.viewState.scrollTarget = config.scrollTo.value.clip(this.viewState.state);
         this.plugins = this.state.facet(viewPlugin).map((spec) => new PluginInstance(spec));
         for (let plugin2 of this.plugins)
           plugin2.update(this);
@@ -69637,7 +67515,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
               scrollTarget = new ScrollTarget(main.empty ? main : EditorSelection.cursor(main.head, main.head > main.anchor ? -1 : 1));
             }
             for (let e2 of tr.effects)
-              if (e2.is(scrollIntoView$1))
+              if (e2.is(scrollIntoView))
                 scrollTarget = e2.value.clip(this.state);
           }
           this.viewState.update(update2, scrollTarget);
@@ -69914,7 +67792,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       mountStyles() {
         this.styleModules = this.state.facet(styleModule);
         let nonce = this.state.facet(EditorView.cspNonce);
-        StyleModule.mount(this.root, this.styleModules.concat(baseTheme$1$2).reverse(), nonce ? { nonce } : void 0);
+        StyleModule.mount(this.root, this.styleModules.concat(baseTheme$1).reverse(), nonce ? { nonce } : void 0);
       }
       readMeasured() {
         if (this.updateState == 2)
@@ -70270,7 +68148,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       cause it to scroll the given position or range into view.
       */
       static scrollIntoView(pos, options = {}) {
-        return scrollIntoView$1.of(new ScrollTarget(typeof pos == "number" ? EditorSelection.cursor(pos) : pos, options.y, options.x, options.yMargin, options.xMargin));
+        return scrollIntoView.of(new ScrollTarget(typeof pos == "number" ? EditorSelection.cursor(pos) : pos, options.y, options.x, options.yMargin, options.xMargin));
       }
       /**
       Return an effect that resets the editor to its current (at the
@@ -70287,7 +68165,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       scrollSnapshot() {
         let { scrollTop, scrollLeft } = this.scrollDOM;
         let ref = this.viewState.scrollAnchorAt(scrollTop);
-        return scrollIntoView$1.of(new ScrollTarget(EditorSelection.cursor(ref.from), "start", "start", ref.top - scrollTop, scrollLeft, true));
+        return scrollIntoView.of(new ScrollTarget(EditorSelection.cursor(ref.from), "start", "start", ref.top - scrollTop, scrollLeft, true));
       }
       /**
       Enable or disable tab-focus mode, which disables key bindings
@@ -70381,7 +68259,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
     }
     EditorView.styleModule = styleModule;
-    EditorView.inputHandler = inputHandler$1;
+    EditorView.inputHandler = inputHandler;
     EditorView.clipboardInputFilter = clipboardInputFilter;
     EditorView.clipboardOutputFilter = clipboardOutputFilter;
     EditorView.scrollHandler = scrollHandler;
@@ -70415,12 +68293,12 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         this.fresh = fresh;
         this.order = order;
       }
-      static update(cache2, changes) {
-        if (changes.empty && !cache2.some((c) => c.fresh))
-          return cache2;
-        let result = [], lastDir = cache2.length ? cache2[cache2.length - 1].dir : Direction.LTR;
-        for (let i2 = Math.max(0, cache2.length - 10); i2 < cache2.length; i2++) {
-          let entry = cache2[i2];
+      static update(cache, changes) {
+        if (changes.empty && !cache.some((c) => c.fresh))
+          return cache;
+        let result = [], lastDir = cache.length ? cache[cache.length - 1].dir : Direction.LTR;
+        for (let i2 = Math.max(0, cache.length - 10); i2 < cache.length; i2++) {
+          let entry = cache[i2];
           if (entry.dir == lastDir && !changes.touchesRange(entry.from, entry.to))
             result.push(new CachedOrder(changes.mapPos(entry.from, 1), changes.mapPos(entry.to, -1), entry.dir, entry.isolates, false, entry.order));
         }
@@ -70435,1801 +68313,6 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
       return base2;
     }
-    const currentPlatform = browser.mac ? "mac" : browser.windows ? "win" : browser.linux ? "linux" : "key";
-    function normalizeKeyName(name2, platform) {
-      const parts = name2.split(/-(?!$)/);
-      let result = parts[parts.length - 1];
-      if (result == "Space")
-        result = " ";
-      let alt, ctrl, shift2, meta2;
-      for (let i2 = 0; i2 < parts.length - 1; ++i2) {
-        const mod2 = parts[i2];
-        if (/^(cmd|meta|m)$/i.test(mod2))
-          meta2 = true;
-        else if (/^a(lt)?$/i.test(mod2))
-          alt = true;
-        else if (/^(c|ctrl|control)$/i.test(mod2))
-          ctrl = true;
-        else if (/^s(hift)?$/i.test(mod2))
-          shift2 = true;
-        else if (/^mod$/i.test(mod2)) {
-          if (platform == "mac")
-            meta2 = true;
-          else
-            ctrl = true;
-        } else
-          throw new Error("Unrecognized modifier name: " + mod2);
-      }
-      if (alt)
-        result = "Alt-" + result;
-      if (ctrl)
-        result = "Ctrl-" + result;
-      if (meta2)
-        result = "Meta-" + result;
-      if (shift2)
-        result = "Shift-" + result;
-      return result;
-    }
-    function modifiers(name2, event2, shift2) {
-      if (event2.altKey)
-        name2 = "Alt-" + name2;
-      if (event2.ctrlKey)
-        name2 = "Ctrl-" + name2;
-      if (event2.metaKey)
-        name2 = "Meta-" + name2;
-      if (shift2 !== false && event2.shiftKey)
-        name2 = "Shift-" + name2;
-      return name2;
-    }
-    const handleKeyEvents = /* @__PURE__ */ Prec.default(/* @__PURE__ */ EditorView.domEventHandlers({
-      keydown(event2, view) {
-        return runHandlers(getKeymap(view.state), event2, view, "editor");
-      }
-    }));
-    const keymap = /* @__PURE__ */ Facet.define({ enables: handleKeyEvents });
-    const Keymaps = /* @__PURE__ */ new WeakMap();
-    function getKeymap(state2) {
-      let bindings = state2.facet(keymap);
-      let map2 = Keymaps.get(bindings);
-      if (!map2)
-        Keymaps.set(bindings, map2 = buildKeymap(bindings.reduce((a2, b) => a2.concat(b), [])));
-      return map2;
-    }
-    function runScopeHandlers(view, event2, scope) {
-      return runHandlers(getKeymap(view.state), event2, view, scope);
-    }
-    let storedPrefix = null;
-    const PrefixTimeout = 4e3;
-    function buildKeymap(bindings, platform = currentPlatform) {
-      let bound = /* @__PURE__ */ Object.create(null);
-      let isPrefix = /* @__PURE__ */ Object.create(null);
-      let checkPrefix = (name2, is2) => {
-        let current = isPrefix[name2];
-        if (current == null)
-          isPrefix[name2] = is2;
-        else if (current != is2)
-          throw new Error("Key binding " + name2 + " is used both as a regular binding and as a multi-stroke prefix");
-      };
-      let add2 = (scope, key, command2, preventDefault, stopPropagation2) => {
-        var _a3, _b2;
-        let scopeObj = bound[scope] || (bound[scope] = /* @__PURE__ */ Object.create(null));
-        let parts = key.split(/ (?!$)/).map((k) => normalizeKeyName(k, platform));
-        for (let i2 = 1; i2 < parts.length; i2++) {
-          let prefix = parts.slice(0, i2).join(" ");
-          checkPrefix(prefix, true);
-          if (!scopeObj[prefix])
-            scopeObj[prefix] = {
-              preventDefault: true,
-              stopPropagation: false,
-              run: [(view) => {
-                let ourObj = storedPrefix = { view, prefix, scope };
-                setTimeout(() => {
-                  if (storedPrefix == ourObj)
-                    storedPrefix = null;
-                }, PrefixTimeout);
-                return true;
-              }]
-            };
-        }
-        let full = parts.join(" ");
-        checkPrefix(full, false);
-        let binding = scopeObj[full] || (scopeObj[full] = {
-          preventDefault: false,
-          stopPropagation: false,
-          run: ((_b2 = (_a3 = scopeObj._any) === null || _a3 === void 0 ? void 0 : _a3.run) === null || _b2 === void 0 ? void 0 : _b2.slice()) || []
-        });
-        if (command2)
-          binding.run.push(command2);
-        if (preventDefault)
-          binding.preventDefault = true;
-        if (stopPropagation2)
-          binding.stopPropagation = true;
-      };
-      for (let b of bindings) {
-        let scopes = b.scope ? b.scope.split(" ") : ["editor"];
-        if (b.any)
-          for (let scope of scopes) {
-            let scopeObj = bound[scope] || (bound[scope] = /* @__PURE__ */ Object.create(null));
-            if (!scopeObj._any)
-              scopeObj._any = { preventDefault: false, stopPropagation: false, run: [] };
-            let { any } = b;
-            for (let key in scopeObj)
-              scopeObj[key].run.push((view) => any(view, currentKeyEvent));
-          }
-        let name2 = b[platform] || b.key;
-        if (!name2)
-          continue;
-        for (let scope of scopes) {
-          add2(scope, name2, b.run, b.preventDefault, b.stopPropagation);
-          if (b.shift)
-            add2(scope, "Shift-" + name2, b.shift, b.preventDefault, b.stopPropagation);
-        }
-      }
-      return bound;
-    }
-    let currentKeyEvent = null;
-    function runHandlers(map2, event2, view, scope) {
-      currentKeyEvent = event2;
-      let name2 = keyName(event2);
-      let charCode = codePointAt(name2, 0), isChar = codePointSize(charCode) == name2.length && name2 != " ";
-      let prefix = "", handled = false, prevented = false, stopPropagation2 = false;
-      if (storedPrefix && storedPrefix.view == view && storedPrefix.scope == scope) {
-        prefix = storedPrefix.prefix + " ";
-        if (modifierCodes.indexOf(event2.keyCode) < 0) {
-          prevented = true;
-          storedPrefix = null;
-        }
-      }
-      let ran = /* @__PURE__ */ new Set();
-      let runFor = (binding) => {
-        if (binding) {
-          for (let cmd2 of binding.run)
-            if (!ran.has(cmd2)) {
-              ran.add(cmd2);
-              if (cmd2(view)) {
-                if (binding.stopPropagation)
-                  stopPropagation2 = true;
-                return true;
-              }
-            }
-          if (binding.preventDefault) {
-            if (binding.stopPropagation)
-              stopPropagation2 = true;
-            prevented = true;
-          }
-        }
-        return false;
-      };
-      let scopeObj = map2[scope], baseName, shiftName;
-      if (scopeObj) {
-        if (runFor(scopeObj[prefix + modifiers(name2, event2, !isChar)])) {
-          handled = true;
-        } else if (isChar && (event2.altKey || event2.metaKey || event2.ctrlKey) && // Ctrl-Alt may be used for AltGr on Windows
-        !(browser.windows && event2.ctrlKey && event2.altKey) && (baseName = base[event2.keyCode]) && baseName != name2) {
-          if (runFor(scopeObj[prefix + modifiers(baseName, event2, true)])) {
-            handled = true;
-          } else if (event2.shiftKey && (shiftName = shift[event2.keyCode]) != name2 && shiftName != baseName && runFor(scopeObj[prefix + modifiers(shiftName, event2, false)])) {
-            handled = true;
-          }
-        } else if (isChar && event2.shiftKey && runFor(scopeObj[prefix + modifiers(name2, event2, true)])) {
-          handled = true;
-        }
-        if (!handled && runFor(scopeObj._any))
-          handled = true;
-      }
-      if (prevented)
-        handled = true;
-      if (handled && stopPropagation2)
-        event2.stopPropagation();
-      currentKeyEvent = null;
-      return handled;
-    }
-    class RectangleMarker {
-      /**
-      Create a marker with the given class and dimensions. If `width`
-      is null, the DOM element will get no width style.
-      */
-      constructor(className, left, top2, width, height) {
-        this.className = className;
-        this.left = left;
-        this.top = top2;
-        this.width = width;
-        this.height = height;
-      }
-      draw() {
-        let elt2 = document.createElement("div");
-        elt2.className = this.className;
-        this.adjust(elt2);
-        return elt2;
-      }
-      update(elt2, prev) {
-        if (prev.className != this.className)
-          return false;
-        this.adjust(elt2);
-        return true;
-      }
-      adjust(elt2) {
-        elt2.style.left = this.left + "px";
-        elt2.style.top = this.top + "px";
-        if (this.width != null)
-          elt2.style.width = this.width + "px";
-        elt2.style.height = this.height + "px";
-      }
-      eq(p) {
-        return this.left == p.left && this.top == p.top && this.width == p.width && this.height == p.height && this.className == p.className;
-      }
-      /**
-      Create a set of rectangles for the given selection range,
-      assigning them theclass`className`. Will create a single
-      rectangle for empty ranges, and a set of selection-style
-      rectangles covering the range's content (in a bidi-aware
-      way) for non-empty ones.
-      */
-      static forRange(view, className, range2) {
-        if (range2.empty) {
-          let pos = view.coordsAtPos(range2.head, range2.assoc || 1);
-          if (!pos)
-            return [];
-          let base2 = getBase(view);
-          return [new RectangleMarker(className, pos.left - base2.left, pos.top - base2.top, null, pos.bottom - pos.top)];
-        } else {
-          return rectanglesForRange(view, className, range2);
-        }
-      }
-    }
-    function getBase(view) {
-      let rect = view.scrollDOM.getBoundingClientRect();
-      let left = view.textDirection == Direction.LTR ? rect.left : rect.right - view.scrollDOM.clientWidth * view.scaleX;
-      return { left: left - view.scrollDOM.scrollLeft * view.scaleX, top: rect.top - view.scrollDOM.scrollTop * view.scaleY };
-    }
-    function wrappedLine(view, pos, side, inside2) {
-      let coords = view.coordsAtPos(pos, side * 2);
-      if (!coords)
-        return inside2;
-      let editorRect = view.dom.getBoundingClientRect();
-      let y = (coords.top + coords.bottom) / 2;
-      let left = view.posAtCoords({ x: editorRect.left + 1, y });
-      let right = view.posAtCoords({ x: editorRect.right - 1, y });
-      if (left == null || right == null)
-        return inside2;
-      return { from: Math.max(inside2.from, Math.min(left, right)), to: Math.min(inside2.to, Math.max(left, right)) };
-    }
-    function rectanglesForRange(view, className, range2) {
-      if (range2.to <= view.viewport.from || range2.from >= view.viewport.to)
-        return [];
-      let from2 = Math.max(range2.from, view.viewport.from), to2 = Math.min(range2.to, view.viewport.to);
-      let ltr = view.textDirection == Direction.LTR;
-      let content2 = view.contentDOM, contentRect = content2.getBoundingClientRect(), base2 = getBase(view);
-      let lineElt = content2.querySelector(".cm-line"), lineStyle = lineElt && window.getComputedStyle(lineElt);
-      let leftSide = contentRect.left + (lineStyle ? parseInt(lineStyle.paddingLeft) + Math.min(0, parseInt(lineStyle.textIndent)) : 0);
-      let rightSide = contentRect.right - (lineStyle ? parseInt(lineStyle.paddingRight) : 0);
-      let startBlock = blockAt(view, from2, 1), endBlock = blockAt(view, to2, -1);
-      let visualStart = startBlock.type == BlockType.Text ? startBlock : null;
-      let visualEnd = endBlock.type == BlockType.Text ? endBlock : null;
-      if (visualStart && (view.lineWrapping || startBlock.widgetLineBreaks))
-        visualStart = wrappedLine(view, from2, 1, visualStart);
-      if (visualEnd && (view.lineWrapping || endBlock.widgetLineBreaks))
-        visualEnd = wrappedLine(view, to2, -1, visualEnd);
-      if (visualStart && visualEnd && visualStart.from == visualEnd.from && visualStart.to == visualEnd.to) {
-        return pieces(drawForLine(range2.from, range2.to, visualStart));
-      } else {
-        let top2 = visualStart ? drawForLine(range2.from, null, visualStart) : drawForWidget(startBlock, false);
-        let bottom = visualEnd ? drawForLine(null, range2.to, visualEnd) : drawForWidget(endBlock, true);
-        let between = [];
-        if ((visualStart || startBlock).to < (visualEnd || endBlock).from - (visualStart && visualEnd ? 1 : 0) || startBlock.widgetLineBreaks > 1 && top2.bottom + view.defaultLineHeight / 2 < bottom.top)
-          between.push(piece(leftSide, top2.bottom, rightSide, bottom.top));
-        else if (top2.bottom < bottom.top && view.elementAtHeight((top2.bottom + bottom.top) / 2).type == BlockType.Text)
-          top2.bottom = bottom.top = (top2.bottom + bottom.top) / 2;
-        return pieces(top2).concat(between).concat(pieces(bottom));
-      }
-      function piece(left, top2, right, bottom) {
-        return new RectangleMarker(className, left - base2.left, top2 - base2.top, right - left, bottom - top2);
-      }
-      function pieces({ top: top2, bottom, horizontal }) {
-        let pieces2 = [];
-        for (let i2 = 0; i2 < horizontal.length; i2 += 2)
-          pieces2.push(piece(horizontal[i2], top2, horizontal[i2 + 1], bottom));
-        return pieces2;
-      }
-      function drawForLine(from22, to22, line) {
-        let top2 = 1e9, bottom = -1e9, horizontal = [];
-        function addSpan(from3, fromOpen, to3, toOpen, dir) {
-          let fromCoords = view.coordsAtPos(from3, from3 == line.to ? -2 : 2);
-          let toCoords = view.coordsAtPos(to3, to3 == line.from ? 2 : -2);
-          if (!fromCoords || !toCoords)
-            return;
-          top2 = Math.min(fromCoords.top, toCoords.top, top2);
-          bottom = Math.max(fromCoords.bottom, toCoords.bottom, bottom);
-          if (dir == Direction.LTR)
-            horizontal.push(ltr && fromOpen ? leftSide : fromCoords.left, ltr && toOpen ? rightSide : toCoords.right);
-          else
-            horizontal.push(!ltr && toOpen ? leftSide : toCoords.left, !ltr && fromOpen ? rightSide : fromCoords.right);
-        }
-        let start = from22 !== null && from22 !== void 0 ? from22 : line.from, end = to22 !== null && to22 !== void 0 ? to22 : line.to;
-        for (let r2 of view.visibleRanges)
-          if (r2.to > start && r2.from < end) {
-            for (let pos = Math.max(r2.from, start), endPos = Math.min(r2.to, end); ; ) {
-              let docLine = view.state.doc.lineAt(pos);
-              for (let span of view.bidiSpans(docLine)) {
-                let spanFrom = span.from + docLine.from, spanTo = span.to + docLine.from;
-                if (spanFrom >= endPos)
-                  break;
-                if (spanTo > pos)
-                  addSpan(Math.max(spanFrom, pos), from22 == null && spanFrom <= start, Math.min(spanTo, endPos), to22 == null && spanTo >= end, span.dir);
-              }
-              pos = docLine.to + 1;
-              if (pos >= endPos)
-                break;
-            }
-          }
-        if (horizontal.length == 0)
-          addSpan(start, from22 == null, end, to22 == null, view.textDirection);
-        return { top: top2, bottom, horizontal };
-      }
-      function drawForWidget(block2, top2) {
-        let y = contentRect.top + (top2 ? block2.top : block2.bottom);
-        return { top: y, bottom: y, horizontal: [] };
-      }
-    }
-    function sameMarker(a2, b) {
-      return a2.constructor == b.constructor && a2.eq(b);
-    }
-    class LayerView {
-      constructor(view, layer2) {
-        this.view = view;
-        this.layer = layer2;
-        this.drawn = [];
-        this.scaleX = 1;
-        this.scaleY = 1;
-        this.measureReq = { read: this.measure.bind(this), write: this.draw.bind(this) };
-        this.dom = view.scrollDOM.appendChild(document.createElement("div"));
-        this.dom.classList.add("cm-layer");
-        if (layer2.above)
-          this.dom.classList.add("cm-layer-above");
-        if (layer2.class)
-          this.dom.classList.add(layer2.class);
-        this.scale();
-        this.dom.setAttribute("aria-hidden", "true");
-        this.setOrder(view.state);
-        view.requestMeasure(this.measureReq);
-        if (layer2.mount)
-          layer2.mount(this.dom, view);
-      }
-      update(update2) {
-        if (update2.startState.facet(layerOrder) != update2.state.facet(layerOrder))
-          this.setOrder(update2.state);
-        if (this.layer.update(update2, this.dom) || update2.geometryChanged) {
-          this.scale();
-          update2.view.requestMeasure(this.measureReq);
-        }
-      }
-      docViewUpdate(view) {
-        if (this.layer.updateOnDocViewUpdate !== false)
-          view.requestMeasure(this.measureReq);
-      }
-      setOrder(state2) {
-        let pos = 0, order = state2.facet(layerOrder);
-        while (pos < order.length && order[pos] != this.layer)
-          pos++;
-        this.dom.style.zIndex = String((this.layer.above ? 150 : -1) - pos);
-      }
-      measure() {
-        return this.layer.markers(this.view);
-      }
-      scale() {
-        let { scaleX, scaleY } = this.view;
-        if (scaleX != this.scaleX || scaleY != this.scaleY) {
-          this.scaleX = scaleX;
-          this.scaleY = scaleY;
-          this.dom.style.transform = `scale(${1 / scaleX}, ${1 / scaleY})`;
-        }
-      }
-      draw(markers) {
-        if (markers.length != this.drawn.length || markers.some((p, i2) => !sameMarker(p, this.drawn[i2]))) {
-          let old = this.dom.firstChild, oldI = 0;
-          for (let marker of markers) {
-            if (marker.update && old && marker.constructor && this.drawn[oldI].constructor && marker.update(old, this.drawn[oldI])) {
-              old = old.nextSibling;
-              oldI++;
-            } else {
-              this.dom.insertBefore(marker.draw(), old);
-            }
-          }
-          while (old) {
-            let next2 = old.nextSibling;
-            old.remove();
-            old = next2;
-          }
-          this.drawn = markers;
-        }
-      }
-      destroy() {
-        if (this.layer.destroy)
-          this.layer.destroy(this.dom, this.view);
-        this.dom.remove();
-      }
-    }
-    const layerOrder = /* @__PURE__ */ Facet.define();
-    function layer(config2) {
-      return [
-        ViewPlugin.define((v) => new LayerView(v, config2)),
-        layerOrder.of(config2)
-      ];
-    }
-    const selectionConfig = /* @__PURE__ */ Facet.define({
-      combine(configs) {
-        return combineConfig(configs, {
-          cursorBlinkRate: 1200,
-          drawRangeCursor: true
-        }, {
-          cursorBlinkRate: (a2, b) => Math.min(a2, b),
-          drawRangeCursor: (a2, b) => a2 || b
-        });
-      }
-    });
-    function drawSelection(config2 = {}) {
-      return [
-        selectionConfig.of(config2),
-        cursorLayer,
-        selectionLayer,
-        hideNativeSelection,
-        nativeSelectionHidden.of(true)
-      ];
-    }
-    function configChanged(update2) {
-      return update2.startState.facet(selectionConfig) != update2.state.facet(selectionConfig);
-    }
-    const cursorLayer = /* @__PURE__ */ layer({
-      above: true,
-      markers(view) {
-        let { state: state2 } = view, conf = state2.facet(selectionConfig);
-        let cursors = [];
-        for (let r2 of state2.selection.ranges) {
-          let prim = r2 == state2.selection.main;
-          if (r2.empty || conf.drawRangeCursor) {
-            let className = prim ? "cm-cursor cm-cursor-primary" : "cm-cursor cm-cursor-secondary";
-            let cursor = r2.empty ? r2 : EditorSelection.cursor(r2.head, r2.head > r2.anchor ? -1 : 1);
-            for (let piece of RectangleMarker.forRange(view, className, cursor))
-              cursors.push(piece);
-          }
-        }
-        return cursors;
-      },
-      update(update2, dom) {
-        if (update2.transactions.some((tr) => tr.selection))
-          dom.style.animationName = dom.style.animationName == "cm-blink" ? "cm-blink2" : "cm-blink";
-        let confChange = configChanged(update2);
-        if (confChange)
-          setBlinkRate(update2.state, dom);
-        return update2.docChanged || update2.selectionSet || confChange;
-      },
-      mount(dom, view) {
-        setBlinkRate(view.state, dom);
-      },
-      class: "cm-cursorLayer"
-    });
-    function setBlinkRate(state2, dom) {
-      dom.style.animationDuration = state2.facet(selectionConfig).cursorBlinkRate + "ms";
-    }
-    const selectionLayer = /* @__PURE__ */ layer({
-      above: false,
-      markers(view) {
-        return view.state.selection.ranges.map((r2) => r2.empty ? [] : RectangleMarker.forRange(view, "cm-selectionBackground", r2)).reduce((a2, b) => a2.concat(b));
-      },
-      update(update2, dom) {
-        return update2.docChanged || update2.selectionSet || update2.viewportChanged || configChanged(update2);
-      },
-      class: "cm-selectionLayer"
-    });
-    const hideNativeSelection = /* @__PURE__ */ Prec.highest(/* @__PURE__ */ EditorView.theme({
-      ".cm-line": {
-        "& ::selection, &::selection": { backgroundColor: "transparent !important" },
-        caretColor: "transparent !important"
-      },
-      ".cm-content": {
-        caretColor: "transparent !important",
-        "& :focus": {
-          caretColor: "initial !important",
-          "&::selection, & ::selection": {
-            backgroundColor: "Highlight !important"
-          }
-        }
-      }
-    }));
-    const setDropCursorPos = /* @__PURE__ */ StateEffect.define({
-      map(pos, mapping) {
-        return pos == null ? null : mapping.mapPos(pos);
-      }
-    });
-    const dropCursorPos = /* @__PURE__ */ StateField.define({
-      create() {
-        return null;
-      },
-      update(pos, tr) {
-        if (pos != null)
-          pos = tr.changes.mapPos(pos);
-        return tr.effects.reduce((pos2, e2) => e2.is(setDropCursorPos) ? e2.value : pos2, pos);
-      }
-    });
-    const drawDropCursor = /* @__PURE__ */ ViewPlugin.fromClass(class {
-      constructor(view) {
-        this.view = view;
-        this.cursor = null;
-        this.measureReq = { read: this.readPos.bind(this), write: this.drawCursor.bind(this) };
-      }
-      update(update2) {
-        var _a3;
-        let cursorPos = update2.state.field(dropCursorPos);
-        if (cursorPos == null) {
-          if (this.cursor != null) {
-            (_a3 = this.cursor) === null || _a3 === void 0 ? void 0 : _a3.remove();
-            this.cursor = null;
-          }
-        } else {
-          if (!this.cursor) {
-            this.cursor = this.view.scrollDOM.appendChild(document.createElement("div"));
-            this.cursor.className = "cm-dropCursor";
-          }
-          if (update2.startState.field(dropCursorPos) != cursorPos || update2.docChanged || update2.geometryChanged)
-            this.view.requestMeasure(this.measureReq);
-        }
-      }
-      readPos() {
-        let { view } = this;
-        let pos = view.state.field(dropCursorPos);
-        let rect = pos != null && view.coordsAtPos(pos);
-        if (!rect)
-          return null;
-        let outer = view.scrollDOM.getBoundingClientRect();
-        return {
-          left: rect.left - outer.left + view.scrollDOM.scrollLeft * view.scaleX,
-          top: rect.top - outer.top + view.scrollDOM.scrollTop * view.scaleY,
-          height: rect.bottom - rect.top
-        };
-      }
-      drawCursor(pos) {
-        if (this.cursor) {
-          let { scaleX, scaleY } = this.view;
-          if (pos) {
-            this.cursor.style.left = pos.left / scaleX + "px";
-            this.cursor.style.top = pos.top / scaleY + "px";
-            this.cursor.style.height = pos.height / scaleY + "px";
-          } else {
-            this.cursor.style.left = "-100000px";
-          }
-        }
-      }
-      destroy() {
-        if (this.cursor)
-          this.cursor.remove();
-      }
-      setDropPos(pos) {
-        if (this.view.state.field(dropCursorPos) != pos)
-          this.view.dispatch({ effects: setDropCursorPos.of(pos) });
-      }
-    }, {
-      eventObservers: {
-        dragover(event2) {
-          this.setDropPos(this.view.posAtCoords({ x: event2.clientX, y: event2.clientY }));
-        },
-        dragleave(event2) {
-          if (event2.target == this.view.contentDOM || !this.view.contentDOM.contains(event2.relatedTarget))
-            this.setDropPos(null);
-        },
-        dragend() {
-          this.setDropPos(null);
-        },
-        drop() {
-          this.setDropPos(null);
-        }
-      }
-    });
-    function dropCursor() {
-      return [dropCursorPos, drawDropCursor];
-    }
-    function iterMatches(doc2, re2, from2, to2, f) {
-      re2.lastIndex = 0;
-      for (let cursor = doc2.iterRange(from2, to2), pos = from2, m; !cursor.next().done; pos += cursor.value.length) {
-        if (!cursor.lineBreak)
-          while (m = re2.exec(cursor.value))
-            f(pos + m.index, m);
-      }
-    }
-    function matchRanges(view, maxLength) {
-      let visible = view.visibleRanges;
-      if (visible.length == 1 && visible[0].from == view.viewport.from && visible[0].to == view.viewport.to)
-        return visible;
-      let result = [];
-      for (let { from: from2, to: to2 } of visible) {
-        from2 = Math.max(view.state.doc.lineAt(from2).from, from2 - maxLength);
-        to2 = Math.min(view.state.doc.lineAt(to2).to, to2 + maxLength);
-        if (result.length && result[result.length - 1].to >= from2)
-          result[result.length - 1].to = to2;
-        else
-          result.push({ from: from2, to: to2 });
-      }
-      return result;
-    }
-    class MatchDecorator {
-      /**
-      Create a decorator.
-      */
-      constructor(config2) {
-        const { regexp, decoration, decorate, boundary, maxLength = 1e3 } = config2;
-        if (!regexp.global)
-          throw new RangeError("The regular expression given to MatchDecorator should have its 'g' flag set");
-        this.regexp = regexp;
-        if (decorate) {
-          this.addMatch = (match2, view, from2, add2) => decorate(add2, from2, from2 + match2[0].length, match2, view);
-        } else if (typeof decoration == "function") {
-          this.addMatch = (match2, view, from2, add2) => {
-            let deco = decoration(match2, view, from2);
-            if (deco)
-              add2(from2, from2 + match2[0].length, deco);
-          };
-        } else if (decoration) {
-          this.addMatch = (match2, _view, from2, add2) => add2(from2, from2 + match2[0].length, decoration);
-        } else {
-          throw new RangeError("Either 'decorate' or 'decoration' should be provided to MatchDecorator");
-        }
-        this.boundary = boundary;
-        this.maxLength = maxLength;
-      }
-      /**
-      Compute the full set of decorations for matches in the given
-      view's viewport. You'll want to call this when initializing your
-      plugin.
-      */
-      createDeco(view) {
-        let build = new RangeSetBuilder(), add2 = build.add.bind(build);
-        for (let { from: from2, to: to2 } of matchRanges(view, this.maxLength))
-          iterMatches(view.state.doc, this.regexp, from2, to2, (from22, m) => this.addMatch(m, view, from22, add2));
-        return build.finish();
-      }
-      /**
-      Update a set of decorations for a view update. `deco` _must_ be
-      the set of decorations produced by _this_ `MatchDecorator` for
-      the view state before the update.
-      */
-      updateDeco(update2, deco) {
-        let changeFrom = 1e9, changeTo = -1;
-        if (update2.docChanged)
-          update2.changes.iterChanges((_f, _t, from2, to2) => {
-            if (to2 >= update2.view.viewport.from && from2 <= update2.view.viewport.to) {
-              changeFrom = Math.min(from2, changeFrom);
-              changeTo = Math.max(to2, changeTo);
-            }
-          });
-        if (update2.viewportMoved || changeTo - changeFrom > 1e3)
-          return this.createDeco(update2.view);
-        if (changeTo > -1)
-          return this.updateRange(update2.view, deco.map(update2.changes), changeFrom, changeTo);
-        return deco;
-      }
-      updateRange(view, deco, updateFrom, updateTo) {
-        for (let r2 of view.visibleRanges) {
-          let from2 = Math.max(r2.from, updateFrom), to2 = Math.min(r2.to, updateTo);
-          if (to2 >= from2) {
-            let fromLine = view.state.doc.lineAt(from2), toLine = fromLine.to < to2 ? view.state.doc.lineAt(to2) : fromLine;
-            let start = Math.max(r2.from, fromLine.from), end = Math.min(r2.to, toLine.to);
-            if (this.boundary) {
-              for (; from2 > fromLine.from; from2--)
-                if (this.boundary.test(fromLine.text[from2 - 1 - fromLine.from])) {
-                  start = from2;
-                  break;
-                }
-              for (; to2 < toLine.to; to2++)
-                if (this.boundary.test(toLine.text[to2 - toLine.from])) {
-                  end = to2;
-                  break;
-                }
-            }
-            let ranges = [], m;
-            let add2 = (from22, to22, deco2) => ranges.push(deco2.range(from22, to22));
-            if (fromLine == toLine) {
-              this.regexp.lastIndex = start - fromLine.from;
-              while ((m = this.regexp.exec(fromLine.text)) && m.index < end - fromLine.from)
-                this.addMatch(m, view, m.index + fromLine.from, add2);
-            } else {
-              iterMatches(view.state.doc, this.regexp, start, end, (from22, m2) => this.addMatch(m2, view, from22, add2));
-            }
-            deco = deco.update({ filterFrom: start, filterTo: end, filter: (from22, to22) => from22 < start || to22 > end, add: ranges });
-          }
-        }
-        return deco;
-      }
-    }
-    const UnicodeRegexpSupport = /x/.unicode != null ? "gu" : "g";
-    const Specials = /* @__PURE__ */ new RegExp("[\0-\b\n--­؜​‎‏\u2028\u2029‭‮⁦⁧⁩\uFEFF￹-￼]", UnicodeRegexpSupport);
-    const Names = {
-      0: "null",
-      7: "bell",
-      8: "backspace",
-      10: "newline",
-      11: "vertical tab",
-      13: "carriage return",
-      27: "escape",
-      8203: "zero width space",
-      8204: "zero width non-joiner",
-      8205: "zero width joiner",
-      8206: "left-to-right mark",
-      8207: "right-to-left mark",
-      8232: "line separator",
-      8237: "left-to-right override",
-      8238: "right-to-left override",
-      8294: "left-to-right isolate",
-      8295: "right-to-left isolate",
-      8297: "pop directional isolate",
-      8233: "paragraph separator",
-      65279: "zero width no-break space",
-      65532: "object replacement"
-    };
-    let _supportsTabSize = null;
-    function supportsTabSize() {
-      var _a3;
-      if (_supportsTabSize == null && typeof document != "undefined" && document.body) {
-        let styles = document.body.style;
-        _supportsTabSize = ((_a3 = styles.tabSize) !== null && _a3 !== void 0 ? _a3 : styles.MozTabSize) != null;
-      }
-      return _supportsTabSize || false;
-    }
-    const specialCharConfig = /* @__PURE__ */ Facet.define({
-      combine(configs) {
-        let config2 = combineConfig(configs, {
-          render: null,
-          specialChars: Specials,
-          addSpecialChars: null
-        });
-        if (config2.replaceTabs = !supportsTabSize())
-          config2.specialChars = new RegExp("	|" + config2.specialChars.source, UnicodeRegexpSupport);
-        if (config2.addSpecialChars)
-          config2.specialChars = new RegExp(config2.specialChars.source + "|" + config2.addSpecialChars.source, UnicodeRegexpSupport);
-        return config2;
-      }
-    });
-    function highlightSpecialChars(config2 = {}) {
-      return [specialCharConfig.of(config2), specialCharPlugin()];
-    }
-    let _plugin = null;
-    function specialCharPlugin() {
-      return _plugin || (_plugin = ViewPlugin.fromClass(class {
-        constructor(view) {
-          this.view = view;
-          this.decorations = Decoration.none;
-          this.decorationCache = /* @__PURE__ */ Object.create(null);
-          this.decorator = this.makeDecorator(view.state.facet(specialCharConfig));
-          this.decorations = this.decorator.createDeco(view);
-        }
-        makeDecorator(conf) {
-          return new MatchDecorator({
-            regexp: conf.specialChars,
-            decoration: (m, view, pos) => {
-              let { doc: doc2 } = view.state;
-              let code2 = codePointAt(m[0], 0);
-              if (code2 == 9) {
-                let line = doc2.lineAt(pos);
-                let size = view.state.tabSize, col = countColumn(line.text, size, pos - line.from);
-                return Decoration.replace({
-                  widget: new TabWidget((size - col % size) * this.view.defaultCharacterWidth / this.view.scaleX)
-                });
-              }
-              return this.decorationCache[code2] || (this.decorationCache[code2] = Decoration.replace({ widget: new SpecialCharWidget(conf, code2) }));
-            },
-            boundary: conf.replaceTabs ? void 0 : /[^]/
-          });
-        }
-        update(update2) {
-          let conf = update2.state.facet(specialCharConfig);
-          if (update2.startState.facet(specialCharConfig) != conf) {
-            this.decorator = this.makeDecorator(conf);
-            this.decorations = this.decorator.createDeco(update2.view);
-          } else {
-            this.decorations = this.decorator.updateDeco(update2, this.decorations);
-          }
-        }
-      }, {
-        decorations: (v) => v.decorations
-      }));
-    }
-    const DefaultPlaceholder = "•";
-    function placeholder$1(code2) {
-      if (code2 >= 32)
-        return DefaultPlaceholder;
-      if (code2 == 10)
-        return "␤";
-      return String.fromCharCode(9216 + code2);
-    }
-    class SpecialCharWidget extends WidgetType {
-      constructor(options, code2) {
-        super();
-        this.options = options;
-        this.code = code2;
-      }
-      eq(other) {
-        return other.code == this.code;
-      }
-      toDOM(view) {
-        let ph = placeholder$1(this.code);
-        let desc = view.state.phrase("Control character") + " " + (Names[this.code] || "0x" + this.code.toString(16));
-        let custom = this.options.render && this.options.render(this.code, desc, ph);
-        if (custom)
-          return custom;
-        let span = document.createElement("span");
-        span.textContent = ph;
-        span.title = desc;
-        span.setAttribute("aria-label", desc);
-        span.className = "cm-specialChar";
-        return span;
-      }
-      ignoreEvent() {
-        return false;
-      }
-    }
-    class TabWidget extends WidgetType {
-      constructor(width) {
-        super();
-        this.width = width;
-      }
-      eq(other) {
-        return other.width == this.width;
-      }
-      toDOM() {
-        let span = document.createElement("span");
-        span.textContent = "	";
-        span.className = "cm-tab";
-        span.style.width = this.width + "px";
-        return span;
-      }
-      ignoreEvent() {
-        return false;
-      }
-    }
-    function highlightActiveLine() {
-      return activeLineHighlighter;
-    }
-    const lineDeco = /* @__PURE__ */ Decoration.line({ class: "cm-activeLine" });
-    const activeLineHighlighter = /* @__PURE__ */ ViewPlugin.fromClass(class {
-      constructor(view) {
-        this.decorations = this.getDeco(view);
-      }
-      update(update2) {
-        if (update2.docChanged || update2.selectionSet)
-          this.decorations = this.getDeco(update2.view);
-      }
-      getDeco(view) {
-        let lastLineStart = -1, deco = [];
-        for (let r2 of view.state.selection.ranges) {
-          let line = view.lineBlockAt(r2.head);
-          if (line.from > lastLineStart) {
-            deco.push(lineDeco.range(line.from));
-            lastLineStart = line.from;
-          }
-        }
-        return Decoration.set(deco);
-      }
-    }, {
-      decorations: (v) => v.decorations
-    });
-    const MaxOff = 2e3;
-    function rectangleFor(state2, a2, b) {
-      let startLine = Math.min(a2.line, b.line), endLine = Math.max(a2.line, b.line);
-      let ranges = [];
-      if (a2.off > MaxOff || b.off > MaxOff || a2.col < 0 || b.col < 0) {
-        let startOff = Math.min(a2.off, b.off), endOff = Math.max(a2.off, b.off);
-        for (let i2 = startLine; i2 <= endLine; i2++) {
-          let line = state2.doc.line(i2);
-          if (line.length <= endOff)
-            ranges.push(EditorSelection.range(line.from + startOff, line.to + endOff));
-        }
-      } else {
-        let startCol = Math.min(a2.col, b.col), endCol = Math.max(a2.col, b.col);
-        for (let i2 = startLine; i2 <= endLine; i2++) {
-          let line = state2.doc.line(i2);
-          let start = findColumn(line.text, startCol, state2.tabSize, true);
-          if (start < 0) {
-            ranges.push(EditorSelection.cursor(line.to));
-          } else {
-            let end = findColumn(line.text, endCol, state2.tabSize);
-            ranges.push(EditorSelection.range(line.from + start, line.from + end));
-          }
-        }
-      }
-      return ranges;
-    }
-    function absoluteColumn(view, x) {
-      let ref = view.coordsAtPos(view.viewport.from);
-      return ref ? Math.round(Math.abs((ref.left - x) / view.defaultCharacterWidth)) : -1;
-    }
-    function getPos(view, event2) {
-      let offset = view.posAtCoords({ x: event2.clientX, y: event2.clientY }, false);
-      let line = view.state.doc.lineAt(offset), off = offset - line.from;
-      let col = off > MaxOff ? -1 : off == line.length ? absoluteColumn(view, event2.clientX) : countColumn(line.text, view.state.tabSize, offset - line.from);
-      return { line: line.number, col, off };
-    }
-    function rectangleSelectionStyle(view, event2) {
-      let start = getPos(view, event2), startSel = view.state.selection;
-      if (!start)
-        return null;
-      return {
-        update(update2) {
-          if (update2.docChanged) {
-            let newStart = update2.changes.mapPos(update2.startState.doc.line(start.line).from);
-            let newLine = update2.state.doc.lineAt(newStart);
-            start = { line: newLine.number, col: start.col, off: Math.min(start.off, newLine.length) };
-            startSel = startSel.map(update2.changes);
-          }
-        },
-        get(event22, _extend, multiple) {
-          let cur2 = getPos(view, event22);
-          if (!cur2)
-            return startSel;
-          let ranges = rectangleFor(view.state, start, cur2);
-          if (!ranges.length)
-            return startSel;
-          if (multiple)
-            return EditorSelection.create(ranges.concat(startSel.ranges));
-          else
-            return EditorSelection.create(ranges);
-        }
-      };
-    }
-    function rectangularSelection(options) {
-      let filter = (e2) => e2.altKey && e2.button == 0;
-      return EditorView.mouseSelectionStyle.of((view, event2) => filter(event2) ? rectangleSelectionStyle(view, event2) : null);
-    }
-    const keys = {
-      Alt: [18, (e2) => !!e2.altKey],
-      Control: [17, (e2) => !!e2.ctrlKey],
-      Shift: [16, (e2) => !!e2.shiftKey],
-      Meta: [91, (e2) => !!e2.metaKey]
-    };
-    const showCrosshair = { style: "cursor: crosshair" };
-    function crosshairCursor(options = {}) {
-      let [code2, getter] = keys[options.key || "Alt"];
-      let plugin2 = ViewPlugin.fromClass(class {
-        constructor(view) {
-          this.view = view;
-          this.isDown = false;
-        }
-        set(isDown) {
-          if (this.isDown != isDown) {
-            this.isDown = isDown;
-            this.view.update([]);
-          }
-        }
-      }, {
-        eventObservers: {
-          keydown(e2) {
-            this.set(e2.keyCode == code2 || getter(e2));
-          },
-          keyup(e2) {
-            if (e2.keyCode == code2 || !getter(e2))
-              this.set(false);
-          },
-          mousemove(e2) {
-            this.set(getter(e2));
-          }
-        }
-      });
-      return [
-        plugin2,
-        EditorView.contentAttributes.of((view) => {
-          var _a3;
-          return ((_a3 = view.plugin(plugin2)) === null || _a3 === void 0 ? void 0 : _a3.isDown) ? showCrosshair : null;
-        })
-      ];
-    }
-    const Outside = "-10000px";
-    class TooltipViewManager {
-      constructor(view, facet, createTooltipView, removeTooltipView) {
-        this.facet = facet;
-        this.createTooltipView = createTooltipView;
-        this.removeTooltipView = removeTooltipView;
-        this.input = view.state.facet(facet);
-        this.tooltips = this.input.filter((t2) => t2);
-        let prev = null;
-        this.tooltipViews = this.tooltips.map((t2) => prev = createTooltipView(t2, prev));
-      }
-      update(update2, above) {
-        var _a3;
-        let input = update2.state.facet(this.facet);
-        let tooltips2 = input.filter((x) => x);
-        if (input === this.input) {
-          for (let t2 of this.tooltipViews)
-            if (t2.update)
-              t2.update(update2);
-          return false;
-        }
-        let tooltipViews = [], newAbove = above ? [] : null;
-        for (let i2 = 0; i2 < tooltips2.length; i2++) {
-          let tip = tooltips2[i2], known = -1;
-          if (!tip)
-            continue;
-          for (let i22 = 0; i22 < this.tooltips.length; i22++) {
-            let other = this.tooltips[i22];
-            if (other && other.create == tip.create)
-              known = i22;
-          }
-          if (known < 0) {
-            tooltipViews[i2] = this.createTooltipView(tip, i2 ? tooltipViews[i2 - 1] : null);
-            if (newAbove)
-              newAbove[i2] = !!tip.above;
-          } else {
-            let tooltipView = tooltipViews[i2] = this.tooltipViews[known];
-            if (newAbove)
-              newAbove[i2] = above[known];
-            if (tooltipView.update)
-              tooltipView.update(update2);
-          }
-        }
-        for (let t2 of this.tooltipViews)
-          if (tooltipViews.indexOf(t2) < 0) {
-            this.removeTooltipView(t2);
-            (_a3 = t2.destroy) === null || _a3 === void 0 ? void 0 : _a3.call(t2);
-          }
-        if (above) {
-          newAbove.forEach((val, i2) => above[i2] = val);
-          above.length = newAbove.length;
-        }
-        this.input = input;
-        this.tooltips = tooltips2;
-        this.tooltipViews = tooltipViews;
-        return true;
-      }
-    }
-    function windowSpace(view) {
-      let docElt = view.dom.ownerDocument.documentElement;
-      return { top: 0, left: 0, bottom: docElt.clientHeight, right: docElt.clientWidth };
-    }
-    const tooltipConfig = /* @__PURE__ */ Facet.define({
-      combine: (values) => {
-        var _a3, _b2, _c;
-        return {
-          position: browser.ios ? "absolute" : ((_a3 = values.find((conf) => conf.position)) === null || _a3 === void 0 ? void 0 : _a3.position) || "fixed",
-          parent: ((_b2 = values.find((conf) => conf.parent)) === null || _b2 === void 0 ? void 0 : _b2.parent) || null,
-          tooltipSpace: ((_c = values.find((conf) => conf.tooltipSpace)) === null || _c === void 0 ? void 0 : _c.tooltipSpace) || windowSpace
-        };
-      }
-    });
-    const knownHeight = /* @__PURE__ */ new WeakMap();
-    const tooltipPlugin = /* @__PURE__ */ ViewPlugin.fromClass(class {
-      constructor(view) {
-        this.view = view;
-        this.above = [];
-        this.inView = true;
-        this.madeAbsolute = false;
-        this.lastTransaction = 0;
-        this.measureTimeout = -1;
-        let config2 = view.state.facet(tooltipConfig);
-        this.position = config2.position;
-        this.parent = config2.parent;
-        this.classes = view.themeClasses;
-        this.createContainer();
-        this.measureReq = { read: this.readMeasure.bind(this), write: this.writeMeasure.bind(this), key: this };
-        this.resizeObserver = typeof ResizeObserver == "function" ? new ResizeObserver(() => this.measureSoon()) : null;
-        this.manager = new TooltipViewManager(view, showTooltip, (t2, p) => this.createTooltip(t2, p), (t2) => {
-          if (this.resizeObserver)
-            this.resizeObserver.unobserve(t2.dom);
-          t2.dom.remove();
-        });
-        this.above = this.manager.tooltips.map((t2) => !!t2.above);
-        this.intersectionObserver = typeof IntersectionObserver == "function" ? new IntersectionObserver((entries) => {
-          if (Date.now() > this.lastTransaction - 50 && entries.length > 0 && entries[entries.length - 1].intersectionRatio < 1)
-            this.measureSoon();
-        }, { threshold: [1] }) : null;
-        this.observeIntersection();
-        view.win.addEventListener("resize", this.measureSoon = this.measureSoon.bind(this));
-        this.maybeMeasure();
-      }
-      createContainer() {
-        if (this.parent) {
-          this.container = document.createElement("div");
-          this.container.style.position = "relative";
-          this.container.className = this.view.themeClasses;
-          this.parent.appendChild(this.container);
-        } else {
-          this.container = this.view.dom;
-        }
-      }
-      observeIntersection() {
-        if (this.intersectionObserver) {
-          this.intersectionObserver.disconnect();
-          for (let tooltip of this.manager.tooltipViews)
-            this.intersectionObserver.observe(tooltip.dom);
-        }
-      }
-      measureSoon() {
-        if (this.measureTimeout < 0)
-          this.measureTimeout = setTimeout(() => {
-            this.measureTimeout = -1;
-            this.maybeMeasure();
-          }, 50);
-      }
-      update(update2) {
-        if (update2.transactions.length)
-          this.lastTransaction = Date.now();
-        let updated = this.manager.update(update2, this.above);
-        if (updated)
-          this.observeIntersection();
-        let shouldMeasure = updated || update2.geometryChanged;
-        let newConfig = update2.state.facet(tooltipConfig);
-        if (newConfig.position != this.position && !this.madeAbsolute) {
-          this.position = newConfig.position;
-          for (let t2 of this.manager.tooltipViews)
-            t2.dom.style.position = this.position;
-          shouldMeasure = true;
-        }
-        if (newConfig.parent != this.parent) {
-          if (this.parent)
-            this.container.remove();
-          this.parent = newConfig.parent;
-          this.createContainer();
-          for (let t2 of this.manager.tooltipViews)
-            this.container.appendChild(t2.dom);
-          shouldMeasure = true;
-        } else if (this.parent && this.view.themeClasses != this.classes) {
-          this.classes = this.container.className = this.view.themeClasses;
-        }
-        if (shouldMeasure)
-          this.maybeMeasure();
-      }
-      createTooltip(tooltip, prev) {
-        let tooltipView = tooltip.create(this.view);
-        let before = prev ? prev.dom : null;
-        tooltipView.dom.classList.add("cm-tooltip");
-        if (tooltip.arrow && !tooltipView.dom.querySelector(".cm-tooltip > .cm-tooltip-arrow")) {
-          let arrow = document.createElement("div");
-          arrow.className = "cm-tooltip-arrow";
-          tooltipView.dom.appendChild(arrow);
-        }
-        tooltipView.dom.style.position = this.position;
-        tooltipView.dom.style.top = Outside;
-        tooltipView.dom.style.left = "0px";
-        this.container.insertBefore(tooltipView.dom, before);
-        if (tooltipView.mount)
-          tooltipView.mount(this.view);
-        if (this.resizeObserver)
-          this.resizeObserver.observe(tooltipView.dom);
-        return tooltipView;
-      }
-      destroy() {
-        var _a3, _b2, _c;
-        this.view.win.removeEventListener("resize", this.measureSoon);
-        for (let tooltipView of this.manager.tooltipViews) {
-          tooltipView.dom.remove();
-          (_a3 = tooltipView.destroy) === null || _a3 === void 0 ? void 0 : _a3.call(tooltipView);
-        }
-        if (this.parent)
-          this.container.remove();
-        (_b2 = this.resizeObserver) === null || _b2 === void 0 ? void 0 : _b2.disconnect();
-        (_c = this.intersectionObserver) === null || _c === void 0 ? void 0 : _c.disconnect();
-        clearTimeout(this.measureTimeout);
-      }
-      readMeasure() {
-        let scaleX = 1, scaleY = 1, makeAbsolute = false;
-        if (this.position == "fixed" && this.manager.tooltipViews.length) {
-          let { dom } = this.manager.tooltipViews[0];
-          if (browser.gecko) {
-            makeAbsolute = dom.offsetParent != this.container.ownerDocument.body;
-          } else if (dom.style.top == Outside && dom.style.left == "0px") {
-            let rect = dom.getBoundingClientRect();
-            makeAbsolute = Math.abs(rect.top + 1e4) > 1 || Math.abs(rect.left) > 1;
-          }
-        }
-        if (makeAbsolute || this.position == "absolute") {
-          if (this.parent) {
-            let rect = this.parent.getBoundingClientRect();
-            if (rect.width && rect.height) {
-              scaleX = rect.width / this.parent.offsetWidth;
-              scaleY = rect.height / this.parent.offsetHeight;
-            }
-          } else {
-            ({ scaleX, scaleY } = this.view.viewState);
-          }
-        }
-        let visible = this.view.scrollDOM.getBoundingClientRect(), margins = getScrollMargins(this.view);
-        return {
-          visible: {
-            left: visible.left + margins.left,
-            top: visible.top + margins.top,
-            right: visible.right - margins.right,
-            bottom: visible.bottom - margins.bottom
-          },
-          parent: this.parent ? this.container.getBoundingClientRect() : this.view.dom.getBoundingClientRect(),
-          pos: this.manager.tooltips.map((t2, i2) => {
-            let tv = this.manager.tooltipViews[i2];
-            return tv.getCoords ? tv.getCoords(t2.pos) : this.view.coordsAtPos(t2.pos);
-          }),
-          size: this.manager.tooltipViews.map(({ dom }) => dom.getBoundingClientRect()),
-          space: this.view.state.facet(tooltipConfig).tooltipSpace(this.view),
-          scaleX,
-          scaleY,
-          makeAbsolute
-        };
-      }
-      writeMeasure(measured) {
-        var _a3;
-        if (measured.makeAbsolute) {
-          this.madeAbsolute = true;
-          this.position = "absolute";
-          for (let t2 of this.manager.tooltipViews)
-            t2.dom.style.position = "absolute";
-        }
-        let { visible, space: space2, scaleX, scaleY } = measured;
-        let others = [];
-        for (let i2 = 0; i2 < this.manager.tooltips.length; i2++) {
-          let tooltip = this.manager.tooltips[i2], tView = this.manager.tooltipViews[i2], { dom } = tView;
-          let pos = measured.pos[i2], size = measured.size[i2];
-          if (!pos || tooltip.clip !== false && (pos.bottom <= Math.max(visible.top, space2.top) || pos.top >= Math.min(visible.bottom, space2.bottom) || pos.right < Math.max(visible.left, space2.left) - 0.1 || pos.left > Math.min(visible.right, space2.right) + 0.1)) {
-            dom.style.top = Outside;
-            continue;
-          }
-          let arrow = tooltip.arrow ? tView.dom.querySelector(".cm-tooltip-arrow") : null;
-          let arrowHeight = arrow ? 7 : 0;
-          let width = size.right - size.left, height = (_a3 = knownHeight.get(tView)) !== null && _a3 !== void 0 ? _a3 : size.bottom - size.top;
-          let offset = tView.offset || noOffset, ltr = this.view.textDirection == Direction.LTR;
-          let left = size.width > space2.right - space2.left ? ltr ? space2.left : space2.right - size.width : ltr ? Math.max(space2.left, Math.min(pos.left - (arrow ? 14 : 0) + offset.x, space2.right - width)) : Math.min(Math.max(space2.left, pos.left - width + (arrow ? 14 : 0) - offset.x), space2.right - width);
-          let above = this.above[i2];
-          if (!tooltip.strictSide && (above ? pos.top - height - arrowHeight - offset.y < space2.top : pos.bottom + height + arrowHeight + offset.y > space2.bottom) && above == space2.bottom - pos.bottom > pos.top - space2.top)
-            above = this.above[i2] = !above;
-          let spaceVert = (above ? pos.top - space2.top : space2.bottom - pos.bottom) - arrowHeight;
-          if (spaceVert < height && tView.resize !== false) {
-            if (spaceVert < this.view.defaultLineHeight) {
-              dom.style.top = Outside;
-              continue;
-            }
-            knownHeight.set(tView, height);
-            dom.style.height = (height = spaceVert) / scaleY + "px";
-          } else if (dom.style.height) {
-            dom.style.height = "";
-          }
-          let top2 = above ? pos.top - height - arrowHeight - offset.y : pos.bottom + arrowHeight + offset.y;
-          let right = left + width;
-          if (tView.overlap !== true) {
-            for (let r2 of others)
-              if (r2.left < right && r2.right > left && r2.top < top2 + height && r2.bottom > top2)
-                top2 = above ? r2.top - height - 2 - arrowHeight : r2.bottom + arrowHeight + 2;
-          }
-          if (this.position == "absolute") {
-            dom.style.top = (top2 - measured.parent.top) / scaleY + "px";
-            setLeftStyle(dom, (left - measured.parent.left) / scaleX);
-          } else {
-            dom.style.top = top2 / scaleY + "px";
-            setLeftStyle(dom, left / scaleX);
-          }
-          if (arrow) {
-            let arrowLeft = pos.left + (ltr ? offset.x : -offset.x) - (left + 14 - 7);
-            arrow.style.left = arrowLeft / scaleX + "px";
-          }
-          if (tView.overlap !== true)
-            others.push({ left, top: top2, right, bottom: top2 + height });
-          dom.classList.toggle("cm-tooltip-above", above);
-          dom.classList.toggle("cm-tooltip-below", !above);
-          if (tView.positioned)
-            tView.positioned(measured.space);
-        }
-      }
-      maybeMeasure() {
-        if (this.manager.tooltips.length) {
-          if (this.view.inView)
-            this.view.requestMeasure(this.measureReq);
-          if (this.inView != this.view.inView) {
-            this.inView = this.view.inView;
-            if (!this.inView)
-              for (let tv of this.manager.tooltipViews)
-                tv.dom.style.top = Outside;
-          }
-        }
-      }
-    }, {
-      eventObservers: {
-        scroll() {
-          this.maybeMeasure();
-        }
-      }
-    });
-    function setLeftStyle(elt2, value2) {
-      let current = parseInt(elt2.style.left, 10);
-      if (isNaN(current) || Math.abs(value2 - current) > 1)
-        elt2.style.left = value2 + "px";
-    }
-    const baseTheme$5 = /* @__PURE__ */ EditorView.baseTheme({
-      ".cm-tooltip": {
-        zIndex: 500,
-        boxSizing: "border-box"
-      },
-      "&light .cm-tooltip": {
-        border: "1px solid #bbb",
-        backgroundColor: "#f5f5f5"
-      },
-      "&light .cm-tooltip-section:not(:first-child)": {
-        borderTop: "1px solid #bbb"
-      },
-      "&dark .cm-tooltip": {
-        backgroundColor: "#333338",
-        color: "white"
-      },
-      ".cm-tooltip-arrow": {
-        height: `${7}px`,
-        width: `${7 * 2}px`,
-        position: "absolute",
-        zIndex: -1,
-        overflow: "hidden",
-        "&:before, &:after": {
-          content: "''",
-          position: "absolute",
-          width: 0,
-          height: 0,
-          borderLeft: `${7}px solid transparent`,
-          borderRight: `${7}px solid transparent`
-        },
-        ".cm-tooltip-above &": {
-          bottom: `-${7}px`,
-          "&:before": {
-            borderTop: `${7}px solid #bbb`
-          },
-          "&:after": {
-            borderTop: `${7}px solid #f5f5f5`,
-            bottom: "1px"
-          }
-        },
-        ".cm-tooltip-below &": {
-          top: `-${7}px`,
-          "&:before": {
-            borderBottom: `${7}px solid #bbb`
-          },
-          "&:after": {
-            borderBottom: `${7}px solid #f5f5f5`,
-            top: "1px"
-          }
-        }
-      },
-      "&dark .cm-tooltip .cm-tooltip-arrow": {
-        "&:before": {
-          borderTopColor: "#333338",
-          borderBottomColor: "#333338"
-        },
-        "&:after": {
-          borderTopColor: "transparent",
-          borderBottomColor: "transparent"
-        }
-      }
-    });
-    const noOffset = { x: 0, y: 0 };
-    const showTooltip = /* @__PURE__ */ Facet.define({
-      enables: [tooltipPlugin, baseTheme$5]
-    });
-    const showHoverTooltip = /* @__PURE__ */ Facet.define({
-      combine: (inputs) => inputs.reduce((a2, i2) => a2.concat(i2), [])
-    });
-    class HoverTooltipHost {
-      // Needs to be static so that host tooltip instances always match
-      static create(view) {
-        return new HoverTooltipHost(view);
-      }
-      constructor(view) {
-        this.view = view;
-        this.mounted = false;
-        this.dom = document.createElement("div");
-        this.dom.classList.add("cm-tooltip-hover");
-        this.manager = new TooltipViewManager(view, showHoverTooltip, (t2, p) => this.createHostedView(t2, p), (t2) => t2.dom.remove());
-      }
-      createHostedView(tooltip, prev) {
-        let hostedView = tooltip.create(this.view);
-        hostedView.dom.classList.add("cm-tooltip-section");
-        this.dom.insertBefore(hostedView.dom, prev ? prev.dom.nextSibling : this.dom.firstChild);
-        if (this.mounted && hostedView.mount)
-          hostedView.mount(this.view);
-        return hostedView;
-      }
-      mount(view) {
-        for (let hostedView of this.manager.tooltipViews) {
-          if (hostedView.mount)
-            hostedView.mount(view);
-        }
-        this.mounted = true;
-      }
-      positioned(space2) {
-        for (let hostedView of this.manager.tooltipViews) {
-          if (hostedView.positioned)
-            hostedView.positioned(space2);
-        }
-      }
-      update(update2) {
-        this.manager.update(update2);
-      }
-      destroy() {
-        var _a3;
-        for (let t2 of this.manager.tooltipViews)
-          (_a3 = t2.destroy) === null || _a3 === void 0 ? void 0 : _a3.call(t2);
-      }
-      passProp(name2) {
-        let value2 = void 0;
-        for (let view of this.manager.tooltipViews) {
-          let given = view[name2];
-          if (given !== void 0) {
-            if (value2 === void 0)
-              value2 = given;
-            else if (value2 !== given)
-              return void 0;
-          }
-        }
-        return value2;
-      }
-      get offset() {
-        return this.passProp("offset");
-      }
-      get getCoords() {
-        return this.passProp("getCoords");
-      }
-      get overlap() {
-        return this.passProp("overlap");
-      }
-      get resize() {
-        return this.passProp("resize");
-      }
-    }
-    const showHoverTooltipHost = /* @__PURE__ */ showTooltip.compute([showHoverTooltip], (state2) => {
-      let tooltips2 = state2.facet(showHoverTooltip);
-      if (tooltips2.length === 0)
-        return null;
-      return {
-        pos: Math.min(...tooltips2.map((t2) => t2.pos)),
-        end: Math.max(...tooltips2.map((t2) => {
-          var _a3;
-          return (_a3 = t2.end) !== null && _a3 !== void 0 ? _a3 : t2.pos;
-        })),
-        create: HoverTooltipHost.create,
-        above: tooltips2[0].above,
-        arrow: tooltips2.some((t2) => t2.arrow)
-      };
-    });
-    class HoverPlugin {
-      constructor(view, source2, field, setHover, hoverTime) {
-        this.view = view;
-        this.source = source2;
-        this.field = field;
-        this.setHover = setHover;
-        this.hoverTime = hoverTime;
-        this.hoverTimeout = -1;
-        this.restartTimeout = -1;
-        this.pending = null;
-        this.lastMove = { x: 0, y: 0, target: view.dom, time: 0 };
-        this.checkHover = this.checkHover.bind(this);
-        view.dom.addEventListener("mouseleave", this.mouseleave = this.mouseleave.bind(this));
-        view.dom.addEventListener("mousemove", this.mousemove = this.mousemove.bind(this));
-      }
-      update() {
-        if (this.pending) {
-          this.pending = null;
-          clearTimeout(this.restartTimeout);
-          this.restartTimeout = setTimeout(() => this.startHover(), 20);
-        }
-      }
-      get active() {
-        return this.view.state.field(this.field);
-      }
-      checkHover() {
-        this.hoverTimeout = -1;
-        if (this.active.length)
-          return;
-        let hovered = Date.now() - this.lastMove.time;
-        if (hovered < this.hoverTime)
-          this.hoverTimeout = setTimeout(this.checkHover, this.hoverTime - hovered);
-        else
-          this.startHover();
-      }
-      startHover() {
-        clearTimeout(this.restartTimeout);
-        let { view, lastMove } = this;
-        let desc = view.docView.nearest(lastMove.target);
-        if (!desc)
-          return;
-        let pos, side = 1;
-        if (desc instanceof WidgetView) {
-          pos = desc.posAtStart;
-        } else {
-          pos = view.posAtCoords(lastMove);
-          if (pos == null)
-            return;
-          let posCoords = view.coordsAtPos(pos);
-          if (!posCoords || lastMove.y < posCoords.top || lastMove.y > posCoords.bottom || lastMove.x < posCoords.left - view.defaultCharacterWidth || lastMove.x > posCoords.right + view.defaultCharacterWidth)
-            return;
-          let bidi = view.bidiSpans(view.state.doc.lineAt(pos)).find((s) => s.from <= pos && s.to >= pos);
-          let rtl = bidi && bidi.dir == Direction.RTL ? -1 : 1;
-          side = lastMove.x < posCoords.left ? -rtl : rtl;
-        }
-        let open = this.source(view, pos, side);
-        if (open === null || open === void 0 ? void 0 : open.then) {
-          let pending2 = this.pending = { pos };
-          open.then((result) => {
-            if (this.pending == pending2) {
-              this.pending = null;
-              if (result && !(Array.isArray(result) && !result.length))
-                view.dispatch({ effects: this.setHover.of(Array.isArray(result) ? result : [result]) });
-            }
-          }, (e2) => logException(view.state, e2, "hover tooltip"));
-        } else if (open && !(Array.isArray(open) && !open.length)) {
-          view.dispatch({ effects: this.setHover.of(Array.isArray(open) ? open : [open]) });
-        }
-      }
-      get tooltip() {
-        let plugin2 = this.view.plugin(tooltipPlugin);
-        let index2 = plugin2 ? plugin2.manager.tooltips.findIndex((t2) => t2.create == HoverTooltipHost.create) : -1;
-        return index2 > -1 ? plugin2.manager.tooltipViews[index2] : null;
-      }
-      mousemove(event2) {
-        var _a3, _b2;
-        this.lastMove = { x: event2.clientX, y: event2.clientY, target: event2.target, time: Date.now() };
-        if (this.hoverTimeout < 0)
-          this.hoverTimeout = setTimeout(this.checkHover, this.hoverTime);
-        let { active, tooltip } = this;
-        if (active.length && tooltip && !isInTooltip(tooltip.dom, event2) || this.pending) {
-          let { pos } = active[0] || this.pending, end = (_b2 = (_a3 = active[0]) === null || _a3 === void 0 ? void 0 : _a3.end) !== null && _b2 !== void 0 ? _b2 : pos;
-          if (pos == end ? this.view.posAtCoords(this.lastMove) != pos : !isOverRange(this.view, pos, end, event2.clientX, event2.clientY)) {
-            this.view.dispatch({ effects: this.setHover.of([]) });
-            this.pending = null;
-          }
-        }
-      }
-      mouseleave(event2) {
-        clearTimeout(this.hoverTimeout);
-        this.hoverTimeout = -1;
-        let { active } = this;
-        if (active.length) {
-          let { tooltip } = this;
-          let inTooltip = tooltip && tooltip.dom.contains(event2.relatedTarget);
-          if (!inTooltip)
-            this.view.dispatch({ effects: this.setHover.of([]) });
-          else
-            this.watchTooltipLeave(tooltip.dom);
-        }
-      }
-      watchTooltipLeave(tooltip) {
-        let watch = (event2) => {
-          tooltip.removeEventListener("mouseleave", watch);
-          if (this.active.length && !this.view.dom.contains(event2.relatedTarget))
-            this.view.dispatch({ effects: this.setHover.of([]) });
-        };
-        tooltip.addEventListener("mouseleave", watch);
-      }
-      destroy() {
-        clearTimeout(this.hoverTimeout);
-        this.view.dom.removeEventListener("mouseleave", this.mouseleave);
-        this.view.dom.removeEventListener("mousemove", this.mousemove);
-      }
-    }
-    const tooltipMargin = 4;
-    function isInTooltip(tooltip, event2) {
-      let { left, right, top: top2, bottom } = tooltip.getBoundingClientRect(), arrow;
-      if (arrow = tooltip.querySelector(".cm-tooltip-arrow")) {
-        let arrowRect = arrow.getBoundingClientRect();
-        top2 = Math.min(arrowRect.top, top2);
-        bottom = Math.max(arrowRect.bottom, bottom);
-      }
-      return event2.clientX >= left - tooltipMargin && event2.clientX <= right + tooltipMargin && event2.clientY >= top2 - tooltipMargin && event2.clientY <= bottom + tooltipMargin;
-    }
-    function isOverRange(view, from2, to2, x, y, margin) {
-      let rect = view.scrollDOM.getBoundingClientRect();
-      let docBottom = view.documentTop + view.documentPadding.top + view.contentHeight;
-      if (rect.left > x || rect.right < x || rect.top > y || Math.min(rect.bottom, docBottom) < y)
-        return false;
-      let pos = view.posAtCoords({ x, y }, false);
-      return pos >= from2 && pos <= to2;
-    }
-    function hoverTooltip(source2, options = {}) {
-      let setHover = StateEffect.define();
-      let hoverState = StateField.define({
-        create() {
-          return [];
-        },
-        update(value2, tr) {
-          if (value2.length) {
-            if (options.hideOnChange && (tr.docChanged || tr.selection))
-              value2 = [];
-            else if (options.hideOn)
-              value2 = value2.filter((v) => !options.hideOn(tr, v));
-            if (tr.docChanged) {
-              let mapped = [];
-              for (let tooltip of value2) {
-                let newPos = tr.changes.mapPos(tooltip.pos, -1, MapMode.TrackDel);
-                if (newPos != null) {
-                  let copy = Object.assign(/* @__PURE__ */ Object.create(null), tooltip);
-                  copy.pos = newPos;
-                  if (copy.end != null)
-                    copy.end = tr.changes.mapPos(copy.end);
-                  mapped.push(copy);
-                }
-              }
-              value2 = mapped;
-            }
-          }
-          for (let effect2 of tr.effects) {
-            if (effect2.is(setHover))
-              value2 = effect2.value;
-            if (effect2.is(closeHoverTooltipEffect))
-              value2 = [];
-          }
-          return value2;
-        },
-        provide: (f) => showHoverTooltip.from(f)
-      });
-      return {
-        active: hoverState,
-        extension: [
-          hoverState,
-          ViewPlugin.define((view) => new HoverPlugin(
-            view,
-            source2,
-            hoverState,
-            setHover,
-            options.hoverTime || 300
-            /* Hover.Time */
-          )),
-          showHoverTooltipHost
-        ]
-      };
-    }
-    function getTooltip(view, tooltip) {
-      let plugin2 = view.plugin(tooltipPlugin);
-      if (!plugin2)
-        return null;
-      let found = plugin2.manager.tooltips.indexOf(tooltip);
-      return found < 0 ? null : plugin2.manager.tooltipViews[found];
-    }
-    const closeHoverTooltipEffect = /* @__PURE__ */ StateEffect.define();
-    const panelConfig = /* @__PURE__ */ Facet.define({
-      combine(configs) {
-        let topContainer, bottomContainer;
-        for (let c of configs) {
-          topContainer = topContainer || c.topContainer;
-          bottomContainer = bottomContainer || c.bottomContainer;
-        }
-        return { topContainer, bottomContainer };
-      }
-    });
-    function getPanel(view, panel) {
-      let plugin2 = view.plugin(panelPlugin);
-      let index2 = plugin2 ? plugin2.specs.indexOf(panel) : -1;
-      return index2 > -1 ? plugin2.panels[index2] : null;
-    }
-    const panelPlugin = /* @__PURE__ */ ViewPlugin.fromClass(class {
-      constructor(view) {
-        this.input = view.state.facet(showPanel);
-        this.specs = this.input.filter((s) => s);
-        this.panels = this.specs.map((spec) => spec(view));
-        let conf = view.state.facet(panelConfig);
-        this.top = new PanelGroup(view, true, conf.topContainer);
-        this.bottom = new PanelGroup(view, false, conf.bottomContainer);
-        this.top.sync(this.panels.filter((p) => p.top));
-        this.bottom.sync(this.panels.filter((p) => !p.top));
-        for (let p of this.panels) {
-          p.dom.classList.add("cm-panel");
-          if (p.mount)
-            p.mount();
-        }
-      }
-      update(update2) {
-        let conf = update2.state.facet(panelConfig);
-        if (this.top.container != conf.topContainer) {
-          this.top.sync([]);
-          this.top = new PanelGroup(update2.view, true, conf.topContainer);
-        }
-        if (this.bottom.container != conf.bottomContainer) {
-          this.bottom.sync([]);
-          this.bottom = new PanelGroup(update2.view, false, conf.bottomContainer);
-        }
-        this.top.syncClasses();
-        this.bottom.syncClasses();
-        let input = update2.state.facet(showPanel);
-        if (input != this.input) {
-          let specs = input.filter((x) => x);
-          let panels2 = [], top2 = [], bottom = [], mount2 = [];
-          for (let spec of specs) {
-            let known = this.specs.indexOf(spec), panel;
-            if (known < 0) {
-              panel = spec(update2.view);
-              mount2.push(panel);
-            } else {
-              panel = this.panels[known];
-              if (panel.update)
-                panel.update(update2);
-            }
-            panels2.push(panel);
-            (panel.top ? top2 : bottom).push(panel);
-          }
-          this.specs = specs;
-          this.panels = panels2;
-          this.top.sync(top2);
-          this.bottom.sync(bottom);
-          for (let p of mount2) {
-            p.dom.classList.add("cm-panel");
-            if (p.mount)
-              p.mount();
-          }
-        } else {
-          for (let p of this.panels)
-            if (p.update)
-              p.update(update2);
-        }
-      }
-      destroy() {
-        this.top.sync([]);
-        this.bottom.sync([]);
-      }
-    }, {
-      provide: (plugin2) => EditorView.scrollMargins.of((view) => {
-        let value2 = view.plugin(plugin2);
-        return value2 && { top: value2.top.scrollMargin(), bottom: value2.bottom.scrollMargin() };
-      })
-    });
-    class PanelGroup {
-      constructor(view, top2, container) {
-        this.view = view;
-        this.top = top2;
-        this.container = container;
-        this.dom = void 0;
-        this.classes = "";
-        this.panels = [];
-        this.syncClasses();
-      }
-      sync(panels2) {
-        for (let p of this.panels)
-          if (p.destroy && panels2.indexOf(p) < 0)
-            p.destroy();
-        this.panels = panels2;
-        this.syncDOM();
-      }
-      syncDOM() {
-        if (this.panels.length == 0) {
-          if (this.dom) {
-            this.dom.remove();
-            this.dom = void 0;
-          }
-          return;
-        }
-        if (!this.dom) {
-          this.dom = document.createElement("div");
-          this.dom.className = this.top ? "cm-panels cm-panels-top" : "cm-panels cm-panels-bottom";
-          this.dom.style[this.top ? "top" : "bottom"] = "0";
-          let parent = this.container || this.view.dom;
-          parent.insertBefore(this.dom, this.top ? parent.firstChild : null);
-        }
-        let curDOM = this.dom.firstChild;
-        for (let panel of this.panels) {
-          if (panel.dom.parentNode == this.dom) {
-            while (curDOM != panel.dom)
-              curDOM = rm(curDOM);
-            curDOM = curDOM.nextSibling;
-          } else {
-            this.dom.insertBefore(panel.dom, curDOM);
-          }
-        }
-        while (curDOM)
-          curDOM = rm(curDOM);
-      }
-      scrollMargin() {
-        return !this.dom || this.container ? 0 : Math.max(0, this.top ? this.dom.getBoundingClientRect().bottom - Math.max(0, this.view.scrollDOM.getBoundingClientRect().top) : Math.min(innerHeight, this.view.scrollDOM.getBoundingClientRect().bottom) - this.dom.getBoundingClientRect().top);
-      }
-      syncClasses() {
-        if (!this.container || this.classes == this.view.themeClasses)
-          return;
-        for (let cls of this.classes.split(" "))
-          if (cls)
-            this.container.classList.remove(cls);
-        for (let cls of (this.classes = this.view.themeClasses).split(" "))
-          if (cls)
-            this.container.classList.add(cls);
-      }
-    }
-    function rm(node) {
-      let next2 = node.nextSibling;
-      node.remove();
-      return next2;
-    }
-    const showPanel = /* @__PURE__ */ Facet.define({
-      enables: panelPlugin
-    });
     class GutterMarker extends RangeValue {
       /**
       @internal
@@ -72255,425 +68338,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     GutterMarker.prototype.mapMode = MapMode.TrackBefore;
     GutterMarker.prototype.startSide = GutterMarker.prototype.endSide = -1;
     GutterMarker.prototype.point = true;
-    const gutterLineClass = /* @__PURE__ */ Facet.define();
-    const gutterWidgetClass = /* @__PURE__ */ Facet.define();
-    const defaults$2 = {
-      class: "",
-      renderEmptyElements: false,
-      elementStyle: "",
-      markers: () => RangeSet.empty,
-      lineMarker: () => null,
-      widgetMarker: () => null,
-      lineMarkerChange: null,
-      initialSpacer: null,
-      updateSpacer: null,
-      domEventHandlers: {}
-    };
-    const activeGutters = /* @__PURE__ */ Facet.define();
-    function gutter(config2) {
-      return [gutters(), activeGutters.of({ ...defaults$2, ...config2 })];
-    }
-    const unfixGutters = /* @__PURE__ */ Facet.define({
-      combine: (values) => values.some((x) => x)
-    });
-    function gutters(config2) {
-      let result = [
-        gutterView
-      ];
-      return result;
-    }
-    const gutterView = /* @__PURE__ */ ViewPlugin.fromClass(class {
-      constructor(view) {
-        this.view = view;
-        this.prevViewport = view.viewport;
-        this.dom = document.createElement("div");
-        this.dom.className = "cm-gutters";
-        this.dom.setAttribute("aria-hidden", "true");
-        this.dom.style.minHeight = this.view.contentHeight / this.view.scaleY + "px";
-        this.gutters = view.state.facet(activeGutters).map((conf) => new SingleGutterView(view, conf));
-        for (let gutter2 of this.gutters)
-          this.dom.appendChild(gutter2.dom);
-        this.fixed = !view.state.facet(unfixGutters);
-        if (this.fixed) {
-          this.dom.style.position = "sticky";
-        }
-        this.syncGutters(false);
-        view.scrollDOM.insertBefore(this.dom, view.contentDOM);
-      }
-      update(update2) {
-        if (this.updateGutters(update2)) {
-          let vpA = this.prevViewport, vpB = update2.view.viewport;
-          let vpOverlap = Math.min(vpA.to, vpB.to) - Math.max(vpA.from, vpB.from);
-          this.syncGutters(vpOverlap < (vpB.to - vpB.from) * 0.8);
-        }
-        if (update2.geometryChanged) {
-          this.dom.style.minHeight = this.view.contentHeight / this.view.scaleY + "px";
-        }
-        if (this.view.state.facet(unfixGutters) != !this.fixed) {
-          this.fixed = !this.fixed;
-          this.dom.style.position = this.fixed ? "sticky" : "";
-        }
-        this.prevViewport = update2.view.viewport;
-      }
-      syncGutters(detach) {
-        let after = this.dom.nextSibling;
-        if (detach)
-          this.dom.remove();
-        let lineClasses = RangeSet.iter(this.view.state.facet(gutterLineClass), this.view.viewport.from);
-        let classSet = [];
-        let contexts = this.gutters.map((gutter2) => new UpdateContext(gutter2, this.view.viewport, -this.view.documentPadding.top));
-        for (let line of this.view.viewportLineBlocks) {
-          if (classSet.length)
-            classSet = [];
-          if (Array.isArray(line.type)) {
-            let first = true;
-            for (let b of line.type) {
-              if (b.type == BlockType.Text && first) {
-                advanceCursor(lineClasses, classSet, b.from);
-                for (let cx of contexts)
-                  cx.line(this.view, b, classSet);
-                first = false;
-              } else if (b.widget) {
-                for (let cx of contexts)
-                  cx.widget(this.view, b);
-              }
-            }
-          } else if (line.type == BlockType.Text) {
-            advanceCursor(lineClasses, classSet, line.from);
-            for (let cx of contexts)
-              cx.line(this.view, line, classSet);
-          } else if (line.widget) {
-            for (let cx of contexts)
-              cx.widget(this.view, line);
-          }
-        }
-        for (let cx of contexts)
-          cx.finish();
-        if (detach)
-          this.view.scrollDOM.insertBefore(this.dom, after);
-      }
-      updateGutters(update2) {
-        let prev = update2.startState.facet(activeGutters), cur2 = update2.state.facet(activeGutters);
-        let change = update2.docChanged || update2.heightChanged || update2.viewportChanged || !RangeSet.eq(update2.startState.facet(gutterLineClass), update2.state.facet(gutterLineClass), update2.view.viewport.from, update2.view.viewport.to);
-        if (prev == cur2) {
-          for (let gutter2 of this.gutters)
-            if (gutter2.update(update2))
-              change = true;
-        } else {
-          change = true;
-          let gutters2 = [];
-          for (let conf of cur2) {
-            let known = prev.indexOf(conf);
-            if (known < 0) {
-              gutters2.push(new SingleGutterView(this.view, conf));
-            } else {
-              this.gutters[known].update(update2);
-              gutters2.push(this.gutters[known]);
-            }
-          }
-          for (let g of this.gutters) {
-            g.dom.remove();
-            if (gutters2.indexOf(g) < 0)
-              g.destroy();
-          }
-          for (let g of gutters2)
-            this.dom.appendChild(g.dom);
-          this.gutters = gutters2;
-        }
-        return change;
-      }
-      destroy() {
-        for (let view of this.gutters)
-          view.destroy();
-        this.dom.remove();
-      }
-    }, {
-      provide: (plugin2) => EditorView.scrollMargins.of((view) => {
-        let value2 = view.plugin(plugin2);
-        if (!value2 || value2.gutters.length == 0 || !value2.fixed)
-          return null;
-        return view.textDirection == Direction.LTR ? { left: value2.dom.offsetWidth * view.scaleX } : { right: value2.dom.offsetWidth * view.scaleX };
-      })
-    });
-    function asArray(val) {
-      return Array.isArray(val) ? val : [val];
-    }
-    function advanceCursor(cursor, collect, pos) {
-      while (cursor.value && cursor.from <= pos) {
-        if (cursor.from == pos)
-          collect.push(cursor.value);
-        cursor.next();
-      }
-    }
-    class UpdateContext {
-      constructor(gutter2, viewport, height) {
-        this.gutter = gutter2;
-        this.height = height;
-        this.i = 0;
-        this.cursor = RangeSet.iter(gutter2.markers, viewport.from);
-      }
-      addElement(view, block2, markers) {
-        let { gutter: gutter2 } = this, above = (block2.top - this.height) / view.scaleY, height = block2.height / view.scaleY;
-        if (this.i == gutter2.elements.length) {
-          let newElt = new GutterElement(view, height, above, markers);
-          gutter2.elements.push(newElt);
-          gutter2.dom.appendChild(newElt.dom);
-        } else {
-          gutter2.elements[this.i].update(view, height, above, markers);
-        }
-        this.height = block2.bottom;
-        this.i++;
-      }
-      line(view, line, extraMarkers) {
-        let localMarkers = [];
-        advanceCursor(this.cursor, localMarkers, line.from);
-        if (extraMarkers.length)
-          localMarkers = localMarkers.concat(extraMarkers);
-        let forLine = this.gutter.config.lineMarker(view, line, localMarkers);
-        if (forLine)
-          localMarkers.unshift(forLine);
-        let gutter2 = this.gutter;
-        if (localMarkers.length == 0 && !gutter2.config.renderEmptyElements)
-          return;
-        this.addElement(view, line, localMarkers);
-      }
-      widget(view, block2) {
-        let marker = this.gutter.config.widgetMarker(view, block2.widget, block2), markers = marker ? [marker] : null;
-        for (let cls of view.state.facet(gutterWidgetClass)) {
-          let marker2 = cls(view, block2.widget, block2);
-          if (marker2)
-            (markers || (markers = [])).push(marker2);
-        }
-        if (markers)
-          this.addElement(view, block2, markers);
-      }
-      finish() {
-        let gutter2 = this.gutter;
-        while (gutter2.elements.length > this.i) {
-          let last = gutter2.elements.pop();
-          gutter2.dom.removeChild(last.dom);
-          last.destroy();
-        }
-      }
-    }
-    class SingleGutterView {
-      constructor(view, config2) {
-        this.view = view;
-        this.config = config2;
-        this.elements = [];
-        this.spacer = null;
-        this.dom = document.createElement("div");
-        this.dom.className = "cm-gutter" + (this.config.class ? " " + this.config.class : "");
-        for (let prop2 in config2.domEventHandlers) {
-          this.dom.addEventListener(prop2, (event2) => {
-            let target2 = event2.target, y;
-            if (target2 != this.dom && this.dom.contains(target2)) {
-              while (target2.parentNode != this.dom)
-                target2 = target2.parentNode;
-              let rect = target2.getBoundingClientRect();
-              y = (rect.top + rect.bottom) / 2;
-            } else {
-              y = event2.clientY;
-            }
-            let line = view.lineBlockAtHeight(y - view.documentTop);
-            if (config2.domEventHandlers[prop2](view, line, event2))
-              event2.preventDefault();
-          });
-        }
-        this.markers = asArray(config2.markers(view));
-        if (config2.initialSpacer) {
-          this.spacer = new GutterElement(view, 0, 0, [config2.initialSpacer(view)]);
-          this.dom.appendChild(this.spacer.dom);
-          this.spacer.dom.style.cssText += "visibility: hidden; pointer-events: none";
-        }
-      }
-      update(update2) {
-        let prevMarkers = this.markers;
-        this.markers = asArray(this.config.markers(update2.view));
-        if (this.spacer && this.config.updateSpacer) {
-          let updated = this.config.updateSpacer(this.spacer.markers[0], update2);
-          if (updated != this.spacer.markers[0])
-            this.spacer.update(update2.view, 0, 0, [updated]);
-        }
-        let vp = update2.view.viewport;
-        return !RangeSet.eq(this.markers, prevMarkers, vp.from, vp.to) || (this.config.lineMarkerChange ? this.config.lineMarkerChange(update2) : false);
-      }
-      destroy() {
-        for (let elt2 of this.elements)
-          elt2.destroy();
-      }
-    }
-    class GutterElement {
-      constructor(view, height, above, markers) {
-        this.height = -1;
-        this.above = 0;
-        this.markers = [];
-        this.dom = document.createElement("div");
-        this.dom.className = "cm-gutterElement";
-        this.update(view, height, above, markers);
-      }
-      update(view, height, above, markers) {
-        if (this.height != height) {
-          this.height = height;
-          this.dom.style.height = height + "px";
-        }
-        if (this.above != above)
-          this.dom.style.marginTop = (this.above = above) ? above + "px" : "";
-        if (!sameMarkers(this.markers, markers))
-          this.setMarkers(view, markers);
-      }
-      setMarkers(view, markers) {
-        let cls = "cm-gutterElement", domPos = this.dom.firstChild;
-        for (let iNew = 0, iOld = 0; ; ) {
-          let skipTo = iOld, marker = iNew < markers.length ? markers[iNew++] : null, matched = false;
-          if (marker) {
-            let c = marker.elementClass;
-            if (c)
-              cls += " " + c;
-            for (let i2 = iOld; i2 < this.markers.length; i2++)
-              if (this.markers[i2].compare(marker)) {
-                skipTo = i2;
-                matched = true;
-                break;
-              }
-          } else {
-            skipTo = this.markers.length;
-          }
-          while (iOld < skipTo) {
-            let next2 = this.markers[iOld++];
-            if (next2.toDOM) {
-              next2.destroy(domPos);
-              let after = domPos.nextSibling;
-              domPos.remove();
-              domPos = after;
-            }
-          }
-          if (!marker)
-            break;
-          if (marker.toDOM) {
-            if (matched)
-              domPos = domPos.nextSibling;
-            else
-              this.dom.insertBefore(marker.toDOM(view), domPos);
-          }
-          if (matched)
-            iOld++;
-        }
-        this.dom.className = cls;
-        this.markers = markers;
-      }
-      destroy() {
-        this.setMarkers(null, []);
-      }
-    }
-    function sameMarkers(a2, b) {
-      if (a2.length != b.length)
-        return false;
-      for (let i2 = 0; i2 < a2.length; i2++)
-        if (!a2[i2].compare(b[i2]))
-          return false;
-      return true;
-    }
-    const lineNumberMarkers = /* @__PURE__ */ Facet.define();
-    const lineNumberWidgetMarker = /* @__PURE__ */ Facet.define();
-    const lineNumberConfig = /* @__PURE__ */ Facet.define({
-      combine(values) {
-        return combineConfig(values, { formatNumber: String, domEventHandlers: {} }, {
-          domEventHandlers(a2, b) {
-            let result = Object.assign({}, a2);
-            for (let event2 in b) {
-              let exists = result[event2], add2 = b[event2];
-              result[event2] = exists ? (view, line, event22) => exists(view, line, event22) || add2(view, line, event22) : add2;
-            }
-            return result;
-          }
-        });
-      }
-    });
-    class NumberMarker extends GutterMarker {
-      constructor(number2) {
-        super();
-        this.number = number2;
-      }
-      eq(other) {
-        return this.number == other.number;
-      }
-      toDOM() {
-        return document.createTextNode(this.number);
-      }
-    }
-    function formatNumber$1(view, number2) {
-      return view.state.facet(lineNumberConfig).formatNumber(number2, view.state);
-    }
-    const lineNumberGutter = /* @__PURE__ */ activeGutters.compute([lineNumberConfig], (state2) => ({
-      class: "cm-lineNumbers",
-      renderEmptyElements: false,
-      markers(view) {
-        return view.state.facet(lineNumberMarkers);
-      },
-      lineMarker(view, line, others) {
-        if (others.some((m) => m.toDOM))
-          return null;
-        return new NumberMarker(formatNumber$1(view, view.state.doc.lineAt(line.from).number));
-      },
-      widgetMarker: (view, widget, block2) => {
-        for (let m of view.state.facet(lineNumberWidgetMarker)) {
-          let result = m(view, widget, block2);
-          if (result)
-            return result;
-        }
-        return null;
-      },
-      lineMarkerChange: (update2) => update2.startState.facet(lineNumberConfig) != update2.state.facet(lineNumberConfig),
-      initialSpacer(view) {
-        return new NumberMarker(formatNumber$1(view, maxLineNumber(view.state.doc.lines)));
-      },
-      updateSpacer(spacer, update2) {
-        let max = formatNumber$1(update2.view, maxLineNumber(update2.view.state.doc.lines));
-        return max == spacer.number ? spacer : new NumberMarker(max);
-      },
-      domEventHandlers: state2.facet(lineNumberConfig).domEventHandlers
-    }));
-    function lineNumbers(config2 = {}) {
-      return [
-        lineNumberConfig.of(config2),
-        gutters(),
-        lineNumberGutter
-      ];
-    }
-    function maxLineNumber(lines) {
-      let last = 9;
-      while (last < lines)
-        last = last * 10 + 9;
-      return last;
-    }
-    const activeLineGutterMarker = /* @__PURE__ */ new class extends GutterMarker {
-      constructor() {
-        super(...arguments);
-        this.elementClass = "cm-activeLineGutter";
-      }
-    }();
-    const activeLineGutterHighlighter = /* @__PURE__ */ gutterLineClass.compute(["selection"], (state2) => {
-      let marks = [], last = -1;
-      for (let range2 of state2.selection.ranges) {
-        let linePos = state2.doc.lineAt(range2.head).from;
-        if (linePos > last) {
-          last = linePos;
-          marks.push(activeLineGutterMarker.range(linePos));
-        }
-      }
-      return RangeSet.of(marks);
-    });
-    function highlightActiveLineGutter() {
-      return activeLineGutterHighlighter;
-    }
     var _a;
     const languageDataProp = /* @__PURE__ */ new NodeProp();
-    function defineLanguageFacet(baseData) {
-      return Facet.define({
-        combine: baseData ? (values) => values.concat(baseData) : void 0
-      });
-    }
     const sublanguageProp = /* @__PURE__ */ new NodeProp();
     class Language {
       /**
@@ -72683,14 +68349,14 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       configure your parser to [attach](https://codemirror.net/6/docs/ref/#language.languageDataProp) it
       to the language's outer syntax node.
       */
-      constructor(data, parser2, extraExtensions = [], name2 = "") {
+      constructor(data, parser, extraExtensions = [], name2 = "") {
         this.data = data;
         this.name = name2;
         if (!EditorState.prototype.hasOwnProperty("tree"))
           Object.defineProperty(EditorState.prototype, "tree", { get() {
             return syntaxTree(this);
           } });
-        this.parser = parser2;
+        this.parser = parser;
         this.extension = [
           language.of(this),
           EditorState.languageData.of((state2, pos, side) => {
@@ -72776,31 +68442,6 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
       return tree;
     }
-    class LRLanguage extends Language {
-      constructor(data, parser2, name2) {
-        super(data, parser2, [], name2);
-        this.parser = parser2;
-      }
-      /**
-      Define a language from a parser.
-      */
-      static define(spec) {
-        let data = defineLanguageFacet(spec.languageData);
-        return new LRLanguage(data, spec.parser.configure({
-          props: [languageDataProp.add((type2) => type2.isTop ? data : void 0)]
-        }), spec.name);
-      }
-      /**
-      Create a new instance of this language with a reconfigured
-      version of its parser and optionally a new name.
-      */
-      configure(options, name2) {
-        return new LRLanguage(this.data, this.parser.configure(options), name2 || this.name);
-      }
-      get allowsNesting() {
-        return this.parser.hasWrappers();
-      }
-    }
     function syntaxTree(state2) {
       let field = state2.field(Language.state, false);
       return field ? field.tree : Tree.empty;
@@ -72840,8 +68481,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     }
     let currentContext = null;
     class ParseContext {
-      constructor(parser2, state2, fragments = [], tree, treeLen, viewport, skipped, scheduleOn) {
-        this.parser = parser2;
+      constructor(parser, state2, fragments = [], tree, treeLen, viewport, skipped, scheduleOn) {
+        this.parser = parser;
         this.state = state2;
         this.fragments = fragments;
         this.tree = tree;
@@ -72855,8 +68496,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       /**
       @internal
       */
-      static create(parser2, state2, viewport) {
-        return new ParseContext(parser2, state2, [], Tree.empty, 0, viewport, [], null);
+      static create(parser, state2, viewport) {
+        return new ParseContext(parser, state2, [], Tree.empty, 0, viewport, [], null);
       }
       startParse() {
         return this.parser.startParse(new DocInput(this.state.doc), this.fragments);
@@ -73004,7 +68645,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         return new class extends Parser$1 {
           createParse(input, fragments, ranges) {
             let from2 = ranges[0].from, to2 = ranges[ranges.length - 1].to;
-            let parser2 = {
+            let parser = {
               parsedPos: from2,
               advance() {
                 let cx = currentContext;
@@ -73021,7 +68662,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
               stopAt() {
               }
             };
-            return parser2;
+            return parser;
           }
         }();
       }
@@ -73189,641 +68830,6 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         })
       ]
     });
-    class LanguageSupport {
-      /**
-      Create a language support object.
-      */
-      constructor(language2, support = []) {
-        this.language = language2;
-        this.support = support;
-        this.extension = [language2, support];
-      }
-    }
-    const indentService = /* @__PURE__ */ Facet.define();
-    const indentUnit = /* @__PURE__ */ Facet.define({
-      combine: (values) => {
-        if (!values.length)
-          return "  ";
-        let unit = values[0];
-        if (!unit || /\S/.test(unit) || Array.from(unit).some((e2) => e2 != unit[0]))
-          throw new Error("Invalid indent unit: " + JSON.stringify(values[0]));
-        return unit;
-      }
-    });
-    function getIndentUnit(state2) {
-      let unit = state2.facet(indentUnit);
-      return unit.charCodeAt(0) == 9 ? state2.tabSize * unit.length : unit.length;
-    }
-    function indentString(state2, cols) {
-      let result = "", ts = state2.tabSize, ch = state2.facet(indentUnit)[0];
-      if (ch == "	") {
-        while (cols >= ts) {
-          result += "	";
-          cols -= ts;
-        }
-        ch = " ";
-      }
-      for (let i2 = 0; i2 < cols; i2++)
-        result += ch;
-      return result;
-    }
-    function getIndentation(context, pos) {
-      if (context instanceof EditorState)
-        context = new IndentContext(context);
-      for (let service of context.state.facet(indentService)) {
-        let result = service(context, pos);
-        if (result !== void 0)
-          return result;
-      }
-      let tree = syntaxTree(context.state);
-      return tree.length >= pos ? syntaxIndentation(context, tree, pos) : null;
-    }
-    class IndentContext {
-      /**
-      Create an indent context.
-      */
-      constructor(state2, options = {}) {
-        this.state = state2;
-        this.options = options;
-        this.unit = getIndentUnit(state2);
-      }
-      /**
-      Get a description of the line at the given position, taking
-      [simulated line
-      breaks](https://codemirror.net/6/docs/ref/#language.IndentContext.constructor^options.simulateBreak)
-      into account. If there is such a break at `pos`, the `bias`
-      argument determines whether the part of the line line before or
-      after the break is used.
-      */
-      lineAt(pos, bias = 1) {
-        let line = this.state.doc.lineAt(pos);
-        let { simulateBreak, simulateDoubleBreak } = this.options;
-        if (simulateBreak != null && simulateBreak >= line.from && simulateBreak <= line.to) {
-          if (simulateDoubleBreak && simulateBreak == pos)
-            return { text: "", from: pos };
-          else if (bias < 0 ? simulateBreak < pos : simulateBreak <= pos)
-            return { text: line.text.slice(simulateBreak - line.from), from: simulateBreak };
-          else
-            return { text: line.text.slice(0, simulateBreak - line.from), from: line.from };
-        }
-        return line;
-      }
-      /**
-      Get the text directly after `pos`, either the entire line
-      or the next 100 characters, whichever is shorter.
-      */
-      textAfterPos(pos, bias = 1) {
-        if (this.options.simulateDoubleBreak && pos == this.options.simulateBreak)
-          return "";
-        let { text: text2, from: from2 } = this.lineAt(pos, bias);
-        return text2.slice(pos - from2, Math.min(text2.length, pos + 100 - from2));
-      }
-      /**
-      Find the column for the given position.
-      */
-      column(pos, bias = 1) {
-        let { text: text2, from: from2 } = this.lineAt(pos, bias);
-        let result = this.countColumn(text2, pos - from2);
-        let override = this.options.overrideIndentation ? this.options.overrideIndentation(from2) : -1;
-        if (override > -1)
-          result += override - this.countColumn(text2, text2.search(/\S|$/));
-        return result;
-      }
-      /**
-      Find the column position (taking tabs into account) of the given
-      position in the given string.
-      */
-      countColumn(line, pos = line.length) {
-        return countColumn(line, this.state.tabSize, pos);
-      }
-      /**
-      Find the indentation column of the line at the given point.
-      */
-      lineIndent(pos, bias = 1) {
-        let { text: text2, from: from2 } = this.lineAt(pos, bias);
-        let override = this.options.overrideIndentation;
-        if (override) {
-          let overriden = override(from2);
-          if (overriden > -1)
-            return overriden;
-        }
-        return this.countColumn(text2, text2.search(/\S|$/));
-      }
-      /**
-      Returns the [simulated line
-      break](https://codemirror.net/6/docs/ref/#language.IndentContext.constructor^options.simulateBreak)
-      for this context, if any.
-      */
-      get simulatedBreak() {
-        return this.options.simulateBreak || null;
-      }
-    }
-    const indentNodeProp = /* @__PURE__ */ new NodeProp();
-    function syntaxIndentation(cx, ast, pos) {
-      let stack = ast.resolveStack(pos);
-      let inner = ast.resolveInner(pos, -1).resolve(pos, 0).enterUnfinishedNodesBefore(pos);
-      if (inner != stack.node) {
-        let add2 = [];
-        for (let cur2 = inner; cur2 && !(cur2.from < stack.node.from || cur2.to > stack.node.to || cur2.from == stack.node.from && cur2.type == stack.node.type); cur2 = cur2.parent)
-          add2.push(cur2);
-        for (let i2 = add2.length - 1; i2 >= 0; i2--)
-          stack = { node: add2[i2], next: stack };
-      }
-      return indentFor(stack, cx, pos);
-    }
-    function indentFor(stack, cx, pos) {
-      for (let cur2 = stack; cur2; cur2 = cur2.next) {
-        let strategy = indentStrategy(cur2.node);
-        if (strategy)
-          return strategy(TreeIndentContext.create(cx, pos, cur2));
-      }
-      return 0;
-    }
-    function ignoreClosed(cx) {
-      return cx.pos == cx.options.simulateBreak && cx.options.simulateDoubleBreak;
-    }
-    function indentStrategy(tree) {
-      let strategy = tree.type.prop(indentNodeProp);
-      if (strategy)
-        return strategy;
-      let first = tree.firstChild, close;
-      if (first && (close = first.type.prop(NodeProp.closedBy))) {
-        let last = tree.lastChild, closed = last && close.indexOf(last.name) > -1;
-        return (cx) => delimitedStrategy(cx, true, 1, void 0, closed && !ignoreClosed(cx) ? last.from : void 0);
-      }
-      return tree.parent == null ? topIndent : null;
-    }
-    function topIndent() {
-      return 0;
-    }
-    class TreeIndentContext extends IndentContext {
-      constructor(base2, pos, context) {
-        super(base2.state, base2.options);
-        this.base = base2;
-        this.pos = pos;
-        this.context = context;
-      }
-      /**
-      The syntax tree node to which the indentation strategy
-      applies.
-      */
-      get node() {
-        return this.context.node;
-      }
-      /**
-      @internal
-      */
-      static create(base2, pos, context) {
-        return new TreeIndentContext(base2, pos, context);
-      }
-      /**
-      Get the text directly after `this.pos`, either the entire line
-      or the next 100 characters, whichever is shorter.
-      */
-      get textAfter() {
-        return this.textAfterPos(this.pos);
-      }
-      /**
-      Get the indentation at the reference line for `this.node`, which
-      is the line on which it starts, unless there is a node that is
-      _not_ a parent of this node covering the start of that line. If
-      so, the line at the start of that node is tried, again skipping
-      on if it is covered by another such node.
-      */
-      get baseIndent() {
-        return this.baseIndentFor(this.node);
-      }
-      /**
-      Get the indentation for the reference line of the given node
-      (see [`baseIndent`](https://codemirror.net/6/docs/ref/#language.TreeIndentContext.baseIndent)).
-      */
-      baseIndentFor(node) {
-        let line = this.state.doc.lineAt(node.from);
-        for (; ; ) {
-          let atBreak = node.resolve(line.from);
-          while (atBreak.parent && atBreak.parent.from == atBreak.from)
-            atBreak = atBreak.parent;
-          if (isParent(atBreak, node))
-            break;
-          line = this.state.doc.lineAt(atBreak.from);
-        }
-        return this.lineIndent(line.from);
-      }
-      /**
-      Continue looking for indentations in the node's parent nodes,
-      and return the result of that.
-      */
-      continue() {
-        return indentFor(this.context.next, this.base, this.pos);
-      }
-    }
-    function isParent(parent, of) {
-      for (let cur2 = of; cur2; cur2 = cur2.parent)
-        if (parent == cur2)
-          return true;
-      return false;
-    }
-    function bracketedAligned(context) {
-      let tree = context.node;
-      let openToken = tree.childAfter(tree.from), last = tree.lastChild;
-      if (!openToken)
-        return null;
-      let sim = context.options.simulateBreak;
-      let openLine = context.state.doc.lineAt(openToken.from);
-      let lineEnd = sim == null || sim <= openLine.from ? openLine.to : Math.min(openLine.to, sim);
-      for (let pos = openToken.to; ; ) {
-        let next2 = tree.childAfter(pos);
-        if (!next2 || next2 == last)
-          return null;
-        if (!next2.type.isSkipped) {
-          if (next2.from >= lineEnd)
-            return null;
-          let space2 = /^ */.exec(openLine.text.slice(openToken.to - openLine.from))[0].length;
-          return { from: openToken.from, to: openToken.to + space2 };
-        }
-        pos = next2.to;
-      }
-    }
-    function delimitedIndent({ closing: closing2, align = true, units = 1 }) {
-      return (context) => delimitedStrategy(context, align, units, closing2);
-    }
-    function delimitedStrategy(context, align, units, closing2, closedAt) {
-      let after = context.textAfter, space2 = after.match(/^\s*/)[0].length;
-      let closed = closing2 && after.slice(space2, space2 + closing2.length) == closing2 || closedAt == context.pos + space2;
-      let aligned = align ? bracketedAligned(context) : null;
-      if (aligned)
-        return closed ? context.column(aligned.from) : context.column(aligned.to);
-      return context.baseIndent + (closed ? 0 : context.unit * units);
-    }
-    const flatIndent = (context) => context.baseIndent;
-    function continuedIndent({ except, units = 1 } = {}) {
-      return (context) => {
-        let matchExcept = except && except.test(context.textAfter);
-        return context.baseIndent + (matchExcept ? 0 : units * context.unit);
-      };
-    }
-    const DontIndentBeyond = 200;
-    function indentOnInput() {
-      return EditorState.transactionFilter.of((tr) => {
-        if (!tr.docChanged || !tr.isUserEvent("input.type") && !tr.isUserEvent("input.complete"))
-          return tr;
-        let rules = tr.startState.languageDataAt("indentOnInput", tr.startState.selection.main.head);
-        if (!rules.length)
-          return tr;
-        let doc2 = tr.newDoc, { head } = tr.newSelection.main, line = doc2.lineAt(head);
-        if (head > line.from + DontIndentBeyond)
-          return tr;
-        let lineStart = doc2.sliceString(line.from, head);
-        if (!rules.some((r2) => r2.test(lineStart)))
-          return tr;
-        let { state: state2 } = tr, last = -1, changes = [];
-        for (let { head: head2 } of state2.selection.ranges) {
-          let line2 = state2.doc.lineAt(head2);
-          if (line2.from == last)
-            continue;
-          last = line2.from;
-          let indent2 = getIndentation(state2, line2.from);
-          if (indent2 == null)
-            continue;
-          let cur2 = /^\s*/.exec(line2.text)[0];
-          let norm = indentString(state2, indent2);
-          if (cur2 != norm)
-            changes.push({ from: line2.from, to: line2.from + cur2.length, insert: norm });
-        }
-        return changes.length ? [tr, { changes, sequential: true }] : tr;
-      });
-    }
-    const foldService = /* @__PURE__ */ Facet.define();
-    const foldNodeProp = /* @__PURE__ */ new NodeProp();
-    function foldInside(node) {
-      let first = node.firstChild, last = node.lastChild;
-      return first && first.to < last.from ? { from: first.to, to: last.type.isError ? node.to : last.from } : null;
-    }
-    function syntaxFolding(state2, start, end) {
-      let tree = syntaxTree(state2);
-      if (tree.length < end)
-        return null;
-      let stack = tree.resolveStack(end, 1);
-      let found = null;
-      for (let iter = stack; iter; iter = iter.next) {
-        let cur2 = iter.node;
-        if (cur2.to <= end || cur2.from > end)
-          continue;
-        if (found && cur2.from < start)
-          break;
-        let prop2 = cur2.type.prop(foldNodeProp);
-        if (prop2 && (cur2.to < tree.length - 50 || tree.length == state2.doc.length || !isUnfinished(cur2))) {
-          let value2 = prop2(cur2, state2);
-          if (value2 && value2.from <= end && value2.from >= start && value2.to > end)
-            found = value2;
-        }
-      }
-      return found;
-    }
-    function isUnfinished(node) {
-      let ch = node.lastChild;
-      return ch && ch.to == node.to && ch.type.isError;
-    }
-    function foldable(state2, lineStart, lineEnd) {
-      for (let service of state2.facet(foldService)) {
-        let result = service(state2, lineStart, lineEnd);
-        if (result)
-          return result;
-      }
-      return syntaxFolding(state2, lineStart, lineEnd);
-    }
-    function mapRange(range2, mapping) {
-      let from2 = mapping.mapPos(range2.from, 1), to2 = mapping.mapPos(range2.to, -1);
-      return from2 >= to2 ? void 0 : { from: from2, to: to2 };
-    }
-    const foldEffect = /* @__PURE__ */ StateEffect.define({ map: mapRange });
-    const unfoldEffect = /* @__PURE__ */ StateEffect.define({ map: mapRange });
-    function selectedLines(view) {
-      let lines = [];
-      for (let { head } of view.state.selection.ranges) {
-        if (lines.some((l) => l.from <= head && l.to >= head))
-          continue;
-        lines.push(view.lineBlockAt(head));
-      }
-      return lines;
-    }
-    const foldState = /* @__PURE__ */ StateField.define({
-      create() {
-        return Decoration.none;
-      },
-      update(folded, tr) {
-        folded = folded.map(tr.changes);
-        for (let e2 of tr.effects) {
-          if (e2.is(foldEffect) && !foldExists(folded, e2.value.from, e2.value.to)) {
-            let { preparePlaceholder } = tr.state.facet(foldConfig);
-            let widget = !preparePlaceholder ? foldWidget : Decoration.replace({ widget: new PreparedFoldWidget(preparePlaceholder(tr.state, e2.value)) });
-            folded = folded.update({ add: [widget.range(e2.value.from, e2.value.to)] });
-          } else if (e2.is(unfoldEffect)) {
-            folded = folded.update({
-              filter: (from2, to2) => e2.value.from != from2 || e2.value.to != to2,
-              filterFrom: e2.value.from,
-              filterTo: e2.value.to
-            });
-          }
-        }
-        if (tr.selection) {
-          let onSelection = false, { head } = tr.selection.main;
-          folded.between(head, head, (a2, b) => {
-            if (a2 < head && b > head)
-              onSelection = true;
-          });
-          if (onSelection)
-            folded = folded.update({
-              filterFrom: head,
-              filterTo: head,
-              filter: (a2, b) => b <= head || a2 >= head
-            });
-        }
-        return folded;
-      },
-      provide: (f) => EditorView.decorations.from(f),
-      toJSON(folded, state2) {
-        let ranges = [];
-        folded.between(0, state2.doc.length, (from2, to2) => {
-          ranges.push(from2, to2);
-        });
-        return ranges;
-      },
-      fromJSON(value2) {
-        if (!Array.isArray(value2) || value2.length % 2)
-          throw new RangeError("Invalid JSON for fold state");
-        let ranges = [];
-        for (let i2 = 0; i2 < value2.length; ) {
-          let from2 = value2[i2++], to2 = value2[i2++];
-          if (typeof from2 != "number" || typeof to2 != "number")
-            throw new RangeError("Invalid JSON for fold state");
-          ranges.push(foldWidget.range(from2, to2));
-        }
-        return Decoration.set(ranges, true);
-      }
-    });
-    function findFold(state2, from2, to2) {
-      var _a3;
-      let found = null;
-      (_a3 = state2.field(foldState, false)) === null || _a3 === void 0 ? void 0 : _a3.between(from2, to2, (from3, to3) => {
-        if (!found || found.from > from3)
-          found = { from: from3, to: to3 };
-      });
-      return found;
-    }
-    function foldExists(folded, from2, to2) {
-      let found = false;
-      folded.between(from2, from2, (a2, b) => {
-        if (a2 == from2 && b == to2)
-          found = true;
-      });
-      return found;
-    }
-    function maybeEnable(state2, other) {
-      return state2.field(foldState, false) ? other : other.concat(StateEffect.appendConfig.of(codeFolding()));
-    }
-    const foldCode = (view) => {
-      for (let line of selectedLines(view)) {
-        let range2 = foldable(view.state, line.from, line.to);
-        if (range2) {
-          view.dispatch({ effects: maybeEnable(view.state, [foldEffect.of(range2), announceFold(view, range2)]) });
-          return true;
-        }
-      }
-      return false;
-    };
-    const unfoldCode = (view) => {
-      if (!view.state.field(foldState, false))
-        return false;
-      let effects2 = [];
-      for (let line of selectedLines(view)) {
-        let folded = findFold(view.state, line.from, line.to);
-        if (folded)
-          effects2.push(unfoldEffect.of(folded), announceFold(view, folded, false));
-      }
-      if (effects2.length)
-        view.dispatch({ effects: effects2 });
-      return effects2.length > 0;
-    };
-    function announceFold(view, range2, fold = true) {
-      let lineFrom = view.state.doc.lineAt(range2.from).number, lineTo2 = view.state.doc.lineAt(range2.to).number;
-      return EditorView.announce.of(`${view.state.phrase(fold ? "Folded lines" : "Unfolded lines")} ${lineFrom} ${view.state.phrase("to")} ${lineTo2}.`);
-    }
-    const foldAll = (view) => {
-      let { state: state2 } = view, effects2 = [];
-      for (let pos = 0; pos < state2.doc.length; ) {
-        let line = view.lineBlockAt(pos), range2 = foldable(state2, line.from, line.to);
-        if (range2)
-          effects2.push(foldEffect.of(range2));
-        pos = (range2 ? view.lineBlockAt(range2.to) : line).to + 1;
-      }
-      if (effects2.length)
-        view.dispatch({ effects: maybeEnable(view.state, effects2) });
-      return !!effects2.length;
-    };
-    const unfoldAll = (view) => {
-      let field = view.state.field(foldState, false);
-      if (!field || !field.size)
-        return false;
-      let effects2 = [];
-      field.between(0, view.state.doc.length, (from2, to2) => {
-        effects2.push(unfoldEffect.of({ from: from2, to: to2 }));
-      });
-      view.dispatch({ effects: effects2 });
-      return true;
-    };
-    const foldKeymap = [
-      { key: "Ctrl-Shift-[", mac: "Cmd-Alt-[", run: foldCode },
-      { key: "Ctrl-Shift-]", mac: "Cmd-Alt-]", run: unfoldCode },
-      { key: "Ctrl-Alt-[", run: foldAll },
-      { key: "Ctrl-Alt-]", run: unfoldAll }
-    ];
-    const defaultConfig = {
-      placeholderDOM: null,
-      preparePlaceholder: null,
-      placeholderText: "…"
-    };
-    const foldConfig = /* @__PURE__ */ Facet.define({
-      combine(values) {
-        return combineConfig(values, defaultConfig);
-      }
-    });
-    function codeFolding(config2) {
-      let result = [foldState, baseTheme$1$1];
-      return result;
-    }
-    function widgetToDOM(view, prepared) {
-      let { state: state2 } = view, conf = state2.facet(foldConfig);
-      let onclick = (event2) => {
-        let line = view.lineBlockAt(view.posAtDOM(event2.target));
-        let folded = findFold(view.state, line.from, line.to);
-        if (folded)
-          view.dispatch({ effects: unfoldEffect.of(folded) });
-        event2.preventDefault();
-      };
-      if (conf.placeholderDOM)
-        return conf.placeholderDOM(view, onclick, prepared);
-      let element = document.createElement("span");
-      element.textContent = conf.placeholderText;
-      element.setAttribute("aria-label", state2.phrase("folded code"));
-      element.title = state2.phrase("unfold");
-      element.className = "cm-foldPlaceholder";
-      element.onclick = onclick;
-      return element;
-    }
-    const foldWidget = /* @__PURE__ */ Decoration.replace({ widget: /* @__PURE__ */ new class extends WidgetType {
-      toDOM(view) {
-        return widgetToDOM(view, null);
-      }
-    }() });
-    class PreparedFoldWidget extends WidgetType {
-      constructor(value2) {
-        super();
-        this.value = value2;
-      }
-      eq(other) {
-        return this.value == other.value;
-      }
-      toDOM(view) {
-        return widgetToDOM(view, this.value);
-      }
-    }
-    const foldGutterDefaults = {
-      openText: "⌄",
-      closedText: "›",
-      markerDOM: null,
-      domEventHandlers: {},
-      foldingChanged: () => false
-    };
-    class FoldMarker extends GutterMarker {
-      constructor(config2, open) {
-        super();
-        this.config = config2;
-        this.open = open;
-      }
-      eq(other) {
-        return this.config == other.config && this.open == other.open;
-      }
-      toDOM(view) {
-        if (this.config.markerDOM)
-          return this.config.markerDOM(this.open);
-        let span = document.createElement("span");
-        span.textContent = this.open ? this.config.openText : this.config.closedText;
-        span.title = view.state.phrase(this.open ? "Fold line" : "Unfold line");
-        return span;
-      }
-    }
-    function foldGutter(config2 = {}) {
-      let fullConfig = { ...foldGutterDefaults, ...config2 };
-      let canFold = new FoldMarker(fullConfig, true), canUnfold = new FoldMarker(fullConfig, false);
-      let markers = ViewPlugin.fromClass(class {
-        constructor(view) {
-          this.from = view.viewport.from;
-          this.markers = this.buildMarkers(view);
-        }
-        update(update2) {
-          if (update2.docChanged || update2.viewportChanged || update2.startState.facet(language) != update2.state.facet(language) || update2.startState.field(foldState, false) != update2.state.field(foldState, false) || syntaxTree(update2.startState) != syntaxTree(update2.state) || fullConfig.foldingChanged(update2))
-            this.markers = this.buildMarkers(update2.view);
-        }
-        buildMarkers(view) {
-          let builder = new RangeSetBuilder();
-          for (let line of view.viewportLineBlocks) {
-            let mark = findFold(view.state, line.from, line.to) ? canUnfold : foldable(view.state, line.from, line.to) ? canFold : null;
-            if (mark)
-              builder.add(line.from, line.from, mark);
-          }
-          return builder.finish();
-        }
-      });
-      let { domEventHandlers } = fullConfig;
-      return [
-        markers,
-        gutter({
-          class: "cm-foldGutter",
-          markers(view) {
-            var _a3;
-            return ((_a3 = view.plugin(markers)) === null || _a3 === void 0 ? void 0 : _a3.markers) || RangeSet.empty;
-          },
-          initialSpacer() {
-            return new FoldMarker(fullConfig, false);
-          },
-          domEventHandlers: {
-            ...domEventHandlers,
-            click: (view, line, event2) => {
-              if (domEventHandlers.click && domEventHandlers.click(view, line, event2))
-                return true;
-              let folded = findFold(view.state, line.from, line.to);
-              if (folded) {
-                view.dispatch({ effects: unfoldEffect.of(folded) });
-                return true;
-              }
-              let range2 = foldable(view.state, line.from, line.to);
-              if (range2) {
-                view.dispatch({ effects: foldEffect.of(range2) });
-                return true;
-              }
-              return false;
-            }
-          }
-        }),
-        codeFolding()
-      ];
-    }
-    const baseTheme$1$1 = /* @__PURE__ */ EditorView.baseTheme({
-      ".cm-foldPlaceholder": {
-        backgroundColor: "#eee",
-        border: "1px solid #ddd",
-        color: "#888",
-        borderRadius: ".2em",
-        margin: "0 1px",
-        padding: "0 1px",
-        cursor: "pointer"
-      },
-      ".cm-foldGutter span": {
-        padding: "0 1px",
-        cursor: "pointer"
-      }
-    });
     class HighlightStyle {
       constructor(specs, options) {
         this.specs = specs;
@@ -73881,9 +68887,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           ext.push(EditorView.styleModule.of(highlighter.module));
         themeType = highlighter.themeType;
       }
-      if (options === null || options === void 0 ? void 0 : options.fallback)
-        ext.push(fallbackHighlighter.of(highlighter));
-      else if (themeType)
+      if (themeType)
         ext.push(highlighterFacet.computeN([EditorView.darkTheme], (state2) => {
           return state2.facet(EditorView.darkTheme) == (themeType == "dark") ? [highlighter] : [];
         }));
@@ -73926,220 +68930,6 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     const treeHighlighter = /* @__PURE__ */ Prec.high(/* @__PURE__ */ ViewPlugin.fromClass(TreeHighlighter, {
       decorations: (v) => v.decorations
     }));
-    const defaultHighlightStyle = /* @__PURE__ */ HighlightStyle.define([
-      {
-        tag: tags.meta,
-        color: "#404740"
-      },
-      {
-        tag: tags.link,
-        textDecoration: "underline"
-      },
-      {
-        tag: tags.heading,
-        textDecoration: "underline",
-        fontWeight: "bold"
-      },
-      {
-        tag: tags.emphasis,
-        fontStyle: "italic"
-      },
-      {
-        tag: tags.strong,
-        fontWeight: "bold"
-      },
-      {
-        tag: tags.strikethrough,
-        textDecoration: "line-through"
-      },
-      {
-        tag: tags.keyword,
-        color: "#708"
-      },
-      {
-        tag: [tags.atom, tags.bool, tags.url, tags.contentSeparator, tags.labelName],
-        color: "#219"
-      },
-      {
-        tag: [tags.literal, tags.inserted],
-        color: "#164"
-      },
-      {
-        tag: [tags.string, tags.deleted],
-        color: "#a11"
-      },
-      {
-        tag: [tags.regexp, tags.escape, /* @__PURE__ */ tags.special(tags.string)],
-        color: "#e40"
-      },
-      {
-        tag: /* @__PURE__ */ tags.definition(tags.variableName),
-        color: "#00f"
-      },
-      {
-        tag: /* @__PURE__ */ tags.local(tags.variableName),
-        color: "#30a"
-      },
-      {
-        tag: [tags.typeName, tags.namespace],
-        color: "#085"
-      },
-      {
-        tag: tags.className,
-        color: "#167"
-      },
-      {
-        tag: [/* @__PURE__ */ tags.special(tags.variableName), tags.macroName],
-        color: "#256"
-      },
-      {
-        tag: /* @__PURE__ */ tags.definition(tags.propertyName),
-        color: "#00c"
-      },
-      {
-        tag: tags.comment,
-        color: "#940"
-      },
-      {
-        tag: tags.invalid,
-        color: "#f00"
-      }
-    ]);
-    const baseTheme$4 = /* @__PURE__ */ EditorView.baseTheme({
-      "&.cm-focused .cm-matchingBracket": { backgroundColor: "#328c8252" },
-      "&.cm-focused .cm-nonmatchingBracket": { backgroundColor: "#bb555544" }
-    });
-    const DefaultScanDist = 1e4, DefaultBrackets = "()[]{}";
-    const bracketMatchingConfig = /* @__PURE__ */ Facet.define({
-      combine(configs) {
-        return combineConfig(configs, {
-          afterCursor: true,
-          brackets: DefaultBrackets,
-          maxScanDistance: DefaultScanDist,
-          renderMatch: defaultRenderMatch
-        });
-      }
-    });
-    const matchingMark = /* @__PURE__ */ Decoration.mark({ class: "cm-matchingBracket" }), nonmatchingMark = /* @__PURE__ */ Decoration.mark({ class: "cm-nonmatchingBracket" });
-    function defaultRenderMatch(match2) {
-      let decorations2 = [];
-      let mark = match2.matched ? matchingMark : nonmatchingMark;
-      decorations2.push(mark.range(match2.start.from, match2.start.to));
-      if (match2.end)
-        decorations2.push(mark.range(match2.end.from, match2.end.to));
-      return decorations2;
-    }
-    const bracketMatchingState = /* @__PURE__ */ StateField.define({
-      create() {
-        return Decoration.none;
-      },
-      update(deco, tr) {
-        if (!tr.docChanged && !tr.selection)
-          return deco;
-        let decorations2 = [];
-        let config2 = tr.state.facet(bracketMatchingConfig);
-        for (let range2 of tr.state.selection.ranges) {
-          if (!range2.empty)
-            continue;
-          let match2 = matchBrackets(tr.state, range2.head, -1, config2) || range2.head > 0 && matchBrackets(tr.state, range2.head - 1, 1, config2) || config2.afterCursor && (matchBrackets(tr.state, range2.head, 1, config2) || range2.head < tr.state.doc.length && matchBrackets(tr.state, range2.head + 1, -1, config2));
-          if (match2)
-            decorations2 = decorations2.concat(config2.renderMatch(match2, tr.state));
-        }
-        return Decoration.set(decorations2, true);
-      },
-      provide: (f) => EditorView.decorations.from(f)
-    });
-    const bracketMatchingUnique = [
-      bracketMatchingState,
-      baseTheme$4
-    ];
-    function bracketMatching(config2 = {}) {
-      return [bracketMatchingConfig.of(config2), bracketMatchingUnique];
-    }
-    const bracketMatchingHandle = /* @__PURE__ */ new NodeProp();
-    function matchingNodes(node, dir, brackets) {
-      let byProp = node.prop(dir < 0 ? NodeProp.openedBy : NodeProp.closedBy);
-      if (byProp)
-        return byProp;
-      if (node.name.length == 1) {
-        let index2 = brackets.indexOf(node.name);
-        if (index2 > -1 && index2 % 2 == (dir < 0 ? 1 : 0))
-          return [brackets[index2 + dir]];
-      }
-      return null;
-    }
-    function findHandle(node) {
-      let hasHandle = node.type.prop(bracketMatchingHandle);
-      return hasHandle ? hasHandle(node.node) : node;
-    }
-    function matchBrackets(state2, pos, dir, config2 = {}) {
-      let maxScanDistance = config2.maxScanDistance || DefaultScanDist, brackets = config2.brackets || DefaultBrackets;
-      let tree = syntaxTree(state2), node = tree.resolveInner(pos, dir);
-      for (let cur2 = node; cur2; cur2 = cur2.parent) {
-        let matches = matchingNodes(cur2.type, dir, brackets);
-        if (matches && cur2.from < cur2.to) {
-          let handle = findHandle(cur2);
-          if (handle && (dir > 0 ? pos >= handle.from && pos < handle.to : pos > handle.from && pos <= handle.to))
-            return matchMarkedBrackets(state2, pos, dir, cur2, handle, matches, brackets);
-        }
-      }
-      return matchPlainBrackets(state2, pos, dir, tree, node.type, maxScanDistance, brackets);
-    }
-    function matchMarkedBrackets(_state, _pos, dir, token, handle, matching, brackets) {
-      let parent = token.parent, firstToken = { from: handle.from, to: handle.to };
-      let depth = 0, cursor = parent === null || parent === void 0 ? void 0 : parent.cursor();
-      if (cursor && (dir < 0 ? cursor.childBefore(token.from) : cursor.childAfter(token.to)))
-        do {
-          if (dir < 0 ? cursor.to <= token.from : cursor.from >= token.to) {
-            if (depth == 0 && matching.indexOf(cursor.type.name) > -1 && cursor.from < cursor.to) {
-              let endHandle = findHandle(cursor);
-              return { start: firstToken, end: endHandle ? { from: endHandle.from, to: endHandle.to } : void 0, matched: true };
-            } else if (matchingNodes(cursor.type, dir, brackets)) {
-              depth++;
-            } else if (matchingNodes(cursor.type, -dir, brackets)) {
-              if (depth == 0) {
-                let endHandle = findHandle(cursor);
-                return {
-                  start: firstToken,
-                  end: endHandle && endHandle.from < endHandle.to ? { from: endHandle.from, to: endHandle.to } : void 0,
-                  matched: false
-                };
-              }
-              depth--;
-            }
-          }
-        } while (dir < 0 ? cursor.prevSibling() : cursor.nextSibling());
-      return { start: firstToken, matched: false };
-    }
-    function matchPlainBrackets(state2, pos, dir, tree, tokenType, maxScanDistance, brackets) {
-      let startCh = dir < 0 ? state2.sliceDoc(pos - 1, pos) : state2.sliceDoc(pos, pos + 1);
-      let bracket2 = brackets.indexOf(startCh);
-      if (bracket2 < 0 || bracket2 % 2 == 0 != dir > 0)
-        return null;
-      let startToken = { from: dir < 0 ? pos - 1 : pos, to: dir > 0 ? pos + 1 : pos };
-      let iter = state2.doc.iterRange(pos, dir > 0 ? state2.doc.length : 0), depth = 0;
-      for (let distance = 0; !iter.next().done && distance <= maxScanDistance; ) {
-        let text2 = iter.value;
-        if (dir < 0)
-          distance += text2.length;
-        let basePos = pos + distance * dir;
-        for (let pos2 = dir > 0 ? 0 : text2.length - 1, end = dir > 0 ? text2.length : -1; pos2 != end; pos2 += dir) {
-          let found = brackets.indexOf(text2[pos2]);
-          if (found < 0 || tree.resolveInner(basePos + pos2, 1).type != tokenType)
-            continue;
-          if (found % 2 == 0 == dir > 0) {
-            depth++;
-          } else if (depth == 1) {
-            return { start: startToken, end: { from: basePos + pos2, to: basePos + pos2 + 1 }, matched: found >> 1 == bracket2 >> 1 };
-          } else {
-            depth--;
-          }
-        }
-        if (dir > 0)
-          distance += text2.length;
-      }
-      return iter.done ? { start: startToken, matched: false } : null;
-    }
     const noTokens = /* @__PURE__ */ Object.create(null);
     const typeArray = [NodeType.none];
     const warned = [];
@@ -74206,2081 +68996,6 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     ({
       rtl: /* @__PURE__ */ Decoration.mark({ class: "cm-iso", inclusive: true, attributes: { dir: "rtl" }, bidiIsolate: Direction.RTL }),
       ltr: /* @__PURE__ */ Decoration.mark({ class: "cm-iso", inclusive: true, attributes: { dir: "ltr" }, bidiIsolate: Direction.LTR })
-    });
-    class CompletionContext {
-      /**
-      Create a new completion context. (Mostly useful for testing
-      completion sources—in the editor, the extension will create
-      these for you.)
-      */
-      constructor(state2, pos, explicit, view) {
-        this.state = state2;
-        this.pos = pos;
-        this.explicit = explicit;
-        this.view = view;
-        this.abortListeners = [];
-        this.abortOnDocChange = false;
-      }
-      /**
-      Get the extent, content, and (if there is a token) type of the
-      token before `this.pos`.
-      */
-      tokenBefore(types2) {
-        let token = syntaxTree(this.state).resolveInner(this.pos, -1);
-        while (token && types2.indexOf(token.name) < 0)
-          token = token.parent;
-        return token ? {
-          from: token.from,
-          to: this.pos,
-          text: this.state.sliceDoc(token.from, this.pos),
-          type: token.type
-        } : null;
-      }
-      /**
-      Get the match of the given expression directly before the
-      cursor.
-      */
-      matchBefore(expr) {
-        let line = this.state.doc.lineAt(this.pos);
-        let start = Math.max(line.from, this.pos - 250);
-        let str = line.text.slice(start - line.from, this.pos - line.from);
-        let found = str.search(ensureAnchor(expr, false));
-        return found < 0 ? null : { from: start + found, to: this.pos, text: str.slice(found) };
-      }
-      /**
-      Yields true when the query has been aborted. Can be useful in
-      asynchronous queries to avoid doing work that will be ignored.
-      */
-      get aborted() {
-        return this.abortListeners == null;
-      }
-      /**
-      Allows you to register abort handlers, which will be called when
-      the query is
-      [aborted](https://codemirror.net/6/docs/ref/#autocomplete.CompletionContext.aborted).
-      
-      By default, running queries will not be aborted for regular
-      typing or backspacing, on the assumption that they are likely to
-      return a result with a
-      [`validFor`](https://codemirror.net/6/docs/ref/#autocomplete.CompletionResult.validFor) field that
-      allows the result to be used after all. Passing `onDocChange:
-      true` will cause this query to be aborted for any document
-      change.
-      */
-      addEventListener(type2, listener, options) {
-        if (type2 == "abort" && this.abortListeners) {
-          this.abortListeners.push(listener);
-          if (options && options.onDocChange)
-            this.abortOnDocChange = true;
-        }
-      }
-    }
-    function toSet(chars) {
-      let flat = Object.keys(chars).join("");
-      let words = /\w/.test(flat);
-      if (words)
-        flat = flat.replace(/\w/g, "");
-      return `[${words ? "\\w" : ""}${flat.replace(/[^\w\s]/g, "\\$&")}]`;
-    }
-    function prefixMatch(options) {
-      let first = /* @__PURE__ */ Object.create(null), rest = /* @__PURE__ */ Object.create(null);
-      for (let { label } of options) {
-        first[label[0]] = true;
-        for (let i2 = 1; i2 < label.length; i2++)
-          rest[label[i2]] = true;
-      }
-      let source2 = toSet(first) + toSet(rest) + "*$";
-      return [new RegExp("^" + source2), new RegExp(source2)];
-    }
-    function completeFromList(list) {
-      let options = list.map((o2) => typeof o2 == "string" ? { label: o2 } : o2);
-      let [validFor, match2] = options.every((o2) => /^\w+$/.test(o2.label)) ? [/\w*$/, /\w+$/] : prefixMatch(options);
-      return (context) => {
-        let token = context.matchBefore(match2);
-        return token || context.explicit ? { from: token ? token.from : context.pos, options, validFor } : null;
-      };
-    }
-    function ifNotIn(nodes, source2) {
-      return (context) => {
-        for (let pos = syntaxTree(context.state).resolveInner(context.pos, -1); pos; pos = pos.parent) {
-          if (nodes.indexOf(pos.name) > -1)
-            return null;
-          if (pos.type.isTop)
-            break;
-        }
-        return source2(context);
-      };
-    }
-    class Option {
-      constructor(completion, source2, match2, score2) {
-        this.completion = completion;
-        this.source = source2;
-        this.match = match2;
-        this.score = score2;
-      }
-    }
-    function cur(state2) {
-      return state2.selection.main.from;
-    }
-    function ensureAnchor(expr, start) {
-      var _a3;
-      let { source: source2 } = expr;
-      let addStart = start && source2[0] != "^", addEnd = source2[source2.length - 1] != "$";
-      if (!addStart && !addEnd)
-        return expr;
-      return new RegExp(`${addStart ? "^" : ""}(?:${source2})${addEnd ? "$" : ""}`, (_a3 = expr.flags) !== null && _a3 !== void 0 ? _a3 : expr.ignoreCase ? "i" : "");
-    }
-    const pickedCompletion = /* @__PURE__ */ Annotation.define();
-    function insertCompletionText(state2, text2, from2, to2) {
-      let { main } = state2.selection, fromOff = from2 - main.from, toOff = to2 - main.from;
-      return Object.assign(Object.assign({}, state2.changeByRange((range2) => {
-        if (range2 != main && from2 != to2 && state2.sliceDoc(range2.from + fromOff, range2.from + toOff) != state2.sliceDoc(from2, to2))
-          return { range: range2 };
-        let lines = state2.toText(text2);
-        return {
-          changes: { from: range2.from + fromOff, to: to2 == main.from ? range2.to : range2.from + toOff, insert: lines },
-          range: EditorSelection.cursor(range2.from + fromOff + lines.length)
-        };
-      })), { scrollIntoView: true, userEvent: "input.complete" });
-    }
-    const SourceCache = /* @__PURE__ */ new WeakMap();
-    function asSource(source2) {
-      if (!Array.isArray(source2))
-        return source2;
-      let known = SourceCache.get(source2);
-      if (!known)
-        SourceCache.set(source2, known = completeFromList(source2));
-      return known;
-    }
-    const startCompletionEffect = /* @__PURE__ */ StateEffect.define();
-    const closeCompletionEffect = /* @__PURE__ */ StateEffect.define();
-    class FuzzyMatcher {
-      constructor(pattern) {
-        this.pattern = pattern;
-        this.chars = [];
-        this.folded = [];
-        this.any = [];
-        this.precise = [];
-        this.byWord = [];
-        this.score = 0;
-        this.matched = [];
-        for (let p = 0; p < pattern.length; ) {
-          let char = codePointAt(pattern, p), size = codePointSize(char);
-          this.chars.push(char);
-          let part = pattern.slice(p, p + size), upper = part.toUpperCase();
-          this.folded.push(codePointAt(upper == part ? part.toLowerCase() : upper, 0));
-          p += size;
-        }
-        this.astral = pattern.length != this.chars.length;
-      }
-      ret(score2, matched) {
-        this.score = score2;
-        this.matched = matched;
-        return this;
-      }
-      // Matches a given word (completion) against the pattern (input).
-      // Will return a boolean indicating whether there was a match and,
-      // on success, set `this.score` to the score, `this.matched` to an
-      // array of `from, to` pairs indicating the matched parts of `word`.
-      //
-      // The score is a number that is more negative the worse the match
-      // is. See `Penalty` above.
-      match(word) {
-        if (this.pattern.length == 0)
-          return this.ret(-100, []);
-        if (word.length < this.pattern.length)
-          return null;
-        let { chars, folded, any, precise, byWord } = this;
-        if (chars.length == 1) {
-          let first = codePointAt(word, 0), firstSize = codePointSize(first);
-          let score2 = firstSize == word.length ? 0 : -100;
-          if (first == chars[0]) ;
-          else if (first == folded[0])
-            score2 += -200;
-          else
-            return null;
-          return this.ret(score2, [0, firstSize]);
-        }
-        let direct = word.indexOf(this.pattern);
-        if (direct == 0)
-          return this.ret(word.length == this.pattern.length ? 0 : -100, [0, this.pattern.length]);
-        let len = chars.length, anyTo = 0;
-        if (direct < 0) {
-          for (let i2 = 0, e2 = Math.min(word.length, 200); i2 < e2 && anyTo < len; ) {
-            let next2 = codePointAt(word, i2);
-            if (next2 == chars[anyTo] || next2 == folded[anyTo])
-              any[anyTo++] = i2;
-            i2 += codePointSize(next2);
-          }
-          if (anyTo < len)
-            return null;
-        }
-        let preciseTo = 0;
-        let byWordTo = 0, byWordFolded = false;
-        let adjacentTo = 0, adjacentStart = -1, adjacentEnd = -1;
-        let hasLower = /[a-z]/.test(word), wordAdjacent = true;
-        for (let i2 = 0, e2 = Math.min(word.length, 200), prevType = 0; i2 < e2 && byWordTo < len; ) {
-          let next2 = codePointAt(word, i2);
-          if (direct < 0) {
-            if (preciseTo < len && next2 == chars[preciseTo])
-              precise[preciseTo++] = i2;
-            if (adjacentTo < len) {
-              if (next2 == chars[adjacentTo] || next2 == folded[adjacentTo]) {
-                if (adjacentTo == 0)
-                  adjacentStart = i2;
-                adjacentEnd = i2 + 1;
-                adjacentTo++;
-              } else {
-                adjacentTo = 0;
-              }
-            }
-          }
-          let ch, type2 = next2 < 255 ? next2 >= 48 && next2 <= 57 || next2 >= 97 && next2 <= 122 ? 2 : next2 >= 65 && next2 <= 90 ? 1 : 0 : (ch = fromCodePoint(next2)) != ch.toLowerCase() ? 1 : ch != ch.toUpperCase() ? 2 : 0;
-          if (!i2 || type2 == 1 && hasLower || prevType == 0 && type2 != 0) {
-            if (chars[byWordTo] == next2 || folded[byWordTo] == next2 && (byWordFolded = true))
-              byWord[byWordTo++] = i2;
-            else if (byWord.length)
-              wordAdjacent = false;
-          }
-          prevType = type2;
-          i2 += codePointSize(next2);
-        }
-        if (byWordTo == len && byWord[0] == 0 && wordAdjacent)
-          return this.result(-100 + (byWordFolded ? -200 : 0), byWord, word);
-        if (adjacentTo == len && adjacentStart == 0)
-          return this.ret(-200 - word.length + (adjacentEnd == word.length ? 0 : -100), [0, adjacentEnd]);
-        if (direct > -1)
-          return this.ret(-700 - word.length, [direct, direct + this.pattern.length]);
-        if (adjacentTo == len)
-          return this.ret(-200 + -700 - word.length, [adjacentStart, adjacentEnd]);
-        if (byWordTo == len)
-          return this.result(-100 + (byWordFolded ? -200 : 0) + -700 + (wordAdjacent ? 0 : -1100), byWord, word);
-        return chars.length == 2 ? null : this.result((any[0] ? -700 : 0) + -200 + -1100, any, word);
-      }
-      result(score2, positions2, word) {
-        let result = [], i2 = 0;
-        for (let pos of positions2) {
-          let to2 = pos + (this.astral ? codePointSize(codePointAt(word, pos)) : 1);
-          if (i2 && result[i2 - 1] == pos)
-            result[i2 - 1] = to2;
-          else {
-            result[i2++] = pos;
-            result[i2++] = to2;
-          }
-        }
-        return this.ret(score2 - word.length, result);
-      }
-    }
-    class StrictMatcher {
-      constructor(pattern) {
-        this.pattern = pattern;
-        this.matched = [];
-        this.score = 0;
-        this.folded = pattern.toLowerCase();
-      }
-      match(word) {
-        if (word.length < this.pattern.length)
-          return null;
-        let start = word.slice(0, this.pattern.length);
-        let match2 = start == this.pattern ? 0 : start.toLowerCase() == this.folded ? -200 : null;
-        if (match2 == null)
-          return null;
-        this.matched = [0, start.length];
-        this.score = match2 + (word.length == this.pattern.length ? 0 : -100);
-        return this;
-      }
-    }
-    const completionConfig = /* @__PURE__ */ Facet.define({
-      combine(configs) {
-        return combineConfig(configs, {
-          activateOnTyping: true,
-          activateOnCompletion: () => false,
-          activateOnTypingDelay: 100,
-          selectOnOpen: true,
-          override: null,
-          closeOnBlur: true,
-          maxRenderedOptions: 100,
-          defaultKeymap: true,
-          tooltipClass: () => "",
-          optionClass: () => "",
-          aboveCursor: false,
-          icons: true,
-          addToOptions: [],
-          positionInfo: defaultPositionInfo,
-          filterStrict: false,
-          compareCompletions: (a2, b) => a2.label.localeCompare(b.label),
-          interactionDelay: 75,
-          updateSyncTime: 100
-        }, {
-          defaultKeymap: (a2, b) => a2 && b,
-          closeOnBlur: (a2, b) => a2 && b,
-          icons: (a2, b) => a2 && b,
-          tooltipClass: (a2, b) => (c) => joinClass(a2(c), b(c)),
-          optionClass: (a2, b) => (c) => joinClass(a2(c), b(c)),
-          addToOptions: (a2, b) => a2.concat(b),
-          filterStrict: (a2, b) => a2 || b
-        });
-      }
-    });
-    function joinClass(a2, b) {
-      return a2 ? b ? a2 + " " + b : a2 : b;
-    }
-    function defaultPositionInfo(view, list, option, info, space2, tooltip) {
-      let rtl = view.textDirection == Direction.RTL, left = rtl, narrow = false;
-      let side = "top", offset, maxWidth;
-      let spaceLeft = list.left - space2.left, spaceRight = space2.right - list.right;
-      let infoWidth = info.right - info.left, infoHeight = info.bottom - info.top;
-      if (left && spaceLeft < Math.min(infoWidth, spaceRight))
-        left = false;
-      else if (!left && spaceRight < Math.min(infoWidth, spaceLeft))
-        left = true;
-      if (infoWidth <= (left ? spaceLeft : spaceRight)) {
-        offset = Math.max(space2.top, Math.min(option.top, space2.bottom - infoHeight)) - list.top;
-        maxWidth = Math.min(400, left ? spaceLeft : spaceRight);
-      } else {
-        narrow = true;
-        maxWidth = Math.min(
-          400,
-          (rtl ? list.right : space2.right - list.left) - 30
-          /* Info.Margin */
-        );
-        let spaceBelow = space2.bottom - list.bottom;
-        if (spaceBelow >= infoHeight || spaceBelow > list.top) {
-          offset = option.bottom - list.top;
-        } else {
-          side = "bottom";
-          offset = list.bottom - option.top;
-        }
-      }
-      let scaleY = (list.bottom - list.top) / tooltip.offsetHeight;
-      let scaleX = (list.right - list.left) / tooltip.offsetWidth;
-      return {
-        style: `${side}: ${offset / scaleY}px; max-width: ${maxWidth / scaleX}px`,
-        class: "cm-completionInfo-" + (narrow ? rtl ? "left-narrow" : "right-narrow" : left ? "left" : "right")
-      };
-    }
-    function optionContent(config2) {
-      let content2 = config2.addToOptions.slice();
-      if (config2.icons)
-        content2.push({
-          render(completion) {
-            let icon = document.createElement("div");
-            icon.classList.add("cm-completionIcon");
-            if (completion.type)
-              icon.classList.add(...completion.type.split(/\s+/g).map((cls) => "cm-completionIcon-" + cls));
-            icon.setAttribute("aria-hidden", "true");
-            return icon;
-          },
-          position: 20
-        });
-      content2.push({
-        render(completion, _s, _v, match2) {
-          let labelElt = document.createElement("span");
-          labelElt.className = "cm-completionLabel";
-          let label = completion.displayLabel || completion.label, off = 0;
-          for (let j = 0; j < match2.length; ) {
-            let from2 = match2[j++], to2 = match2[j++];
-            if (from2 > off)
-              labelElt.appendChild(document.createTextNode(label.slice(off, from2)));
-            let span = labelElt.appendChild(document.createElement("span"));
-            span.appendChild(document.createTextNode(label.slice(from2, to2)));
-            span.className = "cm-completionMatchedText";
-            off = to2;
-          }
-          if (off < label.length)
-            labelElt.appendChild(document.createTextNode(label.slice(off)));
-          return labelElt;
-        },
-        position: 50
-      }, {
-        render(completion) {
-          if (!completion.detail)
-            return null;
-          let detailElt = document.createElement("span");
-          detailElt.className = "cm-completionDetail";
-          detailElt.textContent = completion.detail;
-          return detailElt;
-        },
-        position: 80
-      });
-      return content2.sort((a2, b) => a2.position - b.position).map((a2) => a2.render);
-    }
-    function rangeAroundSelected(total, selected, max) {
-      if (total <= max)
-        return { from: 0, to: total };
-      if (selected < 0)
-        selected = 0;
-      if (selected <= total >> 1) {
-        let off2 = Math.floor(selected / max);
-        return { from: off2 * max, to: (off2 + 1) * max };
-      }
-      let off = Math.floor((total - selected) / max);
-      return { from: total - (off + 1) * max, to: total - off * max };
-    }
-    class CompletionTooltip {
-      constructor(view, stateField, applyCompletion2) {
-        this.view = view;
-        this.stateField = stateField;
-        this.applyCompletion = applyCompletion2;
-        this.info = null;
-        this.infoDestroy = null;
-        this.placeInfoReq = {
-          read: () => this.measureInfo(),
-          write: (pos) => this.placeInfo(pos),
-          key: this
-        };
-        this.space = null;
-        this.currentClass = "";
-        let cState = view.state.field(stateField);
-        let { options, selected } = cState.open;
-        let config2 = view.state.facet(completionConfig);
-        this.optionContent = optionContent(config2);
-        this.optionClass = config2.optionClass;
-        this.tooltipClass = config2.tooltipClass;
-        this.range = rangeAroundSelected(options.length, selected, config2.maxRenderedOptions);
-        this.dom = document.createElement("div");
-        this.dom.className = "cm-tooltip-autocomplete";
-        this.updateTooltipClass(view.state);
-        this.dom.addEventListener("mousedown", (e2) => {
-          let { options: options2 } = view.state.field(stateField).open;
-          for (let dom = e2.target, match2; dom && dom != this.dom; dom = dom.parentNode) {
-            if (dom.nodeName == "LI" && (match2 = /-(\d+)$/.exec(dom.id)) && +match2[1] < options2.length) {
-              this.applyCompletion(view, options2[+match2[1]]);
-              e2.preventDefault();
-              return;
-            }
-          }
-        });
-        this.dom.addEventListener("focusout", (e2) => {
-          let state2 = view.state.field(this.stateField, false);
-          if (state2 && state2.tooltip && view.state.facet(completionConfig).closeOnBlur && e2.relatedTarget != view.contentDOM)
-            view.dispatch({ effects: closeCompletionEffect.of(null) });
-        });
-        this.showOptions(options, cState.id);
-      }
-      mount() {
-        this.updateSel();
-      }
-      showOptions(options, id2) {
-        if (this.list)
-          this.list.remove();
-        this.list = this.dom.appendChild(this.createListBox(options, id2, this.range));
-        this.list.addEventListener("scroll", () => {
-          if (this.info)
-            this.view.requestMeasure(this.placeInfoReq);
-        });
-      }
-      update(update2) {
-        var _a3;
-        let cState = update2.state.field(this.stateField);
-        let prevState = update2.startState.field(this.stateField);
-        this.updateTooltipClass(update2.state);
-        if (cState != prevState) {
-          let { options, selected, disabled } = cState.open;
-          if (!prevState.open || prevState.open.options != options) {
-            this.range = rangeAroundSelected(options.length, selected, update2.state.facet(completionConfig).maxRenderedOptions);
-            this.showOptions(options, cState.id);
-          }
-          this.updateSel();
-          if (disabled != ((_a3 = prevState.open) === null || _a3 === void 0 ? void 0 : _a3.disabled))
-            this.dom.classList.toggle("cm-tooltip-autocomplete-disabled", !!disabled);
-        }
-      }
-      updateTooltipClass(state2) {
-        let cls = this.tooltipClass(state2);
-        if (cls != this.currentClass) {
-          for (let c of this.currentClass.split(" "))
-            if (c)
-              this.dom.classList.remove(c);
-          for (let c of cls.split(" "))
-            if (c)
-              this.dom.classList.add(c);
-          this.currentClass = cls;
-        }
-      }
-      positioned(space2) {
-        this.space = space2;
-        if (this.info)
-          this.view.requestMeasure(this.placeInfoReq);
-      }
-      updateSel() {
-        let cState = this.view.state.field(this.stateField), open = cState.open;
-        if (open.selected > -1 && open.selected < this.range.from || open.selected >= this.range.to) {
-          this.range = rangeAroundSelected(open.options.length, open.selected, this.view.state.facet(completionConfig).maxRenderedOptions);
-          this.showOptions(open.options, cState.id);
-        }
-        if (this.updateSelectedOption(open.selected)) {
-          this.destroyInfo();
-          let { completion } = open.options[open.selected];
-          let { info } = completion;
-          if (!info)
-            return;
-          let infoResult = typeof info === "string" ? document.createTextNode(info) : info(completion);
-          if (!infoResult)
-            return;
-          if ("then" in infoResult) {
-            infoResult.then((obj) => {
-              if (obj && this.view.state.field(this.stateField, false) == cState)
-                this.addInfoPane(obj, completion);
-            }).catch((e2) => logException(this.view.state, e2, "completion info"));
-          } else {
-            this.addInfoPane(infoResult, completion);
-          }
-        }
-      }
-      addInfoPane(content2, completion) {
-        this.destroyInfo();
-        let wrap2 = this.info = document.createElement("div");
-        wrap2.className = "cm-tooltip cm-completionInfo";
-        if (content2.nodeType != null) {
-          wrap2.appendChild(content2);
-          this.infoDestroy = null;
-        } else {
-          let { dom, destroy } = content2;
-          wrap2.appendChild(dom);
-          this.infoDestroy = destroy || null;
-        }
-        this.dom.appendChild(wrap2);
-        this.view.requestMeasure(this.placeInfoReq);
-      }
-      updateSelectedOption(selected) {
-        let set2 = null;
-        for (let opt = this.list.firstChild, i2 = this.range.from; opt; opt = opt.nextSibling, i2++) {
-          if (opt.nodeName != "LI" || !opt.id) {
-            i2--;
-          } else if (i2 == selected) {
-            if (!opt.hasAttribute("aria-selected")) {
-              opt.setAttribute("aria-selected", "true");
-              set2 = opt;
-            }
-          } else {
-            if (opt.hasAttribute("aria-selected"))
-              opt.removeAttribute("aria-selected");
-          }
-        }
-        if (set2)
-          scrollIntoView(this.list, set2);
-        return set2;
-      }
-      measureInfo() {
-        let sel = this.dom.querySelector("[aria-selected]");
-        if (!sel || !this.info)
-          return null;
-        let listRect = this.dom.getBoundingClientRect();
-        let infoRect = this.info.getBoundingClientRect();
-        let selRect = sel.getBoundingClientRect();
-        let space2 = this.space;
-        if (!space2) {
-          let docElt = this.dom.ownerDocument.documentElement;
-          space2 = { left: 0, top: 0, right: docElt.clientWidth, bottom: docElt.clientHeight };
-        }
-        if (selRect.top > Math.min(space2.bottom, listRect.bottom) - 10 || selRect.bottom < Math.max(space2.top, listRect.top) + 10)
-          return null;
-        return this.view.state.facet(completionConfig).positionInfo(this.view, listRect, selRect, infoRect, space2, this.dom);
-      }
-      placeInfo(pos) {
-        if (this.info) {
-          if (pos) {
-            if (pos.style)
-              this.info.style.cssText = pos.style;
-            this.info.className = "cm-tooltip cm-completionInfo " + (pos.class || "");
-          } else {
-            this.info.style.cssText = "top: -1e6px";
-          }
-        }
-      }
-      createListBox(options, id2, range2) {
-        const ul = document.createElement("ul");
-        ul.id = id2;
-        ul.setAttribute("role", "listbox");
-        ul.setAttribute("aria-expanded", "true");
-        ul.setAttribute("aria-label", this.view.state.phrase("Completions"));
-        ul.addEventListener("mousedown", (e2) => {
-          if (e2.target == ul)
-            e2.preventDefault();
-        });
-        let curSection = null;
-        for (let i2 = range2.from; i2 < range2.to; i2++) {
-          let { completion, match: match2 } = options[i2], { section } = completion;
-          if (section) {
-            let name2 = typeof section == "string" ? section : section.name;
-            if (name2 != curSection && (i2 > range2.from || range2.from == 0)) {
-              curSection = name2;
-              if (typeof section != "string" && section.header) {
-                ul.appendChild(section.header(section));
-              } else {
-                let header = ul.appendChild(document.createElement("completion-section"));
-                header.textContent = name2;
-              }
-            }
-          }
-          const li = ul.appendChild(document.createElement("li"));
-          li.id = id2 + "-" + i2;
-          li.setAttribute("role", "option");
-          let cls = this.optionClass(completion);
-          if (cls)
-            li.className = cls;
-          for (let source2 of this.optionContent) {
-            let node = source2(completion, this.view.state, this.view, match2);
-            if (node)
-              li.appendChild(node);
-          }
-        }
-        if (range2.from)
-          ul.classList.add("cm-completionListIncompleteTop");
-        if (range2.to < options.length)
-          ul.classList.add("cm-completionListIncompleteBottom");
-        return ul;
-      }
-      destroyInfo() {
-        if (this.info) {
-          if (this.infoDestroy)
-            this.infoDestroy();
-          this.info.remove();
-          this.info = null;
-        }
-      }
-      destroy() {
-        this.destroyInfo();
-      }
-    }
-    function completionTooltip(stateField, applyCompletion2) {
-      return (view) => new CompletionTooltip(view, stateField, applyCompletion2);
-    }
-    function scrollIntoView(container, element) {
-      let parent = container.getBoundingClientRect();
-      let self2 = element.getBoundingClientRect();
-      let scaleY = parent.height / container.offsetHeight;
-      if (self2.top < parent.top)
-        container.scrollTop -= (parent.top - self2.top) / scaleY;
-      else if (self2.bottom > parent.bottom)
-        container.scrollTop += (self2.bottom - parent.bottom) / scaleY;
-    }
-    function score(option) {
-      return (option.boost || 0) * 100 + (option.apply ? 10 : 0) + (option.info ? 5 : 0) + (option.type ? 1 : 0);
-    }
-    function sortOptions(active, state2) {
-      let options = [];
-      let sections = null;
-      let addOption = (option) => {
-        options.push(option);
-        let { section } = option.completion;
-        if (section) {
-          if (!sections)
-            sections = [];
-          let name2 = typeof section == "string" ? section : section.name;
-          if (!sections.some((s) => s.name == name2))
-            sections.push(typeof section == "string" ? { name: name2 } : section);
-        }
-      };
-      let conf = state2.facet(completionConfig);
-      for (let a2 of active)
-        if (a2.hasResult()) {
-          let getMatch = a2.result.getMatch;
-          if (a2.result.filter === false) {
-            for (let option of a2.result.options) {
-              addOption(new Option(option, a2.source, getMatch ? getMatch(option) : [], 1e9 - options.length));
-            }
-          } else {
-            let pattern = state2.sliceDoc(a2.from, a2.to), match2;
-            let matcher = conf.filterStrict ? new StrictMatcher(pattern) : new FuzzyMatcher(pattern);
-            for (let option of a2.result.options)
-              if (match2 = matcher.match(option.label)) {
-                let matched = !option.displayLabel ? match2.matched : getMatch ? getMatch(option, match2.matched) : [];
-                addOption(new Option(option, a2.source, matched, match2.score + (option.boost || 0)));
-              }
-          }
-        }
-      if (sections) {
-        let sectionOrder = /* @__PURE__ */ Object.create(null), pos = 0;
-        let cmp = (a2, b) => {
-          var _a3, _b2;
-          return ((_a3 = a2.rank) !== null && _a3 !== void 0 ? _a3 : 1e9) - ((_b2 = b.rank) !== null && _b2 !== void 0 ? _b2 : 1e9) || (a2.name < b.name ? -1 : 1);
-        };
-        for (let s of sections.sort(cmp)) {
-          pos -= 1e5;
-          sectionOrder[s.name] = pos;
-        }
-        for (let option of options) {
-          let { section } = option.completion;
-          if (section)
-            option.score += sectionOrder[typeof section == "string" ? section : section.name];
-        }
-      }
-      let result = [], prev = null;
-      let compare2 = conf.compareCompletions;
-      for (let opt of options.sort((a2, b) => b.score - a2.score || compare2(a2.completion, b.completion))) {
-        let cur2 = opt.completion;
-        if (!prev || prev.label != cur2.label || prev.detail != cur2.detail || prev.type != null && cur2.type != null && prev.type != cur2.type || prev.apply != cur2.apply || prev.boost != cur2.boost)
-          result.push(opt);
-        else if (score(opt.completion) > score(prev))
-          result[result.length - 1] = opt;
-        prev = opt.completion;
-      }
-      return result;
-    }
-    class CompletionDialog {
-      constructor(options, attrs, tooltip, timestamp, selected, disabled) {
-        this.options = options;
-        this.attrs = attrs;
-        this.tooltip = tooltip;
-        this.timestamp = timestamp;
-        this.selected = selected;
-        this.disabled = disabled;
-      }
-      setSelected(selected, id2) {
-        return selected == this.selected || selected >= this.options.length ? this : new CompletionDialog(this.options, makeAttrs(id2, selected), this.tooltip, this.timestamp, selected, this.disabled);
-      }
-      static build(active, state2, id2, prev, conf, didSetActive) {
-        if (prev && !didSetActive && active.some((s) => s.isPending))
-          return prev.setDisabled();
-        let options = sortOptions(active, state2);
-        if (!options.length)
-          return prev && active.some((a2) => a2.isPending) ? prev.setDisabled() : null;
-        let selected = state2.facet(completionConfig).selectOnOpen ? 0 : -1;
-        if (prev && prev.selected != selected && prev.selected != -1) {
-          let selectedValue = prev.options[prev.selected].completion;
-          for (let i2 = 0; i2 < options.length; i2++)
-            if (options[i2].completion == selectedValue) {
-              selected = i2;
-              break;
-            }
-        }
-        return new CompletionDialog(options, makeAttrs(id2, selected), {
-          pos: active.reduce((a2, b) => b.hasResult() ? Math.min(a2, b.from) : a2, 1e8),
-          create: createTooltip,
-          above: conf.aboveCursor
-        }, prev ? prev.timestamp : Date.now(), selected, false);
-      }
-      map(changes) {
-        return new CompletionDialog(this.options, this.attrs, Object.assign(Object.assign({}, this.tooltip), { pos: changes.mapPos(this.tooltip.pos) }), this.timestamp, this.selected, this.disabled);
-      }
-      setDisabled() {
-        return new CompletionDialog(this.options, this.attrs, this.tooltip, this.timestamp, this.selected, true);
-      }
-    }
-    class CompletionState {
-      constructor(active, id2, open) {
-        this.active = active;
-        this.id = id2;
-        this.open = open;
-      }
-      static start() {
-        return new CompletionState(none$1, "cm-ac-" + Math.floor(Math.random() * 2e6).toString(36), null);
-      }
-      update(tr) {
-        let { state: state2 } = tr, conf = state2.facet(completionConfig);
-        let sources = conf.override || state2.languageDataAt("autocomplete", cur(state2)).map(asSource);
-        let active = sources.map((source2) => {
-          let value2 = this.active.find((s) => s.source == source2) || new ActiveSource(
-            source2,
-            this.active.some(
-              (a2) => a2.state != 0
-              /* State.Inactive */
-            ) ? 1 : 0
-            /* State.Inactive */
-          );
-          return value2.update(tr, conf);
-        });
-        if (active.length == this.active.length && active.every((a2, i2) => a2 == this.active[i2]))
-          active = this.active;
-        let open = this.open, didSet = tr.effects.some((e2) => e2.is(setActiveEffect));
-        if (open && tr.docChanged)
-          open = open.map(tr.changes);
-        if (tr.selection || active.some((a2) => a2.hasResult() && tr.changes.touchesRange(a2.from, a2.to)) || !sameResults(active, this.active) || didSet)
-          open = CompletionDialog.build(active, state2, this.id, open, conf, didSet);
-        else if (open && open.disabled && !active.some((a2) => a2.isPending))
-          open = null;
-        if (!open && active.every((a2) => !a2.isPending) && active.some((a2) => a2.hasResult()))
-          active = active.map((a2) => a2.hasResult() ? new ActiveSource(
-            a2.source,
-            0
-            /* State.Inactive */
-          ) : a2);
-        for (let effect2 of tr.effects)
-          if (effect2.is(setSelectedEffect))
-            open = open && open.setSelected(effect2.value, this.id);
-        return active == this.active && open == this.open ? this : new CompletionState(active, this.id, open);
-      }
-      get tooltip() {
-        return this.open ? this.open.tooltip : null;
-      }
-      get attrs() {
-        return this.open ? this.open.attrs : this.active.length ? baseAttrs : noAttrs;
-      }
-    }
-    function sameResults(a2, b) {
-      if (a2 == b)
-        return true;
-      for (let iA = 0, iB = 0; ; ) {
-        while (iA < a2.length && !a2[iA].hasResult())
-          iA++;
-        while (iB < b.length && !b[iB].hasResult())
-          iB++;
-        let endA = iA == a2.length, endB = iB == b.length;
-        if (endA || endB)
-          return endA == endB;
-        if (a2[iA++].result != b[iB++].result)
-          return false;
-      }
-    }
-    const baseAttrs = {
-      "aria-autocomplete": "list"
-    };
-    const noAttrs = {};
-    function makeAttrs(id2, selected) {
-      let result = {
-        "aria-autocomplete": "list",
-        "aria-haspopup": "listbox",
-        "aria-controls": id2
-      };
-      if (selected > -1)
-        result["aria-activedescendant"] = id2 + "-" + selected;
-      return result;
-    }
-    const none$1 = [];
-    function getUpdateType(tr, conf) {
-      if (tr.isUserEvent("input.complete")) {
-        let completion = tr.annotation(pickedCompletion);
-        if (completion && conf.activateOnCompletion(completion))
-          return 4 | 8;
-      }
-      let typing = tr.isUserEvent("input.type");
-      return typing && conf.activateOnTyping ? 4 | 1 : typing ? 1 : tr.isUserEvent("delete.backward") ? 2 : tr.selection ? 8 : tr.docChanged ? 16 : 0;
-    }
-    class ActiveSource {
-      constructor(source2, state2, explicit = false) {
-        this.source = source2;
-        this.state = state2;
-        this.explicit = explicit;
-      }
-      hasResult() {
-        return false;
-      }
-      get isPending() {
-        return this.state == 1;
-      }
-      update(tr, conf) {
-        let type2 = getUpdateType(tr, conf), value2 = this;
-        if (type2 & 8 || type2 & 16 && this.touches(tr))
-          value2 = new ActiveSource(
-            value2.source,
-            0
-            /* State.Inactive */
-          );
-        if (type2 & 4 && value2.state == 0)
-          value2 = new ActiveSource(
-            this.source,
-            1
-            /* State.Pending */
-          );
-        value2 = value2.updateFor(tr, type2);
-        for (let effect2 of tr.effects) {
-          if (effect2.is(startCompletionEffect))
-            value2 = new ActiveSource(value2.source, 1, effect2.value);
-          else if (effect2.is(closeCompletionEffect))
-            value2 = new ActiveSource(
-              value2.source,
-              0
-              /* State.Inactive */
-            );
-          else if (effect2.is(setActiveEffect)) {
-            for (let active of effect2.value)
-              if (active.source == value2.source)
-                value2 = active;
-          }
-        }
-        return value2;
-      }
-      updateFor(tr, type2) {
-        return this.map(tr.changes);
-      }
-      map(changes) {
-        return this;
-      }
-      touches(tr) {
-        return tr.changes.touchesRange(cur(tr.state));
-      }
-    }
-    class ActiveResult extends ActiveSource {
-      constructor(source2, explicit, limit, result, from2, to2) {
-        super(source2, 3, explicit);
-        this.limit = limit;
-        this.result = result;
-        this.from = from2;
-        this.to = to2;
-      }
-      hasResult() {
-        return true;
-      }
-      updateFor(tr, type2) {
-        var _a3;
-        if (!(type2 & 3))
-          return this.map(tr.changes);
-        let result = this.result;
-        if (result.map && !tr.changes.empty)
-          result = result.map(result, tr.changes);
-        let from2 = tr.changes.mapPos(this.from), to2 = tr.changes.mapPos(this.to, 1);
-        let pos = cur(tr.state);
-        if (pos > to2 || !result || type2 & 2 && (cur(tr.startState) == this.from || pos < this.limit))
-          return new ActiveSource(
-            this.source,
-            type2 & 4 ? 1 : 0
-            /* State.Inactive */
-          );
-        let limit = tr.changes.mapPos(this.limit);
-        if (checkValid(result.validFor, tr.state, from2, to2))
-          return new ActiveResult(this.source, this.explicit, limit, result, from2, to2);
-        if (result.update && (result = result.update(result, from2, to2, new CompletionContext(tr.state, pos, false))))
-          return new ActiveResult(this.source, this.explicit, limit, result, result.from, (_a3 = result.to) !== null && _a3 !== void 0 ? _a3 : cur(tr.state));
-        return new ActiveSource(this.source, 1, this.explicit);
-      }
-      map(mapping) {
-        if (mapping.empty)
-          return this;
-        let result = this.result.map ? this.result.map(this.result, mapping) : this.result;
-        if (!result)
-          return new ActiveSource(
-            this.source,
-            0
-            /* State.Inactive */
-          );
-        return new ActiveResult(this.source, this.explicit, mapping.mapPos(this.limit), this.result, mapping.mapPos(this.from), mapping.mapPos(this.to, 1));
-      }
-      touches(tr) {
-        return tr.changes.touchesRange(this.from, this.to);
-      }
-    }
-    function checkValid(validFor, state2, from2, to2) {
-      if (!validFor)
-        return false;
-      let text2 = state2.sliceDoc(from2, to2);
-      return typeof validFor == "function" ? validFor(text2, from2, to2, state2) : ensureAnchor(validFor, true).test(text2);
-    }
-    const setActiveEffect = /* @__PURE__ */ StateEffect.define({
-      map(sources, mapping) {
-        return sources.map((s) => s.map(mapping));
-      }
-    });
-    const setSelectedEffect = /* @__PURE__ */ StateEffect.define();
-    const completionState = /* @__PURE__ */ StateField.define({
-      create() {
-        return CompletionState.start();
-      },
-      update(value2, tr) {
-        return value2.update(tr);
-      },
-      provide: (f) => [
-        showTooltip.from(f, (val) => val.tooltip),
-        EditorView.contentAttributes.from(f, (state2) => state2.attrs)
-      ]
-    });
-    function applyCompletion(view, option) {
-      const apply = option.completion.apply || option.completion.label;
-      let result = view.state.field(completionState).active.find((a2) => a2.source == option.source);
-      if (!(result instanceof ActiveResult))
-        return false;
-      if (typeof apply == "string")
-        view.dispatch(Object.assign(Object.assign({}, insertCompletionText(view.state, apply, result.from, result.to)), { annotations: pickedCompletion.of(option.completion) }));
-      else
-        apply(view, option.completion, result.from, result.to);
-      return true;
-    }
-    const createTooltip = /* @__PURE__ */ completionTooltip(completionState, applyCompletion);
-    function moveCompletionSelection(forward, by = "option") {
-      return (view) => {
-        let cState = view.state.field(completionState, false);
-        if (!cState || !cState.open || cState.open.disabled || Date.now() - cState.open.timestamp < view.state.facet(completionConfig).interactionDelay)
-          return false;
-        let step = 1, tooltip;
-        if (by == "page" && (tooltip = getTooltip(view, cState.open.tooltip)))
-          step = Math.max(2, Math.floor(tooltip.dom.offsetHeight / tooltip.dom.querySelector("li").offsetHeight) - 1);
-        let { length } = cState.open.options;
-        let selected = cState.open.selected > -1 ? cState.open.selected + step * (forward ? 1 : -1) : forward ? 0 : length - 1;
-        if (selected < 0)
-          selected = by == "page" ? 0 : length - 1;
-        else if (selected >= length)
-          selected = by == "page" ? length - 1 : 0;
-        view.dispatch({ effects: setSelectedEffect.of(selected) });
-        return true;
-      };
-    }
-    const acceptCompletion = (view) => {
-      let cState = view.state.field(completionState, false);
-      if (view.state.readOnly || !cState || !cState.open || cState.open.selected < 0 || cState.open.disabled || Date.now() - cState.open.timestamp < view.state.facet(completionConfig).interactionDelay)
-        return false;
-      return applyCompletion(view, cState.open.options[cState.open.selected]);
-    };
-    const startCompletion = (view) => {
-      let cState = view.state.field(completionState, false);
-      if (!cState)
-        return false;
-      view.dispatch({ effects: startCompletionEffect.of(true) });
-      return true;
-    };
-    const closeCompletion = (view) => {
-      let cState = view.state.field(completionState, false);
-      if (!cState || !cState.active.some(
-        (a2) => a2.state != 0
-        /* State.Inactive */
-      ))
-        return false;
-      view.dispatch({ effects: closeCompletionEffect.of(null) });
-      return true;
-    };
-    class RunningQuery {
-      constructor(active, context) {
-        this.active = active;
-        this.context = context;
-        this.time = Date.now();
-        this.updates = [];
-        this.done = void 0;
-      }
-    }
-    const MaxUpdateCount = 50, MinAbortTime = 1e3;
-    const completionPlugin = /* @__PURE__ */ ViewPlugin.fromClass(class {
-      constructor(view) {
-        this.view = view;
-        this.debounceUpdate = -1;
-        this.running = [];
-        this.debounceAccept = -1;
-        this.pendingStart = false;
-        this.composing = 0;
-        for (let active of view.state.field(completionState).active)
-          if (active.isPending)
-            this.startQuery(active);
-      }
-      update(update2) {
-        let cState = update2.state.field(completionState);
-        let conf = update2.state.facet(completionConfig);
-        if (!update2.selectionSet && !update2.docChanged && update2.startState.field(completionState) == cState)
-          return;
-        let doesReset = update2.transactions.some((tr) => {
-          let type2 = getUpdateType(tr, conf);
-          return type2 & 8 || (tr.selection || tr.docChanged) && !(type2 & 3);
-        });
-        for (let i2 = 0; i2 < this.running.length; i2++) {
-          let query = this.running[i2];
-          if (doesReset || query.context.abortOnDocChange && update2.docChanged || query.updates.length + update2.transactions.length > MaxUpdateCount && Date.now() - query.time > MinAbortTime) {
-            for (let handler of query.context.abortListeners) {
-              try {
-                handler();
-              } catch (e2) {
-                logException(this.view.state, e2);
-              }
-            }
-            query.context.abortListeners = null;
-            this.running.splice(i2--, 1);
-          } else {
-            query.updates.push(...update2.transactions);
-          }
-        }
-        if (this.debounceUpdate > -1)
-          clearTimeout(this.debounceUpdate);
-        if (update2.transactions.some((tr) => tr.effects.some((e2) => e2.is(startCompletionEffect))))
-          this.pendingStart = true;
-        let delay = this.pendingStart ? 50 : conf.activateOnTypingDelay;
-        this.debounceUpdate = cState.active.some((a2) => a2.isPending && !this.running.some((q) => q.active.source == a2.source)) ? setTimeout(() => this.startUpdate(), delay) : -1;
-        if (this.composing != 0)
-          for (let tr of update2.transactions) {
-            if (tr.isUserEvent("input.type"))
-              this.composing = 2;
-            else if (this.composing == 2 && tr.selection)
-              this.composing = 3;
-          }
-      }
-      startUpdate() {
-        this.debounceUpdate = -1;
-        this.pendingStart = false;
-        let { state: state2 } = this.view, cState = state2.field(completionState);
-        for (let active of cState.active) {
-          if (active.isPending && !this.running.some((r2) => r2.active.source == active.source))
-            this.startQuery(active);
-        }
-        if (this.running.length && cState.open && cState.open.disabled)
-          this.debounceAccept = setTimeout(() => this.accept(), this.view.state.facet(completionConfig).updateSyncTime);
-      }
-      startQuery(active) {
-        let { state: state2 } = this.view, pos = cur(state2);
-        let context = new CompletionContext(state2, pos, active.explicit, this.view);
-        let pending2 = new RunningQuery(active, context);
-        this.running.push(pending2);
-        Promise.resolve(active.source(context)).then((result) => {
-          if (!pending2.context.aborted) {
-            pending2.done = result || null;
-            this.scheduleAccept();
-          }
-        }, (err) => {
-          this.view.dispatch({ effects: closeCompletionEffect.of(null) });
-          logException(this.view.state, err);
-        });
-      }
-      scheduleAccept() {
-        if (this.running.every((q) => q.done !== void 0))
-          this.accept();
-        else if (this.debounceAccept < 0)
-          this.debounceAccept = setTimeout(() => this.accept(), this.view.state.facet(completionConfig).updateSyncTime);
-      }
-      // For each finished query in this.running, try to create a result
-      // or, if appropriate, restart the query.
-      accept() {
-        var _a3;
-        if (this.debounceAccept > -1)
-          clearTimeout(this.debounceAccept);
-        this.debounceAccept = -1;
-        let updated = [];
-        let conf = this.view.state.facet(completionConfig), cState = this.view.state.field(completionState);
-        for (let i2 = 0; i2 < this.running.length; i2++) {
-          let query = this.running[i2];
-          if (query.done === void 0)
-            continue;
-          this.running.splice(i2--, 1);
-          if (query.done) {
-            let pos = cur(query.updates.length ? query.updates[0].startState : this.view.state);
-            let limit = Math.min(pos, query.done.from + (query.active.explicit ? 0 : 1));
-            let active = new ActiveResult(query.active.source, query.active.explicit, limit, query.done, query.done.from, (_a3 = query.done.to) !== null && _a3 !== void 0 ? _a3 : pos);
-            for (let tr of query.updates)
-              active = active.update(tr, conf);
-            if (active.hasResult()) {
-              updated.push(active);
-              continue;
-            }
-          }
-          let current = cState.active.find((a2) => a2.source == query.active.source);
-          if (current && current.isPending) {
-            if (query.done == null) {
-              let active = new ActiveSource(
-                query.active.source,
-                0
-                /* State.Inactive */
-              );
-              for (let tr of query.updates)
-                active = active.update(tr, conf);
-              if (!active.isPending)
-                updated.push(active);
-            } else {
-              this.startQuery(current);
-            }
-          }
-        }
-        if (updated.length || cState.open && cState.open.disabled)
-          this.view.dispatch({ effects: setActiveEffect.of(updated) });
-      }
-    }, {
-      eventHandlers: {
-        blur(event2) {
-          let state2 = this.view.state.field(completionState, false);
-          if (state2 && state2.tooltip && this.view.state.facet(completionConfig).closeOnBlur) {
-            let dialog = state2.open && getTooltip(this.view, state2.open.tooltip);
-            if (!dialog || !dialog.dom.contains(event2.relatedTarget))
-              setTimeout(() => this.view.dispatch({ effects: closeCompletionEffect.of(null) }), 10);
-          }
-        },
-        compositionstart() {
-          this.composing = 1;
-        },
-        compositionend() {
-          if (this.composing == 3) {
-            setTimeout(() => this.view.dispatch({ effects: startCompletionEffect.of(false) }), 20);
-          }
-          this.composing = 0;
-        }
-      }
-    });
-    const windows = typeof navigator == "object" && /* @__PURE__ */ /Win/.test(navigator.platform);
-    const commitCharacters = /* @__PURE__ */ Prec.highest(/* @__PURE__ */ EditorView.domEventHandlers({
-      keydown(event2, view) {
-        let field = view.state.field(completionState, false);
-        if (!field || !field.open || field.open.disabled || field.open.selected < 0 || event2.key.length > 1 || event2.ctrlKey && !(windows && event2.altKey) || event2.metaKey)
-          return false;
-        let option = field.open.options[field.open.selected];
-        let result = field.active.find((a2) => a2.source == option.source);
-        let commitChars = option.completion.commitCharacters || result.result.commitCharacters;
-        if (commitChars && commitChars.indexOf(event2.key) > -1)
-          applyCompletion(view, option);
-        return false;
-      }
-    }));
-    const baseTheme$3 = /* @__PURE__ */ EditorView.baseTheme({
-      ".cm-tooltip.cm-tooltip-autocomplete": {
-        "& > ul": {
-          fontFamily: "monospace",
-          whiteSpace: "nowrap",
-          overflow: "hidden auto",
-          maxWidth_fallback: "700px",
-          maxWidth: "min(700px, 95vw)",
-          minWidth: "250px",
-          maxHeight: "10em",
-          height: "100%",
-          listStyle: "none",
-          margin: 0,
-          padding: 0,
-          "& > li, & > completion-section": {
-            padding: "1px 3px",
-            lineHeight: 1.2
-          },
-          "& > li": {
-            overflowX: "hidden",
-            textOverflow: "ellipsis",
-            cursor: "pointer"
-          },
-          "& > completion-section": {
-            display: "list-item",
-            borderBottom: "1px solid silver",
-            paddingLeft: "0.5em",
-            opacity: 0.7
-          }
-        }
-      },
-      "&light .cm-tooltip-autocomplete ul li[aria-selected]": {
-        background: "#17c",
-        color: "white"
-      },
-      "&light .cm-tooltip-autocomplete-disabled ul li[aria-selected]": {
-        background: "#777"
-      },
-      "&dark .cm-tooltip-autocomplete ul li[aria-selected]": {
-        background: "#347",
-        color: "white"
-      },
-      "&dark .cm-tooltip-autocomplete-disabled ul li[aria-selected]": {
-        background: "#444"
-      },
-      ".cm-completionListIncompleteTop:before, .cm-completionListIncompleteBottom:after": {
-        content: '"···"',
-        opacity: 0.5,
-        display: "block",
-        textAlign: "center"
-      },
-      ".cm-tooltip.cm-completionInfo": {
-        position: "absolute",
-        padding: "3px 9px",
-        width: "max-content",
-        maxWidth: `${400}px`,
-        boxSizing: "border-box",
-        whiteSpace: "pre-line"
-      },
-      ".cm-completionInfo.cm-completionInfo-left": { right: "100%" },
-      ".cm-completionInfo.cm-completionInfo-right": { left: "100%" },
-      ".cm-completionInfo.cm-completionInfo-left-narrow": { right: `${30}px` },
-      ".cm-completionInfo.cm-completionInfo-right-narrow": { left: `${30}px` },
-      "&light .cm-snippetField": { backgroundColor: "#00000022" },
-      "&dark .cm-snippetField": { backgroundColor: "#ffffff22" },
-      ".cm-snippetFieldPosition": {
-        verticalAlign: "text-top",
-        width: 0,
-        height: "1.15em",
-        display: "inline-block",
-        margin: "0 -0.7px -.7em",
-        borderLeft: "1.4px dotted #888"
-      },
-      ".cm-completionMatchedText": {
-        textDecoration: "underline"
-      },
-      ".cm-completionDetail": {
-        marginLeft: "0.5em",
-        fontStyle: "italic"
-      },
-      ".cm-completionIcon": {
-        fontSize: "90%",
-        width: ".8em",
-        display: "inline-block",
-        textAlign: "center",
-        paddingRight: ".6em",
-        opacity: "0.6",
-        boxSizing: "content-box"
-      },
-      ".cm-completionIcon-function, .cm-completionIcon-method": {
-        "&:after": { content: "'ƒ'" }
-      },
-      ".cm-completionIcon-class": {
-        "&:after": { content: "'○'" }
-      },
-      ".cm-completionIcon-interface": {
-        "&:after": { content: "'◌'" }
-      },
-      ".cm-completionIcon-variable": {
-        "&:after": { content: "'𝑥'" }
-      },
-      ".cm-completionIcon-constant": {
-        "&:after": { content: "'𝐶'" }
-      },
-      ".cm-completionIcon-type": {
-        "&:after": { content: "'𝑡'" }
-      },
-      ".cm-completionIcon-enum": {
-        "&:after": { content: "'∪'" }
-      },
-      ".cm-completionIcon-property": {
-        "&:after": { content: "'□'" }
-      },
-      ".cm-completionIcon-keyword": {
-        "&:after": { content: "'🔑︎'" }
-        // Disable emoji rendering
-      },
-      ".cm-completionIcon-namespace": {
-        "&:after": { content: "'▢'" }
-      },
-      ".cm-completionIcon-text": {
-        "&:after": { content: "'abc'", fontSize: "50%", verticalAlign: "middle" }
-      }
-    });
-    class FieldPos {
-      constructor(field, line, from2, to2) {
-        this.field = field;
-        this.line = line;
-        this.from = from2;
-        this.to = to2;
-      }
-    }
-    class FieldRange {
-      constructor(field, from2, to2) {
-        this.field = field;
-        this.from = from2;
-        this.to = to2;
-      }
-      map(changes) {
-        let from2 = changes.mapPos(this.from, -1, MapMode.TrackDel);
-        let to2 = changes.mapPos(this.to, 1, MapMode.TrackDel);
-        return from2 == null || to2 == null ? null : new FieldRange(this.field, from2, to2);
-      }
-    }
-    class Snippet {
-      constructor(lines, fieldPositions) {
-        this.lines = lines;
-        this.fieldPositions = fieldPositions;
-      }
-      instantiate(state2, pos) {
-        let text2 = [], lineStart = [pos];
-        let lineObj = state2.doc.lineAt(pos), baseIndent = /^\s*/.exec(lineObj.text)[0];
-        for (let line of this.lines) {
-          if (text2.length) {
-            let indent2 = baseIndent, tabs = /^\t*/.exec(line)[0].length;
-            for (let i2 = 0; i2 < tabs; i2++)
-              indent2 += state2.facet(indentUnit);
-            lineStart.push(pos + indent2.length - tabs);
-            line = indent2 + line.slice(tabs);
-          }
-          text2.push(line);
-          pos += line.length + 1;
-        }
-        let ranges = this.fieldPositions.map((pos2) => new FieldRange(pos2.field, lineStart[pos2.line] + pos2.from, lineStart[pos2.line] + pos2.to));
-        return { text: text2, ranges };
-      }
-      static parse(template) {
-        let fields = [];
-        let lines = [], positions2 = [], m;
-        for (let line of template.split(/\r\n?|\n/)) {
-          while (m = /[#$]\{(?:(\d+)(?::([^}]*))?|((?:\\[{}]|[^}])*))\}/.exec(line)) {
-            let seq = m[1] ? +m[1] : null, rawName = m[2] || m[3] || "", found = -1;
-            let name2 = rawName.replace(/\\[{}]/g, (m2) => m2[1]);
-            for (let i2 = 0; i2 < fields.length; i2++) {
-              if (seq != null ? fields[i2].seq == seq : name2 ? fields[i2].name == name2 : false)
-                found = i2;
-            }
-            if (found < 0) {
-              let i2 = 0;
-              while (i2 < fields.length && (seq == null || fields[i2].seq != null && fields[i2].seq < seq))
-                i2++;
-              fields.splice(i2, 0, { seq, name: name2 });
-              found = i2;
-              for (let pos of positions2)
-                if (pos.field >= found)
-                  pos.field++;
-            }
-            positions2.push(new FieldPos(found, lines.length, m.index, m.index + name2.length));
-            line = line.slice(0, m.index) + rawName + line.slice(m.index + m[0].length);
-          }
-          line = line.replace(/\\([{}])/g, (_, brace, index2) => {
-            for (let pos of positions2)
-              if (pos.line == lines.length && pos.from > index2) {
-                pos.from--;
-                pos.to--;
-              }
-            return brace;
-          });
-          lines.push(line);
-        }
-        return new Snippet(lines, positions2);
-      }
-    }
-    let fieldMarker = /* @__PURE__ */ Decoration.widget({ widget: /* @__PURE__ */ new class extends WidgetType {
-      toDOM() {
-        let span = document.createElement("span");
-        span.className = "cm-snippetFieldPosition";
-        return span;
-      }
-      ignoreEvent() {
-        return false;
-      }
-    }() });
-    let fieldRange = /* @__PURE__ */ Decoration.mark({ class: "cm-snippetField" });
-    class ActiveSnippet {
-      constructor(ranges, active) {
-        this.ranges = ranges;
-        this.active = active;
-        this.deco = Decoration.set(ranges.map((r2) => (r2.from == r2.to ? fieldMarker : fieldRange).range(r2.from, r2.to)));
-      }
-      map(changes) {
-        let ranges = [];
-        for (let r2 of this.ranges) {
-          let mapped = r2.map(changes);
-          if (!mapped)
-            return null;
-          ranges.push(mapped);
-        }
-        return new ActiveSnippet(ranges, this.active);
-      }
-      selectionInsideField(sel) {
-        return sel.ranges.every((range2) => this.ranges.some((r2) => r2.field == this.active && r2.from <= range2.from && r2.to >= range2.to));
-      }
-    }
-    const setActive = /* @__PURE__ */ StateEffect.define({
-      map(value2, changes) {
-        return value2 && value2.map(changes);
-      }
-    });
-    const moveToField = /* @__PURE__ */ StateEffect.define();
-    const snippetState = /* @__PURE__ */ StateField.define({
-      create() {
-        return null;
-      },
-      update(value2, tr) {
-        for (let effect2 of tr.effects) {
-          if (effect2.is(setActive))
-            return effect2.value;
-          if (effect2.is(moveToField) && value2)
-            return new ActiveSnippet(value2.ranges, effect2.value);
-        }
-        if (value2 && tr.docChanged)
-          value2 = value2.map(tr.changes);
-        if (value2 && tr.selection && !value2.selectionInsideField(tr.selection))
-          value2 = null;
-        return value2;
-      },
-      provide: (f) => EditorView.decorations.from(f, (val) => val ? val.deco : Decoration.none)
-    });
-    function fieldSelection(ranges, field) {
-      return EditorSelection.create(ranges.filter((r2) => r2.field == field).map((r2) => EditorSelection.range(r2.from, r2.to)));
-    }
-    function snippet(template) {
-      let snippet2 = Snippet.parse(template);
-      return (editor, completion, from2, to2) => {
-        let { text: text2, ranges } = snippet2.instantiate(editor.state, from2);
-        let { main } = editor.state.selection;
-        let spec = {
-          changes: { from: from2, to: to2 == main.from ? main.to : to2, insert: Text$1.of(text2) },
-          scrollIntoView: true,
-          annotations: completion ? [pickedCompletion.of(completion), Transaction.userEvent.of("input.complete")] : void 0
-        };
-        if (ranges.length)
-          spec.selection = fieldSelection(ranges, 0);
-        if (ranges.some((r2) => r2.field > 0)) {
-          let active = new ActiveSnippet(ranges, 0);
-          let effects2 = spec.effects = [setActive.of(active)];
-          if (editor.state.field(snippetState, false) === void 0)
-            effects2.push(StateEffect.appendConfig.of([snippetState, addSnippetKeymap, snippetPointerHandler, baseTheme$3]));
-        }
-        editor.dispatch(editor.state.update(spec));
-      };
-    }
-    function moveField(dir) {
-      return ({ state: state2, dispatch: dispatch2 }) => {
-        let active = state2.field(snippetState, false);
-        if (!active || dir < 0 && active.active == 0)
-          return false;
-        let next2 = active.active + dir, last = dir > 0 && !active.ranges.some((r2) => r2.field == next2 + dir);
-        dispatch2(state2.update({
-          selection: fieldSelection(active.ranges, next2),
-          effects: setActive.of(last ? null : new ActiveSnippet(active.ranges, next2)),
-          scrollIntoView: true
-        }));
-        return true;
-      };
-    }
-    const clearSnippet = ({ state: state2, dispatch: dispatch2 }) => {
-      let active = state2.field(snippetState, false);
-      if (!active)
-        return false;
-      dispatch2(state2.update({ effects: setActive.of(null) }));
-      return true;
-    };
-    const nextSnippetField = /* @__PURE__ */ moveField(1);
-    const prevSnippetField = /* @__PURE__ */ moveField(-1);
-    const defaultSnippetKeymap = [
-      { key: "Tab", run: nextSnippetField, shift: prevSnippetField },
-      { key: "Escape", run: clearSnippet }
-    ];
-    const snippetKeymap = /* @__PURE__ */ Facet.define({
-      combine(maps) {
-        return maps.length ? maps[0] : defaultSnippetKeymap;
-      }
-    });
-    const addSnippetKeymap = /* @__PURE__ */ Prec.highest(/* @__PURE__ */ keymap.compute([snippetKeymap], (state2) => state2.facet(snippetKeymap)));
-    function snippetCompletion(template, completion) {
-      return Object.assign(Object.assign({}, completion), { apply: snippet(template) });
-    }
-    const snippetPointerHandler = /* @__PURE__ */ EditorView.domEventHandlers({
-      mousedown(event2, view) {
-        let active = view.state.field(snippetState, false), pos;
-        if (!active || (pos = view.posAtCoords({ x: event2.clientX, y: event2.clientY })) == null)
-          return false;
-        let match2 = active.ranges.find((r2) => r2.from <= pos && r2.to >= pos);
-        if (!match2 || match2.field == active.active)
-          return false;
-        view.dispatch({
-          selection: fieldSelection(active.ranges, match2.field),
-          effects: setActive.of(active.ranges.some((r2) => r2.field > match2.field) ? new ActiveSnippet(active.ranges, match2.field) : null),
-          scrollIntoView: true
-        });
-        return true;
-      }
-    });
-    const defaults$1 = {
-      brackets: ["(", "[", "{", "'", '"'],
-      before: ")]}:;>",
-      stringPrefixes: []
-    };
-    const closeBracketEffect = /* @__PURE__ */ StateEffect.define({
-      map(value2, mapping) {
-        let mapped = mapping.mapPos(value2, -1, MapMode.TrackAfter);
-        return mapped == null ? void 0 : mapped;
-      }
-    });
-    const closedBracket = /* @__PURE__ */ new class extends RangeValue {
-    }();
-    closedBracket.startSide = 1;
-    closedBracket.endSide = -1;
-    const bracketState = /* @__PURE__ */ StateField.define({
-      create() {
-        return RangeSet.empty;
-      },
-      update(value2, tr) {
-        value2 = value2.map(tr.changes);
-        if (tr.selection) {
-          let line = tr.state.doc.lineAt(tr.selection.main.head);
-          value2 = value2.update({ filter: (from2) => from2 >= line.from && from2 <= line.to });
-        }
-        for (let effect2 of tr.effects)
-          if (effect2.is(closeBracketEffect))
-            value2 = value2.update({ add: [closedBracket.range(effect2.value, effect2.value + 1)] });
-        return value2;
-      }
-    });
-    function closeBrackets() {
-      return [inputHandler, bracketState];
-    }
-    const definedClosing = "()[]{}<>«»»«［］｛｝";
-    function closing(ch) {
-      for (let i2 = 0; i2 < definedClosing.length; i2 += 2)
-        if (definedClosing.charCodeAt(i2) == ch)
-          return definedClosing.charAt(i2 + 1);
-      return fromCodePoint(ch < 128 ? ch : ch + 1);
-    }
-    function config(state2, pos) {
-      return state2.languageDataAt("closeBrackets", pos)[0] || defaults$1;
-    }
-    const android$1 = typeof navigator == "object" && /* @__PURE__ */ /Android\b/.test(navigator.userAgent);
-    const inputHandler = /* @__PURE__ */ EditorView.inputHandler.of((view, from2, to2, insert2) => {
-      if ((android$1 ? view.composing : view.compositionStarted) || view.state.readOnly)
-        return false;
-      let sel = view.state.selection.main;
-      if (insert2.length > 2 || insert2.length == 2 && codePointSize(codePointAt(insert2, 0)) == 1 || from2 != sel.from || to2 != sel.to)
-        return false;
-      let tr = insertBracket(view.state, insert2);
-      if (!tr)
-        return false;
-      view.dispatch(tr);
-      return true;
-    });
-    const deleteBracketPair = ({ state: state2, dispatch: dispatch2 }) => {
-      if (state2.readOnly)
-        return false;
-      let conf = config(state2, state2.selection.main.head);
-      let tokens = conf.brackets || defaults$1.brackets;
-      let dont = null, changes = state2.changeByRange((range2) => {
-        if (range2.empty) {
-          let before = prevChar(state2.doc, range2.head);
-          for (let token of tokens) {
-            if (token == before && nextChar(state2.doc, range2.head) == closing(codePointAt(token, 0)))
-              return {
-                changes: { from: range2.head - token.length, to: range2.head + token.length },
-                range: EditorSelection.cursor(range2.head - token.length)
-              };
-          }
-        }
-        return { range: dont = range2 };
-      });
-      if (!dont)
-        dispatch2(state2.update(changes, { scrollIntoView: true, userEvent: "delete.backward" }));
-      return !dont;
-    };
-    const closeBracketsKeymap = [
-      { key: "Backspace", run: deleteBracketPair }
-    ];
-    function insertBracket(state2, bracket2) {
-      let conf = config(state2, state2.selection.main.head);
-      let tokens = conf.brackets || defaults$1.brackets;
-      for (let tok of tokens) {
-        let closed = closing(codePointAt(tok, 0));
-        if (bracket2 == tok)
-          return closed == tok ? handleSame(state2, tok, tokens.indexOf(tok + tok + tok) > -1, conf) : handleOpen(state2, tok, closed, conf.before || defaults$1.before);
-        if (bracket2 == closed && closedBracketAt(state2, state2.selection.main.from))
-          return handleClose(state2, tok, closed);
-      }
-      return null;
-    }
-    function closedBracketAt(state2, pos) {
-      let found = false;
-      state2.field(bracketState).between(0, state2.doc.length, (from2) => {
-        if (from2 == pos)
-          found = true;
-      });
-      return found;
-    }
-    function nextChar(doc2, pos) {
-      let next2 = doc2.sliceString(pos, pos + 2);
-      return next2.slice(0, codePointSize(codePointAt(next2, 0)));
-    }
-    function prevChar(doc2, pos) {
-      let prev = doc2.sliceString(pos - 2, pos);
-      return codePointSize(codePointAt(prev, 0)) == prev.length ? prev : prev.slice(1);
-    }
-    function handleOpen(state2, open, close, closeBefore) {
-      let dont = null, changes = state2.changeByRange((range2) => {
-        if (!range2.empty)
-          return {
-            changes: [{ insert: open, from: range2.from }, { insert: close, from: range2.to }],
-            effects: closeBracketEffect.of(range2.to + open.length),
-            range: EditorSelection.range(range2.anchor + open.length, range2.head + open.length)
-          };
-        let next2 = nextChar(state2.doc, range2.head);
-        if (!next2 || /\s/.test(next2) || closeBefore.indexOf(next2) > -1)
-          return {
-            changes: { insert: open + close, from: range2.head },
-            effects: closeBracketEffect.of(range2.head + open.length),
-            range: EditorSelection.cursor(range2.head + open.length)
-          };
-        return { range: dont = range2 };
-      });
-      return dont ? null : state2.update(changes, {
-        scrollIntoView: true,
-        userEvent: "input.type"
-      });
-    }
-    function handleClose(state2, _open, close) {
-      let dont = null, changes = state2.changeByRange((range2) => {
-        if (range2.empty && nextChar(state2.doc, range2.head) == close)
-          return {
-            changes: { from: range2.head, to: range2.head + close.length, insert: close },
-            range: EditorSelection.cursor(range2.head + close.length)
-          };
-        return dont = { range: range2 };
-      });
-      return dont ? null : state2.update(changes, {
-        scrollIntoView: true,
-        userEvent: "input.type"
-      });
-    }
-    function handleSame(state2, token, allowTriple, config2) {
-      let stringPrefixes = config2.stringPrefixes || defaults$1.stringPrefixes;
-      let dont = null, changes = state2.changeByRange((range2) => {
-        if (!range2.empty)
-          return {
-            changes: [{ insert: token, from: range2.from }, { insert: token, from: range2.to }],
-            effects: closeBracketEffect.of(range2.to + token.length),
-            range: EditorSelection.range(range2.anchor + token.length, range2.head + token.length)
-          };
-        let pos = range2.head, next2 = nextChar(state2.doc, pos), start;
-        if (next2 == token) {
-          if (nodeStart(state2, pos)) {
-            return {
-              changes: { insert: token + token, from: pos },
-              effects: closeBracketEffect.of(pos + token.length),
-              range: EditorSelection.cursor(pos + token.length)
-            };
-          } else if (closedBracketAt(state2, pos)) {
-            let isTriple = allowTriple && state2.sliceDoc(pos, pos + token.length * 3) == token + token + token;
-            let content2 = isTriple ? token + token + token : token;
-            return {
-              changes: { from: pos, to: pos + content2.length, insert: content2 },
-              range: EditorSelection.cursor(pos + content2.length)
-            };
-          }
-        } else if (allowTriple && state2.sliceDoc(pos - 2 * token.length, pos) == token + token && (start = canStartStringAt(state2, pos - 2 * token.length, stringPrefixes)) > -1 && nodeStart(state2, start)) {
-          return {
-            changes: { insert: token + token + token + token, from: pos },
-            effects: closeBracketEffect.of(pos + token.length),
-            range: EditorSelection.cursor(pos + token.length)
-          };
-        } else if (state2.charCategorizer(pos)(next2) != CharCategory.Word) {
-          if (canStartStringAt(state2, pos, stringPrefixes) > -1 && !probablyInString(state2, pos, token, stringPrefixes))
-            return {
-              changes: { insert: token + token, from: pos },
-              effects: closeBracketEffect.of(pos + token.length),
-              range: EditorSelection.cursor(pos + token.length)
-            };
-        }
-        return { range: dont = range2 };
-      });
-      return dont ? null : state2.update(changes, {
-        scrollIntoView: true,
-        userEvent: "input.type"
-      });
-    }
-    function nodeStart(state2, pos) {
-      let tree = syntaxTree(state2).resolveInner(pos + 1);
-      return tree.parent && tree.from == pos;
-    }
-    function probablyInString(state2, pos, quoteToken, prefixes) {
-      let node = syntaxTree(state2).resolveInner(pos, -1);
-      let maxPrefix = prefixes.reduce((m, p) => Math.max(m, p.length), 0);
-      for (let i2 = 0; i2 < 5; i2++) {
-        let start = state2.sliceDoc(node.from, Math.min(node.to, node.from + quoteToken.length + maxPrefix));
-        let quotePos = start.indexOf(quoteToken);
-        if (!quotePos || quotePos > -1 && prefixes.indexOf(start.slice(0, quotePos)) > -1) {
-          let first = node.firstChild;
-          while (first && first.from == node.from && first.to - first.from > quoteToken.length + quotePos) {
-            if (state2.sliceDoc(first.to - quoteToken.length, first.to) == quoteToken)
-              return false;
-            first = first.firstChild;
-          }
-          return true;
-        }
-        let parent = node.to == pos && node.parent;
-        if (!parent)
-          break;
-        node = parent;
-      }
-      return false;
-    }
-    function canStartStringAt(state2, pos, prefixes) {
-      let charCat = state2.charCategorizer(pos);
-      if (charCat(state2.sliceDoc(pos - 1, pos)) != CharCategory.Word)
-        return pos;
-      for (let prefix of prefixes) {
-        let start = pos - prefix.length;
-        if (state2.sliceDoc(start, pos) == prefix && charCat(state2.sliceDoc(start - 1, start)) != CharCategory.Word)
-          return start;
-      }
-      return -1;
-    }
-    function autocompletion(config2 = {}) {
-      return [
-        commitCharacters,
-        completionState,
-        completionConfig.of(config2),
-        completionPlugin,
-        completionKeymapExt,
-        baseTheme$3
-      ];
-    }
-    const completionKeymap = [
-      { key: "Ctrl-Space", run: startCompletion },
-      { mac: "Alt-`", run: startCompletion },
-      { key: "Escape", run: closeCompletion },
-      { key: "ArrowDown", run: /* @__PURE__ */ moveCompletionSelection(true) },
-      { key: "ArrowUp", run: /* @__PURE__ */ moveCompletionSelection(false) },
-      { key: "PageDown", run: /* @__PURE__ */ moveCompletionSelection(true, "page") },
-      { key: "PageUp", run: /* @__PURE__ */ moveCompletionSelection(false, "page") },
-      { key: "Enter", run: acceptCompletion }
-    ];
-    const completionKeymapExt = /* @__PURE__ */ Prec.highest(/* @__PURE__ */ keymap.computeN([completionConfig], (state2) => state2.facet(completionConfig).defaultKeymap ? [completionKeymap] : []));
-    const snippets = [
-      /* @__PURE__ */ snippetCompletion("function ${name}(${params}) {\n	${}\n}", {
-        label: "function",
-        detail: "definition",
-        type: "keyword"
-      }),
-      /* @__PURE__ */ snippetCompletion("for (let ${index} = 0; ${index} < ${bound}; ${index}++) {\n	${}\n}", {
-        label: "for",
-        detail: "loop",
-        type: "keyword"
-      }),
-      /* @__PURE__ */ snippetCompletion("for (let ${name} of ${collection}) {\n	${}\n}", {
-        label: "for",
-        detail: "of loop",
-        type: "keyword"
-      }),
-      /* @__PURE__ */ snippetCompletion("do {\n	${}\n} while (${})", {
-        label: "do",
-        detail: "loop",
-        type: "keyword"
-      }),
-      /* @__PURE__ */ snippetCompletion("while (${}) {\n	${}\n}", {
-        label: "while",
-        detail: "loop",
-        type: "keyword"
-      }),
-      /* @__PURE__ */ snippetCompletion("try {\n	${}\n} catch (${error}) {\n	${}\n}", {
-        label: "try",
-        detail: "/ catch block",
-        type: "keyword"
-      }),
-      /* @__PURE__ */ snippetCompletion("if (${}) {\n	${}\n}", {
-        label: "if",
-        detail: "block",
-        type: "keyword"
-      }),
-      /* @__PURE__ */ snippetCompletion("if (${}) {\n	${}\n} else {\n	${}\n}", {
-        label: "if",
-        detail: "/ else block",
-        type: "keyword"
-      }),
-      /* @__PURE__ */ snippetCompletion("class ${name} {\n	constructor(${params}) {\n		${}\n	}\n}", {
-        label: "class",
-        detail: "definition",
-        type: "keyword"
-      }),
-      /* @__PURE__ */ snippetCompletion('import {${names}} from "${module}"\n${}', {
-        label: "import",
-        detail: "named",
-        type: "keyword"
-      }),
-      /* @__PURE__ */ snippetCompletion('import ${name} from "${module}"\n${}', {
-        label: "import",
-        detail: "default",
-        type: "keyword"
-      })
-    ];
-    const typescriptSnippets = /* @__PURE__ */ snippets.concat([
-      /* @__PURE__ */ snippetCompletion("interface ${name} {\n	${}\n}", {
-        label: "interface",
-        detail: "definition",
-        type: "keyword"
-      }),
-      /* @__PURE__ */ snippetCompletion("type ${name} = ${type}", {
-        label: "type",
-        detail: "definition",
-        type: "keyword"
-      }),
-      /* @__PURE__ */ snippetCompletion("enum ${name} {\n	${}\n}", {
-        label: "enum",
-        detail: "definition",
-        type: "keyword"
-      })
-    ]);
-    const cache = /* @__PURE__ */ new NodeWeakMap();
-    const ScopeNodes = /* @__PURE__ */ new Set([
-      "Script",
-      "Block",
-      "FunctionExpression",
-      "FunctionDeclaration",
-      "ArrowFunction",
-      "MethodDeclaration",
-      "ForStatement"
-    ]);
-    function defID(type2) {
-      return (node, def) => {
-        let id2 = node.node.getChild("VariableDefinition");
-        if (id2)
-          def(id2, type2);
-        return true;
-      };
-    }
-    const functionContext = ["FunctionDeclaration"];
-    const gatherCompletions = {
-      FunctionDeclaration: /* @__PURE__ */ defID("function"),
-      ClassDeclaration: /* @__PURE__ */ defID("class"),
-      ClassExpression: () => true,
-      EnumDeclaration: /* @__PURE__ */ defID("constant"),
-      TypeAliasDeclaration: /* @__PURE__ */ defID("type"),
-      NamespaceDeclaration: /* @__PURE__ */ defID("namespace"),
-      VariableDefinition(node, def) {
-        if (!node.matchContext(functionContext))
-          def(node, "variable");
-      },
-      TypeDefinition(node, def) {
-        def(node, "type");
-      },
-      __proto__: null
-    };
-    function getScope$2(doc2, node) {
-      let cached = cache.get(node);
-      if (cached)
-        return cached;
-      let completions = [], top2 = true;
-      function def(node2, type2) {
-        let name2 = doc2.sliceString(node2.from, node2.to);
-        completions.push({ label: name2, type: type2 });
-      }
-      node.cursor(IterMode.IncludeAnonymous).iterate((node2) => {
-        if (top2) {
-          top2 = false;
-        } else if (node2.name) {
-          let gather = gatherCompletions[node2.name];
-          if (gather && gather(node2, def) || ScopeNodes.has(node2.name))
-            return false;
-        } else if (node2.to - node2.from > 8192) {
-          for (let c of getScope$2(doc2, node2.node))
-            completions.push(c);
-          return false;
-        }
-      });
-      cache.set(node, completions);
-      return completions;
-    }
-    const Identifier = /^[\w$\xa1-\uffff][\w$\d\xa1-\uffff]*$/;
-    const dontComplete = [
-      "TemplateString",
-      "String",
-      "RegExp",
-      "LineComment",
-      "BlockComment",
-      "VariableDefinition",
-      "TypeDefinition",
-      "Label",
-      "PropertyDefinition",
-      "PropertyName",
-      "PrivatePropertyDefinition",
-      "PrivatePropertyName",
-      "JSXText",
-      "JSXAttributeValue",
-      "JSXOpenTag",
-      "JSXCloseTag",
-      "JSXSelfClosingTag",
-      ".",
-      "?."
-    ];
-    function localCompletionSource(context) {
-      let inner = syntaxTree(context.state).resolveInner(context.pos, -1);
-      if (dontComplete.indexOf(inner.name) > -1)
-        return null;
-      let isWord = inner.name == "VariableName" || inner.to - inner.from < 20 && Identifier.test(context.state.sliceDoc(inner.from, inner.to));
-      if (!isWord && !context.explicit)
-        return null;
-      let options = [];
-      for (let pos = inner; pos; pos = pos.parent) {
-        if (ScopeNodes.has(pos.name))
-          options = options.concat(getScope$2(context.state.doc, pos));
-      }
-      return {
-        options,
-        from: isWord ? inner.from : context.pos,
-        validFor: Identifier
-      };
-    }
-    const javascriptLanguage = /* @__PURE__ */ LRLanguage.define({
-      name: "javascript",
-      parser: /* @__PURE__ */ parser.configure({
-        props: [
-          /* @__PURE__ */ indentNodeProp.add({
-            IfStatement: /* @__PURE__ */ continuedIndent({ except: /^\s*({|else\b)/ }),
-            TryStatement: /* @__PURE__ */ continuedIndent({ except: /^\s*({|catch\b|finally\b)/ }),
-            LabeledStatement: flatIndent,
-            SwitchBody: (context) => {
-              let after = context.textAfter, closed = /^\s*\}/.test(after), isCase = /^\s*(case|default)\b/.test(after);
-              return context.baseIndent + (closed ? 0 : isCase ? 1 : 2) * context.unit;
-            },
-            Block: /* @__PURE__ */ delimitedIndent({ closing: "}" }),
-            ArrowFunction: (cx) => cx.baseIndent + cx.unit,
-            "TemplateString BlockComment": () => null,
-            "Statement Property": /* @__PURE__ */ continuedIndent({ except: /^\s*{/ }),
-            JSXElement(context) {
-              let closed = /^\s*<\//.test(context.textAfter);
-              return context.lineIndent(context.node.from) + (closed ? 0 : context.unit);
-            },
-            JSXEscape(context) {
-              let closed = /\s*\}/.test(context.textAfter);
-              return context.lineIndent(context.node.from) + (closed ? 0 : context.unit);
-            },
-            "JSXOpenTag JSXSelfClosingTag"(context) {
-              return context.column(context.node.from) + context.unit;
-            }
-          }),
-          /* @__PURE__ */ foldNodeProp.add({
-            "Block ClassBody SwitchBody EnumBody ObjectExpression ArrayExpression ObjectType": foldInside,
-            BlockComment(tree) {
-              return { from: tree.from + 2, to: tree.to - 2 };
-            }
-          })
-        ]
-      }),
-      languageData: {
-        closeBrackets: { brackets: ["(", "[", "{", "'", '"', "`"] },
-        commentTokens: { line: "//", block: { open: "/*", close: "*/" } },
-        indentOnInput: /^\s*(?:case |default:|\{|\}|<\/)$/,
-        wordChars: "$"
-      }
-    });
-    const jsxSublanguage = {
-      test: (node) => /^JSX/.test(node.name),
-      facet: /* @__PURE__ */ defineLanguageFacet({ commentTokens: { block: { open: "{/*", close: "*/}" } } })
-    };
-    const typescriptLanguage = /* @__PURE__ */ javascriptLanguage.configure({ dialect: "ts" }, "typescript");
-    const jsxLanguage = /* @__PURE__ */ javascriptLanguage.configure({
-      dialect: "jsx",
-      props: [/* @__PURE__ */ sublanguageProp.add((n2) => n2.isTop ? [jsxSublanguage] : void 0)]
-    });
-    const tsxLanguage = /* @__PURE__ */ javascriptLanguage.configure({
-      dialect: "jsx ts",
-      props: [/* @__PURE__ */ sublanguageProp.add((n2) => n2.isTop ? [jsxSublanguage] : void 0)]
-    }, "typescript");
-    let kwCompletion = (name2) => ({ label: name2, type: "keyword" });
-    const keywords = /* @__PURE__ */ "break case const continue default delete export extends false finally in instanceof let new return static super switch this throw true typeof var yield".split(" ").map(kwCompletion);
-    const typescriptKeywords = /* @__PURE__ */ keywords.concat(/* @__PURE__ */ ["declare", "implements", "private", "protected", "public"].map(kwCompletion));
-    function javascript(config2 = {}) {
-      let lang = config2.jsx ? config2.typescript ? tsxLanguage : jsxLanguage : config2.typescript ? typescriptLanguage : javascriptLanguage;
-      let completions = config2.typescript ? typescriptSnippets.concat(typescriptKeywords) : snippets.concat(keywords);
-      return new LanguageSupport(lang, [
-        javascriptLanguage.data.of({
-          autocomplete: ifNotIn(dontComplete, completeFromList(completions))
-        }),
-        javascriptLanguage.data.of({
-          autocomplete: localCompletionSource
-        }),
-        config2.jsx ? autoCloseTags : []
-      ]);
-    }
-    function findOpenTag(node) {
-      for (; ; ) {
-        if (node.name == "JSXOpenTag" || node.name == "JSXSelfClosingTag" || node.name == "JSXFragmentTag")
-          return node;
-        if (node.name == "JSXEscape" || !node.parent)
-          return null;
-        node = node.parent;
-      }
-    }
-    function elementName(doc2, tree, max = doc2.length) {
-      for (let ch = tree === null || tree === void 0 ? void 0 : tree.firstChild; ch; ch = ch.nextSibling) {
-        if (ch.name == "JSXIdentifier" || ch.name == "JSXBuiltin" || ch.name == "JSXNamespacedName" || ch.name == "JSXMemberExpression")
-          return doc2.sliceString(ch.from, Math.min(ch.to, max));
-      }
-      return "";
-    }
-    const android = typeof navigator == "object" && /* @__PURE__ */ /Android\b/.test(navigator.userAgent);
-    const autoCloseTags = /* @__PURE__ */ EditorView.inputHandler.of((view, from2, to2, text2, defaultInsert) => {
-      if ((android ? view.composing : view.compositionStarted) || view.state.readOnly || from2 != to2 || text2 != ">" && text2 != "/" || !javascriptLanguage.isActiveAt(view.state, from2, -1))
-        return false;
-      let base2 = defaultInsert(), { state: state2 } = base2;
-      let closeTags = state2.changeByRange((range2) => {
-        var _a3;
-        let { head } = range2, around = syntaxTree(state2).resolveInner(head - 1, -1), name2;
-        if (around.name == "JSXStartTag")
-          around = around.parent;
-        if (state2.doc.sliceString(head - 1, head) != text2 || around.name == "JSXAttributeValue" && around.to > head) ;
-        else if (text2 == ">" && around.name == "JSXFragmentTag") {
-          return { range: range2, changes: { from: head, insert: `</>` } };
-        } else if (text2 == "/" && around.name == "JSXStartCloseTag") {
-          let empty2 = around.parent, base22 = empty2.parent;
-          if (base22 && empty2.from == head - 2 && ((name2 = elementName(state2.doc, base22.firstChild, head)) || ((_a3 = base22.firstChild) === null || _a3 === void 0 ? void 0 : _a3.name) == "JSXFragmentTag")) {
-            let insert2 = `${name2}>`;
-            return { range: EditorSelection.cursor(head + insert2.length, -1), changes: { from: head, insert: insert2 } };
-          }
-        } else if (text2 == ">") {
-          let openTag = findOpenTag(around);
-          if (openTag && openTag.name == "JSXOpenTag" && !/^\/?>|^<\//.test(state2.doc.sliceString(head, head + 2)) && (name2 = elementName(state2.doc, openTag, head)))
-            return { range: range2, changes: { from: head, insert: `</${name2}>` } };
-        }
-        return { range: range2 };
-      });
-      if (closeTags.changes.empty)
-        return false;
-      view.dispatch([
-        base2,
-        state2.update(closeTags, { userEvent: "input.complete", scrollIntoView: true })
-      ]);
-      return true;
     });
     function _extends() {
       return _extends = Object.assign ? Object.assign.bind() : function(n2) {
@@ -76502,3032 +69217,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         styles: [...githubDarkStyle, ...styles]
       });
     };
-    var githubDark = githubDarkInit();
-    const toggleComment = (target2) => {
-      let { state: state2 } = target2, line = state2.doc.lineAt(state2.selection.main.from), config2 = getConfig(target2.state, line.from);
-      return config2.line ? toggleLineComment(target2) : config2.block ? toggleBlockCommentByLine(target2) : false;
-    };
-    function command(f, option) {
-      return ({ state: state2, dispatch: dispatch2 }) => {
-        if (state2.readOnly)
-          return false;
-        let tr = f(option, state2);
-        if (!tr)
-          return false;
-        dispatch2(state2.update(tr));
-        return true;
-      };
-    }
-    const toggleLineComment = /* @__PURE__ */ command(
-      changeLineComment,
-      0
-      /* CommentOption.Toggle */
-    );
-    const toggleBlockComment = /* @__PURE__ */ command(
-      changeBlockComment,
-      0
-      /* CommentOption.Toggle */
-    );
-    const toggleBlockCommentByLine = /* @__PURE__ */ command(
-      (o2, s) => changeBlockComment(o2, s, selectedLineRanges(s)),
-      0
-      /* CommentOption.Toggle */
-    );
-    function getConfig(state2, pos) {
-      let data = state2.languageDataAt("commentTokens", pos, 1);
-      return data.length ? data[0] : {};
-    }
-    const SearchMargin = 50;
-    function findBlockComment(state2, { open, close }, from2, to2) {
-      let textBefore = state2.sliceDoc(from2 - SearchMargin, from2);
-      let textAfter = state2.sliceDoc(to2, to2 + SearchMargin);
-      let spaceBefore = /\s*$/.exec(textBefore)[0].length, spaceAfter = /^\s*/.exec(textAfter)[0].length;
-      let beforeOff = textBefore.length - spaceBefore;
-      if (textBefore.slice(beforeOff - open.length, beforeOff) == open && textAfter.slice(spaceAfter, spaceAfter + close.length) == close) {
-        return {
-          open: { pos: from2 - spaceBefore, margin: spaceBefore && 1 },
-          close: { pos: to2 + spaceAfter, margin: spaceAfter && 1 }
-        };
-      }
-      let startText, endText;
-      if (to2 - from2 <= 2 * SearchMargin) {
-        startText = endText = state2.sliceDoc(from2, to2);
-      } else {
-        startText = state2.sliceDoc(from2, from2 + SearchMargin);
-        endText = state2.sliceDoc(to2 - SearchMargin, to2);
-      }
-      let startSpace = /^\s*/.exec(startText)[0].length, endSpace = /\s*$/.exec(endText)[0].length;
-      let endOff = endText.length - endSpace - close.length;
-      if (startText.slice(startSpace, startSpace + open.length) == open && endText.slice(endOff, endOff + close.length) == close) {
-        return {
-          open: {
-            pos: from2 + startSpace + open.length,
-            margin: /\s/.test(startText.charAt(startSpace + open.length)) ? 1 : 0
-          },
-          close: {
-            pos: to2 - endSpace - close.length,
-            margin: /\s/.test(endText.charAt(endOff - 1)) ? 1 : 0
-          }
-        };
-      }
-      return null;
-    }
-    function selectedLineRanges(state2) {
-      let ranges = [];
-      for (let r2 of state2.selection.ranges) {
-        let fromLine = state2.doc.lineAt(r2.from);
-        let toLine = r2.to <= fromLine.to ? fromLine : state2.doc.lineAt(r2.to);
-        if (toLine.from > fromLine.from && toLine.from == r2.to)
-          toLine = r2.to == fromLine.to + 1 ? fromLine : state2.doc.lineAt(r2.to - 1);
-        let last = ranges.length - 1;
-        if (last >= 0 && ranges[last].to > fromLine.from)
-          ranges[last].to = toLine.to;
-        else
-          ranges.push({ from: fromLine.from + /^\s*/.exec(fromLine.text)[0].length, to: toLine.to });
-      }
-      return ranges;
-    }
-    function changeBlockComment(option, state2, ranges = state2.selection.ranges) {
-      let tokens = ranges.map((r2) => getConfig(state2, r2.from).block);
-      if (!tokens.every((c) => c))
-        return null;
-      let comments = ranges.map((r2, i2) => findBlockComment(state2, tokens[i2], r2.from, r2.to));
-      if (option != 2 && !comments.every((c) => c)) {
-        return { changes: state2.changes(ranges.map((range2, i2) => {
-          if (comments[i2])
-            return [];
-          return [{ from: range2.from, insert: tokens[i2].open + " " }, { from: range2.to, insert: " " + tokens[i2].close }];
-        })) };
-      } else if (option != 1 && comments.some((c) => c)) {
-        let changes = [];
-        for (let i2 = 0, comment2; i2 < comments.length; i2++)
-          if (comment2 = comments[i2]) {
-            let token = tokens[i2], { open, close } = comment2;
-            changes.push({ from: open.pos - token.open.length, to: open.pos + open.margin }, { from: close.pos - close.margin, to: close.pos + token.close.length });
-          }
-        return { changes };
-      }
-      return null;
-    }
-    function changeLineComment(option, state2, ranges = state2.selection.ranges) {
-      let lines = [];
-      let prevLine = -1;
-      for (let { from: from2, to: to2 } of ranges) {
-        let startI = lines.length, minIndent = 1e9;
-        let token = getConfig(state2, from2).line;
-        if (!token)
-          continue;
-        for (let pos = from2; pos <= to2; ) {
-          let line = state2.doc.lineAt(pos);
-          if (line.from > prevLine && (from2 == to2 || to2 > line.from)) {
-            prevLine = line.from;
-            let indent2 = /^\s*/.exec(line.text)[0].length;
-            let empty2 = indent2 == line.length;
-            let comment2 = line.text.slice(indent2, indent2 + token.length) == token ? indent2 : -1;
-            if (indent2 < line.text.length && indent2 < minIndent)
-              minIndent = indent2;
-            lines.push({ line, comment: comment2, token, indent: indent2, empty: empty2, single: false });
-          }
-          pos = line.to + 1;
-        }
-        if (minIndent < 1e9) {
-          for (let i2 = startI; i2 < lines.length; i2++)
-            if (lines[i2].indent < lines[i2].line.text.length)
-              lines[i2].indent = minIndent;
-        }
-        if (lines.length == startI + 1)
-          lines[startI].single = true;
-      }
-      if (option != 2 && lines.some((l) => l.comment < 0 && (!l.empty || l.single))) {
-        let changes = [];
-        for (let { line, token, indent: indent2, empty: empty2, single } of lines)
-          if (single || !empty2)
-            changes.push({ from: line.from + indent2, insert: token + " " });
-        let changeSet = state2.changes(changes);
-        return { changes: changeSet, selection: state2.selection.map(changeSet, 1) };
-      } else if (option != 1 && lines.some((l) => l.comment >= 0)) {
-        let changes = [];
-        for (let { line, comment: comment2, token } of lines)
-          if (comment2 >= 0) {
-            let from2 = line.from + comment2, to2 = from2 + token.length;
-            if (line.text[to2 - line.from] == " ")
-              to2++;
-            changes.push({ from: from2, to: to2 });
-          }
-        return { changes };
-      }
-      return null;
-    }
-    const fromHistory = /* @__PURE__ */ Annotation.define();
-    const isolateHistory = /* @__PURE__ */ Annotation.define();
-    const invertedEffects = /* @__PURE__ */ Facet.define();
-    const historyConfig = /* @__PURE__ */ Facet.define({
-      combine(configs) {
-        return combineConfig(configs, {
-          minDepth: 100,
-          newGroupDelay: 500,
-          joinToEvent: (_t, isAdjacent2) => isAdjacent2
-        }, {
-          minDepth: Math.max,
-          newGroupDelay: Math.min,
-          joinToEvent: (a2, b) => (tr, adj) => a2(tr, adj) || b(tr, adj)
-        });
-      }
-    });
-    const historyField_ = /* @__PURE__ */ StateField.define({
-      create() {
-        return HistoryState.empty;
-      },
-      update(state2, tr) {
-        let config2 = tr.state.facet(historyConfig);
-        let fromHist = tr.annotation(fromHistory);
-        if (fromHist) {
-          let item = HistEvent.fromTransaction(tr, fromHist.selection), from2 = fromHist.side;
-          let other = from2 == 0 ? state2.undone : state2.done;
-          if (item)
-            other = updateBranch(other, other.length, config2.minDepth, item);
-          else
-            other = addSelection(other, tr.startState.selection);
-          return new HistoryState(from2 == 0 ? fromHist.rest : other, from2 == 0 ? other : fromHist.rest);
-        }
-        let isolate = tr.annotation(isolateHistory);
-        if (isolate == "full" || isolate == "before")
-          state2 = state2.isolate();
-        if (tr.annotation(Transaction.addToHistory) === false)
-          return !tr.changes.empty ? state2.addMapping(tr.changes.desc) : state2;
-        let event2 = HistEvent.fromTransaction(tr);
-        let time = tr.annotation(Transaction.time), userEvent = tr.annotation(Transaction.userEvent);
-        if (event2)
-          state2 = state2.addChanges(event2, time, userEvent, config2, tr);
-        else if (tr.selection)
-          state2 = state2.addSelection(tr.startState.selection, time, userEvent, config2.newGroupDelay);
-        if (isolate == "full" || isolate == "after")
-          state2 = state2.isolate();
-        return state2;
-      },
-      toJSON(value2) {
-        return { done: value2.done.map((e2) => e2.toJSON()), undone: value2.undone.map((e2) => e2.toJSON()) };
-      },
-      fromJSON(json) {
-        return new HistoryState(json.done.map(HistEvent.fromJSON), json.undone.map(HistEvent.fromJSON));
-      }
-    });
-    function history(config2 = {}) {
-      return [
-        historyField_,
-        historyConfig.of(config2),
-        EditorView.domEventHandlers({
-          beforeinput(e2, view) {
-            let command2 = e2.inputType == "historyUndo" ? undo : e2.inputType == "historyRedo" ? redo : null;
-            if (!command2)
-              return false;
-            e2.preventDefault();
-            return command2(view);
-          }
-        })
-      ];
-    }
-    function cmd(side, selection) {
-      return function({ state: state2, dispatch: dispatch2 }) {
-        if (!selection && state2.readOnly)
-          return false;
-        let historyState = state2.field(historyField_, false);
-        if (!historyState)
-          return false;
-        let tr = historyState.pop(side, state2, selection);
-        if (!tr)
-          return false;
-        dispatch2(tr);
-        return true;
-      };
-    }
-    const undo = /* @__PURE__ */ cmd(0, false);
-    const redo = /* @__PURE__ */ cmd(1, false);
-    const undoSelection = /* @__PURE__ */ cmd(0, true);
-    const redoSelection = /* @__PURE__ */ cmd(1, true);
-    class HistEvent {
-      constructor(changes, effects2, mapped, startSelection, selectionsAfter) {
-        this.changes = changes;
-        this.effects = effects2;
-        this.mapped = mapped;
-        this.startSelection = startSelection;
-        this.selectionsAfter = selectionsAfter;
-      }
-      setSelAfter(after) {
-        return new HistEvent(this.changes, this.effects, this.mapped, this.startSelection, after);
-      }
-      toJSON() {
-        var _a3, _b2, _c;
-        return {
-          changes: (_a3 = this.changes) === null || _a3 === void 0 ? void 0 : _a3.toJSON(),
-          mapped: (_b2 = this.mapped) === null || _b2 === void 0 ? void 0 : _b2.toJSON(),
-          startSelection: (_c = this.startSelection) === null || _c === void 0 ? void 0 : _c.toJSON(),
-          selectionsAfter: this.selectionsAfter.map((s) => s.toJSON())
-        };
-      }
-      static fromJSON(json) {
-        return new HistEvent(json.changes && ChangeSet.fromJSON(json.changes), [], json.mapped && ChangeDesc.fromJSON(json.mapped), json.startSelection && EditorSelection.fromJSON(json.startSelection), json.selectionsAfter.map(EditorSelection.fromJSON));
-      }
-      // This does not check `addToHistory` and such, it assumes the
-      // transaction needs to be converted to an item. Returns null when
-      // there are no changes or effects in the transaction.
-      static fromTransaction(tr, selection) {
-        let effects2 = none;
-        for (let invert2 of tr.startState.facet(invertedEffects)) {
-          let result = invert2(tr);
-          if (result.length)
-            effects2 = effects2.concat(result);
-        }
-        if (!effects2.length && tr.changes.empty)
-          return null;
-        return new HistEvent(tr.changes.invert(tr.startState.doc), effects2, void 0, selection || tr.startState.selection, none);
-      }
-      static selection(selections) {
-        return new HistEvent(void 0, none, void 0, void 0, selections);
-      }
-    }
-    function updateBranch(branch2, to2, maxLen, newEvent) {
-      let start = to2 + 1 > maxLen + 20 ? to2 - maxLen - 1 : 0;
-      let newBranch = branch2.slice(start, to2);
-      newBranch.push(newEvent);
-      return newBranch;
-    }
-    function isAdjacent(a2, b) {
-      let ranges = [], isAdjacent2 = false;
-      a2.iterChangedRanges((f, t2) => ranges.push(f, t2));
-      b.iterChangedRanges((_f, _t, f, t2) => {
-        for (let i2 = 0; i2 < ranges.length; ) {
-          let from2 = ranges[i2++], to2 = ranges[i2++];
-          if (t2 >= from2 && f <= to2)
-            isAdjacent2 = true;
-        }
-      });
-      return isAdjacent2;
-    }
-    function eqSelectionShape(a2, b) {
-      return a2.ranges.length == b.ranges.length && a2.ranges.filter((r2, i2) => r2.empty != b.ranges[i2].empty).length === 0;
-    }
-    function conc(a2, b) {
-      return !a2.length ? b : !b.length ? a2 : a2.concat(b);
-    }
-    const none = [];
-    const MaxSelectionsPerEvent = 200;
-    function addSelection(branch2, selection) {
-      if (!branch2.length) {
-        return [HistEvent.selection([selection])];
-      } else {
-        let lastEvent = branch2[branch2.length - 1];
-        let sels = lastEvent.selectionsAfter.slice(Math.max(0, lastEvent.selectionsAfter.length - MaxSelectionsPerEvent));
-        if (sels.length && sels[sels.length - 1].eq(selection))
-          return branch2;
-        sels.push(selection);
-        return updateBranch(branch2, branch2.length - 1, 1e9, lastEvent.setSelAfter(sels));
-      }
-    }
-    function popSelection(branch2) {
-      let last = branch2[branch2.length - 1];
-      let newBranch = branch2.slice();
-      newBranch[branch2.length - 1] = last.setSelAfter(last.selectionsAfter.slice(0, last.selectionsAfter.length - 1));
-      return newBranch;
-    }
-    function addMappingToBranch(branch2, mapping) {
-      if (!branch2.length)
-        return branch2;
-      let length = branch2.length, selections = none;
-      while (length) {
-        let event2 = mapEvent(branch2[length - 1], mapping, selections);
-        if (event2.changes && !event2.changes.empty || event2.effects.length) {
-          let result = branch2.slice(0, length);
-          result[length - 1] = event2;
-          return result;
-        } else {
-          mapping = event2.mapped;
-          length--;
-          selections = event2.selectionsAfter;
-        }
-      }
-      return selections.length ? [HistEvent.selection(selections)] : none;
-    }
-    function mapEvent(event2, mapping, extraSelections) {
-      let selections = conc(event2.selectionsAfter.length ? event2.selectionsAfter.map((s) => s.map(mapping)) : none, extraSelections);
-      if (!event2.changes)
-        return HistEvent.selection(selections);
-      let mappedChanges = event2.changes.map(mapping), before = mapping.mapDesc(event2.changes, true);
-      let fullMapping = event2.mapped ? event2.mapped.composeDesc(before) : before;
-      return new HistEvent(mappedChanges, StateEffect.mapEffects(event2.effects, mapping), fullMapping, event2.startSelection.map(before), selections);
-    }
-    const joinableUserEvent = /^(input\.type|delete)($|\.)/;
-    class HistoryState {
-      constructor(done, undone, prevTime = 0, prevUserEvent = void 0) {
-        this.done = done;
-        this.undone = undone;
-        this.prevTime = prevTime;
-        this.prevUserEvent = prevUserEvent;
-      }
-      isolate() {
-        return this.prevTime ? new HistoryState(this.done, this.undone) : this;
-      }
-      addChanges(event2, time, userEvent, config2, tr) {
-        let done = this.done, lastEvent = done[done.length - 1];
-        if (lastEvent && lastEvent.changes && !lastEvent.changes.empty && event2.changes && (!userEvent || joinableUserEvent.test(userEvent)) && (!lastEvent.selectionsAfter.length && time - this.prevTime < config2.newGroupDelay && config2.joinToEvent(tr, isAdjacent(lastEvent.changes, event2.changes)) || // For compose (but not compose.start) events, always join with previous event
-        userEvent == "input.type.compose")) {
-          done = updateBranch(done, done.length - 1, config2.minDepth, new HistEvent(event2.changes.compose(lastEvent.changes), conc(StateEffect.mapEffects(event2.effects, lastEvent.changes), lastEvent.effects), lastEvent.mapped, lastEvent.startSelection, none));
-        } else {
-          done = updateBranch(done, done.length, config2.minDepth, event2);
-        }
-        return new HistoryState(done, none, time, userEvent);
-      }
-      addSelection(selection, time, userEvent, newGroupDelay) {
-        let last = this.done.length ? this.done[this.done.length - 1].selectionsAfter : none;
-        if (last.length > 0 && time - this.prevTime < newGroupDelay && userEvent == this.prevUserEvent && userEvent && /^select($|\.)/.test(userEvent) && eqSelectionShape(last[last.length - 1], selection))
-          return this;
-        return new HistoryState(addSelection(this.done, selection), this.undone, time, userEvent);
-      }
-      addMapping(mapping) {
-        return new HistoryState(addMappingToBranch(this.done, mapping), addMappingToBranch(this.undone, mapping), this.prevTime, this.prevUserEvent);
-      }
-      pop(side, state2, onlySelection) {
-        let branch2 = side == 0 ? this.done : this.undone;
-        if (branch2.length == 0)
-          return null;
-        let event2 = branch2[branch2.length - 1], selection = event2.selectionsAfter[0] || state2.selection;
-        if (onlySelection && event2.selectionsAfter.length) {
-          return state2.update({
-            selection: event2.selectionsAfter[event2.selectionsAfter.length - 1],
-            annotations: fromHistory.of({ side, rest: popSelection(branch2), selection }),
-            userEvent: side == 0 ? "select.undo" : "select.redo",
-            scrollIntoView: true
-          });
-        } else if (!event2.changes) {
-          return null;
-        } else {
-          let rest = branch2.length == 1 ? none : branch2.slice(0, branch2.length - 1);
-          if (event2.mapped)
-            rest = addMappingToBranch(rest, event2.mapped);
-          return state2.update({
-            changes: event2.changes,
-            selection: event2.startSelection,
-            effects: event2.effects,
-            annotations: fromHistory.of({ side, rest, selection }),
-            filter: false,
-            userEvent: side == 0 ? "undo" : "redo",
-            scrollIntoView: true
-          });
-        }
-      }
-    }
-    HistoryState.empty = /* @__PURE__ */ new HistoryState(none, none);
-    const historyKeymap = [
-      { key: "Mod-z", run: undo, preventDefault: true },
-      { key: "Mod-y", mac: "Mod-Shift-z", run: redo, preventDefault: true },
-      { linux: "Ctrl-Shift-z", run: redo, preventDefault: true },
-      { key: "Mod-u", run: undoSelection, preventDefault: true },
-      { key: "Alt-u", mac: "Mod-Shift-u", run: redoSelection, preventDefault: true }
-    ];
-    function updateSel(sel, by) {
-      return EditorSelection.create(sel.ranges.map(by), sel.mainIndex);
-    }
-    function setSel(state2, selection) {
-      return state2.update({ selection, scrollIntoView: true, userEvent: "select" });
-    }
-    function moveSel({ state: state2, dispatch: dispatch2 }, how) {
-      let selection = updateSel(state2.selection, how);
-      if (selection.eq(state2.selection, true))
-        return false;
-      dispatch2(setSel(state2, selection));
-      return true;
-    }
-    function rangeEnd(range2, forward) {
-      return EditorSelection.cursor(forward ? range2.to : range2.from);
-    }
-    function cursorByChar(view, forward) {
-      return moveSel(view, (range2) => range2.empty ? view.moveByChar(range2, forward) : rangeEnd(range2, forward));
-    }
-    function ltrAtCursor(view) {
-      return view.textDirectionAt(view.state.selection.main.head) == Direction.LTR;
-    }
-    const cursorCharLeft = (view) => cursorByChar(view, !ltrAtCursor(view));
-    const cursorCharRight = (view) => cursorByChar(view, ltrAtCursor(view));
-    function cursorByGroup(view, forward) {
-      return moveSel(view, (range2) => range2.empty ? view.moveByGroup(range2, forward) : rangeEnd(range2, forward));
-    }
-    const cursorGroupLeft = (view) => cursorByGroup(view, !ltrAtCursor(view));
-    const cursorGroupRight = (view) => cursorByGroup(view, ltrAtCursor(view));
-    function interestingNode(state2, node, bracketProp) {
-      if (node.type.prop(bracketProp))
-        return true;
-      let len = node.to - node.from;
-      return len && (len > 2 || /[^\s,.;:]/.test(state2.sliceDoc(node.from, node.to))) || node.firstChild;
-    }
-    function moveBySyntax(state2, start, forward) {
-      let pos = syntaxTree(state2).resolveInner(start.head);
-      let bracketProp = forward ? NodeProp.closedBy : NodeProp.openedBy;
-      for (let at = start.head; ; ) {
-        let next2 = forward ? pos.childAfter(at) : pos.childBefore(at);
-        if (!next2)
-          break;
-        if (interestingNode(state2, next2, bracketProp))
-          pos = next2;
-        else
-          at = forward ? next2.to : next2.from;
-      }
-      let bracket2 = pos.type.prop(bracketProp), match2, newPos;
-      if (bracket2 && (match2 = forward ? matchBrackets(state2, pos.from, 1) : matchBrackets(state2, pos.to, -1)) && match2.matched)
-        newPos = forward ? match2.end.to : match2.end.from;
-      else
-        newPos = forward ? pos.to : pos.from;
-      return EditorSelection.cursor(newPos, forward ? -1 : 1);
-    }
-    const cursorSyntaxLeft = (view) => moveSel(view, (range2) => moveBySyntax(view.state, range2, !ltrAtCursor(view)));
-    const cursorSyntaxRight = (view) => moveSel(view, (range2) => moveBySyntax(view.state, range2, ltrAtCursor(view)));
-    function cursorByLine(view, forward) {
-      return moveSel(view, (range2) => {
-        if (!range2.empty)
-          return rangeEnd(range2, forward);
-        let moved = view.moveVertically(range2, forward);
-        return moved.head != range2.head ? moved : view.moveToLineBoundary(range2, forward);
-      });
-    }
-    const cursorLineUp = (view) => cursorByLine(view, false);
-    const cursorLineDown = (view) => cursorByLine(view, true);
-    function pageInfo(view) {
-      let selfScroll = view.scrollDOM.clientHeight < view.scrollDOM.scrollHeight - 2;
-      let marginTop = 0, marginBottom = 0, height;
-      if (selfScroll) {
-        for (let source2 of view.state.facet(EditorView.scrollMargins)) {
-          let margins = source2(view);
-          if (margins === null || margins === void 0 ? void 0 : margins.top)
-            marginTop = Math.max(margins === null || margins === void 0 ? void 0 : margins.top, marginTop);
-          if (margins === null || margins === void 0 ? void 0 : margins.bottom)
-            marginBottom = Math.max(margins === null || margins === void 0 ? void 0 : margins.bottom, marginBottom);
-        }
-        height = view.scrollDOM.clientHeight - marginTop - marginBottom;
-      } else {
-        height = (view.dom.ownerDocument.defaultView || window).innerHeight;
-      }
-      return {
-        marginTop,
-        marginBottom,
-        selfScroll,
-        height: Math.max(view.defaultLineHeight, height - 5)
-      };
-    }
-    function cursorByPage(view, forward) {
-      let page = pageInfo(view);
-      let { state: state2 } = view, selection = updateSel(state2.selection, (range2) => {
-        return range2.empty ? view.moveVertically(range2, forward, page.height) : rangeEnd(range2, forward);
-      });
-      if (selection.eq(state2.selection))
-        return false;
-      let effect2;
-      if (page.selfScroll) {
-        let startPos = view.coordsAtPos(state2.selection.main.head);
-        let scrollRect = view.scrollDOM.getBoundingClientRect();
-        let scrollTop = scrollRect.top + page.marginTop, scrollBottom = scrollRect.bottom - page.marginBottom;
-        if (startPos && startPos.top > scrollTop && startPos.bottom < scrollBottom)
-          effect2 = EditorView.scrollIntoView(selection.main.head, { y: "start", yMargin: startPos.top - scrollTop });
-      }
-      view.dispatch(setSel(state2, selection), { effects: effect2 });
-      return true;
-    }
-    const cursorPageUp = (view) => cursorByPage(view, false);
-    const cursorPageDown = (view) => cursorByPage(view, true);
-    function moveByLineBoundary(view, start, forward) {
-      let line = view.lineBlockAt(start.head), moved = view.moveToLineBoundary(start, forward);
-      if (moved.head == start.head && moved.head != (forward ? line.to : line.from))
-        moved = view.moveToLineBoundary(start, forward, false);
-      if (!forward && moved.head == line.from && line.length) {
-        let space2 = /^\s*/.exec(view.state.sliceDoc(line.from, Math.min(line.from + 100, line.to)))[0].length;
-        if (space2 && start.head != line.from + space2)
-          moved = EditorSelection.cursor(line.from + space2);
-      }
-      return moved;
-    }
-    const cursorLineBoundaryForward = (view) => moveSel(view, (range2) => moveByLineBoundary(view, range2, true));
-    const cursorLineBoundaryBackward = (view) => moveSel(view, (range2) => moveByLineBoundary(view, range2, false));
-    const cursorLineBoundaryLeft = (view) => moveSel(view, (range2) => moveByLineBoundary(view, range2, !ltrAtCursor(view)));
-    const cursorLineBoundaryRight = (view) => moveSel(view, (range2) => moveByLineBoundary(view, range2, ltrAtCursor(view)));
-    const cursorLineStart = (view) => moveSel(view, (range2) => EditorSelection.cursor(view.lineBlockAt(range2.head).from, 1));
-    const cursorLineEnd = (view) => moveSel(view, (range2) => EditorSelection.cursor(view.lineBlockAt(range2.head).to, -1));
-    function toMatchingBracket(state2, dispatch2, extend2) {
-      let found = false, selection = updateSel(state2.selection, (range2) => {
-        let matching = matchBrackets(state2, range2.head, -1) || matchBrackets(state2, range2.head, 1) || range2.head > 0 && matchBrackets(state2, range2.head - 1, 1) || range2.head < state2.doc.length && matchBrackets(state2, range2.head + 1, -1);
-        if (!matching || !matching.end)
-          return range2;
-        found = true;
-        let head = matching.start.from == range2.head ? matching.end.to : matching.end.from;
-        return EditorSelection.cursor(head);
-      });
-      if (!found)
-        return false;
-      dispatch2(setSel(state2, selection));
-      return true;
-    }
-    const cursorMatchingBracket = ({ state: state2, dispatch: dispatch2 }) => toMatchingBracket(state2, dispatch2);
-    function extendSel(target2, how) {
-      let selection = updateSel(target2.state.selection, (range2) => {
-        let head = how(range2);
-        return EditorSelection.range(range2.anchor, head.head, head.goalColumn, head.bidiLevel || void 0);
-      });
-      if (selection.eq(target2.state.selection))
-        return false;
-      target2.dispatch(setSel(target2.state, selection));
-      return true;
-    }
-    function selectByChar(view, forward) {
-      return extendSel(view, (range2) => view.moveByChar(range2, forward));
-    }
-    const selectCharLeft = (view) => selectByChar(view, !ltrAtCursor(view));
-    const selectCharRight = (view) => selectByChar(view, ltrAtCursor(view));
-    function selectByGroup(view, forward) {
-      return extendSel(view, (range2) => view.moveByGroup(range2, forward));
-    }
-    const selectGroupLeft = (view) => selectByGroup(view, !ltrAtCursor(view));
-    const selectGroupRight = (view) => selectByGroup(view, ltrAtCursor(view));
-    const selectSyntaxLeft = (view) => extendSel(view, (range2) => moveBySyntax(view.state, range2, !ltrAtCursor(view)));
-    const selectSyntaxRight = (view) => extendSel(view, (range2) => moveBySyntax(view.state, range2, ltrAtCursor(view)));
-    function selectByLine(view, forward) {
-      return extendSel(view, (range2) => view.moveVertically(range2, forward));
-    }
-    const selectLineUp = (view) => selectByLine(view, false);
-    const selectLineDown = (view) => selectByLine(view, true);
-    function selectByPage(view, forward) {
-      return extendSel(view, (range2) => view.moveVertically(range2, forward, pageInfo(view).height));
-    }
-    const selectPageUp = (view) => selectByPage(view, false);
-    const selectPageDown = (view) => selectByPage(view, true);
-    const selectLineBoundaryForward = (view) => extendSel(view, (range2) => moveByLineBoundary(view, range2, true));
-    const selectLineBoundaryBackward = (view) => extendSel(view, (range2) => moveByLineBoundary(view, range2, false));
-    const selectLineBoundaryLeft = (view) => extendSel(view, (range2) => moveByLineBoundary(view, range2, !ltrAtCursor(view)));
-    const selectLineBoundaryRight = (view) => extendSel(view, (range2) => moveByLineBoundary(view, range2, ltrAtCursor(view)));
-    const selectLineStart = (view) => extendSel(view, (range2) => EditorSelection.cursor(view.lineBlockAt(range2.head).from));
-    const selectLineEnd = (view) => extendSel(view, (range2) => EditorSelection.cursor(view.lineBlockAt(range2.head).to));
-    const cursorDocStart = ({ state: state2, dispatch: dispatch2 }) => {
-      dispatch2(setSel(state2, { anchor: 0 }));
-      return true;
-    };
-    const cursorDocEnd = ({ state: state2, dispatch: dispatch2 }) => {
-      dispatch2(setSel(state2, { anchor: state2.doc.length }));
-      return true;
-    };
-    const selectDocStart = ({ state: state2, dispatch: dispatch2 }) => {
-      dispatch2(setSel(state2, { anchor: state2.selection.main.anchor, head: 0 }));
-      return true;
-    };
-    const selectDocEnd = ({ state: state2, dispatch: dispatch2 }) => {
-      dispatch2(setSel(state2, { anchor: state2.selection.main.anchor, head: state2.doc.length }));
-      return true;
-    };
-    const selectAll = ({ state: state2, dispatch: dispatch2 }) => {
-      dispatch2(state2.update({ selection: { anchor: 0, head: state2.doc.length }, userEvent: "select" }));
-      return true;
-    };
-    const selectLine = ({ state: state2, dispatch: dispatch2 }) => {
-      let ranges = selectedLineBlocks(state2).map(({ from: from2, to: to2 }) => EditorSelection.range(from2, Math.min(to2 + 1, state2.doc.length)));
-      dispatch2(state2.update({ selection: EditorSelection.create(ranges), userEvent: "select" }));
-      return true;
-    };
-    const selectParentSyntax = ({ state: state2, dispatch: dispatch2 }) => {
-      let selection = updateSel(state2.selection, (range2) => {
-        let tree = syntaxTree(state2), stack = tree.resolveStack(range2.from, 1);
-        if (range2.empty) {
-          let stackBefore = tree.resolveStack(range2.from, -1);
-          if (stackBefore.node.from >= stack.node.from && stackBefore.node.to <= stack.node.to)
-            stack = stackBefore;
-        }
-        for (let cur2 = stack; cur2; cur2 = cur2.next) {
-          let { node } = cur2;
-          if ((node.from < range2.from && node.to >= range2.to || node.to > range2.to && node.from <= range2.from) && cur2.next)
-            return EditorSelection.range(node.to, node.from);
-        }
-        return range2;
-      });
-      if (selection.eq(state2.selection))
-        return false;
-      dispatch2(setSel(state2, selection));
-      return true;
-    };
-    const simplifySelection = ({ state: state2, dispatch: dispatch2 }) => {
-      let cur2 = state2.selection, selection = null;
-      if (cur2.ranges.length > 1)
-        selection = EditorSelection.create([cur2.main]);
-      else if (!cur2.main.empty)
-        selection = EditorSelection.create([EditorSelection.cursor(cur2.main.head)]);
-      if (!selection)
-        return false;
-      dispatch2(setSel(state2, selection));
-      return true;
-    };
-    function deleteBy(target2, by) {
-      if (target2.state.readOnly)
-        return false;
-      let event2 = "delete.selection", { state: state2 } = target2;
-      let changes = state2.changeByRange((range2) => {
-        let { from: from2, to: to2 } = range2;
-        if (from2 == to2) {
-          let towards = by(range2);
-          if (towards < from2) {
-            event2 = "delete.backward";
-            towards = skipAtomic(target2, towards, false);
-          } else if (towards > from2) {
-            event2 = "delete.forward";
-            towards = skipAtomic(target2, towards, true);
-          }
-          from2 = Math.min(from2, towards);
-          to2 = Math.max(to2, towards);
-        } else {
-          from2 = skipAtomic(target2, from2, false);
-          to2 = skipAtomic(target2, to2, true);
-        }
-        return from2 == to2 ? { range: range2 } : { changes: { from: from2, to: to2 }, range: EditorSelection.cursor(from2, from2 < range2.head ? -1 : 1) };
-      });
-      if (changes.changes.empty)
-        return false;
-      target2.dispatch(state2.update(changes, {
-        scrollIntoView: true,
-        userEvent: event2,
-        effects: event2 == "delete.selection" ? EditorView.announce.of(state2.phrase("Selection deleted")) : void 0
-      }));
-      return true;
-    }
-    function skipAtomic(target2, pos, forward) {
-      if (target2 instanceof EditorView)
-        for (let ranges of target2.state.facet(EditorView.atomicRanges).map((f) => f(target2)))
-          ranges.between(pos, pos, (from2, to2) => {
-            if (from2 < pos && to2 > pos)
-              pos = forward ? to2 : from2;
-          });
-      return pos;
-    }
-    const deleteByChar = (target2, forward, byIndentUnit) => deleteBy(target2, (range2) => {
-      let pos = range2.from, { state: state2 } = target2, line = state2.doc.lineAt(pos), before, targetPos;
-      if (byIndentUnit && !forward && pos > line.from && pos < line.from + 200 && !/[^ \t]/.test(before = line.text.slice(0, pos - line.from))) {
-        if (before[before.length - 1] == "	")
-          return pos - 1;
-        let col = countColumn(before, state2.tabSize), drop = col % getIndentUnit(state2) || getIndentUnit(state2);
-        for (let i2 = 0; i2 < drop && before[before.length - 1 - i2] == " "; i2++)
-          pos--;
-        targetPos = pos;
-      } else {
-        targetPos = findClusterBreak(line.text, pos - line.from, forward, forward) + line.from;
-        if (targetPos == pos && line.number != (forward ? state2.doc.lines : 1))
-          targetPos += forward ? 1 : -1;
-        else if (!forward && /[\ufe00-\ufe0f]/.test(line.text.slice(targetPos - line.from, pos - line.from)))
-          targetPos = findClusterBreak(line.text, targetPos - line.from, false, false) + line.from;
-      }
-      return targetPos;
-    });
-    const deleteCharBackward = (view) => deleteByChar(view, false, true);
-    const deleteCharForward = (view) => deleteByChar(view, true, false);
-    const deleteByGroup = (target2, forward) => deleteBy(target2, (range2) => {
-      let pos = range2.head, { state: state2 } = target2, line = state2.doc.lineAt(pos);
-      let categorize = state2.charCategorizer(pos);
-      for (let cat = null; ; ) {
-        if (pos == (forward ? line.to : line.from)) {
-          if (pos == range2.head && line.number != (forward ? state2.doc.lines : 1))
-            pos += forward ? 1 : -1;
-          break;
-        }
-        let next2 = findClusterBreak(line.text, pos - line.from, forward) + line.from;
-        let nextChar2 = line.text.slice(Math.min(pos, next2) - line.from, Math.max(pos, next2) - line.from);
-        let nextCat = categorize(nextChar2);
-        if (cat != null && nextCat != cat)
-          break;
-        if (nextChar2 != " " || pos != range2.head)
-          cat = nextCat;
-        pos = next2;
-      }
-      return pos;
-    });
-    const deleteGroupBackward = (target2) => deleteByGroup(target2, false);
-    const deleteGroupForward = (target2) => deleteByGroup(target2, true);
-    const deleteToLineEnd = (view) => deleteBy(view, (range2) => {
-      let lineEnd = view.lineBlockAt(range2.head).to;
-      return range2.head < lineEnd ? lineEnd : Math.min(view.state.doc.length, range2.head + 1);
-    });
-    const deleteLineBoundaryBackward = (view) => deleteBy(view, (range2) => {
-      let lineStart = view.moveToLineBoundary(range2, false).head;
-      return range2.head > lineStart ? lineStart : Math.max(0, range2.head - 1);
-    });
-    const deleteLineBoundaryForward = (view) => deleteBy(view, (range2) => {
-      let lineStart = view.moveToLineBoundary(range2, true).head;
-      return range2.head < lineStart ? lineStart : Math.min(view.state.doc.length, range2.head + 1);
-    });
-    const splitLine = ({ state: state2, dispatch: dispatch2 }) => {
-      if (state2.readOnly)
-        return false;
-      let changes = state2.changeByRange((range2) => {
-        return {
-          changes: { from: range2.from, to: range2.to, insert: Text$1.of(["", ""]) },
-          range: EditorSelection.cursor(range2.from)
-        };
-      });
-      dispatch2(state2.update(changes, { scrollIntoView: true, userEvent: "input" }));
-      return true;
-    };
-    const transposeChars = ({ state: state2, dispatch: dispatch2 }) => {
-      if (state2.readOnly)
-        return false;
-      let changes = state2.changeByRange((range2) => {
-        if (!range2.empty || range2.from == 0 || range2.from == state2.doc.length)
-          return { range: range2 };
-        let pos = range2.from, line = state2.doc.lineAt(pos);
-        let from2 = pos == line.from ? pos - 1 : findClusterBreak(line.text, pos - line.from, false) + line.from;
-        let to2 = pos == line.to ? pos + 1 : findClusterBreak(line.text, pos - line.from, true) + line.from;
-        return {
-          changes: { from: from2, to: to2, insert: state2.doc.slice(pos, to2).append(state2.doc.slice(from2, pos)) },
-          range: EditorSelection.cursor(to2)
-        };
-      });
-      if (changes.changes.empty)
-        return false;
-      dispatch2(state2.update(changes, { scrollIntoView: true, userEvent: "move.character" }));
-      return true;
-    };
-    function selectedLineBlocks(state2) {
-      let blocks = [], upto = -1;
-      for (let range2 of state2.selection.ranges) {
-        let startLine = state2.doc.lineAt(range2.from), endLine = state2.doc.lineAt(range2.to);
-        if (!range2.empty && range2.to == endLine.from)
-          endLine = state2.doc.lineAt(range2.to - 1);
-        if (upto >= startLine.number) {
-          let prev = blocks[blocks.length - 1];
-          prev.to = endLine.to;
-          prev.ranges.push(range2);
-        } else {
-          blocks.push({ from: startLine.from, to: endLine.to, ranges: [range2] });
-        }
-        upto = endLine.number + 1;
-      }
-      return blocks;
-    }
-    function moveLine(state2, dispatch2, forward) {
-      if (state2.readOnly)
-        return false;
-      let changes = [], ranges = [];
-      for (let block2 of selectedLineBlocks(state2)) {
-        if (forward ? block2.to == state2.doc.length : block2.from == 0)
-          continue;
-        let nextLine = state2.doc.lineAt(forward ? block2.to + 1 : block2.from - 1);
-        let size = nextLine.length + 1;
-        if (forward) {
-          changes.push({ from: block2.to, to: nextLine.to }, { from: block2.from, insert: nextLine.text + state2.lineBreak });
-          for (let r2 of block2.ranges)
-            ranges.push(EditorSelection.range(Math.min(state2.doc.length, r2.anchor + size), Math.min(state2.doc.length, r2.head + size)));
-        } else {
-          changes.push({ from: nextLine.from, to: block2.from }, { from: block2.to, insert: state2.lineBreak + nextLine.text });
-          for (let r2 of block2.ranges)
-            ranges.push(EditorSelection.range(r2.anchor - size, r2.head - size));
-        }
-      }
-      if (!changes.length)
-        return false;
-      dispatch2(state2.update({
-        changes,
-        scrollIntoView: true,
-        selection: EditorSelection.create(ranges, state2.selection.mainIndex),
-        userEvent: "move.line"
-      }));
-      return true;
-    }
-    const moveLineUp = ({ state: state2, dispatch: dispatch2 }) => moveLine(state2, dispatch2, false);
-    const moveLineDown = ({ state: state2, dispatch: dispatch2 }) => moveLine(state2, dispatch2, true);
-    function copyLine(state2, dispatch2, forward) {
-      if (state2.readOnly)
-        return false;
-      let changes = [];
-      for (let block2 of selectedLineBlocks(state2)) {
-        if (forward)
-          changes.push({ from: block2.from, insert: state2.doc.slice(block2.from, block2.to) + state2.lineBreak });
-        else
-          changes.push({ from: block2.to, insert: state2.lineBreak + state2.doc.slice(block2.from, block2.to) });
-      }
-      dispatch2(state2.update({ changes, scrollIntoView: true, userEvent: "input.copyline" }));
-      return true;
-    }
-    const copyLineUp = ({ state: state2, dispatch: dispatch2 }) => copyLine(state2, dispatch2, false);
-    const copyLineDown = ({ state: state2, dispatch: dispatch2 }) => copyLine(state2, dispatch2, true);
-    const deleteLine = (view) => {
-      if (view.state.readOnly)
-        return false;
-      let { state: state2 } = view, changes = state2.changes(selectedLineBlocks(state2).map(({ from: from2, to: to2 }) => {
-        if (from2 > 0)
-          from2--;
-        else if (to2 < state2.doc.length)
-          to2++;
-        return { from: from2, to: to2 };
-      }));
-      let selection = updateSel(state2.selection, (range2) => {
-        let dist2 = void 0;
-        if (view.lineWrapping) {
-          let block2 = view.lineBlockAt(range2.head), pos = view.coordsAtPos(range2.head, range2.assoc || 1);
-          if (pos)
-            dist2 = block2.bottom + view.documentTop - pos.bottom + view.defaultLineHeight / 2;
-        }
-        return view.moveVertically(range2, true, dist2);
-      }).map(changes);
-      view.dispatch({ changes, selection, scrollIntoView: true, userEvent: "delete.line" });
-      return true;
-    };
-    function isBetweenBrackets(state2, pos) {
-      if (/\(\)|\[\]|\{\}/.test(state2.sliceDoc(pos - 1, pos + 1)))
-        return { from: pos, to: pos };
-      let context = syntaxTree(state2).resolveInner(pos);
-      let before = context.childBefore(pos), after = context.childAfter(pos), closedBy;
-      if (before && after && before.to <= pos && after.from >= pos && (closedBy = before.type.prop(NodeProp.closedBy)) && closedBy.indexOf(after.name) > -1 && state2.doc.lineAt(before.to).from == state2.doc.lineAt(after.from).from && !/\S/.test(state2.sliceDoc(before.to, after.from)))
-        return { from: before.to, to: after.from };
-      return null;
-    }
-    const insertNewlineAndIndent = /* @__PURE__ */ newlineAndIndent(false);
-    const insertBlankLine = /* @__PURE__ */ newlineAndIndent(true);
-    function newlineAndIndent(atEof) {
-      return ({ state: state2, dispatch: dispatch2 }) => {
-        if (state2.readOnly)
-          return false;
-        let changes = state2.changeByRange((range2) => {
-          let { from: from2, to: to2 } = range2, line = state2.doc.lineAt(from2);
-          let explode = !atEof && from2 == to2 && isBetweenBrackets(state2, from2);
-          if (atEof)
-            from2 = to2 = (to2 <= line.to ? line : state2.doc.lineAt(to2)).to;
-          let cx = new IndentContext(state2, { simulateBreak: from2, simulateDoubleBreak: !!explode });
-          let indent2 = getIndentation(cx, from2);
-          if (indent2 == null)
-            indent2 = countColumn(/^\s*/.exec(state2.doc.lineAt(from2).text)[0], state2.tabSize);
-          while (to2 < line.to && /\s/.test(line.text[to2 - line.from]))
-            to2++;
-          if (explode)
-            ({ from: from2, to: to2 } = explode);
-          else if (from2 > line.from && from2 < line.from + 100 && !/\S/.test(line.text.slice(0, from2)))
-            from2 = line.from;
-          let insert2 = ["", indentString(state2, indent2)];
-          if (explode)
-            insert2.push(indentString(state2, cx.lineIndent(line.from, -1)));
-          return {
-            changes: { from: from2, to: to2, insert: Text$1.of(insert2) },
-            range: EditorSelection.cursor(from2 + 1 + insert2[1].length)
-          };
-        });
-        dispatch2(state2.update(changes, { scrollIntoView: true, userEvent: "input" }));
-        return true;
-      };
-    }
-    function changeBySelectedLine(state2, f) {
-      let atLine = -1;
-      return state2.changeByRange((range2) => {
-        let changes = [];
-        for (let pos = range2.from; pos <= range2.to; ) {
-          let line = state2.doc.lineAt(pos);
-          if (line.number > atLine && (range2.empty || range2.to > line.from)) {
-            f(line, changes, range2);
-            atLine = line.number;
-          }
-          pos = line.to + 1;
-        }
-        let changeSet = state2.changes(changes);
-        return {
-          changes,
-          range: EditorSelection.range(changeSet.mapPos(range2.anchor, 1), changeSet.mapPos(range2.head, 1))
-        };
-      });
-    }
-    const indentSelection = ({ state: state2, dispatch: dispatch2 }) => {
-      if (state2.readOnly)
-        return false;
-      let updated = /* @__PURE__ */ Object.create(null);
-      let context = new IndentContext(state2, { overrideIndentation: (start) => {
-        let found = updated[start];
-        return found == null ? -1 : found;
-      } });
-      let changes = changeBySelectedLine(state2, (line, changes2, range2) => {
-        let indent2 = getIndentation(context, line.from);
-        if (indent2 == null)
-          return;
-        if (!/\S/.test(line.text))
-          indent2 = 0;
-        let cur2 = /^\s*/.exec(line.text)[0];
-        let norm = indentString(state2, indent2);
-        if (cur2 != norm || range2.from < line.from + cur2.length) {
-          updated[line.from] = indent2;
-          changes2.push({ from: line.from, to: line.from + cur2.length, insert: norm });
-        }
-      });
-      if (!changes.changes.empty)
-        dispatch2(state2.update(changes, { userEvent: "indent" }));
-      return true;
-    };
-    const indentMore = ({ state: state2, dispatch: dispatch2 }) => {
-      if (state2.readOnly)
-        return false;
-      dispatch2(state2.update(changeBySelectedLine(state2, (line, changes) => {
-        changes.push({ from: line.from, insert: state2.facet(indentUnit) });
-      }), { userEvent: "input.indent" }));
-      return true;
-    };
-    const indentLess = ({ state: state2, dispatch: dispatch2 }) => {
-      if (state2.readOnly)
-        return false;
-      dispatch2(state2.update(changeBySelectedLine(state2, (line, changes) => {
-        let space2 = /^\s*/.exec(line.text)[0];
-        if (!space2)
-          return;
-        let col = countColumn(space2, state2.tabSize), keep = 0;
-        let insert2 = indentString(state2, Math.max(0, col - getIndentUnit(state2)));
-        while (keep < space2.length && keep < insert2.length && space2.charCodeAt(keep) == insert2.charCodeAt(keep))
-          keep++;
-        changes.push({ from: line.from + keep, to: line.from + space2.length, insert: insert2.slice(keep) });
-      }), { userEvent: "delete.dedent" }));
-      return true;
-    };
-    const toggleTabFocusMode = (view) => {
-      view.setTabFocusMode();
-      return true;
-    };
-    const emacsStyleKeymap = [
-      { key: "Ctrl-b", run: cursorCharLeft, shift: selectCharLeft, preventDefault: true },
-      { key: "Ctrl-f", run: cursorCharRight, shift: selectCharRight },
-      { key: "Ctrl-p", run: cursorLineUp, shift: selectLineUp },
-      { key: "Ctrl-n", run: cursorLineDown, shift: selectLineDown },
-      { key: "Ctrl-a", run: cursorLineStart, shift: selectLineStart },
-      { key: "Ctrl-e", run: cursorLineEnd, shift: selectLineEnd },
-      { key: "Ctrl-d", run: deleteCharForward },
-      { key: "Ctrl-h", run: deleteCharBackward },
-      { key: "Ctrl-k", run: deleteToLineEnd },
-      { key: "Ctrl-Alt-h", run: deleteGroupBackward },
-      { key: "Ctrl-o", run: splitLine },
-      { key: "Ctrl-t", run: transposeChars },
-      { key: "Ctrl-v", run: cursorPageDown }
-    ];
-    const standardKeymap = /* @__PURE__ */ [
-      { key: "ArrowLeft", run: cursorCharLeft, shift: selectCharLeft, preventDefault: true },
-      { key: "Mod-ArrowLeft", mac: "Alt-ArrowLeft", run: cursorGroupLeft, shift: selectGroupLeft, preventDefault: true },
-      { mac: "Cmd-ArrowLeft", run: cursorLineBoundaryLeft, shift: selectLineBoundaryLeft, preventDefault: true },
-      { key: "ArrowRight", run: cursorCharRight, shift: selectCharRight, preventDefault: true },
-      { key: "Mod-ArrowRight", mac: "Alt-ArrowRight", run: cursorGroupRight, shift: selectGroupRight, preventDefault: true },
-      { mac: "Cmd-ArrowRight", run: cursorLineBoundaryRight, shift: selectLineBoundaryRight, preventDefault: true },
-      { key: "ArrowUp", run: cursorLineUp, shift: selectLineUp, preventDefault: true },
-      { mac: "Cmd-ArrowUp", run: cursorDocStart, shift: selectDocStart },
-      { mac: "Ctrl-ArrowUp", run: cursorPageUp, shift: selectPageUp },
-      { key: "ArrowDown", run: cursorLineDown, shift: selectLineDown, preventDefault: true },
-      { mac: "Cmd-ArrowDown", run: cursorDocEnd, shift: selectDocEnd },
-      { mac: "Ctrl-ArrowDown", run: cursorPageDown, shift: selectPageDown },
-      { key: "PageUp", run: cursorPageUp, shift: selectPageUp },
-      { key: "PageDown", run: cursorPageDown, shift: selectPageDown },
-      { key: "Home", run: cursorLineBoundaryBackward, shift: selectLineBoundaryBackward, preventDefault: true },
-      { key: "Mod-Home", run: cursorDocStart, shift: selectDocStart },
-      { key: "End", run: cursorLineBoundaryForward, shift: selectLineBoundaryForward, preventDefault: true },
-      { key: "Mod-End", run: cursorDocEnd, shift: selectDocEnd },
-      { key: "Enter", run: insertNewlineAndIndent, shift: insertNewlineAndIndent },
-      { key: "Mod-a", run: selectAll },
-      { key: "Backspace", run: deleteCharBackward, shift: deleteCharBackward },
-      { key: "Delete", run: deleteCharForward },
-      { key: "Mod-Backspace", mac: "Alt-Backspace", run: deleteGroupBackward },
-      { key: "Mod-Delete", mac: "Alt-Delete", run: deleteGroupForward },
-      { mac: "Mod-Backspace", run: deleteLineBoundaryBackward },
-      { mac: "Mod-Delete", run: deleteLineBoundaryForward }
-    ].concat(/* @__PURE__ */ emacsStyleKeymap.map((b) => ({ mac: b.key, run: b.run, shift: b.shift })));
-    const defaultKeymap = /* @__PURE__ */ [
-      { key: "Alt-ArrowLeft", mac: "Ctrl-ArrowLeft", run: cursorSyntaxLeft, shift: selectSyntaxLeft },
-      { key: "Alt-ArrowRight", mac: "Ctrl-ArrowRight", run: cursorSyntaxRight, shift: selectSyntaxRight },
-      { key: "Alt-ArrowUp", run: moveLineUp },
-      { key: "Shift-Alt-ArrowUp", run: copyLineUp },
-      { key: "Alt-ArrowDown", run: moveLineDown },
-      { key: "Shift-Alt-ArrowDown", run: copyLineDown },
-      { key: "Escape", run: simplifySelection },
-      { key: "Mod-Enter", run: insertBlankLine },
-      { key: "Alt-l", mac: "Ctrl-l", run: selectLine },
-      { key: "Mod-i", run: selectParentSyntax, preventDefault: true },
-      { key: "Mod-[", run: indentLess },
-      { key: "Mod-]", run: indentMore },
-      { key: "Mod-Alt-\\", run: indentSelection },
-      { key: "Shift-Mod-k", run: deleteLine },
-      { key: "Shift-Mod-\\", run: cursorMatchingBracket },
-      { key: "Mod-/", run: toggleComment },
-      { key: "Alt-A", run: toggleBlockComment },
-      { key: "Ctrl-m", mac: "Shift-Alt-m", run: toggleTabFocusMode }
-    ].concat(standardKeymap);
-    const basicNormalize = typeof String.prototype.normalize == "function" ? (x) => x.normalize("NFKD") : (x) => x;
-    class SearchCursor {
-      /**
-      Create a text cursor. The query is the search string, `from` to
-      `to` provides the region to search.
-      
-      When `normalize` is given, it will be called, on both the query
-      string and the content it is matched against, before comparing.
-      You can, for example, create a case-insensitive search by
-      passing `s => s.toLowerCase()`.
-      
-      Text is always normalized with
-      [`.normalize("NFKD")`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/normalize)
-      (when supported).
-      */
-      constructor(text2, query, from2 = 0, to2 = text2.length, normalize2, test) {
-        this.test = test;
-        this.value = { from: 0, to: 0 };
-        this.done = false;
-        this.matches = [];
-        this.buffer = "";
-        this.bufferPos = 0;
-        this.iter = text2.iterRange(from2, to2);
-        this.bufferStart = from2;
-        this.normalize = normalize2 ? (x) => normalize2(basicNormalize(x)) : basicNormalize;
-        this.query = this.normalize(query);
-      }
-      peek() {
-        if (this.bufferPos == this.buffer.length) {
-          this.bufferStart += this.buffer.length;
-          this.iter.next();
-          if (this.iter.done)
-            return -1;
-          this.bufferPos = 0;
-          this.buffer = this.iter.value;
-        }
-        return codePointAt(this.buffer, this.bufferPos);
-      }
-      /**
-      Look for the next match. Updates the iterator's
-      [`value`](https://codemirror.net/6/docs/ref/#search.SearchCursor.value) and
-      [`done`](https://codemirror.net/6/docs/ref/#search.SearchCursor.done) properties. Should be called
-      at least once before using the cursor.
-      */
-      next() {
-        while (this.matches.length)
-          this.matches.pop();
-        return this.nextOverlapping();
-      }
-      /**
-      The `next` method will ignore matches that partially overlap a
-      previous match. This method behaves like `next`, but includes
-      such matches.
-      */
-      nextOverlapping() {
-        for (; ; ) {
-          let next2 = this.peek();
-          if (next2 < 0) {
-            this.done = true;
-            return this;
-          }
-          let str = fromCodePoint(next2), start = this.bufferStart + this.bufferPos;
-          this.bufferPos += codePointSize(next2);
-          let norm = this.normalize(str);
-          if (norm.length)
-            for (let i2 = 0, pos = start; ; i2++) {
-              let code2 = norm.charCodeAt(i2);
-              let match2 = this.match(code2, pos, this.bufferPos + this.bufferStart);
-              if (i2 == norm.length - 1) {
-                if (match2) {
-                  this.value = match2;
-                  return this;
-                }
-                break;
-              }
-              if (pos == start && i2 < str.length && str.charCodeAt(i2) == code2)
-                pos++;
-            }
-        }
-      }
-      match(code2, pos, end) {
-        let match2 = null;
-        for (let i2 = 0; i2 < this.matches.length; i2 += 2) {
-          let index2 = this.matches[i2], keep = false;
-          if (this.query.charCodeAt(index2) == code2) {
-            if (index2 == this.query.length - 1) {
-              match2 = { from: this.matches[i2 + 1], to: end };
-            } else {
-              this.matches[i2]++;
-              keep = true;
-            }
-          }
-          if (!keep) {
-            this.matches.splice(i2, 2);
-            i2 -= 2;
-          }
-        }
-        if (this.query.charCodeAt(0) == code2) {
-          if (this.query.length == 1)
-            match2 = { from: pos, to: end };
-          else
-            this.matches.push(1, pos);
-        }
-        if (match2 && this.test && !this.test(match2.from, match2.to, this.buffer, this.bufferStart))
-          match2 = null;
-        return match2;
-      }
-    }
-    if (typeof Symbol != "undefined")
-      SearchCursor.prototype[Symbol.iterator] = function() {
-        return this;
-      };
-    const empty = { from: -1, to: -1, match: /* @__PURE__ */ /.*/.exec("") };
-    const baseFlags = "gm" + (/x/.unicode == null ? "" : "u");
-    class RegExpCursor {
-      /**
-      Create a cursor that will search the given range in the given
-      document. `query` should be the raw pattern (as you'd pass it to
-      `new RegExp`).
-      */
-      constructor(text2, query, options, from2 = 0, to2 = text2.length) {
-        this.text = text2;
-        this.to = to2;
-        this.curLine = "";
-        this.done = false;
-        this.value = empty;
-        if (/\\[sWDnr]|\n|\r|\[\^/.test(query))
-          return new MultilineRegExpCursor(text2, query, options, from2, to2);
-        this.re = new RegExp(query, baseFlags + ((options === null || options === void 0 ? void 0 : options.ignoreCase) ? "i" : ""));
-        this.test = options === null || options === void 0 ? void 0 : options.test;
-        this.iter = text2.iter();
-        let startLine = text2.lineAt(from2);
-        this.curLineStart = startLine.from;
-        this.matchPos = toCharEnd(text2, from2);
-        this.getLine(this.curLineStart);
-      }
-      getLine(skip2) {
-        this.iter.next(skip2);
-        if (this.iter.lineBreak) {
-          this.curLine = "";
-        } else {
-          this.curLine = this.iter.value;
-          if (this.curLineStart + this.curLine.length > this.to)
-            this.curLine = this.curLine.slice(0, this.to - this.curLineStart);
-          this.iter.next();
-        }
-      }
-      nextLine() {
-        this.curLineStart = this.curLineStart + this.curLine.length + 1;
-        if (this.curLineStart > this.to)
-          this.curLine = "";
-        else
-          this.getLine(0);
-      }
-      /**
-      Move to the next match, if there is one.
-      */
-      next() {
-        for (let off = this.matchPos - this.curLineStart; ; ) {
-          this.re.lastIndex = off;
-          let match2 = this.matchPos <= this.to && this.re.exec(this.curLine);
-          if (match2) {
-            let from2 = this.curLineStart + match2.index, to2 = from2 + match2[0].length;
-            this.matchPos = toCharEnd(this.text, to2 + (from2 == to2 ? 1 : 0));
-            if (from2 == this.curLineStart + this.curLine.length)
-              this.nextLine();
-            if ((from2 < to2 || from2 > this.value.to) && (!this.test || this.test(from2, to2, match2))) {
-              this.value = { from: from2, to: to2, match: match2 };
-              return this;
-            }
-            off = this.matchPos - this.curLineStart;
-          } else if (this.curLineStart + this.curLine.length < this.to) {
-            this.nextLine();
-            off = 0;
-          } else {
-            this.done = true;
-            return this;
-          }
-        }
-      }
-    }
-    const flattened = /* @__PURE__ */ new WeakMap();
-    class FlattenedDoc {
-      constructor(from2, text2) {
-        this.from = from2;
-        this.text = text2;
-      }
-      get to() {
-        return this.from + this.text.length;
-      }
-      static get(doc2, from2, to2) {
-        let cached = flattened.get(doc2);
-        if (!cached || cached.from >= to2 || cached.to <= from2) {
-          let flat = new FlattenedDoc(from2, doc2.sliceString(from2, to2));
-          flattened.set(doc2, flat);
-          return flat;
-        }
-        if (cached.from == from2 && cached.to == to2)
-          return cached;
-        let { text: text2, from: cachedFrom } = cached;
-        if (cachedFrom > from2) {
-          text2 = doc2.sliceString(from2, cachedFrom) + text2;
-          cachedFrom = from2;
-        }
-        if (cached.to < to2)
-          text2 += doc2.sliceString(cached.to, to2);
-        flattened.set(doc2, new FlattenedDoc(cachedFrom, text2));
-        return new FlattenedDoc(from2, text2.slice(from2 - cachedFrom, to2 - cachedFrom));
-      }
-    }
-    class MultilineRegExpCursor {
-      constructor(text2, query, options, from2, to2) {
-        this.text = text2;
-        this.to = to2;
-        this.done = false;
-        this.value = empty;
-        this.matchPos = toCharEnd(text2, from2);
-        this.re = new RegExp(query, baseFlags + ((options === null || options === void 0 ? void 0 : options.ignoreCase) ? "i" : ""));
-        this.test = options === null || options === void 0 ? void 0 : options.test;
-        this.flat = FlattenedDoc.get(text2, from2, this.chunkEnd(
-          from2 + 5e3
-          /* Chunk.Base */
-        ));
-      }
-      chunkEnd(pos) {
-        return pos >= this.to ? this.to : this.text.lineAt(pos).to;
-      }
-      next() {
-        for (; ; ) {
-          let off = this.re.lastIndex = this.matchPos - this.flat.from;
-          let match2 = this.re.exec(this.flat.text);
-          if (match2 && !match2[0] && match2.index == off) {
-            this.re.lastIndex = off + 1;
-            match2 = this.re.exec(this.flat.text);
-          }
-          if (match2) {
-            let from2 = this.flat.from + match2.index, to2 = from2 + match2[0].length;
-            if ((this.flat.to >= this.to || match2.index + match2[0].length <= this.flat.text.length - 10) && (!this.test || this.test(from2, to2, match2))) {
-              this.value = { from: from2, to: to2, match: match2 };
-              this.matchPos = toCharEnd(this.text, to2 + (from2 == to2 ? 1 : 0));
-              return this;
-            }
-          }
-          if (this.flat.to == this.to) {
-            this.done = true;
-            return this;
-          }
-          this.flat = FlattenedDoc.get(this.text, this.flat.from, this.chunkEnd(this.flat.from + this.flat.text.length * 2));
-        }
-      }
-    }
-    if (typeof Symbol != "undefined") {
-      RegExpCursor.prototype[Symbol.iterator] = MultilineRegExpCursor.prototype[Symbol.iterator] = function() {
-        return this;
-      };
-    }
-    function validRegExp(source2) {
-      try {
-        new RegExp(source2, baseFlags);
-        return true;
-      } catch (_a3) {
-        return false;
-      }
-    }
-    function toCharEnd(text2, pos) {
-      if (pos >= text2.length)
-        return pos;
-      let line = text2.lineAt(pos), next2;
-      while (pos < line.to && (next2 = line.text.charCodeAt(pos - line.from)) >= 56320 && next2 < 57344)
-        pos++;
-      return pos;
-    }
-    function createLineDialog(view) {
-      let line = String(view.state.doc.lineAt(view.state.selection.main.head).number);
-      let input = crelt("input", { class: "cm-textfield", name: "line", value: line });
-      let dom = crelt("form", {
-        class: "cm-gotoLine",
-        onkeydown: (event2) => {
-          if (event2.keyCode == 27) {
-            event2.preventDefault();
-            view.dispatch({ effects: dialogEffect.of(false) });
-            view.focus();
-          } else if (event2.keyCode == 13) {
-            event2.preventDefault();
-            go();
-          }
-        },
-        onsubmit: (event2) => {
-          event2.preventDefault();
-          go();
-        }
-      }, crelt("label", view.state.phrase("Go to line"), ": ", input), " ", crelt("button", { class: "cm-button", type: "submit" }, view.state.phrase("go")), crelt("button", {
-        name: "close",
-        onclick: () => {
-          view.dispatch({ effects: dialogEffect.of(false) });
-          view.focus();
-        },
-        "aria-label": view.state.phrase("close"),
-        type: "button"
-      }, ["×"]));
-      function go() {
-        let match2 = /^([+-])?(\d+)?(:\d+)?(%)?$/.exec(input.value);
-        if (!match2)
-          return;
-        let { state: state2 } = view, startLine = state2.doc.lineAt(state2.selection.main.head);
-        let [, sign2, ln, cl, percent] = match2;
-        let col = cl ? +cl.slice(1) : 0;
-        let line2 = ln ? +ln : startLine.number;
-        if (ln && percent) {
-          let pc = line2 / 100;
-          if (sign2)
-            pc = pc * (sign2 == "-" ? -1 : 1) + startLine.number / state2.doc.lines;
-          line2 = Math.round(state2.doc.lines * pc);
-        } else if (ln && sign2) {
-          line2 = line2 * (sign2 == "-" ? -1 : 1) + startLine.number;
-        }
-        let docLine = state2.doc.line(Math.max(1, Math.min(state2.doc.lines, line2)));
-        let selection = EditorSelection.cursor(docLine.from + Math.max(0, Math.min(col, docLine.length)));
-        view.dispatch({
-          effects: [dialogEffect.of(false), EditorView.scrollIntoView(selection.from, { y: "center" })],
-          selection
-        });
-        view.focus();
-      }
-      return { dom };
-    }
-    const dialogEffect = /* @__PURE__ */ StateEffect.define();
-    const dialogField = /* @__PURE__ */ StateField.define({
-      create() {
-        return true;
-      },
-      update(value2, tr) {
-        for (let e2 of tr.effects)
-          if (e2.is(dialogEffect))
-            value2 = e2.value;
-        return value2;
-      },
-      provide: (f) => showPanel.from(f, (val) => val ? createLineDialog : null)
-    });
-    const gotoLine = (view) => {
-      let panel = getPanel(view, createLineDialog);
-      if (!panel) {
-        let effects2 = [dialogEffect.of(true)];
-        if (view.state.field(dialogField, false) == null)
-          effects2.push(StateEffect.appendConfig.of([dialogField, baseTheme$1]));
-        view.dispatch({ effects: effects2 });
-        panel = getPanel(view, createLineDialog);
-      }
-      if (panel)
-        panel.dom.querySelector("input").select();
-      return true;
-    };
-    const baseTheme$1 = /* @__PURE__ */ EditorView.baseTheme({
-      ".cm-panel.cm-gotoLine": {
-        padding: "2px 6px 4px",
-        position: "relative",
-        "& label": { fontSize: "80%" },
-        "& [name=close]": {
-          position: "absolute",
-          top: "0",
-          bottom: "0",
-          right: "4px",
-          backgroundColor: "inherit",
-          border: "none",
-          font: "inherit",
-          padding: "0"
-        }
-      }
-    });
-    const defaultHighlightOptions = {
-      highlightWordAroundCursor: false,
-      minSelectionLength: 1,
-      maxMatches: 100,
-      wholeWords: false
-    };
-    const highlightConfig = /* @__PURE__ */ Facet.define({
-      combine(options) {
-        return combineConfig(options, defaultHighlightOptions, {
-          highlightWordAroundCursor: (a2, b) => a2 || b,
-          minSelectionLength: Math.min,
-          maxMatches: Math.min
-        });
-      }
-    });
-    function highlightSelectionMatches(options) {
-      let ext = [defaultTheme, matchHighlighter];
-      return ext;
-    }
-    const matchDeco = /* @__PURE__ */ Decoration.mark({ class: "cm-selectionMatch" });
-    const mainMatchDeco = /* @__PURE__ */ Decoration.mark({ class: "cm-selectionMatch cm-selectionMatch-main" });
-    function insideWordBoundaries(check2, state2, from2, to2) {
-      return (from2 == 0 || check2(state2.sliceDoc(from2 - 1, from2)) != CharCategory.Word) && (to2 == state2.doc.length || check2(state2.sliceDoc(to2, to2 + 1)) != CharCategory.Word);
-    }
-    function insideWord(check2, state2, from2, to2) {
-      return check2(state2.sliceDoc(from2, from2 + 1)) == CharCategory.Word && check2(state2.sliceDoc(to2 - 1, to2)) == CharCategory.Word;
-    }
-    const matchHighlighter = /* @__PURE__ */ ViewPlugin.fromClass(class {
-      constructor(view) {
-        this.decorations = this.getDeco(view);
-      }
-      update(update2) {
-        if (update2.selectionSet || update2.docChanged || update2.viewportChanged)
-          this.decorations = this.getDeco(update2.view);
-      }
-      getDeco(view) {
-        let conf = view.state.facet(highlightConfig);
-        let { state: state2 } = view, sel = state2.selection;
-        if (sel.ranges.length > 1)
-          return Decoration.none;
-        let range2 = sel.main, query, check2 = null;
-        if (range2.empty) {
-          if (!conf.highlightWordAroundCursor)
-            return Decoration.none;
-          let word = state2.wordAt(range2.head);
-          if (!word)
-            return Decoration.none;
-          check2 = state2.charCategorizer(range2.head);
-          query = state2.sliceDoc(word.from, word.to);
-        } else {
-          let len = range2.to - range2.from;
-          if (len < conf.minSelectionLength || len > 200)
-            return Decoration.none;
-          if (conf.wholeWords) {
-            query = state2.sliceDoc(range2.from, range2.to);
-            check2 = state2.charCategorizer(range2.head);
-            if (!(insideWordBoundaries(check2, state2, range2.from, range2.to) && insideWord(check2, state2, range2.from, range2.to)))
-              return Decoration.none;
-          } else {
-            query = state2.sliceDoc(range2.from, range2.to);
-            if (!query)
-              return Decoration.none;
-          }
-        }
-        let deco = [];
-        for (let part of view.visibleRanges) {
-          let cursor = new SearchCursor(state2.doc, query, part.from, part.to);
-          while (!cursor.next().done) {
-            let { from: from2, to: to2 } = cursor.value;
-            if (!check2 || insideWordBoundaries(check2, state2, from2, to2)) {
-              if (range2.empty && from2 <= range2.from && to2 >= range2.to)
-                deco.push(mainMatchDeco.range(from2, to2));
-              else if (from2 >= range2.to || to2 <= range2.from)
-                deco.push(matchDeco.range(from2, to2));
-              if (deco.length > conf.maxMatches)
-                return Decoration.none;
-            }
-          }
-        }
-        return Decoration.set(deco);
-      }
-    }, {
-      decorations: (v) => v.decorations
-    });
-    const defaultTheme = /* @__PURE__ */ EditorView.baseTheme({
-      ".cm-selectionMatch": { backgroundColor: "#99ff7780" },
-      ".cm-searchMatch .cm-selectionMatch": { backgroundColor: "transparent" }
-    });
-    const selectWord = ({ state: state2, dispatch: dispatch2 }) => {
-      let { selection } = state2;
-      let newSel = EditorSelection.create(selection.ranges.map((range2) => state2.wordAt(range2.head) || EditorSelection.cursor(range2.head)), selection.mainIndex);
-      if (newSel.eq(selection))
-        return false;
-      dispatch2(state2.update({ selection: newSel }));
-      return true;
-    };
-    function findNextOccurrence(state2, query) {
-      let { main, ranges } = state2.selection;
-      let word = state2.wordAt(main.head), fullWord = word && word.from == main.from && word.to == main.to;
-      for (let cycled = false, cursor = new SearchCursor(state2.doc, query, ranges[ranges.length - 1].to); ; ) {
-        cursor.next();
-        if (cursor.done) {
-          if (cycled)
-            return null;
-          cursor = new SearchCursor(state2.doc, query, 0, Math.max(0, ranges[ranges.length - 1].from - 1));
-          cycled = true;
-        } else {
-          if (cycled && ranges.some((r2) => r2.from == cursor.value.from))
-            continue;
-          if (fullWord) {
-            let word2 = state2.wordAt(cursor.value.from);
-            if (!word2 || word2.from != cursor.value.from || word2.to != cursor.value.to)
-              continue;
-          }
-          return cursor.value;
-        }
-      }
-    }
-    const selectNextOccurrence = ({ state: state2, dispatch: dispatch2 }) => {
-      let { ranges } = state2.selection;
-      if (ranges.some((sel) => sel.from === sel.to))
-        return selectWord({ state: state2, dispatch: dispatch2 });
-      let searchedText = state2.sliceDoc(ranges[0].from, ranges[0].to);
-      if (state2.selection.ranges.some((r2) => state2.sliceDoc(r2.from, r2.to) != searchedText))
-        return false;
-      let range2 = findNextOccurrence(state2, searchedText);
-      if (!range2)
-        return false;
-      dispatch2(state2.update({
-        selection: state2.selection.addRange(EditorSelection.range(range2.from, range2.to), false),
-        effects: EditorView.scrollIntoView(range2.to)
-      }));
-      return true;
-    };
-    const searchConfigFacet = /* @__PURE__ */ Facet.define({
-      combine(configs) {
-        return combineConfig(configs, {
-          top: false,
-          caseSensitive: false,
-          literal: false,
-          regexp: false,
-          wholeWord: false,
-          createPanel: (view) => new SearchPanel(view),
-          scrollToMatch: (range2) => EditorView.scrollIntoView(range2)
-        });
-      }
-    });
-    class SearchQuery {
-      /**
-      Create a query object.
-      */
-      constructor(config2) {
-        this.search = config2.search;
-        this.caseSensitive = !!config2.caseSensitive;
-        this.literal = !!config2.literal;
-        this.regexp = !!config2.regexp;
-        this.replace = config2.replace || "";
-        this.valid = !!this.search && (!this.regexp || validRegExp(this.search));
-        this.unquoted = this.unquote(this.search);
-        this.wholeWord = !!config2.wholeWord;
-      }
-      /**
-      @internal
-      */
-      unquote(text2) {
-        return this.literal ? text2 : text2.replace(/\\([nrt\\])/g, (_, ch) => ch == "n" ? "\n" : ch == "r" ? "\r" : ch == "t" ? "	" : "\\");
-      }
-      /**
-      Compare this query to another query.
-      */
-      eq(other) {
-        return this.search == other.search && this.replace == other.replace && this.caseSensitive == other.caseSensitive && this.regexp == other.regexp && this.wholeWord == other.wholeWord;
-      }
-      /**
-      @internal
-      */
-      create() {
-        return this.regexp ? new RegExpQuery(this) : new StringQuery(this);
-      }
-      /**
-      Get a search cursor for this query, searching through the given
-      range in the given state.
-      */
-      getCursor(state2, from2 = 0, to2) {
-        let st = state2.doc ? state2 : EditorState.create({ doc: state2 });
-        if (to2 == null)
-          to2 = st.doc.length;
-        return this.regexp ? regexpCursor(this, st, from2, to2) : stringCursor(this, st, from2, to2);
-      }
-    }
-    class QueryType {
-      constructor(spec) {
-        this.spec = spec;
-      }
-    }
-    function stringCursor(spec, state2, from2, to2) {
-      return new SearchCursor(state2.doc, spec.unquoted, from2, to2, spec.caseSensitive ? void 0 : (x) => x.toLowerCase(), spec.wholeWord ? stringWordTest(state2.doc, state2.charCategorizer(state2.selection.main.head)) : void 0);
-    }
-    function stringWordTest(doc2, categorizer) {
-      return (from2, to2, buf2, bufPos) => {
-        if (bufPos > from2 || bufPos + buf2.length < to2) {
-          bufPos = Math.max(0, from2 - 2);
-          buf2 = doc2.sliceString(bufPos, Math.min(doc2.length, to2 + 2));
-        }
-        return (categorizer(charBefore(buf2, from2 - bufPos)) != CharCategory.Word || categorizer(charAfter(buf2, from2 - bufPos)) != CharCategory.Word) && (categorizer(charAfter(buf2, to2 - bufPos)) != CharCategory.Word || categorizer(charBefore(buf2, to2 - bufPos)) != CharCategory.Word);
-      };
-    }
-    class StringQuery extends QueryType {
-      constructor(spec) {
-        super(spec);
-      }
-      nextMatch(state2, curFrom, curTo) {
-        let cursor = stringCursor(this.spec, state2, curTo, state2.doc.length).nextOverlapping();
-        if (cursor.done) {
-          let end = Math.min(state2.doc.length, curFrom + this.spec.unquoted.length);
-          cursor = stringCursor(this.spec, state2, 0, end).nextOverlapping();
-        }
-        return cursor.done || cursor.value.from == curFrom && cursor.value.to == curTo ? null : cursor.value;
-      }
-      // Searching in reverse is, rather than implementing an inverted search
-      // cursor, done by scanning chunk after chunk forward.
-      prevMatchInRange(state2, from2, to2) {
-        for (let pos = to2; ; ) {
-          let start = Math.max(from2, pos - 1e4 - this.spec.unquoted.length);
-          let cursor = stringCursor(this.spec, state2, start, pos), range2 = null;
-          while (!cursor.nextOverlapping().done)
-            range2 = cursor.value;
-          if (range2)
-            return range2;
-          if (start == from2)
-            return null;
-          pos -= 1e4;
-        }
-      }
-      prevMatch(state2, curFrom, curTo) {
-        let found = this.prevMatchInRange(state2, 0, curFrom);
-        if (!found)
-          found = this.prevMatchInRange(state2, Math.max(0, curTo - this.spec.unquoted.length), state2.doc.length);
-        return found && (found.from != curFrom || found.to != curTo) ? found : null;
-      }
-      getReplacement(_result) {
-        return this.spec.unquote(this.spec.replace);
-      }
-      matchAll(state2, limit) {
-        let cursor = stringCursor(this.spec, state2, 0, state2.doc.length), ranges = [];
-        while (!cursor.next().done) {
-          if (ranges.length >= limit)
-            return null;
-          ranges.push(cursor.value);
-        }
-        return ranges;
-      }
-      highlight(state2, from2, to2, add2) {
-        let cursor = stringCursor(this.spec, state2, Math.max(0, from2 - this.spec.unquoted.length), Math.min(to2 + this.spec.unquoted.length, state2.doc.length));
-        while (!cursor.next().done)
-          add2(cursor.value.from, cursor.value.to);
-      }
-    }
-    function regexpCursor(spec, state2, from2, to2) {
-      return new RegExpCursor(state2.doc, spec.search, {
-        ignoreCase: !spec.caseSensitive,
-        test: spec.wholeWord ? regexpWordTest(state2.charCategorizer(state2.selection.main.head)) : void 0
-      }, from2, to2);
-    }
-    function charBefore(str, index2) {
-      return str.slice(findClusterBreak(str, index2, false), index2);
-    }
-    function charAfter(str, index2) {
-      return str.slice(index2, findClusterBreak(str, index2));
-    }
-    function regexpWordTest(categorizer) {
-      return (_from, _to, match2) => !match2[0].length || (categorizer(charBefore(match2.input, match2.index)) != CharCategory.Word || categorizer(charAfter(match2.input, match2.index)) != CharCategory.Word) && (categorizer(charAfter(match2.input, match2.index + match2[0].length)) != CharCategory.Word || categorizer(charBefore(match2.input, match2.index + match2[0].length)) != CharCategory.Word);
-    }
-    class RegExpQuery extends QueryType {
-      nextMatch(state2, curFrom, curTo) {
-        let cursor = regexpCursor(this.spec, state2, curTo, state2.doc.length).next();
-        if (cursor.done)
-          cursor = regexpCursor(this.spec, state2, 0, curFrom).next();
-        return cursor.done ? null : cursor.value;
-      }
-      prevMatchInRange(state2, from2, to2) {
-        for (let size = 1; ; size++) {
-          let start = Math.max(
-            from2,
-            to2 - size * 1e4
-            /* FindPrev.ChunkSize */
-          );
-          let cursor = regexpCursor(this.spec, state2, start, to2), range2 = null;
-          while (!cursor.next().done)
-            range2 = cursor.value;
-          if (range2 && (start == from2 || range2.from > start + 10))
-            return range2;
-          if (start == from2)
-            return null;
-        }
-      }
-      prevMatch(state2, curFrom, curTo) {
-        return this.prevMatchInRange(state2, 0, curFrom) || this.prevMatchInRange(state2, curTo, state2.doc.length);
-      }
-      getReplacement(result) {
-        return this.spec.unquote(this.spec.replace).replace(/\$([$&]|\d+)/g, (m, i2) => {
-          if (i2 == "&")
-            return result.match[0];
-          if (i2 == "$")
-            return "$";
-          for (let l = i2.length; l > 0; l--) {
-            let n2 = +i2.slice(0, l);
-            if (n2 > 0 && n2 < result.match.length)
-              return result.match[n2] + i2.slice(l);
-          }
-          return m;
-        });
-      }
-      matchAll(state2, limit) {
-        let cursor = regexpCursor(this.spec, state2, 0, state2.doc.length), ranges = [];
-        while (!cursor.next().done) {
-          if (ranges.length >= limit)
-            return null;
-          ranges.push(cursor.value);
-        }
-        return ranges;
-      }
-      highlight(state2, from2, to2, add2) {
-        let cursor = regexpCursor(this.spec, state2, Math.max(
-          0,
-          from2 - 250
-          /* RegExp.HighlightMargin */
-        ), Math.min(to2 + 250, state2.doc.length));
-        while (!cursor.next().done)
-          add2(cursor.value.from, cursor.value.to);
-      }
-    }
-    const setSearchQuery = /* @__PURE__ */ StateEffect.define();
-    const togglePanel$1 = /* @__PURE__ */ StateEffect.define();
-    const searchState = /* @__PURE__ */ StateField.define({
-      create(state2) {
-        return new SearchState(defaultQuery(state2).create(), null);
-      },
-      update(value2, tr) {
-        for (let effect2 of tr.effects) {
-          if (effect2.is(setSearchQuery))
-            value2 = new SearchState(effect2.value.create(), value2.panel);
-          else if (effect2.is(togglePanel$1))
-            value2 = new SearchState(value2.query, effect2.value ? createSearchPanel : null);
-        }
-        return value2;
-      },
-      provide: (f) => showPanel.from(f, (val) => val.panel)
-    });
-    class SearchState {
-      constructor(query, panel) {
-        this.query = query;
-        this.panel = panel;
-      }
-    }
-    const matchMark = /* @__PURE__ */ Decoration.mark({ class: "cm-searchMatch" }), selectedMatchMark = /* @__PURE__ */ Decoration.mark({ class: "cm-searchMatch cm-searchMatch-selected" });
-    const searchHighlighter = /* @__PURE__ */ ViewPlugin.fromClass(class {
-      constructor(view) {
-        this.view = view;
-        this.decorations = this.highlight(view.state.field(searchState));
-      }
-      update(update2) {
-        let state2 = update2.state.field(searchState);
-        if (state2 != update2.startState.field(searchState) || update2.docChanged || update2.selectionSet || update2.viewportChanged)
-          this.decorations = this.highlight(state2);
-      }
-      highlight({ query, panel }) {
-        if (!panel || !query.spec.valid)
-          return Decoration.none;
-        let { view } = this;
-        let builder = new RangeSetBuilder();
-        for (let i2 = 0, ranges = view.visibleRanges, l = ranges.length; i2 < l; i2++) {
-          let { from: from2, to: to2 } = ranges[i2];
-          while (i2 < l - 1 && to2 > ranges[i2 + 1].from - 2 * 250)
-            to2 = ranges[++i2].to;
-          query.highlight(view.state, from2, to2, (from3, to3) => {
-            let selected = view.state.selection.ranges.some((r2) => r2.from == from3 && r2.to == to3);
-            builder.add(from3, to3, selected ? selectedMatchMark : matchMark);
-          });
-        }
-        return builder.finish();
-      }
-    }, {
-      decorations: (v) => v.decorations
-    });
-    function searchCommand(f) {
-      return (view) => {
-        let state2 = view.state.field(searchState, false);
-        return state2 && state2.query.spec.valid ? f(view, state2) : openSearchPanel(view);
-      };
-    }
-    const findNext = /* @__PURE__ */ searchCommand((view, { query }) => {
-      let { to: to2 } = view.state.selection.main;
-      let next2 = query.nextMatch(view.state, to2, to2);
-      if (!next2)
-        return false;
-      let selection = EditorSelection.single(next2.from, next2.to);
-      let config2 = view.state.facet(searchConfigFacet);
-      view.dispatch({
-        selection,
-        effects: [announceMatch(view, next2), config2.scrollToMatch(selection.main, view)],
-        userEvent: "select.search"
-      });
-      selectSearchInput(view);
-      return true;
-    });
-    const findPrevious = /* @__PURE__ */ searchCommand((view, { query }) => {
-      let { state: state2 } = view, { from: from2 } = state2.selection.main;
-      let prev = query.prevMatch(state2, from2, from2);
-      if (!prev)
-        return false;
-      let selection = EditorSelection.single(prev.from, prev.to);
-      let config2 = view.state.facet(searchConfigFacet);
-      view.dispatch({
-        selection,
-        effects: [announceMatch(view, prev), config2.scrollToMatch(selection.main, view)],
-        userEvent: "select.search"
-      });
-      selectSearchInput(view);
-      return true;
-    });
-    const selectMatches = /* @__PURE__ */ searchCommand((view, { query }) => {
-      let ranges = query.matchAll(view.state, 1e3);
-      if (!ranges || !ranges.length)
-        return false;
-      view.dispatch({
-        selection: EditorSelection.create(ranges.map((r2) => EditorSelection.range(r2.from, r2.to))),
-        userEvent: "select.search.matches"
-      });
-      return true;
-    });
-    const selectSelectionMatches = ({ state: state2, dispatch: dispatch2 }) => {
-      let sel = state2.selection;
-      if (sel.ranges.length > 1 || sel.main.empty)
-        return false;
-      let { from: from2, to: to2 } = sel.main;
-      let ranges = [], main = 0;
-      for (let cur2 = new SearchCursor(state2.doc, state2.sliceDoc(from2, to2)); !cur2.next().done; ) {
-        if (ranges.length > 1e3)
-          return false;
-        if (cur2.value.from == from2)
-          main = ranges.length;
-        ranges.push(EditorSelection.range(cur2.value.from, cur2.value.to));
-      }
-      dispatch2(state2.update({
-        selection: EditorSelection.create(ranges, main),
-        userEvent: "select.search.matches"
-      }));
-      return true;
-    };
-    const replaceNext = /* @__PURE__ */ searchCommand((view, { query }) => {
-      let { state: state2 } = view, { from: from2, to: to2 } = state2.selection.main;
-      if (state2.readOnly)
-        return false;
-      let match2 = query.nextMatch(state2, from2, from2);
-      if (!match2)
-        return false;
-      let next2 = match2;
-      let changes = [], selection, replacement;
-      let effects2 = [];
-      if (next2.from == from2 && next2.to == to2) {
-        replacement = state2.toText(query.getReplacement(next2));
-        changes.push({ from: next2.from, to: next2.to, insert: replacement });
-        next2 = query.nextMatch(state2, next2.from, next2.to);
-        effects2.push(EditorView.announce.of(state2.phrase("replaced match on line $", state2.doc.lineAt(from2).number) + "."));
-      }
-      let changeSet = view.state.changes(changes);
-      if (next2) {
-        selection = EditorSelection.single(next2.from, next2.to).map(changeSet);
-        effects2.push(announceMatch(view, next2));
-        effects2.push(state2.facet(searchConfigFacet).scrollToMatch(selection.main, view));
-      }
-      view.dispatch({
-        changes: changeSet,
-        selection,
-        effects: effects2,
-        userEvent: "input.replace"
-      });
-      return true;
-    });
-    const replaceAll = /* @__PURE__ */ searchCommand((view, { query }) => {
-      if (view.state.readOnly)
-        return false;
-      let changes = query.matchAll(view.state, 1e9).map((match2) => {
-        let { from: from2, to: to2 } = match2;
-        return { from: from2, to: to2, insert: query.getReplacement(match2) };
-      });
-      if (!changes.length)
-        return false;
-      let announceText = view.state.phrase("replaced $ matches", changes.length) + ".";
-      view.dispatch({
-        changes,
-        effects: EditorView.announce.of(announceText),
-        userEvent: "input.replace.all"
-      });
-      return true;
-    });
-    function createSearchPanel(view) {
-      return view.state.facet(searchConfigFacet).createPanel(view);
-    }
-    function defaultQuery(state2, fallback) {
-      var _a3, _b2, _c, _d, _e;
-      let sel = state2.selection.main;
-      let selText = sel.empty || sel.to > sel.from + 100 ? "" : state2.sliceDoc(sel.from, sel.to);
-      if (fallback && !selText)
-        return fallback;
-      let config2 = state2.facet(searchConfigFacet);
-      return new SearchQuery({
-        search: ((_a3 = fallback === null || fallback === void 0 ? void 0 : fallback.literal) !== null && _a3 !== void 0 ? _a3 : config2.literal) ? selText : selText.replace(/\n/g, "\\n"),
-        caseSensitive: (_b2 = fallback === null || fallback === void 0 ? void 0 : fallback.caseSensitive) !== null && _b2 !== void 0 ? _b2 : config2.caseSensitive,
-        literal: (_c = fallback === null || fallback === void 0 ? void 0 : fallback.literal) !== null && _c !== void 0 ? _c : config2.literal,
-        regexp: (_d = fallback === null || fallback === void 0 ? void 0 : fallback.regexp) !== null && _d !== void 0 ? _d : config2.regexp,
-        wholeWord: (_e = fallback === null || fallback === void 0 ? void 0 : fallback.wholeWord) !== null && _e !== void 0 ? _e : config2.wholeWord
-      });
-    }
-    function getSearchInput(view) {
-      let panel = getPanel(view, createSearchPanel);
-      return panel && panel.dom.querySelector("[main-field]");
-    }
-    function selectSearchInput(view) {
-      let input = getSearchInput(view);
-      if (input && input == view.root.activeElement)
-        input.select();
-    }
-    const openSearchPanel = (view) => {
-      let state2 = view.state.field(searchState, false);
-      if (state2 && state2.panel) {
-        let searchInput = getSearchInput(view);
-        if (searchInput && searchInput != view.root.activeElement) {
-          let query = defaultQuery(view.state, state2.query.spec);
-          if (query.valid)
-            view.dispatch({ effects: setSearchQuery.of(query) });
-          searchInput.focus();
-          searchInput.select();
-        }
-      } else {
-        view.dispatch({ effects: [
-          togglePanel$1.of(true),
-          state2 ? setSearchQuery.of(defaultQuery(view.state, state2.query.spec)) : StateEffect.appendConfig.of(searchExtensions)
-        ] });
-      }
-      return true;
-    };
-    const closeSearchPanel = (view) => {
-      let state2 = view.state.field(searchState, false);
-      if (!state2 || !state2.panel)
-        return false;
-      let panel = getPanel(view, createSearchPanel);
-      if (panel && panel.dom.contains(view.root.activeElement))
-        view.focus();
-      view.dispatch({ effects: togglePanel$1.of(false) });
-      return true;
-    };
-    const searchKeymap = [
-      { key: "Mod-f", run: openSearchPanel, scope: "editor search-panel" },
-      { key: "F3", run: findNext, shift: findPrevious, scope: "editor search-panel", preventDefault: true },
-      { key: "Mod-g", run: findNext, shift: findPrevious, scope: "editor search-panel", preventDefault: true },
-      { key: "Escape", run: closeSearchPanel, scope: "editor search-panel" },
-      { key: "Mod-Shift-l", run: selectSelectionMatches },
-      { key: "Mod-Alt-g", run: gotoLine },
-      { key: "Mod-d", run: selectNextOccurrence, preventDefault: true }
-    ];
-    class SearchPanel {
-      constructor(view) {
-        this.view = view;
-        let query = this.query = view.state.field(searchState).query.spec;
-        this.commit = this.commit.bind(this);
-        this.searchField = crelt("input", {
-          value: query.search,
-          placeholder: phrase(view, "Find"),
-          "aria-label": phrase(view, "Find"),
-          class: "cm-textfield",
-          name: "search",
-          form: "",
-          "main-field": "true",
-          onchange: this.commit,
-          onkeyup: this.commit
-        });
-        this.replaceField = crelt("input", {
-          value: query.replace,
-          placeholder: phrase(view, "Replace"),
-          "aria-label": phrase(view, "Replace"),
-          class: "cm-textfield",
-          name: "replace",
-          form: "",
-          onchange: this.commit,
-          onkeyup: this.commit
-        });
-        this.caseField = crelt("input", {
-          type: "checkbox",
-          name: "case",
-          form: "",
-          checked: query.caseSensitive,
-          onchange: this.commit
-        });
-        this.reField = crelt("input", {
-          type: "checkbox",
-          name: "re",
-          form: "",
-          checked: query.regexp,
-          onchange: this.commit
-        });
-        this.wordField = crelt("input", {
-          type: "checkbox",
-          name: "word",
-          form: "",
-          checked: query.wholeWord,
-          onchange: this.commit
-        });
-        function button(name2, onclick, content2) {
-          return crelt("button", { class: "cm-button", name: name2, onclick, type: "button" }, content2);
-        }
-        this.dom = crelt("div", { onkeydown: (e2) => this.keydown(e2), class: "cm-search" }, [
-          this.searchField,
-          button("next", () => findNext(view), [phrase(view, "next")]),
-          button("prev", () => findPrevious(view), [phrase(view, "previous")]),
-          button("select", () => selectMatches(view), [phrase(view, "all")]),
-          crelt("label", null, [this.caseField, phrase(view, "match case")]),
-          crelt("label", null, [this.reField, phrase(view, "regexp")]),
-          crelt("label", null, [this.wordField, phrase(view, "by word")]),
-          ...view.state.readOnly ? [] : [
-            crelt("br"),
-            this.replaceField,
-            button("replace", () => replaceNext(view), [phrase(view, "replace")]),
-            button("replaceAll", () => replaceAll(view), [phrase(view, "replace all")])
-          ],
-          crelt("button", {
-            name: "close",
-            onclick: () => closeSearchPanel(view),
-            "aria-label": phrase(view, "close"),
-            type: "button"
-          }, ["×"])
-        ]);
-      }
-      commit() {
-        let query = new SearchQuery({
-          search: this.searchField.value,
-          caseSensitive: this.caseField.checked,
-          regexp: this.reField.checked,
-          wholeWord: this.wordField.checked,
-          replace: this.replaceField.value
-        });
-        if (!query.eq(this.query)) {
-          this.query = query;
-          this.view.dispatch({ effects: setSearchQuery.of(query) });
-        }
-      }
-      keydown(e2) {
-        if (runScopeHandlers(this.view, e2, "search-panel")) {
-          e2.preventDefault();
-        } else if (e2.keyCode == 13 && e2.target == this.searchField) {
-          e2.preventDefault();
-          (e2.shiftKey ? findPrevious : findNext)(this.view);
-        } else if (e2.keyCode == 13 && e2.target == this.replaceField) {
-          e2.preventDefault();
-          replaceNext(this.view);
-        }
-      }
-      update(update2) {
-        for (let tr of update2.transactions)
-          for (let effect2 of tr.effects) {
-            if (effect2.is(setSearchQuery) && !effect2.value.eq(this.query))
-              this.setQuery(effect2.value);
-          }
-      }
-      setQuery(query) {
-        this.query = query;
-        this.searchField.value = query.search;
-        this.replaceField.value = query.replace;
-        this.caseField.checked = query.caseSensitive;
-        this.reField.checked = query.regexp;
-        this.wordField.checked = query.wholeWord;
-      }
-      mount() {
-        this.searchField.select();
-      }
-      get pos() {
-        return 80;
-      }
-      get top() {
-        return this.view.state.facet(searchConfigFacet).top;
-      }
-    }
-    function phrase(view, phrase2) {
-      return view.state.phrase(phrase2);
-    }
-    const AnnounceMargin = 30;
-    const Break = /[\s\.,:;?!]/;
-    function announceMatch(view, { from: from2, to: to2 }) {
-      let line = view.state.doc.lineAt(from2), lineEnd = view.state.doc.lineAt(to2).to;
-      let start = Math.max(line.from, from2 - AnnounceMargin), end = Math.min(lineEnd, to2 + AnnounceMargin);
-      let text2 = view.state.sliceDoc(start, end);
-      if (start != line.from) {
-        for (let i2 = 0; i2 < AnnounceMargin; i2++)
-          if (!Break.test(text2[i2 + 1]) && Break.test(text2[i2])) {
-            text2 = text2.slice(i2);
-            break;
-          }
-      }
-      if (end != lineEnd) {
-        for (let i2 = text2.length - 1; i2 > text2.length - AnnounceMargin; i2--)
-          if (!Break.test(text2[i2 - 1]) && Break.test(text2[i2])) {
-            text2 = text2.slice(0, i2);
-            break;
-          }
-      }
-      return EditorView.announce.of(`${view.state.phrase("current match")}. ${text2} ${view.state.phrase("on line")} ${line.number}.`);
-    }
-    const baseTheme$2 = /* @__PURE__ */ EditorView.baseTheme({
-      ".cm-panel.cm-search": {
-        padding: "2px 6px 4px",
-        position: "relative",
-        "& [name=close]": {
-          position: "absolute",
-          top: "0",
-          right: "4px",
-          backgroundColor: "inherit",
-          border: "none",
-          font: "inherit",
-          padding: 0,
-          margin: 0
-        },
-        "& input, & button, & label": {
-          margin: ".2em .6em .2em 0"
-        },
-        "& input[type=checkbox]": {
-          marginRight: ".2em"
-        },
-        "& label": {
-          fontSize: "80%",
-          whiteSpace: "pre"
-        }
-      },
-      "&light .cm-searchMatch": { backgroundColor: "#ffff0054" },
-      "&dark .cm-searchMatch": { backgroundColor: "#00ffff8a" },
-      "&light .cm-searchMatch-selected": { backgroundColor: "#ff6a0054" },
-      "&dark .cm-searchMatch-selected": { backgroundColor: "#ff00ff8a" }
-    });
-    const searchExtensions = [
-      searchState,
-      /* @__PURE__ */ Prec.low(searchHighlighter),
-      baseTheme$2
-    ];
-    class SelectedDiagnostic {
-      constructor(from2, to2, diagnostic) {
-        this.from = from2;
-        this.to = to2;
-        this.diagnostic = diagnostic;
-      }
-    }
-    class LintState {
-      constructor(diagnostics, panel, selected) {
-        this.diagnostics = diagnostics;
-        this.panel = panel;
-        this.selected = selected;
-      }
-      static init(diagnostics, panel, state2) {
-        let diagnosticFilter = state2.facet(lintConfig).markerFilter;
-        if (diagnosticFilter)
-          diagnostics = diagnosticFilter(diagnostics, state2);
-        let sorted = diagnostics.slice().sort((a2, b) => a2.from - b.from || a2.to - b.to);
-        let deco = new RangeSetBuilder(), active = [], pos = 0;
-        for (let i2 = 0; ; ) {
-          let next2 = i2 == sorted.length ? null : sorted[i2];
-          if (!next2 && !active.length)
-            break;
-          let from2, to2;
-          if (active.length) {
-            from2 = pos;
-            to2 = active.reduce((p, d) => Math.min(p, d.to), next2 && next2.from > from2 ? next2.from : 1e8);
-          } else {
-            from2 = next2.from;
-            to2 = next2.to;
-            active.push(next2);
-            i2++;
-          }
-          while (i2 < sorted.length) {
-            let next3 = sorted[i2];
-            if (next3.from == from2 && (next3.to > next3.from || next3.to == from2)) {
-              active.push(next3);
-              i2++;
-              to2 = Math.min(next3.to, to2);
-            } else {
-              to2 = Math.min(next3.from, to2);
-              break;
-            }
-          }
-          let sev = maxSeverity(active);
-          if (active.some((d) => d.from == d.to || d.from == d.to - 1 && state2.doc.lineAt(d.from).to == d.from)) {
-            deco.add(from2, from2, Decoration.widget({
-              widget: new DiagnosticWidget(sev),
-              diagnostics: active.slice()
-            }));
-          } else {
-            let markClass = active.reduce((c, d) => d.markClass ? c + " " + d.markClass : c, "");
-            deco.add(from2, to2, Decoration.mark({
-              class: "cm-lintRange cm-lintRange-" + sev + markClass,
-              diagnostics: active.slice(),
-              inclusiveEnd: active.some((a2) => a2.to > to2)
-            }));
-          }
-          pos = to2;
-          for (let i3 = 0; i3 < active.length; i3++)
-            if (active[i3].to <= pos)
-              active.splice(i3--, 1);
-        }
-        let set2 = deco.finish();
-        return new LintState(set2, panel, findDiagnostic(set2));
-      }
-    }
-    function findDiagnostic(diagnostics, diagnostic = null, after = 0) {
-      let found = null;
-      diagnostics.between(after, 1e9, (from2, to2, { spec }) => {
-        if (diagnostic && spec.diagnostics.indexOf(diagnostic) < 0)
-          return;
-        if (!found)
-          found = new SelectedDiagnostic(from2, to2, diagnostic || spec.diagnostics[0]);
-        else if (spec.diagnostics.indexOf(found.diagnostic) < 0)
-          return false;
-        else
-          found = new SelectedDiagnostic(found.from, to2, found.diagnostic);
-      });
-      return found;
-    }
-    function hideTooltip(tr, tooltip) {
-      let from2 = tooltip.pos, to2 = tooltip.end || from2;
-      let result = tr.state.facet(lintConfig).hideOn(tr, from2, to2);
-      if (result != null)
-        return result;
-      let line = tr.startState.doc.lineAt(tooltip.pos);
-      return !!(tr.effects.some((e2) => e2.is(setDiagnosticsEffect)) || tr.changes.touchesRange(line.from, Math.max(line.to, to2)));
-    }
-    function maybeEnableLint(state2, effects2) {
-      return state2.field(lintState, false) ? effects2 : effects2.concat(StateEffect.appendConfig.of(lintExtensions));
-    }
-    const setDiagnosticsEffect = /* @__PURE__ */ StateEffect.define();
-    const togglePanel = /* @__PURE__ */ StateEffect.define();
-    const movePanelSelection = /* @__PURE__ */ StateEffect.define();
-    const lintState = /* @__PURE__ */ StateField.define({
-      create() {
-        return new LintState(Decoration.none, null, null);
-      },
-      update(value2, tr) {
-        if (tr.docChanged && value2.diagnostics.size) {
-          let mapped = value2.diagnostics.map(tr.changes), selected = null, panel = value2.panel;
-          if (value2.selected) {
-            let selPos = tr.changes.mapPos(value2.selected.from, 1);
-            selected = findDiagnostic(mapped, value2.selected.diagnostic, selPos) || findDiagnostic(mapped, null, selPos);
-          }
-          if (!mapped.size && panel && tr.state.facet(lintConfig).autoPanel)
-            panel = null;
-          value2 = new LintState(mapped, panel, selected);
-        }
-        for (let effect2 of tr.effects) {
-          if (effect2.is(setDiagnosticsEffect)) {
-            let panel = !tr.state.facet(lintConfig).autoPanel ? value2.panel : effect2.value.length ? LintPanel.open : null;
-            value2 = LintState.init(effect2.value, panel, tr.state);
-          } else if (effect2.is(togglePanel)) {
-            value2 = new LintState(value2.diagnostics, effect2.value ? LintPanel.open : null, value2.selected);
-          } else if (effect2.is(movePanelSelection)) {
-            value2 = new LintState(value2.diagnostics, value2.panel, effect2.value);
-          }
-        }
-        return value2;
-      },
-      provide: (f) => [
-        showPanel.from(f, (val) => val.panel),
-        EditorView.decorations.from(f, (s) => s.diagnostics)
-      ]
-    });
-    const activeMark = /* @__PURE__ */ Decoration.mark({ class: "cm-lintRange cm-lintRange-active" });
-    function lintTooltip(view, pos, side) {
-      let { diagnostics } = view.state.field(lintState);
-      let found, start = -1, end = -1;
-      diagnostics.between(pos - (side < 0 ? 1 : 0), pos + (side > 0 ? 1 : 0), (from2, to2, { spec }) => {
-        if (pos >= from2 && pos <= to2 && (from2 == to2 || (pos > from2 || side > 0) && (pos < to2 || side < 0))) {
-          found = spec.diagnostics;
-          start = from2;
-          end = to2;
-          return false;
-        }
-      });
-      let diagnosticFilter = view.state.facet(lintConfig).tooltipFilter;
-      if (found && diagnosticFilter)
-        found = diagnosticFilter(found, view.state);
-      if (!found)
-        return null;
-      return {
-        pos: start,
-        end,
-        above: view.state.doc.lineAt(start).to < end,
-        create() {
-          return { dom: diagnosticsTooltip(view, found) };
-        }
-      };
-    }
-    function diagnosticsTooltip(view, diagnostics) {
-      return crelt("ul", { class: "cm-tooltip-lint" }, diagnostics.map((d) => renderDiagnostic(view, d, false)));
-    }
-    const openLintPanel = (view) => {
-      let field = view.state.field(lintState, false);
-      if (!field || !field.panel)
-        view.dispatch({ effects: maybeEnableLint(view.state, [togglePanel.of(true)]) });
-      let panel = getPanel(view, LintPanel.open);
-      if (panel)
-        panel.dom.querySelector(".cm-panel-lint ul").focus();
-      return true;
-    };
-    const closeLintPanel = (view) => {
-      let field = view.state.field(lintState, false);
-      if (!field || !field.panel)
-        return false;
-      view.dispatch({ effects: togglePanel.of(false) });
-      return true;
-    };
-    const nextDiagnostic = (view) => {
-      let field = view.state.field(lintState, false);
-      if (!field)
-        return false;
-      let sel = view.state.selection.main, next2 = field.diagnostics.iter(sel.to + 1);
-      if (!next2.value) {
-        next2 = field.diagnostics.iter(0);
-        if (!next2.value || next2.from == sel.from && next2.to == sel.to)
-          return false;
-      }
-      view.dispatch({ selection: { anchor: next2.from, head: next2.to }, scrollIntoView: true });
-      return true;
-    };
-    const lintKeymap = [
-      { key: "Mod-Shift-m", run: openLintPanel, preventDefault: true },
-      { key: "F8", run: nextDiagnostic }
-    ];
-    const lintConfig = /* @__PURE__ */ Facet.define({
-      combine(input) {
-        return Object.assign({ sources: input.map((i2) => i2.source).filter((x) => x != null) }, combineConfig(input.map((i2) => i2.config), {
-          delay: 750,
-          markerFilter: null,
-          tooltipFilter: null,
-          needsRefresh: null,
-          hideOn: () => null
-        }, {
-          needsRefresh: (a2, b) => !a2 ? b : !b ? a2 : (u) => a2(u) || b(u)
-        }));
-      }
-    });
-    function assignKeys(actions) {
-      let assigned = [];
-      if (actions)
-        actions: for (let { name: name2 } of actions) {
-          for (let i2 = 0; i2 < name2.length; i2++) {
-            let ch = name2[i2];
-            if (/[a-zA-Z]/.test(ch) && !assigned.some((c) => c.toLowerCase() == ch.toLowerCase())) {
-              assigned.push(ch);
-              continue actions;
-            }
-          }
-          assigned.push("");
-        }
-      return assigned;
-    }
-    function renderDiagnostic(view, diagnostic, inPanel) {
-      var _a3;
-      let keys2 = inPanel ? assignKeys(diagnostic.actions) : [];
-      return crelt("li", { class: "cm-diagnostic cm-diagnostic-" + diagnostic.severity }, crelt("span", { class: "cm-diagnosticText" }, diagnostic.renderMessage ? diagnostic.renderMessage(view) : diagnostic.message), (_a3 = diagnostic.actions) === null || _a3 === void 0 ? void 0 : _a3.map((action2, i2) => {
-        let fired = false, click = (e2) => {
-          e2.preventDefault();
-          if (fired)
-            return;
-          fired = true;
-          let found = findDiagnostic(view.state.field(lintState).diagnostics, diagnostic);
-          if (found)
-            action2.apply(view, found.from, found.to);
-        };
-        let { name: name2 } = action2, keyIndex = keys2[i2] ? name2.indexOf(keys2[i2]) : -1;
-        let nameElt = keyIndex < 0 ? name2 : [
-          name2.slice(0, keyIndex),
-          crelt("u", name2.slice(keyIndex, keyIndex + 1)),
-          name2.slice(keyIndex + 1)
-        ];
-        return crelt("button", {
-          type: "button",
-          class: "cm-diagnosticAction",
-          onclick: click,
-          onmousedown: click,
-          "aria-label": ` Action: ${name2}${keyIndex < 0 ? "" : ` (access key "${keys2[i2]})"`}.`
-        }, nameElt);
-      }), diagnostic.source && crelt("div", { class: "cm-diagnosticSource" }, diagnostic.source));
-    }
-    class DiagnosticWidget extends WidgetType {
-      constructor(sev) {
-        super();
-        this.sev = sev;
-      }
-      eq(other) {
-        return other.sev == this.sev;
-      }
-      toDOM() {
-        return crelt("span", { class: "cm-lintPoint cm-lintPoint-" + this.sev });
-      }
-    }
-    class PanelItem {
-      constructor(view, diagnostic) {
-        this.diagnostic = diagnostic;
-        this.id = "item_" + Math.floor(Math.random() * 4294967295).toString(16);
-        this.dom = renderDiagnostic(view, diagnostic, true);
-        this.dom.id = this.id;
-        this.dom.setAttribute("role", "option");
-      }
-    }
-    class LintPanel {
-      constructor(view) {
-        this.view = view;
-        this.items = [];
-        let onkeydown = (event2) => {
-          if (event2.keyCode == 27) {
-            closeLintPanel(this.view);
-            this.view.focus();
-          } else if (event2.keyCode == 38 || event2.keyCode == 33) {
-            this.moveSelection((this.selectedIndex - 1 + this.items.length) % this.items.length);
-          } else if (event2.keyCode == 40 || event2.keyCode == 34) {
-            this.moveSelection((this.selectedIndex + 1) % this.items.length);
-          } else if (event2.keyCode == 36) {
-            this.moveSelection(0);
-          } else if (event2.keyCode == 35) {
-            this.moveSelection(this.items.length - 1);
-          } else if (event2.keyCode == 13) {
-            this.view.focus();
-          } else if (event2.keyCode >= 65 && event2.keyCode <= 90 && this.selectedIndex >= 0) {
-            let { diagnostic } = this.items[this.selectedIndex], keys2 = assignKeys(diagnostic.actions);
-            for (let i2 = 0; i2 < keys2.length; i2++)
-              if (keys2[i2].toUpperCase().charCodeAt(0) == event2.keyCode) {
-                let found = findDiagnostic(this.view.state.field(lintState).diagnostics, diagnostic);
-                if (found)
-                  diagnostic.actions[i2].apply(view, found.from, found.to);
-              }
-          } else {
-            return;
-          }
-          event2.preventDefault();
-        };
-        let onclick = (event2) => {
-          for (let i2 = 0; i2 < this.items.length; i2++) {
-            if (this.items[i2].dom.contains(event2.target))
-              this.moveSelection(i2);
-          }
-        };
-        this.list = crelt("ul", {
-          tabIndex: 0,
-          role: "listbox",
-          "aria-label": this.view.state.phrase("Diagnostics"),
-          onkeydown,
-          onclick
-        });
-        this.dom = crelt("div", { class: "cm-panel-lint" }, this.list, crelt("button", {
-          type: "button",
-          name: "close",
-          "aria-label": this.view.state.phrase("close"),
-          onclick: () => closeLintPanel(this.view)
-        }, "×"));
-        this.update();
-      }
-      get selectedIndex() {
-        let selected = this.view.state.field(lintState).selected;
-        if (!selected)
-          return -1;
-        for (let i2 = 0; i2 < this.items.length; i2++)
-          if (this.items[i2].diagnostic == selected.diagnostic)
-            return i2;
-        return -1;
-      }
-      update() {
-        let { diagnostics, selected } = this.view.state.field(lintState);
-        let i2 = 0, needsSync = false, newSelectedItem = null;
-        let seen2 = /* @__PURE__ */ new Set();
-        diagnostics.between(0, this.view.state.doc.length, (_start, _end, { spec }) => {
-          for (let diagnostic of spec.diagnostics) {
-            if (seen2.has(diagnostic))
-              continue;
-            seen2.add(diagnostic);
-            let found = -1, item;
-            for (let j = i2; j < this.items.length; j++)
-              if (this.items[j].diagnostic == diagnostic) {
-                found = j;
-                break;
-              }
-            if (found < 0) {
-              item = new PanelItem(this.view, diagnostic);
-              this.items.splice(i2, 0, item);
-              needsSync = true;
-            } else {
-              item = this.items[found];
-              if (found > i2) {
-                this.items.splice(i2, found - i2);
-                needsSync = true;
-              }
-            }
-            if (selected && item.diagnostic == selected.diagnostic) {
-              if (!item.dom.hasAttribute("aria-selected")) {
-                item.dom.setAttribute("aria-selected", "true");
-                newSelectedItem = item;
-              }
-            } else if (item.dom.hasAttribute("aria-selected")) {
-              item.dom.removeAttribute("aria-selected");
-            }
-            i2++;
-          }
-        });
-        while (i2 < this.items.length && !(this.items.length == 1 && this.items[0].diagnostic.from < 0)) {
-          needsSync = true;
-          this.items.pop();
-        }
-        if (this.items.length == 0) {
-          this.items.push(new PanelItem(this.view, {
-            from: -1,
-            to: -1,
-            severity: "info",
-            message: this.view.state.phrase("No diagnostics")
-          }));
-          needsSync = true;
-        }
-        if (newSelectedItem) {
-          this.list.setAttribute("aria-activedescendant", newSelectedItem.id);
-          this.view.requestMeasure({
-            key: this,
-            read: () => ({ sel: newSelectedItem.dom.getBoundingClientRect(), panel: this.list.getBoundingClientRect() }),
-            write: ({ sel, panel }) => {
-              let scaleY = panel.height / this.list.offsetHeight;
-              if (sel.top < panel.top)
-                this.list.scrollTop -= (panel.top - sel.top) / scaleY;
-              else if (sel.bottom > panel.bottom)
-                this.list.scrollTop += (sel.bottom - panel.bottom) / scaleY;
-            }
-          });
-        } else if (this.selectedIndex < 0) {
-          this.list.removeAttribute("aria-activedescendant");
-        }
-        if (needsSync)
-          this.sync();
-      }
-      sync() {
-        let domPos = this.list.firstChild;
-        function rm2() {
-          let prev = domPos;
-          domPos = prev.nextSibling;
-          prev.remove();
-        }
-        for (let item of this.items) {
-          if (item.dom.parentNode == this.list) {
-            while (domPos != item.dom)
-              rm2();
-            domPos = item.dom.nextSibling;
-          } else {
-            this.list.insertBefore(item.dom, domPos);
-          }
-        }
-        while (domPos)
-          rm2();
-      }
-      moveSelection(selectedIndex) {
-        if (this.selectedIndex < 0)
-          return;
-        let field = this.view.state.field(lintState);
-        let selection = findDiagnostic(field.diagnostics, this.items[selectedIndex].diagnostic);
-        if (!selection)
-          return;
-        this.view.dispatch({
-          selection: { anchor: selection.from, head: selection.to },
-          scrollIntoView: true,
-          effects: movePanelSelection.of(selection)
-        });
-      }
-      static open(view) {
-        return new LintPanel(view);
-      }
-    }
-    function svg(content2, attrs = `viewBox="0 0 40 40"`) {
-      return `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" ${attrs}>${encodeURIComponent(content2)}</svg>')`;
-    }
-    function underline(color2) {
-      return svg(`<path d="m0 2.5 l2 -1.5 l1 0 l2 1.5 l1 0" stroke="${color2}" fill="none" stroke-width=".7"/>`, `width="6" height="3"`);
-    }
-    const baseTheme = /* @__PURE__ */ EditorView.baseTheme({
-      ".cm-diagnostic": {
-        padding: "3px 6px 3px 8px",
-        marginLeft: "-1px",
-        display: "block",
-        whiteSpace: "pre-wrap"
-      },
-      ".cm-diagnostic-error": { borderLeft: "5px solid #d11" },
-      ".cm-diagnostic-warning": { borderLeft: "5px solid orange" },
-      ".cm-diagnostic-info": { borderLeft: "5px solid #999" },
-      ".cm-diagnostic-hint": { borderLeft: "5px solid #66d" },
-      ".cm-diagnosticAction": {
-        font: "inherit",
-        border: "none",
-        padding: "2px 4px",
-        backgroundColor: "#444",
-        color: "white",
-        borderRadius: "3px",
-        marginLeft: "8px",
-        cursor: "pointer"
-      },
-      ".cm-diagnosticSource": {
-        fontSize: "70%",
-        opacity: 0.7
-      },
-      ".cm-lintRange": {
-        backgroundPosition: "left bottom",
-        backgroundRepeat: "repeat-x",
-        paddingBottom: "0.7px"
-      },
-      ".cm-lintRange-error": { backgroundImage: /* @__PURE__ */ underline("#d11") },
-      ".cm-lintRange-warning": { backgroundImage: /* @__PURE__ */ underline("orange") },
-      ".cm-lintRange-info": { backgroundImage: /* @__PURE__ */ underline("#999") },
-      ".cm-lintRange-hint": { backgroundImage: /* @__PURE__ */ underline("#66d") },
-      ".cm-lintRange-active": { backgroundColor: "#ffdd9980" },
-      ".cm-tooltip-lint": {
-        padding: 0,
-        margin: 0
-      },
-      ".cm-lintPoint": {
-        position: "relative",
-        "&:after": {
-          content: '""',
-          position: "absolute",
-          bottom: 0,
-          left: "-2px",
-          borderLeft: "3px solid transparent",
-          borderRight: "3px solid transparent",
-          borderBottom: "4px solid #d11"
-        }
-      },
-      ".cm-lintPoint-warning": {
-        "&:after": { borderBottomColor: "orange" }
-      },
-      ".cm-lintPoint-info": {
-        "&:after": { borderBottomColor: "#999" }
-      },
-      ".cm-lintPoint-hint": {
-        "&:after": { borderBottomColor: "#66d" }
-      },
-      ".cm-panel.cm-panel-lint": {
-        position: "relative",
-        "& ul": {
-          maxHeight: "100px",
-          overflowY: "auto",
-          "& [aria-selected]": {
-            backgroundColor: "#ddd",
-            "& u": { textDecoration: "underline" }
-          },
-          "&:focus [aria-selected]": {
-            background_fallback: "#bdf",
-            backgroundColor: "Highlight",
-            color_fallback: "white",
-            color: "HighlightText"
-          },
-          "& u": { textDecoration: "none" },
-          padding: 0,
-          margin: 0
-        },
-        "& [name=close]": {
-          position: "absolute",
-          top: "0",
-          right: "2px",
-          background: "inherit",
-          border: "none",
-          font: "inherit",
-          padding: 0,
-          margin: 0
-        }
-      }
-    });
-    function severityWeight(sev) {
-      return sev == "error" ? 4 : sev == "warning" ? 3 : sev == "info" ? 2 : 1;
-    }
-    function maxSeverity(diagnostics) {
-      let sev = "hint", weight = 1;
-      for (let d of diagnostics) {
-        let w = severityWeight(d.severity);
-        if (w > weight) {
-          weight = w;
-          sev = d.severity;
-        }
-      }
-      return sev;
-    }
-    const lintExtensions = [
-      lintState,
-      /* @__PURE__ */ EditorView.decorations.compute([lintState], (state2) => {
-        let { selected, panel } = state2.field(lintState);
-        return !selected || !panel || selected.from == selected.to ? Decoration.none : Decoration.set([
-          activeMark.range(selected.from, selected.to)
-        ]);
-      }),
-      /* @__PURE__ */ hoverTooltip(lintTooltip, { hideOn: hideTooltip }),
-      baseTheme
-    ];
-    const basicSetup = /* @__PURE__ */ (() => [
-      lineNumbers(),
-      highlightActiveLineGutter(),
-      highlightSpecialChars(),
-      history(),
-      foldGutter(),
-      drawSelection(),
-      dropCursor(),
-      EditorState.allowMultipleSelections.of(true),
-      indentOnInput(),
-      syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-      bracketMatching(),
-      closeBrackets(),
-      autocompletion(),
-      rectangularSelection(),
-      crosshairCursor(),
-      highlightActiveLine(),
-      highlightSelectionMatches(),
-      keymap.of([
-        ...closeBracketsKeymap,
-        ...defaultKeymap,
-        ...searchKeymap,
-        ...historyKeymap,
-        ...foldKeymap,
-        ...completionKeymap,
-        ...lintKeymap
-      ])
-    ])();
-    async function devInspect(_, buildTransaction, $activeAddress, value2) {
-      let tx = await buildTransaction();
-      console.log("devInspect", tx);
-      let client2 = getClient();
-      const devInspectResult = await client2.devInspectTransactionBlock({
-        sender: $activeAddress() || "0x0000000000000000000000000000000000000000000000000000000000000000",
-        transactionBlock: tx
-      });
-      console.log(devInspectResult);
-      set$1(value2, devInspectResult, true);
-    }
-    async function dryRun(__1, buildTransaction, $activeAddress, value2) {
-      let tx = await buildTransaction();
-      console.log("dryRun", tx);
-      let client2 = getClient();
-      tx.setSender($activeAddress() || "0x0000000000000000000000000000000000000000000000000000000000000000");
-      const bytes = await tx.build({ client: client2 });
-      const dryRunResult = await client2.dryRunTransactionBlock({ transactionBlock: bytes });
-      console.log(dryRunResult);
-      set$1(value2, dryRunResult, true);
-    }
-    async function execute(__2, buildTransaction, $iota_wallets, $activeAddress, value2) {
-      try {
-        let tx = await buildTransaction();
-        console.log("execute", tx);
-        let txResult = await $iota_wallets()[0].signAndExecuteTransaction({
-          transaction: tx,
-          options: {
-            showEffects: true,
-            showObjectChanges: true,
-            showBalanceChanges: true
-          },
-          account: { address: $activeAddress() }
-        });
-        console.log(txResult);
-        set$1(value2, txResult, true);
-      } catch (err) {
-        set$1(value2, err.toString(), true);
-        console.error(err);
-      }
-    }
-    function renameCodeSnippet(__3, inputCodeSnippetName, codeSnippets, value2, saveCodeSnippetsToLocalstorage) {
-      if (get$2(inputCodeSnippetName).length == 0) {
-        alert("insert a new name first");
-      } else {
-        let existingIndex = codeSnippets.snippets.findIndex((e2) => e2.name == get$2(inputCodeSnippetName));
-        if (existingIndex > -1) {
-          set$1(value2, "Name already exists");
-          throw "Name already exists";
-        }
-        let index2 = codeSnippets.snippets.findIndex((e2) => e2.name == codeSnippets.selected);
-        codeSnippets.snippets[index2].name = get$2(inputCodeSnippetName);
-        codeSnippets.selected = get$2(inputCodeSnippetName);
-        set$1(inputCodeSnippetName, "");
-        saveCodeSnippetsToLocalstorage();
-      }
-    }
-    function deleteCodeSnippet(__4, inputCodeSnippetName, codeSnippets, value2, saveCodeSnippetsToLocalstorage) {
-      if (get$2(inputCodeSnippetName).length == 0) {
-        alert("insert a name to delete first");
-      } else {
-        if (codeSnippets.snippets.length == 1) {
-          set$1(value2, "at least one code snippet is required");
-          throw new Error("at least one code snippet is required");
-        }
-        let index2 = codeSnippets.snippets.findIndex((e2) => e2.name == get$2(inputCodeSnippetName));
-        if (index2 > -1) {
-          codeSnippets.snippets.splice(index2, 1);
-          saveCodeSnippetsToLocalstorage();
-          if (get$2(inputCodeSnippetName) == codeSnippets.selected) {
-            codeSnippets.selected = codeSnippets.snippets[0].name || "default";
-          }
-        }
-      }
-    }
-    var on_click$4 = (__5, replaceCode, codeSnippet) => replaceCode(get$2(codeSnippet).name);
-    var on_mouseout = (__6, showPreview) => {
-      set$1(showPreview, false);
-    };
-    var root_1$7 = /* @__PURE__ */ from_html(`<div><button class="svelte-1rwiuv5"> </button></div>`);
-    var root$b = /* @__PURE__ */ from_html(`<main><div><div class="codeSnippet-selection" style="float: left; padding-right: 1em;"><div style="float: left; display:flexbox"><button class="svelte-1rwiuv5">new</button> <button class="svelte-1rwiuv5">rename</button> <button class="svelte-1rwiuv5">delete</button></div> <br/> Name: <input placeholder="string" size="15"/> <div style="border: 1px solid #dee2e6; "></div></div> <div><div class="codemirror-wrapper svelte-1rwiuv5"></div></div> <div><div class="codemirror-wrapper svelte-1rwiuv5"></div></div></div> <button class="svelte-1rwiuv5">dev inspect</button> <button class="svelte-1rwiuv5">dry run</button> <button class="svelte-1rwiuv5">execute</button> <!></main>`);
-    function ProgrammableTransactionBlock($$anchor, $$props) {
-      var _a3;
-      push($$props, true);
-      const [$$stores, $$cleanup] = setup_stores();
-      const $activeAddress = () => store_get(activeAddress, "$activeAddress", $$stores);
-      const $iota_wallets = () => store_get(iota_wallets, "$iota_wallets", $$stores);
-      let codeSnippets = proxy(JSON.parse(localStorage.getItem("codeSnippets")) || {
-        selected: "default",
-        snippets: [
-          {
-            name: "default",
-            code: `let tx = new Transaction();
-// Build you tx here...
-
- const transfers = [
-     { address: '0x9938c94f4118153bbed08f14ae74e2557172542f59bf0b7a306e99d5a0b0896e', amount: 1_000_000 },
-     { address: '0x9938c94f4118153bbed08f14ae74e2557172542f59bf0b7a306e99d5a0b0896e', amount: 1_000_000 }];
- // first, split the gas coin into multiple coins
- const coins = tx.splitCoins(
-     tx.gas,
-     transfers.map((transfer) => transfer.amount),
- );
- // next, create a transfer transaction for each coin
- transfers.forEach((transfer, index) => {
-     tx.transferObjects([coins[index]], transfer.address);
- })
-
-// Client is also in scope
-// const senderCoins = await client.getCoins({ owner: "0xee68634fb93502ec391e78ccc94568e9e179ef8ec37fe12daaac4d2c2af32d5c", limit: 10 });
-// console.log(senderCoins) // visible in the browser console
-`
-          }
-        ]
-      });
-      function saveCodeSnippetsToLocalstorage() {
-        localStorage.setItem("codeSnippets", JSON.stringify(codeSnippets));
-      }
-      let codeEditor;
-      let codeEditorPreview;
-      let codeEditorView;
-      let codeEditorPreviewView;
-      function createEditor(parent) {
-        return new EditorView({
-          doc: get$2(activeCode),
-          extensions: [
-            basicSetup,
-            javascript(),
-            githubDark,
-            EditorView.updateListener.of((v) => {
-              if (v.docChanged) {
-                let index2 = codeSnippets.snippets.findIndex((e2) => e2.name == codeSnippets.selected);
-                codeSnippets.snippets[index2].code = codeEditorView.state.doc.toString();
-                saveCodeSnippetsToLocalstorage();
-              }
-            })
-          ],
-          parent
-        });
-      }
-      onMount(() => {
-        codeEditorView = createEditor(codeEditor);
-        codeEditorPreviewView = createEditor(codeEditorPreview);
-      });
-      let value2 = /* @__PURE__ */ state(proxy({}));
-      let activeCode = /* @__PURE__ */ state(proxy(((_a3 = codeSnippets.snippets.find((e2) => e2.name == codeSnippets.selected)) == null ? void 0 : _a3.code) || ""));
-      async function buildTransaction() {
-        try {
-          set$1(activeCode, codeEditorView.state.doc.toString(), true);
-          const client2 = getClient();
-          const scope = { Transaction: Transaction$1, client: client2 };
-          return new Function("scope", `with(scope) {
-                return (async function() {
-                    try {
-                        ${get$2(activeCode)}
-                        return tx
-                    } catch (error) {
-                        alert('Error in code: ' + error.message);
-                    }
-                })()
-                }`)(scope);
-        } catch (error2) {
-          alert("Error in code: " + error2.message);
-        }
-      }
-      let inputCodeSnippetName = /* @__PURE__ */ state("");
-      let showPreview = /* @__PURE__ */ state(false);
-      function replaceCode(codeSnippetName) {
-        set$1(activeCode, codeSnippets.snippets.find((e2) => e2.name == codeSnippetName).code, true);
-        codeSnippets.selected = codeSnippetName;
-        saveCodeSnippetsToLocalstorage();
-        codeEditorView.dispatch({
-          changes: {
-            from: 0,
-            to: codeEditorView.state.doc.length,
-            insert: get$2(activeCode)
-          }
-        });
-      }
-      function addCodeSnippet() {
-        if (get$2(inputCodeSnippetName).length == 0) {
-          set$1(inputCodeSnippetName, codeSnippets.snippets.length.toString(), true);
-        }
-        let existingIndex = codeSnippets.snippets.findIndex((e2) => e2.name == get$2(inputCodeSnippetName));
-        if (existingIndex > -1) {
-          set$1(value2, "Name already exists");
-          throw "Name already exists";
-        }
-        codeSnippets.snippets.push({
-          name: get$2(inputCodeSnippetName),
-          code: codeEditorView.state.doc.toString()
-        });
-        codeSnippets.selected = get$2(inputCodeSnippetName);
-        set$1(inputCodeSnippetName, "");
-        saveCodeSnippetsToLocalstorage();
-      }
-      var main = root$b();
-      var div = child(main);
-      var div_1 = child(div);
-      var div_2 = child(div_1);
-      var button = child(div_2);
-      button.__click = addCodeSnippet;
-      var button_1 = sibling(button, 2);
-      button_1.__click = [
-        renameCodeSnippet,
-        inputCodeSnippetName,
-        codeSnippets,
-        value2,
-        saveCodeSnippetsToLocalstorage
-      ];
-      var button_2 = sibling(button_1, 2);
-      button_2.__click = [
-        deleteCodeSnippet,
-        inputCodeSnippetName,
-        codeSnippets,
-        value2,
-        saveCodeSnippetsToLocalstorage
-      ];
-      var input = sibling(div_2, 4);
-      var div_3 = sibling(input, 2);
-      each$1(div_3, 21, () => codeSnippets.snippets, index$1, ($$anchor2, codeSnippet) => {
-        var div_4 = root_1$7();
-        var button_3 = child(div_4);
-        button_3.__click = [on_click$4, replaceCode, codeSnippet];
-        button_3.__mouseover = () => {
-          set$1(showPreview, true);
-          codeEditorPreviewView.dispatch({
-            changes: {
-              from: 0,
-              to: codeEditorPreviewView.state.doc.length,
-              insert: get$2(codeSnippet).code
-            }
-          });
-        };
-        button_3.__mouseout = [on_mouseout, showPreview];
-        var text2 = child(button_3);
-        template_effect(() => {
-          set_class(div_4, 1, clsx(codeSnippets.selected == get$2(codeSnippet).name ? "active" : ""), "svelte-1rwiuv5");
-          set_text(text2, get$2(codeSnippet).name);
-        });
-        event("focus", button_3, () => {
-        });
-        event("blur", button_3, () => {
-        });
-        append($$anchor2, div_4);
-      });
-      var div_5 = sibling(div_1, 2);
-      var div_6 = child(div_5);
-      bind_this(div_6, ($$value) => codeEditor = $$value, () => codeEditor);
-      var div_7 = sibling(div_5, 2);
-      var div_8 = child(div_7);
-      bind_this(div_8, ($$value) => codeEditorPreview = $$value, () => codeEditorPreview);
-      var button_4 = sibling(div, 2);
-      button_4.__click = [
-        devInspect,
-        buildTransaction,
-        $activeAddress,
-        value2
-      ];
-      var button_5 = sibling(button_4, 2);
-      button_5.__click = [
-        dryRun,
-        buildTransaction,
-        $activeAddress,
-        value2
-      ];
-      var button_6 = sibling(button_5, 2);
-      button_6.__click = [
-        execute,
-        buildTransaction,
-        $iota_wallets,
-        $activeAddress,
-        value2
-      ];
-      var node = sibling(button_6, 2);
-      TransactionView(node, {
-        get value() {
-          return get$2(value2);
-        }
-      });
-      template_effect(() => {
-        div_5.hidden = get$2(showPreview);
-        div_7.hidden = !get$2(showPreview);
-      });
-      bind_value(input, () => get$2(inputCodeSnippetName), ($$value) => set$1(inputCodeSnippetName, $$value));
-      append($$anchor, main);
-      pop();
-      $$cleanup();
-    }
+    githubDarkInit();
     delegate(["click", "mouseover", "mouseout"]);
     /*!
      * @kurkle/color v0.3.4
@@ -79875,11 +69565,11 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     };
     function unpack() {
       const unpacked = {};
-      const keys2 = Object.keys(names$1);
+      const keys = Object.keys(names$1);
       const tkeys = Object.keys(map$2);
       let i2, j, k, ok, nk;
-      for (i2 = 0; i2 < keys2.length; i2++) {
-        ok = nk = keys2[i2];
+      for (i2 = 0; i2 < keys.length; i2++) {
+        ok = nk = keys[i2];
         for (j = 0; j < tkeys.length; j++) {
           k = tkeys[j];
           nk = nk.replace(k, map$2[k]);
@@ -80135,7 +69825,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
     }
     function each(loopable, fn, thisArg, reverse) {
-      let i2, len, keys2;
+      let i2, len, keys;
       if (isArray(loopable)) {
         len = loopable.length;
         {
@@ -80144,10 +69834,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           }
         }
       } else if (isObject(loopable)) {
-        keys2 = Object.keys(loopable);
-        len = keys2.length;
+        keys = Object.keys(loopable);
+        len = keys.length;
         for (i2 = 0; i2 < len; i2++) {
-          fn.call(thisArg, loopable[keys2[i2]], keys2[i2]);
+          fn.call(thisArg, loopable[keys[i2]], keys[i2]);
         }
       }
     }
@@ -80171,11 +69861,11 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
       if (isObject(source2)) {
         const target2 = /* @__PURE__ */ Object.create(null);
-        const keys2 = Object.keys(source2);
-        const klen = keys2.length;
+        const keys = Object.keys(source2);
+        const klen = keys.length;
         let k = 0;
         for (; k < klen; ++k) {
-          target2[keys2[k]] = clone(source2[keys2[k]]);
+          target2[keys[k]] = clone(source2[keys[k]]);
         }
         return target2;
       }
@@ -80216,9 +69906,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         if (!isObject(current)) {
           continue;
         }
-        const keys2 = Object.keys(current);
-        for (let k = 0, klen = keys2.length; k < klen; ++k) {
-          merger(keys2[k], target2, current, options);
+        const keys = Object.keys(current);
+        for (let k = 0, klen = keys.length; k < klen; ++k) {
+          merger(keys[k], target2, current, options);
         }
       }
       return target2;
@@ -80249,23 +69939,23 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     };
     function _splitKey(key) {
       const parts = key.split(".");
-      const keys2 = [];
+      const keys = [];
       let tmp = "";
       for (const part of parts) {
         tmp += part;
         if (tmp.endsWith("\\")) {
           tmp = tmp.slice(0, -1) + ".";
         } else {
-          keys2.push(tmp);
+          keys.push(tmp);
           tmp = "";
         }
       }
-      return keys2;
+      return keys;
     }
     function _getKeyResolver(key) {
-      const keys2 = _splitKey(key);
+      const keys = _splitKey(key);
       return (obj) => {
-        for (const k of keys2) {
+        for (const k of keys) {
           if (k === "") {
             break;
           }
@@ -80923,9 +70613,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       if (!key) {
         return node;
       }
-      const keys2 = key.split(".");
-      for (let i2 = 0, n2 = keys2.length; i2 < n2; ++i2) {
-        const k = keys2[i2];
+      const keys = key.split(".");
+      for (let i2 = 0, n2 = keys.length; i2 < n2; ++i2) {
+        const k = keys[i2];
         node = node[k] || (node[k] = /* @__PURE__ */ Object.create(null));
       }
       return node;
@@ -81055,14 +70745,14 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
       return longest;
     }
-    function _longestText(ctx, font, arrayOfThings, cache2) {
-      cache2 = cache2 || {};
-      let data = cache2.data = cache2.data || {};
-      let gc = cache2.garbageCollect = cache2.garbageCollect || [];
-      if (cache2.font !== font) {
-        data = cache2.data = {};
-        gc = cache2.garbageCollect = [];
-        cache2.font = font;
+    function _longestText(ctx, font, arrayOfThings, cache) {
+      cache = cache || {};
+      let data = cache.data = cache.data || {};
+      let gc = cache.garbageCollect = cache.garbageCollect || [];
+      if (cache.font !== font) {
+        data = cache.data = {};
+        gc = cache.garbageCollect = [];
+        cache.font = font;
       }
       ctx.save();
       ctx.font = font;
@@ -81368,9 +71058,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     function _readValueToProps(value2, props) {
       const ret = {};
       const objProps = isObject(props);
-      const keys2 = objProps ? Object.keys(props) : props;
+      const keys = objProps ? Object.keys(props) : props;
       const read = isObject(value2) ? objProps ? (prop2) => valueOrDefault(value2[prop2], value2[props[prop2]]) : (prop2) => value2[prop2] : () => value2;
-      for (const prop2 of keys2) {
+      for (const prop2 of keys) {
         ret[prop2] = numberOrZero(read(prop2));
       }
       return ret;
@@ -81451,7 +71141,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       if (typeof fallback === "undefined") {
         fallback = _resolve("_fallback", scopes);
       }
-      const cache2 = {
+      const cache = {
         [Symbol.toStringTag]: "Object",
         _cacheable: true,
         _scopes: scopes,
@@ -81463,7 +71153,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           ...scopes
         ], prefixes, finalRootScopes, fallback)
       };
-      return new Proxy(cache2, {
+      return new Proxy(cache, {
         /**
         * A trap for the delete operator.
         */
@@ -81516,7 +71206,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       });
     }
     function _attachContext(proxy2, context, subProxy, descriptorDefaults) {
-      const cache2 = {
+      const cache = {
         _cacheable: false,
         _proxy: proxy2,
         _context: context,
@@ -81526,7 +71216,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         setContext: (ctx) => _attachContext(proxy2, ctx, subProxy, descriptorDefaults),
         override: (scope) => _attachContext(proxy2.override(scope), context, subProxy, descriptorDefaults)
       };
-      return new Proxy(cache2, {
+      return new Proxy(cache, {
         /**
         * A trap for the delete operator.
         */
@@ -81724,11 +71414,11 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
     }
     function getKeysFromAllScopes(target2) {
-      let keys2 = target2._keys;
-      if (!keys2) {
-        keys2 = target2._keys = resolveKeysFromAllScopes(target2._scopes);
+      let keys = target2._keys;
+      if (!keys) {
+        keys = target2._keys = resolveKeysFromAllScopes(target2._scopes);
       }
-      return keys2;
+      return keys;
     }
     function resolveKeysFromAllScopes(scopes) {
       const set2 = /* @__PURE__ */ new Set();
@@ -82322,8 +72012,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       let prev = points[start];
       let end;
       for (end = start + 1; end <= max; ++end) {
-        const cur2 = points[end % count];
-        if (cur2.skip || cur2.stop) {
+        const cur = points[end % count];
+        if (cur.skip || cur.stop) {
           if (!prev.skip) {
             loop = false;
             result.push({
@@ -82331,7 +72021,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
               end: (end - 1) % count,
               loop
             });
-            start = last = cur2.stop ? end : null;
+            start = last = cur.stop ? end : null;
           }
         } else {
           last = end;
@@ -82339,7 +72029,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             start = end;
           }
         }
-        prev = cur2;
+        prev = cur;
       }
       if (last !== null) {
         result.push({
@@ -82451,15 +72141,15 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       if (!prevStyle) {
         return false;
       }
-      const cache2 = [];
+      const cache = [];
       const replacer = function(key, value2) {
         if (!isPatternOrGradient(value2)) {
           return value2;
         }
-        if (!cache2.includes(value2)) {
-          cache2.push(value2);
+        if (!cache.includes(value2)) {
+          cache.push(value2);
         }
-        return cache2.indexOf(value2);
+        return cache.indexOf(value2);
       };
       return JSON.stringify(style, replacer) !== JSON.stringify(prevStyle, replacer);
     }
@@ -82602,7 +72292,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         }
         anims.running = true;
         anims.start = Date.now();
-        anims.duration = anims.items.reduce((acc, cur2) => Math.max(acc, cur2._duration), 0);
+        anims.duration = anims.items.reduce((acc, cur) => Math.max(acc, cur._duration), 0);
         this._refresh();
       }
       running(chart) {
@@ -82747,19 +72437,19 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
     }
     class Animations {
-      constructor(chart, config2) {
+      constructor(chart, config) {
         this._chart = chart;
         this._properties = /* @__PURE__ */ new Map();
-        this.configure(config2);
+        this.configure(config);
       }
-      configure(config2) {
-        if (!isObject(config2)) {
+      configure(config) {
+        if (!isObject(config)) {
           return;
         }
         const animationOptions = Object.keys(defaults.animation);
         const animatedProps = this._properties;
-        Object.getOwnPropertyNames(config2).forEach((key) => {
-          const cfg = config2[key];
+        Object.getOwnPropertyNames(config).forEach((key) => {
+          const cfg = config[key];
           if (!isObject(cfg)) {
             return;
           }
@@ -82841,9 +72531,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     }
     function awaitAll(animations, properties) {
       const running = [];
-      const keys2 = Object.keys(properties);
-      for (let i2 = 0; i2 < keys2.length; i2++) {
-        const anim = animations[keys2[i2]];
+      const keys = Object.keys(properties);
+      for (let i2 = 0; i2 < keys.length; i2++) {
+        const anim = animations[keys[i2]];
         if (anim && anim.active()) {
           running.push(anim.wait());
         }
@@ -82909,24 +72599,24 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       };
     }
     function getSortedDatasetIndices(chart, filterVisible) {
-      const keys2 = [];
+      const keys = [];
       const metasets = chart._getSortedDatasetMetas(filterVisible);
       let i2, ilen;
       for (i2 = 0, ilen = metasets.length; i2 < ilen; ++i2) {
-        keys2.push(metasets[i2].index);
+        keys.push(metasets[i2].index);
       }
-      return keys2;
+      return keys;
     }
     function applyStack(stack, value2, dsIndex, options = {}) {
-      const keys2 = stack.keys;
+      const keys = stack.keys;
       const singleMode = options.mode === "single";
       let i2, ilen, datasetIndex, otherValue;
       if (value2 === null) {
         return;
       }
       let found = false;
-      for (i2 = 0, ilen = keys2.length; i2 < ilen; ++i2) {
-        datasetIndex = +keys2[i2];
+      for (i2 = 0, ilen = keys.length; i2 < ilen; ++i2) {
+        datasetIndex = +keys[i2];
         if (datasetIndex === dsIndex) {
           found = true;
           if (options.all) {
@@ -82948,11 +72638,11 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       const { iScale, vScale } = meta2;
       const iAxisKey = iScale.axis === "x" ? "x" : "y";
       const vAxisKey = vScale.axis === "x" ? "x" : "y";
-      const keys2 = Object.keys(data);
-      const adata = new Array(keys2.length);
+      const keys = Object.keys(data);
+      const adata = new Array(keys.length);
       let i2, ilen, key;
-      for (i2 = 0, ilen = keys2.length; i2 < ilen; ++i2) {
-        key = keys2[i2];
+      for (i2 = 0, ilen = keys.length; i2 < ilen; ++i2) {
+        key = keys[i2];
         adata[i2] = {
           [iAxisKey]: key,
           [vAxisKey]: data[key]
@@ -83186,10 +72876,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         }
       }
       configure() {
-        const config2 = this.chart.config;
-        const scopeKeys = config2.datasetScopeKeys(this._type);
-        const scopes = config2.getOptionScopes(this.getDataset(), scopeKeys, true);
-        this.options = config2.createResolver(scopes, this.getContext());
+        const config = this.chart.config;
+        const scopeKeys = config.datasetScopeKeys(this._type);
+        const scopes = config.getOptionScopes(this.getDataset(), scopeKeys, true);
+        this.options = config.createResolver(scopes, this.getContext());
         this._parsing = this.options.parsing;
         this._cachedDataOpts = {};
       }
@@ -83199,7 +72889,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         const iAxis = iScale.axis;
         let sorted = start === 0 && count === data.length ? true : meta2._sorted;
         let prev = start > 0 && meta2._parsed[start - 1];
-        let i2, cur2, parsed;
+        let i2, cur, parsed;
         if (this._parsing === false) {
           meta2._parsed = data;
           meta2._sorted = true;
@@ -83212,14 +72902,14 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           } else {
             parsed = this.parsePrimitiveData(meta2, data, start, count);
           }
-          const isNotInOrderComparedToPrev = () => cur2[iAxis] === null || prev && cur2[iAxis] < prev[iAxis];
+          const isNotInOrderComparedToPrev = () => cur[iAxis] === null || prev && cur[iAxis] < prev[iAxis];
           for (i2 = 0; i2 < count; ++i2) {
-            meta2._parsed[i2 + start] = cur2 = parsed[i2];
+            meta2._parsed[i2 + start] = cur = parsed[i2];
             if (sorted) {
               if (isNotInOrderComparedToPrev()) {
                 sorted = false;
               }
-              prev = cur2;
+              prev = cur;
             }
           }
           meta2._sorted = sorted;
@@ -83432,15 +73122,15 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
       _resolveElementOptions(elementType, mode = "default", index2) {
         const active = mode === "active";
-        const cache2 = this._cachedDataOpts;
+        const cache = this._cachedDataOpts;
         const cacheKey = elementType + "-" + mode;
-        const cached = cache2[cacheKey];
+        const cached = cache[cacheKey];
         const sharing = this.enableOptionSharing && defined(index2);
         if (cached) {
           return cloneIfNotShared(cached, sharing);
         }
-        const config2 = this.chart.config;
-        const scopeKeys = config2.datasetElementScopeKeys(this._type, elementType);
+        const config = this.chart.config;
+        const scopeKeys = config.datasetElementScopeKeys(this._type, elementType);
         const prefixes = active ? [
           `${elementType}Hover`,
           "hover",
@@ -83450,34 +73140,34 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           elementType,
           ""
         ];
-        const scopes = config2.getOptionScopes(this.getDataset(), scopeKeys);
+        const scopes = config.getOptionScopes(this.getDataset(), scopeKeys);
         const names2 = Object.keys(defaults.elements[elementType]);
         const context = () => this.getContext(index2, active, mode);
-        const values = config2.resolveNamedOptions(scopes, names2, context, prefixes);
+        const values = config.resolveNamedOptions(scopes, names2, context, prefixes);
         if (values.$shared) {
           values.$shared = sharing;
-          cache2[cacheKey] = Object.freeze(cloneIfNotShared(values, sharing));
+          cache[cacheKey] = Object.freeze(cloneIfNotShared(values, sharing));
         }
         return values;
       }
       _resolveAnimations(index2, transition, active) {
         const chart = this.chart;
-        const cache2 = this._cachedDataOpts;
+        const cache = this._cachedDataOpts;
         const cacheKey = `animation-${transition}`;
-        const cached = cache2[cacheKey];
+        const cached = cache[cacheKey];
         if (cached) {
           return cached;
         }
         let options;
         if (chart.options.animation !== false) {
-          const config2 = this.chart.config;
-          const scopeKeys = config2.datasetAnimationScopeKeys(this._type, transition);
-          const scopes = config2.getOptionScopes(this.getDataset(), scopeKeys);
-          options = config2.createResolver(scopes, this.getContext(index2, active, transition));
+          const config = this.chart.config;
+          const scopeKeys = config.datasetAnimationScopeKeys(this._type, transition);
+          const scopes = config.getOptionScopes(this.getDataset(), scopeKeys);
+          options = config.createResolver(scopes, this.getContext(index2, active, transition));
         }
         const animations = new Animations(chart, options && options.animations);
         if (options && options._cacheable) {
-          cache2[cacheKey] = Object.freeze(animations);
+          cache[cacheKey] = Object.freeze(animations);
         }
         return animations;
       }
@@ -85698,15 +75388,15 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       isAttached(canvas) {
         return true;
       }
-      updateConfig(config2) {
+      updateConfig(config) {
       }
     }
     class BasicPlatform extends BasePlatform {
       acquireContext(item) {
         return item && item.getContext && item.getContext("2d") || null;
       }
-      updateConfig(config2) {
-        config2.options.animation = false;
+      updateConfig(config) {
+        config.options.animation = false;
       }
     }
     const EXPANDO_KEY = "$chartjs";
@@ -86149,13 +75839,13 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       return lineValue;
     }
     function garbageCollect(caches, length) {
-      each(caches, (cache2) => {
-        const gc = cache2.gc;
+      each(caches, (cache) => {
+        const gc = cache.gc;
         const gcLen = gc.length / 2;
         let i2;
         if (gcLen > length) {
           for (i2 = 0; i2 < gcLen; ++i2) {
-            delete cache2.data[gc[i2]];
+            delete cache.data[gc[i2]];
           }
           gc.splice(0, gcLen);
         }
@@ -86680,25 +76370,25 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         const increment = Math.floor(length / getTicksLimit(length, maxTicksLimit));
         let widestLabelSize = 0;
         let highestLabelSize = 0;
-        let i2, j, jlen, label, tickFont, fontString, cache2, lineHeight, width, height, nestedLabel;
+        let i2, j, jlen, label, tickFont, fontString, cache, lineHeight, width, height, nestedLabel;
         for (i2 = 0; i2 < length; i2 += increment) {
           label = ticks[i2].label;
           tickFont = this._resolveTickFontOptions(i2);
           ctx.font = fontString = tickFont.string;
-          cache2 = caches[fontString] = caches[fontString] || {
+          cache = caches[fontString] = caches[fontString] || {
             data: {},
             gc: []
           };
           lineHeight = tickFont.lineHeight;
           width = height = 0;
           if (!isNullOrUndef(label) && !isArray(label)) {
-            width = _measureText(ctx, cache2.data, cache2.gc, width, label);
+            width = _measureText(ctx, cache.data, cache.gc, width, label);
             height = lineHeight;
           } else if (isArray(label)) {
             for (j = 0, jlen = label.length; j < jlen; ++j) {
               nestedLabel = label[j];
               if (!isNullOrUndef(nestedLabel) && !isArray(nestedLabel)) {
-                width = _measureText(ctx, cache2.data, cache2.gc, width, nestedLabel);
+                width = _measureText(ctx, cache.data, cache.gc, width, nestedLabel);
                 height += lineHeight;
               }
             }
@@ -87607,9 +77297,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         return descriptors2;
       }
       _createDescriptors(chart, all) {
-        const config2 = chart && chart.config;
-        const options = valueOrDefault(config2.options && config2.options.plugins, {});
-        const plugins2 = allPlugins(config2);
+        const config = chart && chart.config;
+        const options = valueOrDefault(config.options && config.options.plugins, {});
+        const plugins2 = allPlugins(config);
         return options === false && !all ? [] : createDescriptors(chart, plugins2, options, all);
       }
       _notifyStateChanges(chart) {
@@ -87620,14 +77310,14 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         this._notify(diff(descriptors2, previousDescriptors), chart, "start");
       }
     }
-    function allPlugins(config2) {
+    function allPlugins(config) {
       const localIds = {};
       const plugins2 = [];
-      const keys2 = Object.keys(registry.plugins.items);
-      for (let i2 = 0; i2 < keys2.length; i2++) {
-        plugins2.push(registry.getPlugin(keys2[i2]));
+      const keys = Object.keys(registry.plugins.items);
+      for (let i2 = 0; i2 < keys.length; i2++) {
+        plugins2.push(registry.getPlugin(keys[i2]));
       }
-      const local = config2.plugins || [];
+      const local = config.plugins || [];
       for (let i2 = 0; i2 < local.length; i2++) {
         const plugin2 = local[i2];
         if (plugins2.indexOf(plugin2) === -1) {
@@ -87668,13 +77358,13 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
       return result;
     }
-    function pluginOpts(config2, { plugin: plugin2, local }, opts, context) {
-      const keys2 = config2.pluginScopeKeys(plugin2);
-      const scopes = config2.getOptionScopes(opts, keys2);
+    function pluginOpts(config, { plugin: plugin2, local }, opts, context) {
+      const keys = config.pluginScopeKeys(plugin2);
+      const scopes = config.getOptionScopes(opts, keys);
       if (local && plugin2.defaults) {
         scopes.push(plugin2.defaults);
       }
-      return config2.createResolver(scopes, context, [
+      return config.createResolver(scopes, context, [
         ""
       ], {
         scriptable: false,
@@ -87731,21 +77421,21 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         };
       }
     }
-    function retrieveAxisFromDatasets(id2, config2) {
-      if (config2.data && config2.data.datasets) {
-        const boundDs = config2.data.datasets.filter((d) => d.xAxisID === id2 || d.yAxisID === id2);
+    function retrieveAxisFromDatasets(id2, config) {
+      if (config.data && config.data.datasets) {
+        const boundDs = config.data.datasets.filter((d) => d.xAxisID === id2 || d.yAxisID === id2);
         if (boundDs.length) {
           return getAxisFromDataset(id2, "x", boundDs[0]) || getAxisFromDataset(id2, "y", boundDs[0]);
         }
       }
       return {};
     }
-    function mergeScaleConfig(config2, options) {
-      const chartDefaults = overrides[config2.type] || {
+    function mergeScaleConfig(config, options) {
+      const chartDefaults = overrides[config.type] || {
         scales: {}
       };
       const configScales = options.scales || {};
-      const chartIndexAxis = getIndexAxis(config2.type, options);
+      const chartIndexAxis = getIndexAxis(config.type, options);
       const scales2 = /* @__PURE__ */ Object.create(null);
       Object.keys(configScales).forEach((id2) => {
         const scaleConf = configScales[id2];
@@ -87755,7 +77445,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         if (scaleConf._proxy) {
           return console.warn(`Ignoring resolver passed as options for scale: ${id2}`);
         }
-        const axis = determineAxis(id2, scaleConf, retrieveAxisFromDatasets(id2, config2), defaults.scales[scaleConf.type]);
+        const axis = determineAxis(id2, scaleConf, retrieveAxisFromDatasets(id2, config), defaults.scales[scaleConf.type]);
         const defaultId = getDefaultScaleIDFromAxis(axis, chartIndexAxis);
         const defaultScaleOptions = chartDefaults.scales || {};
         scales2[id2] = mergeIf(/* @__PURE__ */ Object.create(null), [
@@ -87767,8 +77457,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           defaultScaleOptions[defaultId]
         ]);
       });
-      config2.data.datasets.forEach((dataset) => {
-        const type2 = dataset.type || config2.type;
+      config.data.datasets.forEach((dataset) => {
+        const type2 = dataset.type || config.type;
         const indexAxis = dataset.indexAxis || getIndexAxis(type2, options);
         const datasetDefaults = overrides[type2] || {};
         const defaultScaleOptions = datasetDefaults.scales || {};
@@ -87794,10 +77484,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       });
       return scales2;
     }
-    function initOptions(config2) {
-      const options = config2.options || (config2.options = {});
+    function initOptions(config) {
+      const options = config.options || (config.options = {});
       options.plugins = valueOrDefault(options.plugins, {});
-      options.scales = mergeScaleConfig(config2, options);
+      options.scales = mergeScaleConfig(config, options);
     }
     function initData(data) {
       data = data || {};
@@ -87805,22 +77495,22 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       data.labels = data.labels || [];
       return data;
     }
-    function initConfig(config2) {
-      config2 = config2 || {};
-      config2.data = initData(config2.data);
-      initOptions(config2);
-      return config2;
+    function initConfig(config) {
+      config = config || {};
+      config.data = initData(config.data);
+      initOptions(config);
+      return config;
     }
     const keyCache = /* @__PURE__ */ new Map();
     const keysCached = /* @__PURE__ */ new Set();
     function cachedKeys(cacheKey, generate) {
-      let keys2 = keyCache.get(cacheKey);
-      if (!keys2) {
-        keys2 = generate();
-        keyCache.set(cacheKey, keys2);
-        keysCached.add(keys2);
+      let keys = keyCache.get(cacheKey);
+      if (!keys) {
+        keys = generate();
+        keyCache.set(cacheKey, keys);
+        keysCached.add(keys);
       }
-      return keys2;
+      return keys;
     }
     const addIfFound = (set2, obj, key) => {
       const opts = resolveObjectKey(obj, key);
@@ -87829,8 +77519,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
     };
     class Config {
-      constructor(config2) {
-        this._config = initConfig(config2);
+      constructor(config) {
+        this._config = initConfig(config);
         this._scopeCache = /* @__PURE__ */ new Map();
         this._resolverCache = /* @__PURE__ */ new Map();
       }
@@ -87859,9 +77549,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         return this._config.plugins;
       }
       update() {
-        const config2 = this._config;
+        const config = this._config;
         this.clearCache();
-        initOptions(config2);
+        initOptions(config);
       }
       clearCache() {
         this._scopeCache.clear();
@@ -87909,37 +77599,37 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
       _cachedScopes(mainScope, resetCache) {
         const _scopeCache = this._scopeCache;
-        let cache2 = _scopeCache.get(mainScope);
-        if (!cache2 || resetCache) {
-          cache2 = /* @__PURE__ */ new Map();
-          _scopeCache.set(mainScope, cache2);
+        let cache = _scopeCache.get(mainScope);
+        if (!cache || resetCache) {
+          cache = /* @__PURE__ */ new Map();
+          _scopeCache.set(mainScope, cache);
         }
-        return cache2;
+        return cache;
       }
       getOptionScopes(mainScope, keyLists, resetCache) {
         const { options, type: type2 } = this;
-        const cache2 = this._cachedScopes(mainScope, resetCache);
-        const cached = cache2.get(keyLists);
+        const cache = this._cachedScopes(mainScope, resetCache);
+        const cached = cache.get(keyLists);
         if (cached) {
           return cached;
         }
         const scopes = /* @__PURE__ */ new Set();
-        keyLists.forEach((keys2) => {
+        keyLists.forEach((keys) => {
           if (mainScope) {
             scopes.add(mainScope);
-            keys2.forEach((key) => addIfFound(scopes, mainScope, key));
+            keys.forEach((key) => addIfFound(scopes, mainScope, key));
           }
-          keys2.forEach((key) => addIfFound(scopes, options, key));
-          keys2.forEach((key) => addIfFound(scopes, overrides[type2] || {}, key));
-          keys2.forEach((key) => addIfFound(scopes, defaults, key));
-          keys2.forEach((key) => addIfFound(scopes, descriptors, key));
+          keys.forEach((key) => addIfFound(scopes, options, key));
+          keys.forEach((key) => addIfFound(scopes, overrides[type2] || {}, key));
+          keys.forEach((key) => addIfFound(scopes, defaults, key));
+          keys.forEach((key) => addIfFound(scopes, descriptors, key));
         });
         const array2 = Array.from(scopes);
         if (array2.length === 0) {
           array2.push(/* @__PURE__ */ Object.create(null));
         }
         if (keysCached.has(keyLists)) {
-          cache2.set(keyLists, array2);
+          cache.set(keyLists, array2);
         }
         return array2;
       }
@@ -87983,20 +77673,20 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
     }
     function getResolver(resolverCache, scopes, prefixes) {
-      let cache2 = resolverCache.get(scopes);
-      if (!cache2) {
-        cache2 = /* @__PURE__ */ new Map();
-        resolverCache.set(scopes, cache2);
+      let cache = resolverCache.get(scopes);
+      if (!cache) {
+        cache = /* @__PURE__ */ new Map();
+        resolverCache.set(scopes, cache);
       }
       const cacheKey = prefixes.join();
-      let cached = cache2.get(cacheKey);
+      let cached = cache.get(cacheKey);
       if (!cached) {
         const resolver = _createResolver(scopes, prefixes);
         cached = {
           resolver,
           subPrefixes: prefixes.filter((p) => !p.toLowerCase().includes("hover"))
         };
-        cache2.set(cacheKey, cached);
+        cache.set(cacheKey, cached);
       }
       return cached;
     }
@@ -88061,8 +77751,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       return Object.values(instances).filter((c) => c.canvas === canvas).pop();
     };
     function moveNumericKeys(obj, start, move2) {
-      const keys2 = Object.keys(obj);
-      for (const key of keys2) {
+      const keys = Object.keys(obj);
+      for (const key of keys) {
         const intKey = +key;
         if (intKey >= start) {
           const value2 = obj[key];
@@ -88092,15 +77782,15 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         invalidatePlugins();
       }
       constructor(item, userConfig) {
-        const config2 = this.config = new Config(userConfig);
+        const config = this.config = new Config(userConfig);
         const initialCanvas = getCanvas(item);
         const existingChart = getChart(initialCanvas);
         if (existingChart) {
           throw new Error("Canvas is already in use. Chart with ID '" + existingChart.id + "' must be destroyed before the canvas with ID '" + existingChart.canvas.id + "' can be reused.");
         }
-        const options = config2.createResolver(config2.chartOptionScopes(), this.getContext());
-        this.platform = new (config2.platform || _detectPlatform(initialCanvas))();
-        this.platform.updateConfig(config2);
+        const options = config.createResolver(config.chartOptionScopes(), this.getContext());
+        this.platform = new (config.platform || _detectPlatform(initialCanvas))();
+        this.platform.updateConfig(config);
         const context = this.platform.acquireContext(initialCanvas, options.aspectRatio);
         const canvas = context && context.canvas;
         const height = canvas && canvas.height;
@@ -88357,9 +78047,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         this.notifyPlugins("reset");
       }
       update(mode) {
-        const config2 = this.config;
-        config2.update();
-        const options = this._options = config2.createResolver(config2.chartOptionScopes(), this.getContext());
+        const config = this.config;
+        config.update();
+        const options = this._options = config.createResolver(config.chartOptionScopes(), this.getContext());
         const animsDisabled = this._animationsDisabled = !options.animation;
         this._updateScales();
         this._checkEventBindings();
@@ -90701,15 +80391,15 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     };
     const itemsEqual = (a2, b) => a2 !== null && b !== null && a2.datasetIndex === b.datasetIndex && a2.index === b.index;
     class Legend extends Element$1 {
-      constructor(config2) {
+      constructor(config) {
         super();
         this._added = false;
         this.legendHitBoxes = [];
         this._hoveredItem = null;
         this.doughnutMode = false;
-        this.chart = config2.chart;
-        this.options = config2.options;
-        this.ctx = config2.ctx;
+        this.chart = config.chart;
+        this.options = config.options;
+        this.ctx = config.ctx;
         this.legendItems = void 0;
         this.columnSizes = void 0;
         this.lineWidths = void 0;
@@ -91238,11 +80928,11 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
     };
     class Title extends Element$1 {
-      constructor(config2) {
+      constructor(config) {
         super();
-        this.chart = config2.chart;
-        this.options = config2.options;
-        this.ctx = config2.ctx;
+        this.chart = config.chart;
+        this.options = config.options;
+        this.ctx = config.ctx;
         this._padding = void 0;
         this.top = void 0;
         this.bottom = void 0;
@@ -91731,7 +81421,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       return result;
     }
     class Tooltip extends Element$1 {
-      constructor(config2) {
+      constructor(config) {
         super();
         this.opacity = 0;
         this._active = [];
@@ -91741,8 +81431,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         this._tooltipItems = [];
         this.$animations = void 0;
         this.$context = void 0;
-        this.chart = config2.chart;
-        this.options = config2.options;
+        this.chart = config.chart;
+        this.options = config.options;
         this.dataPoints = void 0;
         this.title = void 0;
         this.beforeBody = void 0;
@@ -93493,13 +83183,13 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         return null;
       }
       const adapter = scale._adapter;
-      const { parser: parser2, round: round2, isoWeekday } = scale._parseOpts;
+      const { parser, round: round2, isoWeekday } = scale._parseOpts;
       let value2 = input;
-      if (typeof parser2 === "function") {
-        value2 = parser2(value2);
+      if (typeof parser === "function") {
+        value2 = parser(value2);
       }
       if (!isNumberFinite(value2)) {
-        value2 = typeof parser2 === "string" ? adapter.parse(value2, parser2) : adapter.parse(value2);
+        value2 = typeof parser === "string" ? adapter.parse(value2, parser) : adapter.parse(value2);
       }
       if (value2 === null) {
         return null;
@@ -94066,11 +83756,11 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             assign = Object.assign;
           }
           var extend2 = deprecate(function extend3(dest, src, merge3) {
-            var keys2 = Object.keys(src);
+            var keys = Object.keys(src);
             var i2 = 0;
-            while (i2 < keys2.length) {
-              if (!merge3 || merge3 && dest[keys2[i2]] === undefined$1) {
-                dest[keys2[i2]] = src[keys2[i2]];
+            while (i2 < keys.length) {
+              if (!merge3 || merge3 && dest[keys[i2]] === undefined$1) {
+                dest[keys[i2]] = src[keys[i2]];
               }
               i2++;
             }
@@ -98722,9 +88412,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       if (absCurrentYear <= 50) {
         result = twoDigitYear || 100;
       } else {
-        const rangeEnd2 = absCurrentYear + 50;
-        const rangeEndCentury = Math.trunc(rangeEnd2 / 100) * 100;
-        const isPreviousCentury = twoDigitYear >= rangeEnd2 % 100;
+        const rangeEnd = absCurrentYear + 50;
+        const rangeEndCentury = Math.trunc(rangeEnd / 100) * 100;
+        const isPreviousCentury = twoDigitYear >= rangeEnd % 100;
         result = twoDigitYear + rangeEndCentury - (isPreviousCentury ? 100 : 0);
       }
       return isCommonEra ? result : 1 - result;
@@ -100149,9 +89839,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           warnOrThrowProtectedError(token, formatStr, dateStr);
         }
         const firstCharacter = token[0];
-        const parser2 = parsers[firstCharacter];
-        if (parser2) {
-          const { incompatibleTokens } = parser2;
+        const parser = parsers[firstCharacter];
+        if (parser) {
+          const { incompatibleTokens } = parser;
           if (Array.isArray(incompatibleTokens)) {
             const incompatibleToken = usedTokens.find(
               (usedToken) => incompatibleTokens.includes(usedToken.token) || usedToken.token === firstCharacter
@@ -100161,13 +89851,13 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                 `The format string mustn't contain \`${incompatibleToken.fullToken}\` and \`${token}\` at the same time`
               );
             }
-          } else if (parser2.incompatibleTokens === "*" && usedTokens.length > 0) {
+          } else if (parser.incompatibleTokens === "*" && usedTokens.length > 0) {
             throw new RangeError(
               `The format string mustn't contain \`${token}\` and any other token at the same time`
             );
           }
           usedTokens.push({ token: firstCharacter, fullToken: token });
-          const parseResult = parser2.run(
+          const parseResult = parser.run(
             dateStr,
             token,
             locale.match,
@@ -100550,7 +90240,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     });
     var root_1$6 = /* @__PURE__ */ from_html(`<option> </option>`);
     var root_2$3 = /* @__PURE__ */ from_html(`<button class="filter-btn svelte-960tk1" title="Apply data filter to current zoom level for better performance">Filter Data</button>`);
-    var root_3$2 = /* @__PURE__ */ from_html(`<button class="clear-filter-btn svelte-960tk1" title="Show all data">Show All Data</button>`);
+    var root_3$3 = /* @__PURE__ */ from_html(`<button class="clear-filter-btn svelte-960tk1" title="Show all data">Show All Data</button>`);
     var root_4$3 = /* @__PURE__ */ from_html(`<div class="selection-feedback svelte-960tk1">📍 <strong>Selected:</strong> </div>`);
     var root_5$2 = /* @__PURE__ */ from_html(`<div class="data-filter-info svelte-960tk1">📊 <strong>Data Filtered:</strong> </div>`);
     var root$a = /* @__PURE__ */ from_html(`<div class="chart-container svelte-960tk1"><div class="chart-controls svelte-960tk1"><div class="control-group svelte-960tk1"><label for="bucket-time" class="svelte-960tk1">Time bucket:</label> <select id="bucket-time" class="svelte-960tk1"></select></div> <div class="control-group svelte-960tk1"><button class="reset-zoom-btn svelte-960tk1" title="Reset zoom to show all data">Reset Zoom</button> <!> <!></div> <div class="zoom-instructions svelte-960tk1"><small class="svelte-960tk1">💡 Drag to select range, Ctrl+drag to pan, mouse wheel to zoom, click data point to
@@ -101146,7 +90836,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       var node_1 = sibling(node, 2);
       {
         var consequent_1 = ($$anchor2) => {
-          var button_2 = root_3$2();
+          var button_2 = root_3$3();
           event("click", button_2, clearDataFilter);
           append($$anchor2, button_2);
         };
@@ -101284,9 +90974,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         if ((_e = (_d = (_c = (_b2 = (_a3 = decodedData == null ? void 0 : decodedData.intentMessage) == null ? void 0 : _a3.value) == null ? void 0 : _b2.V1) == null ? void 0 : _c.kind) == null ? void 0 : _d.ProgrammableTransaction) == null ? void 0 : _e.commands) {
           ptbCommands = decodedData.intentMessage.value.V1.kind.ProgrammableTransaction.commands;
         }
-        for (const command2 of ptbCommands) {
-          if (command2.MoveCall) {
-            const moveCall = command2.MoveCall;
+        for (const command of ptbCommands) {
+          if (command.MoveCall) {
+            const moveCall = command.MoveCall;
             const packageId = moveCall.package;
             const module2 = moveCall.module;
             const functionName = moveCall.function;
@@ -101307,7 +90997,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         if ((_e = (_d = (_c = (_b2 = (_a3 = decodedData == null ? void 0 : decodedData.intentMessage) == null ? void 0 : _a3.value) == null ? void 0 : _b2.V1) == null ? void 0 : _c.kind) == null ? void 0 : _d.ProgrammableTransaction) == null ? void 0 : _e.commands) {
           ptbCommands = decodedData.intentMessage.value.V1.kind.ProgrammableTransaction.commands;
         }
-        const hasPublishCommand = ptbCommands.some((cmd2) => cmd2.Publish);
+        const hasPublishCommand = ptbCommands.some((cmd) => cmd.Publish);
         if (!hasPublishCommand || !senderAddress) {
           return;
         }
@@ -101356,9 +91046,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           if ((_f = (_e = (_d = (_c = (_b2 = (_a3 = tx.decodedBCS) == null ? void 0 : _a3.intentMessage) == null ? void 0 : _b2.value) == null ? void 0 : _c.V1) == null ? void 0 : _d.kind) == null ? void 0 : _e.ProgrammableTransaction) == null ? void 0 : _f.commands) {
             ptbCommands = tx.decodedBCS.intentMessage.value.V1.kind.ProgrammableTransaction.commands;
           }
-          for (const command2 of ptbCommands) {
-            if (command2.MoveCall) {
-              const moveCall = command2.MoveCall;
+          for (const command of ptbCommands) {
+            if (command.MoveCall) {
+              const moveCall = command.MoveCall;
               const packageId = moveCall.package;
               const module2 = moveCall.module;
               const functionName = moveCall.function;
@@ -103728,7 +93418,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     };
     var root_1$2 = /* @__PURE__ */ from_html(`<span class="remaining-text svelte-12gcxyk">...</span>`);
     var root_2$2 = /* @__PURE__ */ from_html(`<span class="status-missing svelte-12gcxyk"> </span>`);
-    var root_3$1 = /* @__PURE__ */ from_html(`<span class="status-more svelte-12gcxyk"> </span>`);
+    var root_3$2 = /* @__PURE__ */ from_html(`<span class="status-more svelte-12gcxyk"> </span>`);
     var root_4$1 = /* @__PURE__ */ from_html(`<div>Number Range: <strong> </strong></div> <div>Number Sum: <strong> </strong></div>`, 1);
     var root_5 = /* @__PURE__ */ from_html(`<div>Longest word: <strong> </strong> </div> <div>Shortest word: <strong> </strong> </div>`, 1);
     var root_6 = /* @__PURE__ */ from_html(`<div>Longest word: <strong>-</strong></div> <div>Shortest word: <strong>-</strong></div>`, 1);
@@ -103831,7 +93521,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       var node_2 = sibling(node_1, 2);
       {
         var consequent_2 = ($$anchor2) => {
-          var span_3 = root_3$1();
+          var span_3 = root_3$2();
           var text_2 = child(span_3);
           template_effect(() => set_text(text_2, `(${get$2(totalChars) - get$2(limit)} more)`));
           append($$anchor2, span_3);
@@ -104074,7 +93764,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         updateSelectedSignerAccounts(get$2(foreignAddress));
       }
     };
-    var root_3 = /* @__PURE__ */ from_html(`<input type="string" placeholder="any address, can't be used for signing"/>`);
+    var root_3$1 = /* @__PURE__ */ from_html(`<input type="string" placeholder="any address, can't be used for signing"/>`);
     var root_4 = /* @__PURE__ */ from_html(`<option class="svelte-1b5880f"> </option>`);
     var on_click_1 = (__2, $activeAddress) => {
       navigator.clipboard.writeText($activeAddress());
@@ -104145,7 +93835,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       var node_1 = sibling(node, 2);
       {
         var consequent_1 = ($$anchor2) => {
-          var input = root_3();
+          var input = root_3$1();
           let classes;
           input.__input = [on_input, foreignAddress];
           template_effect(
@@ -104205,106 +93895,173 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       $$cleanup();
     }
     delegate(["change", "click", "input"]);
-    var root_1 = /* @__PURE__ */ from_html(`<li><button class="svelte-1ershce"> </button></li>`);
-    var root_2 = /* @__PURE__ */ from_html(`<div class="pageBox svelte-1ershce"><!></div>`);
-    var root$1 = /* @__PURE__ */ from_html(`<ul class="svelte-1ershce"></ul> <!>`, 1);
+    var root_2 = /* @__PURE__ */ from_html(`<button> </button>`);
+    var root_1 = /* @__PURE__ */ from_html(`<div class="tab-group svelte-qwkk9g"><div class="group-label svelte-qwkk9g"> </div> <div class="tab-buttons-row svelte-qwkk9g"></div></div>`);
+    var root_3 = /* @__PURE__ */ from_html(`<div class="pageBox svelte-qwkk9g"><!></div>`);
+    var root$1 = /* @__PURE__ */ from_html(`<div class="tab-groups-row svelte-qwkk9g"></div> <!>`, 1);
     function Tabs($$anchor, $$props) {
+      push($$props, false);
+      const groups = /* @__PURE__ */ mutable_source();
       let items = prop($$props, "items", 24, () => []);
       let activeTabs = /* @__PURE__ */ mutable_source(JSON.parse(localStorage.getItem("activeTabs") || "[0]"));
       const handleClick = (tabValue) => () => {
         mutate(activeTabs, get$2(activeTabs)[0] = tabValue);
         localStorage.setItem("activeTabs", JSON.stringify(get$2(activeTabs)));
       };
-      var fragment = root$1();
-      var ul = first_child(fragment);
-      each$1(ul, 5, items, index$1, ($$anchor2, item) => {
-        var li = root_1();
-        var button = child(li);
-        var event_handler = /* @__PURE__ */ user_derived(() => handleClick(get$2(item).value));
-        var text2 = child(button);
-        template_effect(
-          ($0) => {
-            set_class(li, 1, $0, "svelte-1ershce");
-            set_text(text2, (get$2(item), untrack(() => get$2(item).label)));
-          },
-          [
-            () => clsx((get$2(activeTabs), get$2(item), untrack(() => get$2(activeTabs).includes(get$2(item).value) ? "active" : "")))
-          ],
-          derived_safe_equal
-        );
-        event("click", button, function(...$$args) {
-          var _a3;
-          (_a3 = get$2(event_handler)) == null ? void 0 : _a3.apply(this, $$args);
-        });
-        append($$anchor2, li);
+      legacy_pre_effect(() => deep_read_state(items()), () => {
+        set$1(groups, Array.from(new Set(items().map((item) => item.group))));
       });
-      var node = sibling(ul, 2);
+      legacy_pre_effect_reset();
+      init();
+      var fragment = root$1();
+      var div = first_child(fragment);
+      each$1(div, 5, () => get$2(groups), index$1, ($$anchor2, group) => {
+        var div_1 = root_1();
+        var div_2 = child(div_1);
+        var text2 = child(div_2);
+        var div_3 = sibling(div_2, 2);
+        each$1(
+          div_3,
+          5,
+          () => (deep_read_state(items()), get$2(group), untrack(() => items().filter((item) => item.group === get$2(group)))),
+          index$1,
+          ($$anchor3, item) => {
+            var button = root_2();
+            var event_handler = /* @__PURE__ */ user_derived(() => handleClick(get$2(item).value));
+            var text_1 = child(button);
+            template_effect(
+              ($0) => {
+                set_class(button, 1, $0, "svelte-qwkk9g");
+                set_text(text_1, (get$2(item), untrack(() => get$2(item).label)));
+              },
+              [
+                () => clsx((get$2(activeTabs), get$2(item), untrack(() => get$2(activeTabs).includes(get$2(item).value) ? "active" : "")))
+              ],
+              derived_safe_equal
+            );
+            event("click", button, function(...$$args) {
+              var _a3;
+              (_a3 = get$2(event_handler)) == null ? void 0 : _a3.apply(this, $$args);
+            });
+            append($$anchor3, button);
+          }
+        );
+        template_effect(() => set_text(text2, get$2(group)));
+        append($$anchor2, div_1);
+      });
+      var node = sibling(div, 2);
       each$1(node, 1, items, index$1, ($$anchor2, item) => {
-        var div = root_2();
-        var node_1 = child(div);
+        var div_4 = root_3();
+        var node_1 = child(div_4);
         component(node_1, () => get$2(item).component, ($$anchor3, $$component) => {
           $$component($$anchor3, {});
         });
         template_effect(
-          ($0) => div.hidden = $0,
+          ($0) => div_4.hidden = $0,
           [
             () => (get$2(activeTabs), get$2(item), untrack(() => !get$2(activeTabs).includes(get$2(item).value)))
           ],
           derived_safe_equal
         );
-        append($$anchor2, div);
+        append($$anchor2, div_4);
       });
       append($$anchor, fragment);
+      pop();
     }
     var root = /* @__PURE__ */ from_html(`<main class="svelte-1j87mpa"><header class="app-header svelte-1j87mpa"><div class="header-row svelte-1j87mpa"><div class="warning-banner svelte-1j87mpa">Experimental website, use at your own risk.</div> <!></div></header> <div class="app-content svelte-1j87mpa"><!> <!></div> <footer class="app-footer svelte-1j87mpa"><div class="footer-content svelte-1j87mpa"><a href="https://github.com/Thoralf-M/iota-utils" target="_blank" rel="noopener noreferrer" class="github-link svelte-1j87mpa">View on GitHub</a></div></footer></main>`);
     function App($$anchor, $$props) {
       push($$props, false);
       let items = [
+        // Info
         {
           label: "IOTA System State",
-          component: IotaSystemState
-        },
-        { label: "Converter", component: Converter },
-        {
-          label: "Ed25519 address generation",
-          component: Ed25519AddressGeneration
-        },
-        { label: "Faucet", component: Faucet },
-        { label: "Publish Data", component: PublishData },
-        {
-          label: "PTB Code",
-          component: ProgrammableTransactionBlock
+          component: IotaSystemState,
+          group: "Info"
         },
         {
-          label: "Split Merge Coins",
-          component: SplitMergeCoins
+          label: "PTBs",
+          component: PTBs,
+          group: "Info"
         },
-        {
-          label: "Bulk Transfer",
-          component: BulkTransfer
-        },
-        { label: "Stake", component: Stake },
-        { label: "IOTA-Names", component: IotaNames },
         {
           label: "Dynamic Fields",
-          component: DynamicFields
+          component: DynamicFields,
+          group: "Info"
         },
-        { label: "PTBs", component: PTBs },
-        { label: "LedgerNano", component: LedgerNano },
+        // Wallet
         {
           label: "Multi Account View",
-          component: MultiAccountView
+          component: MultiAccountView,
+          group: "Wallet"
         },
         {
           label: "Accounts List",
-          component: AccountsList
+          component: AccountsList,
+          group: "Wallet"
+        },
+        {
+          label: "Keystone",
+          component: Keystone,
+          group: "Wallet"
+        },
+        {
+          label: "LedgerNano",
+          component: LedgerNano,
+          group: "Wallet"
+        },
+        // Transactions
+        {
+          label: "Publish Data",
+          component: PublishData,
+          group: "Transactions"
+        },
+        {
+          label: "Split Merge Coins",
+          component: SplitMergeCoins,
+          group: "Transactions"
+        },
+        {
+          label: "Bulk Transfer",
+          component: BulkTransfer,
+          group: "Transactions"
+        },
+        {
+          label: "Stake",
+          component: Stake,
+          group: "Transactions"
+        },
+        // Utilities
+        {
+          label: "Faucet",
+          component: Faucet,
+          group: "Utilities"
+        },
+        {
+          label: "Converter",
+          component: Converter,
+          group: "Utilities"
         },
         {
           label: "Text Analyzer",
-          component: TextAnalyzer
+          component: TextAnalyzer,
+          group: "Utilities"
         },
-        { label: "Keystone", component: Keystone },
-        { label: "⚙ Settings", component: Settings }
+        {
+          label: "Address generation",
+          component: Ed25519AddressGeneration,
+          group: "Utilities"
+        },
+        // Other
+        {
+          label: "IOTA-Names",
+          component: IotaNames,
+          group: "Other"
+        },
+        {
+          label: "⚙ Settings",
+          component: Settings,
+          group: "Other"
+        }
       ].map((e2, index2) => {
         e2.value = index2;
         return e2;

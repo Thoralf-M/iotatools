@@ -21,29 +21,34 @@
     import Signer from './lib/Signer.svelte';
     import Tabs from './lib/Tabs.svelte';
 
-    // List of tab items with labels, values and assigned components
+    // List of tab items with labels, values, assigned components, and group
     let items = [
-        { label: 'IOTA System State', component: IotaSystemState },
-        { label: 'Converter', component: Converter },
+        // Info
+        { label: 'IOTA System State', component: IotaSystemState, group: 'Info' },
+        { label: 'PTBs', component: PTBs, group: 'Info' },
+        { label: 'Dynamic Fields', component: DynamicFields, group: 'Info' },
+        // Wallet
+        { label: 'Multi Account View', component: MultiAccountView, group: 'Wallet' },
+        { label: 'Accounts List', component: AccountsList, group: 'Wallet' },
+        { label: 'Keystone', component: Keystone, group: 'Wallet' },
+        { label: 'LedgerNano', component: LedgerNano, group: 'Wallet' },
+        // Transactions
+        { label: 'Publish Data', component: PublishData, group: 'Transactions' },
+        { label: 'Split Merge Coins', component: SplitMergeCoins, group: 'Transactions' },
+        { label: 'Bulk Transfer', component: BulkTransfer, group: 'Transactions' },
+        { label: 'Stake', component: Stake, group: 'Transactions' },
+        // Utilities
+        { label: 'Faucet', component: Faucet, group: 'Utilities' },
+        { label: 'Converter', component: Converter, group: 'Utilities' },
+        { label: 'Text Analyzer', component: TextAnalyzer, group: 'Utilities' },
         {
-            label: 'Ed25519 address generation',
+            label: 'Address generation',
             component: Ed25519AddressGeneration,
+            group: 'Utilities',
         },
-        { label: 'Faucet', component: Faucet },
-        { label: 'Publish Data', component: PublishData },
-        { label: 'PTB Code', component: ProgrammableTransactionBlock },
-        { label: 'Split Merge Coins', component: SplitMergeCoins },
-        { label: 'Bulk Transfer', component: BulkTransfer },
-        { label: 'Stake', component: Stake },
-        { label: 'IOTA-Names', component: IotaNames },
-        { label: 'Dynamic Fields', component: DynamicFields },
-        { label: 'PTBs', component: PTBs },
-        { label: 'LedgerNano', component: LedgerNano },
-        { label: 'Multi Account View', component: MultiAccountView },
-        { label: 'Accounts List', component: AccountsList },
-        { label: 'Text Analyzer', component: TextAnalyzer },
-        { label: 'Keystone', component: Keystone },
-        { label: '⚙ Settings', component: Settings },
+        // Other
+        { label: 'IOTA-Names', component: IotaNames, group: 'Other' },
+        { label: '⚙ Settings', component: Settings, group: 'Other' },
     ].map((e, index) => {
         // @ts-ignore
         e.value = index;
