@@ -1,5 +1,6 @@
 <script lang="ts">
     import { Transaction } from '@iota/iota-sdk/transactions';
+    import { isValidIotaAddress } from '@iota/iota-sdk/utils';
     import { dragHandle, dragHandleZone, type DndEvent } from 'svelte-dnd-action';
 
     import TransactionView from '../components/TransactionView.svelte';
@@ -30,7 +31,12 @@
 
     const syncReset = async () => {
         try {
-            extendedAccounts = $iota_accounts.map((account, i) => {
+            // Preserve external accounts (not in $iota_accounts)
+            const externalAccounts = extendedAccounts.filter(
+                (acc) => !$iota_accounts.some((iotaAcc) => iotaAcc.address === acc.address),
+            );
+            // Reset only the $iota_accounts
+            const iotaAccounts = $iota_accounts.map((account, i) => {
                 return {
                     id: account.address,
                     address: account.address,
@@ -39,6 +45,7 @@
                     timelockedObjects: [],
                 };
             });
+            extendedAccounts = [...iotaAccounts, ...externalAccounts];
             await getObjects();
             allAccountsTotalBalance = 0;
             for (let account of extendedAccounts) {
@@ -294,10 +301,63 @@
             console.error(err);
         }
     }
+
+    let newAccountAddress = $state('');
+    let newAccountError = $state('');
+
+    function addExternalAccount() {
+        const address = newAccountAddress.trim();
+        newAccountError = '';
+        if (!address) {
+            newAccountError = 'Address is required.';
+            return;
+        }
+        if (!isValidIotaAddress(address)) {
+            newAccountError = 'Invalid IOTA address.';
+            return;
+        }
+        // Prevent duplicates
+        if (
+            extendedAccounts.some((acc) => acc.address === address) ||
+            $iota_accounts.some((acc) => acc.address === address)
+        ) {
+            newAccountError = 'Account already exists.';
+            return;
+        }
+        extendedAccounts = [
+            ...extendedAccounts,
+            {
+                id: address,
+                address,
+                label: 'External: ' + address.slice(0, 6) + '...' + address.slice(-4),
+                objects: [],
+                timelockedObjects: [],
+            },
+        ];
+        newAccountAddress = '';
+    }
+
+    function removeExternalAccount(address: string) {
+        // Only allow removal if not in $iota_accounts
+        if ($iota_accounts.some((acc) => acc.address === address)) return;
+        extendedAccounts = extendedAccounts.filter((acc) => acc.address !== address);
+    }
 </script>
 
 <main>
     <span style="float:left">Drag and drop objects between accounts.</span>
+    <br />
+    <input
+        type="text"
+        placeholder="Enter external address"
+        bind:value={newAccountAddress}
+        style="margin:0.5rem;"
+        size="67"
+    />
+    <button onclick={addExternalAccount}>Add External Account</button>
+    {#if newAccountError}
+        <div style="color: #d63031; margin: 0.5rem;">{newAccountError}</div>
+    {/if}
     <br />
     <button onclick={syncReset}> sync/reset </button>
     <button onclick={dryRun}> dry run </button>
@@ -340,6 +400,16 @@
                         }, 0) +
                         ' IOTA'}
                 </div>
+
+                {#if !$iota_accounts.some((acc) => acc.address === account.address)}
+                    <button
+                        style="margin:0.2rem; background-color: #d63031; "
+                        onclick={() => removeExternalAccount(account.address)}
+                    >
+                        Remove External Account
+                    </button>
+                    <br />
+                {/if}
                 <div style="text-align: left;">Owned objects ({account.objects.length}):</div>
                 <div
                     use:dragHandleZone={{
