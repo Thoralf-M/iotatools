@@ -6,7 +6,7 @@ var __commonJS = (cb, mod) => function __require() {
 };
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 var require_index_001 = __commonJS({
-  "assets/index-XEU1S-iO.js"(exports, module) {
+  "assets/index-BvlTwVLu.js"(exports, module) {
     var _a2, _b;
     (function polyfill() {
       const relList = document.createElement("link").relList;
@@ -25707,7 +25707,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       }
     }
     var root_1$l = /* @__PURE__ */ from_html(`<p>No accounts connected.</p>`);
-    var root_3$m = /* @__PURE__ */ from_html(`<tr class="account-block"><td class="account-label svelte-ahwfn5" rowspan="2"><span class="account-label-text"> </span></td><td class="account-key svelte-ahwfn5">Address:</td><td class="account-value svelte-ahwfn5"> </td></tr> <tr class="account-block public-key-row svelte-ahwfn5"><td class="account-key svelte-ahwfn5">Public Key:</td><td class="account-value svelte-ahwfn5"> </td></tr>`, 1);
+    var root_3$n = /* @__PURE__ */ from_html(`<tr class="account-block"><td class="account-label svelte-ahwfn5" rowspan="2"><span class="account-label-text"> </span></td><td class="account-key svelte-ahwfn5">Address:</td><td class="account-value svelte-ahwfn5"> </td></tr> <tr class="account-block public-key-row svelte-ahwfn5"><td class="account-key svelte-ahwfn5">Public Key:</td><td class="account-value svelte-ahwfn5"> </td></tr>`, 1);
     var root_2$h = /* @__PURE__ */ from_html(`<table class="accounts-table svelte-ahwfn5"><tbody></tbody></table>`);
     var root$t = /* @__PURE__ */ from_html(`<main><div class="wallet-accounts-container svelte-ahwfn5"><h2 class="svelte-ahwfn5">Connected Wallet Accounts</h2> <!></div></main>`);
     function AccountsList($$anchor, $$props) {
@@ -25727,7 +25727,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           var table = root_2$h();
           var tbody = child(table);
           each$1(tbody, 5, $iota_accounts, index$1, ($$anchor3, account) => {
-            var fragment = root_3$m();
+            var fragment = root_3$n();
             var tr = first_child(fragment);
             var td = child(tr);
             var span = child(td);
@@ -25837,11 +25837,11 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       append($$anchor, fragment);
       pop();
     }
-    var root_9$d = /* @__PURE__ */ from_html(`<span class="operator"></span>`);
+    var root_9$c = /* @__PURE__ */ from_html(`<span class="operator"></span>`);
     var root_8$8 = /* @__PURE__ */ from_html(`<span class="label svelte-19drypg"><!><!><!></span><!>`, 1);
     var root_7$a = /* @__PURE__ */ from_html(`<li><!></li>`);
     var root_6$9 = /* @__PURE__ */ from_html(`<ul></ul>`);
-    var root_3$l = /* @__PURE__ */ from_html(`<span class="root svelte-19drypg"><!> <!></span> <!>`, 1);
+    var root_3$m = /* @__PURE__ */ from_html(`<span class="root svelte-19drypg"><!> <!></span> <!>`, 1);
     function JSONNested($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
@@ -25894,7 +25894,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           append($$anchor2, fragment_1);
         };
         var alternate = ($$anchor2) => {
-          var fragment_2 = root_3$l();
+          var fragment_2 = root_3$m();
           var span = first_child(fragment_2);
           var node_2 = child(span);
           {
@@ -25964,7 +25964,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
                     var node_9 = sibling(node_8);
                     {
                       var consequent_2 = ($$anchor6) => {
-                        var span_2 = root_9$d();
+                        var span_2 = root_9$c();
                         span_2.textContent = ": ";
                         append($$anchor6, span_2);
                       };
@@ -26013,8 +26013,8 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       pop();
       $$cleanup();
     }
-    var root_4$f = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
-    var root_3$k = /* @__PURE__ */ from_html(`<!><span class="operator"> </span>`, 1);
+    var root_4$g = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
+    var root_3$l = /* @__PURE__ */ from_html(`<!><span class="operator"> </span>`, 1);
     var root_6$8 = /* @__PURE__ */ from_html(`<span class="comma operator svelte-150ffaa">,</span>`);
     var root_5$a = /* @__PURE__ */ from_html(`<!> <!>`, 1);
     var root_7$9 = /* @__PURE__ */ from_html(`<span class="comma operator svelte-150ffaa">,</span> <span class="operator">…</span>`, 1);
@@ -26038,11 +26038,11 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           var node_1 = first_child(fragment_1);
           {
             var consequent_1 = ($$anchor3) => {
-              var fragment_2 = root_3$k();
+              var fragment_2 = root_3$l();
               var node_2 = first_child(fragment_2);
               {
                 var consequent = ($$anchor4) => {
-                  var span = root_4$f();
+                  var span = root_4$g();
                   var text2 = child(span);
                   template_effect(() => set_text(text2, label()));
                   append($$anchor4, span);
@@ -26118,9 +26118,9 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       append($$anchor, fragment);
       pop();
     }
-    var root_3$j = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
+    var root_3$k = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
     var root_7$8 = /* @__PURE__ */ from_html(`<span class="property"> </span><span class="operator"></span><!>`, 1);
-    var root_9$c = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
+    var root_9$b = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
     function JSONObjectNode($$anchor, $$props) {
       push($$props, false);
       const keys = /* @__PURE__ */ mutable_source();
@@ -26141,7 +26141,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         },
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_3$j();
+            var span = root_3$k();
             var text2 = child(span);
             template_effect(() => set_text(text2, summary() ?? "{…}"));
             append($$anchor2, span);
@@ -26186,7 +26186,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           },
           item_key: ($$anchor2, $$slotProps) => {
             const key = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.key);
-            var span_3 = root_9$c();
+            var span_3 = root_9$b();
             var text_2 = child(span_3);
             template_effect(() => set_text(text_2, get$2(key)));
             append($$anchor2, span_3);
@@ -26203,8 +26203,8 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       });
       pop();
     }
-    var root_3$i = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
-    var root_9$b = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
+    var root_3$j = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
+    var root_9$a = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
     function JSONArrayNode($$anchor, $$props) {
       push($$props, false);
       const keys = /* @__PURE__ */ mutable_source();
@@ -26224,7 +26224,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         },
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_3$i();
+            var span = root_3$j();
             var text2 = child(span);
             template_effect(() => set_text(text2, `Array(${(deep_read_state(value2()), untrack(() => value2().length)) ?? ""})`));
             append($$anchor2, span);
@@ -26261,7 +26261,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           },
           item_key: ($$anchor2, $$slotProps) => {
             const key = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.key);
-            var span_1 = root_9$b();
+            var span_1 = root_9$a();
             var text_1 = child(span_1);
             template_effect(
               ($0) => set_text(text_1, $0),
@@ -26284,9 +26284,9 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       });
       pop();
     }
-    var root_3$h = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
-    var root_9$a = /* @__PURE__ */ from_html(`<span> </span>`);
-    var root_14$5 = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
+    var root_3$i = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
+    var root_9$9 = /* @__PURE__ */ from_html(`<span> </span>`);
+    var root_14$6 = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
     function JSONIterableArrayNode($$anchor, $$props) {
       push($$props, false);
       const previewItems = /* @__PURE__ */ mutable_source();
@@ -26316,7 +26316,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         shouldShowColon: (key) => key !== ENTRIES,
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_3$h();
+            var span = root_3$i();
             var text2 = child(span);
             template_effect(() => set_text(text2, `${nodeType() ?? ""}(${(get$2(indexes), untrack(() => get$2(indexes).length)) ?? ""})`));
             append($$anchor2, span);
@@ -26354,7 +26354,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           },
           item_key: ($$anchor2, $$slotProps) => {
             const key = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.key);
-            var span_1 = root_9$a();
+            var span_1 = root_9$9();
             var text_1 = child(span_1);
             template_effect(() => {
               set_class(span_1, 1, clsx(get$2(key) === ENTRIES ? "internal" : "property"));
@@ -26376,7 +26376,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
                   $$slots: {
                     item_key: ($$anchor4, $$slotProps2) => {
                       const index2 = /* @__PURE__ */ derived_safe_equal(() => $$slotProps2.key);
-                      var span_2 = root_14$5();
+                      var span_2 = root_14$6();
                       var text_2 = child(span_2);
                       template_effect(() => set_text(text_2, get$2(index2)));
                       append($$anchor4, span_2);
@@ -26410,10 +26410,10 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       });
       pop();
     }
-    var root_3$g = /* @__PURE__ */ from_html(`<span color="label"> </span>`);
+    var root_3$h = /* @__PURE__ */ from_html(`<span color="label"> </span>`);
     var root_7$7 = /* @__PURE__ */ from_html(`<!><span class="operator"></span><!>`, 1);
-    var root_9$9 = /* @__PURE__ */ from_html(`<span> </span>`);
-    var root_14$4 = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
+    var root_9$8 = /* @__PURE__ */ from_html(`<span> </span>`);
+    var root_14$5 = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
     var root_18$3 = /* @__PURE__ */ from_html(`<span class="operator"></span><!><span class="operator"></span><!><span class="operator"></span>`, 1);
     var root_20$3 = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
     function JSONIterableMapNode($$anchor, $$props) {
@@ -26449,7 +26449,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         shouldShowColon: (key) => key !== ENTRIES,
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_3$g();
+            var span = root_3$h();
             var text2 = child(span);
             template_effect(() => set_text(text2, `Map(${(get$2(keys), untrack(() => get$2(keys).length)) ?? ""})`));
             append($$anchor2, span);
@@ -26499,7 +26499,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           },
           item_key: ($$anchor2, $$slotProps) => {
             const key = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.key);
-            var span_2 = root_9$9();
+            var span_2 = root_9$8();
             var text_1 = child(span_2);
             template_effect(() => {
               set_class(span_2, 1, clsx(get$2(key) === ENTRIES ? "internal" : "property"));
@@ -26522,7 +26522,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
                   $$slots: {
                     item_key: ($$anchor4, $$slotProps2) => {
                       const index2 = /* @__PURE__ */ derived_safe_equal(() => $$slotProps2.key);
-                      var span_3 = root_14$4();
+                      var span_3 = root_14$5();
                       var text_2 = child(span_3);
                       template_effect(() => set_text(text_2, get$2(index2)));
                       append($$anchor4, span_3);
@@ -26606,7 +26606,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       append($$anchor, span);
     }
     var root_2$f = /* @__PURE__ */ from_html(`<span><!><span class="operator"> </span></span><br/>`, 1);
-    var root_3$f = /* @__PURE__ */ from_html(`<span><!></span>`);
+    var root_3$g = /* @__PURE__ */ from_html(`<span><!></span>`);
     var root$r = /* @__PURE__ */ from_html(`<span><!></span>`);
     function ErrorStack($$anchor, $$props) {
       push($$props, false);
@@ -26642,7 +26642,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           append($$anchor2, fragment);
         };
         var alternate = ($$anchor2) => {
-          var span_3 = root_3$f();
+          var span_3 = root_3$g();
           var node_3 = child(span_3);
           const expression_1 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(stack()), untrack(() => stack()[0] + "…")));
           JSONNode(node_3, {
@@ -26663,7 +26663,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       $$cleanup();
     }
     var root_2$e = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
-    var root_4$e = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
+    var root_4$f = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
     var root_6$7 = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
     function ErrorNode($$anchor, $$props) {
       push($$props, false);
@@ -26690,7 +26690,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
             append($$anchor2, span);
           },
           preview: ($$anchor2, $$slotProps) => {
-            var span_1 = root_4$e();
+            var span_1 = root_4$f();
             var text_1 = child(span_1);
             template_effect(
               ($0) => set_text(text_1, `Error: ${$0 ?? ""}`),
@@ -26793,7 +26793,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
     var root_2$c = /* @__PURE__ */ from_html(`<span class="i svelte-1eamqdt">ƒ</span>`);
     var root_5$9 = /* @__PURE__ */ from_html(`<span class="fn i svelte-1eamqdt"> </span>`);
     var root_6$6 = /* @__PURE__ */ from_html(`<span class="i svelte-1eamqdt"> </span>`);
-    var root_4$d = /* @__PURE__ */ from_html(`<!><!>`, 1);
+    var root_4$e = /* @__PURE__ */ from_html(`<!><!>`, 1);
     var root_8$6 = /* @__PURE__ */ from_html(`<span> </span>`);
     var root_11$3 = /* @__PURE__ */ from_html(`<span class="i svelte-1eamqdt"> </span>`);
     function JSONFunctionNode($$anchor, $$props) {
@@ -26881,7 +26881,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
             append($$anchor2, span);
           },
           preview: ($$anchor2, $$slotProps) => {
-            var fragment_1 = root_4$d();
+            var fragment_1 = root_4$e();
             var node = first_child(fragment_1);
             {
               var consequent = ($$anchor3) => {
@@ -26980,9 +26980,9 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       });
       pop();
     }
-    var root_3$e = /* @__PURE__ */ from_html(`<span class="label"> <!> </span>`);
+    var root_3$f = /* @__PURE__ */ from_html(`<span class="label"> <!> </span>`);
     var root_7$6 = /* @__PURE__ */ from_html(`<span class="property"> </span><span class="operator"></span><!>`, 1);
-    var root_9$8 = /* @__PURE__ */ from_html(`<span> </span>`);
+    var root_9$7 = /* @__PURE__ */ from_html(`<span> </span>`);
     function JSONSvelteStoreNode($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
@@ -27021,7 +27021,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         },
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_3$e();
+            var span = root_3$f();
             var text2 = child(span);
             var node = sibling(text2);
             JSONNode(node, {
@@ -27071,7 +27071,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           },
           item_key: ($$anchor2, $$slotProps) => {
             const key = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.key);
-            var span_3 = root_9$8();
+            var span_3 = root_9$7();
             var text_3 = child(span_3);
             template_effect(() => {
               set_class(span_3, 1, clsx(get$2(key) === STORE_VALUE ? "internal" : "property"));
@@ -27093,8 +27093,8 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       pop();
       $$cleanup();
     }
-    var root_3$d = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
-    var root_9$7 = /* @__PURE__ */ from_html(`<span> </span>`);
+    var root_3$e = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
+    var root_9$6 = /* @__PURE__ */ from_html(`<span> </span>`);
     function TypedArrayNode($$anchor, $$props) {
       push($$props, false);
       const keys = /* @__PURE__ */ mutable_source();
@@ -27132,7 +27132,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         },
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_3$d();
+            var span = root_3$e();
             var text2 = child(span);
             template_effect(() => set_text(text2, `${nodeType() ?? ""}(${(deep_read_state(value2()), untrack(() => value2().length)) ?? ""})`));
             append($$anchor2, span);
@@ -27169,7 +27169,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           },
           item_key: ($$anchor2, $$slotProps) => {
             const key = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.key);
-            var span_1 = root_9$7();
+            var span_1 = root_9$6();
             var text_1 = child(span_1);
             template_effect(
               ($0, $1) => {
@@ -27198,7 +27198,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       pop();
     }
     var root_2$b = /* @__PURE__ */ from_html(`<span class="regex svelte-17k1wqt"> </span>`);
-    var root_4$c = /* @__PURE__ */ from_html(`<span class="regex svelte-17k1wqt"> </span>`);
+    var root_4$d = /* @__PURE__ */ from_html(`<span class="regex svelte-17k1wqt"> </span>`);
     var root_6$5 = /* @__PURE__ */ from_html(`<span class="internal"> </span>`);
     function RegExpNode($$anchor, $$props) {
       push($$props, false);
@@ -27233,7 +27233,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
             append($$anchor2, span);
           },
           preview: ($$anchor2, $$slotProps) => {
-            var span_1 = root_4$c();
+            var span_1 = root_4$d();
             var text_1 = child(span_1);
             template_effect(() => set_text(text_1, get$2(str)));
             append($$anchor2, span_1);
@@ -27416,7 +27416,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         return level <= defaultExpandedLevel || matchPath(keyPath);
       };
     }
-    var root_4$b = /* @__PURE__ */ from_html(`<span class="svelte-jzynja"> </span>`);
+    var root_4$c = /* @__PURE__ */ from_html(`<span class="svelte-jzynja"> </span>`);
     var root$q = /* @__PURE__ */ from_html(`<span><!></span>`);
     function Root($$anchor, $$props) {
       push($$props, false);
@@ -27475,7 +27475,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         var alternate = ($$anchor2, $$elseif) => {
           {
             var consequent_1 = ($$anchor3) => {
-              var span_1 = root_4$b();
+              var span_1 = root_4$c();
               var text2 = child(span_1);
               template_effect(() => set_text(text2, value2()));
               append($$anchor3, span_1);
@@ -28116,25 +28116,25 @@ ${indentStr}}`;
       return process2(obj);
     }
     var root_2$a = /* @__PURE__ */ from_html(`<span class="time-info svelte-zt1cxl"> </span>`);
-    var root_3$c = /* @__PURE__ */ from_html(`<div class="fee-main"><span class="field-label svelte-zt1cxl">Fee:</span> <span class="gas-fee svelte-zt1cxl"> </span> <span class="field-label svelte-zt1cxl">Storage cost:</span> <span class="field-value svelte-zt1cxl"> </span> <span class="field-label svelte-zt1cxl">Rebate:</span> <span class="field-value svelte-zt1cxl"> </span></div>`);
+    var root_3$d = /* @__PURE__ */ from_html(`<div class="fee-main"><span class="field-label svelte-zt1cxl">Fee:</span> <span class="gas-fee svelte-zt1cxl"> </span> <span class="field-label svelte-zt1cxl">Storage cost:</span> <span class="field-value svelte-zt1cxl"> </span> <span class="field-label svelte-zt1cxl">Rebate:</span> <span class="field-value svelte-zt1cxl"> </span></div>`);
     var root_5$8 = /* @__PURE__ */ from_html(`<div class="balance-box negative svelte-zt1cxl"><div class="full-address svelte-zt1cxl"> </div> <div class="amount-value svelte-zt1cxl"> </div></div>`);
     var root_6$4 = /* @__PURE__ */ from_html(`<div class="balance-box positive svelte-zt1cxl"><div class="full-address svelte-zt1cxl"> </div> <div class="amount-value svelte-zt1cxl"> </div></div>`);
-    var root_4$a = /* @__PURE__ */ from_html(`<div class="section svelte-zt1cxl"><h4 class="svelte-zt1cxl"> </h4> <div class="balance-columns svelte-zt1cxl"><div class="negative-changes svelte-zt1cxl"><h5 class="column-header deleted svelte-zt1cxl"> </h5> <div class="balance-content svelte-zt1cxl"></div></div> <div class="positive-changes svelte-zt1cxl"><h5 class="column-header created svelte-zt1cxl"> </h5> <div class="balance-content svelte-zt1cxl"></div></div></div></div>`);
-    var root_9$6 = /* @__PURE__ */ from_html(`<div class="object-type svelte-zt1cxl"> </div>`);
-    var root_10$4 = /* @__PURE__ */ from_html(`<div class="object-version svelte-zt1cxl"> </div>`);
+    var root_4$b = /* @__PURE__ */ from_html(`<div class="section svelte-zt1cxl"><h4 class="svelte-zt1cxl"> </h4> <div class="balance-columns svelte-zt1cxl"><div class="negative-changes svelte-zt1cxl"><h5 class="column-header deleted svelte-zt1cxl"> </h5> <div class="balance-content svelte-zt1cxl"></div></div> <div class="positive-changes svelte-zt1cxl"><h5 class="column-header created svelte-zt1cxl"> </h5> <div class="balance-content svelte-zt1cxl"></div></div></div></div>`);
+    var root_9$5 = /* @__PURE__ */ from_html(`<div class="object-type svelte-zt1cxl"> </div>`);
+    var root_10$3 = /* @__PURE__ */ from_html(`<div class="object-version svelte-zt1cxl"> </div>`);
     var root_11$2 = /* @__PURE__ */ from_html(`<div class="object-sender svelte-zt1cxl"> </div>`);
     var root_12$4 = /* @__PURE__ */ from_html(`<details class="state-collapsible svelte-zt1cxl" open><summary class="state-summary svelte-zt1cxl">Previous State:</summary> <div class="object-json svelte-zt1cxl"><pre class="svelte-zt1cxl"> </pre></div></details>`);
     var root_8$5 = /* @__PURE__ */ from_html(`<div class="object-box deleted svelte-zt1cxl"><div class="object-id svelte-zt1cxl"> </div> <!> <!> <!> <!></div>`);
     var root_15$2 = /* @__PURE__ */ from_html(`<details class="state-collapsible svelte-zt1cxl"><summary class="state-summary svelte-zt1cxl">Previous State:</summary> <div class="object-json svelte-zt1cxl"><pre class="svelte-zt1cxl"> </pre></div></details>`);
-    var root_14$3 = /* @__PURE__ */ from_html(`<div class="object-id svelte-zt1cxl"> </div> <!> <details class="state-collapsible svelte-zt1cxl" open><summary class="state-summary svelte-zt1cxl">Current State:</summary> <div class="object-json svelte-zt1cxl"><pre class="svelte-zt1cxl"> </pre></div></details>`, 1);
+    var root_14$4 = /* @__PURE__ */ from_html(`<div class="object-id svelte-zt1cxl"> </div> <!> <details class="state-collapsible svelte-zt1cxl" open><summary class="state-summary svelte-zt1cxl">Current State:</summary> <div class="object-json svelte-zt1cxl"><pre class="svelte-zt1cxl"> </pre></div></details>`, 1);
     var root_18$2 = /* @__PURE__ */ from_html(`<div class="object-type svelte-zt1cxl"> </div>`);
-    var root_19$3 = /* @__PURE__ */ from_html(`<div class="object-owner svelte-zt1cxl"> </div>`);
+    var root_19$2 = /* @__PURE__ */ from_html(`<div class="object-owner svelte-zt1cxl"> </div>`);
     var root_20$2 = /* @__PURE__ */ from_html(`<div class="object-version svelte-zt1cxl"> </div>`);
-    var root_21$2 = /* @__PURE__ */ from_html(`<div class="object-previous-version svelte-zt1cxl"> </div>`);
+    var root_21$3 = /* @__PURE__ */ from_html(`<div class="object-previous-version svelte-zt1cxl"> </div>`);
     var root_17$1 = /* @__PURE__ */ from_html(`<div class="object-id svelte-zt1cxl"> </div> <!> <!> <!> <!>`, 1);
     var root_23$2 = /* @__PURE__ */ from_html(`<details class="state-collapsible svelte-zt1cxl"><summary class="state-summary svelte-zt1cxl">Previous State:</summary> <div class="object-json svelte-zt1cxl"><pre class="svelte-zt1cxl"> </pre></div></details>`);
     var root_22$1 = /* @__PURE__ */ from_html(`<div class="object-id svelte-zt1cxl"> </div> <!>`, 1);
-    var root_13$3 = /* @__PURE__ */ from_html(`<div class="object-box mutated svelte-zt1cxl"><!></div>`);
+    var root_13$4 = /* @__PURE__ */ from_html(`<div class="object-box mutated svelte-zt1cxl"><!></div>`);
     var root_25$2 = /* @__PURE__ */ from_html(`<div class="object-id svelte-zt1cxl"> </div> <details class="state-collapsible svelte-zt1cxl" open><summary class="state-summary svelte-zt1cxl">Object State:</summary> <div class="object-json svelte-zt1cxl"><pre class="svelte-zt1cxl"> </pre></div></details>`, 1);
     var root_28$2 = /* @__PURE__ */ from_html(`<div class="object-type svelte-zt1cxl"> </div>`);
     var root_29$1 = /* @__PURE__ */ from_html(`<div class="object-owner svelte-zt1cxl"> </div>`);
@@ -28357,7 +28357,7 @@ ${indentStr}}`;
           var node_2 = child(div_4);
           {
             var consequent_1 = ($$anchor3) => {
-              var div_5 = root_3$c();
+              var div_5 = root_3$d();
               var span_5 = sibling(child(div_5), 2);
               var text_5 = child(span_5);
               var span_6 = sibling(span_5, 4);
@@ -28389,7 +28389,7 @@ ${indentStr}}`;
           var node_3 = sibling(div_2, 2);
           {
             var consequent_2 = ($$anchor3) => {
-              var div_6 = root_4$a();
+              var div_6 = root_4$b();
               var h4 = child(div_6);
               var text_8 = child(h4);
               var div_7 = sibling(h4, 2);
@@ -28499,7 +28499,7 @@ ${indentStr}}`;
                 var node_5 = sibling(div_23, 2);
                 {
                   var consequent_3 = ($$anchor5) => {
-                    var div_24 = root_9$6();
+                    var div_24 = root_9$5();
                     var text_18 = child(div_24);
                     template_effect(() => set_text(text_18, (get$2(change), untrack(() => get$2(change).objectType))));
                     append($$anchor5, div_24);
@@ -28511,7 +28511,7 @@ ${indentStr}}`;
                 var node_6 = sibling(node_5, 2);
                 {
                   var consequent_4 = ($$anchor5) => {
-                    var div_25 = root_10$4();
+                    var div_25 = root_10$3();
                     var text_19 = child(div_25);
                     template_effect(() => set_text(text_19, `Version: ${(get$2(change), untrack(() => get$2(change).version)) ?? ""}`));
                     append($$anchor5, div_25);
@@ -28565,11 +28565,11 @@ ${indentStr}}`;
               var text_22 = child(h5_3);
               var div_29 = sibling(h5_3, 2);
               each$1(div_29, 5, () => get$2(mutatedObjects), index$1, ($$anchor4, change) => {
-                var div_30 = root_13$3();
+                var div_30 = root_13$4();
                 var node_9 = child(div_30);
                 {
                   var consequent_8 = ($$anchor5) => {
-                    var fragment_1 = root_14$3();
+                    var fragment_1 = root_14$4();
                     var div_31 = first_child(fragment_1);
                     var text_23 = child(div_31);
                     var node_10 = sibling(div_31, 2);
@@ -28636,7 +28636,7 @@ ${indentStr}}`;
                         var node_12 = sibling(node_11, 2);
                         {
                           var consequent_10 = ($$anchor7) => {
-                            var div_36 = root_19$3();
+                            var div_36 = root_19$2();
                             var text_28 = child(div_36);
                             template_effect(() => set_text(text_28, `Owner: ${(get$2(change), untrack(() => get$2(change).owner.AddressOwner || get$2(change).owner)) ?? ""}`));
                             append($$anchor7, div_36);
@@ -28660,7 +28660,7 @@ ${indentStr}}`;
                         var node_14 = sibling(node_13, 2);
                         {
                           var consequent_12 = ($$anchor7) => {
-                            var div_38 = root_21$2();
+                            var div_38 = root_21$3();
                             var text_30 = child(div_38);
                             template_effect(() => set_text(text_30, `Previous Version: ${(get$2(change), untrack(() => get$2(change).previousVersion)) ?? ""}`));
                             append($$anchor7, div_38);
@@ -29638,8 +29638,8 @@ ${indentStr}}`;
       pop();
     }
     var root_1$h = /* @__PURE__ */ from_html(`<div class="formatted-view svelte-150bnt9"><!></div>`);
-    var root_3$b = /* @__PURE__ */ from_html(`<div class="tree-view svelte-150bnt9"><!></div>`);
-    var root_4$9 = /* @__PURE__ */ from_html(`<div class="json-view svelte-150bnt9"><pre class="svelte-150bnt9"> </pre></div>`);
+    var root_3$c = /* @__PURE__ */ from_html(`<div class="tree-view svelte-150bnt9"><!></div>`);
+    var root_4$a = /* @__PURE__ */ from_html(`<div class="json-view svelte-150bnt9"><pre class="svelte-150bnt9"> </pre></div>`);
     var root$o = /* @__PURE__ */ from_html(`<div class="transaction-view ultra-compact svelte-150bnt9"><div class="view-controls svelte-150bnt9"><button>Formatted View</button> <button>Raw JSON</button> <button>JSON Tree</button></div> <!></div>`);
     function TransactionView($$anchor, $$props) {
       push($$props, false);
@@ -29683,7 +29683,7 @@ ${indentStr}}`;
         var alternate = ($$anchor2, $$elseif) => {
           {
             var consequent_1 = ($$anchor3) => {
-              var div_3 = root_3$b();
+              var div_3 = root_3$c();
               var node_2 = child(div_3);
               Root(node_2, {
                 get value() {
@@ -29694,7 +29694,7 @@ ${indentStr}}`;
               append($$anchor3, div_3);
             };
             var alternate_1 = ($$anchor3) => {
-              var div_4 = root_4$9();
+              var div_4 = root_4$a();
               var pre = child(div_4);
               var text2 = child(pre);
               template_effect(
@@ -29896,9 +29896,9 @@ ${indentStr}}`;
     }
     var root_1$g = /* @__PURE__ */ from_html(`<div style="color: red; font-size: 0.9rem; margin-top: 0.25rem;"> </div>`);
     var on_change$2 = (e2, selectCoinFromDropdown) => selectCoinFromDropdown(e2.target.value);
-    var root_3$a = /* @__PURE__ */ from_html(`<option> </option>`);
+    var root_3$b = /* @__PURE__ */ from_html(`<option> </option>`);
     var root_2$9 = /* @__PURE__ */ from_html(`<div style="margin-bottom: 1rem;"><label for="coinDropdown" style="display: inline-block; margin-bottom: 0.5rem; font-weight: bold;">Select from Available Coins:</label> <br/> <select id="coinDropdown" style="padding: 0.5rem; font-family: monospace; font-size: 14px; border: 1px solid #cccccc; min-width: 300px;"><option>-- Select a coin --</option><!></select> <div style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;"> </div></div>`);
-    var root_4$8 = /* @__PURE__ */ from_html(`<div style="color: red; margin-top: 0.5rem; font-size: 0.9rem;"> </div>`);
+    var root_4$9 = /* @__PURE__ */ from_html(`<div style="color: red; margin-top: 0.5rem; font-size: 0.9rem;"> </div>`);
     var root_5$7 = /* @__PURE__ */ from_html(`<div style="margin: 1rem 0; text-align: left; display: inline-block;"> <br/> </div>`);
     var root$n = /* @__PURE__ */ from_html(`<main><div><h3>Bulk Transfer</h3> <p>Transfer coins to multiple addresses in a single transaction.</p> <div style="margin-bottom: 1rem;"><div style="margin-bottom: 1rem;"><button style="padding: 0.5rem 1rem; margin-bottom: 0.5rem;" class="svelte-12h7i3q"> </button> <!></div> <!></div> <div><details style="margin-bottom: 1rem;"><summary>Example formats</summary> <div style="display: flex; gap: 2rem; justify-content: center;"><div><h4>JSON format:</h4> <pre style="padding: 1rem; text-align: left;"></pre></div> <div><h4>CSV format:</h4> <pre style="padding: 1rem; text-align: left;"></pre></div> <div><h4>Space-separated:</h4> <pre style="padding: 1rem;"></pre></div></div></details> <div style="display: inline-block;"><div style="text-align: left;">Transfers (amount in the smallest unit (NANO for IOTA)) - JSON, CSV, or
                     space-separated:</div> <textarea rows="15" cols="120" placeholder="Enter transfers in JSON, CSV, or space-separated format"></textarea></div> <!></div> <!> <br/> <button class="svelte-12h7i3q">Execute Bulk Transfer</button></div> <!></main>`);
@@ -30041,7 +30041,7 @@ ${indentStr}}`;
           option.value = option.__value = "";
           var node_2 = sibling(option);
           each$1(node_2, 1, () => get$2(availableCoins), index$1, ($$anchor3, coin) => {
-            var option_1 = root_3$a();
+            var option_1 = root_3$b();
             var option_1_value = {};
             var text_2 = child(option_1);
             template_effect(
@@ -30092,7 +30092,7 @@ ${indentStr}}`;
       var node_3 = sibling(div_11, 2);
       {
         var consequent_2 = ($$anchor2) => {
-          var div_12 = root_4$8();
+          var div_12 = root_4$9();
           var text_4 = child(div_12);
           template_effect(() => set_text(text_4, get$2(errorMsg)));
           append($$anchor2, div_12);
@@ -31514,11 +31514,11 @@ ${indentStr}}`;
         updateSelectedStructJson();
       }
     }
-    var on_click$5 = (__4, handleQueryDynamicFields) => handleQueryDynamicFields();
+    var on_click$6 = (__4, handleQueryDynamicFields) => handleQueryDynamicFields();
     var root_1$f = /* @__PURE__ */ from_html(`<div style="color: red; margin-top: 1em;"> </div>`);
-    var root_3$9 = /* @__PURE__ */ from_html(`<div>No dynamic fields found for this object.</div>`);
+    var root_3$a = /* @__PURE__ */ from_html(`<div>No dynamic fields found for this object.</div>`);
     var root_5$6 = /* @__PURE__ */ from_html(`<button style="margin-top:1em;"> </button>`);
-    var root_4$7 = /* @__PURE__ */ from_html(`<!> <!>`, 1);
+    var root_4$8 = /* @__PURE__ */ from_html(`<!> <!>`, 1);
     var on_click_1$2 = (__5, layoutType, fieldType, handleGetMoveLayout) => {
       set$1(layoutType, get$2(fieldType), true);
       handleGetMoveLayout();
@@ -31526,26 +31526,26 @@ ${indentStr}}`;
     var on_click_2$1 = (__6, bcsInputMode) => {
       set$1(bcsInputMode, get$2(bcsInputMode) === "base64" ? "json" : "base64", true);
     };
-    var root_9$5 = /* @__PURE__ */ from_html(`<div style="color: red; margin-top: 0.5em; font-size: 0.9em;"> </div>`);
+    var root_9$4 = /* @__PURE__ */ from_html(`<div style="color: red; margin-top: 0.5em; font-size: 0.9em;"> </div>`);
     var root_12$3 = /* @__PURE__ */ from_html(`<span style="font-family: monospace; padding: 2px 4px; border-radius: 2px;"> </span> <span style="color: #666; font-size: 0.9em; margin-left: 0.5em;"> </span>`, 1);
-    var root_10$3 = /* @__PURE__ */ from_html(`<div style="margin-top: 0.5em;"><strong>Decoded value:</strong> <!></div>`);
+    var root_10$2 = /* @__PURE__ */ from_html(`<div style="margin-top: 0.5em;"><strong>Decoded value:</strong> <!></div>`);
     var root_8$4 = /* @__PURE__ */ from_html(`<div style="margin-top: 0.5em;"><button style="padding: 2px 8px; font-size: 0.9em;">Decode BCS</button></div> <!> <!>`, 1);
     var root_7$4 = /* @__PURE__ */ from_html(`Field BCS (Base64): <input placeholder="Base64 BCS" size="32"/> <!>`, 1);
-    var root_14$2 = /* @__PURE__ */ from_html(`<option> </option>`);
+    var root_14$3 = /* @__PURE__ */ from_html(`<option> </option>`);
     var root_15$1 = /* @__PURE__ */ from_html(`<option> </option>`);
     var root_16$1 = /* @__PURE__ */ from_html(`<div style="color: red; margin-bottom: 0.5em;"> </div>`);
     var on_click_3$1 = (__7, bcsValue) => navigator.clipboard.writeText(get$2(bcsValue));
     var root_18$1 = /* @__PURE__ */ from_html(`<div style="margin-top: 0.5em; padding: 0.5em; border-radius: 4px; font-family: monospace; word-break: break-all;"><strong>Computed BCS Base64 encoded:</strong> <button style="margin-left: 0.5em; padding: 2px 6px; font-size: 0.8em; cursor: pointer;" title="Copy to clipboard">📋 Copy</button></div>`);
-    var root_19$2 = /* @__PURE__ */ from_html(`<div style="margin-top: 0.5em; color: #999; font-style: italic;">Unable to compute BCS value - check struct definition and value</div>`);
+    var root_19$1 = /* @__PURE__ */ from_html(`<div style="margin-top: 0.5em; color: #999; font-style: italic;">Unable to compute BCS value - check struct definition and value</div>`);
     var root_20$1 = /* @__PURE__ */ from_html(`<div style="margin-top: 0.5em; color: #999; font-style: italic;">Select a struct type to see computed BCS value</div>`);
-    var root_13$2 = /* @__PURE__ */ from_html(
+    var root_13$3 = /* @__PURE__ */ from_html(
       `Struct type: Examples apart from Domain are from this package: <a target="_blank" rel="noopener noreferrer" style="color: #007bff; text-decoration: none;" href="https://github.com/Thoralf-M/iota-examples/tree/main/move/dynamic_fields">https://github.com/Thoralf-M/iota-examples/tree/main/move/dynamic_fields</a> <br/> In devnet: <a target="_blank" rel="noopener noreferrer" style="color: #007bff; text-decoration: none;" href="https://explorer.iota.org/object/0x25ee69608c70f9d614790e8a46aa32c18798c4fa9cfc20e5dd0ec1f7505bd5ef?module=dynamic_fields&amp;network=devnet">0x25ee69608c70f9d614790e8a46aa32c18798c4fa9cfc20e5dd0ec1f7505bd5ef</a> <br/> <select style="margin-right:0.5em;"><!><!></select> <button type="button" style="margin-left:0.5em; padding:2px 8px; font-size:0.9em;">+ Add New</button> <div style="margin-top:1em;"><h4 style="margin-bottom:0.5em;">Selected Struct Definition</h4> <p style="font-size:0.9em; color:#666;">Edit the selected struct. Object should have: name, fieldType, layout (JSON),
                     and value (JSON). The layout defines the structure of the data and will be
                     converted to BCS for serialization.</p> <!> <textarea rows="12" cols="130" style="font-family: monospace;"></textarea></div> <!>`,
       1
     );
     var on_click_4$1 = (__8, computedDynamicFieldId) => navigator.clipboard.writeText(get$2(computedDynamicFieldId));
-    var root_21$1 = /* @__PURE__ */ from_html(`<div style="margin-top: 0.5em; padding: 0.5em; border-radius: 4px; font-family: monospace; word-break: break-all;"><strong>Computed Dynamic Field ID:</strong> <button style="margin-left: 0.5em; padding: 2px 6px; font-size: 0.8em; cursor: pointer;" title="Copy to clipboard">📋 Copy</button></div>`);
+    var root_21$2 = /* @__PURE__ */ from_html(`<div style="margin-top: 0.5em; padding: 0.5em; border-radius: 4px; font-family: monospace; word-break: break-all;"><strong>Computed Dynamic Field ID:</strong> <button style="margin-left: 0.5em; padding: 2px 6px; font-size: 0.8em; cursor: pointer;" title="Copy to clipboard">📋 Copy</button></div>`);
     var root_23$1 = /* @__PURE__ */ from_html(`<div style="margin-top: 0.5em; color: #666; font-style: italic;">Computing...</div>`);
     var root_24$1 = /* @__PURE__ */ from_html(`<div style="margin-top: 0.5em; color: #999; font-style: italic;">Enter object ID, field type, and field value to compute dynamic field ID</div>`);
     var root_25$1 = /* @__PURE__ */ from_html(`<div style="color: red; margin-top: 1em;"> </div>`);
@@ -31834,7 +31834,7 @@ ${indentStr}}`;
       var label_1 = sibling(label, 4);
       var input_1 = sibling(child(label_1));
       var button = sibling(label_1, 2);
-      button.__click = [on_click$5, handleQueryDynamicFields];
+      button.__click = [on_click$6, handleQueryDynamicFields];
       var text2 = child(button);
       var button_1 = sibling(button, 2);
       button_1.__click = [
@@ -31862,11 +31862,11 @@ ${indentStr}}`;
           var node_2 = first_child(fragment);
           {
             var consequent_1 = ($$anchor3) => {
-              var div_2 = root_3$9();
+              var div_2 = root_3$a();
               append($$anchor3, div_2);
             };
             var alternate = ($$anchor3) => {
-              var fragment_1 = root_4$7();
+              var fragment_1 = root_4$8();
               var node_3 = first_child(fragment_1);
               JsonToggleView(node_3, {
                 get value() {
@@ -31945,7 +31945,7 @@ ${indentStr}}`;
               var node_8 = sibling(div_5, 2);
               {
                 var consequent_5 = ($$anchor4) => {
-                  var div_6 = root_9$5();
+                  var div_6 = root_9$4();
                   var text_5 = child(div_6);
                   template_effect(() => set_text(text_5, get$2(decodeError)));
                   append($$anchor4, div_6);
@@ -31957,7 +31957,7 @@ ${indentStr}}`;
               var node_9 = sibling(node_8, 2);
               {
                 var consequent_7 = ($$anchor4) => {
-                  var div_7 = root_10$3();
+                  var div_7 = root_10$2();
                   var node_10 = sibling(child(div_7), 2);
                   {
                     var consequent_6 = ($$anchor5) => {
@@ -32000,12 +32000,12 @@ ${indentStr}}`;
           append($$anchor2, fragment_3);
         };
         var alternate_2 = ($$anchor2) => {
-          var fragment_7 = root_13$2();
+          var fragment_7 = root_13$3();
           var select = sibling(first_child(fragment_7), 9);
           select.__change = updateSelectedStructJson;
           var node_11 = child(select);
           each$1(node_11, 17, () => structDefinitions, index$1, ($$anchor3, structDef) => {
-            var option = root_14$2();
+            var option = root_14$3();
             var option_value = {};
             var text_8 = child(option);
             template_effect(() => {
@@ -32067,7 +32067,7 @@ ${indentStr}}`;
                   append($$anchor4, div_10);
                 };
                 var alternate_3 = ($$anchor4) => {
-                  var div_11 = root_19$2();
+                  var div_11 = root_19$1();
                   append($$anchor4, div_11);
                 };
                 if_block(node_15, ($$render) => {
@@ -32098,7 +32098,7 @@ ${indentStr}}`;
       var node_16 = sibling(node_6, 2);
       {
         var consequent_13 = ($$anchor2) => {
-          var div_13 = root_21$1();
+          var div_13 = root_21$2();
           var text_12 = sibling(child(div_13));
           var button_8 = sibling(text_12);
           button_8.__click = [on_click_4$1, computedDynamicFieldId];
@@ -35041,7 +35041,7 @@ zoo`.split("\n");
       set$1(AUCTION_PACKAGE_ID, "");
       set$1(COUPONS_PACKAGE_ID, "");
     };
-    var root_3$8 = /* @__PURE__ */ from_html(` <br/>`, 1);
+    var root_3$9 = /* @__PURE__ */ from_html(` <br/>`, 1);
     var root_1$d = /* @__PURE__ */ from_html(`<details><summary>IOTA-Names IDs</summary> <div> <br/> <!></div></details>`);
     var root$h = /* @__PURE__ */ from_html(`<main><span>IotaNames package id (default for devnet): <input placeholder="package id 0x..." size="67"/></span> <br/> <br/> <span>address: <input placeholder="address 0x..." size="67"/></span> <span>name: <input placeholder="name.iota"/></span> <br/> <br/> <!> General information: <button class="svelte-8fa537">list registered names</button> <button class="svelte-8fa537">get reverse registered addresses</button> <button class="svelte-8fa537">show package ids</button> <button class="svelte-8fa537">get dynamic fields</button> <hr/> Resolver: <button class="svelte-8fa537">resolve address (by name)</button> <button class="svelte-8fa537">resolve name (by address)</button> <hr/> Tx actions: <button class="svelte-8fa537">register name</button> <button class="svelte-8fa537">set target address</button> <button class="svelte-8fa537">set reverse lookup</button> <hr/> Auction: <span>bid price: <input type="number" placeholder="0" style="width: 14rem;"/></span> <button class="svelte-8fa537">start auction and place bid</button> <button class="svelte-8fa537">place bid</button> <button class="svelte-8fa537">claim</button> <button class="svelte-8fa537">list auctions</button> <!></main>`);
     function IotaNames($$anchor, $$props) {
@@ -35422,7 +35422,7 @@ zoo`.split("\n");
               var node_2 = first_child(fragment);
               {
                 var consequent = ($$anchor4) => {
-                  var fragment_1 = root_3$8();
+                  var fragment_1 = root_3$9();
                   var text_1 = first_child(fragment_1);
                   template_effect(() => set_text(text_1, `${(get$2(item), untrack(() => get$2(item)[0])) ?? ""} Package ID: ${(get$2(item), untrack(() => get$2(item)[1])) ?? ""} `));
                   append($$anchor4, fragment_1);
@@ -44237,15 +44237,15 @@ zoo`.split("\n");
     };
     qrcode.stringToBytes;
     var root_2$8 = /* @__PURE__ */ from_html(`<span class="animation-status svelte-p4ja95"> </span> <span class="part-indicator svelte-p4ja95"> </span> <button class="control-btn svelte-p4ja95">Stop Animation</button>`, 1);
-    var root_4$6 = /* @__PURE__ */ from_html(`<span class="part-indicator svelte-p4ja95"> </span> <button class="control-btn svelte-p4ja95">Start Animation</button>`, 1);
+    var root_4$7 = /* @__PURE__ */ from_html(`<span class="part-indicator svelte-p4ja95"> </span> <button class="control-btn svelte-p4ja95">Start Animation</button>`, 1);
     var root_5$5 = /* @__PURE__ */ from_html(`<span class="part-indicator svelte-p4ja95">Single QR code - no animation needed</span>`);
-    var root_3$7 = /* @__PURE__ */ from_html(`<span class="animation-status svelte-p4ja95">📱 Static QR</span> <!>`, 1);
+    var root_3$8 = /* @__PURE__ */ from_html(`<span class="animation-status svelte-p4ja95">📱 Static QR</span> <!>`, 1);
     var root_6$3 = /* @__PURE__ */ from_html(`<button class="control-btn svelte-p4ja95">Next Part</button>`);
     var root_8$3 = /* @__PURE__ */ from_html(`<div><div class="part-header svelte-p4ja95"><strong class="svelte-p4ja95"></strong> <span> </span> <span class="part-sequence svelte-p4ja95"> </span></div> <code class="part-data svelte-p4ja95"> </code></div>`);
     var root_7$3 = /* @__PURE__ */ from_html(`<div class="all-parts-section svelte-p4ja95"><h4 class="svelte-p4ja95"> </h4> <div class="fountain-explanation svelte-p4ja95"><p class="svelte-p4ja95"><strong class="svelte-p4ja95">📡 Fountain Code Structure:</strong></p> <ul class="svelte-p4ja95"><li class="svelte-p4ja95"><strong class="svelte-p4ja95">Basic Parts:</strong> </li> <li class="svelte-p4ja95"><strong class="svelte-p4ja95">Fountain Parts:</strong> Redundant parts beyond the basic sequence
                             (for error recovery)</li> <li class="svelte-p4ja95"><strong class="svelte-p4ja95">Collection:</strong> You need to collect <em class="svelte-p4ja95"> </em> parts total to decode reliably</li> <li class="svelte-p4ja95"><strong class="svelte-p4ja95">Redundancy:</strong> </li></ul></div> <div class="parts-list svelte-p4ja95"></div></div>`);
     var root_1$b = /* @__PURE__ */ from_html(`<div class="qr-section svelte-p4ja95"><h3 class="svelte-p4ja95">Scan with Keystone to Sign</h3> <div class="qr-controls svelte-p4ja95"><!> <!></div> <div class="qr-container svelte-p4ja95"><canvas class="qr-canvas svelte-p4ja95" width="400" height="400"></canvas></div> <div class="qr-data svelte-p4ja95"><strong class="svelte-p4ja95">Current UR Data:</strong> <code class="svelte-p4ja95"> </code></div> <!></div>`);
-    var root_9$4 = /* @__PURE__ */ from_html(`<div class="error-message svelte-p4ja95"><strong class="svelte-p4ja95">QR Generation Error:</strong> </div>`);
+    var root_9$3 = /* @__PURE__ */ from_html(`<div class="error-message svelte-p4ja95"><strong class="svelte-p4ja95">QR Generation Error:</strong> </div>`);
     var root$f = /* @__PURE__ */ from_html(`<!> <!>`, 1);
     function QrGenerator($$anchor, $$props) {
       push($$props, false);
@@ -44466,11 +44466,11 @@ zoo`.split("\n");
               append($$anchor3, fragment_1);
             };
             var alternate = ($$anchor3) => {
-              var fragment_2 = root_3$7();
+              var fragment_2 = root_3$8();
               var node_2 = sibling(first_child(fragment_2), 2);
               {
                 var consequent_1 = ($$anchor4) => {
-                  var fragment_3 = root_4$6();
+                  var fragment_3 = root_4$7();
                   var span_2 = first_child(fragment_3);
                   var text_2 = child(span_2);
                   var button_1 = sibling(span_2, 2);
@@ -44582,7 +44582,7 @@ zoo`.split("\n");
       var node_5 = sibling(node, 2);
       {
         var consequent_5 = ($$anchor2) => {
-          var div_9 = root_9$4();
+          var div_9 = root_9$3();
           var text_11 = sibling(child(div_9));
           template_effect(() => set_text(text_11, ` ${scanError() ?? ""}`));
           append($$anchor2, div_9);
@@ -45054,12 +45054,12 @@ zoo`.split("\n");
     e._workerMessageId = 0;
     var root_1$a = /* @__PURE__ */ from_html(`<button class="action-btn svelte-57l17z">Start Camera</button>`);
     var root_2$7 = /* @__PURE__ */ from_html(`<button class="action-btn danger svelte-57l17z">Stop Camera</button>`);
-    var root_3$6 = /* @__PURE__ */ from_html(`<button class="control-btn svelte-57l17z">Reset Scanner</button>`);
+    var root_3$7 = /* @__PURE__ */ from_html(`<button class="control-btn svelte-57l17z">Reset Scanner</button>`);
     var root_5$4 = /* @__PURE__ */ from_html(`<div class="multipart-message svelte-57l17z"><strong>Multipart mode:</strong> Keep scanning until all parts are collected<br/> <span> </span></div>`);
-    var root_4$5 = /* @__PURE__ */ from_html(`<div class="video-container svelte-57l17z"><video autoplay playsinline="" width="500" height="300" class="svelte-57l17z"></video> <p class="scanner-instructions svelte-57l17z">Position the QR code displayed on the Keystone within the camera view</p> <!></div>`, 2);
+    var root_4$6 = /* @__PURE__ */ from_html(`<div class="video-container svelte-57l17z"><video autoplay playsinline="" width="500" height="300" class="svelte-57l17z"></video> <p class="scanner-instructions svelte-57l17z">Position the QR code displayed on the Keystone within the camera view</p> <!></div>`, 2);
     var root_6$2 = /* @__PURE__ */ from_html(`<div class="error-message svelte-57l17z"><strong>Error:</strong> </div>`);
     var root_7$2 = /* @__PURE__ */ from_html(`<div class="error-message svelte-57l17z"><strong>Scan Error:</strong> </div>`);
-    var root_9$3 = /* @__PURE__ */ from_html(`<div class="multipart-progress svelte-57l17z"><div class="progress-bar svelte-57l17z"><div class="progress-fill svelte-57l17z"></div></div> <span class="progress-text svelte-57l17z"> </span></div>`);
+    var root_9$2 = /* @__PURE__ */ from_html(`<div class="multipart-progress svelte-57l17z"><div class="progress-bar svelte-57l17z"><div class="progress-fill svelte-57l17z"></div></div> <span class="progress-text svelte-57l17z"> </span></div>`);
     var root_8$2 = /* @__PURE__ */ from_html(`<div class="debug-info svelte-57l17z"><strong>Debug:</strong> <!></div>`);
     var root$e = /* @__PURE__ */ from_html(`<div class="qr-scanner svelte-57l17z"><p class="info svelte-57l17z">On your Keystone device, navigate to the IOTA wallet and generate a connection QR code. Then
         use the camera scanner below to scan it and capture your account information.</p> <div class="scanner-controls svelte-57l17z"><!> <button class="control-btn svelte-57l17z">Check Camera</button> <!></div> <!> <!> <!> <!></div>`);
@@ -45221,7 +45221,7 @@ zoo`.split("\n");
       var node_1 = sibling(button_2, 2);
       {
         var consequent_1 = ($$anchor2) => {
-          var button_3 = root_3$6();
+          var button_3 = root_3$7();
           event("click", button_3, reset);
           append($$anchor2, button_3);
         };
@@ -45232,7 +45232,7 @@ zoo`.split("\n");
       var node_2 = sibling(div_1, 2);
       {
         var consequent_3 = ($$anchor2) => {
-          var div_2 = root_4$5();
+          var div_2 = root_4$6();
           var video = child(div_2);
           video.muted = true;
           bind_this(video, ($$value) => set$1(videoElement, $$value), () => get$2(videoElement));
@@ -45287,7 +45287,7 @@ zoo`.split("\n");
           var node_7 = sibling(text_3);
           {
             var consequent_6 = ($$anchor3) => {
-              var div_7 = root_9$3();
+              var div_7 = root_9$2();
               var div_8 = child(div_7);
               var div_9 = child(div_8);
               var span_1 = sibling(div_8, 2);
@@ -47082,19 +47082,19 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     }
     var root_2$6 = /* @__PURE__ */ from_html(`<option> </option>`);
     var root_1$9 = /* @__PURE__ */ from_html(`<div class="account-info svelte-18r9j1v"><h2 class="svelte-18r9j1v">Connected Keystone Device</h2> <label for="account-select">Select Account:</label> <select id="account-select" class="svelte-18r9j1v"></select> <div class="account-details svelte-18r9j1v"><p class="svelte-18r9j1v"><strong>Device:</strong> </p> <p class="svelte-18r9j1v"><strong>Master Fingerprint:</strong> <code class="svelte-18r9j1v"> </code></p> <p class="svelte-18r9j1v"><strong>Selected Path:</strong> <code class="svelte-18r9j1v"> </code></p> <p class="svelte-18r9j1v"><strong>Address:</strong> <code class="svelte-18r9j1v"> </code></p></div></div>`);
-    var root_4$4 = /* @__PURE__ */ from_html(`<div class="controls svelte-18r9j1v"><button class="svelte-18r9j1v">Reset Multipart</button></div>`);
+    var root_4$5 = /* @__PURE__ */ from_html(`<div class="controls svelte-18r9j1v"><button class="svelte-18r9j1v">Reset Multipart</button></div>`);
     var root_5$3 = /* @__PURE__ */ from_html(`<div class="success svelte-18r9j1v"><p> </p> <button>Clear Connection</button></div>`);
-    var root_3$5 = /* @__PURE__ */ from_html(`<div class="step-content svelte-18r9j1v"><h2>Step 1: Connect Keystone Device</h2> <p>Display the wallet connect QR code on your Keystone device and scan it with the
+    var root_3$6 = /* @__PURE__ */ from_html(`<div class="step-content svelte-18r9j1v"><h2>Step 1: Connect Keystone Device</h2> <p>Display the wallet connect QR code on your Keystone device and scan it with the
                 camera below.</p> <!> <!> <button style="margin: 0;">Simulate Scan</button> <!></div>`);
     var root_7$1 = /* @__PURE__ */ from_html(`<div class="qr-section svelte-18r9j1v"><h3 class="svelte-18r9j1v">3. Scan this QR code with your Keystone device to approve the transaction</h3> <!></div>`);
     var root_6$1 = /* @__PURE__ */ from_html(`<div class="step-content svelte-18r9j1v"><h2>Step 2: Prepare Transaction</h2> <p>Configure the transaction parameters and generate a signing request QR code.</p> <div class="form-section svelte-18r9j1v"><div class="form-row svelte-18r9j1v"><label for="request-id" class="svelte-18r9j1v">Request ID:</label> <input id="request-id" class="svelte-18r9j1v"/></div> <label for="raw-tx" class="full-width svelte-18r9j1v">Transaction Bytes (Base64):</label> <textarea id="raw-tx" rows="4" class="full-width svelte-18r9j1v"></textarea> <div class="example-buttons svelte-18r9j1v"><button class="svelte-18r9j1v"> </button> <button class="svelte-18r9j1v"> </button></div> <div class="form-row svelte-18r9j1v"><label for="account-address" class="svelte-18r9j1v">Account Address:</label> <input id="account-address" class="svelte-18r9j1v"/></div> <div class="form-row svelte-18r9j1v"><label for="derivation-path" class="svelte-18r9j1v">Derivation Path:</label> <input id="derivation-path" class="svelte-18r9j1v"/></div> <div class="form-row svelte-18r9j1v"><label for="master-fingerprint" class="svelte-18r9j1v">Master Fingerprint:</label> <input id="master-fingerprint" class="svelte-18r9j1v"/></div> <div class="form-row svelte-18r9j1v"><label for="wallet-origin" class="svelte-18r9j1v">Wallet Origin:</label> <input id="wallet-origin" class="svelte-18r9j1v"/></div></div> <!></div>`);
-    var root_10$2 = /* @__PURE__ */ from_html(`<div class="error svelte-18r9j1v"> </div>`);
-    var root_9$2 = /* @__PURE__ */ from_html(`<div class="result svelte-18r9j1v"><h3 class="svelte-18r9j1v">Signature Result:</h3> <pre class="svelte-18r9j1v"> </pre> <button> </button> <!> <!></div>`);
+    var root_10$1 = /* @__PURE__ */ from_html(`<div class="error svelte-18r9j1v"> </div>`);
+    var root_9$1 = /* @__PURE__ */ from_html(`<div class="result svelte-18r9j1v"><h3 class="svelte-18r9j1v">Signature Result:</h3> <pre class="svelte-18r9j1v"> </pre> <button> </button> <!> <!></div>`);
     var root_8$1 = /* @__PURE__ */ from_html(`<div class="step-content svelte-18r9j1v"><h2>Step 4: Scan Signature</h2> <p>After approving the transaction on your Keystone device, scan the signature QR code
                 it displays.</p> <!> <button style="margin: 0;">Simulate Scan</button> <!></div>`);
-    var root_13$1 = /* @__PURE__ */ from_html(`<div class="result svelte-18r9j1v"><h3 class="svelte-18r9j1v">Decoded Data:</h3> <pre class="svelte-18r9j1v"> </pre></div>`);
+    var root_13$2 = /* @__PURE__ */ from_html(`<div class="result svelte-18r9j1v"><h3 class="svelte-18r9j1v">Decoded Data:</h3> <pre class="svelte-18r9j1v"> </pre></div>`);
     var root_12$2 = /* @__PURE__ */ from_html(`<div class="step-content svelte-18r9j1v"><h2>UR Decode Tool</h2> <p>Decode and analyze UR strings from Keystone devices.</p> <div class="form-section svelte-18r9j1v"><label for="ur-input" class="full-width svelte-18r9j1v">UR String:</label> <textarea id="ur-input" rows="4" placeholder="Paste UR string here..." class="full-width svelte-18r9j1v"></textarea> <div class="example-buttons svelte-18r9j1v"><button class="svelte-18r9j1v">Load Sign Request Example</button> <button class="svelte-18r9j1v">Load Signature Example</button> <button class="svelte-18r9j1v">Load Multipart Example</button></div></div> <!></div>`);
-    var root_14$1 = /* @__PURE__ */ from_html(`<div class="error svelte-18r9j1v"><p> </p></div>`);
+    var root_14$2 = /* @__PURE__ */ from_html(`<div class="error svelte-18r9j1v"><p> </p></div>`);
     var root$d = /* @__PURE__ */ from_html(`<div class="keystone-container svelte-18r9j1v"><h1 class="svelte-18r9j1v">Keystone Hardware Wallet - IOTA Integration</h1> <!> <div class="steps svelte-18r9j1v"><button>1. Connect Wallet</button> <button>2. Prepare Transaction</button> <button>4. Scan Signature</button> <button>UR Decode Tool</button></div> <!> <!> <!> <!> <!></div>`);
     function Keystone($$anchor, $$props) {
       push($$props, false);
@@ -47452,7 +47452,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       var node_1 = sibling(div_3, 2);
       {
         var consequent_3 = ($$anchor2) => {
-          var div_4 = root_3$5();
+          var div_4 = root_3$6();
           var node_2 = sibling(child(div_4), 4);
           bind_this(
             QrScanner_1(node_2, {
@@ -47487,7 +47487,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           var node_3 = sibling(node_2, 2);
           {
             var consequent_1 = ($$anchor3) => {
-              var div_5 = root_4$4();
+              var div_5 = root_4$5();
               var button_4 = child(div_5);
               event("click", button_4, resetMultipartState$1);
               append($$anchor3, div_5);
@@ -47620,7 +47620,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           var node_10 = sibling(button_9, 2);
           {
             var consequent_8 = ($$anchor3) => {
-              var div_17 = root_9$2();
+              var div_17 = root_9$1();
               var pre = sibling(child(div_17), 2);
               var text_8 = child(pre);
               var button_10 = sibling(pre, 2);
@@ -47628,7 +47628,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
               var node_11 = sibling(button_10, 2);
               {
                 var consequent_6 = ($$anchor4) => {
-                  var div_18 = root_10$2();
+                  var div_18 = root_10$1();
                   var text_10 = child(div_18);
                   template_effect(() => set_text(text_10, get$2(submitError)));
                   append($$anchor4, div_18);
@@ -47682,7 +47682,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           var node_14 = sibling(div_20, 2);
           {
             var consequent_10 = ($$anchor3) => {
-              var div_22 = root_13$1();
+              var div_22 = root_13$2();
               var pre_1 = sibling(child(div_22), 2);
               var text_11 = child(pre_1);
               template_effect(() => set_text(text_11, get$2(decodedUrData)));
@@ -47706,7 +47706,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       var node_15 = sibling(node_13, 2);
       {
         var consequent_12 = ($$anchor2) => {
-          var div_23 = root_14$1();
+          var div_23 = root_14$2();
           var p_6 = child(div_23);
           var text_12 = child(p_6);
           template_effect(() => set_text(text_12, get$2(scanError) || get$2(connectionError) || get$2(urDecodeError)));
@@ -51756,7 +51756,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       };
     });
     let TransportWebHID = _TransportWebHID;
-    var on_click$4 = (_, connect) => connect();
+    var on_click$5 = (_, connect) => connect();
     var on_click_1$1 = (__1, generateAddress) => generateAddress();
     var on_click_2 = (__2, generateMultipleAddresses) => generateMultipleAddresses();
     var on_click_3 = (__3, getAllBalances) => getAllBalances(true);
@@ -51777,7 +51777,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       set$1(expanded, [], true);
     };
     var on_click_12 = (__12, toggle, index2) => toggle(index2());
-    var root_3$4 = /* @__PURE__ */ from_html(`<tr><td class="svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td><td class="mono svelte-s5ncdi"> </td><td class="mono svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td></tr>`);
+    var root_3$5 = /* @__PURE__ */ from_html(`<tr><td class="svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td><td class="mono svelte-s5ncdi"> </td><td class="mono svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td></tr>`);
     var root_2$5 = /* @__PURE__ */ from_html(`<tr><td colspan="2" class="svelte-s5ncdi"><table class="inner-table svelte-s5ncdi"><thead><tr><th class="svelte-s5ncdi">Index</th><th class="svelte-s5ncdi">Internal</th><th class="svelte-s5ncdi">Address</th><th class="svelte-s5ncdi">PublicKey</th><th class="svelte-s5ncdi">Balance</th><th class="svelte-s5ncdi">Owned Objects</th></tr></thead><tbody></tbody></table></td></tr>`);
     var root_1$8 = /* @__PURE__ */ from_html(`<tr class="clickable svelte-s5ncdi"><td class="svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td></tr> <!>`, 1);
     var root$c = /* @__PURE__ */ from_html(`<main><button class="svelte-s5ncdi">connect</button> <br/> BIP 44 path: (m/44'/coinType'/accountIndex'/change'/addressIndex') <br/> <input type="number" list="coinTypes" placeholder="BIP-44 coin type" class="svelte-s5ncdi"/> <datalist id="coinTypes"><option>IOTA</option><option>Testnet</option></datalist> <input type="number" min="0" placeholder="account index" class="svelte-s5ncdi"/> <select><option>0</option><option>1</option></select> <input type="number" width="1" min="0" placeholder="address index" class="svelte-s5ncdi"/> <button class="svelte-s5ncdi">generate address</button> <br/> increase <select><option>account</option><option>address</option></select> index by: <input type="number" min="1" placeholder="number to generate" class="svelte-s5ncdi"/> <button class="svelte-s5ncdi">generate multiple addresses</button> <hr/> <button class="svelte-s5ncdi">get unknown balances</button> <button class="svelte-s5ncdi">get all balances</button> <button class="svelte-s5ncdi">get unknown objects</button> <button class="svelte-s5ncdi">get all objects</button> <hr/> <div>Sender address: <input type="string" size="70" placeholder="sender address" class="svelte-s5ncdi"/></div> <div>Recipient address: <input type="string" size="70" placeholder="recipient address" class="svelte-s5ncdi"/></div> <select><option>dry run</option><option>send</option></select> <button class="svelte-s5ncdi">send all objects</button> IOTA amount(in Nanos) to send: <input type="number" min="0" placeholder="IOTA amount to send" class="svelte-s5ncdi"/> <button class="svelte-s5ncdi">send IOTA</button> <hr/> <button class="svelte-s5ncdi">clear address list</button> <button class="svelte-s5ncdi">expand all</button> <button class="svelte-s5ncdi">collapse all</button> <!> <table class="svelte-s5ncdi"><thead><tr><th class="svelte-s5ncdi">Account</th><th class="svelte-s5ncdi">Addresses</th></tr></thead><tbody></tbody></table></main>`);
@@ -52021,7 +52021,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
       var main = root$c();
       var button = child(main);
-      button.__click = [on_click$4, connect];
+      button.__click = [on_click$5, connect];
       var input = sibling(button, 6);
       var datalist = sibling(input, 2);
       var option = child(datalist);
@@ -52105,7 +52105,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             var table_1 = child(td_2);
             var tbody_1 = sibling(child(table_1));
             each$1(tbody_1, 21, addresses, index$1, ($$anchor4, addr) => {
-              var tr_2 = root_3$4();
+              var tr_2 = root_3$5();
               var td_3 = child(tr_2);
               var text_2 = child(td_3);
               var td_4 = sibling(td_3);
@@ -54161,19 +54161,17 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     }
     const syncReset = async (_, extendedAccounts, $iota_accounts, getObjects, allAccountsTotalBalance, value2) => {
       try {
-        set$1(
-          extendedAccounts,
-          $iota_accounts().map((account, i2) => {
-            return {
-              id: account.address,
-              address: account.address,
-              label: account.label,
-              objects: [],
-              timelockedObjects: []
-            };
-          }),
-          true
-        );
+        const externalAccounts = get$2(extendedAccounts).filter((acc) => !$iota_accounts().some((iotaAcc) => iotaAcc.address === acc.address));
+        const iotaAccounts = $iota_accounts().map((account, i2) => {
+          return {
+            id: account.address,
+            address: account.address,
+            label: account.label,
+            objects: [],
+            timelockedObjects: []
+          };
+        });
+        set$1(extendedAccounts, [...iotaAccounts, ...externalAccounts], true);
         await getObjects();
         set$1(allAccountsTotalBalance, 0);
         for (let account of get$2(extendedAccounts)) {
@@ -54256,14 +54254,48 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         console.error(err);
       }
     }
-    var root_9$1 = /* @__PURE__ */ from_html(`<div> </div>`);
-    var root_2$4 = /* @__PURE__ */ from_html(`<div style="border-top: 1px solid #525252;"><div class="handle svelte-197n9ug"><span><!></span> <!></div> <div class="item"><details><summary>Show object data</summary> <pre style="font-size:0.7rem;  text-align: left;" class="svelte-197n9ug"> </pre></details></div></div>`);
-    var root_10$1 = /* @__PURE__ */ from_html(`<br/> <br/> <br/> <br/>`, 1);
-    var root_19$1 = /* @__PURE__ */ from_html(`<div> </div>`);
-    var root_12$1 = /* @__PURE__ */ from_html(`<div style="border-top: 1px solid #525252;"><span style="word-break: break-all;"><!></span> <!></div> <div class="item"><details><summary>Show object data</summary> <pre style="font-size:0.7rem;  text-align: left;" class="svelte-197n9ug"> </pre></details></div>`, 1);
-    var root_11$1 = /* @__PURE__ */ from_html(`<details><summary style="color: #ff9991;">Timelocked objects</summary> <!></details>`);
-    var root_1$7 = /* @__PURE__ */ from_html(`<div class="account svelte-197n9ug"><div class="accountHeader svelte-197n9ug"> </div> <div style="text-align: left;"> </div> <div style="max-height: 300px; overflow-y: auto;"><!> <!> <!></div></div>`);
-    var root$b = /* @__PURE__ */ from_html(`<main><span style="float:left">Drag and drop objects between accounts.</span> <br/> <button class="svelte-197n9ug">sync/reset</button> <button class="svelte-197n9ug">dry run</button> <button class="svelte-197n9ug">send</button> <!> <br/> <div style="text-align:left"> </div> <div class="grid svelte-197n9ug"></div></main>`);
+    function addExternalAccount(__3, newAccountAddress, newAccountError, extendedAccounts, $iota_accounts) {
+      const address = get$2(newAccountAddress).trim();
+      set$1(newAccountError, "");
+      if (!address) {
+        set$1(newAccountError, "Address is required.");
+        return;
+      }
+      if (!isValidIotaAddress$1(address)) {
+        set$1(newAccountError, "Invalid IOTA address.");
+        return;
+      }
+      if (get$2(extendedAccounts).some((acc) => acc.address === address) || $iota_accounts().some((acc) => acc.address === address)) {
+        set$1(newAccountError, "Account already exists.");
+        return;
+      }
+      set$1(
+        extendedAccounts,
+        [
+          ...get$2(extendedAccounts),
+          {
+            id: address,
+            address,
+            label: "External: " + address.slice(0, 6) + "..." + address.slice(-4),
+            objects: [],
+            timelockedObjects: []
+          }
+        ],
+        true
+      );
+      set$1(newAccountAddress, "");
+    }
+    var root_1$7 = /* @__PURE__ */ from_html(`<div style="color: #d63031; margin: 0.5rem;"> </div>`);
+    var on_click$4 = (__4, removeExternalAccount, account) => removeExternalAccount(get$2(account).address);
+    var root_3$4 = /* @__PURE__ */ from_html(`<button style="margin:0.2rem; background-color: #d63031; " class="svelte-197n9ug">Remove External Account</button> <br/>`, 1);
+    var root_11$1 = /* @__PURE__ */ from_html(`<div> </div>`);
+    var root_4$4 = /* @__PURE__ */ from_html(`<div style="border-top: 1px solid #525252;"><div class="handle svelte-197n9ug"><span><!></span> <!></div> <div class="item"><details><summary>Show object data</summary> <pre style="font-size:0.7rem;  text-align: left;" class="svelte-197n9ug"> </pre></details></div></div>`);
+    var root_12$1 = /* @__PURE__ */ from_html(`<br/> <br/> <br/> <br/>`, 1);
+    var root_21$1 = /* @__PURE__ */ from_html(`<div> </div>`);
+    var root_14$1 = /* @__PURE__ */ from_html(`<div style="border-top: 1px solid #525252;"><span style="word-break: break-all;"><!></span> <!></div> <div class="item"><details><summary>Show object data</summary> <pre style="font-size:0.7rem;  text-align: left;" class="svelte-197n9ug"> </pre></details></div>`, 1);
+    var root_13$1 = /* @__PURE__ */ from_html(`<details><summary style="color: #ff9991;">Timelocked objects</summary> <!></details>`);
+    var root_2$4 = /* @__PURE__ */ from_html(`<div class="account svelte-197n9ug"><div class="accountHeader svelte-197n9ug"> </div> <!> <div style="text-align: left;"> </div> <div style="max-height: 300px; overflow-y: auto;"><!> <!> <!></div></div>`);
+    var root$b = /* @__PURE__ */ from_html(`<main><span style="float:left">Drag and drop objects between accounts.</span> <br/> <input type="text" placeholder="Enter external address" style="margin:0.5rem;" size="67"/> <button class="svelte-197n9ug">Add External Account</button> <!> <br/> <button class="svelte-197n9ug">sync/reset</button> <button class="svelte-197n9ug">dry run</button> <button class="svelte-197n9ug">send</button> <!> <br/> <div style="text-align:left"> </div> <div class="grid svelte-197n9ug"></div></main>`);
     function MultiAccountView($$anchor, $$props) {
       push($$props, true);
       const [$$stores, $$cleanup] = setup_stores();
@@ -54404,9 +54436,36 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         }
         return preparedTxs;
       }
+      let newAccountAddress = /* @__PURE__ */ state("");
+      let newAccountError = /* @__PURE__ */ state("");
+      function removeExternalAccount(address) {
+        if ($iota_accounts().some((acc) => acc.address === address)) return;
+        set$1(extendedAccounts, get$2(extendedAccounts).filter((acc) => acc.address !== address), true);
+      }
       var main = root$b();
-      var button = sibling(child(main), 4);
+      var input = sibling(child(main), 4);
+      var button = sibling(input, 2);
       button.__click = [
+        addExternalAccount,
+        newAccountAddress,
+        newAccountError,
+        extendedAccounts,
+        $iota_accounts
+      ];
+      var node = sibling(button, 2);
+      {
+        var consequent = ($$anchor2) => {
+          var div = root_1$7();
+          var text2 = child(div);
+          template_effect(() => set_text(text2, get$2(newAccountError)));
+          append($$anchor2, div);
+        };
+        if_block(node, ($$render) => {
+          if (get$2(newAccountError)) $$render(consequent);
+        });
+      }
+      var button_1 = sibling(node, 4);
+      button_1.__click = [
         syncReset,
         extendedAccounts,
         $iota_accounts,
@@ -54414,49 +54473,61 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         allAccountsTotalBalance,
         value2
       ];
-      var button_1 = sibling(button, 2);
-      button_1.__click = [dryRun, prepareTxs, value2];
       var button_2 = sibling(button_1, 2);
-      button_2.__click = [send, prepareTxs, $iota_wallets, value2];
-      var node = sibling(button_2, 2);
-      TransactionView(node, {
+      button_2.__click = [dryRun, prepareTxs, value2];
+      var button_3 = sibling(button_2, 2);
+      button_3.__click = [send, prepareTxs, $iota_wallets, value2];
+      var node_1 = sibling(button_3, 2);
+      TransactionView(node_1, {
         get value() {
           return get$2(value2);
         }
       });
-      var div = sibling(node, 4);
-      var text$1 = child(div);
-      var div_1 = sibling(div, 2);
-      each$1(div_1, 21, () => get$2(extendedAccounts), (account) => account.id, ($$anchor2, account) => {
-        var div_2 = root_1$7();
-        var div_3 = child(div_2);
-        var text_1 = child(div_3);
-        var div_4 = sibling(div_3, 2);
+      var div_1 = sibling(node_1, 4);
+      var text_1 = child(div_1);
+      var div_2 = sibling(div_1, 2);
+      each$1(div_2, 21, () => get$2(extendedAccounts), (account) => account.id, ($$anchor2, account) => {
+        var div_3 = root_2$4();
+        var div_4 = child(div_3);
         var text_2 = child(div_4);
-        var div_5 = sibling(div_4, 2);
-        var node_1 = child(div_5);
-        each$1(node_1, 17, () => get$2(account).objects, (item) => item.id, ($$anchor3, item) => {
-          var div_6 = root_2$4();
-          var div_7 = child(div_6);
-          var span = child(div_7);
-          var node_2 = child(span);
+        var node_2 = sibling(div_4, 2);
+        {
+          var consequent_1 = ($$anchor3) => {
+            var fragment = root_3$4();
+            var button_4 = first_child(fragment);
+            button_4.__click = [on_click$4, removeExternalAccount, account];
+            append($$anchor3, fragment);
+          };
+          if_block(node_2, ($$render) => {
+            if (!$iota_accounts().some((acc) => acc.address === get$2(account).address)) $$render(consequent_1);
+          });
+        }
+        var div_5 = sibling(node_2, 2);
+        var text_3 = child(div_5);
+        var div_6 = sibling(div_5, 2);
+        var node_3 = child(div_6);
+        each$1(node_3, 17, () => get$2(account).objects, (item) => item.id, ($$anchor3, item) => {
+          var div_7 = root_4$4();
+          var div_8 = child(div_7);
+          var span = child(div_8);
+          var node_4 = child(span);
           {
-            var consequent = ($$anchor4) => {
-              var text_3 = text();
-              template_effect(($0) => set_text(text_3, `${get$2(item).label ?? ""}: ${$0 ?? ""} IOTA`), [
+            var consequent_2 = ($$anchor4) => {
+              var text_4 = text();
+              template_effect(($0) => set_text(text_4, `${get$2(item).label ?? ""}: ${$0 ?? ""} IOTA`), [
                 () => {
                   var _a3, _b2;
                   return nanoToIota((_b2 = (_a3 = get$2(item).data) == null ? void 0 : _a3.content.fields) == null ? void 0 : _b2.balance);
                 }
               ]);
-              append($$anchor4, text_3);
+              append($$anchor4, text_4);
             };
             var alternate = ($$anchor4, $$elseif) => {
               {
-                var consequent_1 = ($$anchor5) => {
-                  var text_4 = text();
+                var consequent_3 = ($$anchor5) => {
+                  var text_5 = text();
                   template_effect(
-                    ($0) => set_text(text_4, `${get$2(item).label ?? ""}: ${$0 ?? ""}
+                    ($0) => set_text(text_5, `${get$2(item).label ?? ""}: ${$0 ?? ""}
                                         IOTA`),
                     [
                       () => {
@@ -54465,26 +54536,26 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                       }
                     ]
                   );
-                  append($$anchor5, text_4);
+                  append($$anchor5, text_5);
                 };
                 var alternate_1 = ($$anchor5, $$elseif2) => {
                   {
-                    var consequent_2 = ($$anchor6) => {
-                      var text_5 = text();
-                      template_effect(($0) => set_text(text_5, `${get$2(item).label ?? ""}: ${$0 ?? ""} IOTA`), [
+                    var consequent_4 = ($$anchor6) => {
+                      var text_6 = text();
+                      template_effect(($0) => set_text(text_6, `${get$2(item).label ?? ""}: ${$0 ?? ""} IOTA`), [
                         () => nanoToIota(get$2(item).data.content.fields.staked_iota.fields.principal)
                       ]);
-                      append($$anchor6, text_5);
+                      append($$anchor6, text_6);
                     };
                     var alternate_2 = ($$anchor6) => {
-                      var text_6 = text();
-                      template_effect(() => set_text(text_6, get$2(item).label));
-                      append($$anchor6, text_6);
+                      var text_7 = text();
+                      template_effect(() => set_text(text_7, get$2(item).label));
+                      append($$anchor6, text_7);
                     };
                     if_block(
                       $$anchor5,
                       ($$render) => {
-                        if (get$2(item).label == "TimelockedStakedIota") $$render(consequent_2);
+                        if (get$2(item).label == "TimelockedStakedIota") $$render(consequent_4);
                         else $$render(alternate_2, false);
                       },
                       $$elseif2
@@ -54494,41 +54565,41 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                 if_block(
                   $$anchor4,
                   ($$render) => {
-                    if (get$2(item).label == "StakedIota") $$render(consequent_1);
+                    if (get$2(item).label == "StakedIota") $$render(consequent_3);
                     else $$render(alternate_1, false);
                   },
                   $$elseif
                 );
               }
             };
-            if_block(node_2, ($$render) => {
-              if (get$2(item).label.startsWith("Coin<0x2::iota::IOTA>")) $$render(consequent);
+            if_block(node_4, ($$render) => {
+              if (get$2(item).label.startsWith("Coin<0x2::iota::IOTA>")) $$render(consequent_2);
               else $$render(alternate, false);
             });
           }
-          var node_3 = sibling(span, 2);
+          var node_5 = sibling(span, 2);
           {
-            var consequent_3 = ($$anchor4) => {
-              var div_8 = root_9$1();
-              var text_7 = child(div_8);
-              template_effect(($0) => set_text(text_7, `from: ${$0 ?? ""}`), [
+            var consequent_5 = ($$anchor4) => {
+              var div_9 = root_11$1();
+              var text_8 = child(div_9);
+              template_effect(($0) => set_text(text_8, `from: ${$0 ?? ""}`), [
                 () => get$2(item).currentOwner.slice(0, 6) + "..." + get$2(item).currentOwner.slice(-4)
               ]);
-              append($$anchor4, div_8);
+              append($$anchor4, div_9);
             };
-            if_block(node_3, ($$render) => {
-              if (get$2(account).address !== get$2(item).currentOwner) $$render(consequent_3);
+            if_block(node_5, ($$render) => {
+              if (get$2(account).address !== get$2(item).currentOwner) $$render(consequent_5);
             });
           }
-          action(div_7, ($$node) => dragHandle == null ? void 0 : dragHandle($$node));
-          var div_9 = sibling(div_7, 2);
-          var details = child(div_9);
+          action(div_8, ($$node) => dragHandle == null ? void 0 : dragHandle($$node));
+          var div_10 = sibling(div_8, 2);
+          var details = child(div_10);
           var pre = sibling(child(details), 2);
-          var text_8 = child(pre);
+          var text_9 = child(pre);
           template_effect(
             ($0) => {
-              set_style(div_7, get$2(account).address !== get$2(item).currentOwner ? "background-color: #19400e;" : "");
-              set_text(text_8, `
+              set_style(div_8, get$2(account).address !== get$2(item).currentOwner ? "background-color: #19400e;" : "");
+              set_text(text_9, `
                                         ${$0 ?? ""}
                                     `);
             },
@@ -54536,45 +54607,45 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
               () => "\n" + JSON.stringify(get$2(item), null, 2)
             ]
           );
-          append($$anchor3, div_6);
+          append($$anchor3, div_7);
         });
-        var node_4 = sibling(node_1, 2);
+        var node_6 = sibling(node_3, 2);
         {
-          var consequent_4 = ($$anchor3) => {
-            var fragment_4 = root_10$1();
-            append($$anchor3, fragment_4);
+          var consequent_6 = ($$anchor3) => {
+            var fragment_5 = root_12$1();
+            append($$anchor3, fragment_5);
           };
-          if_block(node_4, ($$render) => {
-            if (get$2(account).objects.length == 0) $$render(consequent_4);
+          if_block(node_6, ($$render) => {
+            if (get$2(account).objects.length == 0) $$render(consequent_6);
           });
         }
-        var node_5 = sibling(node_4, 2);
+        var node_7 = sibling(node_6, 2);
         {
-          var consequent_9 = ($$anchor3) => {
-            var details_1 = root_11$1();
-            var node_6 = sibling(child(details_1), 2);
-            each$1(node_6, 17, () => get$2(account).timelockedObjects, (item) => item.id, ($$anchor4, item) => {
-              var fragment_5 = root_12$1();
-              var div_10 = first_child(fragment_5);
-              var span_1 = child(div_10);
-              var node_7 = child(span_1);
+          var consequent_11 = ($$anchor3) => {
+            var details_1 = root_13$1();
+            var node_8 = sibling(child(details_1), 2);
+            each$1(node_8, 17, () => get$2(account).timelockedObjects, (item) => item.id, ($$anchor4, item) => {
+              var fragment_6 = root_14$1();
+              var div_11 = first_child(fragment_6);
+              var span_1 = child(div_11);
+              var node_9 = child(span_1);
               {
-                var consequent_5 = ($$anchor5) => {
-                  var text_9 = text();
-                  template_effect(($0) => set_text(text_9, `${get$2(item).label ?? ""}: ${$0 ?? ""} IOTA`), [
+                var consequent_7 = ($$anchor5) => {
+                  var text_10 = text();
+                  template_effect(($0) => set_text(text_10, `${get$2(item).label ?? ""}: ${$0 ?? ""} IOTA`), [
                     () => {
                       var _a3, _b2;
                       return nanoToIota((_b2 = (_a3 = get$2(item).data) == null ? void 0 : _a3.content.fields) == null ? void 0 : _b2.balance);
                     }
                   ]);
-                  append($$anchor5, text_9);
+                  append($$anchor5, text_10);
                 };
                 var alternate_3 = ($$anchor5, $$elseif) => {
                   {
-                    var consequent_6 = ($$anchor6) => {
-                      var text_10 = text();
+                    var consequent_8 = ($$anchor6) => {
+                      var text_11 = text();
                       template_effect(
-                        ($0) => set_text(text_10, `${get$2(item).label ?? ""}: ${$0 ?? ""}
+                        ($0) => set_text(text_11, `${get$2(item).label ?? ""}: ${$0 ?? ""}
                                             IOTA`),
                         [
                           () => {
@@ -54583,26 +54654,26 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                           }
                         ]
                       );
-                      append($$anchor6, text_10);
+                      append($$anchor6, text_11);
                     };
                     var alternate_4 = ($$anchor6, $$elseif2) => {
                       {
-                        var consequent_7 = ($$anchor7) => {
-                          var text_11 = text();
-                          template_effect(($0) => set_text(text_11, `${get$2(item).label ?? ""}: ${$0 ?? ""} IOTA`), [
+                        var consequent_9 = ($$anchor7) => {
+                          var text_12 = text();
+                          template_effect(($0) => set_text(text_12, `${get$2(item).label ?? ""}: ${$0 ?? ""} IOTA`), [
                             () => nanoToIota(get$2(item).data.content.fields.staked_iota.fields.principal)
                           ]);
-                          append($$anchor7, text_11);
+                          append($$anchor7, text_12);
                         };
                         var alternate_5 = ($$anchor7) => {
-                          var text_12 = text();
-                          template_effect(() => set_text(text_12, get$2(item).label));
-                          append($$anchor7, text_12);
+                          var text_13 = text();
+                          template_effect(() => set_text(text_13, get$2(item).label));
+                          append($$anchor7, text_13);
                         };
                         if_block(
                           $$anchor6,
                           ($$render) => {
-                            if (get$2(item).label == "TimelockedStakedIota") $$render(consequent_7);
+                            if (get$2(item).label == "TimelockedStakedIota") $$render(consequent_9);
                             else $$render(alternate_5, false);
                           },
                           $$elseif2
@@ -54612,61 +54683,61 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                     if_block(
                       $$anchor5,
                       ($$render) => {
-                        if (get$2(item).label == "StakedIota") $$render(consequent_6);
+                        if (get$2(item).label == "StakedIota") $$render(consequent_8);
                         else $$render(alternate_4, false);
                       },
                       $$elseif
                     );
                   }
                 };
-                if_block(node_7, ($$render) => {
-                  if (get$2(item).label.startsWith("Coin<0x2::iota::IOTA>")) $$render(consequent_5);
+                if_block(node_9, ($$render) => {
+                  if (get$2(item).label.startsWith("Coin<0x2::iota::IOTA>")) $$render(consequent_7);
                   else $$render(alternate_3, false);
                 });
               }
-              var node_8 = sibling(span_1, 2);
+              var node_10 = sibling(span_1, 2);
               {
-                var consequent_8 = ($$anchor5) => {
-                  var div_11 = root_19$1();
-                  var text_13 = child(div_11);
-                  template_effect(($0) => set_text(text_13, `from: ${$0 ?? ""}`), [
+                var consequent_10 = ($$anchor5) => {
+                  var div_12 = root_21$1();
+                  var text_14 = child(div_12);
+                  template_effect(($0) => set_text(text_14, `from: ${$0 ?? ""}`), [
                     () => get$2(item).currentOwner.slice(0, 6) + "..." + get$2(item).currentOwner.slice(-4)
                   ]);
-                  append($$anchor5, div_11);
+                  append($$anchor5, div_12);
                 };
-                if_block(node_8, ($$render) => {
-                  if (get$2(account).address !== get$2(item).currentOwner) $$render(consequent_8);
+                if_block(node_10, ($$render) => {
+                  if (get$2(account).address !== get$2(item).currentOwner) $$render(consequent_10);
                 });
               }
-              var div_12 = sibling(div_10, 2);
-              var details_2 = child(div_12);
+              var div_13 = sibling(div_11, 2);
+              var details_2 = child(div_13);
               var pre_1 = sibling(child(details_2), 2);
-              var text_14 = child(pre_1);
+              var text_15 = child(pre_1);
               template_effect(
-                ($0) => set_text(text_14, `
+                ($0) => set_text(text_15, `
                                         ${$0 ?? ""}
                                     `),
                 [
                   () => "\n" + JSON.stringify(get$2(item), null, 2)
                 ]
               );
-              append($$anchor4, fragment_5);
+              append($$anchor4, fragment_6);
             });
             append($$anchor3, details_1);
           };
-          if_block(node_5, ($$render) => {
-            if (get$2(account).timelockedObjects.length != 0) $$render(consequent_9);
+          if_block(node_7, ($$render) => {
+            if (get$2(account).timelockedObjects.length != 0) $$render(consequent_11);
           });
         }
-        action(div_5, ($$node, $$action_arg) => dragHandleZone == null ? void 0 : dragHandleZone($$node, $$action_arg), () => ({
+        action(div_6, ($$node, $$action_arg) => dragHandleZone == null ? void 0 : dragHandleZone($$node, $$action_arg), () => ({
           items: get$2(account).objects,
           flipDurationMs: 200
         }));
         template_effect(
           ($0, $1) => {
-            set_text(text_1, `${$0 ?? ""}: ${$1 ?? ""}`);
-            set_text(text_2, `Owned objects (${get$2(account).objects.length ?? ""}):`);
-            set_class(div_5, 1, clsx(get$2(account).id), "svelte-197n9ug");
+            set_text(text_2, `${$0 ?? ""}: ${$1 ?? ""}`);
+            set_text(text_3, `Owned objects (${get$2(account).objects.length ?? ""}):`);
+            set_class(div_6, 1, clsx(get$2(account).id), "svelte-197n9ug");
           },
           [
             () => get$2(account).label || get$2(account).address.slice(0, 6) + "..." + get$2(account).address.slice(-4),
@@ -54697,11 +54768,12 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             ) + " IOTA"
           ]
         );
-        event("consider", div_5, handleDnd);
-        event("finalize", div_5, handleDnd);
-        append($$anchor2, div_2);
+        event("consider", div_6, handleDnd);
+        event("finalize", div_6, handleDnd);
+        append($$anchor2, div_3);
       });
-      template_effect(() => set_text(text$1, `Balance of all accounts: ${get$2(allAccountsTotalBalance) ?? ""} IOTA`));
+      template_effect(() => set_text(text_1, `Balance of all accounts: ${get$2(allAccountsTotalBalance) ?? ""} IOTA`));
+      bind_value(input, () => get$2(newAccountAddress), ($$value) => set$1(newAccountAddress, $$value));
       append($$anchor, main);
       pop();
       $$cleanup();
