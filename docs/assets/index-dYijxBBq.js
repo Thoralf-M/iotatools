@@ -1,13 +1,21 @@
 var __defProp = Object.defineProperty;
 var __getOwnPropNames = Object.getOwnPropertyNames;
+var __typeError = (msg) => {
+  throw TypeError(msg);
+};
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
+var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
+var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
 var require_index_001 = __commonJS({
-  "assets/index-BvlTwVLu.js"(exports, module) {
-    var _a2, _b;
+  "assets/index-dYijxBBq.js"(exports, module) {
+    var _previous, _callbacks, _pending, _deferred, _neutered, _async_effects, _boundary_async_effects, _render_effects, _effects, _block_effects, _dirty_effects, _maybe_dirty_effects, _Batch_instances, traverse_effect_tree_fn, defer_effects_fn, commit_fn, _listeners, _observer, _options2, _ResizeObserverSingleton_instances, getObserver_fn, _a2, _b;
     (function polyfill() {
       const relList = document.createElement("link").relList;
       if (relList && relList.supports && relList.supports("modulepreload")) {
@@ -69,6 +77,15 @@ var require_index_001 = __commonJS({
         arr[i2]();
       }
     }
+    function deferred() {
+      var resolve2;
+      var reject;
+      var promise = new Promise((res, rej) => {
+        resolve2 = res;
+        reject = rej;
+      });
+      return { promise, resolve: resolve2, reject };
+    }
     function to_array(value2, n2) {
       if (Array.isArray(value2)) {
         return value2;
@@ -99,20 +116,36 @@ var require_index_001 = __commonJS({
     const DESTROYED = 1 << 14;
     const EFFECT_RAN = 1 << 15;
     const EFFECT_TRANSPARENT = 1 << 16;
-    const LEGACY_DERIVED_PROP = 1 << 17;
-    const HEAD_EFFECT = 1 << 19;
-    const EFFECT_HAS_DERIVED = 1 << 20;
-    const EFFECT_IS_UPDATING = 1 << 21;
+    const INSPECT_EFFECT = 1 << 17;
+    const HEAD_EFFECT = 1 << 18;
+    const EFFECT_PRESERVED = 1 << 19;
+    const USER_EFFECT = 1 << 20;
+    const REACTION_IS_UPDATING = 1 << 21;
+    const ASYNC = 1 << 22;
+    const ERROR_VALUE = 1 << 23;
     const STATE_SYMBOL = Symbol("$state");
     const LEGACY_PROPS = Symbol("legacy props");
-    function equals(value2) {
-      return value2 === this.v;
+    const STALE_REACTION = new class StaleReactionError extends Error {
+      constructor() {
+        super(...arguments);
+        __publicField(this, "name", "StaleReactionError");
+        __publicField(this, "message", "The reaction that called `getAbortSignal()` was re-run or destroyed");
+      }
+    }();
+    function await_outside_boundary() {
+      {
+        throw new Error(`https://svelte.dev/e/await_outside_boundary`);
+      }
     }
-    function safe_not_equal(a2, b) {
-      return a2 != a2 ? b == b : a2 !== b || a2 !== null && typeof a2 === "object" || typeof a2 === "function";
+    function lifecycle_outside_component(name2) {
+      {
+        throw new Error(`https://svelte.dev/e/lifecycle_outside_component`);
+      }
     }
-    function safe_equals(value2) {
-      return !safe_not_equal(value2, this.v);
+    function async_derived_orphan() {
+      {
+        throw new Error(`https://svelte.dev/e/async_derived_orphan`);
+      }
     }
     function effect_in_teardown(rune) {
       {
@@ -154,11 +187,6 @@ var require_index_001 = __commonJS({
         throw new Error(`https://svelte.dev/e/state_unsafe_mutation`);
       }
     }
-    let legacy_mode_flag = false;
-    let tracing_mode_flag = false;
-    function enable_legacy_mode_flag() {
-      legacy_mode_flag = true;
-    }
     const EACH_ITEM_REACTIVE = 1;
     const EACH_INDEX_REACTIVE = 1 << 1;
     const EACH_IS_CONTROLLED = 1 << 2;
@@ -173,10 +201,25 @@ var require_index_001 = __commonJS({
     const TEMPLATE_USE_IMPORT_NODE = 1 << 1;
     const UNINITIALIZED = Symbol();
     const NAMESPACE_HTML = "http://www.w3.org/1999/xhtml";
-    function lifecycle_outside_component(name2) {
+    function select_multiple_invalid_value() {
       {
-        throw new Error(`https://svelte.dev/e/lifecycle_outside_component`);
+        console.warn(`https://svelte.dev/e/select_multiple_invalid_value`);
       }
+    }
+    let hydrating = false;
+    function equals(value2) {
+      return value2 === this.v;
+    }
+    function safe_not_equal(a2, b) {
+      return a2 != a2 ? b == b : a2 !== b || a2 !== null && typeof a2 === "object" || typeof a2 === "function";
+    }
+    function safe_equals(value2) {
+      return !safe_not_equal(value2, this.v);
+    }
+    let legacy_mode_flag = false;
+    let tracing_mode_flag = false;
+    function enable_legacy_mode_flag() {
+      legacy_mode_flag = true;
     }
     let component_context = null;
     function set_component_context(context) {
@@ -196,55 +239,32 @@ var require_index_001 = __commonJS({
       return context;
     }
     function push(props, runes = false, fn) {
-      var ctx = component_context = {
+      component_context = {
         p: component_context,
         c: null,
-        d: false,
         e: null,
-        m: false,
         s: props,
         x: null,
-        l: null
+        l: legacy_mode_flag && !runes ? { s: null, u: null, $: [] } : null
       };
-      if (legacy_mode_flag && !runes) {
-        component_context.l = {
-          s: null,
-          u: null,
-          r1: [],
-          r2: source(false)
-        };
-      }
-      teardown(() => {
-        ctx.d = true;
-      });
     }
     function pop(component2) {
-      const context_stack_item = component_context;
-      if (context_stack_item !== null) {
-        if (component2 !== void 0) {
-          context_stack_item.x = component2;
+      var context = (
+        /** @type {ComponentContext} */
+        component_context
+      );
+      var effects2 = context.e;
+      if (effects2 !== null) {
+        context.e = null;
+        for (var fn of effects2) {
+          create_user_effect(fn);
         }
-        const component_effects = context_stack_item.e;
-        if (component_effects !== null) {
-          var previous_effect = active_effect;
-          var previous_reaction = active_reaction;
-          context_stack_item.e = null;
-          try {
-            for (var i2 = 0; i2 < component_effects.length; i2++) {
-              var component_effect = component_effects[i2];
-              set_active_effect(component_effect.effect);
-              set_active_reaction(component_effect.reaction);
-              effect(component_effect.fn);
-            }
-          } finally {
-            set_active_effect(previous_effect);
-            set_active_reaction(previous_reaction);
-          }
-        }
-        component_context = context_stack_item.p;
-        context_stack_item.m = true;
       }
-      return component2 || /** @type {T} */
+      if (component2 !== void 0) {
+        context.x = component2;
+      }
+      component_context = context.p;
+      return component2 ?? /** @type {T} */
       {};
     }
     function is_runes() {
@@ -267,6 +287,868 @@ var require_index_001 = __commonJS({
       }
       return null;
     }
+    const adjustments = /* @__PURE__ */ new WeakMap();
+    function handle_error(error2) {
+      var effect2 = active_effect;
+      if (effect2 === null) {
+        active_reaction.f |= ERROR_VALUE;
+        return error2;
+      }
+      if ((effect2.f & EFFECT_RAN) === 0) {
+        if ((effect2.f & BOUNDARY_EFFECT) === 0) {
+          if (!effect2.parent && error2 instanceof Error) {
+            apply_adjustments(error2);
+          }
+          throw error2;
+        }
+        effect2.b.error(error2);
+      } else {
+        invoke_error_boundary(error2, effect2);
+      }
+    }
+    function invoke_error_boundary(error2, effect2) {
+      while (effect2 !== null) {
+        if ((effect2.f & BOUNDARY_EFFECT) !== 0) {
+          try {
+            effect2.b.error(error2);
+            return;
+          } catch (e2) {
+            error2 = e2;
+          }
+        }
+        effect2 = effect2.parent;
+      }
+      if (error2 instanceof Error) {
+        apply_adjustments(error2);
+      }
+      throw error2;
+    }
+    function apply_adjustments(error2) {
+      const adjusted = adjustments.get(error2);
+      if (adjusted) {
+        define_property(error2, "message", {
+          value: adjusted.message
+        });
+        define_property(error2, "stack", {
+          value: adjusted.stack
+        });
+      }
+    }
+    let micro_tasks = [];
+    let idle_tasks = [];
+    function run_micro_tasks() {
+      var tasks2 = micro_tasks;
+      micro_tasks = [];
+      run_all(tasks2);
+    }
+    function run_idle_tasks() {
+      var tasks2 = idle_tasks;
+      idle_tasks = [];
+      run_all(tasks2);
+    }
+    function queue_micro_task(fn) {
+      if (micro_tasks.length === 0) {
+        queueMicrotask(run_micro_tasks);
+      }
+      micro_tasks.push(fn);
+    }
+    function flush_tasks() {
+      if (micro_tasks.length > 0) {
+        run_micro_tasks();
+      }
+      if (idle_tasks.length > 0) {
+        run_idle_tasks();
+      }
+    }
+    function get_pending_boundary() {
+      var boundary2 = (
+        /** @type {Effect} */
+        active_effect.b
+      );
+      while (boundary2 !== null && !boundary2.has_pending_snippet()) {
+        boundary2 = boundary2.parent;
+      }
+      if (boundary2 === null) {
+        await_outside_boundary();
+      }
+      return boundary2;
+    }
+    // @__NO_SIDE_EFFECTS__
+    function derived(fn) {
+      var flags = DERIVED | DIRTY;
+      var parent_derived = active_reaction !== null && (active_reaction.f & DERIVED) !== 0 ? (
+        /** @type {Derived} */
+        active_reaction
+      ) : null;
+      if (active_effect === null || parent_derived !== null && (parent_derived.f & UNOWNED) !== 0) {
+        flags |= UNOWNED;
+      } else {
+        active_effect.f |= EFFECT_PRESERVED;
+      }
+      const signal = {
+        ctx: component_context,
+        deps: null,
+        effects: null,
+        equals,
+        f: flags,
+        fn,
+        reactions: null,
+        rv: 0,
+        v: (
+          /** @type {V} */
+          UNINITIALIZED
+        ),
+        wv: 0,
+        parent: parent_derived ?? active_effect,
+        ac: null
+      };
+      return signal;
+    }
+    // @__NO_SIDE_EFFECTS__
+    function async_derived(fn, location) {
+      let parent = (
+        /** @type {Effect | null} */
+        active_effect
+      );
+      if (parent === null) {
+        async_derived_orphan();
+      }
+      var boundary = (
+        /** @type {Boundary} */
+        parent.b
+      );
+      var promise = (
+        /** @type {Promise<V>} */
+        /** @type {unknown} */
+        void 0
+      );
+      var signal = source(
+        /** @type {V} */
+        UNINITIALIZED
+      );
+      var prev = null;
+      var should_suspend = !active_reaction;
+      async_effect(() => {
+        try {
+          var p = fn();
+        } catch (error2) {
+          p = Promise.reject(error2);
+        }
+        var r2 = () => p;
+        promise = (prev == null ? void 0 : prev.then(r2, r2)) ?? Promise.resolve(p);
+        prev = promise;
+        var batch = (
+          /** @type {Batch} */
+          current_batch
+        );
+        var pending2 = boundary.pending;
+        if (should_suspend) {
+          boundary.update_pending_count(1);
+          if (!pending2) batch.increment();
+        }
+        const handler = (value2, error2 = void 0) => {
+          prev = null;
+          if (!pending2) batch.activate();
+          if (error2) {
+            if (error2 !== STALE_REACTION) {
+              signal.f |= ERROR_VALUE;
+              internal_set(signal, error2);
+            }
+          } else {
+            if ((signal.f & ERROR_VALUE) !== 0) {
+              signal.f ^= ERROR_VALUE;
+            }
+            internal_set(signal, value2);
+          }
+          if (should_suspend) {
+            boundary.update_pending_count(-1);
+            if (!pending2) batch.decrement();
+          }
+          unset_context();
+        };
+        promise.then(handler, (e2) => handler(null, e2 || "unknown"));
+        if (batch) {
+          return () => {
+            queueMicrotask(() => batch.neuter());
+          };
+        }
+      });
+      return new Promise((fulfil) => {
+        function next2(p) {
+          function go() {
+            if (p === promise) {
+              fulfil(signal);
+            } else {
+              next2(promise);
+            }
+          }
+          p.then(go, go);
+        }
+        next2(promise);
+      });
+    }
+    // @__NO_SIDE_EFFECTS__
+    function user_derived(fn) {
+      const d = /* @__PURE__ */ derived(fn);
+      push_reaction_value(d);
+      return d;
+    }
+    // @__NO_SIDE_EFFECTS__
+    function derived_safe_equal(fn) {
+      const signal = /* @__PURE__ */ derived(fn);
+      signal.equals = safe_equals;
+      return signal;
+    }
+    function destroy_derived_effects(derived2) {
+      var effects2 = derived2.effects;
+      if (effects2 !== null) {
+        derived2.effects = null;
+        for (var i2 = 0; i2 < effects2.length; i2 += 1) {
+          destroy_effect(
+            /** @type {Effect} */
+            effects2[i2]
+          );
+        }
+      }
+    }
+    function get_derived_parent_effect(derived2) {
+      var parent = derived2.parent;
+      while (parent !== null) {
+        if ((parent.f & DERIVED) === 0) {
+          return (
+            /** @type {Effect} */
+            parent
+          );
+        }
+        parent = parent.parent;
+      }
+      return null;
+    }
+    function execute_derived(derived2) {
+      var value2;
+      var prev_active_effect = active_effect;
+      set_active_effect(get_derived_parent_effect(derived2));
+      {
+        try {
+          destroy_derived_effects(derived2);
+          value2 = update_reaction(derived2);
+        } finally {
+          set_active_effect(prev_active_effect);
+        }
+      }
+      return value2;
+    }
+    function update_derived(derived2) {
+      var value2 = execute_derived(derived2);
+      if (!derived2.equals(value2)) {
+        derived2.v = value2;
+        derived2.wv = increment_write_version();
+      }
+      if (is_destroying_effect) {
+        return;
+      }
+      if (batch_deriveds !== null) {
+        batch_deriveds.set(derived2, derived2.v);
+      } else {
+        var status = (skip_reaction || (derived2.f & UNOWNED) !== 0) && derived2.deps !== null ? MAYBE_DIRTY : CLEAN;
+        set_signal_status(derived2, status);
+      }
+    }
+    function flatten$1(sync, async, fn) {
+      const d = is_runes() ? derived : derived_safe_equal;
+      if (async.length === 0) {
+        fn(sync.map(d));
+        return;
+      }
+      var batch = current_batch;
+      var parent = (
+        /** @type {Effect} */
+        active_effect
+      );
+      var restore = capture();
+      var boundary = get_pending_boundary();
+      Promise.all(async.map((expression) => /* @__PURE__ */ async_derived(expression))).then((result) => {
+        batch == null ? void 0 : batch.activate();
+        restore();
+        try {
+          fn([...sync.map(d), ...result]);
+        } catch (error2) {
+          if ((parent.f & DESTROYED) === 0) {
+            invoke_error_boundary(error2, parent);
+          }
+        }
+        batch == null ? void 0 : batch.deactivate();
+        unset_context();
+      }).catch((error2) => {
+        boundary.error(error2);
+      });
+    }
+    function capture() {
+      var previous_effect = active_effect;
+      var previous_reaction = active_reaction;
+      var previous_component_context = component_context;
+      return function restore() {
+        set_active_effect(previous_effect);
+        set_active_reaction(previous_reaction);
+        set_component_context(previous_component_context);
+      };
+    }
+    function unset_context() {
+      set_active_effect(null);
+      set_active_reaction(null);
+      set_component_context(null);
+    }
+    const batches = /* @__PURE__ */ new Set();
+    let current_batch = null;
+    let previous_batch = null;
+    let batch_deriveds = null;
+    let effect_pending_updates = /* @__PURE__ */ new Set();
+    let tasks = [];
+    function dequeue() {
+      const task = (
+        /** @type {() => void} */
+        tasks.shift()
+      );
+      if (tasks.length > 0) {
+        queueMicrotask(dequeue);
+      }
+      task();
+    }
+    let queued_root_effects = [];
+    let last_scheduled_effect = null;
+    let is_flushing = false;
+    let is_flushing_sync = false;
+    const _Batch = class _Batch {
+      constructor() {
+        __privateAdd(this, _Batch_instances);
+        /**
+         * The current values of any sources that are updated in this batch
+         * They keys of this map are identical to `this.#previous`
+         * @type {Map<Source, any>}
+         */
+        __publicField(this, "current", /* @__PURE__ */ new Map());
+        /**
+         * The values of any sources that are updated in this batch _before_ those updates took place.
+         * They keys of this map are identical to `this.#current`
+         * @type {Map<Source, any>}
+         */
+        __privateAdd(this, _previous, /* @__PURE__ */ new Map());
+        /**
+         * When the batch is committed (and the DOM is updated), we need to remove old branches
+         * and append new ones by calling the functions added inside (if/each/key/etc) blocks
+         * @type {Set<() => void>}
+         */
+        __privateAdd(this, _callbacks, /* @__PURE__ */ new Set());
+        /**
+         * The number of async effects that are currently in flight
+         */
+        __privateAdd(this, _pending, 0);
+        /**
+         * A deferred that resolves when the batch is committed, used with `settled()`
+         * TODO replace with Promise.withResolvers once supported widely enough
+         * @type {{ promise: Promise<void>, resolve: (value?: any) => void, reject: (reason: unknown) => void } | null}
+         */
+        __privateAdd(this, _deferred, null);
+        /**
+         * True if an async effect inside this batch resolved and
+         * its parent branch was already deleted
+         */
+        __privateAdd(this, _neutered, false);
+        /**
+         * Async effects (created inside `async_derived`) encountered during processing.
+         * These run after the rest of the batch has updated, since they should
+         * always have the latest values
+         * @type {Effect[]}
+         */
+        __privateAdd(this, _async_effects, []);
+        /**
+         * The same as `#async_effects`, but for effects inside a newly-created
+         * `<svelte:boundary>` — these do not prevent the batch from committing
+         * @type {Effect[]}
+         */
+        __privateAdd(this, _boundary_async_effects, []);
+        /**
+         * Template effects and `$effect.pre` effects, which run when
+         * a batch is committed
+         * @type {Effect[]}
+         */
+        __privateAdd(this, _render_effects, []);
+        /**
+         * The same as `#render_effects`, but for `$effect` (which runs after)
+         * @type {Effect[]}
+         */
+        __privateAdd(this, _effects, []);
+        /**
+         * Block effects, which may need to re-run on subsequent flushes
+         * in order to update internal sources (e.g. each block items)
+         * @type {Effect[]}
+         */
+        __privateAdd(this, _block_effects, []);
+        /**
+         * Deferred effects (which run after async work has completed) that are DIRTY
+         * @type {Effect[]}
+         */
+        __privateAdd(this, _dirty_effects, []);
+        /**
+         * Deferred effects that are MAYBE_DIRTY
+         * @type {Effect[]}
+         */
+        __privateAdd(this, _maybe_dirty_effects, []);
+        /**
+         * A set of branches that still exist, but will be destroyed when this batch
+         * is committed — we skip over these during `process`
+         * @type {Set<Effect>}
+         */
+        __publicField(this, "skipped_effects", /* @__PURE__ */ new Set());
+      }
+      /**
+       *
+       * @param {Effect[]} root_effects
+       */
+      process(root_effects) {
+        var _a3;
+        queued_root_effects = [];
+        previous_batch = null;
+        var current_values = null;
+        if (batches.size > 1) {
+          current_values = /* @__PURE__ */ new Map();
+          batch_deriveds = /* @__PURE__ */ new Map();
+          for (const [source2, current] of this.current) {
+            current_values.set(source2, { v: source2.v, wv: source2.wv });
+            source2.v = current;
+          }
+          for (const batch of batches) {
+            if (batch === this) continue;
+            for (const [source2, previous] of __privateGet(batch, _previous)) {
+              if (!current_values.has(source2)) {
+                current_values.set(source2, { v: source2.v, wv: source2.wv });
+                source2.v = previous;
+              }
+            }
+          }
+        }
+        for (const root2 of root_effects) {
+          __privateMethod(this, _Batch_instances, traverse_effect_tree_fn).call(this, root2);
+        }
+        if (__privateGet(this, _async_effects).length === 0 && __privateGet(this, _pending) === 0) {
+          __privateMethod(this, _Batch_instances, commit_fn).call(this);
+          var render_effects = __privateGet(this, _render_effects);
+          var effects2 = __privateGet(this, _effects);
+          __privateSet(this, _render_effects, []);
+          __privateSet(this, _effects, []);
+          __privateSet(this, _block_effects, []);
+          previous_batch = current_batch;
+          current_batch = null;
+          flush_queued_effects(render_effects);
+          flush_queued_effects(effects2);
+          if (current_batch === null) {
+            current_batch = this;
+          } else {
+            batches.delete(this);
+          }
+          (_a3 = __privateGet(this, _deferred)) == null ? void 0 : _a3.resolve();
+        } else {
+          __privateMethod(this, _Batch_instances, defer_effects_fn).call(this, __privateGet(this, _render_effects));
+          __privateMethod(this, _Batch_instances, defer_effects_fn).call(this, __privateGet(this, _effects));
+          __privateMethod(this, _Batch_instances, defer_effects_fn).call(this, __privateGet(this, _block_effects));
+        }
+        if (current_values) {
+          for (const [source2, { v, wv }] of current_values) {
+            if (source2.wv <= wv) {
+              source2.v = v;
+            }
+          }
+          batch_deriveds = null;
+        }
+        for (const effect2 of __privateGet(this, _async_effects)) {
+          update_effect(effect2);
+        }
+        for (const effect2 of __privateGet(this, _boundary_async_effects)) {
+          update_effect(effect2);
+        }
+        __privateSet(this, _async_effects, []);
+        __privateSet(this, _boundary_async_effects, []);
+      }
+      /**
+       * Associate a change to a given source with the current
+       * batch, noting its previous and current values
+       * @param {Source} source
+       * @param {any} value
+       */
+      capture(source2, value2) {
+        if (!__privateGet(this, _previous).has(source2)) {
+          __privateGet(this, _previous).set(source2, value2);
+        }
+        this.current.set(source2, source2.v);
+      }
+      activate() {
+        current_batch = this;
+      }
+      deactivate() {
+        current_batch = null;
+        previous_batch = null;
+        for (const update2 of effect_pending_updates) {
+          effect_pending_updates.delete(update2);
+          update2();
+          if (current_batch !== null) {
+            break;
+          }
+        }
+      }
+      neuter() {
+        __privateSet(this, _neutered, true);
+      }
+      flush() {
+        if (queued_root_effects.length > 0) {
+          flush_effects();
+        } else {
+          __privateMethod(this, _Batch_instances, commit_fn).call(this);
+        }
+        if (current_batch !== this) {
+          return;
+        }
+        if (__privateGet(this, _pending) === 0) {
+          batches.delete(this);
+        }
+        this.deactivate();
+      }
+      increment() {
+        __privateSet(this, _pending, __privateGet(this, _pending) + 1);
+      }
+      decrement() {
+        __privateSet(this, _pending, __privateGet(this, _pending) - 1);
+        if (__privateGet(this, _pending) === 0) {
+          for (const e2 of __privateGet(this, _dirty_effects)) {
+            set_signal_status(e2, DIRTY);
+            schedule_effect(e2);
+          }
+          for (const e2 of __privateGet(this, _maybe_dirty_effects)) {
+            set_signal_status(e2, MAYBE_DIRTY);
+            schedule_effect(e2);
+          }
+          __privateSet(this, _render_effects, []);
+          __privateSet(this, _effects, []);
+          this.flush();
+        } else {
+          this.deactivate();
+        }
+      }
+      /** @param {() => void} fn */
+      add_callback(fn) {
+        __privateGet(this, _callbacks).add(fn);
+      }
+      settled() {
+        return (__privateGet(this, _deferred) ?? __privateSet(this, _deferred, deferred())).promise;
+      }
+      static ensure() {
+        if (current_batch === null) {
+          const batch = current_batch = new _Batch();
+          batches.add(current_batch);
+          if (!is_flushing_sync) {
+            _Batch.enqueue(() => {
+              if (current_batch !== batch) {
+                return;
+              }
+              batch.flush();
+            });
+          }
+        }
+        return current_batch;
+      }
+      /** @param {() => void} task */
+      static enqueue(task) {
+        if (tasks.length === 0) {
+          queueMicrotask(dequeue);
+        }
+        tasks.unshift(task);
+      }
+    };
+    _previous = new WeakMap();
+    _callbacks = new WeakMap();
+    _pending = new WeakMap();
+    _deferred = new WeakMap();
+    _neutered = new WeakMap();
+    _async_effects = new WeakMap();
+    _boundary_async_effects = new WeakMap();
+    _render_effects = new WeakMap();
+    _effects = new WeakMap();
+    _block_effects = new WeakMap();
+    _dirty_effects = new WeakMap();
+    _maybe_dirty_effects = new WeakMap();
+    _Batch_instances = new WeakSet();
+    /**
+     * Traverse the effect tree, executing effects or stashing
+     * them for later execution as appropriate
+     * @param {Effect} root
+     */
+    traverse_effect_tree_fn = function(root2) {
+      var _a3;
+      root2.f ^= CLEAN;
+      var effect2 = root2.first;
+      while (effect2 !== null) {
+        var flags = effect2.f;
+        var is_branch = (flags & (BRANCH_EFFECT | ROOT_EFFECT)) !== 0;
+        var is_skippable_branch = is_branch && (flags & CLEAN) !== 0;
+        var skip2 = is_skippable_branch || (flags & INERT) !== 0 || this.skipped_effects.has(effect2);
+        if (!skip2 && effect2.fn !== null) {
+          if (is_branch) {
+            effect2.f ^= CLEAN;
+          } else if ((flags & CLEAN) === 0) {
+            if ((flags & EFFECT) !== 0) {
+              __privateGet(this, _effects).push(effect2);
+            } else if ((flags & ASYNC) !== 0) {
+              var effects2 = ((_a3 = effect2.b) == null ? void 0 : _a3.pending) ? __privateGet(this, _boundary_async_effects) : __privateGet(this, _async_effects);
+              effects2.push(effect2);
+            } else if (is_dirty(effect2)) {
+              if ((effect2.f & BLOCK_EFFECT) !== 0) __privateGet(this, _block_effects).push(effect2);
+              update_effect(effect2);
+            }
+          }
+          var child2 = effect2.first;
+          if (child2 !== null) {
+            effect2 = child2;
+            continue;
+          }
+        }
+        var parent = effect2.parent;
+        effect2 = effect2.next;
+        while (effect2 === null && parent !== null) {
+          effect2 = parent.next;
+          parent = parent.parent;
+        }
+      }
+    };
+    /**
+     * @param {Effect[]} effects
+     */
+    defer_effects_fn = function(effects2) {
+      for (const e2 of effects2) {
+        const target2 = (e2.f & DIRTY) !== 0 ? __privateGet(this, _dirty_effects) : __privateGet(this, _maybe_dirty_effects);
+        target2.push(e2);
+        set_signal_status(e2, CLEAN);
+      }
+      effects2.length = 0;
+    };
+    /**
+     * Append and remove branches to/from the DOM
+     */
+    commit_fn = function() {
+      if (!__privateGet(this, _neutered)) {
+        for (const fn of __privateGet(this, _callbacks)) {
+          fn();
+        }
+      }
+      __privateGet(this, _callbacks).clear();
+    };
+    let Batch = _Batch;
+    function flushSync(fn) {
+      var was_flushing_sync = is_flushing_sync;
+      is_flushing_sync = true;
+      try {
+        var result;
+        if (fn) ;
+        while (true) {
+          flush_tasks();
+          if (queued_root_effects.length === 0) {
+            current_batch == null ? void 0 : current_batch.flush();
+            if (queued_root_effects.length === 0) {
+              last_scheduled_effect = null;
+              return (
+                /** @type {T} */
+                result
+              );
+            }
+          }
+          flush_effects();
+        }
+      } finally {
+        is_flushing_sync = was_flushing_sync;
+      }
+    }
+    function flush_effects() {
+      var was_updating_effect = is_updating_effect;
+      is_flushing = true;
+      try {
+        var flush_count = 0;
+        set_is_updating_effect(true);
+        while (queued_root_effects.length > 0) {
+          var batch = Batch.ensure();
+          if (flush_count++ > 1e3) {
+            var updates, entry;
+            if (DEV) ;
+            infinite_loop_guard();
+          }
+          batch.process(queued_root_effects);
+          old_values.clear();
+        }
+      } finally {
+        is_flushing = false;
+        set_is_updating_effect(was_updating_effect);
+        last_scheduled_effect = null;
+      }
+    }
+    function infinite_loop_guard() {
+      try {
+        effect_update_depth_exceeded();
+      } catch (error2) {
+        invoke_error_boundary(error2, last_scheduled_effect);
+      }
+    }
+    function flush_queued_effects(effects2) {
+      var length = effects2.length;
+      if (length === 0) return;
+      var i2 = 0;
+      while (i2 < length) {
+        var effect2 = effects2[i2++];
+        if ((effect2.f & (DESTROYED | INERT)) === 0 && is_dirty(effect2)) {
+          var n2 = current_batch ? current_batch.current.size : 0;
+          update_effect(effect2);
+          if (effect2.deps === null && effect2.first === null && effect2.nodes_start === null) {
+            if (effect2.teardown === null && effect2.ac === null) {
+              unlink_effect(effect2);
+            } else {
+              effect2.fn = null;
+            }
+          }
+          if (current_batch !== null && current_batch.current.size > n2 && (effect2.f & USER_EFFECT) !== 0) {
+            break;
+          }
+        }
+      }
+      while (i2 < length) {
+        schedule_effect(effects2[i2++]);
+      }
+    }
+    function schedule_effect(signal) {
+      var effect2 = last_scheduled_effect = signal;
+      while (effect2.parent !== null) {
+        effect2 = effect2.parent;
+        var flags = effect2.f;
+        if (is_flushing && effect2 === active_effect && (flags & BLOCK_EFFECT) !== 0) {
+          return;
+        }
+        if ((flags & (ROOT_EFFECT | BRANCH_EFFECT)) !== 0) {
+          if ((flags & CLEAN) === 0) return;
+          effect2.f ^= CLEAN;
+        }
+      }
+      queued_root_effects.push(effect2);
+    }
+    const old_values = /* @__PURE__ */ new Map();
+    function source(v, stack) {
+      var signal = {
+        f: 0,
+        // TODO ideally we could skip this altogether, but it causes type errors
+        v,
+        reactions: null,
+        equals,
+        rv: 0,
+        wv: 0
+      };
+      return signal;
+    }
+    // @__NO_SIDE_EFFECTS__
+    function state(v, stack) {
+      const s = source(v);
+      push_reaction_value(s);
+      return s;
+    }
+    // @__NO_SIDE_EFFECTS__
+    function mutable_source(initial_value, immutable = false, trackable = true) {
+      var _a3;
+      const s = source(initial_value);
+      if (!immutable) {
+        s.equals = safe_equals;
+      }
+      if (legacy_mode_flag && trackable && component_context !== null && component_context.l !== null) {
+        ((_a3 = component_context.l).s ?? (_a3.s = [])).push(s);
+      }
+      return s;
+    }
+    function mutate(source2, value2) {
+      set$1(
+        source2,
+        untrack(() => get$2(source2))
+      );
+      return value2;
+    }
+    function set$1(source2, value2, should_proxy = false) {
+      if (active_reaction !== null && // since we are untracking the function inside `$inspect.with` we need to add this check
+      // to ensure we error if state is set inside an inspect effect
+      (!untracking || (active_reaction.f & INSPECT_EFFECT) !== 0) && is_runes() && (active_reaction.f & (DERIVED | BLOCK_EFFECT | ASYNC | INSPECT_EFFECT)) !== 0 && !(current_sources == null ? void 0 : current_sources.includes(source2))) {
+        state_unsafe_mutation();
+      }
+      let new_value = should_proxy ? proxy(value2) : value2;
+      return internal_set(source2, new_value);
+    }
+    function internal_set(source2, value2) {
+      if (!source2.equals(value2)) {
+        var old_value = source2.v;
+        if (is_destroying_effect) {
+          old_values.set(source2, value2);
+        } else {
+          old_values.set(source2, old_value);
+        }
+        source2.v = value2;
+        var batch = Batch.ensure();
+        batch.capture(source2, old_value);
+        if ((source2.f & DERIVED) !== 0) {
+          if ((source2.f & DIRTY) !== 0) {
+            execute_derived(
+              /** @type {Derived} */
+              source2
+            );
+          }
+          set_signal_status(source2, (source2.f & UNOWNED) === 0 ? CLEAN : MAYBE_DIRTY);
+        }
+        source2.wv = increment_write_version();
+        mark_reactions(source2, DIRTY);
+        if (is_runes() && active_effect !== null && (active_effect.f & CLEAN) !== 0 && (active_effect.f & (BRANCH_EFFECT | ROOT_EFFECT)) === 0) {
+          if (untracked_writes === null) {
+            set_untracked_writes([source2]);
+          } else {
+            untracked_writes.push(source2);
+          }
+        }
+      }
+      return value2;
+    }
+    function update(source2, d = 1) {
+      var value2 = get$2(source2);
+      var result = d === 1 ? value2++ : value2--;
+      set$1(source2, value2);
+      return result;
+    }
+    function increment(source2) {
+      set$1(source2, source2.v + 1);
+    }
+    function mark_reactions(signal, status) {
+      var reactions = signal.reactions;
+      if (reactions === null) return;
+      var runes = is_runes();
+      var length = reactions.length;
+      for (var i2 = 0; i2 < length; i2++) {
+        var reaction = reactions[i2];
+        var flags = reaction.f;
+        if (!runes && reaction === active_effect) continue;
+        var not_dirty = (flags & DIRTY) === 0;
+        if (not_dirty) {
+          set_signal_status(reaction, status);
+        }
+        if ((flags & DERIVED) !== 0) {
+          mark_reactions(
+            /** @type {Derived} */
+            reaction,
+            MAYBE_DIRTY
+          );
+        } else if (not_dirty) {
+          schedule_effect(
+            /** @type {Effect} */
+            reaction
+          );
+        }
+      }
+    }
     function proxy(value2) {
       if (typeof value2 !== "object" || value2 === null || STATE_SYMBOL in value2) {
         return value2;
@@ -278,12 +1160,18 @@ var require_index_001 = __commonJS({
       var sources = /* @__PURE__ */ new Map();
       var is_proxied_array = is_array(value2);
       var version2 = /* @__PURE__ */ state(0);
-      var reaction = active_reaction;
+      var parent_version = update_version;
       var with_parent = (fn) => {
-        var previous_reaction = active_reaction;
-        set_active_reaction(reaction);
+        if (update_version === parent_version) {
+          return fn();
+        }
+        var reaction = active_reaction;
+        var version3 = update_version;
+        set_active_reaction(null);
+        set_update_version(parent_version);
         var result = fn();
-        set_active_reaction(previous_reaction);
+        set_active_reaction(reaction);
+        set_update_version(version3);
         return result;
       };
       if (is_proxied_array) {
@@ -318,21 +1206,11 @@ var require_index_001 = __commonJS({
               if (prop2 in target2) {
                 const s2 = with_parent(() => /* @__PURE__ */ state(UNINITIALIZED));
                 sources.set(prop2, s2);
-                update_version(version2);
+                increment(version2);
               }
             } else {
-              if (is_proxied_array && typeof prop2 === "string") {
-                var ls = (
-                  /** @type {Source<number>} */
-                  sources.get("length")
-                );
-                var n2 = Number(prop2);
-                if (Number.isInteger(n2) && n2 < ls.v) {
-                  set$1(ls, n2);
-                }
-              }
               set$1(s, UNINITIALIZED);
-              update_version(version2);
+              increment(version2);
             }
             return true;
           },
@@ -441,7 +1319,7 @@ var require_index_001 = __commonJS({
                   set$1(ls, n2 + 1);
                 }
               }
-              update_version(version2);
+              increment(version2);
             }
             return true;
           },
@@ -464,9 +1342,6 @@ var require_index_001 = __commonJS({
         }
       );
     }
-    function update_version(signal, d = 1) {
-      set$1(signal, signal.v + d);
-    }
     function get_proxied_value(value2) {
       try {
         if (value2 !== null && typeof value2 === "object" && STATE_SYMBOL in value2) {
@@ -479,211 +1354,6 @@ var require_index_001 = __commonJS({
     function is$2(a2, b) {
       return Object.is(get_proxied_value(a2), get_proxied_value(b));
     }
-    // @__NO_SIDE_EFFECTS__
-    function derived(fn) {
-      var flags = DERIVED | DIRTY;
-      var parent_derived = active_reaction !== null && (active_reaction.f & DERIVED) !== 0 ? (
-        /** @type {Derived} */
-        active_reaction
-      ) : null;
-      if (active_effect === null || parent_derived !== null && (parent_derived.f & UNOWNED) !== 0) {
-        flags |= UNOWNED;
-      } else {
-        active_effect.f |= EFFECT_HAS_DERIVED;
-      }
-      const signal = {
-        ctx: component_context,
-        deps: null,
-        effects: null,
-        equals,
-        f: flags,
-        fn,
-        reactions: null,
-        rv: 0,
-        v: (
-          /** @type {V} */
-          null
-        ),
-        wv: 0,
-        parent: parent_derived ?? active_effect
-      };
-      return signal;
-    }
-    // @__NO_SIDE_EFFECTS__
-    function user_derived(fn) {
-      const d = /* @__PURE__ */ derived(fn);
-      push_reaction_value(d);
-      return d;
-    }
-    // @__NO_SIDE_EFFECTS__
-    function derived_safe_equal(fn) {
-      const signal = /* @__PURE__ */ derived(fn);
-      signal.equals = safe_equals;
-      return signal;
-    }
-    function destroy_derived_effects(derived2) {
-      var effects2 = derived2.effects;
-      if (effects2 !== null) {
-        derived2.effects = null;
-        for (var i2 = 0; i2 < effects2.length; i2 += 1) {
-          destroy_effect(
-            /** @type {Effect} */
-            effects2[i2]
-          );
-        }
-      }
-    }
-    function get_derived_parent_effect(derived2) {
-      var parent = derived2.parent;
-      while (parent !== null) {
-        if ((parent.f & DERIVED) === 0) {
-          return (
-            /** @type {Effect} */
-            parent
-          );
-        }
-        parent = parent.parent;
-      }
-      return null;
-    }
-    function execute_derived(derived2) {
-      var value2;
-      var prev_active_effect = active_effect;
-      set_active_effect(get_derived_parent_effect(derived2));
-      {
-        try {
-          destroy_derived_effects(derived2);
-          value2 = update_reaction(derived2);
-        } finally {
-          set_active_effect(prev_active_effect);
-        }
-      }
-      return value2;
-    }
-    function update_derived(derived2) {
-      var value2 = execute_derived(derived2);
-      if (!derived2.equals(value2)) {
-        derived2.v = value2;
-        derived2.wv = increment_write_version();
-      }
-      if (is_destroying_effect) return;
-      var status = (skip_reaction || (derived2.f & UNOWNED) !== 0) && derived2.deps !== null ? MAYBE_DIRTY : CLEAN;
-      set_signal_status(derived2, status);
-    }
-    const old_values = /* @__PURE__ */ new Map();
-    function source(v, stack) {
-      var signal = {
-        f: 0,
-        // TODO ideally we could skip this altogether, but it causes type errors
-        v,
-        reactions: null,
-        equals,
-        rv: 0,
-        wv: 0
-      };
-      return signal;
-    }
-    // @__NO_SIDE_EFFECTS__
-    function state(v, stack) {
-      const s = source(v);
-      push_reaction_value(s);
-      return s;
-    }
-    // @__NO_SIDE_EFFECTS__
-    function mutable_source(initial_value, immutable = false, trackable = true) {
-      var _a3;
-      const s = source(initial_value);
-      if (!immutable) {
-        s.equals = safe_equals;
-      }
-      if (legacy_mode_flag && trackable && component_context !== null && component_context.l !== null) {
-        ((_a3 = component_context.l).s ?? (_a3.s = [])).push(s);
-      }
-      return s;
-    }
-    function mutate(source2, value2) {
-      set$1(
-        source2,
-        untrack(() => get$2(source2))
-      );
-      return value2;
-    }
-    function set$1(source2, value2, should_proxy = false) {
-      if (active_reaction !== null && !untracking && is_runes() && (active_reaction.f & (DERIVED | BLOCK_EFFECT)) !== 0 && !((reaction_sources == null ? void 0 : reaction_sources[1].includes(source2)) && reaction_sources[0] === active_reaction)) {
-        state_unsafe_mutation();
-      }
-      let new_value = should_proxy ? proxy(value2) : value2;
-      return internal_set(source2, new_value);
-    }
-    function internal_set(source2, value2) {
-      if (!source2.equals(value2)) {
-        var old_value = source2.v;
-        if (is_destroying_effect) {
-          old_values.set(source2, value2);
-        } else {
-          old_values.set(source2, old_value);
-        }
-        source2.v = value2;
-        if ((source2.f & DERIVED) !== 0) {
-          if ((source2.f & DIRTY) !== 0) {
-            execute_derived(
-              /** @type {Derived} */
-              source2
-            );
-          }
-          set_signal_status(source2, (source2.f & UNOWNED) === 0 ? CLEAN : MAYBE_DIRTY);
-        }
-        source2.wv = increment_write_version();
-        mark_reactions(source2, DIRTY);
-        if (is_runes() && active_effect !== null && (active_effect.f & CLEAN) !== 0 && (active_effect.f & (BRANCH_EFFECT | ROOT_EFFECT)) === 0) {
-          if (untracked_writes === null) {
-            set_untracked_writes([source2]);
-          } else {
-            untracked_writes.push(source2);
-          }
-        }
-      }
-      return value2;
-    }
-    function update(source2, d = 1) {
-      var value2 = get$2(source2);
-      var result = d === 1 ? value2++ : value2--;
-      set$1(source2, value2);
-      return result;
-    }
-    function mark_reactions(signal, status) {
-      var reactions = signal.reactions;
-      if (reactions === null) return;
-      var runes = is_runes();
-      var length = reactions.length;
-      for (var i2 = 0; i2 < length; i2++) {
-        var reaction = reactions[i2];
-        var flags = reaction.f;
-        if ((flags & DIRTY) !== 0) continue;
-        if (!runes && reaction === active_effect) continue;
-        set_signal_status(reaction, status);
-        if ((flags & (CLEAN | UNOWNED)) !== 0) {
-          if ((flags & DERIVED) !== 0) {
-            mark_reactions(
-              /** @type {Derived} */
-              reaction,
-              MAYBE_DIRTY
-            );
-          } else {
-            schedule_effect(
-              /** @type {Effect} */
-              reaction
-            );
-          }
-        }
-      }
-    }
-    function select_multiple_invalid_value() {
-      {
-        console.warn(`https://svelte.dev/e/select_multiple_invalid_value`);
-      }
-    }
-    let hydrating = false;
     var $window;
     var is_firefox;
     var first_child_getter;
@@ -752,6 +1422,9 @@ var require_index_001 = __commonJS({
     function clear_text_content(node) {
       node.textContent = "";
     }
+    function should_defer_append() {
+      return false;
+    }
     function validate_effect(rune) {
       if (active_effect === null && active_reaction === null) {
         effect_orphan();
@@ -775,6 +1448,9 @@ var require_index_001 = __commonJS({
     }
     function create_effect(type2, fn, sync, push2 = true) {
       var parent = active_effect;
+      if (parent !== null && (parent.f & INERT) !== 0) {
+        type2 |= INERT;
+      }
       var effect2 = {
         ctx: component_context,
         deps: null,
@@ -786,10 +1462,12 @@ var require_index_001 = __commonJS({
         last: null,
         next: null,
         parent,
+        b: parent && parent.b,
         prev: null,
         teardown: null,
         transitions: null,
-        wv: 0
+        wv: 0,
+        ac: null
       };
       if (sync) {
         try {
@@ -802,12 +1480,12 @@ var require_index_001 = __commonJS({
       } else if (fn !== null) {
         schedule_effect(effect2);
       }
-      var inert = sync && effect2.deps === null && effect2.first === null && effect2.nodes_start === null && effect2.teardown === null && (effect2.f & (EFFECT_HAS_DERIVED | BOUNDARY_EFFECT)) === 0;
+      var inert = sync && effect2.deps === null && effect2.first === null && effect2.nodes_start === null && effect2.teardown === null && (effect2.f & EFFECT_PRESERVED) === 0;
       if (!inert && push2) {
         if (parent !== null) {
           push_effect(effect2, parent);
         }
-        if (active_reaction !== null && (active_reaction.f & DERIVED) !== 0) {
+        if (active_reaction !== null && (active_reaction.f & DERIVED) !== 0 && (type2 & ROOT_EFFECT) === 0) {
           var derived2 = (
             /** @type {Derived} */
             active_reaction
@@ -825,27 +1503,30 @@ var require_index_001 = __commonJS({
     }
     function user_effect(fn) {
       validate_effect();
-      var defer = active_effect !== null && (active_effect.f & BRANCH_EFFECT) !== 0 && component_context !== null && !component_context.m;
+      var flags = (
+        /** @type {Effect} */
+        active_effect.f
+      );
+      var defer = !active_reaction && (flags & BRANCH_EFFECT) !== 0 && (flags & EFFECT_RAN) === 0;
       if (defer) {
         var context = (
           /** @type {ComponentContext} */
           component_context
         );
-        (context.e ?? (context.e = [])).push({
-          fn,
-          effect: active_effect,
-          reaction: active_reaction
-        });
+        (context.e ?? (context.e = [])).push(fn);
       } else {
-        var signal = effect(fn);
-        return signal;
+        return create_user_effect(fn);
       }
+    }
+    function create_user_effect(fn) {
+      return create_effect(EFFECT | USER_EFFECT, fn, false);
     }
     function user_pre_effect(fn) {
       validate_effect();
-      return render_effect(fn);
+      return create_effect(RENDER_EFFECT | USER_EFFECT, fn, true);
     }
     function component_root(fn) {
+      Batch.ensure();
       const effect2 = create_effect(ROOT_EFFECT, fn, true);
       return (options = {}) => {
         return new Promise((fulfil) => {
@@ -869,13 +1550,12 @@ var require_index_001 = __commonJS({
         /** @type {ComponentContextLegacy} */
         component_context
       );
-      var token = { effect: null, ran: false };
-      context.l.r1.push(token);
+      var token = { effect: null, ran: false, deps };
+      context.l.$.push(token);
       token.effect = render_effect(() => {
         deps();
         if (token.ran) return;
         token.ran = true;
-        set$1(context.l.r2, true);
         untrack(fn);
       });
     }
@@ -885,32 +1565,36 @@ var require_index_001 = __commonJS({
         component_context
       );
       render_effect(() => {
-        if (!get$2(context.l.r2)) return;
-        for (var token of context.l.r1) {
+        for (var token of context.l.$) {
+          token.deps();
           var effect2 = token.effect;
           if ((effect2.f & CLEAN) !== 0) {
             set_signal_status(effect2, MAYBE_DIRTY);
           }
-          if (check_dirtiness(effect2)) {
+          if (is_dirty(effect2)) {
             update_effect(effect2);
           }
           token.ran = false;
         }
-        context.l.r2.v = false;
       });
     }
-    function render_effect(fn) {
-      return create_effect(RENDER_EFFECT, fn, true);
+    function async_effect(fn) {
+      return create_effect(ASYNC | EFFECT_PRESERVED, fn, true);
     }
-    function template_effect(fn, thunks = [], d = derived) {
-      const deriveds = thunks.map(d);
-      return block$1(() => fn(...deriveds.map(get$2)));
+    function render_effect(fn, flags = 0) {
+      return create_effect(RENDER_EFFECT | flags, fn, true);
+    }
+    function template_effect(fn, sync = [], async = []) {
+      flatten$1(sync, async, (values) => {
+        create_effect(RENDER_EFFECT, () => fn(...values.map(get$2)), true);
+      });
     }
     function block$1(fn, flags = 0) {
-      return create_effect(RENDER_EFFECT | BLOCK_EFFECT | flags, fn, true);
+      var effect2 = create_effect(BLOCK_EFFECT | flags, fn, true);
+      return effect2;
     }
     function branch(fn, push2 = true) {
-      return create_effect(RENDER_EFFECT | BRANCH_EFFECT, fn, true, push2);
+      return create_effect(BRANCH_EFFECT, fn, true, push2);
     }
     function execute_effect_teardown(effect2) {
       var teardown2 = effect2.teardown;
@@ -928,9 +1612,11 @@ var require_index_001 = __commonJS({
       }
     }
     function destroy_effect_children(signal, remove_dom = false) {
+      var _a3;
       var effect2 = signal.first;
       signal.first = signal.last = null;
       while (effect2 !== null) {
+        (_a3 = effect2.ac) == null ? void 0 : _a3.abort(STALE_REACTION);
         var next2 = effect2.next;
         if ((effect2.f & ROOT_EFFECT) !== 0) {
           effect2.parent = null;
@@ -974,7 +1660,7 @@ var require_index_001 = __commonJS({
       if (parent !== null && parent.first !== null) {
         unlink_effect(effect2);
       }
-      effect2.next = effect2.prev = effect2.teardown = effect2.ctx = effect2.deps = effect2.fn = effect2.nodes_start = effect2.nodes_end = null;
+      effect2.next = effect2.prev = effect2.teardown = effect2.ctx = effect2.deps = effect2.fn = effect2.nodes_start = effect2.nodes_end = effect2.ac = null;
     }
     function remove_effect_dom(node, end) {
       while (node !== null) {
@@ -1040,6 +1726,10 @@ var require_index_001 = __commonJS({
     function resume_children(effect2, local) {
       if ((effect2.f & INERT) === 0) return;
       effect2.f ^= INERT;
+      if ((effect2.f & CLEAN) === 0) {
+        set_signal_status(effect2, DIRTY);
+        schedule_effect(effect2);
+      }
       var child2 = effect2.first;
       while (child2 !== null) {
         var sibling2 = child2.next;
@@ -1055,68 +1745,35 @@ var require_index_001 = __commonJS({
         }
       }
     }
-    let micro_tasks = [];
-    let idle_tasks = [];
-    function run_micro_tasks() {
-      var tasks = micro_tasks;
-      micro_tasks = [];
-      run_all(tasks);
-    }
-    function run_idle_tasks() {
-      var tasks = idle_tasks;
-      idle_tasks = [];
-      run_all(tasks);
-    }
-    function queue_micro_task(fn) {
-      if (micro_tasks.length === 0) {
-        queueMicrotask(run_micro_tasks);
-      }
-      micro_tasks.push(fn);
-    }
-    function flush_tasks() {
-      if (micro_tasks.length > 0) {
-        run_micro_tasks();
-      }
-      if (idle_tasks.length > 0) {
-        run_idle_tasks();
-      }
-    }
-    function handle_error(error2) {
-      var effect2 = (
-        /** @type {Effect} */
-        active_effect
-      );
-      if ((effect2.f & EFFECT_RAN) === 0) {
-        if ((effect2.f & BOUNDARY_EFFECT) === 0) {
-          throw error2;
-        }
-        effect2.fn(error2);
-      } else {
-        invoke_error_boundary(error2, effect2);
-      }
-    }
-    function invoke_error_boundary(error2, effect2) {
-      while (effect2 !== null) {
-        if ((effect2.f & BOUNDARY_EFFECT) !== 0) {
-          try {
-            effect2.fn(error2);
-            return;
-          } catch {
+    let captured_signals = null;
+    function capture_signals(fn) {
+      var previous_captured_signals = captured_signals;
+      try {
+        captured_signals = /* @__PURE__ */ new Set();
+        untrack(fn);
+        if (previous_captured_signals !== null) {
+          for (var signal of captured_signals) {
+            previous_captured_signals.add(signal);
           }
         }
-        effect2 = effect2.parent;
+        return captured_signals;
+      } finally {
+        captured_signals = previous_captured_signals;
       }
-      throw error2;
     }
-    let is_flushing = false;
-    let last_scheduled_effect = null;
+    function invalidate_inner_signals(fn) {
+      for (var signal of capture_signals(fn)) {
+        internal_set(signal, signal.v);
+      }
+    }
     let is_updating_effect = false;
+    function set_is_updating_effect(value2) {
+      is_updating_effect = value2;
+    }
     let is_destroying_effect = false;
     function set_is_destroying_effect(value2) {
       is_destroying_effect = value2;
     }
-    let queued_root_effects = [];
-    let dev_effect_stack = [];
     let active_reaction = null;
     let untracking = false;
     function set_active_reaction(reaction) {
@@ -1126,13 +1783,13 @@ var require_index_001 = __commonJS({
     function set_active_effect(effect2) {
       active_effect = effect2;
     }
-    let reaction_sources = null;
+    let current_sources = null;
     function push_reaction_value(value2) {
-      if (active_reaction !== null && active_reaction.f & EFFECT_IS_UPDATING) {
-        if (reaction_sources === null) {
-          reaction_sources = [active_reaction, [value2]];
+      if (active_reaction !== null && true) {
+        if (current_sources === null) {
+          current_sources = [value2];
         } else {
-          reaction_sources[1].push(value2);
+          current_sources.push(value2);
         }
       }
     }
@@ -1144,12 +1801,15 @@ var require_index_001 = __commonJS({
     }
     let write_version = 1;
     let read_version = 0;
+    let update_version = read_version;
+    function set_update_version(value2) {
+      update_version = value2;
+    }
     let skip_reaction = false;
-    let captured_signals = null;
     function increment_write_version() {
       return ++write_version;
     }
-    function check_dirtiness(reaction) {
+    function is_dirty(reaction) {
       var _a3;
       var flags = reaction.f;
       if ((flags & DIRTY) !== 0) {
@@ -1164,7 +1824,7 @@ var require_index_001 = __commonJS({
           var is_disconnected = (flags & DISCONNECTED) !== 0;
           var is_unowned_connected = is_unowned && active_effect !== null && !skip_reaction;
           var length = dependencies.length;
-          if (is_disconnected || is_unowned_connected) {
+          if ((is_disconnected || is_unowned_connected) && (active_effect === null || (active_effect.f & DESTROYED) === 0)) {
             var derived2 = (
               /** @type {Derived} */
               reaction
@@ -1185,7 +1845,7 @@ var require_index_001 = __commonJS({
           }
           for (i2 = 0; i2 < length; i2++) {
             dependency = dependencies[i2];
-            if (check_dirtiness(
+            if (is_dirty(
               /** @type {Derived} */
               dependency
             )) {
@@ -1208,9 +1868,11 @@ var require_index_001 = __commonJS({
     function schedule_possible_effect_self_invalidation(signal, effect2, root2 = true) {
       var reactions = signal.reactions;
       if (reactions === null) return;
+      if (current_sources == null ? void 0 : current_sources.includes(signal)) {
+        return;
+      }
       for (var i2 = 0; i2 < reactions.length; i2++) {
         var reaction = reactions[i2];
-        if ((reaction_sources == null ? void 0 : reaction_sources[1].includes(signal)) && reaction_sources[0] === active_reaction) continue;
         if ((reaction.f & DERIVED) !== 0) {
           schedule_possible_effect_self_invalidation(
             /** @type {Derived} */
@@ -1238,9 +1900,10 @@ var require_index_001 = __commonJS({
       var previous_untracked_writes = untracked_writes;
       var previous_reaction = active_reaction;
       var previous_skip_reaction = skip_reaction;
-      var previous_reaction_sources = reaction_sources;
+      var previous_sources = current_sources;
       var previous_component_context = component_context;
       var previous_untracking = untracking;
+      var previous_update_version = update_version;
       var flags = reaction.f;
       new_deps = /** @type {null | Value[]} */
       null;
@@ -1248,12 +1911,16 @@ var require_index_001 = __commonJS({
       untracked_writes = null;
       skip_reaction = (flags & UNOWNED) !== 0 && (untracking || !is_updating_effect || active_reaction === null);
       active_reaction = (flags & (BRANCH_EFFECT | ROOT_EFFECT)) === 0 ? reaction : null;
-      reaction_sources = null;
+      current_sources = null;
       set_component_context(reaction.ctx);
       untracking = false;
-      read_version++;
-      reaction.f |= EFFECT_IS_UPDATING;
+      update_version = ++read_version;
+      if (reaction.ac !== null) {
+        reaction.ac.abort(STALE_REACTION);
+        reaction.ac = null;
+      }
       try {
+        reaction.f |= REACTION_IS_UPDATING;
         var result = (
           /** @type {Function} */
           (0, reaction.fn)()
@@ -1270,7 +1937,9 @@ var require_index_001 = __commonJS({
           } else {
             reaction.deps = deps = new_deps;
           }
-          if (!skip_reaction) {
+          if (!skip_reaction || // Deriveds that already have reactions can cleanup, so we still add them as reactions
+          (flags & DERIVED) !== 0 && /** @type {import('#client').Derived} */
+          reaction.reactions !== null) {
             for (i2 = skipped_deps; i2 < deps.length; i2++) {
               ((_a3 = deps[i2]).reactions ?? (_a3.reactions = [])).push(reaction);
             }
@@ -1300,19 +1969,23 @@ var require_index_001 = __commonJS({
             }
           }
         }
+        if ((reaction.f & ERROR_VALUE) !== 0) {
+          reaction.f ^= ERROR_VALUE;
+        }
         return result;
       } catch (error2) {
-        handle_error(error2);
+        return handle_error(error2);
       } finally {
+        reaction.f ^= REACTION_IS_UPDATING;
         new_deps = previous_deps;
         skipped_deps = previous_skipped_deps;
         untracked_writes = previous_untracked_writes;
         active_reaction = previous_reaction;
         skip_reaction = previous_skip_reaction;
-        reaction_sources = previous_reaction_sources;
+        current_sources = previous_sources;
         set_component_context(previous_component_context);
         untracking = previous_untracking;
-        reaction.f ^= EFFECT_IS_UPDATING;
+        update_version = previous_update_version;
       }
     }
     function remove_reaction(signal, dependency) {
@@ -1377,130 +2050,9 @@ var require_index_001 = __commonJS({
         effect2.wv = write_version;
         var dep;
         if (DEV && tracing_mode_flag && (effect2.f & DIRTY) !== 0 && effect2.deps !== null) ;
-        if (DEV) ;
       } finally {
         is_updating_effect = was_updating_effect;
         active_effect = previous_effect;
-      }
-    }
-    function infinite_loop_guard() {
-      try {
-        effect_update_depth_exceeded();
-      } catch (error2) {
-        if (last_scheduled_effect !== null) {
-          {
-            invoke_error_boundary(error2, last_scheduled_effect);
-          }
-        } else {
-          throw error2;
-        }
-      }
-    }
-    function flush_queued_root_effects() {
-      var was_updating_effect = is_updating_effect;
-      try {
-        var flush_count = 0;
-        is_updating_effect = true;
-        while (queued_root_effects.length > 0) {
-          if (flush_count++ > 1e3) {
-            infinite_loop_guard();
-          }
-          var root_effects = queued_root_effects;
-          var length = root_effects.length;
-          queued_root_effects = [];
-          for (var i2 = 0; i2 < length; i2++) {
-            var collected_effects = process_effects(root_effects[i2]);
-            flush_queued_effects(collected_effects);
-          }
-          old_values.clear();
-        }
-      } finally {
-        is_flushing = false;
-        is_updating_effect = was_updating_effect;
-        last_scheduled_effect = null;
-      }
-    }
-    function flush_queued_effects(effects2) {
-      var length = effects2.length;
-      if (length === 0) return;
-      for (var i2 = 0; i2 < length; i2++) {
-        var effect2 = effects2[i2];
-        if ((effect2.f & (DESTROYED | INERT)) === 0) {
-          if (check_dirtiness(effect2)) {
-            update_effect(effect2);
-            if (effect2.deps === null && effect2.first === null && effect2.nodes_start === null) {
-              if (effect2.teardown === null) {
-                unlink_effect(effect2);
-              } else {
-                effect2.fn = null;
-              }
-            }
-          }
-        }
-      }
-    }
-    function schedule_effect(signal) {
-      if (!is_flushing) {
-        is_flushing = true;
-        queueMicrotask(flush_queued_root_effects);
-      }
-      var effect2 = last_scheduled_effect = signal;
-      while (effect2.parent !== null) {
-        effect2 = effect2.parent;
-        var flags = effect2.f;
-        if ((flags & (ROOT_EFFECT | BRANCH_EFFECT)) !== 0) {
-          if ((flags & CLEAN) === 0) return;
-          effect2.f ^= CLEAN;
-        }
-      }
-      queued_root_effects.push(effect2);
-    }
-    function process_effects(root2) {
-      var effects2 = [];
-      var effect2 = root2;
-      while (effect2 !== null) {
-        var flags = effect2.f;
-        var is_branch = (flags & (BRANCH_EFFECT | ROOT_EFFECT)) !== 0;
-        var is_skippable_branch = is_branch && (flags & CLEAN) !== 0;
-        if (!is_skippable_branch && (flags & INERT) === 0) {
-          if ((flags & EFFECT) !== 0) {
-            effects2.push(effect2);
-          } else if (is_branch) {
-            effect2.f ^= CLEAN;
-          } else {
-            if (check_dirtiness(effect2)) {
-              update_effect(effect2);
-            }
-          }
-          var child2 = effect2.first;
-          if (child2 !== null) {
-            effect2 = child2;
-            continue;
-          }
-        }
-        var parent = effect2.parent;
-        effect2 = effect2.next;
-        while (effect2 === null && parent !== null) {
-          effect2 = parent.next;
-          parent = parent.parent;
-        }
-      }
-      return effects2;
-    }
-    function flushSync(fn) {
-      var result;
-      while (true) {
-        flush_tasks();
-        if (queued_root_effects.length === 0) {
-          is_flushing = false;
-          last_scheduled_effect = null;
-          return (
-            /** @type {T} */
-            result
-          );
-        }
-        is_flushing = true;
-        flush_queued_root_effects();
       }
     }
     async function tick() {
@@ -1510,20 +2062,29 @@ var require_index_001 = __commonJS({
     function get$2(signal) {
       var flags = signal.f;
       var is_derived = (flags & DERIVED) !== 0;
-      if (captured_signals !== null) {
-        captured_signals.add(signal);
-      }
+      captured_signals == null ? void 0 : captured_signals.add(signal);
       if (active_reaction !== null && !untracking) {
-        if (!(reaction_sources == null ? void 0 : reaction_sources[1].includes(signal)) || reaction_sources[0] !== active_reaction) {
+        var destroyed = active_effect !== null && (active_effect.f & DESTROYED) !== 0;
+        if (!destroyed && !(current_sources == null ? void 0 : current_sources.includes(signal))) {
           var deps = active_reaction.deps;
-          if (signal.rv < read_version) {
-            signal.rv = read_version;
-            if (new_deps === null && deps !== null && deps[skipped_deps] === signal) {
-              skipped_deps++;
-            } else if (new_deps === null) {
-              new_deps = [signal];
-            } else if (!skip_reaction || !new_deps.includes(signal)) {
-              new_deps.push(signal);
+          if ((active_reaction.f & REACTION_IS_UPDATING) !== 0) {
+            if (signal.rv < read_version) {
+              signal.rv = read_version;
+              if (new_deps === null && deps !== null && deps[skipped_deps] === signal) {
+                skipped_deps++;
+              } else if (new_deps === null) {
+                new_deps = [signal];
+              } else if (!skip_reaction || !new_deps.includes(signal)) {
+                new_deps.push(signal);
+              }
+            }
+          } else {
+            (active_reaction.deps ?? (active_reaction.deps = [])).push(signal);
+            var reactions = signal.reactions;
+            if (reactions === null) {
+              signal.reactions = [active_reaction];
+            } else if (!reactions.includes(active_reaction)) {
+              reactions.push(active_reaction);
             }
           }
         }
@@ -1539,52 +2100,50 @@ var require_index_001 = __commonJS({
           derived2.f ^= UNOWNED;
         }
       }
-      if (is_derived) {
+      if (is_destroying_effect) {
+        if (old_values.has(signal)) {
+          return old_values.get(signal);
+        }
+        if (is_derived) {
+          derived2 = /** @type {Derived} */
+          signal;
+          var value2 = derived2.v;
+          if ((derived2.f & CLEAN) === 0 && derived2.reactions !== null || depends_on_old_values(derived2)) {
+            value2 = execute_derived(derived2);
+          }
+          old_values.set(derived2, value2);
+          return value2;
+        }
+      } else if (is_derived) {
         derived2 = /** @type {Derived} */
         signal;
-        if (check_dirtiness(derived2)) {
+        if (batch_deriveds == null ? void 0 : batch_deriveds.has(derived2)) {
+          return batch_deriveds.get(derived2);
+        }
+        if (is_dirty(derived2)) {
           update_derived(derived2);
         }
       }
-      if (is_destroying_effect && old_values.has(signal)) {
-        return old_values.get(signal);
+      if ((signal.f & ERROR_VALUE) !== 0) {
+        throw signal.v;
       }
       return signal.v;
     }
-    function capture_signals(fn) {
-      var previous_captured_signals = captured_signals;
-      captured_signals = /* @__PURE__ */ new Set();
-      var captured = captured_signals;
-      var signal;
-      try {
-        untrack(fn);
-        if (previous_captured_signals !== null) {
-          for (signal of captured_signals) {
-            previous_captured_signals.add(signal);
-          }
+    function depends_on_old_values(derived2) {
+      if (derived2.v === UNINITIALIZED) return true;
+      if (derived2.deps === null) return false;
+      for (const dep of derived2.deps) {
+        if (old_values.has(dep)) {
+          return true;
         }
-      } finally {
-        captured_signals = previous_captured_signals;
-      }
-      return captured;
-    }
-    function invalidate_inner_signals(fn) {
-      var captured = capture_signals(() => untrack(fn));
-      for (var signal of captured) {
-        if ((signal.f & LEGACY_DERIVED_PROP) !== 0) {
-          for (
-            const dep of
-            /** @type {Derived} */
-            signal.deps || []
-          ) {
-            if ((dep.f & DERIVED) === 0) {
-              internal_set(dep, dep.v);
-            }
-          }
-        } else {
-          internal_set(signal, signal.v);
+        if ((dep.f & DERIVED) !== 0 && depends_on_old_values(
+          /** @type {Derived} */
+          dep
+        )) {
+          return true;
         }
       }
+      return false;
     }
     function untrack(fn) {
       var previous_untracking = untracking;
@@ -1718,8 +2277,8 @@ var require_index_001 = __commonJS({
       }
       return target_handler;
     }
-    function event(event_name, dom, handler, capture, passive) {
-      var options = { capture, passive };
+    function event(event_name, dom, handler, capture2, passive) {
+      var options = { capture: capture2, passive };
       var target_handler = create_event(event_name, dom, handler, options);
       if (dom === document.body || // @ts-ignore
       dom === window || // @ts-ignore
@@ -1738,6 +2297,7 @@ var require_index_001 = __commonJS({
         fn(events2);
       }
     }
+    let last_propagated_event = null;
     function handle_event_propagation(event2) {
       var _a3;
       var handler_element = this;
@@ -1751,8 +2311,9 @@ var require_index_001 = __commonJS({
         /** @type {null | Element} */
         path[0] || event2.target
       );
+      last_propagated_event = event2;
       var path_idx = 0;
-      var handled_at = event2.__root;
+      var handled_at = last_propagated_event === event2 && event2.__root;
       if (handled_at) {
         var at_idx = path.indexOf(handled_at);
         if (at_idx !== -1 && (handler_element === document || handler_element === /** @type {any} */
@@ -1975,41 +2536,64 @@ var require_index_001 = __commonJS({
       return component2;
     }
     let mounted_components = /* @__PURE__ */ new WeakMap();
-    function if_block(node, fn, [root_index, hydrate_index] = [0, 0]) {
+    function if_block(node, fn, elseif = false) {
       var anchor = node;
       var consequent_effect = null;
       var alternate_effect = null;
       var condition = UNINITIALIZED;
-      var flags = root_index > 0 ? EFFECT_TRANSPARENT : 0;
+      var flags = elseif ? EFFECT_TRANSPARENT : 0;
       var has_branch = false;
       const set_branch = (fn2, flag = true) => {
         has_branch = true;
         update_branch(flag, fn2);
       };
+      var offscreen_fragment = null;
+      function commit() {
+        if (offscreen_fragment !== null) {
+          offscreen_fragment.lastChild.remove();
+          anchor.before(offscreen_fragment);
+          offscreen_fragment = null;
+        }
+        var active = condition ? consequent_effect : alternate_effect;
+        var inactive = condition ? alternate_effect : consequent_effect;
+        if (active) {
+          resume_effect(active);
+        }
+        if (inactive) {
+          pause_effect(inactive, () => {
+            if (condition) {
+              alternate_effect = null;
+            } else {
+              consequent_effect = null;
+            }
+          });
+        }
+      }
       const update_branch = (new_condition, fn2) => {
         if (condition === (condition = new_condition)) return;
+        var defer = should_defer_append();
+        var target2 = anchor;
+        if (defer) {
+          offscreen_fragment = document.createDocumentFragment();
+          offscreen_fragment.append(target2 = create_text());
+        }
         if (condition) {
-          if (consequent_effect) {
-            resume_effect(consequent_effect);
-          } else if (fn2) {
-            consequent_effect = branch(() => fn2(anchor));
-          }
-          if (alternate_effect) {
-            pause_effect(alternate_effect, () => {
-              alternate_effect = null;
-            });
-          }
+          consequent_effect ?? (consequent_effect = fn2 && branch(() => fn2(target2)));
         } else {
-          if (alternate_effect) {
-            resume_effect(alternate_effect);
-          } else if (fn2) {
-            alternate_effect = branch(() => fn2(anchor, [root_index + 1, hydrate_index]));
-          }
-          if (consequent_effect) {
-            pause_effect(consequent_effect, () => {
-              consequent_effect = null;
-            });
-          }
+          alternate_effect ?? (alternate_effect = fn2 && branch(() => fn2(target2)));
+        }
+        if (defer) {
+          var batch = (
+            /** @type {Batch} */
+            current_batch
+          );
+          var active = condition ? consequent_effect : alternate_effect;
+          var inactive = condition ? alternate_effect : consequent_effect;
+          if (active) batch.skipped_effects.delete(active);
+          if (inactive) batch.skipped_effects.add(inactive);
+          batch.add_callback(commit);
+        } else {
+          commit();
         }
       };
       block$1(() => {
@@ -2023,7 +2607,8 @@ var require_index_001 = __commonJS({
     function index$1(_, i2) {
       return i2;
     }
-    function pause_effects(state2, items, controlled_anchor, items_map) {
+    function pause_effects(state2, items, controlled_anchor) {
+      var items_map = state2.items;
       var transitions = [];
       var length = items.length;
       for (var i2 = 0; i2 < length; i2++) {
@@ -2068,22 +2653,27 @@ var require_index_001 = __commonJS({
       }
       var fallback = null;
       var was_empty = false;
+      var offscreen_items = /* @__PURE__ */ new Map();
       var each_array = /* @__PURE__ */ derived_safe_equal(() => {
         var collection = get_collection();
         return is_array(collection) ? collection : collection == null ? [] : array_from(collection);
       });
-      block$1(() => {
-        var array2 = get$2(each_array);
-        var length = array2.length;
-        if (was_empty && length === 0) {
-          return;
-        }
-        was_empty = length === 0;
-        {
-          reconcile(array2, state2, anchor, render_fn, flags, get_key, get_collection);
-        }
+      var array2;
+      var each_effect;
+      function commit() {
+        reconcile(
+          each_effect,
+          array2,
+          state2,
+          offscreen_items,
+          anchor,
+          render_fn,
+          flags,
+          get_key,
+          get_collection
+        );
         if (fallback_fn !== null) {
-          if (length === 0) {
+          if (array2.length === 0) {
             if (fallback) {
               resume_effect(fallback);
             } else {
@@ -2095,10 +2685,64 @@ var require_index_001 = __commonJS({
             });
           }
         }
+      }
+      block$1(() => {
+        each_effect ?? (each_effect = /** @type {Effect} */
+        active_effect);
+        array2 = get$2(each_array);
+        var length = array2.length;
+        if (was_empty && length === 0) {
+          return;
+        }
+        was_empty = length === 0;
+        var item, i2, value2, key;
+        {
+          if (should_defer_append()) {
+            var keys = /* @__PURE__ */ new Set();
+            var batch = (
+              /** @type {Batch} */
+              current_batch
+            );
+            for (i2 = 0; i2 < length; i2 += 1) {
+              value2 = array2[i2];
+              key = get_key(value2, i2);
+              var existing = state2.items.get(key) ?? offscreen_items.get(key);
+              if (existing) {
+                if ((flags & (EACH_ITEM_REACTIVE | EACH_INDEX_REACTIVE)) !== 0) {
+                  update_item(existing, value2, i2, flags);
+                }
+              } else {
+                item = create_item(
+                  null,
+                  state2,
+                  null,
+                  null,
+                  value2,
+                  key,
+                  i2,
+                  render_fn,
+                  flags,
+                  get_collection,
+                  true
+                );
+                offscreen_items.set(key, item);
+              }
+              keys.add(key);
+            }
+            for (const [key2, item2] of state2.items) {
+              if (!keys.has(key2)) {
+                batch.skipped_effects.add(item2.e);
+              }
+            }
+            batch.add_callback(commit);
+          } else {
+            commit();
+          }
+        }
         get$2(each_array);
       });
     }
-    function reconcile(array2, state2, anchor, render_fn, flags, get_key, get_collection) {
+    function reconcile(each_effect, array2, state2, offscreen_items, anchor, render_fn, flags, get_key, get_collection) {
       var _a3, _b2, _c, _d;
       var is_animated = (flags & EACH_IS_ANIMATED) !== 0;
       var should_update = (flags & (EACH_ITEM_REACTIVE | EACH_INDEX_REACTIVE)) !== 0;
@@ -2131,22 +2775,33 @@ var require_index_001 = __commonJS({
         key = get_key(value2, i2);
         item = items.get(key);
         if (item === void 0) {
-          var child_anchor = current ? (
-            /** @type {TemplateNode} */
-            current.e.nodes_start
-          ) : anchor;
-          prev = create_item(
-            child_anchor,
-            state2,
-            prev,
-            prev === null ? state2.first : prev.next,
-            value2,
-            key,
-            i2,
-            render_fn,
-            flags,
-            get_collection
-          );
+          var pending2 = offscreen_items.get(key);
+          if (pending2 !== void 0) {
+            offscreen_items.delete(key);
+            items.set(key, pending2);
+            var next2 = prev ? prev.next : current;
+            link(state2, prev, pending2);
+            link(state2, pending2, next2);
+            move(pending2, next2, anchor);
+            prev = pending2;
+          } else {
+            var child_anchor = current ? (
+              /** @type {TemplateNode} */
+              current.e.nodes_start
+            ) : anchor;
+            prev = create_item(
+              child_anchor,
+              state2,
+              prev,
+              prev === null ? state2.first : prev.next,
+              value2,
+              key,
+              i2,
+              render_fn,
+              flags,
+              get_collection
+            );
+          }
           items.set(key, prev);
           matched = [];
           stashed = [];
@@ -2232,7 +2887,7 @@ var require_index_001 = __commonJS({
               (_d = to_destroy[i2].a) == null ? void 0 : _d.fix();
             }
           }
-          pause_effects(state2, to_destroy, controlled_anchor, items);
+          pause_effects(state2, to_destroy, controlled_anchor);
         }
       }
       if (is_animated) {
@@ -2244,8 +2899,12 @@ var require_index_001 = __commonJS({
           }
         });
       }
-      active_effect.first = state2.first && state2.first.e;
-      active_effect.last = prev && prev.e;
+      each_effect.first = state2.first && state2.first.e;
+      each_effect.last = prev && prev.e;
+      for (var unused of offscreen_items.values()) {
+        destroy_effect(unused.e);
+      }
+      offscreen_items.clear();
     }
     function update_item(item, value2, index2, type2) {
       if ((type2 & EACH_ITEM_REACTIVE) !== 0) {
@@ -2261,7 +2920,7 @@ var require_index_001 = __commonJS({
         item.i = index2;
       }
     }
-    function create_item(anchor, state2, prev, next2, value2, key, index2, render_fn, flags, get_collection) {
+    function create_item(anchor, state2, prev, next2, value2, key, index2, render_fn, flags, get_collection, deferred2) {
       var reactive = (flags & EACH_ITEM_REACTIVE) !== 0;
       var mutable = (flags & EACH_ITEM_IMMUTABLE) === 0;
       var v = reactive ? mutable ? /* @__PURE__ */ mutable_source(value2, false, false) : source(value2) : value2;
@@ -2277,11 +2936,23 @@ var require_index_001 = __commonJS({
         next: next2
       };
       try {
-        item.e = branch(() => render_fn(anchor, v, i2, get_collection), hydrating);
+        if (anchor === null) {
+          var fragment = document.createDocumentFragment();
+          fragment.append(anchor = create_text());
+        }
+        item.e = branch(() => render_fn(
+          /** @type {Node} */
+          anchor,
+          v,
+          i2,
+          get_collection
+        ), hydrating);
         item.e.prev = prev && prev.e;
         item.e.next = next2 && next2.e;
         if (prev === null) {
-          state2.first = item;
+          if (!deferred2) {
+            state2.first = item;
+          }
         } else {
           prev.next = item;
           prev.e.next = item.e;
@@ -2307,7 +2978,7 @@ var require_index_001 = __commonJS({
         /** @type {TemplateNode} */
         item.e.nodes_start
       );
-      while (node !== end) {
+      while (node !== null && node !== end) {
         var next_node = (
           /** @type {TemplateNode} */
           /* @__PURE__ */ get_next_sibling(node)
@@ -2336,23 +3007,56 @@ var require_index_001 = __commonJS({
         slot_fn = $$props[name2 === "default" ? "children" : name2];
         is_interop = true;
       }
-      if (slot_fn === void 0) ;
-      else {
+      if (slot_fn === void 0) {
+        if (fallback_fn !== null) {
+          fallback_fn(anchor);
+        }
+      } else {
         slot_fn(anchor, is_interop ? () => slot_props : slot_props);
       }
+    }
+    function sanitize_slots(props) {
+      const sanitized = {};
+      if (props.children) sanitized.default = true;
+      for (const key in props.$$slots) {
+        sanitized[key] = true;
+      }
+      return sanitized;
     }
     function component(node, get_component, render_fn) {
       var anchor = node;
       var component2;
       var effect2;
-      block$1(() => {
-        if (component2 === (component2 = get_component())) return;
+      var offscreen_fragment = null;
+      var pending_effect = null;
+      function commit() {
         if (effect2) {
           pause_effect(effect2);
           effect2 = null;
         }
+        if (offscreen_fragment) {
+          offscreen_fragment.lastChild.remove();
+          anchor.before(offscreen_fragment);
+          offscreen_fragment = null;
+        }
+        effect2 = pending_effect;
+        pending_effect = null;
+      }
+      block$1(() => {
+        if (component2 === (component2 = get_component())) return;
+        var defer = should_defer_append();
         if (component2) {
-          effect2 = branch(() => render_fn(anchor, component2));
+          var target2 = anchor;
+          if (defer) {
+            offscreen_fragment = document.createDocumentFragment();
+            offscreen_fragment.append(target2 = create_text());
+          }
+          pending_effect = branch(() => render_fn(target2, component2));
+        }
+        if (defer) {
+          current_batch.add_callback(commit);
+        } else {
+          commit();
         }
       }, EFFECT_TRANSPARENT);
     }
@@ -2469,7 +3173,7 @@ var require_index_001 = __commonJS({
       }
       return next_styles;
     }
-    function select_option(select, value2, mounting) {
+    function select_option(select, value2, mounting = false) {
       if (select.multiple) {
         if (value2 == void 0) {
           return;
@@ -2493,31 +3197,23 @@ var require_index_001 = __commonJS({
         select.selectedIndex = -1;
       }
     }
-    function init_select(select, get_value) {
-      let mounting = true;
-      effect(() => {
-        if (get_value) {
-          select_option(select, untrack(get_value), mounting);
-        }
-        mounting = false;
-        var observer = new MutationObserver(() => {
-          var value2 = select.__value;
-          select_option(select, value2);
-        });
-        observer.observe(select, {
-          // Listen to option element changes
-          childList: true,
-          subtree: true,
-          // because of <optgroup>
-          // Listen to option element value attribute changes
-          // (doesn't get notified of select value changes,
-          // because that property is not reflected as an attribute)
-          attributes: true,
-          attributeFilter: ["value"]
-        });
-        return () => {
-          observer.disconnect();
-        };
+    function init_select(select) {
+      var observer = new MutationObserver(() => {
+        select_option(select, select.__value);
+      });
+      observer.observe(select, {
+        // Listen to option element changes
+        childList: true,
+        subtree: true,
+        // because of <optgroup>
+        // Listen to option element value attribute changes
+        // (doesn't get notified of select value changes,
+        // because that property is not reflected as an attribute)
+        attributes: true,
+        attributeFilter: ["value"]
+      });
+      teardown(() => {
+        observer.disconnect();
       });
     }
     function bind_select_value(select, get2, set2 = get2) {
@@ -2619,10 +3315,14 @@ var require_index_001 = __commonJS({
     }
     function bind_value(input, get2, set2 = get2) {
       var runes = is_runes();
+      var batches2 = /* @__PURE__ */ new WeakSet();
       listen_to_event_and_reset_event(input, "input", (is_reset) => {
         var value2 = is_reset ? input.defaultValue : input.value;
         value2 = is_numberlike_input(input) ? to_number(value2) : value2;
         set2(value2);
+        if (current_batch !== null) {
+          batches2.add(current_batch);
+        }
         if (runes && value2 !== (value2 = get2())) {
           var start = input.selectionStart;
           var end = input.selectionEnd;
@@ -2641,9 +3341,21 @@ var require_index_001 = __commonJS({
         untrack(get2) == null && input.value
       ) {
         set2(is_numberlike_input(input) ? to_number(input.value) : input.value);
+        if (current_batch !== null) {
+          batches2.add(current_batch);
+        }
       }
       render_effect(() => {
         var value2 = get2();
+        if (input === document.activeElement) {
+          var batch = (
+            /** @type {Batch} */
+            previous_batch ?? current_batch
+          );
+          if (batches2.has(batch)) {
+            return;
+          }
+        }
         if (is_numberlike_input(input) && value2 === to_number(input.value)) {
           return;
         }
@@ -2730,6 +3442,67 @@ var require_index_001 = __commonJS({
           props[prop2] = null;
         });
       }
+    }
+    const _ResizeObserverSingleton = class _ResizeObserverSingleton {
+      /** @param {ResizeObserverOptions} options */
+      constructor(options) {
+        __privateAdd(this, _ResizeObserverSingleton_instances);
+        /** */
+        __privateAdd(this, _listeners, /* @__PURE__ */ new WeakMap());
+        /** @type {ResizeObserver | undefined} */
+        __privateAdd(this, _observer);
+        /** @type {ResizeObserverOptions} */
+        __privateAdd(this, _options2);
+        __privateSet(this, _options2, options);
+      }
+      /**
+       * @param {Element} element
+       * @param {(entry: ResizeObserverEntry) => any} listener
+       */
+      observe(element, listener) {
+        var listeners2 = __privateGet(this, _listeners).get(element) || /* @__PURE__ */ new Set();
+        listeners2.add(listener);
+        __privateGet(this, _listeners).set(element, listeners2);
+        __privateMethod(this, _ResizeObserverSingleton_instances, getObserver_fn).call(this).observe(element, __privateGet(this, _options2));
+        return () => {
+          var listeners3 = __privateGet(this, _listeners).get(element);
+          listeners3.delete(listener);
+          if (listeners3.size === 0) {
+            __privateGet(this, _listeners).delete(element);
+            __privateGet(this, _observer).unobserve(element);
+          }
+        };
+      }
+    };
+    _listeners = new WeakMap();
+    _observer = new WeakMap();
+    _options2 = new WeakMap();
+    _ResizeObserverSingleton_instances = new WeakSet();
+    getObserver_fn = function() {
+      return __privateGet(this, _observer) ?? __privateSet(this, _observer, new ResizeObserver(
+        /** @param {any} entries */
+        (entries) => {
+          for (var entry of entries) {
+            _ResizeObserverSingleton.entries.set(entry.target, entry);
+            for (var listener of __privateGet(this, _listeners).get(entry.target) || []) {
+              listener(entry);
+            }
+          }
+        }
+      ));
+    };
+    /** @static */
+    __publicField(_ResizeObserverSingleton, "entries", /* @__PURE__ */ new WeakMap());
+    let ResizeObserverSingleton = _ResizeObserverSingleton;
+    var resize_observer_border_box = /* @__PURE__ */ new ResizeObserverSingleton({
+      box: "border-box"
+    });
+    function bind_element_size(element, type2, set2) {
+      var unsub = resize_observer_border_box.observe(element, () => set2(element[type2]));
+      effect(() => {
+        untrack(() => set2(element[type2]));
+        return unsub;
+      });
     }
     function is_bound_this(bound_value, element_or_component) {
       return bound_value === element_or_component || (bound_value == null ? void 0 : bound_value[STATE_SYMBOL]) === element_or_component;
@@ -3025,57 +3798,51 @@ var require_index_001 = __commonJS({
     function spread_props(...props) {
       return new Proxy({ props }, spread_props_handler);
     }
-    function has_destroyed_component_ctx(current_value) {
-      var _a3;
-      return ((_a3 = current_value.ctx) == null ? void 0 : _a3.d) ?? false;
-    }
     function prop(props, key, flags, fallback) {
       var _a3;
-      var immutable = (flags & PROPS_IS_IMMUTABLE) !== 0;
       var runes = !legacy_mode_flag || (flags & PROPS_IS_RUNES) !== 0;
       var bindable = (flags & PROPS_IS_BINDABLE) !== 0;
       var lazy2 = (flags & PROPS_IS_LAZY_INITIAL) !== 0;
-      var is_store_sub = false;
-      var prop_value;
-      if (bindable) {
-        [prop_value, is_store_sub] = capture_store_binding(() => (
-          /** @type {V} */
-          props[key]
-        ));
-      } else {
-        prop_value = /** @type {V} */
-        props[key];
-      }
-      var is_entry_props = STATE_SYMBOL in props || LEGACY_PROPS in props;
-      var setter = bindable && (((_a3 = get_descriptor(props, key)) == null ? void 0 : _a3.set) ?? (is_entry_props && key in props && ((v) => props[key] = v))) || void 0;
       var fallback_value = (
         /** @type {V} */
         fallback
       );
       var fallback_dirty = true;
-      var fallback_used = false;
       var get_fallback = () => {
-        fallback_used = true;
         if (fallback_dirty) {
           fallback_dirty = false;
-          if (lazy2) {
-            fallback_value = untrack(
-              /** @type {() => V} */
-              fallback
-            );
-          } else {
-            fallback_value = /** @type {V} */
-            fallback;
-          }
+          fallback_value = lazy2 ? untrack(
+            /** @type {() => V} */
+            fallback
+          ) : (
+            /** @type {V} */
+            fallback
+          );
         }
         return fallback_value;
       };
-      if (prop_value === void 0 && fallback !== void 0) {
-        if (setter && runes) {
-          props_invalid_value();
+      var setter;
+      if (bindable) {
+        var is_entry_props = STATE_SYMBOL in props || LEGACY_PROPS in props;
+        setter = ((_a3 = get_descriptor(props, key)) == null ? void 0 : _a3.set) ?? (is_entry_props && key in props ? (v) => props[key] = v : void 0);
+      }
+      var initial_value;
+      var is_store_sub = false;
+      if (bindable) {
+        [initial_value, is_store_sub] = capture_store_binding(() => (
+          /** @type {V} */
+          props[key]
+        ));
+      } else {
+        initial_value = /** @type {V} */
+        props[key];
+      }
+      if (initial_value === void 0 && fallback !== void 0) {
+        initial_value = get_fallback();
+        if (setter) {
+          if (runes) props_invalid_value();
+          setter(initial_value);
         }
-        prop_value = get_fallback();
-        if (setter) setter(prop_value);
       }
       var getter;
       if (runes) {
@@ -3086,25 +3853,22 @@ var require_index_001 = __commonJS({
           );
           if (value2 === void 0) return get_fallback();
           fallback_dirty = true;
-          fallback_used = false;
           return value2;
         };
       } else {
-        var derived_getter = (immutable ? derived : derived_safe_equal)(
-          () => (
+        getter = () => {
+          var value2 = (
             /** @type {V} */
             props[key]
-          )
-        );
-        derived_getter.f |= LEGACY_DERIVED_PROP;
-        getter = () => {
-          var value2 = get$2(derived_getter);
-          if (value2 !== void 0) fallback_value = /** @type {V} */
-          void 0;
+          );
+          if (value2 !== void 0) {
+            fallback_value = /** @type {V} */
+            void 0;
+          }
           return value2 === void 0 ? fallback_value : value2;
         };
       }
-      if ((flags & PROPS_IS_UPDATED) === 0 && runes) {
+      if (runes && (flags & PROPS_IS_UPDATED) === 0) {
         return getter;
       }
       if (setter) {
@@ -3115,54 +3879,34 @@ var require_index_001 = __commonJS({
               setter(mutation ? getter() : value2);
             }
             return value2;
-          } else {
-            return getter();
           }
+          return getter();
         };
       }
-      var from_child = false;
-      var was_from_child = false;
-      var inner_current_value = /* @__PURE__ */ mutable_source(prop_value);
-      var current_value = /* @__PURE__ */ derived(() => {
-        var parent_value = getter();
-        var child_value = get$2(inner_current_value);
-        if (from_child) {
-          from_child = false;
-          was_from_child = true;
-          return child_value;
-        }
-        was_from_child = false;
-        return inner_current_value.v = parent_value;
+      var overridden = false;
+      var d = ((flags & PROPS_IS_IMMUTABLE) !== 0 ? derived : derived_safe_equal)(() => {
+        overridden = false;
+        return getter();
       });
-      if (bindable) {
-        get$2(current_value);
-      }
-      if (!immutable) current_value.equals = safe_equals;
+      if (bindable) get$2(d);
+      var parent_effect = (
+        /** @type {Effect} */
+        active_effect
+      );
       return function(value2, mutation) {
-        if (captured_signals !== null) {
-          from_child = was_from_child;
-          getter();
-          get$2(inner_current_value);
-        }
         if (arguments.length > 0) {
-          const new_value = mutation ? get$2(current_value) : runes && bindable ? proxy(value2) : value2;
-          if (!current_value.equals(new_value)) {
-            from_child = true;
-            set$1(inner_current_value, new_value);
-            if (fallback_used && fallback_value !== void 0) {
-              fallback_value = new_value;
-            }
-            if (has_destroyed_component_ctx(current_value)) {
-              return value2;
-            }
-            untrack(() => get$2(current_value));
+          const new_value = mutation ? get$2(d) : runes && bindable ? proxy(value2) : value2;
+          set$1(d, new_value);
+          overridden = true;
+          if (fallback_value !== void 0) {
+            fallback_value = new_value;
           }
           return value2;
         }
-        if (has_destroyed_component_ctx(current_value)) {
-          return current_value.v;
+        if (is_destroying_effect && overridden || (parent_effect.f & DESTROYED) !== 0) {
+          return d.v;
         }
-        return get$2(current_value);
+        return get$2(d);
       };
     }
     function onMount(fn) {
@@ -3419,34 +4163,34 @@ var require_index_001 = __commonJS({
     }
     var ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
     const base58$1 = base$1(ALPHABET);
-    const toB58 = (buffer2) => base58$1.encode(buffer2);
-    const fromB58 = (str) => base58$1.decode(str);
-    function fromB64(base64String2) {
+    const toB58$1 = (buffer2) => base58$1.encode(buffer2);
+    const fromB58$1 = (str) => base58$1.decode(str);
+    function fromB64$1(base64String2) {
       return Uint8Array.from(atob(base64String2), (char) => char.charCodeAt(0));
     }
-    const CHUNK_SIZE = 8192;
-    function toB64(bytes) {
-      if (bytes.length < CHUNK_SIZE) {
+    const CHUNK_SIZE$1 = 8192;
+    function toB64$1(bytes) {
+      if (bytes.length < CHUNK_SIZE$1) {
         return btoa(String.fromCharCode(...bytes));
       }
       let output = "";
-      for (let i2 = 0; i2 < bytes.length; i2 += CHUNK_SIZE) {
-        const chunk2 = bytes.slice(i2, i2 + CHUNK_SIZE);
+      for (let i2 = 0; i2 < bytes.length; i2 += CHUNK_SIZE$1) {
+        const chunk2 = bytes.slice(i2, i2 + CHUNK_SIZE$1);
         output += String.fromCharCode(...chunk2);
       }
       return btoa(output);
     }
-    function fromHEX(hexStr) {
+    function fromHEX$1(hexStr) {
       var _a3;
       const normalized = hexStr.startsWith("0x") ? hexStr.slice(2) : hexStr;
       const padded = normalized.length % 2 === 0 ? normalized : `0${normalized}}`;
       const intArr = ((_a3 = padded.match(/.{2}/g)) == null ? void 0 : _a3.map((byte) => parseInt(byte, 16))) ?? [];
       return Uint8Array.from(intArr);
     }
-    function toHEX(bytes) {
+    function toHEX$1(bytes) {
       return bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, "0"), "");
     }
-    function ulebEncode(num) {
+    function ulebEncode$1(num) {
       const arr = [];
       let len = 0;
       if (num === 0) {
@@ -3461,7 +4205,7 @@ var require_index_001 = __commonJS({
       }
       return arr;
     }
-    function ulebDecode(arr) {
+    function ulebDecode$1(arr) {
       let total = 0;
       let shift2 = 0;
       let len = 0;
@@ -3479,13 +4223,13 @@ var require_index_001 = __commonJS({
         length: len
       };
     }
-    class BcsReader {
+    let BcsReader$1 = class BcsReader {
       /**
        * @param {Uint8Array} data Data to use as a buffer.
        */
       constructor(data) {
         this.bytePosition = 0;
-        this.dataView = new DataView(data.buffer);
+        this.dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
       }
       /**
        * Shift current cursor position by `bytes`.
@@ -3571,7 +4315,7 @@ var require_index_001 = __commonJS({
       readULEB() {
         const start = this.bytePosition + this.dataView.byteOffset;
         const buffer2 = new Uint8Array(this.dataView.buffer, start);
-        const { value: value2, length } = ulebDecode(buffer2);
+        const { value: value2, length } = ulebDecode$1(buffer2);
         this.shift(length);
         return value2;
       }
@@ -3589,20 +4333,20 @@ var require_index_001 = __commonJS({
         }
         return result;
       }
-    }
-    function encodeStr(data, encoding) {
+    };
+    function encodeStr$1(data, encoding) {
       switch (encoding) {
         case "base58":
-          return toB58(data);
+          return toB58$1(data);
         case "base64":
-          return toB64(data);
+          return toB64$1(data);
         case "hex":
-          return toHEX(data);
+          return toHEX$1(data);
         default:
           throw new Error("Unsupported encoding, supported values are: base64, hex");
       }
     }
-    function splitGenericParameters(str, genericSeparators = ["<", ">"]) {
+    function splitGenericParameters$1(str, genericSeparators = ["<", ">"]) {
       const [left, right] = genericSeparators;
       const tok = [];
       let word = "";
@@ -3625,7 +4369,7 @@ var require_index_001 = __commonJS({
       tok.push(word.trim());
       return tok;
     }
-    class BcsWriter {
+    let BcsWriter$1 = class BcsWriter {
       constructor({
         initialSize = 1024,
         maxSize = Infinity,
@@ -3698,7 +4442,7 @@ var require_index_001 = __commonJS({
        * @returns {this}
        */
       write64(value2) {
-        toLittleEndian(BigInt(value2), 8).forEach((el) => this.write8(el));
+        toLittleEndian$1(BigInt(value2), 8).forEach((el) => this.write8(el));
         return this;
       }
       /**
@@ -3708,7 +4452,7 @@ var require_index_001 = __commonJS({
        * @returns {this}
        */
       write128(value2) {
-        toLittleEndian(BigInt(value2), 16).forEach((el) => this.write8(el));
+        toLittleEndian$1(BigInt(value2), 16).forEach((el) => this.write8(el));
         return this;
       }
       /**
@@ -3718,7 +4462,7 @@ var require_index_001 = __commonJS({
        * @returns {this}
        */
       write256(value2) {
-        toLittleEndian(BigInt(value2), 32).forEach((el) => this.write8(el));
+        toLittleEndian$1(BigInt(value2), 32).forEach((el) => this.write8(el));
         return this;
       }
       /**
@@ -3728,7 +4472,7 @@ var require_index_001 = __commonJS({
        * @returns {this}
        */
       writeULEB(value2) {
-        ulebEncode(value2).forEach((el) => this.write8(el));
+        ulebEncode$1(value2).forEach((el) => this.write8(el));
         return this;
       }
       /**
@@ -3766,10 +4510,10 @@ var require_index_001 = __commonJS({
        * @param encoding Encoding to use: 'base64' or 'hex'
        */
       toString(encoding) {
-        return encodeStr(this.toBytes(), encoding);
+        return encodeStr$1(this.toBytes(), encoding);
       }
-    }
-    function toLittleEndian(bigint2, size) {
+    };
+    function toLittleEndian$1(bigint2, size) {
       const result = new Uint8Array(size);
       let i2 = 0;
       while (bigint2 > 0) {
@@ -3779,28 +4523,28 @@ var require_index_001 = __commonJS({
       }
       return result;
     }
-    var __typeError$9 = (msg) => {
+    var __typeError$a = (msg) => {
       throw TypeError(msg);
     };
-    var __accessCheck$9 = (obj, member, msg) => member.has(obj) || __typeError$9("Cannot " + msg);
-    var __privateGet$9 = (obj, member, getter) => (__accessCheck$9(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
-    var __privateAdd$9 = (obj, member, value2) => member.has(obj) ? __typeError$9("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value2);
-    var __privateSet$9 = (obj, member, value2, setter) => (__accessCheck$9(obj, member, "write to private field"), member.set(obj, value2), value2);
-    var _write, _serialize, _schema, _bytes;
-    const _BcsType = class _BcsType2 {
+    var __accessCheck$a = (obj, member, msg) => member.has(obj) || __typeError$a("Cannot " + msg);
+    var __privateGet$a = (obj, member, getter) => (__accessCheck$a(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+    var __privateAdd$a = (obj, member, value2) => member.has(obj) ? __typeError$a("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value2);
+    var __privateSet$a = (obj, member, value2, setter) => (__accessCheck$a(obj, member, "write to private field"), member.set(obj, value2), value2);
+    var _write$1, _serialize$1, _schema$1, _bytes$1;
+    const _BcsType$1 = class _BcsType2 {
       constructor(options) {
-        __privateAdd$9(this, _write);
-        __privateAdd$9(this, _serialize);
+        __privateAdd$a(this, _write$1);
+        __privateAdd$a(this, _serialize$1);
         this.name = options.name;
         this.read = options.read;
         this.serializedSize = options.serializedSize ?? (() => null);
-        __privateSet$9(this, _write, options.write);
-        __privateSet$9(this, _serialize, options.serialize ?? ((value2, options2) => {
-          const writer = new BcsWriter({
+        __privateSet$a(this, _write$1, options.write);
+        __privateSet$a(this, _serialize$1, options.serialize ?? ((value2, options2) => {
+          const writer = new BcsWriter$1({
             initialSize: this.serializedSize(value2) ?? void 0,
             ...options2
           });
-          __privateGet$9(this, _write).call(this, value2, writer);
+          __privateGet$a(this, _write$1).call(this, value2, writer);
           return writer.toBytes();
         }));
         this.validate = options.validate ?? (() => {
@@ -3808,24 +4552,24 @@ var require_index_001 = __commonJS({
       }
       write(value2, writer) {
         this.validate(value2);
-        __privateGet$9(this, _write).call(this, value2, writer);
+        __privateGet$a(this, _write$1).call(this, value2, writer);
       }
       serialize(value2, options) {
         this.validate(value2);
-        return new SerializedBcs(this, __privateGet$9(this, _serialize).call(this, value2, options));
+        return new SerializedBcs$1(this, __privateGet$a(this, _serialize$1).call(this, value2, options));
       }
       parse(bytes) {
-        const reader = new BcsReader(bytes);
+        const reader = new BcsReader$1(bytes);
         return this.read(reader);
       }
       fromHex(hex2) {
-        return this.parse(fromHEX(hex2));
+        return this.parse(fromHEX$1(hex2));
       }
       fromBase58(b64) {
-        return this.parse(fromB58(b64));
+        return this.parse(fromB58$1(b64));
       }
       fromBase64(b64) {
-        return this.parse(fromB64(b64));
+        return this.parse(fromB64$1(b64));
       }
       transform({
         name: name2,
@@ -3835,69 +4579,69 @@ var require_index_001 = __commonJS({
       }) {
         return new _BcsType2({
           name: name2 ?? this.name,
-          read: (reader) => output(this.read(reader)),
-          write: (value2, writer) => __privateGet$9(this, _write).call(this, input(value2), writer),
-          serializedSize: (value2) => this.serializedSize(input(value2)),
-          serialize: (value2, options) => __privateGet$9(this, _serialize).call(this, input(value2), options),
+          read: (reader) => output ? output(this.read(reader)) : this.read(reader),
+          write: (value2, writer) => __privateGet$a(this, _write$1).call(this, input ? input(value2) : value2, writer),
+          serializedSize: (value2) => this.serializedSize(input ? input(value2) : value2),
+          serialize: (value2, options) => __privateGet$a(this, _serialize$1).call(this, input ? input(value2) : value2, options),
           validate: (value2) => {
             validate2 == null ? void 0 : validate2(value2);
-            this.validate(input(value2));
+            this.validate(input ? input(value2) : value2);
           }
         });
       }
     };
-    _write = /* @__PURE__ */ new WeakMap();
-    _serialize = /* @__PURE__ */ new WeakMap();
-    let BcsType = _BcsType;
-    const SERIALIZED_BCS_BRAND = Symbol.for("@iota/serialized-bcs");
-    function isSerializedBcs(obj) {
-      return !!obj && typeof obj === "object" && obj[SERIALIZED_BCS_BRAND] === true;
+    _write$1 = /* @__PURE__ */ new WeakMap();
+    _serialize$1 = /* @__PURE__ */ new WeakMap();
+    let BcsType$1 = _BcsType$1;
+    const SERIALIZED_BCS_BRAND$1 = Symbol.for("@iota/serialized-bcs");
+    function isSerializedBcs$1(obj) {
+      return !!obj && typeof obj === "object" && obj[SERIALIZED_BCS_BRAND$1] === true;
     }
-    class SerializedBcs {
+    let SerializedBcs$1 = class SerializedBcs {
       constructor(type2, schema) {
-        __privateAdd$9(this, _schema);
-        __privateAdd$9(this, _bytes);
-        __privateSet$9(this, _schema, type2);
-        __privateSet$9(this, _bytes, schema);
+        __privateAdd$a(this, _schema$1);
+        __privateAdd$a(this, _bytes$1);
+        __privateSet$a(this, _schema$1, type2);
+        __privateSet$a(this, _bytes$1, schema);
       }
       // Used to brand SerializedBcs so that they can be identified, even between multiple copies
       // of the @iota/bcs package are installed
-      get [SERIALIZED_BCS_BRAND]() {
+      get [SERIALIZED_BCS_BRAND$1]() {
         return true;
       }
       toBytes() {
-        return __privateGet$9(this, _bytes);
+        return __privateGet$a(this, _bytes$1);
       }
       toHex() {
-        return toHEX(__privateGet$9(this, _bytes));
+        return toHEX$1(__privateGet$a(this, _bytes$1));
       }
       toBase64() {
-        return toB64(__privateGet$9(this, _bytes));
+        return toB64$1(__privateGet$a(this, _bytes$1));
       }
       toBase58() {
-        return toB58(__privateGet$9(this, _bytes));
+        return toB58$1(__privateGet$a(this, _bytes$1));
       }
       parse() {
-        return __privateGet$9(this, _schema).parse(__privateGet$9(this, _bytes));
+        return __privateGet$a(this, _schema$1).parse(__privateGet$a(this, _bytes$1));
       }
-    }
-    _schema = /* @__PURE__ */ new WeakMap();
-    _bytes = /* @__PURE__ */ new WeakMap();
-    function fixedSizeBcsType({
+    };
+    _schema$1 = /* @__PURE__ */ new WeakMap();
+    _bytes$1 = /* @__PURE__ */ new WeakMap();
+    function fixedSizeBcsType$1({
       size,
       ...options
     }) {
-      return new BcsType({
+      return new BcsType$1({
         ...options,
         serializedSize: () => size
       });
     }
-    function uIntBcsType({
+    function uIntBcsType$1({
       readMethod,
       writeMethod,
       ...options
     }) {
-      return fixedSizeBcsType({
+      return fixedSizeBcsType$1({
         ...options,
         read: (reader) => reader[readMethod](),
         write: (value2, writer) => writer[writeMethod](value2),
@@ -3912,12 +4656,12 @@ var require_index_001 = __commonJS({
         }
       });
     }
-    function bigUIntBcsType({
+    function bigUIntBcsType$1({
       readMethod,
       writeMethod,
       ...options
     }) {
-      return fixedSizeBcsType({
+      return fixedSizeBcsType$1({
         ...options,
         read: (reader) => reader[readMethod](),
         write: (value2, writer) => writer[writeMethod](BigInt(value2)),
@@ -3933,11 +4677,11 @@ var require_index_001 = __commonJS({
         }
       });
     }
-    function dynamicSizeBcsType({
+    function dynamicSizeBcsType$1({
       serialize,
       ...options
     }) {
-      const type2 = new BcsType({
+      const type2 = new BcsType$1({
         ...options,
         serialize,
         write: (value2, writer) => {
@@ -3948,12 +4692,12 @@ var require_index_001 = __commonJS({
       });
       return type2;
     }
-    function stringLikeBcsType({
+    function stringLikeBcsType$1({
       toBytes: toBytes2,
       fromBytes,
       ...options
     }) {
-      return new BcsType({
+      return new BcsType$1({
         ...options,
         read: (reader) => {
           const length = reader.readULEB();
@@ -3969,7 +4713,7 @@ var require_index_001 = __commonJS({
         },
         serialize: (value2) => {
           const bytes = toBytes2(value2);
-          const size = ulebEncode(bytes.length);
+          const size = ulebEncode$1(bytes.length);
           const result = new Uint8Array(size.length + bytes.length);
           result.set(size, 0);
           result.set(bytes, size.length);
@@ -3984,7 +4728,7 @@ var require_index_001 = __commonJS({
         }
       });
     }
-    function lazyBcsType(cb) {
+    function lazyBcsType$1(cb) {
       let lazyType = null;
       function getType() {
         if (!lazyType) {
@@ -3992,7 +4736,7 @@ var require_index_001 = __commonJS({
         }
         return lazyType;
       }
-      return new BcsType({
+      return new BcsType$1({
         name: "lazy",
         read: (data) => getType().read(data),
         serializedSize: (value2) => getType().serializedSize(value2),
@@ -4000,14 +4744,14 @@ var require_index_001 = __commonJS({
         serialize: (value2, options) => getType().serialize(value2, options).toBytes()
       });
     }
-    const bcs = {
+    const bcs$1 = {
       /**
        * Creates a BcsType that can be used to read and write an 8-bit unsigned integer.
        * @example
        * bcs.u8().serialize(255).toBytes() // Uint8Array [ 255 ]
        */
       u8(options) {
-        return uIntBcsType({
+        return uIntBcsType$1({
           name: "u8",
           readMethod: "read8",
           writeMethod: "write8",
@@ -4022,7 +4766,7 @@ var require_index_001 = __commonJS({
        * bcs.u16().serialize(65535).toBytes() // Uint8Array [ 255, 255 ]
        */
       u16(options) {
-        return uIntBcsType({
+        return uIntBcsType$1({
           name: "u16",
           readMethod: "read16",
           writeMethod: "write16",
@@ -4037,7 +4781,7 @@ var require_index_001 = __commonJS({
        * bcs.u32().serialize(4294967295).toBytes() // Uint8Array [ 255, 255, 255, 255 ]
        */
       u32(options) {
-        return uIntBcsType({
+        return uIntBcsType$1({
           name: "u32",
           readMethod: "read32",
           writeMethod: "write32",
@@ -4052,7 +4796,7 @@ var require_index_001 = __commonJS({
        * bcs.u64().serialize(1).toBytes() // Uint8Array [ 1, 0, 0, 0, 0, 0, 0, 0 ]
        */
       u64(options) {
-        return bigUIntBcsType({
+        return bigUIntBcsType$1({
           name: "u64",
           readMethod: "read64",
           writeMethod: "write64",
@@ -4067,7 +4811,7 @@ var require_index_001 = __commonJS({
        * bcs.u128().serialize(1).toBytes() // Uint8Array [ 1, ..., 0 ]
        */
       u128(options) {
-        return bigUIntBcsType({
+        return bigUIntBcsType$1({
           name: "u128",
           readMethod: "read128",
           writeMethod: "write128",
@@ -4082,7 +4826,7 @@ var require_index_001 = __commonJS({
        * bcs.u256().serialize(1).toBytes() // Uint8Array [ 1, ..., 0 ]
        */
       u256(options) {
-        return bigUIntBcsType({
+        return bigUIntBcsType$1({
           name: "u256",
           readMethod: "read256",
           writeMethod: "write256",
@@ -4097,7 +4841,7 @@ var require_index_001 = __commonJS({
        * bcs.bool().serialize(true).toBytes() // Uint8Array [ 1 ]
        */
       bool(options) {
-        return fixedSizeBcsType({
+        return fixedSizeBcsType$1({
           name: "bool",
           size: 1,
           read: (reader) => reader.read8() === 1,
@@ -4118,11 +4862,11 @@ var require_index_001 = __commonJS({
        *
        */
       uleb128(options) {
-        return dynamicSizeBcsType({
+        return dynamicSizeBcsType$1({
           name: "uleb128",
           read: (reader) => reader.readULEB(),
           serialize: (value2) => {
-            return Uint8Array.from(ulebEncode(value2));
+            return Uint8Array.from(ulebEncode$1(value2));
           },
           ...options
         });
@@ -4134,7 +4878,7 @@ var require_index_001 = __commonJS({
        * bcs.bytes(3).serialize(new Uint8Array([1, 2, 3])).toBytes() // Uint8Array [1, 2, 3]
        */
       bytes(size, options) {
-        return fixedSizeBcsType({
+        return fixedSizeBcsType$1({
           name: `bytes[${size}]`,
           size,
           read: (reader) => reader.readBytes(size),
@@ -4157,12 +4901,46 @@ var require_index_001 = __commonJS({
         });
       },
       /**
+       * Creates a BcsType representing a variable length byte array
+       *
+       * @example
+       * bcs.byteVector().serialize([1, 2, 3]).toBytes() // Uint8Array [3, 1, 2, 3]
+       */
+      byteVector(options) {
+        return new BcsType$1({
+          name: `bytesVector`,
+          read: (reader) => {
+            const length = reader.readULEB();
+            return reader.readBytes(length);
+          },
+          write: (value2, writer) => {
+            const array2 = new Uint8Array(value2);
+            writer.writeULEB(array2.length);
+            for (let i2 = 0; i2 < array2.length; i2++) {
+              writer.write8(array2[i2] ?? 0);
+            }
+          },
+          ...options,
+          serializedSize: (value2) => {
+            const length = "length" in value2 ? value2.length : null;
+            return length == null ? null : ulebEncode$1(length).length + length;
+          },
+          validate: (value2) => {
+            var _a3;
+            (_a3 = options == null ? void 0 : options.validate) == null ? void 0 : _a3.call(options, value2);
+            if (!value2 || typeof value2 !== "object" || !("length" in value2)) {
+              throw new TypeError(`Expected array, found ${typeof value2}`);
+            }
+          }
+        });
+      },
+      /**
        * Creates a BcsType that can ser/de string values.  Strings will be UTF-8 encoded
        * @example
        * bcs.string().serialize('a').toBytes() // Uint8Array [ 1, 97 ]
        */
       string(options) {
-        return stringLikeBcsType({
+        return stringLikeBcsType$1({
           name: "string",
           toBytes: (value2) => new TextEncoder().encode(value2),
           fromBytes: (bytes) => new TextDecoder().decode(bytes),
@@ -4177,7 +4955,7 @@ var require_index_001 = __commonJS({
        * bcs.fixedArray(3, bcs.u8()).serialize([1, 2, 3]).toBytes() // Uint8Array [ 1, 2, 3 ]
        */
       fixedArray(size, type2, options) {
-        return new BcsType({
+        return new BcsType$1({
           name: `${type2.name}[${size}]`,
           read: (reader) => {
             const result = new Array(size);
@@ -4212,7 +4990,7 @@ var require_index_001 = __commonJS({
        * bcs.option(bcs.u8()).serialize(1).toBytes() // Uint8Array [ 1, 1 ]
        */
       option(type2) {
-        return bcs.enum(`Option<${type2.name}>`, {
+        return bcs$1.enum(`Option<${type2.name}>`, {
           None: null,
           Some: type2
         }).transform({
@@ -4238,7 +5016,7 @@ var require_index_001 = __commonJS({
        * bcs.vector(bcs.u8()).toBytes([1, 2, 3]) // Uint8Array [ 3, 1, 2, 3 ]
        */
       vector(type2, options) {
-        return new BcsType({
+        return new BcsType$1({
           name: `vector<${type2.name}>`,
           read: (reader) => {
             const length = reader.readULEB();
@@ -4273,7 +5051,7 @@ var require_index_001 = __commonJS({
        * tuple.serialize([1, 'a', true]).toBytes() // Uint8Array [ 1, 1, 97, 1 ]
        */
       tuple(types2, options) {
-        return new BcsType({
+        return new BcsType$1({
           name: `(${types2.map((t2) => t2.name).join(", ")})`,
           serializedSize: (values) => {
             let total = 0;
@@ -4327,7 +5105,7 @@ var require_index_001 = __commonJS({
        */
       struct(name2, fields, options) {
         const canonicalOrder = Object.entries(fields);
-        return new BcsType({
+        return new BcsType$1({
           name: name2,
           serializedSize: (values) => {
             let total = 0;
@@ -4380,7 +5158,7 @@ var require_index_001 = __commonJS({
        */
       enum(name2, values, options) {
         const canonicalOrder = Object.entries(values);
-        return new BcsType({
+        return new BcsType$1({
           name: name2,
           read: (reader) => {
             const index2 = reader.readULEB();
@@ -4438,7 +5216,7 @@ var require_index_001 = __commonJS({
        * map.serialize(new Map([[2, 'a']])).toBytes() // Uint8Array [ 1, 2, 1, 97 ]
        */
       map(keyType, valueType) {
-        return bcs.vector(bcs.tuple([keyType, valueType])).transform({
+        return bcs$1.vector(bcs$1.tuple([keyType, valueType])).transform({
           name: `Map<${keyType.name}, ${valueType.name}>`,
           input: (value2) => {
             return [...value2.entries()];
@@ -4457,13 +5235,13 @@ var require_index_001 = __commonJS({
        * @param cb A callback that returns the BcsType
        */
       lazy(cb) {
-        return lazyBcsType(cb);
+        return lazyBcsType$1(cb);
       }
     };
     const TX_DIGEST_LENGTH = 32;
     function isValidTransactionDigest(value2) {
       try {
-        const buffer2 = fromB58(value2);
+        const buffer2 = fromB58$1(value2);
         return buffer2.length === TX_DIGEST_LENGTH;
       } catch (e2) {
         return false;
@@ -4544,7 +5322,7 @@ var require_index_001 = __commonJS({
         throw new Error(`Encountered unexpected token when parsing type args for ${str}`);
       }
       static parseStructTypeArgs(str, normalizeAddress = false) {
-        return splitGenericParameters(str).map(
+        return splitGenericParameters$1(str).map(
           (tok) => TypeTagSerializer2.parseFromStr(tok, normalizeAddress)
         );
       }
@@ -4588,7 +5366,7 @@ var require_index_001 = __commonJS({
       }
     };
     function unsafe_u64$1(options) {
-      return bcs.u64({
+      return bcs$1.u64({
         name: "unsafe_u64",
         ...options
       }).transform({
@@ -4597,64 +5375,72 @@ var require_index_001 = __commonJS({
       });
     }
     function optionEnum$1(type2) {
-      return bcs.enum("Option", {
+      return bcs$1.enum("Option", {
         None: null,
         Some: type2
       });
     }
-    const Address$1 = bcs.bytes(IOTA_ADDRESS_LENGTH$1).transform({
+    const Address$1 = bcs$1.bytes(IOTA_ADDRESS_LENGTH$1).transform({
       validate: (val) => {
-        const address = typeof val === "string" ? val : toHEX(val);
+        const address = typeof val === "string" ? val : toHEX$1(val);
         if (!address || !isValidIotaAddress$1(normalizeIotaAddress$1(address))) {
           throw new Error(`Invalid IOTA address ${address}`);
         }
       },
-      input: (val) => typeof val === "string" ? fromHEX(normalizeIotaAddress$1(val)) : val,
-      output: (val) => normalizeIotaAddress$1(toHEX(val))
+      input: (val) => typeof val === "string" ? fromHEX$1(normalizeIotaAddress$1(val)) : val,
+      output: (val) => normalizeIotaAddress$1(toHEX$1(val))
     });
-    const ObjectDigest$1 = bcs.vector(bcs.u8()).transform({
+    const ObjectDigest$1 = bcs$1.vector(bcs$1.u8()).transform({
       name: "ObjectDigest",
-      input: (value2) => fromB58(value2),
-      output: (value2) => toB58(new Uint8Array(value2)),
+      input: (value2) => fromB58$1(value2),
+      output: (value2) => toB58$1(new Uint8Array(value2)),
       validate: (value2) => {
-        if (fromB58(value2).length !== 32) {
+        if (fromB58$1(value2).length !== 32) {
           throw new Error("ObjectDigest must be 32 bytes");
         }
       }
     });
-    const IotaObjectRef$1 = bcs.struct("IotaObjectRef", {
+    const IotaObjectRef$1 = bcs$1.struct("IotaObjectRef", {
       objectId: Address$1,
-      version: bcs.u64(),
+      version: bcs$1.u64(),
       digest: ObjectDigest$1
     });
-    const SharedObjectRef$1 = bcs.struct("SharedObjectRef", {
+    const SharedObjectRef$1 = bcs$1.struct("SharedObjectRef", {
       objectId: Address$1,
-      initialSharedVersion: bcs.u64(),
-      mutable: bcs.bool()
+      initialSharedVersion: bcs$1.u64(),
+      mutable: bcs$1.bool()
     });
-    const ObjectArg$7 = bcs.enum("ObjectArg", {
+    const ObjectArg$7 = bcs$1.enum("ObjectArg", {
       ImmOrOwnedObject: IotaObjectRef$1,
       SharedObject: SharedObjectRef$1,
       Receiving: IotaObjectRef$1
     });
-    const CallArg$5 = bcs.enum("CallArg", {
-      Pure: bcs.struct("Pure", {
-        bytes: bcs.vector(bcs.u8()).transform({
-          input: (val) => typeof val === "string" ? fromB64(val) : val,
-          output: (val) => toB64(new Uint8Array(val))
+    const Owner$1 = bcs$1.enum("Owner", {
+      AddressOwner: Address$1,
+      ObjectOwner: Address$1,
+      Shared: bcs$1.struct("Shared", {
+        initialSharedVersion: bcs$1.u64()
+      }),
+      Immutable: null
+    });
+    const CallArg$5 = bcs$1.enum("CallArg", {
+      Pure: bcs$1.struct("Pure", {
+        bytes: bcs$1.vector(bcs$1.u8()).transform({
+          input: (val) => typeof val === "string" ? fromB64$1(val) : val,
+          output: (val) => toB64$1(new Uint8Array(val))
         })
       }),
       Object: ObjectArg$7
     });
-    const InnerTypeTag$1 = bcs.enum("TypeTag", {
+    const InnerTypeTag$1 = bcs$1.enum("TypeTag", {
       bool: null,
       u8: null,
       u64: null,
       u128: null,
       address: null,
       signer: null,
-      vector: bcs.lazy(() => InnerTypeTag$1),
-      struct: bcs.lazy(() => StructTag$3),
+      vector: bcs$1.lazy(() => InnerTypeTag$1),
+      struct: bcs$1.lazy(() => StructTag$3),
       u16: null,
       u32: null,
       u256: null
@@ -4663,20 +5449,20 @@ var require_index_001 = __commonJS({
       input: (typeTag) => typeof typeTag === "string" ? TypeTagSerializer$1.parseFromStr(typeTag, true) : typeTag,
       output: (typeTag) => TypeTagSerializer$1.tagToString(typeTag)
     });
-    const Argument$5 = bcs.enum("Argument", {
+    const Argument$5 = bcs$1.enum("Argument", {
       GasCoin: null,
-      Input: bcs.u16(),
-      Result: bcs.u16(),
-      NestedResult: bcs.tuple([bcs.u16(), bcs.u16()])
+      Input: bcs$1.u16(),
+      Result: bcs$1.u16(),
+      NestedResult: bcs$1.tuple([bcs$1.u16(), bcs$1.u16()])
     });
-    const ProgrammableMoveCall$5 = bcs.struct("ProgrammableMoveCall", {
+    const ProgrammableMoveCall$5 = bcs$1.struct("ProgrammableMoveCall", {
       package: Address$1,
-      module: bcs.string(),
-      function: bcs.string(),
-      typeArguments: bcs.vector(TypeTag$3),
-      arguments: bcs.vector(Argument$5)
+      module: bcs$1.string(),
+      function: bcs$1.string(),
+      typeArguments: bcs$1.vector(TypeTag$3),
+      arguments: bcs$1.vector(Argument$5)
     });
-    const Command$5 = bcs.enum("Command", {
+    const Command$5 = bcs$1.enum("Command", {
       /**
        * A Move Call - any public Move function can be called via
        * this transaction. The results can be used that instant to pass
@@ -4686,42 +5472,42 @@ var require_index_001 = __commonJS({
       /**
        * Transfer vector of objects to a receiver.
        */
-      TransferObjects: bcs.struct("TransferObjects", {
-        objects: bcs.vector(Argument$5),
+      TransferObjects: bcs$1.struct("TransferObjects", {
+        objects: bcs$1.vector(Argument$5),
         address: Argument$5
       }),
       // /**
       //  * Split `amount` from a `coin`.
       //  */
-      SplitCoins: bcs.struct("SplitCoins", {
+      SplitCoins: bcs$1.struct("SplitCoins", {
         coin: Argument$5,
-        amounts: bcs.vector(Argument$5)
+        amounts: bcs$1.vector(Argument$5)
       }),
       // /**
       //  * Merge Vector of Coins (`sources`) into a `destination`.
       //  */
-      MergeCoins: bcs.struct("MergeCoins", {
+      MergeCoins: bcs$1.struct("MergeCoins", {
         destination: Argument$5,
-        sources: bcs.vector(Argument$5)
+        sources: bcs$1.vector(Argument$5)
       }),
       // /**
       //  * Publish a Move module.
       //  */
-      Publish: bcs.struct("Publish", {
-        modules: bcs.vector(
-          bcs.vector(bcs.u8()).transform({
-            input: (val) => typeof val === "string" ? fromB64(val) : val,
-            output: (val) => toB64(new Uint8Array(val))
+      Publish: bcs$1.struct("Publish", {
+        modules: bcs$1.vector(
+          bcs$1.vector(bcs$1.u8()).transform({
+            input: (val) => typeof val === "string" ? fromB64$1(val) : val,
+            output: (val) => toB64$1(new Uint8Array(val))
           })
         ),
-        dependencies: bcs.vector(Address$1)
+        dependencies: bcs$1.vector(Address$1)
       }),
       // /**
       //  * Build a vector of objects using the input arguments.
       //  * It is impossible to export construct a `vector<T: key>` otherwise,
       //  * so this call serves a utility function.
       //  */
-      MakeMoveVec: bcs.struct("MakeMoveVec", {
+      MakeMoveVec: bcs$1.struct("MakeMoveVec", {
         type: optionEnum$1(TypeTag$3).transform({
           input: (val) => val === null ? {
             None: true
@@ -4730,290 +5516,282 @@ var require_index_001 = __commonJS({
           },
           output: (val) => val.Some ?? null
         }),
-        elements: bcs.vector(Argument$5)
+        elements: bcs$1.vector(Argument$5)
       }),
-      Upgrade: bcs.struct("Upgrade", {
-        modules: bcs.vector(
-          bcs.vector(bcs.u8()).transform({
-            input: (val) => typeof val === "string" ? fromB64(val) : val,
-            output: (val) => toB64(new Uint8Array(val))
+      Upgrade: bcs$1.struct("Upgrade", {
+        modules: bcs$1.vector(
+          bcs$1.vector(bcs$1.u8()).transform({
+            input: (val) => typeof val === "string" ? fromB64$1(val) : val,
+            output: (val) => toB64$1(new Uint8Array(val))
           })
         ),
-        dependencies: bcs.vector(Address$1),
+        dependencies: bcs$1.vector(Address$1),
         package: Address$1,
         ticket: Argument$5
       })
     });
-    const ProgrammableTransaction$1 = bcs.struct("ProgrammableTransaction", {
-      inputs: bcs.vector(CallArg$5),
-      commands: bcs.vector(Command$5)
+    const ProgrammableTransaction$1 = bcs$1.struct("ProgrammableTransaction", {
+      inputs: bcs$1.vector(CallArg$5),
+      commands: bcs$1.vector(Command$5)
     });
-    const TransactionKind$1 = bcs.enum("TransactionKind", {
+    const TransactionKind$1 = bcs$1.enum("TransactionKind", {
       ProgrammableTransaction: ProgrammableTransaction$1,
       ChangeEpoch: null,
       Genesis: null,
       ConsensusCommitPrologue: null
     });
-    const TransactionExpiration$7 = bcs.enum("TransactionExpiration", {
+    const TransactionExpiration$7 = bcs$1.enum("TransactionExpiration", {
       None: null,
       Epoch: unsafe_u64$1()
     });
-    const StructTag$3 = bcs.struct("StructTag", {
+    const StructTag$3 = bcs$1.struct("StructTag", {
       address: Address$1,
-      module: bcs.string(),
-      name: bcs.string(),
-      typeParams: bcs.vector(InnerTypeTag$1)
+      module: bcs$1.string(),
+      name: bcs$1.string(),
+      typeParams: bcs$1.vector(InnerTypeTag$1)
     });
-    const GasData$5 = bcs.struct("GasData", {
-      payment: bcs.vector(IotaObjectRef$1),
+    const GasData$5 = bcs$1.struct("GasData", {
+      payment: bcs$1.vector(IotaObjectRef$1),
       owner: Address$1,
-      price: bcs.u64(),
-      budget: bcs.u64()
+      price: bcs$1.u64(),
+      budget: bcs$1.u64()
     });
-    const TransactionDataV1$1 = bcs.struct("TransactionDataV1", {
+    const TransactionDataV1$1 = bcs$1.struct("TransactionDataV1", {
       kind: TransactionKind$1,
       sender: Address$1,
       gasData: GasData$5,
       expiration: TransactionExpiration$7
     });
-    const TransactionData$3 = bcs.enum("TransactionData", {
+    const TransactionData$3 = bcs$1.enum("TransactionData", {
       V1: TransactionDataV1$1
     });
-    const IntentScope$1 = bcs.enum("IntentScope", {
+    const IntentScope$1 = bcs$1.enum("IntentScope", {
       TransactionData: null,
       TransactionEffects: null,
       CheckpointSummary: null,
       PersonalMessage: null
     });
-    const IntentVersion$1 = bcs.enum("IntentVersion", {
+    const IntentVersion$1 = bcs$1.enum("IntentVersion", {
       V0: null
     });
-    const AppId$1 = bcs.enum("AppId", {
+    const AppId$1 = bcs$1.enum("AppId", {
       Iota: null
     });
-    const Intent$1 = bcs.struct("Intent", {
+    const Intent$1 = bcs$1.struct("Intent", {
       scope: IntentScope$1,
       version: IntentVersion$1,
       appId: AppId$1
     });
     function IntentMessage$1(T) {
-      return bcs.struct(`IntentMessage<${T.name}>`, {
+      return bcs$1.struct(`IntentMessage<${T.name}>`, {
         intent: Intent$1,
         value: T
       });
     }
-    const CompressedSignature$1 = bcs.enum("CompressedSignature", {
-      ED25519: bcs.fixedArray(64, bcs.u8()),
-      Secp256k1: bcs.fixedArray(64, bcs.u8()),
-      Secp256r1: bcs.fixedArray(64, bcs.u8())
+    const CompressedSignature$1 = bcs$1.enum("CompressedSignature", {
+      ED25519: bcs$1.fixedArray(64, bcs$1.u8()),
+      Secp256k1: bcs$1.fixedArray(64, bcs$1.u8()),
+      Secp256r1: bcs$1.fixedArray(64, bcs$1.u8())
     });
-    const PublicKey$2 = bcs.enum("PublicKey", {
-      ED25519: bcs.fixedArray(32, bcs.u8()),
-      Secp256k1: bcs.fixedArray(33, bcs.u8()),
-      Secp256r1: bcs.fixedArray(33, bcs.u8())
+    const PublicKey$2 = bcs$1.enum("PublicKey", {
+      ED25519: bcs$1.fixedArray(32, bcs$1.u8()),
+      Secp256k1: bcs$1.fixedArray(33, bcs$1.u8()),
+      Secp256r1: bcs$1.fixedArray(33, bcs$1.u8())
     });
-    const MultiSigPkMap$1 = bcs.struct("MultiSigPkMap", {
+    const MultiSigPkMap$1 = bcs$1.struct("MultiSigPkMap", {
       pubKey: PublicKey$2,
-      weight: bcs.u8()
+      weight: bcs$1.u8()
     });
-    const MultiSigPublicKey$1 = bcs.struct("MultiSigPublicKey", {
-      pk_map: bcs.vector(MultiSigPkMap$1),
-      threshold: bcs.u16()
+    const MultiSigPublicKey$1 = bcs$1.struct("MultiSigPublicKey", {
+      pk_map: bcs$1.vector(MultiSigPkMap$1),
+      threshold: bcs$1.u16()
     });
-    const MultiSig$1 = bcs.struct("MultiSig", {
-      sigs: bcs.vector(CompressedSignature$1),
-      bitmap: bcs.u16(),
+    const MultiSig$1 = bcs$1.struct("MultiSig", {
+      sigs: bcs$1.vector(CompressedSignature$1),
+      bitmap: bcs$1.u16(),
       multisig_pk: MultiSigPublicKey$1
     });
-    const base64String$1 = bcs.vector(bcs.u8()).transform({
-      input: (val) => typeof val === "string" ? fromB64(val) : val,
-      output: (val) => toB64(new Uint8Array(val))
+    const base64String$1 = bcs$1.vector(bcs$1.u8()).transform({
+      input: (val) => typeof val === "string" ? fromB64$1(val) : val,
+      output: (val) => toB64$1(new Uint8Array(val))
     });
-    const SenderSignedTransaction$1 = bcs.struct("SenderSignedTransaction", {
+    const SenderSignedTransaction$1 = bcs$1.struct("SenderSignedTransaction", {
       intentMessage: IntentMessage$1(TransactionData$3),
-      txSignatures: bcs.vector(base64String$1)
+      txSignatures: bcs$1.vector(base64String$1)
     });
-    const SenderSignedData$1 = bcs.vector(SenderSignedTransaction$1, {
+    const SenderSignedData$1 = bcs$1.vector(SenderSignedTransaction$1, {
       name: "SenderSignedData"
     });
-    const PasskeyAuthenticator = bcs.struct("PasskeyAuthenticator", {
-      authenticatorData: bcs.vector(bcs.u8()),
-      clientDataJson: bcs.string(),
-      userSignature: bcs.vector(bcs.u8())
+    const PasskeyAuthenticator = bcs$1.struct("PasskeyAuthenticator", {
+      authenticatorData: bcs$1.vector(bcs$1.u8()),
+      clientDataJson: bcs$1.string(),
+      userSignature: bcs$1.vector(bcs$1.u8())
     });
-    const PackageUpgradeError$1 = bcs.enum("PackageUpgradeError", {
-      UnableToFetchPackage: bcs.struct("UnableToFetchPackage", { packageId: Address$1 }),
-      NotAPackage: bcs.struct("NotAPackage", { objectId: Address$1 }),
+    const PackageUpgradeError$1 = bcs$1.enum("PackageUpgradeError", {
+      UnableToFetchPackage: bcs$1.struct("UnableToFetchPackage", { packageId: Address$1 }),
+      NotAPackage: bcs$1.struct("NotAPackage", { objectId: Address$1 }),
       IncompatibleUpgrade: null,
-      DigestDoesNotMatch: bcs.struct("DigestDoesNotMatch", { digest: bcs.vector(bcs.u8()) }),
-      UnknownUpgradePolicy: bcs.struct("UnknownUpgradePolicy", { policy: bcs.u8() }),
-      PackageIDDoesNotMatch: bcs.struct("PackageIDDoesNotMatch", {
+      DigestDoesNotMatch: bcs$1.struct("DigestDoesNotMatch", { digest: bcs$1.vector(bcs$1.u8()) }),
+      UnknownUpgradePolicy: bcs$1.struct("UnknownUpgradePolicy", { policy: bcs$1.u8() }),
+      PackageIDDoesNotMatch: bcs$1.struct("PackageIDDoesNotMatch", {
         packageId: Address$1,
         ticketId: Address$1
       })
     });
-    const ModuleId$1 = bcs.struct("ModuleId", {
+    const ModuleId$1 = bcs$1.struct("ModuleId", {
       address: Address$1,
-      name: bcs.string()
+      name: bcs$1.string()
     });
-    const MoveLocation$1 = bcs.struct("MoveLocation", {
+    const MoveLocation$1 = bcs$1.struct("MoveLocation", {
       module: ModuleId$1,
-      function: bcs.u16(),
-      instruction: bcs.u16(),
-      functionName: bcs.option(bcs.string())
+      function: bcs$1.u16(),
+      instruction: bcs$1.u16(),
+      functionName: bcs$1.option(bcs$1.string())
     });
-    const CommandArgumentError$1 = bcs.enum("CommandArgumentError", {
+    const CommandArgumentError$1 = bcs$1.enum("CommandArgumentError", {
       TypeMismatch: null,
       InvalidBCSBytes: null,
       InvalidUsageOfPureArg: null,
       InvalidArgumentToPrivateEntryFunction: null,
-      IndexOutOfBounds: bcs.struct("IndexOutOfBounds", { idx: bcs.u16() }),
-      SecondaryIndexOutOfBounds: bcs.struct("SecondaryIndexOutOfBounds", {
-        resultIdx: bcs.u16(),
-        secondaryIdx: bcs.u16()
+      IndexOutOfBounds: bcs$1.struct("IndexOutOfBounds", { idx: bcs$1.u16() }),
+      SecondaryIndexOutOfBounds: bcs$1.struct("SecondaryIndexOutOfBounds", {
+        resultIdx: bcs$1.u16(),
+        secondaryIdx: bcs$1.u16()
       }),
-      InvalidResultArity: bcs.struct("InvalidResultArity", { resultIdx: bcs.u16() }),
+      InvalidResultArity: bcs$1.struct("InvalidResultArity", { resultIdx: bcs$1.u16() }),
       InvalidGasCoinUsage: null,
       InvalidValueUsage: null,
       InvalidObjectByValue: null,
       InvalidObjectByMutRef: null,
       SharedObjectOperationNotAllowed: null
     });
-    const TypeArgumentError$1 = bcs.enum("TypeArgumentError", {
+    const TypeArgumentError$1 = bcs$1.enum("TypeArgumentError", {
       TypeNotFound: null,
       ConstraintNotSatisfied: null
     });
-    const ExecutionFailureStatus$1 = bcs.enum("ExecutionFailureStatus", {
+    const ExecutionFailureStatus$1 = bcs$1.enum("ExecutionFailureStatus", {
       InsufficientGas: null,
       InvalidGasObject: null,
       InvariantViolation: null,
       FeatureNotYetSupported: null,
-      MoveObjectTooBig: bcs.struct("MoveObjectTooBig", {
-        objectSize: bcs.u64(),
-        maxObjectSize: bcs.u64()
+      MoveObjectTooBig: bcs$1.struct("MoveObjectTooBig", {
+        objectSize: bcs$1.u64(),
+        maxObjectSize: bcs$1.u64()
       }),
-      MovePackageTooBig: bcs.struct("MovePackageTooBig", {
-        objectSize: bcs.u64(),
-        maxObjectSize: bcs.u64()
+      MovePackageTooBig: bcs$1.struct("MovePackageTooBig", {
+        objectSize: bcs$1.u64(),
+        maxObjectSize: bcs$1.u64()
       }),
-      CircularObjectOwnership: bcs.struct("CircularObjectOwnership", { object: Address$1 }),
+      CircularObjectOwnership: bcs$1.struct("CircularObjectOwnership", { object: Address$1 }),
       InsufficientCoinBalance: null,
       CoinBalanceOverflow: null,
       PublishErrorNonZeroAddress: null,
       IotaMoveVerificationError: null,
-      MovePrimitiveRuntimeError: bcs.option(MoveLocation$1),
-      MoveAbort: bcs.tuple([MoveLocation$1, bcs.u64()]),
+      MovePrimitiveRuntimeError: bcs$1.option(MoveLocation$1),
+      MoveAbort: bcs$1.tuple([MoveLocation$1, bcs$1.u64()]),
       VMVerificationOrDeserializationError: null,
       VMInvariantViolation: null,
       FunctionNotFound: null,
       ArityMismatch: null,
       TypeArityMismatch: null,
       NonEntryFunctionInvoked: null,
-      CommandArgumentError: bcs.struct("CommandArgumentError", {
-        argIdx: bcs.u16(),
+      CommandArgumentError: bcs$1.struct("CommandArgumentError", {
+        argIdx: bcs$1.u16(),
         kind: CommandArgumentError$1
       }),
-      TypeArgumentError: bcs.struct("TypeArgumentError", {
-        argumentIdx: bcs.u16(),
+      TypeArgumentError: bcs$1.struct("TypeArgumentError", {
+        argumentIdx: bcs$1.u16(),
         kind: TypeArgumentError$1
       }),
-      UnusedValueWithoutDrop: bcs.struct("UnusedValueWithoutDrop", {
-        resultIdx: bcs.u16(),
-        secondaryIdx: bcs.u16()
+      UnusedValueWithoutDrop: bcs$1.struct("UnusedValueWithoutDrop", {
+        resultIdx: bcs$1.u16(),
+        secondaryIdx: bcs$1.u16()
       }),
-      InvalidPublicFunctionReturnType: bcs.struct("InvalidPublicFunctionReturnType", {
-        idx: bcs.u16()
+      InvalidPublicFunctionReturnType: bcs$1.struct("InvalidPublicFunctionReturnType", {
+        idx: bcs$1.u16()
       }),
       InvalidTransferObject: null,
-      EffectsTooLarge: bcs.struct("EffectsTooLarge", { currentSize: bcs.u64(), maxSize: bcs.u64() }),
+      EffectsTooLarge: bcs$1.struct("EffectsTooLarge", { currentSize: bcs$1.u64(), maxSize: bcs$1.u64() }),
       PublishUpgradeMissingDependency: null,
       PublishUpgradeDependencyDowngrade: null,
-      PackageUpgradeError: bcs.struct("PackageUpgradeError", { upgradeError: PackageUpgradeError$1 }),
-      WrittenObjectsTooLarge: bcs.struct("WrittenObjectsTooLarge", {
-        currentSize: bcs.u64(),
-        maxSize: bcs.u64()
+      PackageUpgradeError: bcs$1.struct("PackageUpgradeError", { upgradeError: PackageUpgradeError$1 }),
+      WrittenObjectsTooLarge: bcs$1.struct("WrittenObjectsTooLarge", {
+        currentSize: bcs$1.u64(),
+        maxSize: bcs$1.u64()
       }),
       CertificateDenied: null,
       IotaMoveVerificationTimedout: null,
       SharedObjectOperationNotAllowed: null,
       InputObjectDeleted: null
     });
-    const ExecutionStatus$1 = bcs.enum("ExecutionStatus", {
+    const ExecutionStatus$1 = bcs$1.enum("ExecutionStatus", {
       Success: null,
-      Failed: bcs.struct("ExecutionFailed", {
+      Failed: bcs$1.struct("ExecutionFailed", {
         error: ExecutionFailureStatus$1,
-        command: bcs.option(bcs.u64())
+        command: bcs$1.option(bcs$1.u64())
       })
     });
-    const GasCostSummary$1 = bcs.struct("GasCostSummary", {
-      computationCost: bcs.u64(),
-      computationCostBurned: bcs.u64(),
-      storageCost: bcs.u64(),
-      storageRebate: bcs.u64(),
-      nonRefundableStorageFee: bcs.u64()
+    const GasCostSummary$1 = bcs$1.struct("GasCostSummary", {
+      computationCost: bcs$1.u64(),
+      computationCostBurned: bcs$1.u64(),
+      storageCost: bcs$1.u64(),
+      storageRebate: bcs$1.u64(),
+      nonRefundableStorageFee: bcs$1.u64()
     });
-    const Owner$1 = bcs.enum("Owner", {
-      AddressOwner: Address$1,
-      ObjectOwner: Address$1,
-      Shared: bcs.struct("Shared", {
-        initialSharedVersion: bcs.u64()
-      }),
-      Immutable: null
-    });
-    const VersionDigest$1 = bcs.tuple([bcs.u64(), ObjectDigest$1]);
-    const ObjectIn$1 = bcs.enum("ObjectIn", {
+    const VersionDigest$1 = bcs$1.tuple([bcs$1.u64(), ObjectDigest$1]);
+    const ObjectIn$1 = bcs$1.enum("ObjectIn", {
       NotExist: null,
-      Exist: bcs.tuple([VersionDigest$1, Owner$1])
+      Exist: bcs$1.tuple([VersionDigest$1, Owner$1])
     });
-    const ObjectOut$1 = bcs.enum("ObjectOut", {
+    const ObjectOut$1 = bcs$1.enum("ObjectOut", {
       NotExist: null,
-      ObjectWrite: bcs.tuple([ObjectDigest$1, Owner$1]),
+      ObjectWrite: bcs$1.tuple([ObjectDigest$1, Owner$1]),
       PackageWrite: VersionDigest$1
     });
-    const IDOperation$1 = bcs.enum("IDOperation", {
+    const IDOperation$1 = bcs$1.enum("IDOperation", {
       None: null,
       Created: null,
       Deleted: null
     });
-    const EffectsObjectChange$1 = bcs.struct("EffectsObjectChange", {
+    const EffectsObjectChange$1 = bcs$1.struct("EffectsObjectChange", {
       inputState: ObjectIn$1,
       outputState: ObjectOut$1,
       idOperation: IDOperation$1
     });
-    const UnchangedSharedKind$1 = bcs.enum("UnchangedSharedKind", {
+    const UnchangedSharedKind$1 = bcs$1.enum("UnchangedSharedKind", {
       ReadOnlyRoot: VersionDigest$1,
-      MutateDeleted: bcs.u64(),
-      ReadDeleted: bcs.u64(),
-      Cancelled: bcs.u64(),
+      MutateDeleted: bcs$1.u64(),
+      ReadDeleted: bcs$1.u64(),
+      Cancelled: bcs$1.u64(),
       PerEpochConfig: null
     });
-    const TransactionEffectsV1$1 = bcs.struct("TransactionEffectsV1", {
+    const TransactionEffectsV1$1 = bcs$1.struct("TransactionEffectsV1", {
       status: ExecutionStatus$1,
-      executedEpoch: bcs.u64(),
+      executedEpoch: bcs$1.u64(),
       gasUsed: GasCostSummary$1,
       transactionDigest: ObjectDigest$1,
-      gasObjectIndex: bcs.option(bcs.u32()),
-      eventsDigest: bcs.option(ObjectDigest$1),
-      dependencies: bcs.vector(ObjectDigest$1),
-      lamportVersion: bcs.u64(),
-      changedObjects: bcs.vector(bcs.tuple([Address$1, EffectsObjectChange$1])),
-      unchangedSharedObjects: bcs.vector(bcs.tuple([Address$1, UnchangedSharedKind$1])),
-      auxDataDigest: bcs.option(ObjectDigest$1)
+      gasObjectIndex: bcs$1.option(bcs$1.u32()),
+      eventsDigest: bcs$1.option(ObjectDigest$1),
+      dependencies: bcs$1.vector(ObjectDigest$1),
+      lamportVersion: bcs$1.u64(),
+      changedObjects: bcs$1.vector(bcs$1.tuple([Address$1, EffectsObjectChange$1])),
+      unchangedSharedObjects: bcs$1.vector(bcs$1.tuple([Address$1, UnchangedSharedKind$1])),
+      auxDataDigest: bcs$1.option(ObjectDigest$1)
     });
-    const TransactionEffects$2 = bcs.enum("TransactionEffects", {
+    const TransactionEffects$2 = bcs$1.enum("TransactionEffects", {
       V1: TransactionEffectsV1$1
     });
     const iotaBcs$1 = {
-      ...bcs,
-      U8: bcs.u8(),
-      U16: bcs.u16(),
-      U32: bcs.u32(),
-      U64: bcs.u64(),
-      U128: bcs.u128(),
-      U256: bcs.u256(),
-      ULEB128: bcs.uleb128(),
-      Bool: bcs.bool(),
-      String: bcs.string(),
+      ...bcs$1,
+      U8: bcs$1.u8(),
+      U16: bcs$1.u16(),
+      U32: bcs$1.u32(),
+      U64: bcs$1.u64(),
+      U128: bcs$1.u128(),
+      U256: bcs$1.u256(),
+      ULEB128: bcs$1.uleb128(),
+      Bool: bcs$1.bool(),
+      String: bcs$1.string(),
       Address: Address$1,
       AppId: AppId$1,
       Argument: Argument$5,
@@ -5029,6 +5807,7 @@ var require_index_001 = __commonJS({
       MultiSigPublicKey: MultiSigPublicKey$1,
       ObjectArg: ObjectArg$7,
       ObjectDigest: ObjectDigest$1,
+      Owner: Owner$1,
       ProgrammableMoveCall: ProgrammableMoveCall$5,
       ProgrammableTransaction: ProgrammableTransaction$1,
       PublicKey: PublicKey$2,
@@ -5241,10 +6020,25 @@ var require_index_001 = __commonJS({
     }
     /*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) */
     const _0n$3 = /* @__PURE__ */ BigInt(0);
-    const _1n$4 = /* @__PURE__ */ BigInt(1);
-    function abool(title, value2) {
-      if (typeof value2 !== "boolean")
-        throw new Error(title + " boolean expected, got " + value2);
+    const _1n$3 = /* @__PURE__ */ BigInt(1);
+    function _abool2(value2, title = "") {
+      if (typeof value2 !== "boolean") {
+        const prefix = title && `"${title}"`;
+        throw new Error(prefix + "expected boolean, got type=" + typeof value2);
+      }
+      return value2;
+    }
+    function _abytes2(value2, length, title = "") {
+      const bytes = isBytes$1(value2);
+      const len = value2 == null ? void 0 : value2.length;
+      const needsLen = length !== void 0;
+      if (!bytes || needsLen && len !== length) {
+        const prefix = title && `"${title}" `;
+        const ofLen = needsLen ? ` of length ${length}` : "";
+        const got = bytes ? `length=${len}` : `type=${typeof value2}`;
+        throw new Error(prefix + "expected Uint8Array" + ofLen + ", got " + got);
+      }
+      return value2;
     }
     function numberToHexUnpadded(num) {
       const hex2 = num.toString(16);
@@ -5281,9 +6075,7 @@ var require_index_001 = __commonJS({
       } else {
         throw new Error(title + " must be hex string or Uint8Array");
       }
-      const len = res.length;
-      if (typeof expectedLength === "number" && len !== expectedLength)
-        throw new Error(title + " of length " + expectedLength + " expected, got " + len);
+      res.length;
       return res;
     }
     const isPosBig = (n2) => typeof n2 === "bigint" && _0n$3 <= n2;
@@ -5296,11 +6088,11 @@ var require_index_001 = __commonJS({
     }
     function bitLen(n2) {
       let len;
-      for (len = 0; n2 > _0n$3; n2 >>= _1n$4, len += 1)
+      for (len = 0; n2 > _0n$3; n2 >>= _1n$3, len += 1)
         ;
       return len;
     }
-    const bitMask = (n2) => (_1n$4 << BigInt(n2)) - _1n$4;
+    const bitMask = (n2) => (_1n$3 << BigInt(n2)) - _1n$3;
     function createHmacDrbg(hashLen, qByteLen, hmacFn) {
       if (typeof hashLen !== "number" || hashLen < 2)
         throw new Error("hashLen must be a number");
@@ -5377,9 +6169,9 @@ var require_index_001 = __commonJS({
       };
     }
     /*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) */
-    const _0n$2 = BigInt(0), _1n$3 = BigInt(1), _2n$2 = /* @__PURE__ */ BigInt(2), _3n$1 = /* @__PURE__ */ BigInt(3);
-    const _4n$1 = /* @__PURE__ */ BigInt(4), _5n = /* @__PURE__ */ BigInt(5);
-    const _8n = /* @__PURE__ */ BigInt(8);
+    const _0n$2 = BigInt(0), _1n$2 = BigInt(1), _2n$2 = /* @__PURE__ */ BigInt(2), _3n$1 = /* @__PURE__ */ BigInt(3);
+    const _4n$1 = /* @__PURE__ */ BigInt(4), _5n = /* @__PURE__ */ BigInt(5), _7n = /* @__PURE__ */ BigInt(7);
+    const _8n = /* @__PURE__ */ BigInt(8), _9n = /* @__PURE__ */ BigInt(9), _16n = /* @__PURE__ */ BigInt(16);
     function mod(a2, b) {
       const result = a2 % b;
       return result >= _0n$2 ? result : b + result;
@@ -5399,7 +6191,7 @@ var require_index_001 = __commonJS({
         throw new Error("invert: expected positive modulus, got " + modulo);
       let a2 = mod(number2, modulo);
       let b = modulo;
-      let x = _0n$2, u = _1n$3;
+      let x = _0n$2, u = _1n$2;
       while (a2 !== _0n$2) {
         const q = b / a2;
         const r2 = b % a2;
@@ -5407,15 +6199,18 @@ var require_index_001 = __commonJS({
         b = a2, a2 = r2, x = u, u = m;
       }
       const gcd2 = b;
-      if (gcd2 !== _1n$3)
+      if (gcd2 !== _1n$2)
         throw new Error("invert: does not exist");
       return mod(x, modulo);
     }
-    function sqrt3mod4(Fp, n2) {
-      const p1div4 = (Fp.ORDER + _1n$3) / _4n$1;
-      const root2 = Fp.pow(n2, p1div4);
+    function assertIsSquare(Fp, root2, n2) {
       if (!Fp.eql(Fp.sqr(root2), n2))
         throw new Error("Cannot find square root");
+    }
+    function sqrt3mod4(Fp, n2) {
+      const p1div4 = (Fp.ORDER + _1n$2) / _4n$1;
+      const root2 = Fp.pow(n2, p1div4);
+      assertIsSquare(Fp, root2, n2);
       return root2;
     }
     function sqrt5mod8(Fp, n2) {
@@ -5425,14 +6220,35 @@ var require_index_001 = __commonJS({
       const nv = Fp.mul(n2, v);
       const i2 = Fp.mul(Fp.mul(nv, _2n$2), v);
       const root2 = Fp.mul(nv, Fp.sub(i2, Fp.ONE));
-      if (!Fp.eql(Fp.sqr(root2), n2))
-        throw new Error("Cannot find square root");
+      assertIsSquare(Fp, root2, n2);
       return root2;
     }
+    function sqrt9mod16(P) {
+      const Fp_ = Field(P);
+      const tn = tonelliShanks(P);
+      const c1 = tn(Fp_, Fp_.neg(Fp_.ONE));
+      const c2 = tn(Fp_, c1);
+      const c3 = tn(Fp_, Fp_.neg(c1));
+      const c4 = (P + _7n) / _16n;
+      return (Fp, n2) => {
+        let tv1 = Fp.pow(n2, c4);
+        let tv2 = Fp.mul(tv1, c1);
+        const tv3 = Fp.mul(tv1, c2);
+        const tv4 = Fp.mul(tv1, c3);
+        const e1 = Fp.eql(Fp.sqr(tv2), n2);
+        const e2 = Fp.eql(Fp.sqr(tv3), n2);
+        tv1 = Fp.cmov(tv1, tv2, e1);
+        tv2 = Fp.cmov(tv4, tv3, e2);
+        const e3 = Fp.eql(Fp.sqr(tv2), n2);
+        const root2 = Fp.cmov(tv1, tv2, e3);
+        assertIsSquare(Fp, root2, n2);
+        return root2;
+      };
+    }
     function tonelliShanks(P) {
-      if (P < BigInt(3))
+      if (P < _3n$1)
         throw new Error("sqrt is not defined for small field");
-      let Q = P - _1n$3;
+      let Q = P - _1n$2;
       let S = 0;
       while (Q % _2n$2 === _0n$2) {
         Q /= _2n$2;
@@ -5447,7 +6263,7 @@ var require_index_001 = __commonJS({
       if (S === 1)
         return sqrt3mod4;
       let cc = _Fp.pow(Z, Q);
-      const Q1div2 = (Q + _1n$3) / _2n$2;
+      const Q1div2 = (Q + _1n$2) / _2n$2;
       return function tonelliSlow(Fp, n2) {
         if (Fp.is0(n2))
           return n2;
@@ -5468,7 +6284,7 @@ var require_index_001 = __commonJS({
             if (i2 === M)
               throw new Error("Cannot find square root");
           }
-          const exponent = _1n$3 << BigInt(M - i2 - 1);
+          const exponent = _1n$2 << BigInt(M - i2 - 1);
           const b = Fp.pow(c, exponent);
           M = i2;
           c = Fp.sqr(b);
@@ -5483,6 +6299,8 @@ var require_index_001 = __commonJS({
         return sqrt3mod4;
       if (P % _8n === _5n)
         return sqrt5mod8;
+      if (P % _16n === _9n)
+        return sqrt9mod16(P);
       return tonelliShanks(P);
     }
     const FIELD_FIELDS = [
@@ -5523,15 +6341,15 @@ var require_index_001 = __commonJS({
         throw new Error("invalid exponent, negatives unsupported");
       if (power === _0n$2)
         return Fp.ONE;
-      if (power === _1n$3)
+      if (power === _1n$2)
         return num;
       let p = Fp.ONE;
       let d = num;
       while (power > _0n$2) {
-        if (power & _1n$3)
+        if (power & _1n$2)
           p = Fp.mul(p, d);
         d = Fp.sqr(d);
-        power >>= _1n$3;
+        power >>= _1n$2;
       }
       return p;
     }
@@ -5553,7 +6371,7 @@ var require_index_001 = __commonJS({
       return inverted;
     }
     function FpLegendre(Fp, n2) {
-      const p1mod2 = (Fp.ORDER - _1n$3) / _2n$2;
+      const p1mod2 = (Fp.ORDER - _1n$2) / _2n$2;
       const powered = Fp.pow(n2, p1mod2);
       const yes = Fp.eql(powered, Fp.ONE);
       const zero = Fp.eql(powered, Fp.ZERO);
@@ -5574,6 +6392,8 @@ var require_index_001 = __commonJS({
         throw new Error("invalid field: expected ORDER > 0, got " + ORDER);
       let _nbitLength = void 0;
       let _sqrt = void 0;
+      let modFromBytes = false;
+      let allowedLengths = void 0;
       if (typeof bitLenOrOpts === "object" && bitLenOrOpts != null) {
         if (opts.sqrt || isLE2)
           throw new Error("cannot specify opts in two arguments");
@@ -5584,6 +6404,9 @@ var require_index_001 = __commonJS({
           _sqrt = _opts.sqrt;
         if (typeof _opts.isLE === "boolean")
           isLE2 = _opts.isLE;
+        if (typeof _opts.modFromBytes === "boolean")
+          modFromBytes = _opts.modFromBytes;
+        allowedLengths = _opts.allowedLengths;
       } else {
         if (typeof bitLenOrOpts === "number")
           _nbitLength = bitLenOrOpts;
@@ -5601,7 +6424,8 @@ var require_index_001 = __commonJS({
         BYTES,
         MASK: bitMask(BITS),
         ZERO: _0n$2,
-        ONE: _1n$3,
+        ONE: _1n$2,
+        allowedLengths,
         create: (num) => mod(num, ORDER),
         isValid: (num) => {
           if (typeof num !== "bigint")
@@ -5611,7 +6435,7 @@ var require_index_001 = __commonJS({
         is0: (num) => num === _0n$2,
         // is valid and invertible
         isValidNot0: (num) => !f.is0(num) && f.isValid(num),
-        isOdd: (num) => (num & _1n$3) === _1n$3,
+        isOdd: (num) => (num & _1n$2) === _1n$2,
         neg: (num) => mod(-num, ORDER),
         eql: (lhs, rhs) => lhs === rhs,
         sqr: (num) => mod(num * num, ORDER),
@@ -5632,10 +6456,25 @@ var require_index_001 = __commonJS({
           return sqrtP(f, n2);
         }),
         toBytes: (num) => isLE2 ? numberToBytesLE(num, BYTES) : numberToBytesBE(num, BYTES),
-        fromBytes: (bytes) => {
+        fromBytes: (bytes, skipValidation = true) => {
+          if (allowedLengths) {
+            if (!allowedLengths.includes(bytes.length) || bytes.length > BYTES) {
+              throw new Error("Field.fromBytes: expected " + allowedLengths + " bytes, got " + bytes.length);
+            }
+            const padded = new Uint8Array(BYTES);
+            padded.set(bytes, isLE2 ? 0 : padded.length - bytes.length);
+            bytes = padded;
+          }
           if (bytes.length !== BYTES)
             throw new Error("Field.fromBytes: expected " + BYTES + " bytes, got " + bytes.length);
-          return isLE2 ? bytesToNumberLE(bytes) : bytesToNumberBE(bytes);
+          let scalar = isLE2 ? bytesToNumberLE(bytes) : bytesToNumberBE(bytes);
+          if (modFromBytes)
+            scalar = mod(scalar, ORDER);
+          if (!skipValidation) {
+            if (!f.isValid(scalar))
+              throw new Error("invalid field element: outside of range 0..ORDER");
+          }
+          return scalar;
         },
         // TODO: we don't need it here, move out to separate fn
         invertBatch: (lst) => FpInvertBatch(f, lst),
@@ -5662,7 +6501,7 @@ var require_index_001 = __commonJS({
       if (len < 16 || len < minLen || len > 1024)
         throw new Error("expected " + minLen + "-1024 bytes of input, got " + len);
       const num = isLE2 ? bytesToNumberLE(key) : bytesToNumberBE(key);
-      const reduced = mod(num, fieldOrder - _1n$3) + _1n$3;
+      const reduced = mod(num, fieldOrder - _1n$2) + _1n$2;
       return isLE2 ? numberToBytesLE(reduced, fieldLen) : numberToBytesBE(reduced, fieldLen);
     }
     function setBigUint64(view, byteOffset, value2, isLE2) {
@@ -6280,16 +7119,14 @@ var require_index_001 = __commonJS({
     hmac.create = (hash, key) => new HMAC(hash, key);
     /*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) */
     const _0n$1 = BigInt(0);
-    const _1n$2 = BigInt(1);
+    const _1n$1 = BigInt(1);
     function negateCt(condition, item) {
       const neg = item.negate();
       return condition ? neg : item;
     }
-    function normalizeZ(c, property, points) {
-      const getz = (p) => p.pz;
-      const toInv = FpInvertBatch(c.Fp, points.map(getz));
-      const affined = points.map((p, i2) => p.toAffine(toInv[i2]));
-      return affined.map(c.fromAffine);
+    function normalizeZ(c, points) {
+      const invertedZs = FpInvertBatch(c.Fp, points.map((p) => p.Z));
+      return points.map((p, i2) => c.fromAffine(p.toAffine(invertedZs[i2])));
     }
     function validateW(W, bits) {
       if (!Number.isSafeInteger(W) || W <= 0 || W > bits)
@@ -6310,7 +7147,7 @@ var require_index_001 = __commonJS({
       let nextN = n2 >> shiftBy;
       if (wbits > windowSize) {
         wbits -= maxNumber;
-        nextN += _1n$2;
+        nextN += _1n$1;
       }
       const offsetStart = window2 * windowSize;
       const offset = offsetStart + Math.abs(wbits) - 1;
@@ -6345,143 +7182,145 @@ var require_index_001 = __commonJS({
       if (n2 !== _0n$1)
         throw new Error("invalid wNAF");
     }
-    function wNAF(c, bits) {
-      return {
-        constTimeNegate: negateCt,
-        hasPrecomputes(elm) {
-          return getW(elm) !== 1;
-        },
-        // non-const time multiplication ladder
-        unsafeLadder(elm, n2, p = c.ZERO) {
-          let d = elm;
-          while (n2 > _0n$1) {
-            if (n2 & _1n$2)
-              p = p.add(d);
-            d = d.double();
-            n2 >>= _1n$2;
-          }
-          return p;
-        },
-        /**
-         * Creates a wNAF precomputation window. Used for caching.
-         * Default window size is set by `utils.precompute()` and is equal to 8.
-         * Number of precomputed points depends on the curve size:
-         * 2^(𝑊−1) * (Math.ceil(𝑛 / 𝑊) + 1), where:
-         * - 𝑊 is the window size
-         * - 𝑛 is the bitlength of the curve order.
-         * For a 256-bit curve and window size 8, the number of precomputed points is 128 * 33 = 4224.
-         * @param elm Point instance
-         * @param W window size
-         * @returns precomputed point tables flattened to a single array
-         */
-        precomputeWindow(elm, W) {
-          const { windows, windowSize } = calcWOpts(W, bits);
-          const points = [];
-          let p = elm;
-          let base2 = p;
-          for (let window2 = 0; window2 < windows; window2++) {
-            base2 = p;
-            points.push(base2);
-            for (let i2 = 1; i2 < windowSize; i2++) {
-              base2 = base2.add(p);
-              points.push(base2);
-            }
-            p = base2.double();
-          }
-          return points;
-        },
-        /**
-         * Implements ec multiplication using precomputed tables and w-ary non-adjacent form.
-         * @param W window size
-         * @param precomputes precomputed tables
-         * @param n scalar (we don't check here, but should be less than curve order)
-         * @returns real and fake (for const-time) points
-         */
-        wNAF(W, precomputes, n2) {
-          let p = c.ZERO;
-          let f = c.BASE;
-          const wo = calcWOpts(W, bits);
-          for (let window2 = 0; window2 < wo.windows; window2++) {
-            const { nextN, offset, isZero, isNeg, isNegF, offsetF } = calcOffsets(n2, window2, wo);
-            n2 = nextN;
-            if (isZero) {
-              f = f.add(negateCt(isNegF, precomputes[offsetF]));
-            } else {
-              p = p.add(negateCt(isNeg, precomputes[offset]));
-            }
-          }
-          assert0(n2);
-          return { p, f };
-        },
-        /**
-         * Implements ec unsafe (non const-time) multiplication using precomputed tables and w-ary non-adjacent form.
-         * @param W window size
-         * @param precomputes precomputed tables
-         * @param n scalar (we don't check here, but should be less than curve order)
-         * @param acc accumulator point to add result of multiplication
-         * @returns point
-         */
-        wNAFUnsafe(W, precomputes, n2, acc = c.ZERO) {
-          const wo = calcWOpts(W, bits);
-          for (let window2 = 0; window2 < wo.windows; window2++) {
-            if (n2 === _0n$1)
-              break;
-            const { nextN, offset, isZero, isNeg } = calcOffsets(n2, window2, wo);
-            n2 = nextN;
-            if (isZero) {
-              continue;
-            } else {
-              const item = precomputes[offset];
-              acc = acc.add(isNeg ? item.negate() : item);
-            }
-          }
-          assert0(n2);
-          return acc;
-        },
-        getPrecomputes(W, P, transform2) {
-          let comp = pointPrecomputes.get(P);
-          if (!comp) {
-            comp = this.precomputeWindow(P, W);
-            if (W !== 1) {
-              if (typeof transform2 === "function")
-                comp = transform2(comp);
-              pointPrecomputes.set(P, comp);
-            }
-          }
-          return comp;
-        },
-        wNAFCached(P, n2, transform2) {
-          const W = getW(P);
-          return this.wNAF(W, this.getPrecomputes(W, P, transform2), n2);
-        },
-        wNAFCachedUnsafe(P, n2, transform2, prev) {
-          const W = getW(P);
-          if (W === 1)
-            return this.unsafeLadder(P, n2, prev);
-          return this.wNAFUnsafe(W, this.getPrecomputes(W, P, transform2), n2, prev);
-        },
-        // We calculate precomputes for elliptic curve point multiplication
-        // using windowed method. This specifies window size and
-        // stores precomputed values. Usually only base point would be precomputed.
-        setWindowSize(P, W) {
-          validateW(W, bits);
-          pointWindowSizes.set(P, W);
-          pointPrecomputes.delete(P);
+    class wNAF {
+      // Parametrized with a given Point class (not individual point)
+      constructor(Point2, bits) {
+        this.BASE = Point2.BASE;
+        this.ZERO = Point2.ZERO;
+        this.Fn = Point2.Fn;
+        this.bits = bits;
+      }
+      // non-const time multiplication ladder
+      _unsafeLadder(elm, n2, p = this.ZERO) {
+        let d = elm;
+        while (n2 > _0n$1) {
+          if (n2 & _1n$1)
+            p = p.add(d);
+          d = d.double();
+          n2 >>= _1n$1;
         }
-      };
+        return p;
+      }
+      /**
+       * Creates a wNAF precomputation window. Used for caching.
+       * Default window size is set by `utils.precompute()` and is equal to 8.
+       * Number of precomputed points depends on the curve size:
+       * 2^(𝑊−1) * (Math.ceil(𝑛 / 𝑊) + 1), where:
+       * - 𝑊 is the window size
+       * - 𝑛 is the bitlength of the curve order.
+       * For a 256-bit curve and window size 8, the number of precomputed points is 128 * 33 = 4224.
+       * @param point Point instance
+       * @param W window size
+       * @returns precomputed point tables flattened to a single array
+       */
+      precomputeWindow(point, W) {
+        const { windows, windowSize } = calcWOpts(W, this.bits);
+        const points = [];
+        let p = point;
+        let base2 = p;
+        for (let window2 = 0; window2 < windows; window2++) {
+          base2 = p;
+          points.push(base2);
+          for (let i2 = 1; i2 < windowSize; i2++) {
+            base2 = base2.add(p);
+            points.push(base2);
+          }
+          p = base2.double();
+        }
+        return points;
+      }
+      /**
+       * Implements ec multiplication using precomputed tables and w-ary non-adjacent form.
+       * More compact implementation:
+       * https://github.com/paulmillr/noble-secp256k1/blob/47cb1669b6e506ad66b35fe7d76132ae97465da2/index.ts#L502-L541
+       * @returns real and fake (for const-time) points
+       */
+      wNAF(W, precomputes, n2) {
+        if (!this.Fn.isValid(n2))
+          throw new Error("invalid scalar");
+        let p = this.ZERO;
+        let f = this.BASE;
+        const wo = calcWOpts(W, this.bits);
+        for (let window2 = 0; window2 < wo.windows; window2++) {
+          const { nextN, offset, isZero, isNeg, isNegF, offsetF } = calcOffsets(n2, window2, wo);
+          n2 = nextN;
+          if (isZero) {
+            f = f.add(negateCt(isNegF, precomputes[offsetF]));
+          } else {
+            p = p.add(negateCt(isNeg, precomputes[offset]));
+          }
+        }
+        assert0(n2);
+        return { p, f };
+      }
+      /**
+       * Implements ec unsafe (non const-time) multiplication using precomputed tables and w-ary non-adjacent form.
+       * @param acc accumulator point to add result of multiplication
+       * @returns point
+       */
+      wNAFUnsafe(W, precomputes, n2, acc = this.ZERO) {
+        const wo = calcWOpts(W, this.bits);
+        for (let window2 = 0; window2 < wo.windows; window2++) {
+          if (n2 === _0n$1)
+            break;
+          const { nextN, offset, isZero, isNeg } = calcOffsets(n2, window2, wo);
+          n2 = nextN;
+          if (isZero) {
+            continue;
+          } else {
+            const item = precomputes[offset];
+            acc = acc.add(isNeg ? item.negate() : item);
+          }
+        }
+        assert0(n2);
+        return acc;
+      }
+      getPrecomputes(W, point, transform2) {
+        let comp = pointPrecomputes.get(point);
+        if (!comp) {
+          comp = this.precomputeWindow(point, W);
+          if (W !== 1) {
+            if (typeof transform2 === "function")
+              comp = transform2(comp);
+            pointPrecomputes.set(point, comp);
+          }
+        }
+        return comp;
+      }
+      cached(point, scalar, transform2) {
+        const W = getW(point);
+        return this.wNAF(W, this.getPrecomputes(W, point, transform2), scalar);
+      }
+      unsafe(point, scalar, transform2, prev) {
+        const W = getW(point);
+        if (W === 1)
+          return this._unsafeLadder(point, scalar, prev);
+        return this.wNAFUnsafe(W, this.getPrecomputes(W, point, transform2), scalar, prev);
+      }
+      // We calculate precomputes for elliptic curve point multiplication
+      // using windowed method. This specifies window size and
+      // stores precomputed values. Usually only base point would be precomputed.
+      createCache(P, W) {
+        validateW(W, this.bits);
+        pointWindowSizes.set(P, W);
+        pointPrecomputes.delete(P);
+      }
+      hasCache(elm) {
+        return getW(elm) !== 1;
+      }
     }
-    function mulEndoUnsafe(c, point, k1, k2) {
+    function mulEndoUnsafe(Point2, point, k1, k2) {
       let acc = point;
-      let p1 = c.ZERO;
-      let p2 = c.ZERO;
+      let p1 = Point2.ZERO;
+      let p2 = Point2.ZERO;
       while (k1 > _0n$1 || k2 > _0n$1) {
-        if (k1 & _1n$2)
+        if (k1 & _1n$1)
           p1 = p1.add(acc);
-        if (k2 & _1n$2)
+        if (k2 & _1n$1)
           p2 = p2.add(acc);
         acc = acc.double();
-        k1 >>= _1n$2;
-        k2 >>= _1n$2;
+        k1 >>= _1n$1;
+        k2 >>= _1n$1;
       }
       return { p1, p2 };
     }
@@ -6524,17 +7363,19 @@ var require_index_001 = __commonJS({
       }
       return sum;
     }
-    function createField(order, field) {
+    function createField(order, field, isLE2) {
       if (field) {
         if (field.ORDER !== order)
           throw new Error("Field.ORDER must match order: Fp == p, Fn == n");
         validateField(field);
         return field;
       } else {
-        return Field(order);
+        return Field(order, { isLE: isLE2 });
       }
     }
-    function _createCurveFields(type2, CURVE, curveOpts = {}) {
+    function _createCurveFields(type2, CURVE, curveOpts = {}, FpFnLE) {
+      if (FpFnLE === void 0)
+        FpFnLE = type2 === "edwards";
       if (!CURVE || typeof CURVE !== "object")
         throw new Error(`expected valid ${type2} CURVE object`);
       for (const p of ["p", "n", "h"]) {
@@ -6542,22 +7383,52 @@ var require_index_001 = __commonJS({
         if (!(typeof val === "bigint" && val > _0n$1))
           throw new Error(`CURVE.${p} must be positive bigint`);
       }
-      const Fp = createField(CURVE.p, curveOpts.Fp);
-      const Fn = createField(CURVE.n, curveOpts.Fn);
+      const Fp = createField(CURVE.p, curveOpts.Fp, FpFnLE);
+      const Fn = createField(CURVE.n, curveOpts.Fn, FpFnLE);
       const _b2 = "b";
       const params = ["Gx", "Gy", "a", _b2];
       for (const p of params) {
         if (!Fp.isValid(CURVE[p]))
           throw new Error(`CURVE.${p} must be valid field element of CURVE.Fp`);
       }
-      return { Fp, Fn };
+      CURVE = Object.freeze(Object.assign({}, CURVE));
+      return { CURVE, Fp, Fn };
     }
     /*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) */
-    function validateSigVerOpts(opts) {
-      if (opts.lowS !== void 0)
-        abool("lowS", opts.lowS);
-      if (opts.prehash !== void 0)
-        abool("prehash", opts.prehash);
+    const divNearest = (num, den) => (num + (num >= 0 ? den : -den) / _2n$1) / den;
+    function _splitEndoScalar(k, basis, n2) {
+      const [[a1, b1], [a2, b2]] = basis;
+      const c1 = divNearest(b2 * k, n2);
+      const c2 = divNearest(-b1 * k, n2);
+      let k1 = k - c1 * a1 - c2 * a2;
+      let k2 = -c1 * b1 - c2 * b2;
+      const k1neg = k1 < _0n;
+      const k2neg = k2 < _0n;
+      if (k1neg)
+        k1 = -k1;
+      if (k2neg)
+        k2 = -k2;
+      const MAX_NUM = bitMask(Math.ceil(bitLen(n2) / 2)) + _1n;
+      if (k1 < _0n || k1 >= MAX_NUM || k2 < _0n || k2 >= MAX_NUM) {
+        throw new Error("splitScalar (endomorphism): failed, k=" + k);
+      }
+      return { k1neg, k1, k2neg, k2 };
+    }
+    function validateSigFormat(format2) {
+      if (!["compact", "recovered", "der"].includes(format2))
+        throw new Error('Signature format must be "compact", "recovered", or "der"');
+      return format2;
+    }
+    function validateSigOpts(opts, def) {
+      const optsn = {};
+      for (let optName of Object.keys(def)) {
+        optsn[optName] = opts[optName] === void 0 ? def[optName] : opts[optName];
+      }
+      _abool2(optsn.lowS, "lowS");
+      _abool2(optsn.prehash, "prehash");
+      if (optsn.format !== void 0)
+        validateSigFormat(optsn.format);
+      return optsn;
     }
     class DERErr extends Error {
       constructor(m = "") {
@@ -6664,48 +7535,30 @@ var require_index_001 = __commonJS({
         return tlv.encode(48, seq);
       }
     };
-    const _0n = BigInt(0), _1n$1 = BigInt(1), _2n$1 = BigInt(2), _3n = BigInt(3), _4n = BigInt(4);
-    function _legacyHelperEquat(Fp, a2, b) {
-      function weierstrassEquation(x) {
-        const x2 = Fp.sqr(x);
-        const x3 = Fp.mul(x2, x);
-        return Fp.add(Fp.add(x3, Fp.mul(x, a2)), b);
-      }
-      return weierstrassEquation;
-    }
-    function _legacyHelperNormPriv(Fn, allowedPrivateKeyLengths, wrapPrivateKey) {
+    const _0n = BigInt(0), _1n = BigInt(1), _2n$1 = BigInt(2), _3n = BigInt(3), _4n = BigInt(4);
+    function _normFnElement(Fn, key) {
       const { BYTES: expected } = Fn;
-      function normPrivateKeyToScalar(key) {
-        let num;
-        if (typeof key === "bigint") {
-          num = key;
-        } else {
-          let bytes = ensureBytes("private key", key);
-          if (allowedPrivateKeyLengths) {
-            if (!allowedPrivateKeyLengths.includes(bytes.length * 2))
-              throw new Error("invalid private key");
-            const padded = new Uint8Array(expected);
-            padded.set(bytes, padded.length - bytes.length);
-            bytes = padded;
-          }
-          try {
-            num = Fn.fromBytes(bytes);
-          } catch (error2) {
-            throw new Error(`invalid private key: expected ui8a of size ${expected}, got ${typeof key}`);
-          }
+      let num;
+      if (typeof key === "bigint") {
+        num = key;
+      } else {
+        let bytes = ensureBytes("private key", key);
+        try {
+          num = Fn.fromBytes(bytes);
+        } catch (error2) {
+          throw new Error(`invalid private key: expected ui8a of size ${expected}, got ${typeof key}`);
         }
-        if (wrapPrivateKey)
-          num = Fn.create(num);
-        if (!Fn.isValidNot0(num))
-          throw new Error("invalid private key: out of range [1..N-1]");
-        return num;
       }
-      return normPrivateKeyToScalar;
+      if (!Fn.isValidNot0(num))
+        throw new Error("invalid private key: out of range [1..N-1]");
+      return num;
     }
-    function weierstrassN(CURVE, curveOpts = {}) {
-      const { Fp, Fn } = _createCurveFields("weierstrass", CURVE, curveOpts);
+    function weierstrassN(params, extraOpts = {}) {
+      const validated = _createCurveFields("weierstrass", params, extraOpts);
+      const { Fp, Fn } = validated;
+      let CURVE = validated.CURVE;
       const { h: cofactor, n: CURVE_ORDER } = CURVE;
-      _validateObject(curveOpts, {}, {
+      _validateObject(extraOpts, {}, {
         allowInfinityPoint: "boolean",
         clearCofactor: "function",
         isTorsionFree: "function",
@@ -6714,12 +7567,13 @@ var require_index_001 = __commonJS({
         endo: "object",
         wrapPrivateKey: "boolean"
       });
-      const { endo } = curveOpts;
+      const { endo } = extraOpts;
       if (endo) {
-        if (!Fp.is0(CURVE.a) || typeof endo.beta !== "bigint" || typeof endo.splitScalar !== "function") {
-          throw new Error('invalid endo: expected "beta": bigint and "splitScalar": function');
+        if (!Fp.is0(CURVE.a) || typeof endo.beta !== "bigint" || !Array.isArray(endo.basises)) {
+          throw new Error('invalid endo: expected "beta": bigint and "basises": array');
         }
       }
+      const lengths = getWLengths(Fp, Fn);
       function assertCompressionIsSupported() {
         if (!Fp.isOdd)
           throw new Error("compression is not supported: Field does not have .isOdd()");
@@ -6727,7 +7581,7 @@ var require_index_001 = __commonJS({
       function pointToBytes(_c, point, isCompressed) {
         const { x, y } = point.toAffine();
         const bx = Fp.toBytes(x);
-        abool("isCompressed", isCompressed);
+        _abool2(isCompressed, "isCompressed");
         if (isCompressed) {
           assertCompressionIsSupported();
           const hasEvenY = !Fp.isOdd(y);
@@ -6737,14 +7591,12 @@ var require_index_001 = __commonJS({
         }
       }
       function pointFromBytes(bytes) {
-        abytes(bytes);
-        const L = Fp.BYTES;
-        const LC = L + 1;
-        const LU = 2 * L + 1;
+        _abytes2(bytes, void 0, "Point");
+        const { publicKey: comp, publicKeyUncompressed: uncomp } = lengths;
         const length = bytes.length;
         const head = bytes[0];
         const tail = bytes.subarray(1);
-        if (length === LC && (head === 2 || head === 3)) {
+        if (length === comp && (head === 2 || head === 3)) {
           const x = Fp.fromBytes(tail);
           if (!Fp.isValid(x))
             throw new Error("bad point: is not on curve, wrong x");
@@ -6762,19 +7614,24 @@ var require_index_001 = __commonJS({
           if (isHeadOdd !== isYOdd)
             y = Fp.neg(y);
           return { x, y };
-        } else if (length === LU && head === 4) {
-          const x = Fp.fromBytes(tail.subarray(L * 0, L * 1));
-          const y = Fp.fromBytes(tail.subarray(L * 1, L * 2));
+        } else if (length === uncomp && head === 4) {
+          const L = Fp.BYTES;
+          const x = Fp.fromBytes(tail.subarray(0, L));
+          const y = Fp.fromBytes(tail.subarray(L, L * 2));
           if (!isValidXY(x, y))
             throw new Error("bad point: is not on curve");
           return { x, y };
         } else {
-          throw new Error(`bad point: got length ${length}, expected compressed=${LC} or uncompressed=${LU}`);
+          throw new Error(`bad point: got length ${length}, expected compressed=${comp} or uncompressed=${uncomp}`);
         }
       }
-      const toBytes2 = curveOpts.toBytes || pointToBytes;
-      const fromBytes = curveOpts.fromBytes || pointFromBytes;
-      const weierstrassEquation = _legacyHelperEquat(Fp, CURVE.a, CURVE.b);
+      const encodePoint = extraOpts.toBytes || pointToBytes;
+      const decodePoint = extraOpts.fromBytes || pointFromBytes;
+      function weierstrassEquation(x) {
+        const x2 = Fp.sqr(x);
+        const x3 = Fp.mul(x2, x);
+        return Fp.add(Fp.add(x3, Fp.mul(x, CURVE.a)), CURVE.b);
+      }
       function isValidXY(x, y) {
         const left = Fp.sqr(y);
         const right = weierstrassEquation(x);
@@ -6795,25 +7652,30 @@ var require_index_001 = __commonJS({
         if (!(other instanceof Point2))
           throw new Error("ProjectivePoint expected");
       }
+      function splitEndoScalarN(k) {
+        if (!endo || !endo.basises)
+          throw new Error("no endo");
+        return _splitEndoScalar(k, endo.basises, Fn.ORDER);
+      }
       const toAffineMemo = memoized((p, iz) => {
-        const { px: x, py: y, pz: z } = p;
-        if (Fp.eql(z, Fp.ONE))
-          return { x, y };
+        const { X, Y, Z } = p;
+        if (Fp.eql(Z, Fp.ONE))
+          return { x: X, y: Y };
         const is0 = p.is0();
         if (iz == null)
-          iz = is0 ? Fp.ONE : Fp.inv(z);
-        const ax = Fp.mul(x, iz);
-        const ay = Fp.mul(y, iz);
-        const zz = Fp.mul(z, iz);
+          iz = is0 ? Fp.ONE : Fp.inv(Z);
+        const x = Fp.mul(X, iz);
+        const y = Fp.mul(Y, iz);
+        const zz = Fp.mul(Z, iz);
         if (is0)
           return { x: Fp.ZERO, y: Fp.ZERO };
         if (!Fp.eql(zz, Fp.ONE))
           throw new Error("invZ was invalid");
-        return { x: ax, y: ay };
+        return { x, y };
       });
       const assertValidMemo = memoized((p) => {
         if (p.is0()) {
-          if (curveOpts.allowInfinityPoint && !Fp.is0(p.py))
+          if (extraOpts.allowInfinityPoint && !Fp.is0(p.Y))
             return;
           throw new Error("bad point: ZERO");
         }
@@ -6827,18 +7689,21 @@ var require_index_001 = __commonJS({
         return true;
       });
       function finishEndo(endoBeta, k1p, k2p, k1neg, k2neg) {
-        k2p = new Point2(Fp.mul(k2p.px, endoBeta), k2p.py, k2p.pz);
+        k2p = new Point2(Fp.mul(k2p.X, endoBeta), k2p.Y, k2p.Z);
         k1p = negateCt(k1neg, k1p);
         k2p = negateCt(k2neg, k2p);
         return k1p.add(k2p);
       }
       class Point2 {
         /** Does NOT validate if the point is valid. Use `.assertValidity()`. */
-        constructor(px, py, pz) {
-          this.px = acoord("x", px);
-          this.py = acoord("y", py, true);
-          this.pz = acoord("z", pz);
+        constructor(X, Y, Z) {
+          this.X = acoord("x", X);
+          this.Y = acoord("y", Y, true);
+          this.Z = acoord("z", Z);
           Object.freeze(this);
+        }
+        static CURVE() {
+          return CURVE;
         }
         /** Does NOT validate if the point is valid. Use `.assertValidity()`. */
         static fromAffine(p) {
@@ -6851,33 +7716,19 @@ var require_index_001 = __commonJS({
             return Point2.ZERO;
           return new Point2(x, y, Fp.ONE);
         }
+        static fromBytes(bytes) {
+          const P = Point2.fromAffine(decodePoint(_abytes2(bytes, void 0, "point")));
+          P.assertValidity();
+          return P;
+        }
+        static fromHex(hex2) {
+          return Point2.fromBytes(ensureBytes("pointHex", hex2));
+        }
         get x() {
           return this.toAffine().x;
         }
         get y() {
           return this.toAffine().y;
-        }
-        static normalizeZ(points) {
-          return normalizeZ(Point2, "pz", points);
-        }
-        static fromBytes(bytes) {
-          abytes(bytes);
-          return Point2.fromHex(bytes);
-        }
-        /** Converts hash string or Uint8Array to Point. */
-        static fromHex(hex2) {
-          const P = Point2.fromAffine(fromBytes(ensureBytes("pointHex", hex2)));
-          P.assertValidity();
-          return P;
-        }
-        /** Multiplies generator point by privateKey. */
-        static fromPrivateKey(privateKey) {
-          const normPrivateKeyToScalar = _legacyHelperNormPriv(Fn, curveOpts.allowedPrivateKeyLengths, curveOpts.wrapPrivateKey);
-          return Point2.BASE.multiply(normPrivateKeyToScalar(privateKey));
-        }
-        /** Multiscalar Multiplication */
-        static msm(points, scalars) {
-          return pippenger(Point2, Fn, points, scalars);
         }
         /**
          *
@@ -6886,14 +7737,10 @@ var require_index_001 = __commonJS({
          * @returns
          */
         precompute(windowSize = 8, isLazy = true) {
-          wnaf.setWindowSize(this, windowSize);
+          wnaf.createCache(this, windowSize);
           if (!isLazy)
             this.multiply(_3n);
           return this;
-        }
-        /** "Private method", don't use it directly */
-        _setWindowSize(windowSize) {
-          this.precompute(windowSize);
         }
         // TODO: return `this`
         /** A point on curve is valid if it conforms to equation. */
@@ -6909,15 +7756,15 @@ var require_index_001 = __commonJS({
         /** Compare one point to another. */
         equals(other) {
           aprjpoint(other);
-          const { px: X1, py: Y1, pz: Z1 } = this;
-          const { px: X2, py: Y2, pz: Z2 } = other;
+          const { X: X1, Y: Y1, Z: Z1 } = this;
+          const { X: X2, Y: Y2, Z: Z2 } = other;
           const U1 = Fp.eql(Fp.mul(X1, Z2), Fp.mul(X2, Z1));
           const U2 = Fp.eql(Fp.mul(Y1, Z2), Fp.mul(Y2, Z1));
           return U1 && U2;
         }
         /** Flips point to one corresponding to (x, -y) in Affine coordinates. */
         negate() {
-          return new Point2(this.px, Fp.neg(this.py), this.pz);
+          return new Point2(this.X, Fp.neg(this.Y), this.Z);
         }
         // Renes-Costello-Batina exception-free doubling formula.
         // There is 30% faster Jacobian formula, but it is not complete.
@@ -6926,7 +7773,7 @@ var require_index_001 = __commonJS({
         double() {
           const { a: a2, b } = CURVE;
           const b3 = Fp.mul(b, _3n);
-          const { px: X1, py: Y1, pz: Z1 } = this;
+          const { X: X1, Y: Y1, Z: Z1 } = this;
           let X3 = Fp.ZERO, Y3 = Fp.ZERO, Z3 = Fp.ZERO;
           let t0 = Fp.mul(X1, X1);
           let t1 = Fp.mul(Y1, Y1);
@@ -6967,8 +7814,8 @@ var require_index_001 = __commonJS({
         // Cost: 12M + 0S + 3*a + 3*b3 + 23add.
         add(other) {
           aprjpoint(other);
-          const { px: X1, py: Y1, pz: Z1 } = this;
-          const { px: X2, py: Y2, pz: Z2 } = other;
+          const { X: X1, Y: Y1, Z: Z1 } = this;
+          const { X: X2, Y: Y2, Z: Z2 } = other;
           let X3 = Fp.ZERO, Y3 = Fp.ZERO, Z3 = Fp.ZERO;
           const a2 = CURVE.a;
           const b3 = Fp.mul(CURVE.b, _3n);
@@ -7030,13 +7877,13 @@ var require_index_001 = __commonJS({
          * @returns New point
          */
         multiply(scalar) {
-          const { endo: endo2 } = curveOpts;
+          const { endo: endo2 } = extraOpts;
           if (!Fn.isValidNot0(scalar))
             throw new Error("invalid scalar: out of range");
           let point, fake;
-          const mul = (n2) => wnaf.wNAFCached(this, n2, Point2.normalizeZ);
+          const mul = (n2) => wnaf.cached(this, n2, (p) => normalizeZ(Point2, p));
           if (endo2) {
-            const { k1neg, k1, k2neg, k2 } = endo2.splitScalar(scalar);
+            const { k1neg, k1, k2neg, k2 } = splitEndoScalarN(scalar);
             const { p: k1p, f: k1f } = mul(k1);
             const { p: k2p, f: k2f } = mul(k2);
             fake = k1f.add(k2f);
@@ -7046,30 +7893,30 @@ var require_index_001 = __commonJS({
             point = p;
             fake = f;
           }
-          return Point2.normalizeZ([point, fake])[0];
+          return normalizeZ(Point2, [point, fake])[0];
         }
         /**
          * Non-constant-time multiplication. Uses double-and-add algorithm.
          * It's faster, but should only be used when you don't care about
-         * an exposed private key e.g. sig verification, which works over *public* keys.
+         * an exposed secret key e.g. sig verification, which works over *public* keys.
          */
         multiplyUnsafe(sc) {
-          const { endo: endo2 } = curveOpts;
+          const { endo: endo2 } = extraOpts;
           const p = this;
           if (!Fn.isValid(sc))
             throw new Error("invalid scalar: out of range");
           if (sc === _0n || p.is0())
             return Point2.ZERO;
-          if (sc === _1n$1)
+          if (sc === _1n)
             return p;
-          if (wnaf.hasPrecomputes(this))
+          if (wnaf.hasCache(this))
             return this.multiply(sc);
           if (endo2) {
-            const { k1neg, k1, k2neg, k2 } = endo2.splitScalar(sc);
+            const { k1neg, k1, k2neg, k2 } = splitEndoScalarN(sc);
             const { p1, p2 } = mulEndoUnsafe(Point2, p, k1, k2);
             return finishEndo(endo2.beta, p1, p2, k1neg, k2neg);
           } else {
-            return wnaf.wNAFCachedUnsafe(p, sc);
+            return wnaf.unsafe(p, sc);
           }
         }
         multiplyAndAddUnsafe(Q, a2, b) {
@@ -7088,29 +7935,28 @@ var require_index_001 = __commonJS({
          * Always torsion-free for cofactor=1 curves.
          */
         isTorsionFree() {
-          const { isTorsionFree } = curveOpts;
-          if (cofactor === _1n$1)
+          const { isTorsionFree } = extraOpts;
+          if (cofactor === _1n)
             return true;
           if (isTorsionFree)
             return isTorsionFree(Point2, this);
-          return wnaf.wNAFCachedUnsafe(this, CURVE_ORDER).is0();
+          return wnaf.unsafe(this, CURVE_ORDER).is0();
         }
         clearCofactor() {
-          const { clearCofactor } = curveOpts;
-          if (cofactor === _1n$1)
+          const { clearCofactor } = extraOpts;
+          if (cofactor === _1n)
             return this;
           if (clearCofactor)
             return clearCofactor(Point2, this);
           return this.multiplyUnsafe(cofactor);
         }
-        toBytes(isCompressed = true) {
-          abool("isCompressed", isCompressed);
-          this.assertValidity();
-          return toBytes2(Point2, this, isCompressed);
+        isSmallOrder() {
+          return this.multiplyUnsafe(cofactor).is0();
         }
-        /** @deprecated use `toBytes` */
-        toRawBytes(isCompressed = true) {
-          return this.toBytes(isCompressed);
+        toBytes(isCompressed = true) {
+          _abool2(isCompressed, "isCompressed");
+          this.assertValidity();
+          return encodePoint(Point2, this, isCompressed);
         }
         toHex(isCompressed = true) {
           return bytesToHex(this.toBytes(isCompressed));
@@ -7118,74 +7964,190 @@ var require_index_001 = __commonJS({
         toString() {
           return `<Point ${this.is0() ? "ZERO" : this.toHex()}>`;
         }
+        // TODO: remove
+        get px() {
+          return this.X;
+        }
+        get py() {
+          return this.X;
+        }
+        get pz() {
+          return this.Z;
+        }
+        toRawBytes(isCompressed = true) {
+          return this.toBytes(isCompressed);
+        }
+        _setWindowSize(windowSize) {
+          this.precompute(windowSize);
+        }
+        static normalizeZ(points) {
+          return normalizeZ(Point2, points);
+        }
+        static msm(points, scalars) {
+          return pippenger(Point2, Fn, points, scalars);
+        }
+        static fromPrivateKey(privateKey) {
+          return Point2.BASE.multiply(_normFnElement(Fn, privateKey));
+        }
       }
       Point2.BASE = new Point2(CURVE.Gx, CURVE.Gy, Fp.ONE);
       Point2.ZERO = new Point2(Fp.ZERO, Fp.ONE, Fp.ZERO);
       Point2.Fp = Fp;
       Point2.Fn = Fn;
       const bits = Fn.BITS;
-      const wnaf = wNAF(Point2, curveOpts.endo ? Math.ceil(bits / 2) : bits);
+      const wnaf = new wNAF(Point2, extraOpts.endo ? Math.ceil(bits / 2) : bits);
+      Point2.BASE.precompute(8);
       return Point2;
     }
     function pprefix(hasEvenY) {
       return Uint8Array.of(hasEvenY ? 2 : 3);
     }
-    function ecdsa(Point2, ecdsaOpts, curveOpts = {}) {
-      _validateObject(ecdsaOpts, { hash: "function" }, {
+    function getWLengths(Fp, Fn) {
+      return {
+        secretKey: Fn.BYTES,
+        publicKey: 1 + Fp.BYTES,
+        publicKeyUncompressed: 1 + 2 * Fp.BYTES,
+        publicKeyHasPrefix: true,
+        signature: 2 * Fn.BYTES
+      };
+    }
+    function ecdh(Point2, ecdhOpts = {}) {
+      const { Fn } = Point2;
+      const randomBytes_ = ecdhOpts.randomBytes || randomBytes;
+      const lengths = Object.assign(getWLengths(Point2.Fp, Fn), { seed: getMinHashLength(Fn.ORDER) });
+      function isValidSecretKey(secretKey) {
+        try {
+          return !!_normFnElement(Fn, secretKey);
+        } catch (error2) {
+          return false;
+        }
+      }
+      function isValidPublicKey(publicKey, isCompressed) {
+        const { publicKey: comp, publicKeyUncompressed } = lengths;
+        try {
+          const l = publicKey.length;
+          if (isCompressed === true && l !== comp)
+            return false;
+          if (isCompressed === false && l !== publicKeyUncompressed)
+            return false;
+          return !!Point2.fromBytes(publicKey);
+        } catch (error2) {
+          return false;
+        }
+      }
+      function randomSecretKey(seed = randomBytes_(lengths.seed)) {
+        return mapHashToField(_abytes2(seed, lengths.seed, "seed"), Fn.ORDER);
+      }
+      function getPublicKey(secretKey, isCompressed = true) {
+        return Point2.BASE.multiply(_normFnElement(Fn, secretKey)).toBytes(isCompressed);
+      }
+      function keygen(seed) {
+        const secretKey = randomSecretKey(seed);
+        return { secretKey, publicKey: getPublicKey(secretKey) };
+      }
+      function isProbPub(item) {
+        if (typeof item === "bigint")
+          return false;
+        if (item instanceof Point2)
+          return true;
+        const { secretKey, publicKey, publicKeyUncompressed } = lengths;
+        if (Fn.allowedLengths || secretKey === publicKey)
+          return void 0;
+        const l = ensureBytes("key", item).length;
+        return l === publicKey || l === publicKeyUncompressed;
+      }
+      function getSharedSecret(secretKeyA, publicKeyB, isCompressed = true) {
+        if (isProbPub(secretKeyA) === true)
+          throw new Error("first arg must be private key");
+        if (isProbPub(publicKeyB) === false)
+          throw new Error("second arg must be public key");
+        const s = _normFnElement(Fn, secretKeyA);
+        const b = Point2.fromHex(publicKeyB);
+        return b.multiply(s).toBytes(isCompressed);
+      }
+      const utils2 = {
+        isValidSecretKey,
+        isValidPublicKey,
+        randomSecretKey,
+        // TODO: remove
+        isValidPrivateKey: isValidSecretKey,
+        randomPrivateKey: randomSecretKey,
+        normPrivateKeyToScalar: (key) => _normFnElement(Fn, key),
+        precompute(windowSize = 8, point = Point2.BASE) {
+          return point.precompute(windowSize, false);
+        }
+      };
+      return Object.freeze({ getPublicKey, getSharedSecret, keygen, Point: Point2, utils: utils2, lengths });
+    }
+    function ecdsa(Point2, hash, ecdsaOpts = {}) {
+      ahash(hash);
+      _validateObject(ecdsaOpts, {}, {
         hmac: "function",
         lowS: "boolean",
         randomBytes: "function",
         bits2int: "function",
         bits2int_modN: "function"
       });
-      const randomBytes_ = ecdsaOpts.randomBytes || randomBytes;
-      const hmac_ = ecdsaOpts.hmac || ((key, ...msgs) => hmac(ecdsaOpts.hash, key, concatBytes(...msgs)));
+      const randomBytes$1 = ecdsaOpts.randomBytes || randomBytes;
+      const hmac$1 = ecdsaOpts.hmac || ((key, ...msgs) => hmac(hash, key, concatBytes(...msgs)));
       const { Fp, Fn } = Point2;
       const { ORDER: CURVE_ORDER, BITS: fnBits } = Fn;
+      const { keygen, getPublicKey, getSharedSecret, utils: utils2, lengths } = ecdh(Point2, ecdsaOpts);
+      const defaultSigOpts = {
+        prehash: false,
+        lowS: typeof ecdsaOpts.lowS === "boolean" ? ecdsaOpts.lowS : false,
+        format: void 0,
+        //'compact' as ECDSASigFormat,
+        extraEntropy: false
+      };
+      const defaultSigOpts_format = "compact";
       function isBiggerThanHalfOrder(number2) {
-        const HALF = CURVE_ORDER >> _1n$1;
+        const HALF = CURVE_ORDER >> _1n;
         return number2 > HALF;
       }
-      function normalizeS(s) {
-        return isBiggerThanHalfOrder(s) ? Fn.neg(s) : s;
-      }
-      function aValidRS(title, num) {
+      function validateRS(title, num) {
         if (!Fn.isValidNot0(num))
-          throw new Error(`invalid signature ${title}: out of range 1..CURVE.n`);
+          throw new Error(`invalid signature ${title}: out of range 1..Point.Fn.ORDER`);
+        return num;
+      }
+      function validateSigLength(bytes, format2) {
+        validateSigFormat(format2);
+        const size = lengths.signature;
+        const sizer = format2 === "compact" ? size : format2 === "recovered" ? size + 1 : void 0;
+        return _abytes2(bytes, sizer, `${format2} signature`);
       }
       class Signature {
         constructor(r2, s, recovery) {
-          aValidRS("r", r2);
-          aValidRS("s", s);
-          this.r = r2;
-          this.s = s;
+          this.r = validateRS("r", r2);
+          this.s = validateRS("s", s);
           if (recovery != null)
             this.recovery = recovery;
           Object.freeze(this);
         }
-        // pair (bytes of r, bytes of s)
-        static fromCompact(hex2) {
+        static fromBytes(bytes, format2 = defaultSigOpts_format) {
+          validateSigLength(bytes, format2);
+          let recid;
+          if (format2 === "der") {
+            const { r: r3, s: s2 } = DER.toSig(_abytes2(bytes));
+            return new Signature(r3, s2);
+          }
+          if (format2 === "recovered") {
+            recid = bytes[0];
+            format2 = "compact";
+            bytes = bytes.subarray(1);
+          }
           const L = Fn.BYTES;
-          const b = ensureBytes("compactSignature", hex2, L * 2);
-          return new Signature(Fn.fromBytes(b.subarray(0, L)), Fn.fromBytes(b.subarray(L, L * 2)));
+          const r2 = bytes.subarray(0, L);
+          const s = bytes.subarray(L, L * 2);
+          return new Signature(Fn.fromBytes(r2), Fn.fromBytes(s), recid);
         }
-        // DER encoded ECDSA signature
-        // https://bitcoin.stackexchange.com/questions/57644/what-are-the-parts-of-a-bitcoin-transaction-input-script
-        static fromDER(hex2) {
-          const { r: r2, s } = DER.toSig(ensureBytes("DER", hex2));
-          return new Signature(r2, s);
-        }
-        /**
-         * @todo remove
-         * @deprecated
-         */
-        assertValidity() {
+        static fromHex(hex2, format2) {
+          return this.fromBytes(hexToBytes$1(hex2), format2);
         }
         addRecoveryBit(recovery) {
           return new Signature(this.r, this.s, recovery);
         }
-        // ProjPointType<bigint>
-        recoverPublicKey(msgHash) {
+        recoverPublicKey(messageHash) {
           const FIELD_ORDER = Fp.ORDER;
           const { r: r2, s, recovery: rec } = this;
           if (rec == null || ![0, 1, 2, 3].includes(rec))
@@ -7197,9 +8159,9 @@ var require_index_001 = __commonJS({
           if (!Fp.isValid(radj))
             throw new Error("recovery id 2 or 3 invalid");
           const x = Fp.toBytes(radj);
-          const R = Point2.fromHex(concatBytes(pprefix((rec & 1) === 0), x));
+          const R = Point2.fromBytes(concatBytes(pprefix((rec & 1) === 0), x));
           const ir = Fn.inv(radj);
-          const h = bits2int_modN(ensureBytes("msgHash", msgHash));
+          const h = bits2int_modN(ensureBytes("msgHash", messageHash));
           const u1 = Fn.create(-h * ir);
           const u2 = Fn.create(s * ir);
           const Q = Point2.BASE.multiplyUnsafe(u1).add(R.multiplyUnsafe(u2));
@@ -7212,24 +8174,40 @@ var require_index_001 = __commonJS({
         hasHighS() {
           return isBiggerThanHalfOrder(this.s);
         }
+        toBytes(format2 = defaultSigOpts_format) {
+          validateSigFormat(format2);
+          if (format2 === "der")
+            return hexToBytes$1(DER.hexFromSig(this));
+          const r2 = Fn.toBytes(this.r);
+          const s = Fn.toBytes(this.s);
+          if (format2 === "recovered") {
+            if (this.recovery == null)
+              throw new Error("recovery bit must be present");
+            return concatBytes(Uint8Array.of(this.recovery), r2, s);
+          }
+          return concatBytes(r2, s);
+        }
+        toHex(format2) {
+          return bytesToHex(this.toBytes(format2));
+        }
+        // TODO: remove
+        assertValidity() {
+        }
+        static fromCompact(hex2) {
+          return Signature.fromBytes(ensureBytes("sig", hex2), "compact");
+        }
+        static fromDER(hex2) {
+          return Signature.fromBytes(ensureBytes("sig", hex2), "der");
+        }
         normalizeS() {
           return this.hasHighS() ? new Signature(this.r, Fn.neg(this.s), this.recovery) : this;
         }
-        toBytes(format2) {
-          if (format2 === "compact")
-            return concatBytes(Fn.toBytes(this.r), Fn.toBytes(this.s));
-          if (format2 === "der")
-            return hexToBytes$1(DER.hexFromSig(this));
-          throw new Error("invalid format");
-        }
-        // DER-encoded
         toDERRawBytes() {
           return this.toBytes("der");
         }
         toDERHex() {
           return bytesToHex(this.toBytes("der"));
         }
-        // padded bytes of r, then padded bytes of s
         toCompactRawBytes() {
           return this.toBytes("compact");
         }
@@ -7237,64 +8215,14 @@ var require_index_001 = __commonJS({
           return bytesToHex(this.toBytes("compact"));
         }
       }
-      const normPrivateKeyToScalar = _legacyHelperNormPriv(Fn, curveOpts.allowedPrivateKeyLengths, curveOpts.wrapPrivateKey);
-      const utils2 = {
-        isValidPrivateKey(privateKey) {
-          try {
-            normPrivateKeyToScalar(privateKey);
-            return true;
-          } catch (error2) {
-            return false;
-          }
-        },
-        normPrivateKeyToScalar,
-        /**
-         * Produces cryptographically secure private key from random of size
-         * (groupLen + ceil(groupLen / 2)) with modulo bias being negligible.
-         */
-        randomPrivateKey: () => {
-          const n2 = CURVE_ORDER;
-          return mapHashToField(randomBytes_(getMinHashLength(n2)), n2);
-        },
-        precompute(windowSize = 8, point = Point2.BASE) {
-          return point.precompute(windowSize, false);
-        }
-      };
-      function getPublicKey(privateKey, isCompressed = true) {
-        return Point2.fromPrivateKey(privateKey).toBytes(isCompressed);
-      }
-      function isProbPub(item) {
-        if (typeof item === "bigint")
-          return false;
-        if (item instanceof Point2)
-          return true;
-        const arr = ensureBytes("key", item);
-        const length = arr.length;
-        const L = Fp.BYTES;
-        const LC = L + 1;
-        const LU = 2 * L + 1;
-        if (curveOpts.allowedPrivateKeyLengths || Fn.BYTES === LC) {
-          return void 0;
-        } else {
-          return length === LC || length === LU;
-        }
-      }
-      function getSharedSecret(privateA, publicB, isCompressed = true) {
-        if (isProbPub(privateA) === true)
-          throw new Error("first arg must be private key");
-        if (isProbPub(publicB) === false)
-          throw new Error("second arg must be public key");
-        const b = Point2.fromHex(publicB);
-        return b.multiply(normPrivateKeyToScalar(privateA)).toBytes(isCompressed);
-      }
-      const bits2int = ecdsaOpts.bits2int || function(bytes) {
+      const bits2int = ecdsaOpts.bits2int || function bits2int_def(bytes) {
         if (bytes.length > 8192)
           throw new Error("input is too large");
         const num = bytesToNumberBE(bytes);
         const delta = bytes.length * 8 - fnBits;
         return delta > 0 ? num >> BigInt(delta) : num;
       };
-      const bits2int_modN = ecdsaOpts.bits2int_modN || function(bytes) {
+      const bits2int_modN = ecdsaOpts.bits2int_modN || function bits2int_modN_def(bytes) {
         return Fn.create(bits2int(bytes));
       };
       const ORDER_MASK = bitMask(fnBits);
@@ -7302,22 +8230,20 @@ var require_index_001 = __commonJS({
         aInRange("num < 2^" + fnBits, num, _0n, ORDER_MASK);
         return Fn.toBytes(num);
       }
-      function prepSig(msgHash, privateKey, opts = defaultSigOpts) {
+      function validateMsgAndHash(message2, prehash) {
+        _abytes2(message2, void 0, "message");
+        return prehash ? _abytes2(hash(message2), void 0, "prehashed message") : message2;
+      }
+      function prepSig(message2, privateKey, opts) {
         if (["recovered", "canonical"].some((k) => k in opts))
           throw new Error("sign() legacy options not supported");
-        const { hash } = ecdsaOpts;
-        let { lowS, prehash, extraEntropy: ent } = opts;
-        if (lowS == null)
-          lowS = true;
-        msgHash = ensureBytes("msgHash", msgHash);
-        validateSigVerOpts(opts);
-        if (prehash)
-          msgHash = ensureBytes("prehashed msgHash", hash(msgHash));
-        const h1int = bits2int_modN(msgHash);
-        const d = normPrivateKeyToScalar(privateKey);
+        const { lowS, prehash, extraEntropy } = validateSigOpts(opts, defaultSigOpts);
+        message2 = validateMsgAndHash(message2, prehash);
+        const h1int = bits2int_modN(message2);
+        const d = _normFnElement(Fn, privateKey);
         const seedArgs = [int2octets(d), int2octets(h1int)];
-        if (ent != null && ent !== false) {
-          const e2 = ent === true ? randomBytes_(Fp.BYTES) : ent;
+        if (extraEntropy != null && extraEntropy !== false) {
+          const e2 = extraEntropy === true ? randomBytes$1(lengths.secretKey) : extraEntropy;
           seedArgs.push(ensureBytes("extraEntropy", e2));
         }
         const seed = concatBytes(...seedArgs);
@@ -7334,88 +8260,94 @@ var require_index_001 = __commonJS({
           const s = Fn.create(ik * Fn.create(m + r2 * d));
           if (s === _0n)
             return;
-          let recovery = (q.x === r2 ? 0 : 2) | Number(q.y & _1n$1);
+          let recovery = (q.x === r2 ? 0 : 2) | Number(q.y & _1n);
           let normS = s;
           if (lowS && isBiggerThanHalfOrder(s)) {
-            normS = normalizeS(s);
+            normS = Fn.neg(s);
             recovery ^= 1;
           }
           return new Signature(r2, normS, recovery);
         }
         return { seed, k2sig };
       }
-      const defaultSigOpts = { lowS: ecdsaOpts.lowS, prehash: false };
-      const defaultVerOpts = { lowS: ecdsaOpts.lowS, prehash: false };
-      function sign2(msgHash, privKey, opts = defaultSigOpts) {
-        const { seed, k2sig } = prepSig(msgHash, privKey, opts);
-        const drbg = createHmacDrbg(ecdsaOpts.hash.outputLen, Fn.BYTES, hmac_);
-        return drbg(seed, k2sig);
+      function sign2(message2, secretKey, opts = {}) {
+        message2 = ensureBytes("message", message2);
+        const { seed, k2sig } = prepSig(message2, secretKey, opts);
+        const drbg = createHmacDrbg(hash.outputLen, Fn.BYTES, hmac$1);
+        const sig = drbg(seed, k2sig);
+        return sig;
       }
-      Point2.BASE.precompute(8);
-      function verify(signature, msgHash, publicKey, opts = defaultVerOpts) {
-        const sg = signature;
-        msgHash = ensureBytes("msgHash", msgHash);
-        publicKey = ensureBytes("publicKey", publicKey);
-        validateSigVerOpts(opts);
-        const { lowS, prehash, format: format2 } = opts;
-        if ("strict" in opts)
-          throw new Error("options.strict was renamed to lowS");
-        if (format2 !== void 0 && !["compact", "der", "js"].includes(format2))
-          throw new Error('format must be "compact", "der" or "js"');
+      function tryParsingSig(sg) {
+        let sig = void 0;
         const isHex2 = typeof sg === "string" || isBytes$1(sg);
-        const isObj = !isHex2 && !format2 && typeof sg === "object" && sg !== null && typeof sg.r === "bigint" && typeof sg.s === "bigint";
+        const isObj = !isHex2 && sg !== null && typeof sg === "object" && typeof sg.r === "bigint" && typeof sg.s === "bigint";
         if (!isHex2 && !isObj)
           throw new Error("invalid signature, expected Uint8Array, hex string or Signature instance");
-        let _sig = void 0;
-        let P;
-        try {
-          if (isObj) {
-            if (format2 === void 0 || format2 === "js") {
-              _sig = new Signature(sg.r, sg.s);
-            } else {
-              throw new Error("invalid format");
-            }
+        if (isObj) {
+          sig = new Signature(sg.r, sg.s);
+        } else if (isHex2) {
+          try {
+            sig = Signature.fromBytes(ensureBytes("sig", sg), "der");
+          } catch (derError) {
+            if (!(derError instanceof DER.Err))
+              throw derError;
           }
-          if (isHex2) {
+          if (!sig) {
             try {
-              if (format2 !== "compact")
-                _sig = Signature.fromDER(sg);
-            } catch (derError) {
-              if (!(derError instanceof DER.Err))
-                throw derError;
+              sig = Signature.fromBytes(ensureBytes("sig", sg), "compact");
+            } catch (error2) {
+              return false;
             }
-            if (!_sig && format2 !== "der")
-              _sig = Signature.fromCompact(sg);
           }
-          P = Point2.fromHex(publicKey);
-        } catch (error2) {
+        }
+        if (!sig)
+          return false;
+        return sig;
+      }
+      function verify(signature, message2, publicKey, opts = {}) {
+        const { lowS, prehash, format: format2 } = validateSigOpts(opts, defaultSigOpts);
+        publicKey = ensureBytes("publicKey", publicKey);
+        message2 = validateMsgAndHash(ensureBytes("message", message2), prehash);
+        if ("strict" in opts)
+          throw new Error("options.strict was renamed to lowS");
+        const sig = format2 === void 0 ? tryParsingSig(signature) : Signature.fromBytes(ensureBytes("sig", signature), format2);
+        if (sig === false)
+          return false;
+        try {
+          const P = Point2.fromBytes(publicKey);
+          if (lowS && sig.hasHighS())
+            return false;
+          const { r: r2, s } = sig;
+          const h = bits2int_modN(message2);
+          const is2 = Fn.inv(s);
+          const u1 = Fn.create(h * is2);
+          const u2 = Fn.create(r2 * is2);
+          const R = Point2.BASE.multiplyUnsafe(u1).add(P.multiplyUnsafe(u2));
+          if (R.is0())
+            return false;
+          const v = Fn.create(R.x);
+          return v === r2;
+        } catch (e2) {
           return false;
         }
-        if (!_sig)
-          return false;
-        if (lowS && _sig.hasHighS())
-          return false;
-        if (prehash)
-          msgHash = ecdsaOpts.hash(msgHash);
-        const { r: r2, s } = _sig;
-        const h = bits2int_modN(msgHash);
-        const is2 = Fn.inv(s);
-        const u1 = Fn.create(h * is2);
-        const u2 = Fn.create(r2 * is2);
-        const R = Point2.BASE.multiplyUnsafe(u1).add(P.multiplyUnsafe(u2));
-        if (R.is0())
-          return false;
-        const v = Fn.create(R.x);
-        return v === r2;
+      }
+      function recoverPublicKey(signature, message2, opts = {}) {
+        const { prehash } = validateSigOpts(opts, defaultSigOpts);
+        message2 = validateMsgAndHash(message2, prehash);
+        return Signature.fromBytes(signature, "recovered").recoverPublicKey(message2).toBytes();
       }
       return Object.freeze({
+        keygen,
         getPublicKey,
         getSharedSecret,
+        utils: utils2,
+        lengths,
+        Point: Point2,
         sign: sign2,
         verify,
-        utils: utils2,
-        Point: Point2,
-        Signature
+        recoverPublicKey,
+        Signature,
+        hash
       });
     }
     function _weierstrass_legacy_opts_to_new(c) {
@@ -7429,14 +8361,17 @@ var require_index_001 = __commonJS({
         Gy: c.Gy
       };
       const Fp = c.Fp;
-      const Fn = Field(CURVE.n, c.nBitLength);
+      let allowedLengths = c.allowedPrivateKeyLengths ? Array.from(new Set(c.allowedPrivateKeyLengths.map((l) => Math.ceil(l / 2)))) : void 0;
+      const Fn = Field(CURVE.n, {
+        BITS: c.nBitLength,
+        allowedLengths,
+        modFromBytes: c.wrapPrivateKey
+      });
       const curveOpts = {
         Fp,
         Fn,
-        allowedPrivateKeyLengths: c.allowedPrivateKeyLengths,
         allowInfinityPoint: c.allowInfinityPoint,
         endo: c.endo,
-        wrapPrivateKey: c.wrapPrivateKey,
         isTorsionFree: c.isTorsionFree,
         clearCofactor: c.clearCofactor,
         fromBytes: c.fromBytes,
@@ -7447,25 +8382,25 @@ var require_index_001 = __commonJS({
     function _ecdsa_legacy_opts_to_new(c) {
       const { CURVE, curveOpts } = _weierstrass_legacy_opts_to_new(c);
       const ecdsaOpts = {
-        hash: c.hash,
         hmac: c.hmac,
         randomBytes: c.randomBytes,
         lowS: c.lowS,
         bits2int: c.bits2int,
         bits2int_modN: c.bits2int_modN
       };
-      return { CURVE, curveOpts, ecdsaOpts };
+      return { CURVE, curveOpts, hash: c.hash, ecdsaOpts };
     }
-    function _ecdsa_new_output_to_legacy(c, ecdsa2) {
-      return Object.assign({}, ecdsa2, {
-        ProjectivePoint: ecdsa2.Point,
-        CURVE: c
+    function _ecdsa_new_output_to_legacy(c, _ecdsa) {
+      const Point2 = _ecdsa.Point;
+      return Object.assign({}, _ecdsa, {
+        ProjectivePoint: Point2,
+        CURVE: Object.assign({}, c, nLength(Point2.Fn.ORDER, Point2.Fn.BITS))
       });
     }
     function weierstrass(c) {
-      const { CURVE, curveOpts, ecdsaOpts } = _ecdsa_legacy_opts_to_new(c);
+      const { CURVE, curveOpts, hash, ecdsaOpts } = _ecdsa_legacy_opts_to_new(c);
       const Point2 = weierstrassN(CURVE, curveOpts);
-      const signs = ecdsa(Point2, ecdsaOpts, curveOpts);
+      const signs = ecdsa(Point2, hash, ecdsaOpts);
       return _ecdsa_new_output_to_legacy(c, signs);
     }
     /*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) */
@@ -8084,7 +9019,7 @@ var require_index_001 = __commonJS({
        * Return the base-64 representation of the public key
        */
       toBase64() {
-        return toB64(this.toRawBytes());
+        return toB64$1(this.toRawBytes());
       }
       toString() {
         throw new Error(
@@ -8098,7 +9033,7 @@ var require_index_001 = __commonJS({
        */
       toIotaPublicKey() {
         const bytes = this.toIotaBytes();
-        return toB64(bytes);
+        return toB64$1(bytes);
       }
       verifyWithIntent(bytes, signature, intent) {
         const intentMessage = messageWithIntent(intent, bytes);
@@ -8170,7 +9105,7 @@ var require_index_001 = __commonJS({
       constructor(value2) {
         super();
         if (typeof value2 === "string") {
-          this.data = fromB64(value2);
+          this.data = fromB64$1(value2);
         } else if (value2 instanceof Uint8Array) {
           this.data = value2;
         } else {
@@ -8209,7 +9144,7 @@ var require_index_001 = __commonJS({
         if (clientDataJSON.type !== "webauthn.get") {
           return false;
         }
-        const parsedChallenge = fromB64(
+        const parsedChallenge = fromB64$1(
           clientDataJSON.challenge.replace(/-/g, "+").replace(/_/g, "/")
         );
         if (!bytesEqual(message2, parsedChallenge)) {
@@ -8229,14 +9164,14 @@ var require_index_001 = __commonJS({
     }
     PasskeyPublicKey.SIZE = PASSKEY_PUBLIC_KEY_SIZE;
     function parseSerializedPasskeySignature(signature) {
-      const bytes = typeof signature === "string" ? fromB64(signature) : signature;
+      const bytes = typeof signature === "string" ? fromB64$1(signature) : signature;
       if (bytes[0] !== SIGNATURE_SCHEME_TO_FLAG.Passkey) {
         throw new Error("Invalid signature scheme");
       }
       const dec2 = PasskeyAuthenticator.parse(bytes.slice(1));
       return {
         signatureScheme: "Passkey",
-        serializedSignature: toB64(bytes),
+        serializedSignature: toB64$1(bytes),
         signature: bytes,
         authenticatorData: dec2.authenticatorData,
         clientDataJson: dec2.clientDataJson,
@@ -8257,10 +9192,10 @@ var require_index_001 = __commonJS({
       serializedSignature.set([SIGNATURE_SCHEME_TO_FLAG[signatureScheme]]);
       serializedSignature.set(signature, 1);
       serializedSignature.set(pubKeyBytes, 1 + signature.length);
-      return toB64(serializedSignature);
+      return toB64$1(serializedSignature);
     }
     function parseSerializedSignature(serializedSignature) {
-      const bytes = fromB64(serializedSignature);
+      const bytes = fromB64$1(serializedSignature);
       const signatureScheme = SIGNATURE_FLAG_TO_SCHEME[bytes[0]];
       switch (signatureScheme) {
         case "Passkey":
@@ -8685,7 +9620,7 @@ var require_index_001 = __commonJS({
       return mnemonicToSeedSync(mnemonics, "");
     }
     function mnemonicToSeedHex(mnemonics) {
-      return toHEX(mnemonicToSeed(mnemonics));
+      return toHEX$1(mnemonicToSeed(mnemonics));
     }
     function getDefaultExportFromCjs(x) {
       return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
@@ -8898,7 +9833,7 @@ var require_index_001 = __commonJS({
         });
         return {
           signature,
-          bytes: toB64(bytes)
+          bytes: toB64$1(bytes)
         };
       }
       /**
@@ -8912,11 +9847,11 @@ var require_index_001 = __commonJS({
        */
       async signPersonalMessage(bytes) {
         const { signature } = await this.signWithIntent(
-          bcs.vector(bcs.u8()).serialize(bytes).toBytes(),
+          bcs$1.vector(bcs$1.u8()).serialize(bytes).toBytes(),
           "PersonalMessage"
         );
         return {
-          bytes: toB64(bytes),
+          bytes: toB64$1(bytes),
           signature
         };
       }
@@ -11193,7 +12128,7 @@ var require_index_001 = __commonJS({
     const replaceDerive$1 = (val) => val.replace("'", "");
     const getMasterKeyFromSeed$1 = (seed) => {
       const h = hmac.create(sha512, ED25519_CURVE$1);
-      const I = h.update(fromHEX(seed)).digest();
+      const I = h.update(fromHEX$1(seed)).digest();
       const IL = I.slice(0, 32);
       const IR = I.slice(32);
       return {
@@ -11246,7 +12181,7 @@ var require_index_001 = __commonJS({
       constructor(value2) {
         super();
         if (typeof value2 === "string") {
-          this.data = fromB64(value2);
+          this.data = fromB64$1(value2);
         } else if (value2 instanceof Uint8Array) {
           this.data = value2;
         } else {
@@ -11418,10 +12353,14 @@ var require_index_001 = __commonJS({
       Gx: BigInt("0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"),
       Gy: BigInt("0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8")
     };
-    BigInt(0);
-    const _1n = BigInt(1);
-    const _2n = BigInt(2);
-    const divNearest = (a2, b) => (a2 + b / _2n) / b;
+    const secp256k1_ENDO = {
+      beta: BigInt("0x7ae96a2b657c07106e64479eac3434e99cf0497512f58995c1396c28719501ee"),
+      basises: [
+        [BigInt("0x3086d221a7d46bcde86c90e49284eb15"), -BigInt("0xe4437ed6010e88286f547fa90abfe4c3")],
+        [BigInt("0x114ca50f7a8e2f3f657c1108d9d44cfd8"), BigInt("0x3086d221a7d46bcde86c90e49284eb15")]
+      ]
+    };
+    const _2n = /* @__PURE__ */ BigInt(2);
     function sqrtMod(y) {
       const P = secp256k1_CURVE.p;
       const _3n2 = BigInt(3), _6n = BigInt(6), _11n = BigInt(11), _22n = BigInt(22);
@@ -11444,39 +12383,8 @@ var require_index_001 = __commonJS({
         throw new Error("Cannot find square root");
       return root2;
     }
-    const Fpk1 = Field(secp256k1_CURVE.p, void 0, void 0, { sqrt: sqrtMod });
-    const secp256k1 = createCurve({
-      ...secp256k1_CURVE,
-      Fp: Fpk1,
-      lowS: true,
-      // Allow only low-S signatures by default in sign() and verify()
-      endo: {
-        // Endomorphism, see above
-        beta: BigInt("0x7ae96a2b657c07106e64479eac3434e99cf0497512f58995c1396c28719501ee"),
-        splitScalar: (k) => {
-          const n2 = secp256k1_CURVE.n;
-          const a1 = BigInt("0x3086d221a7d46bcde86c90e49284eb15");
-          const b1 = -_1n * BigInt("0xe4437ed6010e88286f547fa90abfe4c3");
-          const a2 = BigInt("0x114ca50f7a8e2f3f657c1108d9d44cfd8");
-          const b2 = a1;
-          const POW_2_128 = BigInt("0x100000000000000000000000000000000");
-          const c1 = divNearest(b2 * k, n2);
-          const c2 = divNearest(-b1 * k, n2);
-          let k1 = mod(k - c1 * a1 - c2 * a2, n2);
-          let k2 = mod(-c1 * b1 - c2 * b2, n2);
-          const k1neg = k1 > POW_2_128;
-          const k2neg = k2 > POW_2_128;
-          if (k1neg)
-            k1 = n2 - k1;
-          if (k2neg)
-            k2 = n2 - k2;
-          if (k1 > POW_2_128 || k2 > POW_2_128) {
-            throw new Error("splitScalar: Endomorphism failed, k=" + k);
-          }
-          return { k1neg, k1, k2neg, k2 };
-        }
-      }
-    }, sha256$4);
+    const Fpk1 = Field(secp256k1_CURVE.p, { sqrt: sqrtMod });
+    const secp256k1 = createCurve({ ...secp256k1_CURVE, Fp: Fpk1, lowS: true, endo: secp256k1_ENDO }, sha256$4);
     const Rho160 = /* @__PURE__ */ Uint8Array.from([
       7,
       4,
@@ -11846,7 +12754,7 @@ var require_index_001 = __commonJS({
       constructor(value2) {
         super();
         if (typeof value2 === "string") {
-          this.data = fromB64(value2);
+          this.data = fromB64$1(value2);
         } else if (value2 instanceof Uint8Array) {
           this.data = value2;
         } else {
@@ -12020,7 +12928,7 @@ var require_index_001 = __commonJS({
       constructor(value2) {
         super();
         if (typeof value2 === "string") {
-          this.data = fromB64(value2);
+          this.data = fromB64$1(value2);
         } else if (value2 instanceof Uint8Array) {
           this.data = value2;
         } else {
@@ -12215,20 +13123,20 @@ var require_index_001 = __commonJS({
         this.statusText = statusText;
       }
     };
-    var __typeError$8 = (msg) => {
+    var __typeError$9 = (msg) => {
       throw TypeError(msg);
     };
-    var __accessCheck$8 = (obj, member, msg) => member.has(obj) || __typeError$8("Cannot " + msg);
-    var __privateGet$8 = (obj, member, getter) => (__accessCheck$8(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
-    var __privateAdd$8 = (obj, member, value2) => member.has(obj) ? __typeError$8("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value2);
-    var __privateSet$8 = (obj, member, value2, setter) => (__accessCheck$8(obj, member, "write to private field"), member.set(obj, value2), value2);
-    var __privateMethod$7 = (obj, member, method) => (__accessCheck$8(obj, member, "access private method"), method);
+    var __accessCheck$9 = (obj, member, msg) => member.has(obj) || __typeError$9("Cannot " + msg);
+    var __privateGet$9 = (obj, member, getter) => (__accessCheck$9(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+    var __privateAdd$9 = (obj, member, value2) => member.has(obj) ? __typeError$9("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value2);
+    var __privateSet$9 = (obj, member, value2, setter) => (__accessCheck$9(obj, member, "write to private field"), member.set(obj, value2), value2);
+    var __privateMethod$7 = (obj, member, method) => (__accessCheck$9(obj, member, "access private method"), method);
     var __privateWrapper$1 = (obj, member, setter, getter) => ({
       set _(value2) {
-        __privateSet$8(obj, member, value2);
+        __privateSet$9(obj, member, value2);
       },
       get _() {
-        return __privateGet$8(obj, member, getter);
+        return __privateGet$9(obj, member, getter);
       }
     });
     var _requestId$3, _disconnects$1, _webSocket$1, _connectionPromise$1, _subscriptions$1, _pendingRequests$1, _WebsocketClient_instances$1, setupWebSocket_fn$1, reconnect_fn$1;
@@ -12246,13 +13154,13 @@ var require_index_001 = __commonJS({
     };
     let WebsocketClient$1 = class WebsocketClient {
       constructor(endpoint, options = {}) {
-        __privateAdd$8(this, _WebsocketClient_instances$1);
-        __privateAdd$8(this, _requestId$3, 0);
-        __privateAdd$8(this, _disconnects$1, 0);
-        __privateAdd$8(this, _webSocket$1, null);
-        __privateAdd$8(this, _connectionPromise$1, null);
-        __privateAdd$8(this, _subscriptions$1, /* @__PURE__ */ new Set());
-        __privateAdd$8(this, _pendingRequests$1, /* @__PURE__ */ new Map());
+        __privateAdd$9(this, _WebsocketClient_instances$1);
+        __privateAdd$9(this, _requestId$3, 0);
+        __privateAdd$9(this, _disconnects$1, 0);
+        __privateAdd$9(this, _webSocket$1, null);
+        __privateAdd$9(this, _connectionPromise$1, null);
+        __privateAdd$9(this, _subscriptions$1, /* @__PURE__ */ new Set());
+        __privateAdd$9(this, _pendingRequests$1, /* @__PURE__ */ new Map());
         this.endpoint = endpoint;
         this.options = { ...DEFAULT_CLIENT_OPTIONS$1, ...options };
         if (!this.options.WebSocketConstructor) {
@@ -12266,16 +13174,16 @@ var require_index_001 = __commonJS({
       async makeRequest(method, params) {
         const webSocket = await __privateMethod$7(this, _WebsocketClient_instances$1, setupWebSocket_fn$1).call(this);
         return new Promise((resolve2, reject) => {
-          __privateSet$8(this, _requestId$3, __privateGet$8(this, _requestId$3) + 1);
-          __privateGet$8(this, _pendingRequests$1).set(__privateGet$8(this, _requestId$3), {
+          __privateSet$9(this, _requestId$3, __privateGet$9(this, _requestId$3) + 1);
+          __privateGet$9(this, _pendingRequests$1).set(__privateGet$9(this, _requestId$3), {
             resolve: resolve2,
             reject,
             timeout: setTimeout(() => {
-              __privateGet$8(this, _pendingRequests$1).delete(__privateGet$8(this, _requestId$3));
+              __privateGet$9(this, _pendingRequests$1).delete(__privateGet$9(this, _requestId$3));
               reject(new Error(`Request timeout: ${method}`));
             }, this.options.callTimeout)
           });
-          webSocket.send(JSON.stringify({ jsonrpc: "2.0", id: __privateGet$8(this, _requestId$3), method, params }));
+          webSocket.send(JSON.stringify({ jsonrpc: "2.0", id: __privateGet$9(this, _requestId$3), method, params }));
         }).then(({ error: error2, result }) => {
           if (error2) {
             throw new JsonRpcError$1(error2.message, error2.code);
@@ -12285,7 +13193,7 @@ var require_index_001 = __commonJS({
       }
       async subscribe(input) {
         const subscription = new RpcSubscription$1(input);
-        __privateGet$8(this, _subscriptions$1).add(subscription);
+        __privateGet$9(this, _subscriptions$1).add(subscription);
         await subscription.subscribe(this);
         return () => subscription.unsubscribe(this);
       }
@@ -12298,26 +13206,26 @@ var require_index_001 = __commonJS({
     _pendingRequests$1 = /* @__PURE__ */ new WeakMap();
     _WebsocketClient_instances$1 = /* @__PURE__ */ new WeakSet();
     setupWebSocket_fn$1 = function() {
-      if (__privateGet$8(this, _connectionPromise$1)) {
-        return __privateGet$8(this, _connectionPromise$1);
+      if (__privateGet$9(this, _connectionPromise$1)) {
+        return __privateGet$9(this, _connectionPromise$1);
       }
-      __privateSet$8(this, _connectionPromise$1, new Promise((resolve2) => {
+      __privateSet$9(this, _connectionPromise$1, new Promise((resolve2) => {
         var _a3;
-        (_a3 = __privateGet$8(this, _webSocket$1)) == null ? void 0 : _a3.close();
-        __privateSet$8(this, _webSocket$1, new this.options.WebSocketConstructor(this.endpoint));
-        __privateGet$8(this, _webSocket$1).addEventListener("open", () => {
-          __privateSet$8(this, _disconnects$1, 0);
-          resolve2(__privateGet$8(this, _webSocket$1));
+        (_a3 = __privateGet$9(this, _webSocket$1)) == null ? void 0 : _a3.close();
+        __privateSet$9(this, _webSocket$1, new this.options.WebSocketConstructor(this.endpoint));
+        __privateGet$9(this, _webSocket$1).addEventListener("open", () => {
+          __privateSet$9(this, _disconnects$1, 0);
+          resolve2(__privateGet$9(this, _webSocket$1));
         });
-        __privateGet$8(this, _webSocket$1).addEventListener("close", () => {
+        __privateGet$9(this, _webSocket$1).addEventListener("close", () => {
           __privateWrapper$1(this, _disconnects$1)._++;
-          if (__privateGet$8(this, _disconnects$1) <= this.options.maxReconnects) {
+          if (__privateGet$9(this, _disconnects$1) <= this.options.maxReconnects) {
             setTimeout(() => {
               __privateMethod$7(this, _WebsocketClient_instances$1, reconnect_fn$1).call(this);
             }, this.options.reconnectTimeout);
           }
         });
-        __privateGet$8(this, _webSocket$1).addEventListener("message", ({ data }) => {
+        __privateGet$9(this, _webSocket$1).addEventListener("message", ({ data }) => {
           let json;
           try {
             json = JSON.parse(data);
@@ -12327,13 +13235,13 @@ var require_index_001 = __commonJS({
             );
             return;
           }
-          if ("id" in json && json.id != null && __privateGet$8(this, _pendingRequests$1).has(json.id)) {
-            const { resolve: resolve22, timeout } = __privateGet$8(this, _pendingRequests$1).get(json.id);
+          if ("id" in json && json.id != null && __privateGet$9(this, _pendingRequests$1).has(json.id)) {
+            const { resolve: resolve22, timeout } = __privateGet$9(this, _pendingRequests$1).get(json.id);
             clearTimeout(timeout);
             resolve22(json);
           } else if ("params" in json) {
             const { params } = json;
-            __privateGet$8(this, _subscriptions$1).forEach((subscription) => {
+            __privateGet$9(this, _subscriptions$1).forEach((subscription) => {
               if (subscription.subscriptionId === params.subscription) {
                 if (params.subscription === subscription.subscriptionId) {
                   subscription.onMessage(params.result);
@@ -12343,14 +13251,14 @@ var require_index_001 = __commonJS({
           }
         });
       }));
-      return __privateGet$8(this, _connectionPromise$1);
+      return __privateGet$9(this, _connectionPromise$1);
     };
     reconnect_fn$1 = async function() {
       var _a3;
-      (_a3 = __privateGet$8(this, _webSocket$1)) == null ? void 0 : _a3.close();
-      __privateSet$8(this, _connectionPromise$1, null);
+      (_a3 = __privateGet$9(this, _webSocket$1)) == null ? void 0 : _a3.close();
+      __privateSet$9(this, _connectionPromise$1, null);
       return Promise.allSettled(
-        [...__privateGet$8(this, _subscriptions$1)].map((subscription) => subscription.subscribe(this))
+        [...__privateGet$9(this, _subscriptions$1)].map((subscription) => subscription.subscribe(this))
       );
     };
     let RpcSubscription$1 = class RpcSubscription {
@@ -12383,25 +13291,25 @@ var require_index_001 = __commonJS({
         }
       }
     };
-    var __typeError$7 = (msg) => {
+    var __typeError$8 = (msg) => {
       throw TypeError(msg);
     };
-    var __accessCheck$7 = (obj, member, msg) => member.has(obj) || __typeError$7("Cannot " + msg);
-    var __privateGet$7 = (obj, member, getter) => (__accessCheck$7(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
-    var __privateAdd$7 = (obj, member, value2) => member.has(obj) ? __typeError$7("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value2);
-    var __privateSet$7 = (obj, member, value2, setter) => (__accessCheck$7(obj, member, "write to private field"), member.set(obj, value2), value2);
-    var __privateMethod$6 = (obj, member, method) => (__accessCheck$7(obj, member, "access private method"), method);
+    var __accessCheck$8 = (obj, member, msg) => member.has(obj) || __typeError$8("Cannot " + msg);
+    var __privateGet$8 = (obj, member, getter) => (__accessCheck$8(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+    var __privateAdd$8 = (obj, member, value2) => member.has(obj) ? __typeError$8("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value2);
+    var __privateSet$8 = (obj, member, value2, setter) => (__accessCheck$8(obj, member, "write to private field"), member.set(obj, value2), value2);
+    var __privateMethod$6 = (obj, member, method) => (__accessCheck$8(obj, member, "access private method"), method);
     var _requestId$2, _options$2, _websocketClient$1, _IotaHTTPTransport_instances$1, getWebsocketClient_fn$1;
     let IotaHTTPTransport$1 = class IotaHTTPTransport {
       constructor(options) {
-        __privateAdd$7(this, _IotaHTTPTransport_instances$1);
-        __privateAdd$7(this, _requestId$2, 0);
-        __privateAdd$7(this, _options$2);
-        __privateAdd$7(this, _websocketClient$1);
-        __privateSet$7(this, _options$2, options);
+        __privateAdd$8(this, _IotaHTTPTransport_instances$1);
+        __privateAdd$8(this, _requestId$2, 0);
+        __privateAdd$8(this, _options$2);
+        __privateAdd$8(this, _websocketClient$1);
+        __privateSet$8(this, _options$2, options);
       }
       fetch(input, init2) {
-        const fetchFn = __privateGet$7(this, _options$2).fetch ?? fetch;
+        const fetchFn = __privateGet$8(this, _options$2).fetch ?? fetch;
         if (!fetchFn) {
           throw new Error(
             "The current environment does not support fetch, you can provide a fetch implementation in the options for IotaHTTPTransport."
@@ -12411,19 +13319,19 @@ var require_index_001 = __commonJS({
       }
       async request(input) {
         var _a3, _b2;
-        __privateSet$7(this, _requestId$2, __privateGet$7(this, _requestId$2) + 1);
-        const res = await this.fetch(((_a3 = __privateGet$7(this, _options$2).rpc) == null ? void 0 : _a3.url) ?? __privateGet$7(this, _options$2).url, {
+        __privateSet$8(this, _requestId$2, __privateGet$8(this, _requestId$2) + 1);
+        const res = await this.fetch(((_a3 = __privateGet$8(this, _options$2).rpc) == null ? void 0 : _a3.url) ?? __privateGet$8(this, _options$2).url, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "Client-Sdk-Type": "typescript",
             "Client-Sdk-Version": PACKAGE_VERSION$1,
             "Client-Target-Api-Version": TARGETED_RPC_VERSION$1,
-            ...(_b2 = __privateGet$7(this, _options$2).rpc) == null ? void 0 : _b2.headers
+            ...(_b2 = __privateGet$8(this, _options$2).rpc) == null ? void 0 : _b2.headers
           },
           body: JSON.stringify({
             jsonrpc: "2.0",
-            id: __privateGet$7(this, _requestId$2),
+            id: __privateGet$8(this, _requestId$2),
             method: input.method,
             params: input.params
           })
@@ -12452,22 +13360,1063 @@ var require_index_001 = __commonJS({
     _IotaHTTPTransport_instances$1 = /* @__PURE__ */ new WeakSet();
     getWebsocketClient_fn$1 = function() {
       var _a3;
-      if (!__privateGet$7(this, _websocketClient$1)) {
-        const WebSocketConstructor = __privateGet$7(this, _options$2).WebSocketConstructor ?? WebSocket;
+      if (!__privateGet$8(this, _websocketClient$1)) {
+        const WebSocketConstructor = __privateGet$8(this, _options$2).WebSocketConstructor ?? WebSocket;
         if (!WebSocketConstructor) {
           throw new Error(
             "The current environment does not support WebSocket, you can provide a WebSocketConstructor in the options for IotaHTTPTransport."
           );
         }
-        __privateSet$7(this, _websocketClient$1, new WebsocketClient$1(
-          ((_a3 = __privateGet$7(this, _options$2).websocket) == null ? void 0 : _a3.url) ?? __privateGet$7(this, _options$2).url,
+        __privateSet$8(this, _websocketClient$1, new WebsocketClient$1(
+          ((_a3 = __privateGet$8(this, _options$2).websocket) == null ? void 0 : _a3.url) ?? __privateGet$8(this, _options$2).url,
           {
             WebSocketConstructor,
-            ...__privateGet$7(this, _options$2).websocket
+            ...__privateGet$8(this, _options$2).websocket
           }
         ));
       }
-      return __privateGet$7(this, _websocketClient$1);
+      return __privateGet$8(this, _websocketClient$1);
+    };
+    const toB58 = (buffer2) => base58$1.encode(buffer2);
+    const fromB58 = (str) => base58$1.decode(str);
+    function fromB64(base64String2) {
+      return Uint8Array.from(atob(base64String2), (char) => char.charCodeAt(0));
+    }
+    const CHUNK_SIZE = 8192;
+    function toB64(bytes) {
+      if (bytes.length < CHUNK_SIZE) {
+        return btoa(String.fromCharCode(...bytes));
+      }
+      let output = "";
+      for (let i2 = 0; i2 < bytes.length; i2 += CHUNK_SIZE) {
+        const chunk2 = bytes.slice(i2, i2 + CHUNK_SIZE);
+        output += String.fromCharCode(...chunk2);
+      }
+      return btoa(output);
+    }
+    function fromHEX(hexStr) {
+      var _a3;
+      const normalized = hexStr.startsWith("0x") ? hexStr.slice(2) : hexStr;
+      const padded = normalized.length % 2 === 0 ? normalized : `0${normalized}}`;
+      const intArr = ((_a3 = padded.match(/.{2}/g)) == null ? void 0 : _a3.map((byte) => parseInt(byte, 16))) ?? [];
+      return Uint8Array.from(intArr);
+    }
+    function toHEX(bytes) {
+      return bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, "0"), "");
+    }
+    function ulebEncode(num) {
+      const arr = [];
+      let len = 0;
+      if (num === 0) {
+        return [0];
+      }
+      while (num > 0) {
+        arr[len] = num & 127;
+        if (num >>= 7) {
+          arr[len] |= 128;
+        }
+        len += 1;
+      }
+      return arr;
+    }
+    function ulebDecode(arr) {
+      let total = 0;
+      let shift2 = 0;
+      let len = 0;
+      while (true) {
+        const byte = arr[len];
+        len += 1;
+        total |= (byte & 127) << shift2;
+        if ((byte & 128) === 0) {
+          break;
+        }
+        shift2 += 7;
+      }
+      return {
+        value: total,
+        length: len
+      };
+    }
+    class BcsReader {
+      /**
+       * @param {Uint8Array} data Data to use as a buffer.
+       */
+      constructor(data) {
+        this.bytePosition = 0;
+        this.dataView = new DataView(data.buffer);
+      }
+      /**
+       * Shift current cursor position by `bytes`.
+       *
+       * @param {Number} bytes Number of bytes to
+       * @returns {this} Self for possible chaining.
+       */
+      shift(bytes) {
+        this.bytePosition += bytes;
+        return this;
+      }
+      /**
+       * Read U8 value from the buffer and shift cursor by 1.
+       * @returns
+       */
+      read8() {
+        const value2 = this.dataView.getUint8(this.bytePosition);
+        this.shift(1);
+        return value2;
+      }
+      /**
+       * Read U16 value from the buffer and shift cursor by 2.
+       * @returns
+       */
+      read16() {
+        const value2 = this.dataView.getUint16(this.bytePosition, true);
+        this.shift(2);
+        return value2;
+      }
+      /**
+       * Read U32 value from the buffer and shift cursor by 4.
+       * @returns
+       */
+      read32() {
+        const value2 = this.dataView.getUint32(this.bytePosition, true);
+        this.shift(4);
+        return value2;
+      }
+      /**
+       * Read U64 value from the buffer and shift cursor by 8.
+       * @returns
+       */
+      read64() {
+        const value1 = this.read32();
+        const value2 = this.read32();
+        const result = value2.toString(16) + value1.toString(16).padStart(8, "0");
+        return BigInt("0x" + result).toString(10);
+      }
+      /**
+       * Read U128 value from the buffer and shift cursor by 16.
+       */
+      read128() {
+        const value1 = BigInt(this.read64());
+        const value2 = BigInt(this.read64());
+        const result = value2.toString(16) + value1.toString(16).padStart(16, "0");
+        return BigInt("0x" + result).toString(10);
+      }
+      /**
+       * Read U128 value from the buffer and shift cursor by 32.
+       * @returns
+       */
+      read256() {
+        const value1 = BigInt(this.read128());
+        const value2 = BigInt(this.read128());
+        const result = value2.toString(16) + value1.toString(16).padStart(32, "0");
+        return BigInt("0x" + result).toString(10);
+      }
+      /**
+       * Read `num` number of bytes from the buffer and shift cursor by `num`.
+       * @param num Number of bytes to read.
+       */
+      readBytes(num) {
+        const start = this.bytePosition + this.dataView.byteOffset;
+        const value2 = new Uint8Array(this.dataView.buffer, start, num);
+        this.shift(num);
+        return value2;
+      }
+      /**
+       * Read ULEB value - an integer of varying size. Used for enum indexes and
+       * vector lengths.
+       * @returns {Number} The ULEB value.
+       */
+      readULEB() {
+        const start = this.bytePosition + this.dataView.byteOffset;
+        const buffer2 = new Uint8Array(this.dataView.buffer, start);
+        const { value: value2, length } = ulebDecode(buffer2);
+        this.shift(length);
+        return value2;
+      }
+      /**
+       * Read a BCS vector: read a length and then apply function `cb` X times
+       * where X is the length of the vector, defined as ULEB in BCS bytes.
+       * @param cb Callback to process elements of vector.
+       * @returns {Array<Any>} Array of the resulting values, returned by callback.
+       */
+      readVec(cb) {
+        const length = this.readULEB();
+        const result = [];
+        for (let i2 = 0; i2 < length; i2++) {
+          result.push(cb(this, i2, length));
+        }
+        return result;
+      }
+    }
+    function encodeStr(data, encoding) {
+      switch (encoding) {
+        case "base58":
+          return toB58(data);
+        case "base64":
+          return toB64(data);
+        case "hex":
+          return toHEX(data);
+        default:
+          throw new Error("Unsupported encoding, supported values are: base64, hex");
+      }
+    }
+    function splitGenericParameters(str, genericSeparators = ["<", ">"]) {
+      const [left, right] = genericSeparators;
+      const tok = [];
+      let word = "";
+      let nestedAngleBrackets = 0;
+      for (let i2 = 0; i2 < str.length; i2++) {
+        const char = str[i2];
+        if (char === left) {
+          nestedAngleBrackets++;
+        }
+        if (char === right) {
+          nestedAngleBrackets--;
+        }
+        if (nestedAngleBrackets === 0 && char === ",") {
+          tok.push(word.trim());
+          word = "";
+          continue;
+        }
+        word += char;
+      }
+      tok.push(word.trim());
+      return tok;
+    }
+    class BcsWriter {
+      constructor({
+        initialSize = 1024,
+        maxSize = Infinity,
+        allocateSize = 1024
+      } = {}) {
+        this.bytePosition = 0;
+        this.size = initialSize;
+        this.maxSize = maxSize;
+        this.allocateSize = allocateSize;
+        this.dataView = new DataView(new ArrayBuffer(initialSize));
+      }
+      ensureSizeOrGrow(bytes) {
+        const requiredSize = this.bytePosition + bytes;
+        if (requiredSize > this.size) {
+          const nextSize = Math.min(this.maxSize, this.size + this.allocateSize);
+          if (requiredSize > nextSize) {
+            throw new Error(
+              `SizeLimitExceeded: Attempting to serialize to BCS, but buffer does not have enough size. Allocated size: ${this.size}, Max size: ${this.maxSize}, Required size: ${requiredSize}`
+            );
+          }
+          this.size = nextSize;
+          const nextBuffer = new ArrayBuffer(this.size);
+          new Uint8Array(nextBuffer).set(new Uint8Array(this.dataView.buffer));
+          this.dataView = new DataView(nextBuffer);
+        }
+      }
+      /**
+       * Shift current cursor position by `bytes`.
+       *
+       * @param {Number} bytes Number of bytes to
+       * @returns {this} Self for possible chaining.
+       */
+      shift(bytes) {
+        this.bytePosition += bytes;
+        return this;
+      }
+      /**
+       * Write a U8 value into a buffer and shift cursor position by 1.
+       * @param {Number} value Value to write.
+       * @returns {this}
+       */
+      write8(value2) {
+        this.ensureSizeOrGrow(1);
+        this.dataView.setUint8(this.bytePosition, Number(value2));
+        return this.shift(1);
+      }
+      /**
+       * Write a U16 value into a buffer and shift cursor position by 2.
+       * @param {Number} value Value to write.
+       * @returns {this}
+       */
+      write16(value2) {
+        this.ensureSizeOrGrow(2);
+        this.dataView.setUint16(this.bytePosition, Number(value2), true);
+        return this.shift(2);
+      }
+      /**
+       * Write a U32 value into a buffer and shift cursor position by 4.
+       * @param {Number} value Value to write.
+       * @returns {this}
+       */
+      write32(value2) {
+        this.ensureSizeOrGrow(4);
+        this.dataView.setUint32(this.bytePosition, Number(value2), true);
+        return this.shift(4);
+      }
+      /**
+       * Write a U64 value into a buffer and shift cursor position by 8.
+       * @param {bigint} value Value to write.
+       * @returns {this}
+       */
+      write64(value2) {
+        toLittleEndian(BigInt(value2), 8).forEach((el) => this.write8(el));
+        return this;
+      }
+      /**
+       * Write a U128 value into a buffer and shift cursor position by 16.
+       *
+       * @param {bigint} value Value to write.
+       * @returns {this}
+       */
+      write128(value2) {
+        toLittleEndian(BigInt(value2), 16).forEach((el) => this.write8(el));
+        return this;
+      }
+      /**
+       * Write a U256 value into a buffer and shift cursor position by 16.
+       *
+       * @param {bigint} value Value to write.
+       * @returns {this}
+       */
+      write256(value2) {
+        toLittleEndian(BigInt(value2), 32).forEach((el) => this.write8(el));
+        return this;
+      }
+      /**
+       * Write a ULEB value into a buffer and shift cursor position by number of bytes
+       * written.
+       * @param {Number} value Value to write.
+       * @returns {this}
+       */
+      writeULEB(value2) {
+        ulebEncode(value2).forEach((el) => this.write8(el));
+        return this;
+      }
+      /**
+       * Write a vector into a buffer by first writing the vector length and then calling
+       * a callback on each passed value.
+       *
+       * @param {Array<Any>} vector Array of elements to write.
+       * @param {WriteVecCb} cb Callback to call on each element of the vector.
+       * @returns {this}
+       */
+      writeVec(vector, cb) {
+        this.writeULEB(vector.length);
+        Array.from(vector).forEach((el, i2) => cb(this, el, i2, vector.length));
+        return this;
+      }
+      /**
+       * Adds support for iterations over the object.
+       * @returns {Uint8Array}
+       */
+      *[Symbol.iterator]() {
+        for (let i2 = 0; i2 < this.bytePosition; i2++) {
+          yield this.dataView.getUint8(i2);
+        }
+        return this.toBytes();
+      }
+      /**
+       * Get underlying buffer taking only value bytes (in case initial buffer size was bigger).
+       * @returns {Uint8Array} Resulting bcs.
+       */
+      toBytes() {
+        return new Uint8Array(this.dataView.buffer.slice(0, this.bytePosition));
+      }
+      /**
+       * Represent data as 'hex' or 'base64'
+       * @param encoding Encoding to use: 'base64' or 'hex'
+       */
+      toString(encoding) {
+        return encodeStr(this.toBytes(), encoding);
+      }
+    }
+    function toLittleEndian(bigint2, size) {
+      const result = new Uint8Array(size);
+      let i2 = 0;
+      while (bigint2 > 0) {
+        result[i2] = Number(bigint2 % BigInt(256));
+        bigint2 = bigint2 / BigInt(256);
+        i2 += 1;
+      }
+      return result;
+    }
+    var __typeError$7 = (msg) => {
+      throw TypeError(msg);
+    };
+    var __accessCheck$7 = (obj, member, msg) => member.has(obj) || __typeError$7("Cannot " + msg);
+    var __privateGet$7 = (obj, member, getter) => (__accessCheck$7(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+    var __privateAdd$7 = (obj, member, value2) => member.has(obj) ? __typeError$7("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value2);
+    var __privateSet$7 = (obj, member, value2, setter) => (__accessCheck$7(obj, member, "write to private field"), member.set(obj, value2), value2);
+    var _write, _serialize, _schema, _bytes;
+    const _BcsType = class _BcsType2 {
+      constructor(options) {
+        __privateAdd$7(this, _write);
+        __privateAdd$7(this, _serialize);
+        this.name = options.name;
+        this.read = options.read;
+        this.serializedSize = options.serializedSize ?? (() => null);
+        __privateSet$7(this, _write, options.write);
+        __privateSet$7(this, _serialize, options.serialize ?? ((value2, options2) => {
+          const writer = new BcsWriter({
+            initialSize: this.serializedSize(value2) ?? void 0,
+            ...options2
+          });
+          __privateGet$7(this, _write).call(this, value2, writer);
+          return writer.toBytes();
+        }));
+        this.validate = options.validate ?? (() => {
+        });
+      }
+      write(value2, writer) {
+        this.validate(value2);
+        __privateGet$7(this, _write).call(this, value2, writer);
+      }
+      serialize(value2, options) {
+        this.validate(value2);
+        return new SerializedBcs(this, __privateGet$7(this, _serialize).call(this, value2, options));
+      }
+      parse(bytes) {
+        const reader = new BcsReader(bytes);
+        return this.read(reader);
+      }
+      fromHex(hex2) {
+        return this.parse(fromHEX(hex2));
+      }
+      fromBase58(b64) {
+        return this.parse(fromB58(b64));
+      }
+      fromBase64(b64) {
+        return this.parse(fromB64(b64));
+      }
+      transform({
+        name: name2,
+        input,
+        output,
+        validate: validate2
+      }) {
+        return new _BcsType2({
+          name: name2 ?? this.name,
+          read: (reader) => output(this.read(reader)),
+          write: (value2, writer) => __privateGet$7(this, _write).call(this, input(value2), writer),
+          serializedSize: (value2) => this.serializedSize(input(value2)),
+          serialize: (value2, options) => __privateGet$7(this, _serialize).call(this, input(value2), options),
+          validate: (value2) => {
+            validate2 == null ? void 0 : validate2(value2);
+            this.validate(input(value2));
+          }
+        });
+      }
+    };
+    _write = /* @__PURE__ */ new WeakMap();
+    _serialize = /* @__PURE__ */ new WeakMap();
+    let BcsType = _BcsType;
+    const SERIALIZED_BCS_BRAND = Symbol.for("@iota/serialized-bcs");
+    function isSerializedBcs(obj) {
+      return !!obj && typeof obj === "object" && obj[SERIALIZED_BCS_BRAND] === true;
+    }
+    class SerializedBcs {
+      constructor(type2, schema) {
+        __privateAdd$7(this, _schema);
+        __privateAdd$7(this, _bytes);
+        __privateSet$7(this, _schema, type2);
+        __privateSet$7(this, _bytes, schema);
+      }
+      // Used to brand SerializedBcs so that they can be identified, even between multiple copies
+      // of the @iota/bcs package are installed
+      get [SERIALIZED_BCS_BRAND]() {
+        return true;
+      }
+      toBytes() {
+        return __privateGet$7(this, _bytes);
+      }
+      toHex() {
+        return toHEX(__privateGet$7(this, _bytes));
+      }
+      toBase64() {
+        return toB64(__privateGet$7(this, _bytes));
+      }
+      toBase58() {
+        return toB58(__privateGet$7(this, _bytes));
+      }
+      parse() {
+        return __privateGet$7(this, _schema).parse(__privateGet$7(this, _bytes));
+      }
+    }
+    _schema = /* @__PURE__ */ new WeakMap();
+    _bytes = /* @__PURE__ */ new WeakMap();
+    function fixedSizeBcsType({
+      size,
+      ...options
+    }) {
+      return new BcsType({
+        ...options,
+        serializedSize: () => size
+      });
+    }
+    function uIntBcsType({
+      readMethod,
+      writeMethod,
+      ...options
+    }) {
+      return fixedSizeBcsType({
+        ...options,
+        read: (reader) => reader[readMethod](),
+        write: (value2, writer) => writer[writeMethod](value2),
+        validate: (value2) => {
+          var _a3;
+          if (value2 < 0 || value2 > options.maxValue) {
+            throw new TypeError(
+              `Invalid ${options.name} value: ${value2}. Expected value in range 0-${options.maxValue}`
+            );
+          }
+          (_a3 = options.validate) == null ? void 0 : _a3.call(options, value2);
+        }
+      });
+    }
+    function bigUIntBcsType({
+      readMethod,
+      writeMethod,
+      ...options
+    }) {
+      return fixedSizeBcsType({
+        ...options,
+        read: (reader) => reader[readMethod](),
+        write: (value2, writer) => writer[writeMethod](BigInt(value2)),
+        validate: (val) => {
+          var _a3;
+          const value2 = BigInt(val);
+          if (value2 < 0 || value2 > options.maxValue) {
+            throw new TypeError(
+              `Invalid ${options.name} value: ${value2}. Expected value in range 0-${options.maxValue}`
+            );
+          }
+          (_a3 = options.validate) == null ? void 0 : _a3.call(options, value2);
+        }
+      });
+    }
+    function dynamicSizeBcsType({
+      serialize,
+      ...options
+    }) {
+      const type2 = new BcsType({
+        ...options,
+        serialize,
+        write: (value2, writer) => {
+          for (const byte of type2.serialize(value2).toBytes()) {
+            writer.write8(byte);
+          }
+        }
+      });
+      return type2;
+    }
+    function stringLikeBcsType({
+      toBytes: toBytes2,
+      fromBytes,
+      ...options
+    }) {
+      return new BcsType({
+        ...options,
+        read: (reader) => {
+          const length = reader.readULEB();
+          const bytes = reader.readBytes(length);
+          return fromBytes(bytes);
+        },
+        write: (hex2, writer) => {
+          const bytes = toBytes2(hex2);
+          writer.writeULEB(bytes.length);
+          for (let i2 = 0; i2 < bytes.length; i2++) {
+            writer.write8(bytes[i2]);
+          }
+        },
+        serialize: (value2) => {
+          const bytes = toBytes2(value2);
+          const size = ulebEncode(bytes.length);
+          const result = new Uint8Array(size.length + bytes.length);
+          result.set(size, 0);
+          result.set(bytes, size.length);
+          return result;
+        },
+        validate: (value2) => {
+          var _a3;
+          if (typeof value2 !== "string") {
+            throw new TypeError(`Invalid ${options.name} value: ${value2}. Expected string`);
+          }
+          (_a3 = options.validate) == null ? void 0 : _a3.call(options, value2);
+        }
+      });
+    }
+    function lazyBcsType(cb) {
+      let lazyType = null;
+      function getType() {
+        if (!lazyType) {
+          lazyType = cb();
+        }
+        return lazyType;
+      }
+      return new BcsType({
+        name: "lazy",
+        read: (data) => getType().read(data),
+        serializedSize: (value2) => getType().serializedSize(value2),
+        write: (value2, writer) => getType().write(value2, writer),
+        serialize: (value2, options) => getType().serialize(value2, options).toBytes()
+      });
+    }
+    const bcs = {
+      /**
+       * Creates a BcsType that can be used to read and write an 8-bit unsigned integer.
+       * @example
+       * bcs.u8().serialize(255).toBytes() // Uint8Array [ 255 ]
+       */
+      u8(options) {
+        return uIntBcsType({
+          name: "u8",
+          readMethod: "read8",
+          writeMethod: "write8",
+          size: 1,
+          maxValue: 2 ** 8 - 1,
+          ...options
+        });
+      },
+      /**
+       * Creates a BcsType that can be used to read and write a 16-bit unsigned integer.
+       * @example
+       * bcs.u16().serialize(65535).toBytes() // Uint8Array [ 255, 255 ]
+       */
+      u16(options) {
+        return uIntBcsType({
+          name: "u16",
+          readMethod: "read16",
+          writeMethod: "write16",
+          size: 2,
+          maxValue: 2 ** 16 - 1,
+          ...options
+        });
+      },
+      /**
+       * Creates a BcsType that can be used to read and write a 32-bit unsigned integer.
+       * @example
+       * bcs.u32().serialize(4294967295).toBytes() // Uint8Array [ 255, 255, 255, 255 ]
+       */
+      u32(options) {
+        return uIntBcsType({
+          name: "u32",
+          readMethod: "read32",
+          writeMethod: "write32",
+          size: 4,
+          maxValue: 2 ** 32 - 1,
+          ...options
+        });
+      },
+      /**
+       * Creates a BcsType that can be used to read and write a 64-bit unsigned integer.
+       * @example
+       * bcs.u64().serialize(1).toBytes() // Uint8Array [ 1, 0, 0, 0, 0, 0, 0, 0 ]
+       */
+      u64(options) {
+        return bigUIntBcsType({
+          name: "u64",
+          readMethod: "read64",
+          writeMethod: "write64",
+          size: 8,
+          maxValue: 2n ** 64n - 1n,
+          ...options
+        });
+      },
+      /**
+       * Creates a BcsType that can be used to read and write a 128-bit unsigned integer.
+       * @example
+       * bcs.u128().serialize(1).toBytes() // Uint8Array [ 1, ..., 0 ]
+       */
+      u128(options) {
+        return bigUIntBcsType({
+          name: "u128",
+          readMethod: "read128",
+          writeMethod: "write128",
+          size: 16,
+          maxValue: 2n ** 128n - 1n,
+          ...options
+        });
+      },
+      /**
+       * Creates a BcsType that can be used to read and write a 256-bit unsigned integer.
+       * @example
+       * bcs.u256().serialize(1).toBytes() // Uint8Array [ 1, ..., 0 ]
+       */
+      u256(options) {
+        return bigUIntBcsType({
+          name: "u256",
+          readMethod: "read256",
+          writeMethod: "write256",
+          size: 32,
+          maxValue: 2n ** 256n - 1n,
+          ...options
+        });
+      },
+      /**
+       * Creates a BcsType that can be used to read and write boolean values.
+       * @example
+       * bcs.bool().serialize(true).toBytes() // Uint8Array [ 1 ]
+       */
+      bool(options) {
+        return fixedSizeBcsType({
+          name: "bool",
+          size: 1,
+          read: (reader) => reader.read8() === 1,
+          write: (value2, writer) => writer.write8(value2 ? 1 : 0),
+          ...options,
+          validate: (value2) => {
+            var _a3;
+            (_a3 = options == null ? void 0 : options.validate) == null ? void 0 : _a3.call(options, value2);
+            if (typeof value2 !== "boolean") {
+              throw new TypeError(`Expected boolean, found ${typeof value2}`);
+            }
+          }
+        });
+      },
+      /**
+       * Creates a BcsType that can be used to read and write unsigned LEB encoded integers
+       * @example
+       *
+       */
+      uleb128(options) {
+        return dynamicSizeBcsType({
+          name: "uleb128",
+          read: (reader) => reader.readULEB(),
+          serialize: (value2) => {
+            return Uint8Array.from(ulebEncode(value2));
+          },
+          ...options
+        });
+      },
+      /**
+       * Creates a BcsType representing a fixed length byte array
+       * @param size The number of bytes this types represents
+       * @example
+       * bcs.bytes(3).serialize(new Uint8Array([1, 2, 3])).toBytes() // Uint8Array [1, 2, 3]
+       */
+      bytes(size, options) {
+        return fixedSizeBcsType({
+          name: `bytes[${size}]`,
+          size,
+          read: (reader) => reader.readBytes(size),
+          write: (value2, writer) => {
+            for (let i2 = 0; i2 < size; i2++) {
+              writer.write8(value2[i2] ?? 0);
+            }
+          },
+          ...options,
+          validate: (value2) => {
+            var _a3;
+            (_a3 = options == null ? void 0 : options.validate) == null ? void 0 : _a3.call(options, value2);
+            if (!value2 || typeof value2 !== "object" || !("length" in value2)) {
+              throw new TypeError(`Expected array, found ${typeof value2}`);
+            }
+            if (value2.length !== size) {
+              throw new TypeError(`Expected array of length ${size}, found ${value2.length}`);
+            }
+          }
+        });
+      },
+      /**
+       * Creates a BcsType that can ser/de string values.  Strings will be UTF-8 encoded
+       * @example
+       * bcs.string().serialize('a').toBytes() // Uint8Array [ 1, 97 ]
+       */
+      string(options) {
+        return stringLikeBcsType({
+          name: "string",
+          toBytes: (value2) => new TextEncoder().encode(value2),
+          fromBytes: (bytes) => new TextDecoder().decode(bytes),
+          ...options
+        });
+      },
+      /**
+       * Creates a BcsType that represents a fixed length array of a given type
+       * @param size The number of elements in the array
+       * @param type The BcsType of each element in the array
+       * @example
+       * bcs.fixedArray(3, bcs.u8()).serialize([1, 2, 3]).toBytes() // Uint8Array [ 1, 2, 3 ]
+       */
+      fixedArray(size, type2, options) {
+        return new BcsType({
+          name: `${type2.name}[${size}]`,
+          read: (reader) => {
+            const result = new Array(size);
+            for (let i2 = 0; i2 < size; i2++) {
+              result[i2] = type2.read(reader);
+            }
+            return result;
+          },
+          write: (value2, writer) => {
+            for (const item of value2) {
+              type2.write(item, writer);
+            }
+          },
+          ...options,
+          validate: (value2) => {
+            var _a3;
+            (_a3 = options == null ? void 0 : options.validate) == null ? void 0 : _a3.call(options, value2);
+            if (!value2 || typeof value2 !== "object" || !("length" in value2)) {
+              throw new TypeError(`Expected array, found ${typeof value2}`);
+            }
+            if (value2.length !== size) {
+              throw new TypeError(`Expected array of length ${size}, found ${value2.length}`);
+            }
+          }
+        });
+      },
+      /**
+       * Creates a BcsType representing an optional value
+       * @param type The BcsType of the optional value
+       * @example
+       * bcs.option(bcs.u8()).serialize(null).toBytes() // Uint8Array [ 0 ]
+       * bcs.option(bcs.u8()).serialize(1).toBytes() // Uint8Array [ 1, 1 ]
+       */
+      option(type2) {
+        return bcs.enum(`Option<${type2.name}>`, {
+          None: null,
+          Some: type2
+        }).transform({
+          input: (value2) => {
+            if (value2 == null) {
+              return { None: true };
+            }
+            return { Some: value2 };
+          },
+          output: (value2) => {
+            if (value2.$kind === "Some") {
+              return value2.Some;
+            }
+            return null;
+          }
+        });
+      },
+      /**
+       * Creates a BcsType representing a variable length vector of a given type
+       * @param type The BcsType of each element in the vector
+       *
+       * @example
+       * bcs.vector(bcs.u8()).toBytes([1, 2, 3]) // Uint8Array [ 3, 1, 2, 3 ]
+       */
+      vector(type2, options) {
+        return new BcsType({
+          name: `vector<${type2.name}>`,
+          read: (reader) => {
+            const length = reader.readULEB();
+            const result = new Array(length);
+            for (let i2 = 0; i2 < length; i2++) {
+              result[i2] = type2.read(reader);
+            }
+            return result;
+          },
+          write: (value2, writer) => {
+            writer.writeULEB(value2.length);
+            for (const item of value2) {
+              type2.write(item, writer);
+            }
+          },
+          ...options,
+          validate: (value2) => {
+            var _a3;
+            (_a3 = options == null ? void 0 : options.validate) == null ? void 0 : _a3.call(options, value2);
+            if (!value2 || typeof value2 !== "object" || !("length" in value2)) {
+              throw new TypeError(`Expected array, found ${typeof value2}`);
+            }
+          }
+        });
+      },
+      /**
+       * Creates a BcsType representing a tuple of a given set of types
+       * @param types The BcsTypes for each element in the tuple
+       *
+       * @example
+       * const tuple = bcs.tuple([bcs.u8(), bcs.string(), bcs.bool()])
+       * tuple.serialize([1, 'a', true]).toBytes() // Uint8Array [ 1, 1, 97, 1 ]
+       */
+      tuple(types2, options) {
+        return new BcsType({
+          name: `(${types2.map((t2) => t2.name).join(", ")})`,
+          serializedSize: (values) => {
+            let total = 0;
+            for (let i2 = 0; i2 < types2.length; i2++) {
+              const size = types2[i2].serializedSize(values[i2]);
+              if (size == null) {
+                return null;
+              }
+              total += size;
+            }
+            return total;
+          },
+          read: (reader) => {
+            const result = [];
+            for (const type2 of types2) {
+              result.push(type2.read(reader));
+            }
+            return result;
+          },
+          write: (value2, writer) => {
+            for (let i2 = 0; i2 < types2.length; i2++) {
+              types2[i2].write(value2[i2], writer);
+            }
+          },
+          ...options,
+          validate: (value2) => {
+            var _a3;
+            (_a3 = options == null ? void 0 : options.validate) == null ? void 0 : _a3.call(options, value2);
+            if (!Array.isArray(value2)) {
+              throw new TypeError(`Expected array, found ${typeof value2}`);
+            }
+            if (value2.length !== types2.length) {
+              throw new TypeError(
+                `Expected array of length ${types2.length}, found ${value2.length}`
+              );
+            }
+          }
+        });
+      },
+      /**
+       * Creates a BcsType representing a struct of a given set of fields
+       * @param name The name of the struct
+       * @param fields The fields of the struct. The order of the fields affects how data is serialized and deserialized
+       *
+       * @example
+       * const struct = bcs.struct('MyStruct', {
+       *  a: bcs.u8(),
+       *  b: bcs.string(),
+       * })
+       * struct.serialize({ a: 1, b: 'a' }).toBytes() // Uint8Array [ 1, 1, 97 ]
+       */
+      struct(name2, fields, options) {
+        const canonicalOrder = Object.entries(fields);
+        return new BcsType({
+          name: name2,
+          serializedSize: (values) => {
+            let total = 0;
+            for (const [field, type2] of canonicalOrder) {
+              const size = type2.serializedSize(values[field]);
+              if (size == null) {
+                return null;
+              }
+              total += size;
+            }
+            return total;
+          },
+          read: (reader) => {
+            const result = {};
+            for (const [field, type2] of canonicalOrder) {
+              result[field] = type2.read(reader);
+            }
+            return result;
+          },
+          write: (value2, writer) => {
+            for (const [field, type2] of canonicalOrder) {
+              type2.write(value2[field], writer);
+            }
+          },
+          ...options,
+          validate: (value2) => {
+            var _a3;
+            (_a3 = options == null ? void 0 : options.validate) == null ? void 0 : _a3.call(options, value2);
+            if (typeof value2 !== "object" || value2 == null) {
+              throw new TypeError(`Expected object, found ${typeof value2}`);
+            }
+          }
+        });
+      },
+      /**
+       * Creates a BcsType representing an enum of a given set of options
+       * @param name The name of the enum
+       * @param values The values of the enum. The order of the values affects how data is serialized and deserialized.
+       * null can be used to represent a variant with no data.
+       *
+       * @example
+       * const enum = bcs.enum('MyEnum', {
+       *   A: bcs.u8(),
+       *   B: bcs.string(),
+       *   C: null,
+       * })
+       * enum.serialize({ A: 1 }).toBytes() // Uint8Array [ 0, 1 ]
+       * enum.serialize({ B: 'a' }).toBytes() // Uint8Array [ 1, 1, 97 ]
+       * enum.serialize({ C: true }).toBytes() // Uint8Array [ 2 ]
+       */
+      enum(name2, values, options) {
+        const canonicalOrder = Object.entries(values);
+        return new BcsType({
+          name: name2,
+          read: (reader) => {
+            const index2 = reader.readULEB();
+            const enumEntry = canonicalOrder[index2];
+            if (!enumEntry) {
+              throw new TypeError(`Unknown value ${index2} for enum ${name2}`);
+            }
+            const [kind, type2] = enumEntry;
+            return {
+              [kind]: (type2 == null ? void 0 : type2.read(reader)) ?? true,
+              $kind: kind
+            };
+          },
+          write: (value2, writer) => {
+            const [name22, val] = Object.entries(value2).filter(
+              ([name3]) => Object.hasOwn(values, name3)
+            )[0];
+            for (let i2 = 0; i2 < canonicalOrder.length; i2++) {
+              const [optionName, optionType] = canonicalOrder[i2];
+              if (optionName === name22) {
+                writer.writeULEB(i2);
+                optionType == null ? void 0 : optionType.write(val, writer);
+                return;
+              }
+            }
+          },
+          ...options,
+          validate: (value2) => {
+            var _a3;
+            (_a3 = options == null ? void 0 : options.validate) == null ? void 0 : _a3.call(options, value2);
+            if (typeof value2 !== "object" || value2 == null) {
+              throw new TypeError(`Expected object, found ${typeof value2}`);
+            }
+            const keys = Object.keys(value2).filter(
+              (k) => value2[k] !== void 0 && Object.hasOwn(values, k)
+            );
+            if (keys.length !== 1) {
+              throw new TypeError(
+                `Expected object with one key, but found ${keys.length} for type ${name2}}`
+              );
+            }
+            const [variant] = keys;
+            if (!Object.hasOwn(values, variant)) {
+              throw new TypeError(`Invalid enum variant ${variant}`);
+            }
+          }
+        });
+      },
+      /**
+       * Creates a BcsType representing a map of a given key and value type
+       * @param keyType The BcsType of the key
+       * @param valueType The BcsType of the value
+       * @example
+       * const map = bcs.map(bcs.u8(), bcs.string())
+       * map.serialize(new Map([[2, 'a']])).toBytes() // Uint8Array [ 1, 2, 1, 97 ]
+       */
+      map(keyType, valueType) {
+        return bcs.vector(bcs.tuple([keyType, valueType])).transform({
+          name: `Map<${keyType.name}, ${valueType.name}>`,
+          input: (value2) => {
+            return [...value2.entries()];
+          },
+          output: (value2) => {
+            const result = /* @__PURE__ */ new Map();
+            for (const [key, val] of value2) {
+              result.set(key, val);
+            }
+            return result;
+          }
+        });
+      },
+      /**
+       * Creates a BcsType that wraps another BcsType which is lazily evaluated. This is useful for creating recursive types.
+       * @param cb A callback that returns the BcsType
+       */
+      lazy(cb) {
+        return lazyBcsType(cb);
+      }
     };
     const IOTA_ADDRESS_LENGTH = 32;
     function isValidIotaAddress(value2) {
@@ -22120,7 +24069,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         this.locations = error2.locations;
       }
     }
-    const PACKAGE_VERSION = "1.3.0";
+    const PACKAGE_VERSION = "1.4.0";
     const TARGETED_RPC_VERSION = "1.4.0-alpha";
     const CODE_TO_ERROR_TYPE = {
       "-32700": "ParseError",
@@ -22547,7 +24496,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       return {
         $kind: "Pure",
         Pure: {
-          bytes: data instanceof Uint8Array ? toB64(data) : data.toBase64()
+          bytes: data instanceof Uint8Array ? toB64$1(data) : data.toBase64()
         }
       };
     }
@@ -22810,7 +24759,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           $kind: "Publish",
           Publish: {
             modules: modules.map(
-              (module2) => typeof module2 === "string" ? module2 : toB64(new Uint8Array(module2))
+              (module2) => typeof module2 === "string" ? module2 : toB64$1(new Uint8Array(module2))
             ),
             dependencies: dependencies.map((dep) => normalizeIotaObjectId$1(dep))
           }
@@ -22826,7 +24775,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           $kind: "Upgrade",
           Upgrade: {
             modules: modules.map(
-              (module2) => typeof module2 === "string" ? module2 : toB64(new Uint8Array(module2))
+              (module2) => typeof module2 === "string" ? module2 : toB64$1(new Uint8Array(module2))
             ),
             dependencies: dependencies.map((dep) => normalizeIotaObjectId$1(dep)),
             package: packageId,
@@ -23042,7 +24991,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
               kind: "Input",
               index: index2,
               value: {
-                Pure: Array.from(fromB64(input.Pure.bytes))
+                Pure: Array.from(fromB64$1(input.Pure.bytes))
               },
               type: "pure"
             };
@@ -23117,7 +25066,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
             if (command.Publish) {
               return {
                 kind: "Publish",
-                modules: command.Publish.modules.map((mod2) => Array.from(fromB64(mod2))),
+                modules: command.Publish.modules.map((mod2) => Array.from(fromB64$1(mod2))),
                 dependencies: command.Publish.dependencies
               };
             }
@@ -23145,7 +25094,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
             if (command.Upgrade) {
               return {
                 kind: "Upgrade",
-                modules: command.Upgrade.modules.map((mod2) => Array.from(fromB64(mod2))),
+                modules: command.Upgrade.modules.map((mod2) => Array.from(fromB64$1(mod2))),
                 dependencies: command.Upgrade.dependencies,
                 packageId: command.Upgrade.package,
                 ticket: convertTransactionArgument(command.Upgrade.ticket, inputs)
@@ -23233,7 +25182,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
               }
               return {
                 Pure: {
-                  bytes: toB64(new Uint8Array(value2.Pure))
+                  bytes: toB64$1(new Uint8Array(value2.Pure))
                 }
               };
             }
@@ -23290,7 +25239,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
             case "Publish": {
               return {
                 Publish: {
-                  modules: transaction.modules.map((mod2) => toB64(Uint8Array.from(mod2))),
+                  modules: transaction.modules.map((mod2) => toB64$1(Uint8Array.from(mod2))),
                   dependencies: transaction.dependencies
                 }
               };
@@ -23318,7 +25267,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
             case "Upgrade": {
               return {
                 Upgrade: {
-                  modules: transaction.modules.map((mod2) => toB64(Uint8Array.from(mod2))),
+                  modules: transaction.modules.map((mod2) => toB64$1(Uint8Array.from(mod2))),
                   dependencies: transaction.dependencies,
                   package: transaction.packageId,
                   ticket: parseV1TransactionArgument(transaction.ticket)
@@ -23527,48 +25476,46 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         )
       ];
       const objectChunks = dedupedIds.length ? chunk(dedupedIds, MAX_OBJECTS_PER_FETCH) : [];
-      const resolved = (await Promise.all(
-        objectChunks.map(
-          (chunk2) => getClient$1(options).multiGetObjects({
+      const resolvedObjects = /* @__PURE__ */ new Map();
+      const erroredObjects = /* @__PURE__ */ new Map();
+      await Promise.all(
+        objectChunks.map(async (chunk2) => {
+          var _a3;
+          const chunkObjects = await getClient$1(options).multiGetObjects({
             ids: chunk2,
             options: { showOwner: true }
-          })
-        )
-      )).flat();
-      const responsesById = new Map(
-        dedupedIds.map((id2, index2) => {
-          return [id2, resolved[index2]];
+          });
+          for (const object2 of chunkObjects) {
+            const objectId = (_a3 = object2.data) == null ? void 0 : _a3.objectId;
+            if (objectId) {
+              if (object2.error || !object2.data) {
+                erroredObjects.set(objectId, object2.error);
+                return;
+              }
+              const owner = object2.data.owner;
+              const initialSharedVersion = owner && typeof owner === "object" && "Shared" in owner ? owner.Shared.initial_shared_version : null;
+              resolvedObjects.set(objectId, {
+                objectId,
+                digest: object2.data.digest,
+                version: object2.data.version,
+                initialSharedVersion
+              });
+            }
+          }
         })
       );
-      const invalidObjects = Array.from(responsesById).filter(([_, obj]) => obj.error).map(([_, obj]) => JSON.stringify(obj.error));
-      if (invalidObjects.length) {
-        throw new Error(`The following input objects are invalid: ${invalidObjects.join(", ")}`);
+      if (erroredObjects.size > 0) {
+        throw new Error(
+          `The following input objects are invalid: ${Array.from(erroredObjects).join(", ")}`
+        );
       }
-      const objects = resolved.map((object2) => {
-        if (object2.error || !object2.data) {
-          throw new Error(`Failed to fetch object: ${object2.error}`);
-        }
-        const owner = object2.data.owner;
-        const initialSharedVersion = owner && typeof owner === "object" && "Shared" in owner ? owner.Shared.initial_shared_version : null;
-        return {
-          objectId: object2.data.objectId,
-          digest: object2.data.digest,
-          version: object2.data.version,
-          initialSharedVersion
-        };
-      });
-      const objectsById = new Map(
-        dedupedIds.map((id2, index2) => {
-          return [id2, objects[index2]];
-        })
-      );
       for (const [index2, input] of transactionData.inputs.entries()) {
         if (!input.UnresolvedObject) {
           continue;
         }
         let updated;
         const id2 = normalizeIotaAddress$1(input.UnresolvedObject.objectId);
-        const object2 = objectsById.get(id2);
+        const object2 = resolvedObjects.get(id2);
         if (input.UnresolvedObject.initialSharedVersion ?? (object2 == null ? void 0 : object2.initialSharedVersion)) {
           updated = Inputs.SharedObjectRef({
             objectId: id2,
@@ -23681,10 +25628,11 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
             return;
           }
           const inputValue = ((_a3 = input.UnresolvedPure) == null ? void 0 : _a3.value) ?? ((_b2 = input.UnresolvedObject) == null ? void 0 : _b2.objectId);
+          const inputIndex = inputs.indexOf(input);
           const schema = getPureBcsSchema(param.body);
           if (schema) {
             arg.type = "pure";
-            inputs[inputs.indexOf(input)] = Inputs.Pure(schema.serialize(inputValue));
+            inputs[inputIndex] = Inputs.Pure(schema.serialize(inputValue));
             return;
           }
           if (typeof inputValue !== "string") {
@@ -23703,7 +25651,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
               objectId: inputValue
             }
           } : input;
-          inputs[arg.Input] = unresolvedObject;
+          inputs[inputIndex] = unresolvedObject;
         });
       });
     }
@@ -23786,7 +25734,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         if (typeof typeOrSerializedValue === "string") {
           return makePure(schemaFromName(typeOrSerializedValue).serialize(value2));
         }
-        if (typeOrSerializedValue instanceof Uint8Array || isSerializedBcs(typeOrSerializedValue)) {
+        if (typeOrSerializedValue instanceof Uint8Array || isSerializedBcs$1(typeOrSerializedValue)) {
           return makePure(typeOrSerializedValue);
         }
         throw new Error("tx.pure must be called either a bcs type name, or a serialized bcs value");
@@ -23917,7 +25865,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
        */
       static getDigestFromBytes(bytes) {
         const hash = hashTypedData("TransactionData", bytes);
-        return toB58(hash);
+        return toB58$1(hash);
       }
       // @deprecated use gasData instead
       get gasConfig() {
@@ -24200,7 +26148,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       static fromKind(serialized) {
         const tx = new _Transaction2();
         __privateSet$2(tx, _data, TransactionDataBuilder.fromKindBytes(
-          typeof serialized === "string" ? fromB64(serialized) : serialized
+          typeof serialized === "string" ? fromB64$1(serialized) : serialized
         ));
         return tx;
       }
@@ -24216,7 +26164,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           __privateSet$2(newTransaction, _data, new TransactionDataBuilder(transaction.getData()));
         } else if (typeof transaction !== "string" || !transaction.startsWith("{")) {
           __privateSet$2(newTransaction, _data, TransactionDataBuilder.fromBytes(
-            typeof transaction === "string" ? fromB64(transaction) : transaction
+            typeof transaction === "string" ? fromB64$1(transaction) : transaction
           ));
         } else {
           __privateSet$2(newTransaction, _data, TransactionDataBuilder.restore(JSON.parse(transaction)));
@@ -24291,7 +26239,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         Object.defineProperty(this, "pure", {
           enumerable: false,
           value: createPure((value2) => {
-            if (isSerializedBcs(value2)) {
+            if (isSerializedBcs$1(value2)) {
               return __privateGet$2(this, _data).addInput("pure", {
                 $kind: "Pure",
                 Pure: {
@@ -24475,7 +26423,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
     _data = /* @__PURE__ */ new WeakMap();
     _Transaction_instances = /* @__PURE__ */ new WeakSet();
     normalizeTransactionArgument_fn = function(arg) {
-      if (isSerializedBcs(arg)) {
+      if (isSerializedBcs$1(arg)) {
         return this.pure(arg);
       }
       return __privateMethod$1(this, _Transaction_instances, resolveArgument_fn).call(this, arg);
@@ -24776,7 +26724,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         const result = await this.transport.request({
           method: "iota_executeTransactionBlock",
           params: [
-            typeof transactionBlock === "string" ? transactionBlock : toB64(transactionBlock),
+            typeof transactionBlock === "string" ? transactionBlock : toB64$1(transactionBlock),
             Array.isArray(signature) ? signature : [signature],
             options
           ]
@@ -24972,7 +26920,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         let devInspectTxBytes;
         if (isTransaction(input.transactionBlock)) {
           input.transactionBlock.setSenderIfNotSet(input.sender);
-          devInspectTxBytes = toB64(
+          devInspectTxBytes = toB64$1(
             await input.transactionBlock.build({
               client: this,
               onlyTransactionKind: true
@@ -24981,7 +26929,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         } else if (typeof input.transactionBlock === "string") {
           devInspectTxBytes = input.transactionBlock;
         } else if (input.transactionBlock instanceof Uint8Array) {
-          devInspectTxBytes = toB64(input.transactionBlock);
+          devInspectTxBytes = toB64$1(input.transactionBlock);
         } else {
           throw new Error("Unknown transaction block format.");
         }
@@ -24997,7 +26945,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         return await this.transport.request({
           method: "iota_dryRunTransactionBlock",
           params: [
-            typeof input.transactionBlock === "string" ? input.transactionBlock : toB64(input.transactionBlock)
+            typeof input.transactionBlock === "string" ? input.transactionBlock : toB64$1(input.transactionBlock)
           ]
         });
       }
@@ -25407,16 +27355,16 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       "dry-run (simulation, free)"
       /* DryRun */
     );
-    var root_1$m = /* @__PURE__ */ from_html(`<option class="svelte-v9ucm2"> </option>`);
-    var root_2$i = /* @__PURE__ */ from_html(`<option class="svelte-v9ucm2"> </option>`);
-    var root$u = /* @__PURE__ */ from_html(`<main><div class="options-container svelte-v9ucm2"><div class="option-group svelte-v9ucm2"><label class="option-label svelte-v9ucm2" for="network-select">Network:</label> <select class="select-input svelte-v9ucm2" id="network-select"></select></div> <div class="option-group svelte-v9ucm2"><label class="option-label svelte-v9ucm2" for="transaction-execution-select">Transaction execution:</label> <select id="transaction-execution-select"></select></div></div></main>`);
+    var root_1$p = /* @__PURE__ */ from_html(`<option class="svelte-v9ucm2"> </option>`);
+    var root_2$j = /* @__PURE__ */ from_html(`<option class="svelte-v9ucm2"> </option>`);
+    var root$x = /* @__PURE__ */ from_html(`<main><div class="options-container svelte-v9ucm2"><div class="option-group svelte-v9ucm2"><label class="option-label svelte-v9ucm2" for="network-select">Network:</label> <select class="select-input svelte-v9ucm2" id="network-select"></select></div> <div class="option-group svelte-v9ucm2"><label class="option-label svelte-v9ucm2" for="transaction-execution-select">Transaction execution:</label> <select id="transaction-execution-select"></select></div></div></main>`);
     function Options($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
       const $sharedClientConfig = () => store_get(sharedClientConfig, "$sharedClientConfig", $$stores);
       const $sharedTransactionExecution = () => store_get(sharedTransactionExecution, "$sharedTransactionExecution", $$stores);
       init();
-      var main = root$u();
+      var main = root$x();
       var div = child(main);
       var div_1 = child(div);
       var select = sibling(child(div_1), 2);
@@ -25425,24 +27373,18 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         invalidate_inner_signals(() => {
         });
       });
-      each$1(
-        select,
-        5,
-        () => ($sharedClientConfig(), untrack(() => $sharedClientConfig().networks)),
-        index$1,
-        ($$anchor2, network) => {
-          var option = root_1$m();
-          var option_value = {};
-          var text2 = child(option);
-          template_effect(() => {
-            if (option_value !== (option_value = (get$2(network), untrack(() => get$2(network).name)))) {
-              option.value = (option.__value = (get$2(network), untrack(() => get$2(network).name))) ?? "";
-            }
-            set_text(text2, (get$2(network), untrack(() => get$2(network).name)));
-          });
-          append($$anchor2, option);
-        }
-      );
+      each$1(select, 5, () => $sharedClientConfig().networks, index$1, ($$anchor2, network) => {
+        var option = root_1$p();
+        var text2 = child(option);
+        var option_value = {};
+        template_effect(() => {
+          set_text(text2, get$2(network).name);
+          if (option_value !== (option_value = get$2(network).name)) {
+            option.value = (option.__value = get$2(network).name) ?? "";
+          }
+        });
+        append($$anchor2, option);
+      });
       var div_2 = sibling(div_1, 2);
       var select_1 = sibling(child(div_2), 2);
       template_effect(() => {
@@ -25450,30 +27392,19 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         invalidate_inner_signals(() => {
         });
       });
-      each$1(
-        select_1,
-        5,
-        () => (deep_read_state(TransactionExecution), untrack(() => Object.values(TransactionExecution))),
-        index$1,
-        ($$anchor2, signer) => {
-          var option_1 = root_2$i();
-          var option_1_value = {};
-          var text_1 = child(option_1);
-          template_effect(() => {
-            if (option_1_value !== (option_1_value = get$2(signer))) {
-              option_1.value = (option_1.__value = get$2(signer)) ?? "";
-            }
-            set_text(text_1, get$2(signer));
-          });
-          append($$anchor2, option_1);
-        }
-      );
-      template_effect(() => set_class(
-        select_1,
-        1,
-        `select-input ${($sharedTransactionExecution(), deep_read_state(TransactionExecution), untrack(() => $sharedTransactionExecution() === TransactionExecution.Send ? "send-mode" : "")) ?? ""}`,
-        "svelte-v9ucm2"
-      ));
+      each$1(select_1, 5, () => Object.values(TransactionExecution), index$1, ($$anchor2, signer) => {
+        var option_1 = root_2$j();
+        var text_1 = child(option_1);
+        var option_1_value = {};
+        template_effect(() => {
+          set_text(text_1, get$2(signer));
+          if (option_1_value !== (option_1_value = get$2(signer))) {
+            option_1.value = (option_1.__value = get$2(signer)) ?? "";
+          }
+        });
+        append($$anchor2, option_1);
+      });
+      template_effect(() => set_class(select_1, 1, `select-input ${$sharedTransactionExecution() === TransactionExecution.Send ? "send-mode" : ""}`, "svelte-v9ucm2"));
       bind_select_value(select, () => $sharedClientConfig().selected, ($$value) => store_mutate(sharedClientConfig, untrack($sharedClientConfig).selected = $$value, untrack($sharedClientConfig)));
       bind_select_value(select_1, $sharedTransactionExecution, ($$value) => store_set(sharedTransactionExecution, $$value));
       append($$anchor, main);
@@ -25706,28 +27637,28 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         setSigningWithForeignAddress(foreignAddress);
       }
     }
-    var root_1$l = /* @__PURE__ */ from_html(`<p>No accounts connected.</p>`);
-    var root_3$n = /* @__PURE__ */ from_html(`<tr class="account-block"><td class="account-label svelte-ahwfn5" rowspan="2"><span class="account-label-text"> </span></td><td class="account-key svelte-ahwfn5">Address:</td><td class="account-value svelte-ahwfn5"> </td></tr> <tr class="account-block public-key-row svelte-ahwfn5"><td class="account-key svelte-ahwfn5">Public Key:</td><td class="account-value svelte-ahwfn5"> </td></tr>`, 1);
-    var root_2$h = /* @__PURE__ */ from_html(`<table class="accounts-table svelte-ahwfn5"><tbody></tbody></table>`);
-    var root$t = /* @__PURE__ */ from_html(`<main><div class="wallet-accounts-container svelte-ahwfn5"><h2 class="svelte-ahwfn5">Connected Wallet Accounts</h2> <!></div></main>`);
+    var root_1$o = /* @__PURE__ */ from_html(`<p>No accounts connected.</p>`);
+    var root_3$o = /* @__PURE__ */ from_html(`<tr class="account-block"><td class="account-label svelte-ahwfn5" rowspan="2"><span class="account-label-text"> </span></td><td class="account-key svelte-ahwfn5">Address:</td><td class="account-value svelte-ahwfn5"> </td></tr> <tr class="account-block public-key-row svelte-ahwfn5"><td class="account-key svelte-ahwfn5">Public Key:</td><td class="account-value svelte-ahwfn5"> </td></tr>`, 1);
+    var root_2$i = /* @__PURE__ */ from_html(`<table class="accounts-table svelte-ahwfn5"><tbody></tbody></table>`);
+    var root$w = /* @__PURE__ */ from_html(`<main><div class="wallet-accounts-container svelte-ahwfn5"><h2 class="svelte-ahwfn5">Connected Wallet Accounts</h2> <!></div></main>`);
     function AccountsList($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
       const $iota_accounts = () => store_get(iota_accounts, "$iota_accounts", $$stores);
       init();
-      var main = root$t();
+      var main = root$w();
       var div = child(main);
       var node = sibling(child(div), 2);
       {
         var consequent = ($$anchor2) => {
-          var p = root_1$l();
+          var p = root_1$o();
           append($$anchor2, p);
         };
         var alternate = ($$anchor2) => {
-          var table = root_2$h();
+          var table = root_2$i();
           var tbody = child(table);
           each$1(tbody, 5, $iota_accounts, index$1, ($$anchor3, account) => {
-            var fragment = root_3$n();
+            var fragment = root_3$o();
             var tr = first_child(fragment);
             var td = child(tr);
             var span = child(td);
@@ -25739,21 +27670,18 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
             var text_2 = child(td_2);
             template_effect(
               ($0) => {
-                set_text(text2, (get$2(account), untrack(() => get$2(account).label || "Account")));
-                set_text(text_1, (get$2(account), untrack(() => get$2(account).address)));
+                set_text(text2, get$2(account).label || "Account");
+                set_text(text_1, get$2(account).address);
                 set_text(text_2, $0);
               },
-              [
-                () => (deep_read_state(toHEX), get$2(account), untrack(() => "0x" + toHEX(new Uint8Array(get$2(account).publicKey))))
-              ],
-              derived_safe_equal
+              [() => "0x" + toHEX$1(new Uint8Array(get$2(account).publicKey))]
             );
             append($$anchor3, fragment);
           });
           append($$anchor2, table);
         };
         if_block(node, ($$render) => {
-          if ($iota_accounts(), untrack(() => $iota_accounts().length === 0)) $$render(consequent);
+          if ($iota_accounts().length === 0) $$render(consequent);
           else $$render(alternate, false);
         });
       }
@@ -25771,7 +27699,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       setContext(STATE, nextState);
       return currentState;
     }
-    var root_1$k = /* @__PURE__ */ from_html(`<span class="container svelte-1qd6nto"><span></span></span>`);
+    var root_1$n = /* @__PURE__ */ from_html(`<span class="container svelte-1qd6nto"><span></span></span>`);
     function JSONArrow($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
@@ -25784,11 +27712,11 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       var node = first_child(fragment);
       {
         var consequent = ($$anchor2) => {
-          var span = root_1$k();
+          var span = root_1$n();
           var span_1 = child(span);
           let classes;
           span_1.textContent = "▶";
-          template_effect(($0) => classes = set_class(span_1, 1, "arrow svelte-1qd6nto", null, classes, $0), [() => ({ expanded: $expanded() })], derived_safe_equal);
+          template_effect(($0) => classes = set_class(span_1, 1, "arrow svelte-1qd6nto", null, classes, $0), [() => ({ expanded: $expanded() })]);
           event("click", span, (event2) => {
             event2.stopPropagation();
             store_set(expanded(), !$expanded());
@@ -25809,7 +27737,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       init();
       var fragment = comment$1();
       var node = first_child(fragment);
-      slot(node, $$props, "default", {});
+      slot(node, $$props, "default", {}, null);
       append($$anchor, fragment);
       pop();
     }
@@ -25823,25 +27751,20 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           keyPath = [...keyPath, key()];
           level = level + 1;
         }
-        return {
-          keyPath,
-          level,
-          expanded: expanded(),
-          expandable
-        };
+        return { keyPath, level, expanded: expanded(), expandable };
       });
       init();
       var fragment = comment$1();
       var node = first_child(fragment);
-      slot(node, $$props, "default", {});
+      slot(node, $$props, "default", {}, null);
       append($$anchor, fragment);
       pop();
     }
-    var root_9$c = /* @__PURE__ */ from_html(`<span class="operator"></span>`);
+    var root_9$d = /* @__PURE__ */ from_html(`<span class="operator"></span>`);
     var root_8$8 = /* @__PURE__ */ from_html(`<span class="label svelte-19drypg"><!><!><!></span><!>`, 1);
-    var root_7$a = /* @__PURE__ */ from_html(`<li><!></li>`);
+    var root_7$b = /* @__PURE__ */ from_html(`<li><!></li>`);
     var root_6$9 = /* @__PURE__ */ from_html(`<ul></ul>`);
-    var root_3$m = /* @__PURE__ */ from_html(`<span class="root svelte-19drypg"><!> <!></span> <!>`, 1);
+    var root_3$n = /* @__PURE__ */ from_html(`<span class="root svelte-19drypg"><!> <!></span> <!>`, 1);
     function JSONNested($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
@@ -25890,11 +27813,11 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         var consequent = ($$anchor2) => {
           var fragment_1 = comment$1();
           var node_1 = first_child(fragment_1);
-          slot(node_1, $$props, "summary", {});
+          slot(node_1, $$props, "summary", {}, null);
           append($$anchor2, fragment_1);
         };
         var alternate = ($$anchor2) => {
-          var fragment_2 = root_3$m();
+          var fragment_2 = root_3$n();
           var span = first_child(fragment_2);
           var node_2 = child(span);
           {
@@ -25922,7 +27845,8 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
                   get root() {
                     return root2;
                   }
-                }
+                },
+                null
               );
               append($$anchor3, fragment_4);
             },
@@ -25933,63 +27857,67 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
             var consequent_3 = ($$anchor3) => {
               var ul = root_6$9();
               each$1(ul, 5, keys, index$1, ($$anchor4, key, index2) => {
-                var li = root_7$a();
+                var li = root_7$b();
                 let classes;
                 var node_6 = child(li);
-                const expression = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(expandKey()), get$2(key), untrack(() => expandKey()(get$2(key)))));
-                Expandable(node_6, {
-                  get key() {
-                    return get$2(expression);
-                  },
-                  get expanded() {
-                    return get$2(child_expanded), untrack(() => get$2(child_expanded)[index2]);
-                  },
-                  children: ($$anchor5, $$slotProps) => {
-                    var fragment_5 = root_8$8();
-                    var span_1 = first_child(fragment_5);
-                    var node_7 = child(span_1);
-                    JSONArrow(node_7, {});
-                    var node_8 = sibling(node_7);
-                    slot(
-                      node_8,
-                      $$props,
-                      "item_key",
-                      {
-                        get key() {
-                          return get$2(key);
+                {
+                  let $0 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(expandKey()), get$2(key), untrack(() => expandKey()(get$2(key)))));
+                  Expandable(node_6, {
+                    get key() {
+                      return get$2($0);
+                    },
+                    get expanded() {
+                      return get$2(child_expanded), untrack(() => get$2(child_expanded)[index2]);
+                    },
+                    children: ($$anchor5, $$slotProps) => {
+                      var fragment_5 = root_8$8();
+                      var span_1 = first_child(fragment_5);
+                      var node_7 = child(span_1);
+                      JSONArrow(node_7, {});
+                      var node_8 = sibling(node_7);
+                      slot(
+                        node_8,
+                        $$props,
+                        "item_key",
+                        {
+                          get key() {
+                            return get$2(key);
+                          },
+                          index: index2
                         },
-                        index: index2
-                      }
-                    );
-                    var node_9 = sibling(node_8);
-                    {
-                      var consequent_2 = ($$anchor6) => {
-                        var span_2 = root_9$c();
-                        span_2.textContent = ": ";
-                        append($$anchor6, span_2);
-                      };
-                      if_block(node_9, ($$render) => {
-                        if (deep_read_state(shouldShowColon()), get$2(key), untrack(() => !shouldShowColon() || shouldShowColon()(get$2(key)))) $$render(consequent_2);
-                      });
-                    }
-                    var node_10 = sibling(span_1);
-                    slot(
-                      node_10,
-                      $$props,
-                      "item_value",
+                        null
+                      );
+                      var node_9 = sibling(node_8);
                       {
-                        get key() {
-                          return get$2(key);
-                        },
-                        index: index2
+                        var consequent_2 = ($$anchor6) => {
+                          var span_2 = root_9$d();
+                          span_2.textContent = ": ";
+                          append($$anchor6, span_2);
+                        };
+                        if_block(node_9, ($$render) => {
+                          if (deep_read_state(shouldShowColon()), get$2(key), untrack(() => !shouldShowColon() || shouldShowColon()(get$2(key)))) $$render(consequent_2);
+                        });
                       }
-                    );
-                    event("click", span_1, () => get$2(child_expanded)[index2].update((value2) => !value2));
-                    append($$anchor5, fragment_5);
-                  },
-                  $$slots: { default: true }
-                });
-                template_effect(($0) => classes = set_class(li, 1, "svelte-19drypg", null, classes, $0), [() => ({ indent: $expanded() })], derived_safe_equal);
+                      var node_10 = sibling(span_1);
+                      slot(
+                        node_10,
+                        $$props,
+                        "item_value",
+                        {
+                          get key() {
+                            return get$2(key);
+                          },
+                          index: index2
+                        },
+                        null
+                      );
+                      event("click", span_1, () => get$2(child_expanded)[index2].update((value2) => !value2));
+                      append($$anchor5, fragment_5);
+                    },
+                    $$slots: { default: true }
+                  });
+                }
+                template_effect(($0) => classes = set_class(li, 1, "svelte-19drypg", null, classes, $0), [() => ({ indent: $expanded() })]);
                 event("click", li, stopPropagation(() => {
                 }));
                 append($$anchor4, li);
@@ -26013,13 +27941,13 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       pop();
       $$cleanup();
     }
-    var root_4$g = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
-    var root_3$l = /* @__PURE__ */ from_html(`<!><span class="operator"> </span>`, 1);
+    var root_4$h = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
+    var root_3$m = /* @__PURE__ */ from_html(`<!><span class="operator"> </span>`, 1);
     var root_6$8 = /* @__PURE__ */ from_html(`<span class="comma operator svelte-150ffaa">,</span>`);
     var root_5$a = /* @__PURE__ */ from_html(`<!> <!>`, 1);
-    var root_7$9 = /* @__PURE__ */ from_html(`<span class="comma operator svelte-150ffaa">,</span> <span class="operator">…</span>`, 1);
+    var root_7$a = /* @__PURE__ */ from_html(`<span class="comma operator svelte-150ffaa">,</span> <span class="operator">…</span>`, 1);
     var root_8$7 = /* @__PURE__ */ from_html(`<span class="operator"> </span>`);
-    var root_2$g = /* @__PURE__ */ from_html(`<!> <!> <!> <!>`, 1);
+    var root_2$h = /* @__PURE__ */ from_html(`<!> <!> <!> <!>`, 1);
     function PreviewList($$anchor, $$props) {
       push($$props, false);
       let list = prop($$props, "list", 8);
@@ -26034,15 +27962,15 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       var node = first_child(fragment);
       {
         var consequent_5 = ($$anchor2) => {
-          var fragment_1 = root_2$g();
+          var fragment_1 = root_2$h();
           var node_1 = first_child(fragment_1);
           {
             var consequent_1 = ($$anchor3) => {
-              var fragment_2 = root_3$l();
+              var fragment_2 = root_3$m();
               var node_2 = first_child(fragment_2);
               {
                 var consequent = ($$anchor4) => {
-                  var span = root_4$g();
+                  var span = root_4$h();
                   var text2 = child(span);
                   template_effect(() => set_text(text2, label()));
                   append($$anchor4, span);
@@ -26073,7 +28001,8 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
                   return get$2(item);
                 },
                 index: index2
-              }
+              },
+              null
             );
             var node_5 = sibling(node_4, 2);
             {
@@ -26090,7 +28019,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           var node_6 = sibling(node_3, 2);
           {
             var consequent_3 = ($$anchor3) => {
-              var fragment_4 = root_7$9();
+              var fragment_4 = root_7$a();
               append($$anchor3, fragment_4);
             };
             if_block(node_6, ($$render) => {
@@ -26118,9 +28047,9 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       append($$anchor, fragment);
       pop();
     }
-    var root_3$k = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
-    var root_7$8 = /* @__PURE__ */ from_html(`<span class="property"> </span><span class="operator"></span><!>`, 1);
-    var root_9$b = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
+    var root_3$l = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
+    var root_7$9 = /* @__PURE__ */ from_html(`<span class="property"> </span><span class="operator"></span><!>`, 1);
+    var root_9$c = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
     function JSONObjectNode($$anchor, $$props) {
       push($$props, false);
       const keys = /* @__PURE__ */ mutable_source();
@@ -26141,52 +28070,54 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         },
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_3$k();
+            var span = root_3$l();
             var text2 = child(span);
             template_effect(() => set_text(text2, summary() ?? "{…}"));
             append($$anchor2, span);
           },
           preview: ($$anchor2, $$slotProps) => {
             const root2 = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.root);
-            const expression = /* @__PURE__ */ derived_safe_equal(() => (get$2(previewKeys), get$2(keys), untrack(() => get$2(previewKeys).length < get$2(keys).length)));
-            const expression_1 = /* @__PURE__ */ derived_safe_equal(() => summary() ? `${summary()} {` : "{");
-            PreviewList($$anchor2, {
-              get list() {
-                return get$2(previewKeys);
-              },
-              get hasMore() {
-                return get$2(expression);
-              },
-              get prefix() {
-                return get$2(expression_1);
-              },
-              postfix: "}",
-              get root() {
-                return get$2(root2);
-              },
-              $$slots: {
-                item: ($$anchor3, $$slotProps2) => {
-                  const item = /* @__PURE__ */ derived_safe_equal(() => $$slotProps2.item);
-                  var fragment_2 = root_7$8();
-                  var span_1 = first_child(fragment_2);
-                  var text_1 = child(span_1);
-                  var span_2 = sibling(span_1);
-                  span_2.textContent = ": ";
-                  var node = sibling(span_2);
-                  JSONNode(node, {
-                    get value() {
-                      return deep_read_state(value2()), deep_read_state(get$2(item)), untrack(() => value2()[get$2(item)]);
-                    }
-                  });
-                  template_effect(() => set_text(text_1, get$2(item)));
-                  append($$anchor3, fragment_2);
+            {
+              let $0 = /* @__PURE__ */ derived_safe_equal(() => (get$2(previewKeys), get$2(keys), untrack(() => get$2(previewKeys).length < get$2(keys).length)));
+              let $1 = /* @__PURE__ */ derived_safe_equal(() => summary() ? `${summary()} {` : "{");
+              PreviewList($$anchor2, {
+                get list() {
+                  return get$2(previewKeys);
+                },
+                get hasMore() {
+                  return get$2($0);
+                },
+                get prefix() {
+                  return get$2($1);
+                },
+                postfix: "}",
+                get root() {
+                  return get$2(root2);
+                },
+                $$slots: {
+                  item: ($$anchor3, $$slotProps2) => {
+                    const item = /* @__PURE__ */ derived_safe_equal(() => $$slotProps2.item);
+                    var fragment_2 = root_7$9();
+                    var span_1 = first_child(fragment_2);
+                    var text_1 = child(span_1);
+                    var span_2 = sibling(span_1);
+                    span_2.textContent = ": ";
+                    var node = sibling(span_2);
+                    JSONNode(node, {
+                      get value() {
+                        return deep_read_state(value2()), deep_read_state(get$2(item)), untrack(() => value2()[get$2(item)]);
+                      }
+                    });
+                    template_effect(() => set_text(text_1, get$2(item)));
+                    append($$anchor3, fragment_2);
+                  }
                 }
-              }
-            });
+              });
+            }
           },
           item_key: ($$anchor2, $$slotProps) => {
             const key = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.key);
-            var span_3 = root_9$b();
+            var span_3 = root_9$c();
             var text_2 = child(span_3);
             template_effect(() => set_text(text_2, get$2(key)));
             append($$anchor2, span_3);
@@ -26203,8 +28134,8 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       });
       pop();
     }
-    var root_3$j = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
-    var root_9$a = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
+    var root_3$k = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
+    var root_9$b = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
     function JSONArrayNode($$anchor, $$props) {
       push($$props, false);
       const keys = /* @__PURE__ */ mutable_source();
@@ -26224,52 +28155,50 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         },
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_3$j();
+            var span = root_3$k();
             var text2 = child(span);
             template_effect(() => set_text(text2, `Array(${(deep_read_state(value2()), untrack(() => value2().length)) ?? ""})`));
             append($$anchor2, span);
           },
           preview: ($$anchor2, $$slotProps) => {
             const root2 = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.root);
-            const expression = /* @__PURE__ */ derived_safe_equal(() => (get$2(preview), deep_read_state(value2()), untrack(() => get$2(preview).length < value2().length)));
-            PreviewList($$anchor2, {
-              get list() {
-                return get$2(preview);
-              },
-              get hasMore() {
-                return get$2(expression);
-              },
-              get label() {
-                return `(${(deep_read_state(value2()), untrack(() => value2().length)) ?? ""}) `;
-              },
-              prefix: "[",
-              postfix: "]",
-              get root() {
-                return get$2(root2);
-              },
-              $$slots: {
-                item: ($$anchor3, $$slotProps2) => {
-                  const item = /* @__PURE__ */ derived_safe_equal(() => $$slotProps2.item);
-                  JSONNode($$anchor3, {
-                    get value() {
-                      return get$2(item);
-                    }
-                  });
+            {
+              let $0 = /* @__PURE__ */ derived_safe_equal(() => (get$2(preview), deep_read_state(value2()), untrack(() => get$2(preview).length < value2().length)));
+              PreviewList($$anchor2, {
+                get list() {
+                  return get$2(preview);
+                },
+                get hasMore() {
+                  return get$2($0);
+                },
+                get label() {
+                  return `(${(deep_read_state(value2()), untrack(() => value2().length)) ?? ""}) `;
+                },
+                prefix: "[",
+                postfix: "]",
+                get root() {
+                  return get$2(root2);
+                },
+                $$slots: {
+                  item: ($$anchor3, $$slotProps2) => {
+                    const item = /* @__PURE__ */ derived_safe_equal(() => $$slotProps2.item);
+                    JSONNode($$anchor3, {
+                      get value() {
+                        return get$2(item);
+                      }
+                    });
+                  }
                 }
-              }
-            });
+              });
+            }
           },
           item_key: ($$anchor2, $$slotProps) => {
             const key = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.key);
-            var span_1 = root_9$a();
+            var span_1 = root_9$b();
             var text_1 = child(span_1);
-            template_effect(
-              ($0) => set_text(text_1, $0),
-              [
-                () => (deep_read_state(get$2(key)), untrack(() => String(get$2(key))))
-              ],
-              derived_safe_equal
-            );
+            template_effect(($0) => set_text(text_1, $0), [
+              () => (deep_read_state(get$2(key)), untrack(() => String(get$2(key))))
+            ]);
             append($$anchor2, span_1);
           },
           item_value: ($$anchor2, $$slotProps) => {
@@ -26284,8 +28213,8 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       });
       pop();
     }
-    var root_3$i = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
-    var root_9$9 = /* @__PURE__ */ from_html(`<span> </span>`);
+    var root_3$j = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
+    var root_9$a = /* @__PURE__ */ from_html(`<span> </span>`);
     var root_14$6 = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
     function JSONIterableArrayNode($$anchor, $$props) {
       push($$props, false);
@@ -26316,45 +28245,47 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         shouldShowColon: (key) => key !== ENTRIES,
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_3$i();
+            var span = root_3$j();
             var text2 = child(span);
             template_effect(() => set_text(text2, `${nodeType() ?? ""}(${(get$2(indexes), untrack(() => get$2(indexes).length)) ?? ""})`));
             append($$anchor2, span);
           },
           preview: ($$anchor2, $$slotProps) => {
             const root2 = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.root);
-            const expression = /* @__PURE__ */ derived_safe_equal(() => (get$2(previewItems), get$2(items), untrack(() => get$2(previewItems).length < get$2(items).length)));
-            const expression_1 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(nodeType()), get$2(indexes), untrack(() => `${nodeType()}(${get$2(indexes).length}) `)));
-            PreviewList($$anchor2, {
-              get list() {
-                return get$2(previewItems);
-              },
-              get hasMore() {
-                return get$2(expression);
-              },
-              get label() {
-                return get$2(expression_1);
-              },
-              prefix: "{",
-              postfix: "}",
-              get root() {
-                return get$2(root2);
-              },
-              $$slots: {
-                item: ($$anchor3, $$slotProps2) => {
-                  const item = /* @__PURE__ */ derived_safe_equal(() => $$slotProps2.item);
-                  JSONNode($$anchor3, {
-                    get value() {
-                      return get$2(item);
-                    }
-                  });
+            {
+              let $0 = /* @__PURE__ */ derived_safe_equal(() => (get$2(previewItems), get$2(items), untrack(() => get$2(previewItems).length < get$2(items).length)));
+              let $1 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(nodeType()), get$2(indexes), untrack(() => `${nodeType()}(${get$2(indexes).length}) `)));
+              PreviewList($$anchor2, {
+                get list() {
+                  return get$2(previewItems);
+                },
+                get hasMore() {
+                  return get$2($0);
+                },
+                get label() {
+                  return get$2($1);
+                },
+                prefix: "{",
+                postfix: "}",
+                get root() {
+                  return get$2(root2);
+                },
+                $$slots: {
+                  item: ($$anchor3, $$slotProps2) => {
+                    const item = /* @__PURE__ */ derived_safe_equal(() => $$slotProps2.item);
+                    JSONNode($$anchor3, {
+                      get value() {
+                        return get$2(item);
+                      }
+                    });
+                  }
                 }
-              }
-            });
+              });
+            }
           },
           item_key: ($$anchor2, $$slotProps) => {
             const key = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.key);
-            var span_1 = root_9$9();
+            var span_1 = root_9$a();
             var text_1 = child(span_1);
             template_effect(() => {
               set_class(span_1, 1, clsx(get$2(key) === ENTRIES ? "internal" : "property"));
@@ -26410,9 +28341,9 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       });
       pop();
     }
-    var root_3$h = /* @__PURE__ */ from_html(`<span color="label"> </span>`);
-    var root_7$7 = /* @__PURE__ */ from_html(`<!><span class="operator"></span><!>`, 1);
-    var root_9$8 = /* @__PURE__ */ from_html(`<span> </span>`);
+    var root_3$i = /* @__PURE__ */ from_html(`<span color="label"> </span>`);
+    var root_7$8 = /* @__PURE__ */ from_html(`<!><span class="operator"></span><!>`, 1);
+    var root_9$9 = /* @__PURE__ */ from_html(`<span> </span>`);
     var root_14$5 = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
     var root_18$3 = /* @__PURE__ */ from_html(`<span class="operator"></span><!><span class="operator"></span><!><span class="operator"></span>`, 1);
     var root_20$3 = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
@@ -26449,57 +28380,61 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         shouldShowColon: (key) => key !== ENTRIES,
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_3$h();
+            var span = root_3$i();
             var text2 = child(span);
             template_effect(() => set_text(text2, `Map(${(get$2(keys), untrack(() => get$2(keys).length)) ?? ""})`));
             append($$anchor2, span);
           },
           preview: ($$anchor2, $$slotProps) => {
             const root2 = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.root);
-            const expression = /* @__PURE__ */ derived_safe_equal(() => (get$2(previewKeys), deep_read_state(value2()), untrack(() => get$2(previewKeys).length < value2().size)));
-            const expression_1 = /* @__PURE__ */ derived_safe_equal(() => (get$2(keys), untrack(() => `Map(${get$2(keys).length}) `)));
-            PreviewList($$anchor2, {
-              get list() {
-                return get$2(previewKeys);
-              },
-              get hasMore() {
-                return get$2(expression);
-              },
-              get label() {
-                return get$2(expression_1);
-              },
-              prefix: `{`,
-              postfix: "}",
-              get root() {
-                return get$2(root2);
-              },
-              $$slots: {
-                item: ($$anchor3, $$slotProps2) => {
-                  const item = /* @__PURE__ */ derived_safe_equal(() => $$slotProps2.item);
-                  var fragment_2 = root_7$7();
-                  var node = first_child(fragment_2);
-                  JSONNode(node, {
-                    get value() {
-                      return get$2(item);
+            {
+              let $0 = /* @__PURE__ */ derived_safe_equal(() => (get$2(previewKeys), deep_read_state(value2()), untrack(() => get$2(previewKeys).length < value2().size)));
+              let $1 = /* @__PURE__ */ derived_safe_equal(() => (get$2(keys), untrack(() => `Map(${get$2(keys).length}) `)));
+              PreviewList($$anchor2, {
+                get list() {
+                  return get$2(previewKeys);
+                },
+                get hasMore() {
+                  return get$2($0);
+                },
+                get label() {
+                  return get$2($1);
+                },
+                prefix: `{`,
+                postfix: "}",
+                get root() {
+                  return get$2(root2);
+                },
+                $$slots: {
+                  item: ($$anchor3, $$slotProps2) => {
+                    const item = /* @__PURE__ */ derived_safe_equal(() => $$slotProps2.item);
+                    var fragment_2 = root_7$8();
+                    var node = first_child(fragment_2);
+                    JSONNode(node, {
+                      get value() {
+                        return get$2(item);
+                      }
+                    });
+                    var span_1 = sibling(node);
+                    span_1.textContent = " => ";
+                    var node_1 = sibling(span_1);
+                    {
+                      let $02 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(value2()), deep_read_state(get$2(item)), untrack(() => value2().get(get$2(item)))));
+                      JSONNode(node_1, {
+                        get value() {
+                          return get$2($02);
+                        }
+                      });
                     }
-                  });
-                  var span_1 = sibling(node);
-                  span_1.textContent = " => ";
-                  var node_1 = sibling(span_1);
-                  const expression_2 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(value2()), deep_read_state(get$2(item)), untrack(() => value2().get(get$2(item)))));
-                  JSONNode(node_1, {
-                    get value() {
-                      return get$2(expression_2);
-                    }
-                  });
-                  append($$anchor3, fragment_2);
+                    append($$anchor3, fragment_2);
+                  }
                 }
-              }
-            });
+              });
+            }
           },
           item_key: ($$anchor2, $$slotProps) => {
             const key = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.key);
-            var span_2 = root_9$8();
+            var span_2 = root_9$9();
             var text_1 = child(span_2);
             template_effect(() => {
               set_class(span_2, 1, clsx(get$2(key) === ENTRIES ? "internal" : "property"));
@@ -26563,12 +28498,14 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
                           },
                           item_value: ($$anchor5, $$slotProps3) => {
                             const name2 = /* @__PURE__ */ derived_safe_equal(() => $$slotProps3.key);
-                            const expression_3 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(get$2(name2)), get$2(keys), deep_read_state(get$2(index2)), get$2(values), untrack(() => get$2(name2) === "key" ? get$2(keys)[get$2(index2)] : get$2(values)[get$2(index2)])));
-                            JSONNode($$anchor5, {
-                              get value() {
-                                return get$2(expression_3);
-                              }
-                            });
+                            {
+                              let $0 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(get$2(name2)), get$2(keys), deep_read_state(get$2(index2)), get$2(values), untrack(() => get$2(name2) === "key" ? get$2(keys)[get$2(index2)] : get$2(values)[get$2(index2)])));
+                              JSONNode($$anchor5, {
+                                get value() {
+                                  return get$2($0);
+                                }
+                              });
+                            }
                           }
                         }
                       });
@@ -26594,10 +28531,10 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       });
       pop();
     }
-    var root$s = /* @__PURE__ */ from_html(`<span> </span>`);
+    var root$v = /* @__PURE__ */ from_html(`<span> </span>`);
     function JSONValueNode($$anchor, $$props) {
       let value2 = prop($$props, "value", 8), nodeType = prop($$props, "nodeType", 8);
-      var span = root$s();
+      var span = root$v();
       var text2 = child(span);
       template_effect(() => {
         set_class(span, 1, clsx(nodeType()), "svelte-l95iub");
@@ -26605,9 +28542,9 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       });
       append($$anchor, span);
     }
-    var root_2$f = /* @__PURE__ */ from_html(`<span><!><span class="operator"> </span></span><br/>`, 1);
-    var root_3$g = /* @__PURE__ */ from_html(`<span><!></span>`);
-    var root$r = /* @__PURE__ */ from_html(`<span><!></span>`);
+    var root_2$g = /* @__PURE__ */ from_html(`<span><!><span class="operator"> </span></span><br/>`, 1);
+    var root_3$h = /* @__PURE__ */ from_html(`<span><!></span>`);
+    var root$u = /* @__PURE__ */ from_html(`<span><!></span>`);
     function ErrorStack($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
@@ -26616,24 +28553,26 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       const { expanded, expandable } = useState();
       store_set(expandable, true);
       init();
-      var span = root$r();
+      var span = root$u();
       var node = child(span);
       {
         var consequent = ($$anchor2) => {
           var fragment = comment$1();
           var node_1 = first_child(fragment);
           each$1(node_1, 1, stack, index$1, ($$anchor3, line, index2) => {
-            var fragment_1 = root_2$f();
+            var fragment_1 = root_2$g();
             const appendNewLine = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(stack()), untrack(() => index2 < stack().length - 1)));
             var span_1 = first_child(fragment_1);
             set_class(span_1, 1, "svelte-1u08yw6", null, {}, { indent: index2 > 0 });
             var node_2 = child(span_1);
-            const expression = /* @__PURE__ */ derived_safe_equal(() => get$2(line) + (get$2(appendNewLine) ? "\\n" : ""));
-            JSONNode(node_2, {
-              get value() {
-                return get$2(expression);
-              }
-            });
+            {
+              let $0 = /* @__PURE__ */ derived_safe_equal(() => get$2(line) + (get$2(appendNewLine) ? "\\n" : ""));
+              JSONNode(node_2, {
+                get value() {
+                  return get$2($0);
+                }
+              });
+            }
             var span_2 = sibling(node_2);
             var text2 = child(span_2);
             template_effect(() => set_text(text2, get$2(appendNewLine) ? " +" : ""));
@@ -26642,14 +28581,16 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           append($$anchor2, fragment);
         };
         var alternate = ($$anchor2) => {
-          var span_3 = root_3$g();
+          var span_3 = root_3$h();
           var node_3 = child(span_3);
-          const expression_1 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(stack()), untrack(() => stack()[0] + "…")));
-          JSONNode(node_3, {
-            get value() {
-              return get$2(expression_1);
-            }
-          });
+          {
+            let $0 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(stack()), untrack(() => stack()[0] + "…")));
+            JSONNode(node_3, {
+              get value() {
+                return get$2($0);
+              }
+            });
+          }
           append($$anchor2, span_3);
         };
         if_block(node, ($$render) => {
@@ -26662,8 +28603,8 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       pop();
       $$cleanup();
     }
-    var root_2$e = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
-    var root_4$f = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
+    var root_2$f = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
+    var root_4$g = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
     var root_6$7 = /* @__PURE__ */ from_html(`<span class="property"> </span>`);
     function ErrorNode($$anchor, $$props) {
       push($$props, false);
@@ -26678,27 +28619,19 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         keys: ["message", "stack"],
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_2$e();
+            var span = root_2$f();
             var text2 = child(span);
-            template_effect(
-              ($0) => set_text(text2, `Error: ${$0 ?? ""}`),
-              [
-                () => (deep_read_state(value2()), untrack(() => String(value2().message)))
-              ],
-              derived_safe_equal
-            );
+            template_effect(($0) => set_text(text2, `Error: ${$0 ?? ""}`), [
+              () => (deep_read_state(value2()), untrack(() => String(value2().message)))
+            ]);
             append($$anchor2, span);
           },
           preview: ($$anchor2, $$slotProps) => {
-            var span_1 = root_4$f();
+            var span_1 = root_4$g();
             var text_1 = child(span_1);
-            template_effect(
-              ($0) => set_text(text_1, `Error: ${$0 ?? ""}`),
-              [
-                () => (deep_read_state(value2()), untrack(() => String(value2().message)))
-              ],
-              derived_safe_equal
-            );
+            template_effect(($0) => set_text(text_1, `Error: ${$0 ?? ""}`), [
+              () => (deep_read_state(value2()), untrack(() => String(value2().message)))
+            ]);
             append($$anchor2, span_1);
           },
           item_key: ($$anchor2, $$slotProps) => {
@@ -26748,8 +28681,8 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       }
       return type2;
     }
-    var root_1$j = /* @__PURE__ */ from_html(`<span class="svelte-1fvwa9c"> </span>`);
-    var root_2$d = /* @__PURE__ */ from_html(`<span class="svelte-1fvwa9c"> </span>`);
+    var root_1$m = /* @__PURE__ */ from_html(`<span class="svelte-1fvwa9c"> </span>`);
+    var root_2$e = /* @__PURE__ */ from_html(`<span class="svelte-1fvwa9c"> </span>`);
     function JSONStringNode($$anchor, $$props) {
       push($$props, false);
       const serialised = /* @__PURE__ */ mutable_source();
@@ -26765,19 +28698,15 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       var node = first_child(fragment);
       {
         var consequent = ($$anchor2) => {
-          var span = root_1$j();
+          var span = root_1$m();
           var text2 = child(span);
-          template_effect(
-            ($0) => set_text(text2, `"${$0 ?? ""}"`),
-            [
-              () => (get$2(serialised), untrack(() => get$2(serialised).slice(0, 30) + (get$2(serialised).length > 30 ? "…" : "")))
-            ],
-            derived_safe_equal
-          );
+          template_effect(($0) => set_text(text2, `"${$0 ?? ""}"`), [
+            () => (get$2(serialised), untrack(() => get$2(serialised).slice(0, 30) + (get$2(serialised).length > 30 ? "…" : "")))
+          ]);
           append($$anchor2, span);
         };
         var alternate = ($$anchor2) => {
-          var span_1 = root_2$d();
+          var span_1 = root_2$e();
           var text_1 = child(span_1);
           template_effect(() => set_text(text_1, `"${get$2(serialised) ?? ""}"`));
           append($$anchor2, span_1);
@@ -26790,10 +28719,10 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       append($$anchor, fragment);
       pop();
     }
-    var root_2$c = /* @__PURE__ */ from_html(`<span class="i svelte-1eamqdt">ƒ</span>`);
+    var root_2$d = /* @__PURE__ */ from_html(`<span class="i svelte-1eamqdt">ƒ</span>`);
     var root_5$9 = /* @__PURE__ */ from_html(`<span class="fn i svelte-1eamqdt"> </span>`);
     var root_6$6 = /* @__PURE__ */ from_html(`<span class="i svelte-1eamqdt"> </span>`);
-    var root_4$e = /* @__PURE__ */ from_html(`<!><!>`, 1);
+    var root_4$f = /* @__PURE__ */ from_html(`<!><!>`, 1);
     var root_8$6 = /* @__PURE__ */ from_html(`<span> </span>`);
     var root_11$3 = /* @__PURE__ */ from_html(`<span class="i svelte-1eamqdt"> </span>`);
     function JSONFunctionNode($$anchor, $$props) {
@@ -26811,14 +28740,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         const isArrow = match2 == null ? void 0 : match2[5];
         const classMatch = str2.match(/^class\s+([^\s]+)/);
         const isClass = classMatch == null ? void 0 : classMatch[1];
-        return {
-          args,
-          isAsync,
-          isGenerator,
-          fnName,
-          isArrow,
-          isClass
-        };
+        return { args, isAsync, isGenerator, fnName, isArrow, isClass };
       }
       function getPreview1({ isGenerator, isAsync, isClass }) {
         if (isClass) return `class ${isClass}`;
@@ -26861,13 +28783,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       });
       legacy_pre_effect(() => {
       }, () => {
-        set$1(keys, [
-          "length",
-          "name",
-          "prototype",
-          FUNCTION,
-          PROTO
-        ].filter(filterKeys));
+        set$1(keys, ["length", "name", "prototype", FUNCTION, PROTO].filter(filterKeys));
       });
       legacy_pre_effect_reset();
       init();
@@ -26877,23 +28793,17 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         },
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_2$c();
+            var span = root_2$d();
             append($$anchor2, span);
           },
           preview: ($$anchor2, $$slotProps) => {
-            var fragment_1 = root_4$e();
+            var fragment_1 = root_4$f();
             var node = first_child(fragment_1);
             {
               var consequent = ($$anchor3) => {
                 var span_1 = root_5$9();
                 var text2 = child(span_1);
-                template_effect(
-                  ($0) => set_text(text2, $0),
-                  [
-                    () => (get$2(ctx), untrack(() => getPreview1(get$2(ctx))))
-                  ],
-                  derived_safe_equal
-                );
+                template_effect(($0) => set_text(text2, $0), [() => (get$2(ctx), untrack(() => getPreview1(get$2(ctx))))]);
                 append($$anchor3, span_1);
               };
               if_block(node, ($$render) => {
@@ -26905,13 +28815,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
               var consequent_1 = ($$anchor3) => {
                 var span_2 = root_6$6();
                 var text_1 = child(span_2);
-                template_effect(
-                  ($0) => set_text(text_1, $0),
-                  [
-                    () => (get$2(ctx), untrack(() => getPreview2(get$2(ctx))))
-                  ],
-                  derived_safe_equal
-                );
+                template_effect(($0) => set_text(text_1, $0), [() => (get$2(ctx), untrack(() => getPreview2(get$2(ctx))))]);
                 append($$anchor3, span_2);
               };
               if_block(node_1, ($$render) => {
@@ -26941,37 +28845,44 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
                 template_effect(() => set_text(text_3, get$2(str)));
                 append($$anchor3, span_4);
               };
-              var alternate = ($$anchor3, $$elseif) => {
+              var alternate_1 = ($$anchor3) => {
+                var fragment_3 = comment$1();
+                var node_3 = first_child(fragment_3);
                 {
                   var consequent_3 = ($$anchor4) => {
-                    const expression = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(get$2(key)), untrack(() => getValue(get$2(key)))));
-                    JSONObjectNode($$anchor4, {
-                      get value() {
-                        return get$2(expression);
-                      }
-                    });
+                    {
+                      let $0 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(get$2(key)), untrack(() => getValue(get$2(key)))));
+                      JSONObjectNode($$anchor4, {
+                        get value() {
+                          return get$2($0);
+                        }
+                      });
+                    }
                   };
-                  var alternate_1 = ($$anchor4) => {
-                    const expression_1 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(get$2(key)), untrack(() => getValue(get$2(key)))));
-                    JSONNode($$anchor4, {
-                      get value() {
-                        return get$2(expression_1);
-                      }
-                    });
+                  var alternate = ($$anchor4) => {
+                    {
+                      let $0 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(get$2(key)), untrack(() => getValue(get$2(key)))));
+                      JSONNode($$anchor4, {
+                        get value() {
+                          return get$2($0);
+                        }
+                      });
+                    }
                   };
                   if_block(
-                    $$anchor3,
+                    node_3,
                     ($$render) => {
                       if (get$2(key) === "prototype") $$render(consequent_3);
-                      else $$render(alternate_1, false);
+                      else $$render(alternate, false);
                     },
-                    $$elseif
+                    true
                   );
                 }
+                append($$anchor3, fragment_3);
               };
               if_block(node_2, ($$render) => {
                 if (get$2(key) === FUNCTION) $$render(consequent_2);
-                else $$render(alternate, false);
+                else $$render(alternate_1, false);
               });
             }
             append($$anchor2, fragment_2);
@@ -26980,9 +28891,9 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       });
       pop();
     }
-    var root_3$f = /* @__PURE__ */ from_html(`<span class="label"> <!> </span>`);
-    var root_7$6 = /* @__PURE__ */ from_html(`<span class="property"> </span><span class="operator"></span><!>`, 1);
-    var root_9$7 = /* @__PURE__ */ from_html(`<span> </span>`);
+    var root_3$g = /* @__PURE__ */ from_html(`<span class="label"> <!> </span>`);
+    var root_7$7 = /* @__PURE__ */ from_html(`<span class="property"> </span><span class="operator"></span><!>`, 1);
+    var root_9$8 = /* @__PURE__ */ from_html(`<span> </span>`);
     function JSONSvelteStoreNode($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
@@ -27021,7 +28932,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         },
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_3$f();
+            var span = root_3$g();
             var text2 = child(span);
             var node = sibling(text2);
             JSONNode(node, {
@@ -27036,42 +28947,44 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           },
           preview: ($$anchor2, $$slotProps) => {
             const root2 = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.root);
-            const expression = /* @__PURE__ */ derived_safe_equal(() => (get$2(previewKeys), get$2(objectKeys), untrack(() => get$2(previewKeys).length < get$2(objectKeys).length)));
-            PreviewList($$anchor2, {
-              get list() {
-                return get$2(previewKeys);
-              },
-              get hasMore() {
-                return get$2(expression);
-              },
-              prefix: "{",
-              postfix: "}",
-              get root() {
-                return get$2(root2);
-              },
-              $$slots: {
-                item: ($$anchor3, $$slotProps2) => {
-                  const item = /* @__PURE__ */ derived_safe_equal(() => $$slotProps2.item);
-                  var fragment_2 = root_7$6();
-                  var span_1 = first_child(fragment_2);
-                  var text_2 = child(span_1);
-                  var span_2 = sibling(span_1);
-                  span_2.textContent = ": ";
-                  var node_1 = sibling(span_2);
-                  JSONNode(node_1, {
-                    get value() {
-                      return deep_read_state(value2()), deep_read_state(get$2(item)), untrack(() => value2()[get$2(item)]);
-                    }
-                  });
-                  template_effect(() => set_text(text_2, get$2(item)));
-                  append($$anchor3, fragment_2);
+            {
+              let $0 = /* @__PURE__ */ derived_safe_equal(() => (get$2(previewKeys), get$2(objectKeys), untrack(() => get$2(previewKeys).length < get$2(objectKeys).length)));
+              PreviewList($$anchor2, {
+                get list() {
+                  return get$2(previewKeys);
+                },
+                get hasMore() {
+                  return get$2($0);
+                },
+                prefix: "{",
+                postfix: "}",
+                get root() {
+                  return get$2(root2);
+                },
+                $$slots: {
+                  item: ($$anchor3, $$slotProps2) => {
+                    const item = /* @__PURE__ */ derived_safe_equal(() => $$slotProps2.item);
+                    var fragment_2 = root_7$7();
+                    var span_1 = first_child(fragment_2);
+                    var text_2 = child(span_1);
+                    var span_2 = sibling(span_1);
+                    span_2.textContent = ": ";
+                    var node_1 = sibling(span_2);
+                    JSONNode(node_1, {
+                      get value() {
+                        return deep_read_state(value2()), deep_read_state(get$2(item)), untrack(() => value2()[get$2(item)]);
+                      }
+                    });
+                    template_effect(() => set_text(text_2, get$2(item)));
+                    append($$anchor3, fragment_2);
+                  }
                 }
-              }
-            });
+              });
+            }
           },
           item_key: ($$anchor2, $$slotProps) => {
             const key = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.key);
-            var span_3 = root_9$7();
+            var span_3 = root_9$8();
             var text_3 = child(span_3);
             template_effect(() => {
               set_class(span_3, 1, clsx(get$2(key) === STORE_VALUE ? "internal" : "property"));
@@ -27081,20 +28994,22 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           },
           item_value: ($$anchor2, $$slotProps) => {
             const key = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.key);
-            const expression_1 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(get$2(key)), untrack(() => getValue(get$2(key)))));
-            JSONNode($$anchor2, {
-              get value() {
-                return get$2(expression_1);
-              }
-            });
+            {
+              let $0 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(get$2(key)), untrack(() => getValue(get$2(key)))));
+              JSONNode($$anchor2, {
+                get value() {
+                  return get$2($0);
+                }
+              });
+            }
           }
         }
       });
       pop();
       $$cleanup();
     }
-    var root_3$e = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
-    var root_9$6 = /* @__PURE__ */ from_html(`<span> </span>`);
+    var root_3$f = /* @__PURE__ */ from_html(`<span class="label"> </span>`);
+    var root_9$7 = /* @__PURE__ */ from_html(`<span> </span>`);
     function TypedArrayNode($$anchor, $$props) {
       push($$props, false);
       const keys = /* @__PURE__ */ mutable_source();
@@ -27116,10 +29031,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         return value2()[key];
       }
       legacy_pre_effect(() => deep_read_state(value2()), () => {
-        set$1(keys, [
-          ...Object.getOwnPropertyNames(value2()),
-          ...internalKeys
-        ]);
+        set$1(keys, [...Object.getOwnPropertyNames(value2()), ...internalKeys]);
       });
       legacy_pre_effect(() => deep_read_state(value2()), () => {
         set$1(preview, value2().slice(0, 5));
@@ -27132,44 +29044,46 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         },
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_3$e();
+            var span = root_3$f();
             var text2 = child(span);
             template_effect(() => set_text(text2, `${nodeType() ?? ""}(${(deep_read_state(value2()), untrack(() => value2().length)) ?? ""})`));
             append($$anchor2, span);
           },
           preview: ($$anchor2, $$slotProps) => {
             const root2 = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.root);
-            const expression = /* @__PURE__ */ derived_safe_equal(() => (get$2(preview), deep_read_state(value2()), untrack(() => get$2(preview).length < value2().length)));
-            PreviewList($$anchor2, {
-              get list() {
-                return get$2(preview);
-              },
-              get hasMore() {
-                return get$2(expression);
-              },
-              get label() {
-                return `${nodeType() ?? ""}(${(deep_read_state(value2()), untrack(() => value2().length)) ?? ""}) `;
-              },
-              prefix: "[",
-              postfix: "]",
-              get root() {
-                return get$2(root2);
-              },
-              $$slots: {
-                item: ($$anchor3, $$slotProps2) => {
-                  const item = /* @__PURE__ */ derived_safe_equal(() => $$slotProps2.item);
-                  JSONNode($$anchor3, {
-                    get value() {
-                      return get$2(item);
-                    }
-                  });
+            {
+              let $0 = /* @__PURE__ */ derived_safe_equal(() => (get$2(preview), deep_read_state(value2()), untrack(() => get$2(preview).length < value2().length)));
+              PreviewList($$anchor2, {
+                get list() {
+                  return get$2(preview);
+                },
+                get hasMore() {
+                  return get$2($0);
+                },
+                get label() {
+                  return `${nodeType() ?? ""}(${(deep_read_state(value2()), untrack(() => value2().length)) ?? ""}) `;
+                },
+                prefix: "[",
+                postfix: "]",
+                get root() {
+                  return get$2(root2);
+                },
+                $$slots: {
+                  item: ($$anchor3, $$slotProps2) => {
+                    const item = /* @__PURE__ */ derived_safe_equal(() => $$slotProps2.item);
+                    JSONNode($$anchor3, {
+                      get value() {
+                        return get$2(item);
+                      }
+                    });
+                  }
                 }
-              }
-            });
+              });
+            }
           },
           item_key: ($$anchor2, $$slotProps) => {
             const key = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.key);
-            var span_1 = root_9$6();
+            var span_1 = root_9$7();
             var text_1 = child(span_1);
             template_effect(
               ($0, $1) => {
@@ -27179,26 +29093,27 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
               [
                 () => clsx((deep_read_state(get$2(key)), untrack(() => internalKeys.includes(get$2(key)) ? "internal" : "property"))),
                 () => (deep_read_state(get$2(key)), untrack(() => String(get$2(key))))
-              ],
-              derived_safe_equal
+              ]
             );
             append($$anchor2, span_1);
           },
           item_value: ($$anchor2, $$slotProps) => {
             const key = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.key);
-            const expression_1 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(get$2(key)), untrack(() => getValue(get$2(key)))));
-            JSONNode($$anchor2, {
-              get value() {
-                return get$2(expression_1);
-              }
-            });
+            {
+              let $0 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(get$2(key)), untrack(() => getValue(get$2(key)))));
+              JSONNode($$anchor2, {
+                get value() {
+                  return get$2($0);
+                }
+              });
+            }
           }
         }
       });
       pop();
     }
-    var root_2$b = /* @__PURE__ */ from_html(`<span class="regex svelte-17k1wqt"> </span>`);
-    var root_4$d = /* @__PURE__ */ from_html(`<span class="regex svelte-17k1wqt"> </span>`);
+    var root_2$c = /* @__PURE__ */ from_html(`<span class="regex svelte-17k1wqt"> </span>`);
+    var root_4$e = /* @__PURE__ */ from_html(`<span class="regex svelte-17k1wqt"> </span>`);
     var root_6$5 = /* @__PURE__ */ from_html(`<span class="internal"> </span>`);
     function RegExpNode($$anchor, $$props) {
       push($$props, false);
@@ -27227,13 +29142,13 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         },
         $$slots: {
           summary: ($$anchor2, $$slotProps) => {
-            var span = root_2$b();
+            var span = root_2$c();
             var text2 = child(span);
             template_effect(() => set_text(text2, get$2(str)));
             append($$anchor2, span);
           },
           preview: ($$anchor2, $$slotProps) => {
-            var span_1 = root_4$d();
+            var span_1 = root_4$e();
             var text_1 = child(span_1);
             template_effect(() => set_text(text_1, get$2(str)));
             append($$anchor2, span_1);
@@ -27242,13 +29157,9 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
             const key = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.key);
             var span_2 = root_6$5();
             var text_2 = child(span_2);
-            template_effect(
-              ($0) => set_text(text_2, $0),
-              [
-                () => (deep_read_state(get$2(key)), untrack(() => String(get$2(key))))
-              ],
-              derived_safe_equal
-            );
+            template_effect(($0) => set_text(text_2, $0), [
+              () => (deep_read_state(get$2(key)), untrack(() => String(get$2(key))))
+            ]);
             append($$anchor2, span_2);
           },
           item_value: ($$anchor2, $$slotProps) => {
@@ -27285,10 +29196,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
             return [JSONIterableMapNode];
           case "Iterable":
           case "Set":
-            return [
-              JSONIterableArrayNode,
-              { nodeType: nodeType2 }
-            ];
+            return [JSONIterableArrayNode, { nodeType: nodeType2 }];
           case "Number":
             return [JSONValueNode, { nodeType: nodeType2 }];
           case "String":
@@ -27296,29 +29204,17 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           case "Boolean":
             return [
               JSONValueNode,
-              {
-                nodeType: nodeType2,
-                value: value22 ? "true" : "false"
-              }
+              { nodeType: nodeType2, value: value22 ? "true" : "false" }
             ];
           case "Date":
             return [
               JSONValueNode,
-              {
-                nodeType: nodeType2,
-                value: value22.toISOString()
-              }
+              { nodeType: nodeType2, value: value22.toISOString() }
             ];
           case "Null":
-            return [
-              JSONValueNode,
-              { nodeType: nodeType2, value: "null" }
-            ];
+            return [JSONValueNode, { nodeType: nodeType2, value: "null" }];
           case "Undefined":
-            return [
-              JSONValueNode,
-              { nodeType: nodeType2, value: "undefined" }
-            ];
+            return [JSONValueNode, { nodeType: nodeType2, value: "undefined" }];
           case "Function":
           case "AsyncFunction":
           case "AsyncGeneratorFunction":
@@ -27327,18 +29223,12 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
           case "Symbol":
             return [
               JSONValueNode,
-              {
-                nodeType: nodeType2,
-                value: value22.toString()
-              }
+              { nodeType: nodeType2, value: value22.toString() }
             ];
           case "BigInt":
             return [
               JSONValueNode,
-              {
-                nodeType: nodeType2,
-                value: String(value22) + "n"
-              }
+              { nodeType: nodeType2, value: String(value22) + "n" }
             ];
           case "ArrayBuffer":
             return [
@@ -27416,8 +29306,8 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
         return level <= defaultExpandedLevel || matchPath(keyPath);
       };
     }
-    var root_4$c = /* @__PURE__ */ from_html(`<span class="svelte-jzynja"> </span>`);
-    var root$q = /* @__PURE__ */ from_html(`<span><!></span>`);
+    var root_4$d = /* @__PURE__ */ from_html(`<span class="svelte-jzynja"> </span>`);
+    var root$t = /* @__PURE__ */ from_html(`<span><!></span>`);
     function Root($$anchor, $$props) {
       push($$props, false);
       const expandable = /* @__PURE__ */ mutable_source();
@@ -27452,7 +29342,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
       );
       legacy_pre_effect_reset();
       init();
-      var span = root$q();
+      var span = root$t();
       let classes;
       var node = child(span);
       {
@@ -27472,15 +29362,17 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
             $$slots: { default: true }
           });
         };
-        var alternate = ($$anchor2, $$elseif) => {
+        var alternate_1 = ($$anchor2) => {
+          var fragment_2 = comment$1();
+          var node_1 = first_child(fragment_2);
           {
             var consequent_1 = ($$anchor3) => {
-              var span_1 = root_4$c();
+              var span_1 = root_4$d();
               var text2 = child(span_1);
               template_effect(() => set_text(text2, value2()));
               append($$anchor3, span_1);
             };
-            var alternate_1 = ($$anchor3) => {
+            var alternate = ($$anchor3) => {
               JSONNode($$anchor3, {
                 get value() {
                   return value2();
@@ -27488,21 +29380,22 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
               });
             };
             if_block(
-              $$anchor2,
+              node_1,
               ($$render) => {
                 if (typeof value2() === "string") $$render(consequent_1);
-                else $$render(alternate_1, false);
+                else $$render(alternate, false);
               },
-              $$elseif
+              true
             );
           }
+          append($$anchor2, fragment_2);
         };
         if_block(node, ($$render) => {
           if (get$2(expandable)) $$render(consequent);
-          else $$render(alternate, false);
+          else $$render(alternate_1, false);
         });
       }
-      template_effect(($0) => classes = set_class(span, 1, "svelte-jzynja", null, classes, $0), [() => ({ expandable: get$2(expandable) })], derived_safe_equal);
+      template_effect(($0) => classes = set_class(span, 1, "svelte-jzynja", null, classes, $0), [() => ({ expandable: get$2(expandable) })]);
       append($$anchor, span);
       pop();
     }
@@ -27647,7 +29540,7 @@ ${indentStr}}`;
         if ((_c = data.effects.transactionBlock) == null ? void 0 : _c.bcs) {
           try {
             decodedBCS = iotaBcs$1.SenderSignedData.parse(
-              fromB64(data.effects.transactionBlock.bcs)
+              fromB64$1(data.effects.transactionBlock.bcs)
             )[0];
           } catch (e2) {
             console.warn("Failed to decode BCS data for transaction:", data.digest, e2);
@@ -28013,33 +29906,33 @@ ${indentStr}}`;
         switch (length) {
           case 1:
             type2 = "u8";
-            value2 = bcs.u8().parse(new Uint8Array(bytes)).toString();
+            value2 = bcs$1.u8().parse(new Uint8Array(bytes)).toString();
             break;
           case 2:
             type2 = "u16";
-            value2 = bcs.u16().parse(new Uint8Array(bytes)).toString();
+            value2 = bcs$1.u16().parse(new Uint8Array(bytes)).toString();
             break;
           case 4:
             type2 = "u32";
-            value2 = bcs.u32().parse(new Uint8Array(bytes)).toString();
+            value2 = bcs$1.u32().parse(new Uint8Array(bytes)).toString();
             break;
           case 8:
             type2 = "u64";
-            value2 = bcs.u64().parse(new Uint8Array(bytes)).toString();
+            value2 = bcs$1.u64().parse(new Uint8Array(bytes)).toString();
             break;
           case 16:
             type2 = "u128";
-            value2 = bcs.u128().parse(new Uint8Array(bytes)).toString();
+            value2 = bcs$1.u128().parse(new Uint8Array(bytes)).toString();
             break;
           case 32:
             type2 = "u256";
-            value2 = bcs.u256().parse(new Uint8Array(bytes)).toString();
+            value2 = bcs$1.u256().parse(new Uint8Array(bytes)).toString();
             break;
           default:
             if (length <= 8) {
               type2 = `u${length * 8}`;
               try {
-                value2 = bcs.u64().parse(new Uint8Array(bytes.slice(0, 8))).toString();
+                value2 = bcs$1.u64().parse(new Uint8Array(bytes.slice(0, 8))).toString();
               } catch {
                 value2 = `Raw bytes (${length} bytes)`;
               }
@@ -28055,7 +29948,7 @@ ${indentStr}}`;
     }
     function decodeBase64Bytes(base64) {
       try {
-        const bytes = fromB64(base64);
+        const bytes = fromB64$1(base64);
         const utf8 = bytesToUtf8(bytes);
         const integer2 = bcsBytesToInteger(bytes);
         return { bytes, utf8, integer: integer2 };
@@ -28115,13 +30008,13 @@ ${indentStr}}`;
       }
       return process2(obj);
     }
-    var root_2$a = /* @__PURE__ */ from_html(`<span class="time-info svelte-zt1cxl"> </span>`);
-    var root_3$d = /* @__PURE__ */ from_html(`<div class="fee-main"><span class="field-label svelte-zt1cxl">Fee:</span> <span class="gas-fee svelte-zt1cxl"> </span> <span class="field-label svelte-zt1cxl">Storage cost:</span> <span class="field-value svelte-zt1cxl"> </span> <span class="field-label svelte-zt1cxl">Rebate:</span> <span class="field-value svelte-zt1cxl"> </span></div>`);
+    var root_2$b = /* @__PURE__ */ from_html(`<span class="time-info svelte-zt1cxl"> </span>`);
+    var root_3$e = /* @__PURE__ */ from_html(`<div class="fee-main"><span class="field-label svelte-zt1cxl">Fee:</span> <span class="gas-fee svelte-zt1cxl"> </span> <span class="field-label svelte-zt1cxl">Storage cost:</span> <span class="field-value svelte-zt1cxl"> </span> <span class="field-label svelte-zt1cxl">Rebate:</span> <span class="field-value svelte-zt1cxl"> </span></div>`);
     var root_5$8 = /* @__PURE__ */ from_html(`<div class="balance-box negative svelte-zt1cxl"><div class="full-address svelte-zt1cxl"> </div> <div class="amount-value svelte-zt1cxl"> </div></div>`);
     var root_6$4 = /* @__PURE__ */ from_html(`<div class="balance-box positive svelte-zt1cxl"><div class="full-address svelte-zt1cxl"> </div> <div class="amount-value svelte-zt1cxl"> </div></div>`);
-    var root_4$b = /* @__PURE__ */ from_html(`<div class="section svelte-zt1cxl"><h4 class="svelte-zt1cxl"> </h4> <div class="balance-columns svelte-zt1cxl"><div class="negative-changes svelte-zt1cxl"><h5 class="column-header deleted svelte-zt1cxl"> </h5> <div class="balance-content svelte-zt1cxl"></div></div> <div class="positive-changes svelte-zt1cxl"><h5 class="column-header created svelte-zt1cxl"> </h5> <div class="balance-content svelte-zt1cxl"></div></div></div></div>`);
-    var root_9$5 = /* @__PURE__ */ from_html(`<div class="object-type svelte-zt1cxl"> </div>`);
-    var root_10$3 = /* @__PURE__ */ from_html(`<div class="object-version svelte-zt1cxl"> </div>`);
+    var root_4$c = /* @__PURE__ */ from_html(`<div class="section svelte-zt1cxl"><h4 class="svelte-zt1cxl"> </h4> <div class="balance-columns svelte-zt1cxl"><div class="negative-changes svelte-zt1cxl"><h5 class="column-header deleted svelte-zt1cxl"> </h5> <div class="balance-content svelte-zt1cxl"></div></div> <div class="positive-changes svelte-zt1cxl"><h5 class="column-header created svelte-zt1cxl"> </h5> <div class="balance-content svelte-zt1cxl"></div></div></div></div>`);
+    var root_9$6 = /* @__PURE__ */ from_html(`<div class="object-type svelte-zt1cxl"> </div>`);
+    var root_10$4 = /* @__PURE__ */ from_html(`<div class="object-version svelte-zt1cxl"> </div>`);
     var root_11$2 = /* @__PURE__ */ from_html(`<div class="object-sender svelte-zt1cxl"> </div>`);
     var root_12$4 = /* @__PURE__ */ from_html(`<details class="state-collapsible svelte-zt1cxl" open><summary class="state-summary svelte-zt1cxl">Previous State:</summary> <div class="object-json svelte-zt1cxl"><pre class="svelte-zt1cxl"> </pre></div></details>`);
     var root_8$5 = /* @__PURE__ */ from_html(`<div class="object-box deleted svelte-zt1cxl"><div class="object-id svelte-zt1cxl"> </div> <!> <!> <!> <!></div>`);
@@ -28142,7 +30035,7 @@ ${indentStr}}`;
     var root_27$2 = /* @__PURE__ */ from_html(`<div class="object-id svelte-zt1cxl"> </div> <!> <!> <!>`, 1);
     var root_31$1 = /* @__PURE__ */ from_html(`<div class="object-id svelte-zt1cxl"> </div>`);
     var root_24$2 = /* @__PURE__ */ from_html(`<div class="object-box created svelte-zt1cxl"><!></div>`);
-    var root_7$5 = /* @__PURE__ */ from_html(`<div class="section svelte-zt1cxl"><h4 class="svelte-zt1cxl"> </h4> <div class="object-columns-three svelte-zt1cxl"><div class="deleted-objects svelte-zt1cxl"><h5 class="column-header deleted svelte-zt1cxl"> </h5> <div class="object-content svelte-zt1cxl"></div></div> <div class="mutated-objects svelte-zt1cxl"><h5 class="column-header mutated svelte-zt1cxl"> </h5> <div class="object-content svelte-zt1cxl"></div></div> <div class="created-objects svelte-zt1cxl"><h5 class="column-header created svelte-zt1cxl"> </h5> <div class="object-content svelte-zt1cxl"></div></div></div></div>`);
+    var root_7$6 = /* @__PURE__ */ from_html(`<div class="section svelte-zt1cxl"><h4 class="svelte-zt1cxl"> </h4> <div class="object-columns-three svelte-zt1cxl"><div class="deleted-objects svelte-zt1cxl"><h5 class="column-header deleted svelte-zt1cxl"> </h5> <div class="object-content svelte-zt1cxl"></div></div> <div class="mutated-objects svelte-zt1cxl"><h5 class="column-header mutated svelte-zt1cxl"> </h5> <div class="object-content svelte-zt1cxl"></div></div> <div class="created-objects svelte-zt1cxl"><h5 class="column-header created svelte-zt1cxl"> </h5> <div class="object-content svelte-zt1cxl"></div></div></div></div>`);
     var root_34$1 = /* @__PURE__ */ from_html(`<pre class="event-data svelte-zt1cxl"> </pre>`);
     var root_33 = /* @__PURE__ */ from_html(`<div class="event-item svelte-zt1cxl"><span class="event-index svelte-zt1cxl"></span> <span class="event-type svelte-zt1cxl"> </span> <!></div>`);
     var root_32$1 = /* @__PURE__ */ from_html(`<div class="section svelte-zt1cxl"><details class="events-collapsible svelte-zt1cxl"><summary class="svelte-zt1cxl"> </summary> <div class="events-content"></div></details></div>`);
@@ -28179,9 +30072,9 @@ ${indentStr}}`;
     var root_64 = /* @__PURE__ */ from_html(`<div class="section svelte-zt1cxl"><span class="svelte-zt1cxl"> </span> <div class="dev-inspect-results svelte-zt1cxl"></div></div>`);
     var root_76 = /* @__PURE__ */ from_html(`<div class="raw-result-item svelte-zt1cxl"><div class="raw-result-header svelte-zt1cxl"><span class="raw-result-index svelte-zt1cxl"></span></div> <div class="raw-result-content svelte-zt1cxl"><pre class="svelte-zt1cxl"> </pre></div></div>`);
     var root_75 = /* @__PURE__ */ from_html(`<div class="section svelte-zt1cxl"><span class="svelte-zt1cxl"> </span> <div class="raw-results svelte-zt1cxl"></div></div>`);
-    var root_1$i = /* @__PURE__ */ from_html(`<div class="header-line svelte-zt1cxl"><span class="tx-header svelte-zt1cxl">Transaction</span> <span class="tx-id-short svelte-zt1cxl"> </span> <span class="status svelte-zt1cxl"> </span> <span class="checkpoint-info svelte-zt1cxl"> </span> <!></div> <div class="sender-fee-line svelte-zt1cxl"><div class="sender-section"><span class="field-label svelte-zt1cxl">Sender:</span> <span class="field-value svelte-zt1cxl"> </span></div> <div class="fee-section"><!></div></div> <!> <!> <!> <!> <!> <!> <!> <!>`, 1);
+    var root_1$l = /* @__PURE__ */ from_html(`<div class="header-line svelte-zt1cxl"><span class="tx-header svelte-zt1cxl">Transaction</span> <span class="tx-id-short svelte-zt1cxl"> </span> <span class="status svelte-zt1cxl"> </span> <span class="checkpoint-info svelte-zt1cxl"> </span> <!></div> <div class="sender-fee-line svelte-zt1cxl"><div class="sender-section"><span class="field-label svelte-zt1cxl">Sender:</span> <span class="field-value svelte-zt1cxl"> </span></div> <div class="fee-section"><!></div></div> <!> <!> <!> <!> <!> <!> <!> <!>`, 1);
     var root_78 = /* @__PURE__ */ from_html(`<div class="no-data svelte-zt1cxl">No transaction effects data available</div>`);
-    var root$p = /* @__PURE__ */ from_html(`<div class="transaction-effects svelte-zt1cxl"><!></div>`);
+    var root$s = /* @__PURE__ */ from_html(`<div class="transaction-effects svelte-zt1cxl"><!></div>`);
     function TransactionEffects($$anchor, $$props) {
       push($$props, false);
       const effects2 = /* @__PURE__ */ mutable_source();
@@ -28250,27 +30143,18 @@ ${indentStr}}`;
         var _a3;
         set$1(effects2, (_a3 = transactionData()) == null ? void 0 : _a3.effects);
       });
-      legacy_pre_effect(
-        () => (deep_read_state(transactionData()), get$2(effects2)),
-        () => {
-          var _a3, _b2, _c, _d;
-          set$1(balanceChanges, ((_a3 = transactionData()) == null ? void 0 : _a3.balanceChanges) || ((_c = (_b2 = get$2(effects2)) == null ? void 0 : _b2.balanceChanges) == null ? void 0 : _c.nodes) || ((_d = get$2(effects2)) == null ? void 0 : _d.balanceChanges) || []);
-        }
-      );
-      legacy_pre_effect(
-        () => (deep_read_state(transactionData()), get$2(effects2)),
-        () => {
-          var _a3, _b2, _c, _d;
-          set$1(objectChanges, ((_a3 = transactionData()) == null ? void 0 : _a3.objectChanges) || ((_c = (_b2 = get$2(effects2)) == null ? void 0 : _b2.objectChanges) == null ? void 0 : _c.nodes) || ((_d = get$2(effects2)) == null ? void 0 : _d.objectChanges) || []);
-        }
-      );
-      legacy_pre_effect(
-        () => (deep_read_state(transactionData()), get$2(effects2)),
-        () => {
-          var _a3, _b2, _c, _d;
-          set$1(events2, ((_a3 = transactionData()) == null ? void 0 : _a3.events) || ((_c = (_b2 = get$2(effects2)) == null ? void 0 : _b2.events) == null ? void 0 : _c.nodes) || ((_d = get$2(effects2)) == null ? void 0 : _d.events) || []);
-        }
-      );
+      legacy_pre_effect(() => (deep_read_state(transactionData()), get$2(effects2)), () => {
+        var _a3, _b2, _c, _d;
+        set$1(balanceChanges, ((_a3 = transactionData()) == null ? void 0 : _a3.balanceChanges) || ((_c = (_b2 = get$2(effects2)) == null ? void 0 : _b2.balanceChanges) == null ? void 0 : _c.nodes) || ((_d = get$2(effects2)) == null ? void 0 : _d.balanceChanges) || []);
+      });
+      legacy_pre_effect(() => (deep_read_state(transactionData()), get$2(effects2)), () => {
+        var _a3, _b2, _c, _d;
+        set$1(objectChanges, ((_a3 = transactionData()) == null ? void 0 : _a3.objectChanges) || ((_c = (_b2 = get$2(effects2)) == null ? void 0 : _b2.objectChanges) == null ? void 0 : _c.nodes) || ((_d = get$2(effects2)) == null ? void 0 : _d.objectChanges) || []);
+      });
+      legacy_pre_effect(() => (deep_read_state(transactionData()), get$2(effects2)), () => {
+        var _a3, _b2, _c, _d;
+        set$1(events2, ((_a3 = transactionData()) == null ? void 0 : _a3.events) || ((_c = (_b2 = get$2(effects2)) == null ? void 0 : _b2.events) == null ? void 0 : _c.nodes) || ((_d = get$2(effects2)) == null ? void 0 : _d.events) || []);
+      });
       legacy_pre_effect(() => get$2(objectChanges), () => {
         set$1(deletedObjects, get$2(objectChanges).filter((change) => change.idDeleted === true || change.type === "deleted"));
       });
@@ -28313,11 +30197,11 @@ ${indentStr}}`;
       });
       legacy_pre_effect_reset();
       init();
-      var div = root$p();
+      var div = root$s();
       var node = child(div);
       {
         var consequent_47 = ($$anchor2) => {
-          var fragment = root_1$i();
+          var fragment = root_1$l();
           var div_1 = first_child(fragment);
           var span = sibling(child(div_1), 2);
           var text$1 = child(span);
@@ -28328,18 +30212,14 @@ ${indentStr}}`;
           var node_1 = sibling(span_2, 2);
           {
             var consequent = ($$anchor3) => {
-              var span_3 = root_2$a();
+              var span_3 = root_2$b();
               var text_3 = child(span_3);
-              template_effect(
-                ($0) => set_text(text_3, $0),
-                [
-                  () => (get$2(effects2), deep_read_state(transactionData()), untrack(() => {
-                    var _a3, _b2;
-                    return new Date(((_a3 = get$2(effects2).checkpoint) == null ? void 0 : _a3.timestamp) || ((_b2 = transactionData()) == null ? void 0 : _b2.timestamp)).toLocaleString();
-                  }))
-                ],
-                derived_safe_equal
-              );
+              template_effect(($0) => set_text(text_3, $0), [
+                () => (get$2(effects2), deep_read_state(transactionData()), untrack(() => {
+                  var _a3, _b2;
+                  return new Date(((_a3 = get$2(effects2).checkpoint) == null ? void 0 : _a3.timestamp) || ((_b2 = transactionData()) == null ? void 0 : _b2.timestamp)).toLocaleString();
+                }))
+              ]);
               append($$anchor3, span_3);
             };
             if_block(node_1, ($$render) => {
@@ -28357,7 +30237,7 @@ ${indentStr}}`;
           var node_2 = child(div_4);
           {
             var consequent_1 = ($$anchor3) => {
-              var div_5 = root_3$d();
+              var div_5 = root_3$e();
               var span_5 = sibling(child(div_5), 2);
               var text_5 = child(span_5);
               var span_6 = sibling(span_5, 4);
@@ -28374,8 +30254,7 @@ ${indentStr}}`;
                   () => (get$2(effects2), untrack(() => formatGasCost(get$2(effects2).gasEffects.gasSummary))),
                   () => (deep_read_state(nanoToIota), get$2(effects2), untrack(() => nanoToIota(get$2(effects2).gasEffects.gasSummary.storageCost || 0))),
                   () => (deep_read_state(nanoToIota), get$2(effects2), untrack(() => nanoToIota(get$2(effects2).gasEffects.gasSummary.storageRebate || 0)))
-                ],
-                derived_safe_equal
+                ]
               );
               append($$anchor3, div_5);
             };
@@ -28389,7 +30268,7 @@ ${indentStr}}`;
           var node_3 = sibling(div_2, 2);
           {
             var consequent_2 = ($$anchor3) => {
-              var div_6 = root_4$b();
+              var div_6 = root_4$c();
               var h4 = child(div_6);
               var text_8 = child(h4);
               var div_7 = sibling(h4, 2);
@@ -28422,8 +30301,7 @@ ${indentStr}}`;
                     },
                     [
                       () => (get$2(change), untrack(() => formatAmount(get$2(change).amount, get$2(change).coinType)))
-                    ],
-                    derived_safe_equal
+                    ]
                   );
                   append($$anchor4, div_10);
                 }
@@ -28457,8 +30335,7 @@ ${indentStr}}`;
                     },
                     [
                       () => (get$2(change), untrack(() => formatAmount(get$2(change).amount, get$2(change).coinType)))
-                    ],
-                    derived_safe_equal
+                    ]
                   );
                   append($$anchor4, div_15);
                 }
@@ -28472,8 +30349,7 @@ ${indentStr}}`;
                 [
                   () => (get$2(balanceChanges), untrack(() => get$2(balanceChanges).filter((change) => change.amount.startsWith("-")).length)),
                   () => (get$2(balanceChanges), untrack(() => get$2(balanceChanges).filter((change) => !change.amount.startsWith("-")).length))
-                ],
-                derived_safe_equal
+                ]
               );
               append($$anchor3, div_6);
             };
@@ -28484,7 +30360,7 @@ ${indentStr}}`;
           var node_4 = sibling(node_3, 2);
           {
             var consequent_20 = ($$anchor3) => {
-              var div_18 = root_7$5();
+              var div_18 = root_7$6();
               var h4_1 = child(div_18);
               var text_15 = child(h4_1);
               var div_19 = sibling(h4_1, 2);
@@ -28499,7 +30375,7 @@ ${indentStr}}`;
                 var node_5 = sibling(div_23, 2);
                 {
                   var consequent_3 = ($$anchor5) => {
-                    var div_24 = root_9$5();
+                    var div_24 = root_9$6();
                     var text_18 = child(div_24);
                     template_effect(() => set_text(text_18, (get$2(change), untrack(() => get$2(change).objectType))));
                     append($$anchor5, div_24);
@@ -28511,7 +30387,7 @@ ${indentStr}}`;
                 var node_6 = sibling(node_5, 2);
                 {
                   var consequent_4 = ($$anchor5) => {
-                    var div_25 = root_10$3();
+                    var div_25 = root_10$4();
                     var text_19 = child(div_25);
                     template_effect(() => set_text(text_19, `Version: ${(get$2(change), untrack(() => get$2(change).version)) ?? ""}`));
                     append($$anchor5, div_25);
@@ -28539,15 +30415,9 @@ ${indentStr}}`;
                     var div_27 = sibling(child(details), 2);
                     var pre = child(div_27);
                     var text_21 = child(pre);
-                    template_effect(
-                      ($0) => set_text(text_21, $0),
-                      [
-                        () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), get$2(change), untrack(() => formatJsonWithCompactArrays(removeKindFields(Object.fromEntries(Object.entries({
-                          ...get$2(change).inputState.asMoveObject.contents.json
-                        }).filter(([key]) => key !== "id"))))))
-                      ],
-                      derived_safe_equal
-                    );
+                    template_effect(($0) => set_text(text_21, $0), [
+                      () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), get$2(change), untrack(() => formatJsonWithCompactArrays(removeKindFields(Object.fromEntries(Object.entries({ ...get$2(change).inputState.asMoveObject.contents.json }).filter(([key]) => key !== "id"))))))
+                    ]);
                     append($$anchor5, details);
                   };
                   if_block(node_8, ($$render) => {
@@ -28579,15 +30449,9 @@ ${indentStr}}`;
                         var div_32 = sibling(child(details_1), 2);
                         var pre_1 = child(div_32);
                         var text_24 = child(pre_1);
-                        template_effect(
-                          ($0) => set_text(text_24, $0),
-                          [
-                            () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), get$2(change), untrack(() => formatJsonWithCompactArrays(removeKindFields(Object.fromEntries(Object.entries({
-                              ...get$2(change).inputState.asMoveObject.contents.json
-                            }).filter(([key]) => key !== "id"))))))
-                          ],
-                          derived_safe_equal
-                        );
+                        template_effect(($0) => set_text(text_24, $0), [
+                          () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), get$2(change), untrack(() => formatJsonWithCompactArrays(removeKindFields(Object.fromEntries(Object.entries({ ...get$2(change).inputState.asMoveObject.contents.json }).filter(([key]) => key !== "id"))))))
+                        ]);
                         append($$anchor6, details_1);
                       };
                       if_block(node_10, ($$render) => {
@@ -28607,21 +30471,20 @@ ${indentStr}}`;
                         set_text(text_25, $0);
                       },
                       [
-                        () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), get$2(change), untrack(() => formatJsonWithCompactArrays(removeKindFields(Object.fromEntries(Object.entries({
-                          ...get$2(change).outputState.asMoveObject.contents.json
-                        }).filter(([key]) => key !== "id"))))))
-                      ],
-                      derived_safe_equal
+                        () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), get$2(change), untrack(() => formatJsonWithCompactArrays(removeKindFields(Object.fromEntries(Object.entries({ ...get$2(change).outputState.asMoveObject.contents.json }).filter(([key]) => key !== "id"))))))
+                      ]
                     );
                     append($$anchor5, fragment_1);
                   };
-                  var alternate = ($$anchor5, $$elseif) => {
+                  var alternate_1 = ($$anchor5) => {
+                    var fragment_2 = comment$1();
+                    var node_11 = first_child(fragment_2);
                     {
                       var consequent_13 = ($$anchor6) => {
-                        var fragment_2 = root_17$1();
-                        var div_34 = first_child(fragment_2);
+                        var fragment_3 = root_17$1();
+                        var div_34 = first_child(fragment_3);
                         var text_26 = child(div_34);
-                        var node_11 = sibling(div_34, 2);
+                        var node_12 = sibling(div_34, 2);
                         {
                           var consequent_9 = ($$anchor7) => {
                             var div_35 = root_18$2();
@@ -28629,11 +30492,11 @@ ${indentStr}}`;
                             template_effect(() => set_text(text_27, (get$2(change), untrack(() => get$2(change).objectType))));
                             append($$anchor7, div_35);
                           };
-                          if_block(node_11, ($$render) => {
+                          if_block(node_12, ($$render) => {
                             if (get$2(change), untrack(() => get$2(change).objectType)) $$render(consequent_9);
                           });
                         }
-                        var node_12 = sibling(node_11, 2);
+                        var node_13 = sibling(node_12, 2);
                         {
                           var consequent_10 = ($$anchor7) => {
                             var div_36 = root_19$2();
@@ -28641,11 +30504,11 @@ ${indentStr}}`;
                             template_effect(() => set_text(text_28, `Owner: ${(get$2(change), untrack(() => get$2(change).owner.AddressOwner || get$2(change).owner)) ?? ""}`));
                             append($$anchor7, div_36);
                           };
-                          if_block(node_12, ($$render) => {
+                          if_block(node_13, ($$render) => {
                             if (get$2(change), untrack(() => get$2(change).owner)) $$render(consequent_10);
                           });
                         }
-                        var node_13 = sibling(node_12, 2);
+                        var node_14 = sibling(node_13, 2);
                         {
                           var consequent_11 = ($$anchor7) => {
                             var div_37 = root_20$2();
@@ -28653,11 +30516,11 @@ ${indentStr}}`;
                             template_effect(() => set_text(text_29, `Version: ${(get$2(change), untrack(() => get$2(change).version)) ?? ""}`));
                             append($$anchor7, div_37);
                           };
-                          if_block(node_13, ($$render) => {
+                          if_block(node_14, ($$render) => {
                             if (get$2(change), untrack(() => get$2(change).version)) $$render(consequent_11);
                           });
                         }
-                        var node_14 = sibling(node_13, 2);
+                        var node_15 = sibling(node_14, 2);
                         {
                           var consequent_12 = ($$anchor7) => {
                             var div_38 = root_21$3();
@@ -28665,36 +30528,30 @@ ${indentStr}}`;
                             template_effect(() => set_text(text_30, `Previous Version: ${(get$2(change), untrack(() => get$2(change).previousVersion)) ?? ""}`));
                             append($$anchor7, div_38);
                           };
-                          if_block(node_14, ($$render) => {
+                          if_block(node_15, ($$render) => {
                             if (get$2(change), untrack(() => get$2(change).previousVersion)) $$render(consequent_12);
                           });
                         }
                         template_effect(() => set_text(text_26, (get$2(change), untrack(() => get$2(change).objectId))));
-                        append($$anchor6, fragment_2);
+                        append($$anchor6, fragment_3);
                       };
-                      var alternate_1 = ($$anchor6) => {
-                        var fragment_3 = root_22$1();
-                        var div_39 = first_child(fragment_3);
+                      var alternate = ($$anchor6) => {
+                        var fragment_4 = root_22$1();
+                        var div_39 = first_child(fragment_4);
                         var text_31 = child(div_39);
-                        var node_15 = sibling(div_39, 2);
+                        var node_16 = sibling(div_39, 2);
                         {
                           var consequent_14 = ($$anchor7) => {
                             var details_3 = root_23$2();
                             var div_40 = sibling(child(details_3), 2);
                             var pre_3 = child(div_40);
                             var text_32 = child(pre_3);
-                            template_effect(
-                              ($0) => set_text(text_32, $0),
-                              [
-                                () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), get$2(change), untrack(() => formatJsonWithCompactArrays(removeKindFields(Object.fromEntries(Object.entries({
-                                  ...get$2(change).inputState.asMoveObject.contents.json
-                                }).filter(([key]) => key !== "id"))))))
-                              ],
-                              derived_safe_equal
-                            );
+                            template_effect(($0) => set_text(text_32, $0), [
+                              () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), get$2(change), untrack(() => formatJsonWithCompactArrays(removeKindFields(Object.fromEntries(Object.entries({ ...get$2(change).inputState.asMoveObject.contents.json }).filter(([key]) => key !== "id"))))))
+                            ]);
                             append($$anchor7, details_3);
                           };
-                          if_block(node_15, ($$render) => {
+                          if_block(node_16, ($$render) => {
                             if (get$2(change), untrack(() => {
                               var _a3, _b2, _c;
                               return (_c = (_b2 = (_a3 = get$2(change).inputState) == null ? void 0 : _a3.asMoveObject) == null ? void 0 : _b2.contents) == null ? void 0 : _c.json;
@@ -28702,24 +30559,25 @@ ${indentStr}}`;
                           });
                         }
                         template_effect(() => set_text(text_31, (get$2(change), untrack(() => get$2(change).address))));
-                        append($$anchor6, fragment_3);
+                        append($$anchor6, fragment_4);
                       };
                       if_block(
-                        $$anchor5,
+                        node_11,
                         ($$render) => {
                           if (get$2(change), untrack(() => get$2(change).objectId)) $$render(consequent_13);
-                          else $$render(alternate_1, false);
+                          else $$render(alternate, false);
                         },
-                        $$elseif
+                        true
                       );
                     }
+                    append($$anchor5, fragment_2);
                   };
                   if_block(node_9, ($$render) => {
                     if (get$2(change), untrack(() => {
                       var _a3, _b2, _c, _d;
                       return (_d = (_c = (_b2 = (_a3 = get$2(change).outputState) == null ? void 0 : _a3.asMoveObject) == null ? void 0 : _b2.contents) == null ? void 0 : _c.json) == null ? void 0 : _d.id;
                     })) $$render(consequent_8);
-                    else $$render(alternate, false);
+                    else $$render(alternate_1, false);
                   });
                 }
                 append($$anchor4, div_30);
@@ -28730,11 +30588,11 @@ ${indentStr}}`;
               var div_42 = sibling(h5_4, 2);
               each$1(div_42, 5, () => get$2(createdObjects), index$1, ($$anchor4, change) => {
                 var div_43 = root_24$2();
-                var node_16 = child(div_43);
+                var node_17 = child(div_43);
                 {
                   var consequent_15 = ($$anchor5) => {
-                    var fragment_4 = root_25$2();
-                    var div_44 = first_child(fragment_4);
+                    var fragment_5 = root_25$2();
+                    var div_44 = first_child(fragment_5);
                     var text_34 = child(div_44);
                     var details_4 = sibling(div_44, 2);
                     var div_45 = sibling(child(details_4), 2);
@@ -28746,21 +30604,20 @@ ${indentStr}}`;
                         set_text(text_35, $0);
                       },
                       [
-                        () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), get$2(change), untrack(() => formatJsonWithCompactArrays(removeKindFields(Object.fromEntries(Object.entries({
-                          ...get$2(change).outputState.asMoveObject.contents.json
-                        }).filter(([key]) => key !== "id"))))))
-                      ],
-                      derived_safe_equal
+                        () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), get$2(change), untrack(() => formatJsonWithCompactArrays(removeKindFields(Object.fromEntries(Object.entries({ ...get$2(change).outputState.asMoveObject.contents.json }).filter(([key]) => key !== "id"))))))
+                      ]
                     );
-                    append($$anchor5, fragment_4);
+                    append($$anchor5, fragment_5);
                   };
-                  var alternate_2 = ($$anchor5, $$elseif) => {
+                  var alternate_3 = ($$anchor5) => {
+                    var fragment_6 = comment$1();
+                    var node_18 = first_child(fragment_6);
                     {
                       var consequent_19 = ($$anchor6) => {
-                        var fragment_5 = root_27$2();
-                        var div_46 = first_child(fragment_5);
+                        var fragment_7 = root_27$2();
+                        var div_46 = first_child(fragment_7);
                         var text_36 = child(div_46);
-                        var node_17 = sibling(div_46, 2);
+                        var node_19 = sibling(div_46, 2);
                         {
                           var consequent_16 = ($$anchor7) => {
                             var div_47 = root_28$2();
@@ -28768,11 +30625,11 @@ ${indentStr}}`;
                             template_effect(() => set_text(text_37, (get$2(change), untrack(() => get$2(change).objectType))));
                             append($$anchor7, div_47);
                           };
-                          if_block(node_17, ($$render) => {
+                          if_block(node_19, ($$render) => {
                             if (get$2(change), untrack(() => get$2(change).objectType)) $$render(consequent_16);
                           });
                         }
-                        var node_18 = sibling(node_17, 2);
+                        var node_20 = sibling(node_19, 2);
                         {
                           var consequent_17 = ($$anchor7) => {
                             var div_48 = root_29$1();
@@ -28780,11 +30637,11 @@ ${indentStr}}`;
                             template_effect(() => set_text(text_38, `Owner: ${(get$2(change), untrack(() => get$2(change).owner.AddressOwner || get$2(change).owner)) ?? ""}`));
                             append($$anchor7, div_48);
                           };
-                          if_block(node_18, ($$render) => {
+                          if_block(node_20, ($$render) => {
                             if (get$2(change), untrack(() => get$2(change).owner)) $$render(consequent_17);
                           });
                         }
-                        var node_19 = sibling(node_18, 2);
+                        var node_21 = sibling(node_20, 2);
                         {
                           var consequent_18 = ($$anchor7) => {
                             var div_49 = root_30$1();
@@ -28792,35 +30649,36 @@ ${indentStr}}`;
                             template_effect(() => set_text(text_39, `Version: ${(get$2(change), untrack(() => get$2(change).version)) ?? ""}`));
                             append($$anchor7, div_49);
                           };
-                          if_block(node_19, ($$render) => {
+                          if_block(node_21, ($$render) => {
                             if (get$2(change), untrack(() => get$2(change).version)) $$render(consequent_18);
                           });
                         }
                         template_effect(() => set_text(text_36, (get$2(change), untrack(() => get$2(change).objectId))));
-                        append($$anchor6, fragment_5);
+                        append($$anchor6, fragment_7);
                       };
-                      var alternate_3 = ($$anchor6) => {
+                      var alternate_2 = ($$anchor6) => {
                         var div_50 = root_31$1();
                         var text_40 = child(div_50);
                         template_effect(() => set_text(text_40, (get$2(change), untrack(() => get$2(change).address))));
                         append($$anchor6, div_50);
                       };
                       if_block(
-                        $$anchor5,
+                        node_18,
                         ($$render) => {
                           if (get$2(change), untrack(() => get$2(change).objectId)) $$render(consequent_19);
-                          else $$render(alternate_3, false);
+                          else $$render(alternate_2, false);
                         },
-                        $$elseif
+                        true
                       );
                     }
+                    append($$anchor5, fragment_6);
                   };
-                  if_block(node_16, ($$render) => {
+                  if_block(node_17, ($$render) => {
                     if (get$2(change), untrack(() => {
                       var _a3, _b2, _c, _d;
                       return (_d = (_c = (_b2 = (_a3 = get$2(change).outputState) == null ? void 0 : _a3.asMoveObject) == null ? void 0 : _b2.contents) == null ? void 0 : _c.json) == null ? void 0 : _d.id;
                     })) $$render(consequent_15);
-                    else $$render(alternate_2, false);
+                    else $$render(alternate_3, false);
                   });
                 }
                 append($$anchor4, div_43);
@@ -28837,7 +30695,7 @@ ${indentStr}}`;
               if (get$2(objectChanges), get$2(createdObjects), get$2(mutatedObjects), get$2(deletedObjects), untrack(() => get$2(objectChanges).length > 0 || get$2(createdObjects).length > 0 || get$2(mutatedObjects).length > 0 || get$2(deletedObjects).length > 0)) $$render(consequent_20);
             });
           }
-          var node_20 = sibling(node_4, 2);
+          var node_22 = sibling(node_4, 2);
           {
             var consequent_22 = ($$anchor3) => {
               var div_51 = root_32$1();
@@ -28851,21 +30709,17 @@ ${indentStr}}`;
                 span_8.textContent = `#${index2 + 1}`;
                 var span_9 = sibling(span_8, 2);
                 var text_42 = child(span_9);
-                var node_21 = sibling(span_9, 2);
+                var node_23 = sibling(span_9, 2);
                 {
                   var consequent_21 = ($$anchor5) => {
                     var pre_5 = root_34$1();
                     var text_43 = child(pre_5);
-                    template_effect(
-                      ($0) => set_text(text_43, $0),
-                      [
-                        () => (deep_read_state(formatJsonWithCompactArrays), get$2(event2), untrack(() => formatJsonWithCompactArrays(get$2(event2).parsedJson)))
-                      ],
-                      derived_safe_equal
-                    );
+                    template_effect(($0) => set_text(text_43, $0), [
+                      () => (deep_read_state(formatJsonWithCompactArrays), get$2(event2), untrack(() => formatJsonWithCompactArrays(get$2(event2).parsedJson)))
+                    ]);
                     append($$anchor5, pre_5);
                   };
-                  if_block(node_21, ($$render) => {
+                  if_block(node_23, ($$render) => {
                     if (get$2(event2), untrack(() => get$2(event2).parsedJson)) $$render(consequent_21);
                   });
                 }
@@ -28875,11 +30729,11 @@ ${indentStr}}`;
               template_effect(() => set_text(text_41, `Events (${(get$2(events2), untrack(() => get$2(events2).length)) ?? ""})`));
               append($$anchor3, div_51);
             };
-            if_block(node_20, ($$render) => {
+            if_block(node_22, ($$render) => {
               if (get$2(events2), untrack(() => get$2(events2).length > 0)) $$render(consequent_22);
             });
           }
-          var node_22 = sibling(node_20, 2);
+          var node_24 = sibling(node_22, 2);
           {
             var consequent_24 = ($$anchor3) => {
               var div_54 = root_35$1();
@@ -28898,7 +30752,7 @@ ${indentStr}}`;
                   var span_12 = sibling(span_11, 2);
                   var text_45 = child(span_12);
                   var div_57 = sibling(span_12, 2);
-                  var node_23 = child(div_57);
+                  var node_25 = child(div_57);
                   {
                     var consequent_23 = ($$anchor5) => {
                       var pre_6 = root_37();
@@ -28910,28 +30764,20 @@ ${indentStr}}`;
                         arguments: get$2(moveCall).arguments
                       }))));
                       var text_46 = child(pre_6);
-                      template_effect(
-                        ($0) => set_text(text_46, $0),
-                        [
-                          () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), deep_read_state(get$2(cleanData)), untrack(() => formatJsonWithCompactArrays(removeKindFields(get$2(cleanData)))))
-                        ],
-                        derived_safe_equal
-                      );
+                      template_effect(($0) => set_text(text_46, $0), [
+                        () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), deep_read_state(get$2(cleanData)), untrack(() => formatJsonWithCompactArrays(removeKindFields(get$2(cleanData)))))
+                      ]);
                       append($$anchor5, pre_6);
                     };
                     var alternate_4 = ($$anchor5) => {
                       var pre_7 = root_38$1();
                       var text_47 = child(pre_7);
-                      template_effect(
-                        ($0) => set_text(text_47, $0),
-                        [
-                          () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), get$2(command), untrack(() => formatJsonWithCompactArrays(removeKindFields(get$2(command))[get$2(command).$kind])))
-                        ],
-                        derived_safe_equal
-                      );
+                      template_effect(($0) => set_text(text_47, $0), [
+                        () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), get$2(command), untrack(() => formatJsonWithCompactArrays(removeKindFields(get$2(command))[get$2(command).$kind])))
+                      ]);
                       append($$anchor5, pre_7);
                     };
-                    if_block(node_23, ($$render) => {
+                    if_block(node_25, ($$render) => {
                       if (get$2(command), untrack(() => get$2(command).$kind === "MoveCall" && get$2(command).MoveCall)) $$render(consequent_23);
                       else $$render(alternate_4, false);
                     });
@@ -28943,7 +30789,9 @@ ${indentStr}}`;
               template_effect(() => set_text(text_44, `Tx commands (${(deep_read_state(transactionData()), untrack(() => transactionData().decodedBCS.intentMessage.value.V1.kind.ProgrammableTransaction.commands.length)) ?? ""}):`));
               append($$anchor3, div_54);
             };
-            var alternate_5 = ($$anchor3, $$elseif) => {
+            var alternate_7 = ($$anchor3) => {
+              var fragment_8 = comment$1();
+              var node_26 = first_child(fragment_8);
               {
                 var consequent_27 = ($$anchor4) => {
                   var div_58 = root_40();
@@ -28962,12 +30810,12 @@ ${indentStr}}`;
                       var span_15 = sibling(span_14, 2);
                       var text_49 = child(span_15);
                       var div_61 = sibling(span_15, 2);
-                      var node_24 = child(div_61);
+                      var node_27 = child(div_61);
                       {
                         var consequent_26 = ($$anchor6) => {
-                          var fragment_6 = comment$1();
+                          var fragment_9 = comment$1();
                           const commandValue = /* @__PURE__ */ derived_safe_equal(() => (get$2(command), untrack(() => Object.values(get$2(command))[0])));
-                          var node_25 = first_child(fragment_6);
+                          var node_28 = first_child(fragment_9);
                           {
                             var consequent_25 = ($$anchor7) => {
                               var pre_8 = root_43();
@@ -28979,58 +30827,42 @@ ${indentStr}}`;
                                 arguments: get$2(moveCall).arguments
                               }))));
                               var text_50 = child(pre_8);
-                              template_effect(
-                                ($0) => set_text(text_50, $0),
-                                [
-                                  () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), deep_read_state(get$2(cleanData)), untrack(() => formatJsonWithCompactArrays(removeKindFields(get$2(cleanData)))))
-                                ],
-                                derived_safe_equal
-                              );
+                              template_effect(($0) => set_text(text_50, $0), [
+                                () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), deep_read_state(get$2(cleanData)), untrack(() => formatJsonWithCompactArrays(removeKindFields(get$2(cleanData)))))
+                              ]);
                               append($$anchor7, pre_8);
                             };
-                            var alternate_6 = ($$anchor7) => {
+                            var alternate_5 = ($$anchor7) => {
                               var pre_9 = root_44();
                               var text_51 = child(pre_9);
-                              template_effect(
-                                ($0) => set_text(text_51, $0),
-                                [
-                                  () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(get$2(commandValue)), untrack(() => formatJsonWithCompactArrays(get$2(commandValue))))
-                                ],
-                                derived_safe_equal
-                              );
+                              template_effect(($0) => set_text(text_51, $0), [
+                                () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(get$2(commandValue)), untrack(() => formatJsonWithCompactArrays(get$2(commandValue))))
+                              ]);
                               append($$anchor7, pre_9);
                             };
-                            if_block(node_25, ($$render) => {
+                            if_block(node_28, ($$render) => {
                               if (get$2(commandValue) && typeof get$2(commandValue) === "object" && get$2(commandValue) !== null && "package" in get$2(commandValue)) $$render(consequent_25);
-                              else $$render(alternate_6, false);
+                              else $$render(alternate_5, false);
                             });
                           }
-                          append($$anchor6, fragment_6);
+                          append($$anchor6, fragment_9);
                         };
-                        var alternate_7 = ($$anchor6) => {
+                        var alternate_6 = ($$anchor6) => {
                           var pre_10 = root_45();
                           var text_52 = child(pre_10);
-                          template_effect(
-                            ($0) => set_text(text_52, $0),
-                            [
-                              () => (deep_read_state(formatJsonWithCompactArrays), get$2(command), untrack(() => formatJsonWithCompactArrays(Object.values(get$2(command))[0])))
-                            ],
-                            derived_safe_equal
-                          );
+                          template_effect(($0) => set_text(text_52, $0), [
+                            () => (deep_read_state(formatJsonWithCompactArrays), get$2(command), untrack(() => formatJsonWithCompactArrays(Object.values(get$2(command))[0])))
+                          ]);
                           append($$anchor6, pre_10);
                         };
-                        if_block(node_24, ($$render) => {
+                        if_block(node_27, ($$render) => {
                           if (get$2(command), untrack(() => Object.keys(get$2(command))[0] === "MoveCall")) $$render(consequent_26);
-                          else $$render(alternate_7, false);
+                          else $$render(alternate_6, false);
                         });
                       }
-                      template_effect(
-                        ($0) => set_text(text_49, $0),
-                        [
-                          () => (get$2(command), untrack(() => Object.keys(get$2(command))[0]))
-                        ],
-                        derived_safe_equal
-                      );
+                      template_effect(($0) => set_text(text_49, $0), [
+                        () => (get$2(command), untrack(() => Object.keys(get$2(command))[0]))
+                      ]);
                       append($$anchor5, div_60);
                     }
                   );
@@ -29038,26 +30870,27 @@ ${indentStr}}`;
                   append($$anchor4, div_58);
                 };
                 if_block(
-                  $$anchor3,
+                  node_26,
                   ($$render) => {
                     if (deep_read_state(transactionData()), untrack(() => {
                       var _a3, _b2, _c, _d;
                       return (_d = (_c = (_b2 = (_a3 = transactionData()) == null ? void 0 : _a3.input) == null ? void 0 : _b2.transaction) == null ? void 0 : _c.transactions) == null ? void 0 : _d.length;
                     })) $$render(consequent_27);
                   },
-                  $$elseif
+                  true
                 );
               }
+              append($$anchor3, fragment_8);
             };
-            if_block(node_22, ($$render) => {
+            if_block(node_24, ($$render) => {
               if (deep_read_state(transactionData()), untrack(() => {
                 var _a3, _b2, _c, _d, _e, _f, _g, _h;
                 return (_h = (_g = (_f = (_e = (_d = (_c = (_b2 = (_a3 = transactionData()) == null ? void 0 : _a3.decodedBCS) == null ? void 0 : _b2.intentMessage) == null ? void 0 : _c.value) == null ? void 0 : _d.V1) == null ? void 0 : _e.kind) == null ? void 0 : _f.ProgrammableTransaction) == null ? void 0 : _g.commands) == null ? void 0 : _h.length;
               })) $$render(consequent_24);
-              else $$render(alternate_5, false);
+              else $$render(alternate_7, false);
             });
           }
-          var node_26 = sibling(node_22, 2);
+          var node_29 = sibling(node_24, 2);
           {
             var consequent_30 = ($$anchor3) => {
               var div_62 = root_46();
@@ -29076,12 +30909,12 @@ ${indentStr}}`;
                   var div_65 = sibling(span_17, 2);
                   var pre_11 = child(div_65);
                   var text_54 = child(pre_11);
-                  var node_27 = sibling(pre_11, 2);
+                  var node_30 = sibling(pre_11, 2);
                   {
                     var consequent_29 = ($$anchor5) => {
-                      var fragment_7 = comment$1();
+                      var fragment_10 = comment$1();
                       const decoded = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(decodeBase64Bytes), get$2(input), untrack(() => decodeBase64Bytes(get$2(input)[get$2(input).$kind].bytes))));
-                      var node_28 = first_child(fragment_7);
+                      var node_31 = first_child(fragment_10);
                       {
                         var consequent_28 = ($$anchor6) => {
                           var div_66 = root_49();
@@ -29105,18 +30938,17 @@ ${indentStr}}`;
                             },
                             [
                               () => (deep_read_state(get$2(decoded)), untrack(() => get$2(decoded).bytes.join(", ")))
-                            ],
-                            derived_safe_equal
+                            ]
                           );
                           append($$anchor6, div_66);
                         };
-                        if_block(node_28, ($$render) => {
+                        if_block(node_31, ($$render) => {
                           if (get$2(decoded)) $$render(consequent_28);
                         });
                       }
-                      append($$anchor5, fragment_7);
+                      append($$anchor5, fragment_10);
                     };
-                    if_block(node_27, ($$render) => {
+                    if_block(node_30, ($$render) => {
                       if (get$2(input), untrack(() => get$2(input).$kind === "Pure" && get$2(input)[get$2(input).$kind].bytes)) $$render(consequent_29);
                     });
                   }
@@ -29127,15 +30959,16 @@ ${indentStr}}`;
                     },
                     [
                       () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), get$2(input), untrack(() => formatJsonWithCompactArrays(removeKindFields(get$2(input))[get$2(input).$kind])))
-                    ],
-                    derived_safe_equal
+                    ]
                   );
                   append($$anchor4, div_64);
                 }
               );
               append($$anchor3, div_62);
             };
-            var alternate_8 = ($$anchor3, $$elseif) => {
+            var alternate_8 = ($$anchor3) => {
+              var fragment_11 = comment$1();
+              var node_32 = first_child(fragment_11);
               {
                 var consequent_31 = ($$anchor4) => {
                   var div_70 = root_51();
@@ -29147,10 +30980,7 @@ ${indentStr}}`;
                     index$1,
                     ($$anchor5, input, index2) => {
                       var div_72 = root_52();
-                      const inputData = /* @__PURE__ */ derived_safe_equal(() => (get$2(input), untrack(() => ({
-                        valueType: get$2(input).valueType,
-                        value: get$2(input).value
-                      }))));
+                      const inputData = /* @__PURE__ */ derived_safe_equal(() => (get$2(input), untrack(() => ({ valueType: get$2(input).valueType, value: get$2(input).value }))));
                       var span_22 = child(div_72);
                       span_22.textContent = index2;
                       var span_23 = sibling(span_22, 2);
@@ -29165,8 +30995,7 @@ ${indentStr}}`;
                         },
                         [
                           () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(get$2(inputData)), untrack(() => formatJsonWithCompactArrays(get$2(inputData))))
-                        ],
-                        derived_safe_equal
+                        ]
                       );
                       append($$anchor5, div_72);
                     }
@@ -29174,18 +31003,19 @@ ${indentStr}}`;
                   append($$anchor4, div_70);
                 };
                 if_block(
-                  $$anchor3,
+                  node_32,
                   ($$render) => {
                     if (deep_read_state(transactionData()), untrack(() => {
                       var _a3, _b2, _c, _d;
                       return (_d = (_c = (_b2 = (_a3 = transactionData()) == null ? void 0 : _a3.input) == null ? void 0 : _b2.transaction) == null ? void 0 : _c.inputs) == null ? void 0 : _d.length;
                     })) $$render(consequent_31);
                   },
-                  $$elseif
+                  true
                 );
               }
+              append($$anchor3, fragment_11);
             };
-            if_block(node_26, ($$render) => {
+            if_block(node_29, ($$render) => {
               if (deep_read_state(transactionData()), untrack(() => {
                 var _a3, _b2, _c, _d, _e, _f, _g, _h;
                 return (_h = (_g = (_f = (_e = (_d = (_c = (_b2 = (_a3 = transactionData()) == null ? void 0 : _a3.decodedBCS) == null ? void 0 : _b2.intentMessage) == null ? void 0 : _c.value) == null ? void 0 : _d.V1) == null ? void 0 : _e.kind) == null ? void 0 : _f.ProgrammableTransaction) == null ? void 0 : _g.inputs) == null ? void 0 : _h.length;
@@ -29193,48 +31023,48 @@ ${indentStr}}`;
               else $$render(alternate_8, false);
             });
           }
-          var node_29 = sibling(node_26, 2);
+          var node_33 = sibling(node_29, 2);
           {
             var consequent_34 = ($$anchor3) => {
               var div_74 = root_53();
               var div_75 = sibling(child(div_74), 2);
               var div_76 = child(div_75);
               var span_24 = sibling(child(div_76), 2);
-              var node_30 = child(span_24);
+              var node_34 = child(span_24);
               {
                 var consequent_33 = ($$anchor4) => {
-                  var fragment_8 = comment$1();
-                  var node_31 = first_child(fragment_8);
+                  var fragment_12 = comment$1();
+                  var node_35 = first_child(fragment_12);
                   each$1(
-                    node_31,
+                    node_35,
                     1,
                     () => (deep_read_state(transactionData()), untrack(() => transactionData().decodedBCS.intentMessage.value.V1.gasData.payment)),
                     index$1,
                     ($$anchor5, payment, index2) => {
-                      var fragment_9 = root_55();
-                      var span_25 = first_child(fragment_9);
+                      var fragment_13 = root_55();
+                      var span_25 = first_child(fragment_13);
                       var text_61 = child(span_25);
-                      var node_32 = sibling(span_25, 2);
+                      var node_36 = sibling(span_25, 2);
                       {
                         var consequent_32 = ($$anchor6) => {
                           var span_26 = root_56();
                           append($$anchor6, span_26);
                         };
-                        if_block(node_32, ($$render) => {
+                        if_block(node_36, ($$render) => {
                           if (deep_read_state(transactionData()), untrack(() => index2 < transactionData().decodedBCS.intentMessage.value.V1.gasData.payment.length - 1)) $$render(consequent_32);
                         });
                       }
                       template_effect(() => set_text(text_61, `${(get$2(payment), untrack(() => get$2(payment).objectId)) ?? ""} (v${(get$2(payment), untrack(() => get$2(payment).version)) ?? ""})`));
-                      append($$anchor5, fragment_9);
+                      append($$anchor5, fragment_13);
                     }
                   );
-                  append($$anchor4, fragment_8);
+                  append($$anchor4, fragment_12);
                 };
                 var alternate_9 = ($$anchor4) => {
                   var text_62 = text("N/A");
                   append($$anchor4, text_62);
                 };
-                if_block(node_30, ($$render) => {
+                if_block(node_34, ($$render) => {
                   if (deep_read_state(transactionData()), untrack(() => {
                     var _a3;
                     return (_a3 = transactionData().decodedBCS.intentMessage.value.V1.gasData.payment) == null ? void 0 : _a3.length;
@@ -29260,58 +31090,59 @@ ${indentStr}}`;
                 [
                   () => (deep_read_state(formatNumberWithUnderscores), deep_read_state(transactionData()), untrack(() => formatNumberWithUnderscores(transactionData().decodedBCS.intentMessage.value.V1.gasData.price || "0"))),
                   () => (deep_read_state(formatNumberWithUnderscores), deep_read_state(transactionData()), untrack(() => formatNumberWithUnderscores(transactionData().decodedBCS.intentMessage.value.V1.gasData.budget || "0")))
-                ],
-                derived_safe_equal
+                ]
               );
               append($$anchor3, div_74);
             };
-            var alternate_10 = ($$anchor3, $$elseif) => {
+            var alternate_11 = ($$anchor3) => {
+              var fragment_14 = comment$1();
+              var node_37 = first_child(fragment_14);
               {
                 var consequent_37 = ($$anchor4) => {
                   var div_80 = root_59();
                   var div_81 = sibling(child(div_80), 2);
                   var div_82 = child(div_81);
                   var span_30 = sibling(child(div_82), 2);
-                  var node_33 = child(span_30);
+                  var node_38 = child(span_30);
                   {
                     var consequent_36 = ($$anchor5) => {
-                      var fragment_10 = comment$1();
-                      var node_34 = first_child(fragment_10);
+                      var fragment_15 = comment$1();
+                      var node_39 = first_child(fragment_15);
                       each$1(
-                        node_34,
+                        node_39,
                         1,
                         () => (deep_read_state(transactionData()), untrack(() => transactionData().input.gasData.payment)),
                         index$1,
                         ($$anchor6, payment, index2) => {
-                          var fragment_11 = root_61();
-                          var span_31 = first_child(fragment_11);
+                          var fragment_16 = root_61();
+                          var span_31 = first_child(fragment_16);
                           var text_66 = child(span_31);
-                          var node_35 = sibling(span_31, 2);
+                          var node_40 = sibling(span_31, 2);
                           {
                             var consequent_35 = ($$anchor7) => {
                               var span_32 = root_62();
                               append($$anchor7, span_32);
                             };
-                            if_block(node_35, ($$render) => {
+                            if_block(node_40, ($$render) => {
                               if (deep_read_state(transactionData()), untrack(() => index2 < transactionData().input.gasData.payment.length - 1)) $$render(consequent_35);
                             });
                           }
                           template_effect(() => set_text(text_66, `${(get$2(payment), untrack(() => get$2(payment).objectId)) ?? ""} (v${(get$2(payment), untrack(() => get$2(payment).version)) ?? ""})`));
-                          append($$anchor6, fragment_11);
+                          append($$anchor6, fragment_16);
                         }
                       );
-                      append($$anchor5, fragment_10);
+                      append($$anchor5, fragment_15);
                     };
-                    var alternate_11 = ($$anchor5) => {
+                    var alternate_10 = ($$anchor5) => {
                       var text_67 = text("N/A");
                       append($$anchor5, text_67);
                     };
-                    if_block(node_33, ($$render) => {
+                    if_block(node_38, ($$render) => {
                       if (deep_read_state(transactionData()), untrack(() => {
                         var _a3;
                         return (_a3 = transactionData().input.gasData.payment) == null ? void 0 : _a3.length;
                       })) $$render(consequent_36);
-                      else $$render(alternate_11, false);
+                      else $$render(alternate_10, false);
                     });
                   }
                   var div_83 = sibling(div_82, 2);
@@ -29332,32 +31163,32 @@ ${indentStr}}`;
                     [
                       () => (deep_read_state(formatNumberWithUnderscores), deep_read_state(transactionData()), untrack(() => formatNumberWithUnderscores(transactionData().input.gasData.price || "0"))),
                       () => (deep_read_state(formatNumberWithUnderscores), deep_read_state(transactionData()), untrack(() => formatNumberWithUnderscores(transactionData().input.gasData.budget || "0")))
-                    ],
-                    derived_safe_equal
+                    ]
                   );
                   append($$anchor4, div_80);
                 };
                 if_block(
-                  $$anchor3,
+                  node_37,
                   ($$render) => {
                     if (deep_read_state(transactionData()), untrack(() => {
                       var _a3, _b2;
                       return (_b2 = (_a3 = transactionData()) == null ? void 0 : _a3.input) == null ? void 0 : _b2.gasData;
                     })) $$render(consequent_37);
                   },
-                  $$elseif
+                  true
                 );
               }
+              append($$anchor3, fragment_14);
             };
-            if_block(node_29, ($$render) => {
+            if_block(node_33, ($$render) => {
               if (deep_read_state(transactionData()), untrack(() => {
                 var _a3, _b2, _c, _d, _e;
                 return (_e = (_d = (_c = (_b2 = (_a3 = transactionData()) == null ? void 0 : _a3.decodedBCS) == null ? void 0 : _b2.intentMessage) == null ? void 0 : _c.value) == null ? void 0 : _d.V1) == null ? void 0 : _e.gasData;
               })) $$render(consequent_34);
-              else $$render(alternate_10, false);
+              else $$render(alternate_11, false);
             });
           }
-          var node_36 = sibling(node_29, 2);
+          var node_41 = sibling(node_33, 2);
           {
             var consequent_45 = ($$anchor3) => {
               var div_86 = root_64();
@@ -29374,15 +31205,15 @@ ${indentStr}}`;
                   var div_89 = child(div_88);
                   var span_37 = child(div_89);
                   span_37.textContent = `Result #${index2}`;
-                  var node_37 = sibling(div_89, 2);
+                  var node_42 = sibling(div_89, 2);
                   {
                     var consequent_40 = ($$anchor5) => {
                       var div_90 = root_66();
                       var h6 = child(div_90);
                       var text_72 = child(h6);
-                      var node_38 = sibling(h6, 2);
+                      var node_43 = sibling(h6, 2);
                       each$1(
-                        node_38,
+                        node_43,
                         1,
                         () => (get$2(result), untrack(() => get$2(result).mutableReferenceOutputs)),
                         index$1,
@@ -29393,29 +31224,25 @@ ${indentStr}}`;
                           span_38.textContent = `Output #${outputIndex}`;
                           var span_39 = sibling(span_38, 2);
                           var text_73 = child(span_39);
-                          var node_39 = sibling(div_92, 2);
+                          var node_44 = sibling(div_92, 2);
                           {
                             var consequent_38 = ($$anchor7) => {
                               var div_93 = root_68();
                               var div_94 = sibling(child(div_93), 2);
                               var text_74 = child(div_94);
-                              template_effect(
-                                ($0) => set_text(text_74, `[${$0 ?? ""}]`),
-                                [
-                                  () => (get$2(output), untrack(() => get$2(output)[1].join(", ")))
-                                ],
-                                derived_safe_equal
-                              );
+                              template_effect(($0) => set_text(text_74, `[${$0 ?? ""}]`), [
+                                () => (get$2(output), untrack(() => get$2(output)[1].join(", ")))
+                              ]);
                               append($$anchor7, div_93);
                             };
-                            if_block(node_39, ($$render) => {
+                            if_block(node_44, ($$render) => {
                               if (get$2(output), untrack(() => {
                                 var _a3;
                                 return (_a3 = get$2(output)[1]) == null ? void 0 : _a3.length;
                               })) $$render(consequent_38);
                             });
                           }
-                          var node_40 = sibling(node_39, 2);
+                          var node_45 = sibling(node_44, 2);
                           {
                             var consequent_39 = ($$anchor7) => {
                               var div_95 = root_69();
@@ -29424,7 +31251,7 @@ ${indentStr}}`;
                               template_effect(() => set_text(text_75, (get$2(output), untrack(() => get$2(output)[2]))));
                               append($$anchor7, div_95);
                             };
-                            if_block(node_40, ($$render) => {
+                            if_block(node_45, ($$render) => {
                               if (get$2(output), untrack(() => get$2(output)[2])) $$render(consequent_39);
                             });
                           }
@@ -29435,95 +31262,81 @@ ${indentStr}}`;
                       template_effect(() => set_text(text_72, `Mutable Reference Outputs (${(get$2(result), untrack(() => get$2(result).mutableReferenceOutputs.length)) ?? ""}):`));
                       append($$anchor5, div_90);
                     };
-                    if_block(node_37, ($$render) => {
+                    if_block(node_42, ($$render) => {
                       if (get$2(result), untrack(() => {
                         var _a3;
                         return (_a3 = get$2(result).mutableReferenceOutputs) == null ? void 0 : _a3.length;
                       })) $$render(consequent_40);
                     });
                   }
-                  var node_41 = sibling(node_37, 2);
+                  var node_46 = sibling(node_42, 2);
                   {
                     var consequent_43 = ($$anchor5) => {
                       var div_96 = root_70();
                       var h6_1 = child(div_96);
                       var text_76 = child(h6_1);
-                      var node_42 = sibling(h6_1, 2);
-                      each$1(
-                        node_42,
-                        1,
-                        () => (get$2(result), untrack(() => get$2(result).returnValues)),
-                        index$1,
-                        ($$anchor6, returnValue, returnIndex) => {
-                          var div_97 = root_71();
-                          var div_98 = child(div_97);
-                          var span_41 = child(div_98);
-                          span_41.textContent = `Value #${returnIndex}`;
-                          var node_43 = sibling(div_98, 2);
-                          {
-                            var consequent_41 = ($$anchor7) => {
-                              var div_99 = root_72();
-                              var div_100 = sibling(child(div_99), 2);
-                              var text_77 = child(div_100);
-                              template_effect(
-                                ($0) => set_text(text_77, `[${$0 ?? ""}]`),
-                                [
-                                  () => (get$2(returnValue), untrack(() => get$2(returnValue)[0].join(", ")))
-                                ],
-                                derived_safe_equal
-                              );
-                              append($$anchor7, div_99);
-                            };
-                            if_block(node_43, ($$render) => {
-                              if (get$2(returnValue), untrack(() => {
-                                var _a3;
-                                return (_a3 = get$2(returnValue)[0]) == null ? void 0 : _a3.length;
-                              })) $$render(consequent_41);
-                            });
-                          }
-                          var node_44 = sibling(node_43, 2);
-                          {
-                            var consequent_42 = ($$anchor7) => {
-                              var div_101 = root_73();
-                              var span_42 = sibling(child(div_101), 2);
-                              var text_78 = child(span_42);
-                              template_effect(() => set_text(text_78, (get$2(returnValue), untrack(() => get$2(returnValue)[1]))));
-                              append($$anchor7, div_101);
-                            };
-                            if_block(node_44, ($$render) => {
-                              if (get$2(returnValue), untrack(() => get$2(returnValue)[1])) $$render(consequent_42);
-                            });
-                          }
-                          append($$anchor6, div_97);
+                      var node_47 = sibling(h6_1, 2);
+                      each$1(node_47, 1, () => (get$2(result), untrack(() => get$2(result).returnValues)), index$1, ($$anchor6, returnValue, returnIndex) => {
+                        var div_97 = root_71();
+                        var div_98 = child(div_97);
+                        var span_41 = child(div_98);
+                        span_41.textContent = `Value #${returnIndex}`;
+                        var node_48 = sibling(div_98, 2);
+                        {
+                          var consequent_41 = ($$anchor7) => {
+                            var div_99 = root_72();
+                            var div_100 = sibling(child(div_99), 2);
+                            var text_77 = child(div_100);
+                            template_effect(($0) => set_text(text_77, `[${$0 ?? ""}]`), [
+                              () => (get$2(returnValue), untrack(() => get$2(returnValue)[0].join(", ")))
+                            ]);
+                            append($$anchor7, div_99);
+                          };
+                          if_block(node_48, ($$render) => {
+                            if (get$2(returnValue), untrack(() => {
+                              var _a3;
+                              return (_a3 = get$2(returnValue)[0]) == null ? void 0 : _a3.length;
+                            })) $$render(consequent_41);
+                          });
                         }
-                      );
+                        var node_49 = sibling(node_48, 2);
+                        {
+                          var consequent_42 = ($$anchor7) => {
+                            var div_101 = root_73();
+                            var span_42 = sibling(child(div_101), 2);
+                            var text_78 = child(span_42);
+                            template_effect(() => set_text(text_78, (get$2(returnValue), untrack(() => get$2(returnValue)[1]))));
+                            append($$anchor7, div_101);
+                          };
+                          if_block(node_49, ($$render) => {
+                            if (get$2(returnValue), untrack(() => get$2(returnValue)[1])) $$render(consequent_42);
+                          });
+                        }
+                        append($$anchor6, div_97);
+                      });
                       template_effect(() => set_text(text_76, `Return Values (${(get$2(result), untrack(() => get$2(result).returnValues.length)) ?? ""}):`));
                       append($$anchor5, div_96);
                     };
-                    if_block(node_41, ($$render) => {
+                    if_block(node_46, ($$render) => {
                       if (get$2(result), untrack(() => {
                         var _a3;
                         return (_a3 = get$2(result).returnValues) == null ? void 0 : _a3.length;
                       })) $$render(consequent_43);
                     });
                   }
-                  var node_45 = sibling(node_41, 2);
+                  var node_50 = sibling(node_46, 2);
                   {
                     var consequent_44 = ($$anchor5) => {
                       var div_102 = root_74();
                       var details_6 = child(div_102);
                       var pre_13 = sibling(child(details_6), 2);
                       var text_79 = child(pre_13);
-                      template_effect(
-                        ($0) => set_text(text_79, $0),
-                        [
-                          () => (deep_read_state(formatJsonWithCompactArrays), get$2(result), untrack(() => formatJsonWithCompactArrays(get$2(result))))
-                        ],
-                        derived_safe_equal
-                      );
+                      template_effect(($0) => set_text(text_79, $0), [
+                        () => (deep_read_state(formatJsonWithCompactArrays), get$2(result), untrack(() => formatJsonWithCompactArrays(get$2(result))))
+                      ]);
                       append($$anchor5, div_102);
                     };
-                    if_block(node_45, ($$render) => {
+                    if_block(node_50, ($$render) => {
                       if (get$2(result), untrack(() => Object.keys(get$2(result)).length > 2 || Object.keys(get$2(result)).length === 1 && !get$2(result).mutableReferenceOutputs && !get$2(result).returnValues)) $$render(consequent_44);
                     });
                   }
@@ -29533,14 +31346,14 @@ ${indentStr}}`;
               template_effect(() => set_text(text_71, `Dev Inspect Results (${(deep_read_state(transactionData()), untrack(() => transactionData().devInspectResults.length)) ?? ""}):`));
               append($$anchor3, div_86);
             };
-            if_block(node_36, ($$render) => {
+            if_block(node_41, ($$render) => {
               if (deep_read_state(transactionData()), untrack(() => {
                 var _a3, _b2;
                 return (_b2 = (_a3 = transactionData()) == null ? void 0 : _a3.devInspectResults) == null ? void 0 : _b2.length;
               })) $$render(consequent_45);
             });
           }
-          var node_46 = sibling(node_36, 2);
+          var node_51 = sibling(node_41, 2);
           {
             var consequent_46 = ($$anchor3) => {
               var div_103 = root_75();
@@ -29560,20 +31373,16 @@ ${indentStr}}`;
                   var div_107 = sibling(div_106, 2);
                   var pre_14 = child(div_107);
                   var text_81 = child(pre_14);
-                  template_effect(
-                    ($0) => set_text(text_81, $0),
-                    [
-                      () => (deep_read_state(formatJsonWithCompactArrays), get$2(rawResult), untrack(() => formatJsonWithCompactArrays(get$2(rawResult))))
-                    ],
-                    derived_safe_equal
-                  );
+                  template_effect(($0) => set_text(text_81, $0), [
+                    () => (deep_read_state(formatJsonWithCompactArrays), get$2(rawResult), untrack(() => formatJsonWithCompactArrays(get$2(rawResult))))
+                  ]);
                   append($$anchor4, div_105);
                 }
               );
               template_effect(() => set_text(text_80, `Raw Results (${(deep_read_state(transactionData()), untrack(() => transactionData().results.length)) ?? ""}):`));
               append($$anchor3, div_103);
             };
-            if_block(node_46, ($$render) => {
+            if_block(node_51, ($$render) => {
               if (deep_read_state(transactionData()), untrack(() => {
                 var _a3, _b2;
                 return (_b2 = (_a3 = transactionData()) == null ? void 0 : _a3.results) == null ? void 0 : _b2.length;
@@ -29609,25 +31418,27 @@ ${indentStr}}`;
                 var _a3;
                 return formatNumberWithUnderscores(((_a3 = get$2(effects2).checkpoint) == null ? void 0 : _a3.sequenceNumber) || "");
               }))
-            ],
-            derived_safe_equal
+            ]
           );
           append($$anchor2, fragment);
         };
-        var alternate_12 = ($$anchor2, $$elseif) => {
+        var alternate_12 = ($$anchor2) => {
+          var fragment_17 = comment$1();
+          var node_52 = first_child(fragment_17);
           {
             var consequent_48 = ($$anchor3) => {
               var div_108 = root_78();
               append($$anchor3, div_108);
             };
             if_block(
-              $$anchor2,
+              node_52,
               ($$render) => {
                 if (!get$2(hasValidData)) $$render(consequent_48);
               },
-              $$elseif
+              true
             );
           }
+          append($$anchor2, fragment_17);
         };
         if_block(node, ($$render) => {
           if (get$2(effects2)) $$render(consequent_47);
@@ -29637,29 +31448,26 @@ ${indentStr}}`;
       append($$anchor, div);
       pop();
     }
-    var root_1$h = /* @__PURE__ */ from_html(`<div class="formatted-view svelte-150bnt9"><!></div>`);
-    var root_3$c = /* @__PURE__ */ from_html(`<div class="tree-view svelte-150bnt9"><!></div>`);
-    var root_4$a = /* @__PURE__ */ from_html(`<div class="json-view svelte-150bnt9"><pre class="svelte-150bnt9"> </pre></div>`);
-    var root$o = /* @__PURE__ */ from_html(`<div class="transaction-view ultra-compact svelte-150bnt9"><div class="view-controls svelte-150bnt9"><button>Formatted View</button> <button>Raw JSON</button> <button>JSON Tree</button></div> <!></div>`);
+    var root_1$k = /* @__PURE__ */ from_html(`<div class="formatted-view svelte-150bnt9"><!></div>`);
+    var root_3$d = /* @__PURE__ */ from_html(`<div class="tree-view svelte-150bnt9"><!></div>`);
+    var root_4$b = /* @__PURE__ */ from_html(`<div class="json-view svelte-150bnt9"><pre class="svelte-150bnt9"> </pre></div>`);
+    var root$r = /* @__PURE__ */ from_html(`<div class="transaction-view ultra-compact svelte-150bnt9"><div class="view-controls svelte-150bnt9"><button>Formatted View</button> <button>Raw JSON</button> <button>JSON Tree</button></div> <!></div>`);
     function TransactionView($$anchor, $$props) {
       push($$props, false);
       let value2 = prop($$props, "value", 8);
       let viewMode = /* @__PURE__ */ mutable_source("formatted");
-      legacy_pre_effect(
-        () => (deep_read_state(value2()), isTransactionData),
-        () => {
-          if (value2()) {
-            if (isTransactionData(value2())) {
-              set$1(viewMode, "formatted");
-            } else {
-              set$1(viewMode, "json");
-            }
+      legacy_pre_effect(() => (deep_read_state(value2()), isTransactionData), () => {
+        if (value2()) {
+          if (isTransactionData(value2())) {
+            set$1(viewMode, "formatted");
+          } else {
+            set$1(viewMode, "json");
           }
         }
-      );
+      });
       legacy_pre_effect_reset();
       init();
-      var div = root$o();
+      var div = root$r();
       var div_1 = child(div);
       var button = child(div_1);
       let classes;
@@ -29670,22 +31478,26 @@ ${indentStr}}`;
       var node = sibling(div_1, 2);
       {
         var consequent = ($$anchor2) => {
-          var div_2 = root_1$h();
+          var div_2 = root_1$k();
           var node_1 = child(div_2);
-          const expression = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(getTransactionData), deep_read_state(value2()), untrack(() => getTransactionData(value2()))));
-          TransactionEffects(node_1, {
-            get transactionData() {
-              return get$2(expression);
-            }
-          });
+          {
+            let $0 = /* @__PURE__ */ derived_safe_equal(() => (deep_read_state(getTransactionData), deep_read_state(value2()), untrack(() => getTransactionData(value2()))));
+            TransactionEffects(node_1, {
+              get transactionData() {
+                return get$2($0);
+              }
+            });
+          }
           append($$anchor2, div_2);
         };
-        var alternate = ($$anchor2, $$elseif) => {
+        var alternate_1 = ($$anchor2) => {
+          var fragment = comment$1();
+          var node_2 = first_child(fragment);
           {
             var consequent_1 = ($$anchor3) => {
-              var div_3 = root_3$c();
-              var node_2 = child(div_3);
-              Root(node_2, {
+              var div_3 = root_3$d();
+              var node_3 = child(div_3);
+              Root(node_3, {
                 get value() {
                   return value2();
                 },
@@ -29693,32 +31505,29 @@ ${indentStr}}`;
               });
               append($$anchor3, div_3);
             };
-            var alternate_1 = ($$anchor3) => {
-              var div_4 = root_4$a();
+            var alternate = ($$anchor3) => {
+              var div_4 = root_4$b();
               var pre = child(div_4);
               var text2 = child(pre);
-              template_effect(
-                ($0) => set_text(text2, $0),
-                [
-                  () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(value2()), untrack(() => formatJsonWithCompactArrays(value2())))
-                ],
-                derived_safe_equal
-              );
+              template_effect(($0) => set_text(text2, $0), [
+                () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(value2()), untrack(() => formatJsonWithCompactArrays(value2())))
+              ]);
               append($$anchor3, div_4);
             };
             if_block(
-              $$anchor2,
+              node_2,
               ($$render) => {
                 if (get$2(viewMode) === "tree") $$render(consequent_1);
-                else $$render(alternate_1, false);
+                else $$render(alternate, false);
               },
-              $$elseif
+              true
             );
           }
+          append($$anchor2, fragment);
         };
         if_block(node, ($$render) => {
           if (get$2(viewMode), deep_read_state(isTransactionData), deep_read_state(value2()), untrack(() => get$2(viewMode) === "formatted" && isTransactionData(value2()))) $$render(consequent);
-          else $$render(alternate, false);
+          else $$render(alternate_1, false);
         });
       }
       template_effect(
@@ -29735,8 +31544,7 @@ ${indentStr}}`;
           () => ({ active: get$2(viewMode) === "formatted" }),
           () => ({ active: get$2(viewMode) === "json" }),
           () => ({ active: get$2(viewMode) === "tree" })
-        ],
-        derived_safe_equal
+        ]
       );
       event("click", button, () => set$1(viewMode, "formatted"));
       event("click", button_1, () => set$1(viewMode, "json"));
@@ -29771,7 +31579,7 @@ ${indentStr}}`;
           });
         case TransactionExecution.Prepare:
           let json = JSON.parse(await transaction.toJSON());
-          let transactionBytes = toB64(await transaction.build({ client: client2 }));
+          let transactionBytes = toB64$1(await transaction.build({ client: client2 }));
           return { json, transactionBytes };
         default:
           throw new Error(`Unknown transaction execution mode: ${executionMode}`);
@@ -29833,10 +31641,7 @@ ${indentStr}}`;
           const client2 = getClient();
           const iotaAddress = $activeAddress();
           let totalTransferAmount = transfers.reduce((acc, transfer) => acc + BigInt(transfer.amount), BigInt(0));
-          let availableCoins2 = await client2.getCoins({
-            owner: iotaAddress,
-            coinType: get$2(coinType)
-          });
+          let availableCoins2 = await client2.getCoins({ owner: iotaAddress, coinType: get$2(coinType) });
           if (availableCoins2.data.length === 0) {
             throw new Error(`No ${get$2(coinSymbol)} coins available for transfer`);
           }
@@ -29894,13 +31699,13 @@ ${indentStr}}`;
         set$1(errorMsg, err.toString());
       }
     }
-    var root_1$g = /* @__PURE__ */ from_html(`<div style="color: red; font-size: 0.9rem; margin-top: 0.25rem;"> </div>`);
+    var root_1$j = /* @__PURE__ */ from_html(`<div style="color: red; font-size: 0.9rem; margin-top: 0.25rem;"> </div>`);
     var on_change$2 = (e2, selectCoinFromDropdown) => selectCoinFromDropdown(e2.target.value);
-    var root_3$b = /* @__PURE__ */ from_html(`<option> </option>`);
-    var root_2$9 = /* @__PURE__ */ from_html(`<div style="margin-bottom: 1rem;"><label for="coinDropdown" style="display: inline-block; margin-bottom: 0.5rem; font-weight: bold;">Select from Available Coins:</label> <br/> <select id="coinDropdown" style="padding: 0.5rem; font-family: monospace; font-size: 14px; border: 1px solid #cccccc; min-width: 300px;"><option>-- Select a coin --</option><!></select> <div style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;"> </div></div>`);
-    var root_4$9 = /* @__PURE__ */ from_html(`<div style="color: red; margin-top: 0.5rem; font-size: 0.9rem;"> </div>`);
+    var root_3$c = /* @__PURE__ */ from_html(`<option> </option>`);
+    var root_2$a = /* @__PURE__ */ from_html(`<div style="margin-bottom: 1rem;"><label for="coinDropdown" style="display: inline-block; margin-bottom: 0.5rem; font-weight: bold;">Select from Available Coins:</label> <br/> <select id="coinDropdown" style="padding: 0.5rem; font-family: monospace; font-size: 14px; border: 1px solid #cccccc; min-width: 300px;"><option>-- Select a coin --</option><!></select> <div style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;"> </div></div>`);
+    var root_4$a = /* @__PURE__ */ from_html(`<div style="color: red; margin-top: 0.5rem; font-size: 0.9rem;"> </div>`);
     var root_5$7 = /* @__PURE__ */ from_html(`<div style="margin: 1rem 0; text-align: left; display: inline-block;"> <br/> </div>`);
-    var root$n = /* @__PURE__ */ from_html(`<main><div><h3>Bulk Transfer</h3> <p>Transfer coins to multiple addresses in a single transaction.</p> <div style="margin-bottom: 1rem;"><div style="margin-bottom: 1rem;"><button style="padding: 0.5rem 1rem; margin-bottom: 0.5rem;" class="svelte-12h7i3q"> </button> <!></div> <!></div> <div><details style="margin-bottom: 1rem;"><summary>Example formats</summary> <div style="display: flex; gap: 2rem; justify-content: center;"><div><h4>JSON format:</h4> <pre style="padding: 1rem; text-align: left;"></pre></div> <div><h4>CSV format:</h4> <pre style="padding: 1rem; text-align: left;"></pre></div> <div><h4>Space-separated:</h4> <pre style="padding: 1rem;"></pre></div></div></details> <div style="display: inline-block;"><div style="text-align: left;">Transfers (amount in the smallest unit (NANO for IOTA)) - JSON, CSV, or
+    var root$q = /* @__PURE__ */ from_html(`<main><div><h3>Bulk Transfer</h3> <p>Transfer coins to multiple addresses in a single transaction.</p> <div style="margin-bottom: 1rem;"><div style="margin-bottom: 1rem;"><button style="padding: 0.5rem 1rem; margin-bottom: 0.5rem;" class="svelte-12h7i3q"> </button> <!></div> <!></div> <div><details style="margin-bottom: 1rem;"><summary>Example formats</summary> <div style="display: flex; gap: 2rem; justify-content: center;"><div><h4>JSON format:</h4> <pre style="padding: 1rem; text-align: left;"></pre></div> <div><h4>CSV format:</h4> <pre style="padding: 1rem; text-align: left;"></pre></div> <div><h4>Space-separated:</h4> <pre style="padding: 1rem;"></pre></div></div></details> <div style="display: inline-block;"><div style="text-align: left;">Transfers (amount in the smallest unit (NANO for IOTA)) - JSON, CSV, or
                     space-separated:</div> <textarea rows="15" cols="120" placeholder="Enter transfers in JSON, CSV, or space-separated format"></textarea></div> <!></div> <!> <br/> <button class="svelte-12h7i3q">Execute Bulk Transfer</button></div> <!></main>`);
     function BulkTransfer($$anchor, $$props) {
       push($$props, false);
@@ -29997,15 +31802,12 @@ ${indentStr}}`;
           }
         })());
       });
-      legacy_pre_effect(
-        () => (get$2(coinType), get$2(totalAmountNano), get$2(coinSymbol)),
-        () => {
-          set$1(totalAmountDisplay, get$2(coinType) === "0x2::iota::IOTA" ? (get$2(totalAmountNano) / 1e9).toLocaleString() + " IOTA" : get$2(totalAmountNano).toLocaleString() + ` ${get$2(coinSymbol)}`);
-        }
-      );
+      legacy_pre_effect(() => (get$2(coinType), get$2(totalAmountNano), get$2(coinSymbol)), () => {
+        set$1(totalAmountDisplay, get$2(coinType) === "0x2::iota::IOTA" ? (get$2(totalAmountNano) / 1e9).toLocaleString() + " IOTA" : get$2(totalAmountNano).toLocaleString() + ` ${get$2(coinSymbol)}`);
+      });
       legacy_pre_effect_reset();
       init();
-      var main = root$n();
+      var main = root$q();
       var div = child(main);
       var div_1 = sibling(child(div), 4);
       var div_2 = child(div_1);
@@ -30022,7 +31824,7 @@ ${indentStr}}`;
       var node = sibling(button, 2);
       {
         var consequent = ($$anchor2) => {
-          var div_3 = root_1$g();
+          var div_3 = root_1$j();
           var text_1 = child(div_3);
           template_effect(() => set_text(text_1, `Error: ${get$2(fetchError) ?? ""}`));
           append($$anchor2, div_3);
@@ -30034,28 +31836,27 @@ ${indentStr}}`;
       var node_1 = sibling(div_2, 2);
       {
         var consequent_1 = ($$anchor2) => {
-          var div_4 = root_2$9();
+          var div_4 = root_2$a();
           var select = sibling(child(div_4), 4);
           select.__change = [on_change$2, selectCoinFromDropdown];
           var option = child(select);
           option.value = option.__value = "";
           var node_2 = sibling(option);
           each$1(node_2, 1, () => get$2(availableCoins), index$1, ($$anchor3, coin) => {
-            var option_1 = root_3$b();
-            var option_1_value = {};
+            var option_1 = root_3$c();
             var text_2 = child(option_1);
+            var option_1_value = {};
             template_effect(
               ($0) => {
+                set_selected(option_1, (get$2(coin), get$2(coinType), untrack(() => get$2(coin).coinType === get$2(coinType))));
+                set_text(text_2, `${(get$2(coin), untrack(() => get$2(coin).symbol)) ?? ""} - Balance: ${$0 ?? ""}`);
                 if (option_1_value !== (option_1_value = (get$2(coin), untrack(() => get$2(coin).coinType)))) {
                   option_1.value = (option_1.__value = (get$2(coin), untrack(() => get$2(coin).coinType))) ?? "";
                 }
-                set_selected(option_1, (get$2(coin), get$2(coinType), untrack(() => get$2(coin).coinType === get$2(coinType))));
-                set_text(text_2, `${(get$2(coin), untrack(() => get$2(coin).symbol)) ?? ""} - Balance: ${$0 ?? ""}`);
               },
               [
                 () => (get$2(coin), untrack(() => parseInt(get$2(coin).totalBalance).toLocaleString()))
-              ],
-              derived_safe_equal
+              ]
             );
             append($$anchor3, option_1);
           });
@@ -30082,17 +31883,12 @@ ${indentStr}}`;
       pre_2.textContent = "0x123... 1000000000\n0x456... 2000000000";
       var div_11 = sibling(details, 2);
       var textarea = sibling(child(div_11), 2);
-      textarea.__input = [
-        handleJsonChange,
-        parseTransfers,
-        transfersJson,
-        errorMsg
-      ];
+      textarea.__input = [handleJsonChange, parseTransfers, transfersJson, errorMsg];
       let classes;
       var node_3 = sibling(div_11, 2);
       {
         var consequent_2 = ($$anchor2) => {
-          var div_12 = root_4$9();
+          var div_12 = root_4$a();
           var text_4 = child(div_12);
           template_effect(() => set_text(text_4, get$2(errorMsg)));
           append($$anchor2, div_12);
@@ -30121,8 +31917,7 @@ ${indentStr}}`;
                   return 0;
                 }
               })()))
-            ],
-            derived_safe_equal
+            ]
           );
           append($$anchor2, div_13);
         };
@@ -30153,8 +31948,7 @@ ${indentStr}}`;
           set_text(text2, get$2(fetchingCoins) ? "Fetching..." : "Fetch Available Coins to send a different coin type");
           classes = set_class(textarea, 1, "svelte-12h7i3q", null, classes, $0);
         },
-        [() => ({ error: !!get$2(errorMsg) })],
-        derived_safe_equal
+        [() => ({ error: !!get$2(errorMsg) })]
       );
       bind_value(textarea, () => get$2(transfersJson), ($$value) => set$1(transfersJson, $$value));
       append($$anchor, main);
@@ -30162,7 +31956,7 @@ ${indentStr}}`;
       $$cleanup();
     }
     delegate(["click", "change", "input"]);
-    var root$m = /* @__PURE__ */ from_html(`<main><div class="wrapper svelte-xku9c2"><div class="box">Bytes:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="bytes like: 1, 2, 3"/></div> <div class="box">Hex:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="hex string"/></div> <div class="box">Base64:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="base64 string"/></div> <div class="box">Base58:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="base58 string"/></div> <div class="box">UTF-8:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="UTF-8 string"/></div> <div class="box"> </div> <div class="box"><input type="string" style="width: 100%;" placeholder="number"/></div></div> <br/> <div class="wrapper svelte-xku9c2"><div class="box">NANO:</div> <div class="box"><input type="string" size="40" placeholder="NANO amount"/> </div> <div class="box">IOTA:</div> <div class="box"><input type="string" size="40" placeholder="IOTA amount"/> </div></div> <br/> <div><div style="float: left; display: flex; align-items: center; gap: 10px;"><span>Tx bytes base64:</span> <button style="padding: 4px 8px; font-size: 12px;">Example tx</button></div> <div class="box"><textarea placeholder="base64 transaction bytes" class="svelte-xku9c2"></textarea></div></div> <!> <br/> </main>`);
+    var root$p = /* @__PURE__ */ from_html(`<main><div class="wrapper svelte-xku9c2"><div class="box">Bytes:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="bytes like: 1, 2, 3"/></div> <div class="box">Hex:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="hex string"/></div> <div class="box">Base64:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="base64 string"/></div> <div class="box">Base58:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="base58 string"/></div> <div class="box">UTF-8:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="UTF-8 string"/></div> <div class="box"> </div> <div class="box"><input type="string" style="width: 100%;" placeholder="number"/></div></div> <br/> <div class="wrapper svelte-xku9c2"><div class="box">NANO:</div> <div class="box"><input type="string" size="40" placeholder="NANO amount"/> </div> <div class="box">IOTA:</div> <div class="box"><input type="string" size="40" placeholder="IOTA amount"/> </div></div> <br/> <div><div style="float: left; display: flex; align-items: center; gap: 10px;"><span>Tx bytes base64:</span> <button style="padding: 4px 8px; font-size: 12px;">Example tx</button></div> <div class="box"><textarea placeholder="base64 transaction bytes" class="svelte-xku9c2"></textarea></div></div> <!> <br/> </main>`);
     function Converter($$anchor, $$props) {
       push($$props, false);
       let bytes = /* @__PURE__ */ mutable_source();
@@ -30218,10 +32012,10 @@ ${indentStr}}`;
               sourceBytes = hexToBytesLocal(get$2(hex2));
               break;
             case 2:
-              sourceBytes = fromB58(get$2(base582));
+              sourceBytes = fromB58$1(get$2(base582));
               break;
             case 3:
-              sourceBytes = fromB64(get$2(base64));
+              sourceBytes = fromB64$1(get$2(base64));
               break;
             case 4:
               sourceBytes = new TextEncoder().encode(get$2(utf8));
@@ -30232,19 +32026,15 @@ ${indentStr}}`;
                 set$1(bcsNumberType, "");
                 break;
               }
-              sourceBytes = bcs.u64().serialize(get$2(bcsNumber)).toBytes();
+              sourceBytes = bcs$1.u64().serialize(get$2(bcsNumber)).toBytes();
               break;
           }
           if (source2 != 0) {
-            set$1(
-              bytes,
-              /* Bytes */
-              sourceBytes
-            );
+            set$1(bytes, sourceBytes);
           }
-          set$1(hex2, toHEX(sourceBytes));
-          set$1(base582, toB58(sourceBytes));
-          set$1(base64, toB64(sourceBytes));
+          set$1(hex2, toHEX$1(sourceBytes));
+          set$1(base582, toB58$1(sourceBytes));
+          set$1(base64, toB64$1(sourceBytes));
           set$1(utf8, bytesToUtf8(sourceBytes));
           const integerResult = bcsBytesToInteger(sourceBytes);
           set$1(bcsNumber, integerResult.value);
@@ -30302,7 +32092,7 @@ ${indentStr}}`;
         }
       }
       init();
-      var main = root$m();
+      var main = root$p();
       var div = child(main);
       var div_1 = sibling(child(div), 2);
       var input = child(div_1);
@@ -30364,12 +32154,12 @@ ${indentStr}}`;
       event("input", textarea, (event2) => {
         let inputString = event2.target.value;
         try {
-          let txBytes = fromB64(inputString);
+          let txBytes = fromB64$1(inputString);
           set$1(value2, TransactionDataBuilder.fromBytes(txBytes));
         } catch (e2) {
           console.log("error TransactionDataBuilder", e2);
           try {
-            set$1(value2, iotaBcs$1.SenderSignedData.parse(fromB64(inputString))[0]);
+            set$1(value2, iotaBcs$1.SenderSignedData.parse(fromB64$1(inputString))[0]);
           } catch (e3) {
             console.log("error SenderSignedData", e3);
             set$1(value2, e3);
@@ -30379,13 +32169,13 @@ ${indentStr}}`;
       append($$anchor, main);
       pop();
     }
-    var root$l = /* @__PURE__ */ from_html(`<div class="value svelte-tyd1uw"><button class="svelte-tyd1uw">toggle JSON tree</button> <div><!></div> <pre class="svelte-tyd1uw"> </pre></div>`);
+    var root$o = /* @__PURE__ */ from_html(`<div class="value svelte-tyd1uw"><button class="svelte-tyd1uw">toggle JSON tree</button> <div><!></div> <pre class="svelte-tyd1uw"> </pre></div>`);
     function JsonToggleView($$anchor, $$props) {
       push($$props, false);
       let value2 = prop($$props, "value", 24, () => ({}));
       let showJsonTree = /* @__PURE__ */ mutable_source(false);
       init();
-      var div = root$l();
+      var div = root$o();
       var button = child(div);
       var div_1 = sibling(button, 2);
       var node = child(div_1);
@@ -30407,8 +32197,7 @@ ${indentStr}}`;
         [
           () => (deep_read_state(value2()), untrack(() => Object.keys(value2()).length == 0)),
           () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(value2()), untrack(() => formatJsonWithCompactArrays(value2())))
-        ],
-        derived_safe_equal
+        ]
       );
       event("click", button, () => set$1(showJsonTree, !get$2(showJsonTree)));
       append($$anchor, div);
@@ -30493,7 +32282,7 @@ ${indentStr}}`;
     function ignored() {
       for (var e2 = 0 | i$1.charCodeAt(n++); 9 === e2 || 10 === e2 || 13 === e2 || 32 === e2 || 35 === e2 || 44 === e2 || 65279 === e2; e2 = 0 | i$1.charCodeAt(n++)) {
         if (35 === e2) {
-          for (; 10 !== (e2 = i$1.charCodeAt(n++)) && 13 !== e2; ) {
+          for (; (e2 = 0 | i$1.charCodeAt(n++)) && 10 !== e2 && 13 !== e2; ) {
           }
         }
       }
@@ -30791,41 +32580,51 @@ ${indentStr}}`;
         var e2 = [];
         n++, ignored();
         do {
+          var r2 = void 0;
+          if (34 === i$1.charCodeAt(n)) {
+            r2 = value(true);
+          }
           if (36 !== i$1.charCodeAt(n++)) {
             throw error("Variable");
           }
-          var r2 = nameNode();
+          var t2 = nameNode();
           if (58 !== i$1.charCodeAt(n++)) {
             throw error("VariableDefinition");
           }
           ignored();
-          var t2 = type();
-          var a2 = void 0;
+          var a2 = type();
+          var o2 = void 0;
           if (61 === i$1.charCodeAt(n)) {
-            n++, ignored(), a2 = value(true);
+            n++, ignored(), o2 = value(true);
           }
-          ignored(), e2.push({
+          ignored();
+          var l = {
             kind: "VariableDefinition",
             variable: {
               kind: "Variable",
-              name: r2
+              name: t2
             },
-            type: t2,
-            defaultValue: a2,
+            type: a2,
+            defaultValue: o2,
             directives: directives(true)
-          });
+          };
+          if (r2) {
+            l.description = r2;
+          }
+          e2.push(l);
         } while (41 !== i$1.charCodeAt(n));
         return n++, ignored(), e2;
       }
     }
-    function fragmentDefinition() {
-      var e2 = nameNode();
+    function fragmentDefinition(e2) {
+      var r2 = nameNode();
       if (111 !== i$1.charCodeAt(n++) || 110 !== i$1.charCodeAt(n++)) {
         throw error("FragmentDefinition");
       }
-      return ignored(), {
+      ignored();
+      var t2 = {
         kind: "FragmentDefinition",
-        name: e2,
+        name: r2,
         typeCondition: {
           kind: "NamedType",
           name: nameNode()
@@ -30833,11 +32632,22 @@ ${indentStr}}`;
         directives: directives(false),
         selectionSet: selectionSetStart()
       };
+      if (e2) {
+        t2.description = e2;
+      }
+      return t2;
     }
     function definitions() {
       var e2 = [];
       do {
+        var r2 = void 0;
+        if (34 === i$1.charCodeAt(n)) {
+          r2 = value(true);
+        }
         if (123 === i$1.charCodeAt(n)) {
+          if (r2) {
+            throw error("Document");
+          }
           n++, ignored(), e2.push({
             kind: "OperationDefinition",
             operation: "query",
@@ -30847,27 +32657,31 @@ ${indentStr}}`;
             selectionSet: selectionSet()
           });
         } else {
-          var r2 = name$1();
-          switch (r2) {
+          var t2 = name$1();
+          switch (t2) {
             case "fragment":
-              e2.push(fragmentDefinition());
+              e2.push(fragmentDefinition(r2));
               break;
             case "query":
             case "mutation":
             case "subscription":
-              var t2;
-              var a2 = void 0;
-              if (40 !== (t2 = i$1.charCodeAt(n)) && 64 !== t2 && 123 !== t2) {
-                a2 = nameNode();
+              var a2;
+              var o2 = void 0;
+              if (40 !== (a2 = i$1.charCodeAt(n)) && 64 !== a2 && 123 !== a2) {
+                o2 = nameNode();
               }
-              e2.push({
+              var l = {
                 kind: "OperationDefinition",
-                operation: r2,
-                name: a2,
+                operation: t2,
+                name: o2,
                 variableDefinitions: variableDefinitions(),
                 directives: directives(false),
                 selectionSet: selectionSetStart()
-              });
+              };
+              if (r2) {
+                l.description = r2;
+              }
+              e2.push(l);
               break;
             default:
               throw error("Document");
@@ -31045,7 +32859,7 @@ ${indentStr}}`;
     }
     function mapJsonToBcs(json, layout) {
       const schema = layoutToBcs(layout);
-      return toB64(schema.serialize(json).toBytes());
+      return toB64$1(schema.serialize(json).toBytes());
     }
     function decodeBcs(bcsBase64, layout) {
       try {
@@ -31136,7 +32950,7 @@ ${indentStr}}`;
     }
     function deriveDynamicFieldIdWithBcs(parentObjectId, tag, valueBytesB64) {
       const typeTagBytes = iotaBcs$1.TypeTag.serialize(tag).toBytes();
-      const valueBcsBytes = fromB64(valueBytesB64);
+      const valueBcsBytes = fromB64$1(valueBytesB64);
       const valueBcsBytesLen = new Uint8Array(8);
       const view = new DataView(valueBcsBytesLen.buffer);
       view.setUint32(0, valueBcsBytes.length, true);
@@ -31514,11 +33328,11 @@ ${indentStr}}`;
         updateSelectedStructJson();
       }
     }
-    var on_click$6 = (__4, handleQueryDynamicFields) => handleQueryDynamicFields();
-    var root_1$f = /* @__PURE__ */ from_html(`<div style="color: red; margin-top: 1em;"> </div>`);
-    var root_3$a = /* @__PURE__ */ from_html(`<div>No dynamic fields found for this object.</div>`);
+    var on_click$7 = (__4, handleQueryDynamicFields) => handleQueryDynamicFields();
+    var root_1$i = /* @__PURE__ */ from_html(`<div style="color: red; margin-top: 1em;"> </div>`);
+    var root_3$b = /* @__PURE__ */ from_html(`<div>No dynamic fields found for this object.</div>`);
     var root_5$6 = /* @__PURE__ */ from_html(`<button style="margin-top:1em;"> </button>`);
-    var root_4$8 = /* @__PURE__ */ from_html(`<!> <!>`, 1);
+    var root_4$9 = /* @__PURE__ */ from_html(`<!> <!>`, 1);
     var on_click_1$2 = (__5, layoutType, fieldType, handleGetMoveLayout) => {
       set$1(layoutType, get$2(fieldType), true);
       handleGetMoveLayout();
@@ -31526,11 +33340,11 @@ ${indentStr}}`;
     var on_click_2$1 = (__6, bcsInputMode) => {
       set$1(bcsInputMode, get$2(bcsInputMode) === "base64" ? "json" : "base64", true);
     };
-    var root_9$4 = /* @__PURE__ */ from_html(`<div style="color: red; margin-top: 0.5em; font-size: 0.9em;"> </div>`);
+    var root_9$5 = /* @__PURE__ */ from_html(`<div style="color: red; margin-top: 0.5em; font-size: 0.9em;"> </div>`);
     var root_12$3 = /* @__PURE__ */ from_html(`<span style="font-family: monospace; padding: 2px 4px; border-radius: 2px;"> </span> <span style="color: #666; font-size: 0.9em; margin-left: 0.5em;"> </span>`, 1);
-    var root_10$2 = /* @__PURE__ */ from_html(`<div style="margin-top: 0.5em;"><strong>Decoded value:</strong> <!></div>`);
+    var root_10$3 = /* @__PURE__ */ from_html(`<div style="margin-top: 0.5em;"><strong>Decoded value:</strong> <!></div>`);
     var root_8$4 = /* @__PURE__ */ from_html(`<div style="margin-top: 0.5em;"><button style="padding: 2px 8px; font-size: 0.9em;">Decode BCS</button></div> <!> <!>`, 1);
-    var root_7$4 = /* @__PURE__ */ from_html(`Field BCS (Base64): <input placeholder="Base64 BCS" size="32"/> <!>`, 1);
+    var root_7$5 = /* @__PURE__ */ from_html(`Field BCS (Base64): <input placeholder="Base64 BCS" size="32"/> <!>`, 1);
     var root_14$3 = /* @__PURE__ */ from_html(`<option> </option>`);
     var root_15$1 = /* @__PURE__ */ from_html(`<option> </option>`);
     var root_16$1 = /* @__PURE__ */ from_html(`<div style="color: red; margin-bottom: 0.5em;"> </div>`);
@@ -31552,7 +33366,7 @@ ${indentStr}}`;
     var root_26$1 = /* @__PURE__ */ from_html(`<h4>dynamicField Result</h4> <!>`, 1);
     var root_27$1 = /* @__PURE__ */ from_html(`<h4>dynamicObjectField Result</h4> <!>`, 1);
     var root_28$1 = /* @__PURE__ */ from_html(`<div style="color: red; margin-top: 1em;"> </div>`);
-    var root$k = /* @__PURE__ */ from_html(`<main><h2>Dynamic Fields</h2> <div><label>Object ID: <input placeholder="0x..." size="67"/></label> <br/> <label style="margin-left:1em;">Page size: <input type="number" min="1" max="100" style="width:6rem;"/></label> <button> </button> <button style="margin-left:1em;">Get Layouts and BCS Values</button></div> <!> <!> <hr style="margin:2em 0;"/> <h3>Query Dynamic Field / Dynamic Object Field</h3> <div style="margin-bottom:1em;"><label>Field type (primitive or name.type.repr, like
+    var root$n = /* @__PURE__ */ from_html(`<main><h2>Dynamic Fields</h2> <div><label>Object ID: <input placeholder="0x..." size="67"/></label> <br/> <label style="margin-left:1em;">Page size: <input type="number" min="1" max="100" style="width:6rem;"/></label> <button> </button> <button style="margin-left:1em;">Get Layouts and BCS Values</button></div> <!> <!> <hr style="margin:2em 0;"/> <h3>Query Dynamic Field / Dynamic Object Field</h3> <div style="margin-bottom:1em;"><label>Field type (primitive or name.type.repr, like
             &lt;package&gt;::&lt;module&gt;::&lt;struct&gt;): <input placeholder="e.g. 0x1::string::String" style="width: 100%"/></label> <br/> <button style="margin-top:0.5em; margin-bottom:1em;"> </button> <br/> <!> <br/> Field value (default is for structs without fields): <div><button type="button" style="margin-right:0.5em; display: inline-block;"> </button></div> <!> <!></div> <div style="margin-bottom:1em;"><button> </button> <button style="margin-left:1em;"> </button></div> <!> <!> <!> <!></main>`);
     function DynamicFields($$anchor, $$props) {
       push($$props, true);
@@ -31648,7 +33462,7 @@ ${indentStr}}`;
           if (!struct) throw new Error("Unknown struct type");
           const json = JSON.parse(struct.value);
           const bcsSchema = layoutToBcs(struct.layout);
-          return toB64(bcsSchema.serialize(json).toBytes());
+          return toB64$1(bcsSchema.serialize(json).toBytes());
         } catch (e2) {
           set$1(fieldError, "BCS serialization error: " + e2);
           return "";
@@ -31827,26 +33641,21 @@ ${indentStr}}`;
           set$1(isDecodingInProgress, false);
         }
       }
-      var main = root$k();
+      var main = root$n();
       var div = sibling(child(main), 2);
       var label = child(div);
       var input = sibling(child(label));
       var label_1 = sibling(label, 4);
       var input_1 = sibling(child(label_1));
       var button = sibling(label_1, 2);
-      button.__click = [on_click$6, handleQueryDynamicFields];
+      button.__click = [on_click$7, handleQueryDynamicFields];
       var text2 = child(button);
       var button_1 = sibling(button, 2);
-      button_1.__click = [
-        handleGetLayoutsAndBcsValues,
-        dynamicFields,
-        loading,
-        error2
-      ];
+      button_1.__click = [handleGetLayoutsAndBcsValues, dynamicFields, loading, error2];
       var node = sibling(div, 2);
       {
         var consequent = ($$anchor2) => {
-          var div_1 = root_1$f();
+          var div_1 = root_1$i();
           var text_1 = child(div_1);
           template_effect(() => set_text(text_1, get$2(error2)));
           append($$anchor2, div_1);
@@ -31862,11 +33671,11 @@ ${indentStr}}`;
           var node_2 = first_child(fragment);
           {
             var consequent_1 = ($$anchor3) => {
-              var div_2 = root_3$a();
+              var div_2 = root_3$b();
               append($$anchor3, div_2);
             };
             var alternate = ($$anchor3) => {
-              var fragment_1 = root_4$8();
+              var fragment_1 = root_4$9();
               var node_3 = first_child(fragment_1);
               JsonToggleView(node_3, {
                 get value() {
@@ -31906,12 +33715,7 @@ ${indentStr}}`;
       var label_2 = child(div_3);
       var input_2 = sibling(child(label_2));
       var button_3 = sibling(label_2, 4);
-      button_3.__click = [
-        on_click_1$2,
-        layoutType,
-        fieldType,
-        handleGetMoveLayout
-      ];
+      button_3.__click = [on_click_1$2, layoutType, fieldType, handleGetMoveLayout];
       var text_3 = child(button_3);
       var node_5 = sibling(button_3, 4);
       {
@@ -31933,7 +33737,7 @@ ${indentStr}}`;
       var node_6 = sibling(div_4, 2);
       {
         var consequent_9 = ($$anchor2) => {
-          var fragment_3 = root_7$4();
+          var fragment_3 = root_7$5();
           var input_3 = sibling(first_child(fragment_3));
           var node_7 = sibling(input_3, 2);
           {
@@ -31945,7 +33749,7 @@ ${indentStr}}`;
               var node_8 = sibling(div_5, 2);
               {
                 var consequent_5 = ($$anchor4) => {
-                  var div_6 = root_9$4();
+                  var div_6 = root_9$5();
                   var text_5 = child(div_6);
                   template_effect(() => set_text(text_5, get$2(decodeError)));
                   append($$anchor4, div_6);
@@ -31957,7 +33761,7 @@ ${indentStr}}`;
               var node_9 = sibling(node_8, 2);
               {
                 var consequent_7 = ($$anchor4) => {
-                  var div_7 = root_10$2();
+                  var div_7 = root_10$3();
                   var node_10 = sibling(child(div_7), 2);
                   {
                     var consequent_6 = ($$anchor5) => {
@@ -31999,33 +33803,33 @@ ${indentStr}}`;
           bind_value(input_3, () => get$2(fieldBcs), ($$value) => set$1(fieldBcs, $$value));
           append($$anchor2, fragment_3);
         };
-        var alternate_2 = ($$anchor2) => {
+        var alternate_4 = ($$anchor2) => {
           var fragment_7 = root_13$3();
           var select = sibling(first_child(fragment_7), 9);
           select.__change = updateSelectedStructJson;
           var node_11 = child(select);
           each$1(node_11, 17, () => structDefinitions, index$1, ($$anchor3, structDef) => {
             var option = root_14$3();
-            var option_value = {};
             var text_8 = child(option);
+            var option_value = {};
             template_effect(() => {
+              set_text(text_8, get$2(structDef).name);
               if (option_value !== (option_value = get$2(structDef).name)) {
                 option.value = (option.__value = get$2(structDef).name) ?? "";
               }
-              set_text(text_8, get$2(structDef).name);
             });
             append($$anchor3, option);
           });
           var node_12 = sibling(node_11);
           each$1(node_12, 1, () => Object.keys($customStructs() || {}), index$1, ($$anchor3, structType) => {
             var option_1 = root_15$1();
-            var option_1_value = {};
             var text_9 = child(option_1);
+            var option_1_value = {};
             template_effect(() => {
+              set_text(text_9, get$2(structType));
               if (option_1_value !== (option_1_value = get$2(structType))) {
                 option_1.value = (option_1.__value = get$2(structType)) ?? "";
               }
-              set_text(text_9, get$2(structType));
             });
             append($$anchor3, option_1);
           });
@@ -32066,24 +33870,24 @@ ${indentStr}}`;
                   template_effect(() => set_text(text_11, ` ${get$2(bcsValue) ?? ""} `));
                   append($$anchor4, div_10);
                 };
-                var alternate_3 = ($$anchor4) => {
+                var alternate_2 = ($$anchor4) => {
                   var div_11 = root_19$1();
                   append($$anchor4, div_11);
                 };
                 if_block(node_15, ($$render) => {
                   if (get$2(bcsValue)) $$render(consequent_11);
-                  else $$render(alternate_3, false);
+                  else $$render(alternate_2, false);
                 });
               }
               append($$anchor3, fragment_8);
             };
-            var alternate_4 = ($$anchor3) => {
+            var alternate_3 = ($$anchor3) => {
               var div_12 = root_20$1();
               append($$anchor3, div_12);
             };
             if_block(node_14, ($$render) => {
               if (get$2(fieldStructType)) $$render(consequent_12);
-              else $$render(alternate_4, false);
+              else $$render(alternate_3, false);
             });
           }
           bind_select_value(select, () => get$2(fieldStructType), ($$value) => set$1(fieldStructType, $$value));
@@ -32092,7 +33896,7 @@ ${indentStr}}`;
         };
         if_block(node_6, ($$render) => {
           if (get$2(bcsInputMode) === "base64") $$render(consequent_9);
-          else $$render(alternate_2, false);
+          else $$render(alternate_4, false);
         });
       }
       var node_16 = sibling(node_6, 2);
@@ -32105,29 +33909,32 @@ ${indentStr}}`;
           template_effect(() => set_text(text_12, ` ${get$2(computedDynamicFieldId) ?? ""} `));
           append($$anchor2, div_13);
         };
-        var alternate_5 = ($$anchor2, $$elseif) => {
+        var alternate_6 = ($$anchor2) => {
+          var fragment_9 = comment$1();
+          var node_17 = first_child(fragment_9);
           {
             var consequent_14 = ($$anchor3) => {
               var div_14 = root_23$1();
               append($$anchor3, div_14);
             };
-            var alternate_6 = ($$anchor3) => {
+            var alternate_5 = ($$anchor3) => {
               var div_15 = root_24$1();
               append($$anchor3, div_15);
             };
             if_block(
-              $$anchor2,
+              node_17,
               ($$render) => {
                 if (get$2(objectId) && get$2(fieldType) && (get$2(bcsInputMode) === "base64" ? get$2(fieldBcs) : get$2(fieldStructType))) $$render(consequent_14);
-                else $$render(alternate_6, false);
+                else $$render(alternate_5, false);
               },
-              $$elseif
+              true
             );
           }
+          append($$anchor2, fragment_9);
         };
         if_block(node_16, ($$render) => {
           if (get$2(computedDynamicFieldId)) $$render(consequent_13);
-          else $$render(alternate_5, false);
+          else $$render(alternate_6, false);
         });
       }
       var div_16 = sibling(div_3, 2);
@@ -32153,7 +33960,7 @@ ${indentStr}}`;
         fieldType
       ];
       var text_14 = child(button_10);
-      var node_17 = sibling(div_16, 2);
+      var node_18 = sibling(div_16, 2);
       {
         var consequent_15 = ($$anchor2) => {
           var div_17 = root_25$1();
@@ -32161,43 +33968,43 @@ ${indentStr}}`;
           template_effect(() => set_text(text_15, get$2(fieldError)));
           append($$anchor2, div_17);
         };
-        if_block(node_17, ($$render) => {
+        if_block(node_18, ($$render) => {
           if (get$2(fieldError)) $$render(consequent_15);
         });
       }
-      var node_18 = sibling(node_17, 2);
+      var node_19 = sibling(node_18, 2);
       {
         var consequent_16 = ($$anchor2) => {
-          var fragment_9 = root_26$1();
-          var node_19 = sibling(first_child(fragment_9), 2);
-          JsonToggleView(node_19, {
+          var fragment_10 = root_26$1();
+          var node_20 = sibling(first_child(fragment_10), 2);
+          JsonToggleView(node_20, {
             get value() {
               return get$2(dynamicFieldResult);
             }
           });
-          append($$anchor2, fragment_9);
+          append($$anchor2, fragment_10);
         };
-        if_block(node_18, ($$render) => {
+        if_block(node_19, ($$render) => {
           if (get$2(dynamicFieldResult)) $$render(consequent_16);
         });
       }
-      var node_20 = sibling(node_18, 2);
+      var node_21 = sibling(node_19, 2);
       {
         var consequent_17 = ($$anchor2) => {
-          var fragment_10 = root_27$1();
-          var node_21 = sibling(first_child(fragment_10), 2);
-          JsonToggleView(node_21, {
+          var fragment_11 = root_27$1();
+          var node_22 = sibling(first_child(fragment_11), 2);
+          JsonToggleView(node_22, {
             get value() {
               return get$2(dynamicObjectFieldResult);
             }
           });
-          append($$anchor2, fragment_10);
+          append($$anchor2, fragment_11);
         };
-        if_block(node_20, ($$render) => {
+        if_block(node_21, ($$render) => {
           if (get$2(dynamicObjectFieldResult)) $$render(consequent_17);
         });
       }
-      var node_22 = sibling(node_20, 2);
+      var node_23 = sibling(node_21, 2);
       {
         var consequent_18 = ($$anchor2) => {
           var div_18 = root_28$1();
@@ -32205,7 +34012,7 @@ ${indentStr}}`;
           template_effect(() => set_text(text_16, get$2(layoutError)));
           append($$anchor2, div_18);
         };
-        if_block(node_22, ($$render) => {
+        if_block(node_23, ($$render) => {
           if (get$2(layoutError)) $$render(consequent_18);
         });
       }
@@ -34289,7 +36096,7 @@ zoo`.split("\n");
     const replaceDerive = (val) => val.replace("'", "");
     const getMasterKeyFromSeed = (seed) => {
       const h = hmac.create(sha512, ED25519_CURVE);
-      const I = h.update(fromHEX(seed)).digest();
+      const I = h.update(fromHEX$1(seed)).digest();
       const IL = I.slice(0, 32);
       const IR = I.slice(32);
       return {
@@ -34333,7 +36140,7 @@ zoo`.split("\n");
         chainCode
       });
     };
-    var root$j = /* @__PURE__ */ from_html(`<main class="svelte-1rwp9og"><div class="svelte-1rwp9og">For development purposes only, never use with real funds!</div> <br/> <button class="svelte-1rwp9og">Generate new</button> <button class="svelte-1rwp9og">Generate new short (&#60;130 chars)</button> <input id="mnemonic" type="string" size="140" placeholder="24 word BIP-39 mnemonic. For development purposes only, never use with real funds!" class="svelte-1rwp9og"/> <br/> BIP 44 path: <input id="coinType" type="number" list="coinTypes" placeholder="BIP-44 coin type" class="svelte-1rwp9og"/> <datalist id="coinTypes"><option>IOTA</option><option>Shimmer</option><option>Testnet</option></datalist> <input id="accountIndex" type="number" min="0" placeholder="account index" class="svelte-1rwp9og"/> <select id="change" class="svelte-1rwp9og"><option>0</option><option>1</option></select> <input id="addressIndex" type="number" width="1" min="0" placeholder="address index" class="svelte-1rwp9og"/> <br/> <div class="svelte-1rwp9og">Insert anything and it will generate/convert what's possible:</div> <div class="svelte-1rwp9og"><label for="mnemonicEntropy" class="svelte-1rwp9og">Mnemonic entropy:</label> <input id="mnemonicEntropy" type="string" size="70" placeholder="hex mnemonic entropy" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="seed" class="svelte-1rwp9og">Seed:</label> <input id="seed" type="string" size="130" placeholder="hex seed" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="privateKeyBech32" class="svelte-1rwp9og">Private key bech32:</label> <input id="privateKeyBech32" type="string" size="75" placeholder="bech32 iotaprivkey" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="privateKeyHex" class="svelte-1rwp9og">Private key hex:</label> <input id="privateKeyHex" type="string" size="70" placeholder="hex Ed25519 private key" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="publicKeyBase64" class="svelte-1rwp9og">Public key base64:</label> <input id="publicKeyBase64" type="string" size="70" placeholder="base64 Ed25519 public key" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="publicKey" class="svelte-1rwp9og">Public key:</label> <input id="publicKey" type="string" size="70" placeholder="hex Ed25519 public key" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><span class="label svelte-1rwp9og">Address:</span> <span style="text-align: left;" class="svelte-1rwp9og"> </span></div> <br/> </main>`);
+    var root$m = /* @__PURE__ */ from_html(`<main class="svelte-1rwp9og"><div class="svelte-1rwp9og">For development purposes only, never use with real funds!</div> <br/> <button class="svelte-1rwp9og">Generate new</button> <button class="svelte-1rwp9og">Generate new short (&#60;130 chars)</button> <input id="mnemonic" type="string" size="140" placeholder="24 word BIP-39 mnemonic. For development purposes only, never use with real funds!" class="svelte-1rwp9og"/> <br/> BIP 44 path: <input id="coinType" type="number" list="coinTypes" placeholder="BIP-44 coin type" class="svelte-1rwp9og"/> <datalist id="coinTypes"><option>IOTA</option><option>Shimmer</option><option>Testnet</option></datalist> <input id="accountIndex" type="number" min="0" placeholder="account index" class="svelte-1rwp9og"/> <select id="change" class="svelte-1rwp9og"><option>0</option><option>1</option></select> <input id="addressIndex" type="number" width="1" min="0" placeholder="address index" class="svelte-1rwp9og"/> <br/> <div class="svelte-1rwp9og">Insert anything and it will generate/convert what's possible:</div> <div class="svelte-1rwp9og"><label for="mnemonicEntropy" class="svelte-1rwp9og">Mnemonic entropy:</label> <input id="mnemonicEntropy" type="string" size="70" placeholder="hex mnemonic entropy" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="seed" class="svelte-1rwp9og">Seed:</label> <input id="seed" type="string" size="130" placeholder="hex seed" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="privateKeyBech32" class="svelte-1rwp9og">Private key bech32:</label> <input id="privateKeyBech32" type="string" size="75" placeholder="bech32 iotaprivkey" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="privateKeyHex" class="svelte-1rwp9og">Private key hex:</label> <input id="privateKeyHex" type="string" size="70" placeholder="hex Ed25519 private key" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="publicKeyBase64" class="svelte-1rwp9og">Public key base64:</label> <input id="publicKeyBase64" type="string" size="70" placeholder="base64 Ed25519 public key" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="publicKey" class="svelte-1rwp9og">Public key:</label> <input id="publicKey" type="string" size="70" placeholder="hex Ed25519 public key" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><span class="label svelte-1rwp9og">Address:</span> <span style="text-align: left;" class="svelte-1rwp9og"> </span></div> <br/> </main>`);
     function Ed25519AddressGeneration($$anchor, $$props) {
       push($$props, false);
       const IOTA_BIP44_COIN_TYPE = 4218;
@@ -34373,21 +36180,21 @@ zoo`.split("\n");
         tryCatch(generateFromEntropyInner);
       };
       const generateFromEntropyInner = () => {
-        set$1(mnemonic, entropyToMnemonic(fromHEX(get$2(mnemonicEntropy)), wordlist));
+        set$1(mnemonic, entropyToMnemonic(fromHEX$1(get$2(mnemonicEntropy)), wordlist));
         generateSeedAndAddress();
       };
       const generateAddressFromMnemonic = () => {
         tryCatch(generateAddressFromMnemonicInner);
       };
       const generateAddressFromMnemonicInner = () => {
-        set$1(mnemonicEntropy, toHEX(mnemonicToEntropy(get$2(mnemonic), wordlist)));
+        set$1(mnemonicEntropy, toHEX$1(mnemonicToEntropy(get$2(mnemonic), wordlist)));
         generateSeedAndAddress();
       };
       const generateSeedAndAddress = () => {
         tryCatch(generateSeedAndAddressInner);
       };
       const generateSeedAndAddressInner = () => {
-        set$1(seed, toHEX(mnemonicToSeedSync(get$2(mnemonic), "")));
+        set$1(seed, toHEX$1(mnemonicToSeedSync(get$2(mnemonic), "")));
         generateAddressFromSeed();
       };
       const generateAddressFromSeed = () => {
@@ -34396,14 +36203,14 @@ zoo`.split("\n");
       const generateAddressFromSeedInner = () => {
         let keyPair = deriveKeypairFromSeed(get$2(seed), `m/44'/${get$2(coinType)}'/${get$2(accountIndex)}'/${get$2(change)}'/${get$2(addressIndex)}'`);
         set$1(privateKeyBech32, keyPair.getSecretKey());
-        set$1(privateKeyHex, toHEX(keyPair.keypair.secretKey.slice(0, 32)));
+        set$1(privateKeyHex, toHEX$1(keyPair.keypair.secretKey.slice(0, 32)));
         generatePublicKey(keyPair);
       };
       const generateKeysFromHexPrivateKey = () => {
         tryCatch(generateKeysFromHexPrivateKeyInner);
       };
       const generateKeysFromHexPrivateKeyInner = () => {
-        let keyPair = Ed25519Keypair.fromSecretKey(fromHEX(get$2(privateKeyHex)));
+        let keyPair = Ed25519Keypair.fromSecretKey(fromHEX$1(get$2(privateKeyHex)));
         set$1(privateKeyBech32, keyPair.getSecretKey());
         generatePublicKey(keyPair);
       };
@@ -34416,14 +36223,14 @@ zoo`.split("\n");
           throw "unsupported schema: " + schema;
         }
         const keyPair = Ed25519Keypair.fromSecretKey(secretKey);
-        set$1(privateKeyHex, toHEX(keyPair.keypair.secretKey.slice(0, 32)));
+        set$1(privateKeyHex, toHEX$1(keyPair.keypair.secretKey.slice(0, 32)));
         generatePublicKey(keyPair);
       };
       const generatePublicKey = (keyPair) => {
         set$1(error2, "");
         try {
-          set$1(publicKeyBase64, toB64(keyPair.getPublicKey().toRawBytes()));
-          set$1(publicKey, toHEX(keyPair.getPublicKey().toRawBytes()));
+          set$1(publicKeyBase64, toB64$1(keyPair.getPublicKey().toRawBytes()));
+          set$1(publicKey, toHEX$1(keyPair.getPublicKey().toRawBytes()));
           set$1(address, keyPair.getPublicKey().toIotaAddress());
         } catch (err) {
           try {
@@ -34437,19 +36244,19 @@ zoo`.split("\n");
         tryCatch(addressFromPublicKeyBase64Inner);
       };
       const addressFromPublicKeyBase64Inner = () => {
-        let bytes = fromB64(get$2(publicKeyBase64));
+        let bytes = fromB64$1(get$2(publicKeyBase64));
         if (bytes.length == 33) {
           bytes = bytes.slice(1);
         }
-        set$1(publicKey, toHEX(bytes));
+        set$1(publicKey, toHEX$1(bytes));
         set$1(address, new Ed25519PublicKey(bytes).toIotaAddress());
       };
       const addressFromPublicKey = () => {
         tryCatch(addressFromPublicKeyInner);
       };
       const addressFromPublicKeyInner = () => {
-        let bytes = fromHEX(get$2(publicKey));
-        set$1(publicKeyBase64, toB64(bytes));
+        let bytes = fromHEX$1(get$2(publicKey));
+        set$1(publicKeyBase64, toB64$1(bytes));
         set$1(address, new Ed25519PublicKey(bytes).toIotaAddress());
       };
       const tryCatch = (fn) => {
@@ -34469,7 +36276,7 @@ zoo`.split("\n");
         return Ed25519Keypair.fromSecretKey(key);
       }
       init();
-      var main = root$j();
+      var main = root$m();
       var button = sibling(child(main), 4);
       var button_1 = sibling(button, 2);
       var input = sibling(button_1, 2);
@@ -34603,8 +36410,8 @@ zoo`.split("\n");
         method: "GET"
       });
     }
-    var root_1$e = /* @__PURE__ */ from_html(`<option> </option>`);
-    var root$i = /* @__PURE__ */ from_html(`<main><button class="svelte-8fa537">Set to current network and active address</button> <br/> <span>faucet URL: <input type="string" list="faucetUrls" size="60" placeholder="faucet URL, like http://127.0.0.1:9123/gas"/> <datalist id="faucetUrls"></datalist></span> <br/> <span>address: <input placeholder="address" size="67"/></span> <br/> <span>amount of requests: <input type="number" placeholder="1" size="4"/></span> <span>milliseconds between requests: <input type="number" placeholder="1000" style="width: 7rem;"/></span> <br/> <button class="svelte-8fa537">Request funds</button> <!></main>`);
+    var root_1$h = /* @__PURE__ */ from_html(`<option> </option>`);
+    var root$l = /* @__PURE__ */ from_html(`<main><button class="svelte-8fa537">Set to current network and active address</button> <br/> <span>faucet URL: <input type="string" list="faucetUrls" size="60" placeholder="faucet URL, like http://127.0.0.1:9123/gas"/> <datalist id="faucetUrls"></datalist></span> <br/> <span>address: <input placeholder="address" size="67"/></span> <br/> <span>amount of requests: <input type="number" placeholder="1" size="4"/></span> <span>milliseconds between requests: <input type="number" placeholder="1000" style="width: 7rem;"/></span> <br/> <button class="svelte-8fa537">Request funds</button> <!></main>`);
     function Faucet($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
@@ -34628,28 +36435,19 @@ zoo`.split("\n");
             throw new Error("invalid address");
           }
           try {
-            var response = await requestIotaFromFaucetV1({
-              host: get$2(faucetUrl),
-              recipient: get$2(address)
-            });
+            var response = await requestIotaFromFaucetV1({ host: get$2(faucetUrl), recipient: get$2(address) });
             let taskId = (_a3 = response.task) == null ? void 0 : _a3.taskId;
             if (error2 || !taskId) {
               throw new Error(error2 ?? "Failed, task id not found.");
             }
             console.log(taskId);
-            var {
-              status: { status, transferred_gas_objects },
-              error: error2
-            } = await getFaucetRequestStatus({ host: get$2(faucetUrl), taskId });
+            var { status: { status, transferred_gas_objects }, error: error2 } = await getFaucetRequestStatus({ host: get$2(faucetUrl), taskId });
             console.log(status);
             console.log(transferred_gas_objects);
             set$1(value2, transferred_gas_objects);
           } catch (e2) {
             console.log(e2);
-            const faucetResponse = await requestIotaFromFaucetV0({
-              host: get$2(faucetUrl),
-              recipient: get$2(address)
-            });
+            const faucetResponse = await requestIotaFromFaucetV0({ host: get$2(faucetUrl), recipient: get$2(address) });
             console.log(faucetResponse);
             set$1(value2, faucetResponse);
           }
@@ -34659,29 +36457,23 @@ zoo`.split("\n");
         }
       };
       init();
-      var main = root$i();
+      var main = root$l();
       var button = child(main);
       var span = sibling(button, 4);
       var input = sibling(child(span));
       var datalist = sibling(input, 2);
-      each$1(
-        datalist,
-        5,
-        () => ($sharedClientConfig(), untrack(() => $sharedClientConfig().networks)),
-        index$1,
-        ($$anchor2, network) => {
-          var option = root_1$e();
-          var option_value = {};
-          var text2 = child(option);
-          template_effect(() => {
-            if (option_value !== (option_value = (get$2(network), untrack(() => get$2(network).faucet)))) {
-              option.value = (option.__value = (get$2(network), untrack(() => get$2(network).faucet))) ?? "";
-            }
-            set_text(text2, (get$2(network), untrack(() => get$2(network).name)));
-          });
-          append($$anchor2, option);
-        }
-      );
+      each$1(datalist, 5, () => $sharedClientConfig().networks, index$1, ($$anchor2, network) => {
+        var option = root_1$h();
+        var text2 = child(option);
+        var option_value = {};
+        template_effect(() => {
+          set_text(text2, get$2(network).name);
+          if (option_value !== (option_value = get$2(network).faucet)) {
+            option.value = (option.__value = get$2(network).faucet) ?? "";
+          }
+        });
+        append($$anchor2, option);
+      });
       var span_1 = sibling(span, 4);
       var input_1 = sibling(child(span_1));
       var span_2 = sibling(span_1, 4);
@@ -34722,9 +36514,7 @@ zoo`.split("\n");
         });
         let registry2 = tx.moveCall({
           target: `${get$2(IOTA_NAMES_PACKAGE_ID)}::iota_names::registry`,
-          typeArguments: [
-            `${get$2(IOTA_NAMES_PACKAGE_ID)}::registry::Registry`
-          ],
+          typeArguments: [`${get$2(IOTA_NAMES_PACKAGE_ID)}::registry::Registry`],
           arguments: [
             tx.sharedObjectRef({
               objectId: get$2(IOTA_NAMES_OBJECT_ID),
@@ -34739,9 +36529,7 @@ zoo`.split("\n");
         });
         let nameRecord = tx.moveCall({
           target: `0x1::option::borrow`,
-          typeArguments: [
-            `${get$2(IOTA_NAMES_PACKAGE_ID)}::name_record::NameRecord`
-          ],
+          typeArguments: [`${get$2(IOTA_NAMES_PACKAGE_ID)}::name_record::NameRecord`],
           arguments: [nameRecordOption]
         });
         let targetAddressOption = tx.moveCall({
@@ -34762,7 +36550,7 @@ zoo`.split("\n");
         if (txResult.error) {
           throw new Error(txResult.error);
         }
-        let resolvedAddress = "0x" + toHEX(new Uint8Array((_c = (_b2 = (_a3 = txResult.results) == null ? void 0 : _a3.pop()) == null ? void 0 : _b2.returnValues) == null ? void 0 : _c[0][0]));
+        let resolvedAddress = "0x" + toHEX$1(new Uint8Array((_c = (_b2 = (_a3 = txResult.results) == null ? void 0 : _a3.pop()) == null ? void 0 : _b2.returnValues) == null ? void 0 : _c[0][0]));
         console.log(resolvedAddress);
         set$1(value2, resolvedAddress);
       } catch (err) {
@@ -34782,9 +36570,7 @@ zoo`.split("\n");
         const tx = new Transaction$1();
         let registry2 = tx.moveCall({
           target: `${get$2(IOTA_NAMES_PACKAGE_ID)}::iota_names::registry`,
-          typeArguments: [
-            `${get$2(IOTA_NAMES_PACKAGE_ID)}::registry::Registry`
-          ],
+          typeArguments: [`${get$2(IOTA_NAMES_PACKAGE_ID)}::registry::Registry`],
           arguments: [
             tx.sharedObjectRef({
               objectId: get$2(IOTA_NAMES_OBJECT_ID),
@@ -34795,16 +36581,11 @@ zoo`.split("\n");
         });
         let nameOption = tx.moveCall({
           target: `${get$2(IOTA_NAMES_PACKAGE_ID)}::registry::reverse_lookup`,
-          arguments: [
-            registry2,
-            tx.pure.address(get$2(address))
-          ]
+          arguments: [registry2, tx.pure.address(get$2(address))]
         });
         let name2 = tx.moveCall({
           target: `0x1::option::borrow`,
-          typeArguments: [
-            `${get$2(IOTA_NAMES_PACKAGE_ID)}::name::Name`
-          ],
+          typeArguments: [`${get$2(IOTA_NAMES_PACKAGE_ID)}::name::Name`],
           arguments: [nameOption]
         });
         tx.moveCall({
@@ -34954,14 +36735,8 @@ zoo`.split("\n");
               owner: $activeAddress(),
               options: { showContent: true, showType: true }
             });
-            const subnameOutputs = outputs.data.filter((output) => (
-              // @ts-ignore
-              output.data.content.type.includes("SubNameRegistration")
-            ));
-            let subnameNft = subnameOutputs.find((e2) => (
-              // @ts-ignore
-              e2.data.content.fields.nft.fields.name == parentNameName
-            ));
+            const subnameOutputs = outputs.data.filter((output) => output.data.content.type.includes("SubNameRegistration"));
+            let subnameNft = subnameOutputs.find((e2) => e2.data.content.fields.nft.fields.name == parentNameName);
             parentNft = (_a3 = subnameNft == null ? void 0 : subnameNft.data) == null ? void 0 : _a3.objectId;
             expirationNextMonthTimestampMs = // @ts-ignore
             subnameNft.data.content.fields.nft.fields.expiration_timestamp_ms;
@@ -35033,17 +36808,20 @@ zoo`.split("\n");
         console.error(err);
       }
     }
-    var on_change$1 = (__9, IOTA_NAMES_OBJECT_ID, PAYMENTS_PACKAGE_ID, SUBNAME_PACKAGE_ID, SUBNAME_PROXY_PACKAGE_ID, AUCTION_PACKAGE_ID, COUPONS_PACKAGE_ID) => {
-      set$1(IOTA_NAMES_OBJECT_ID, "");
-      set$1(PAYMENTS_PACKAGE_ID, "");
-      set$1(SUBNAME_PACKAGE_ID, "");
-      set$1(SUBNAME_PROXY_PACKAGE_ID, "");
-      set$1(AUCTION_PACKAGE_ID, "");
-      set$1(COUPONS_PACKAGE_ID, "");
-    };
-    var root_3$9 = /* @__PURE__ */ from_html(` <br/>`, 1);
-    var root_1$d = /* @__PURE__ */ from_html(`<details><summary>IOTA-Names IDs</summary> <div> <br/> <!></div></details>`);
-    var root$h = /* @__PURE__ */ from_html(`<main><span>IotaNames package id (default for devnet): <input placeholder="package id 0x..." size="67"/></span> <br/> <br/> <span>address: <input placeholder="address 0x..." size="67"/></span> <span>name: <input placeholder="name.iota"/></span> <br/> <br/> <!> General information: <button class="svelte-8fa537">list registered names</button> <button class="svelte-8fa537">get reverse registered addresses</button> <button class="svelte-8fa537">show package ids</button> <button class="svelte-8fa537">get dynamic fields</button> <hr/> Resolver: <button class="svelte-8fa537">resolve address (by name)</button> <button class="svelte-8fa537">resolve name (by address)</button> <hr/> Tx actions: <button class="svelte-8fa537">register name</button> <button class="svelte-8fa537">set target address</button> <button class="svelte-8fa537">set reverse lookup</button> <hr/> Auction: <span>bid price: <input type="number" placeholder="0" style="width: 14rem;"/></span> <button class="svelte-8fa537">start auction and place bid</button> <button class="svelte-8fa537">place bid</button> <button class="svelte-8fa537">claim</button> <button class="svelte-8fa537">list auctions</button> <!></main>`);
+    var on_change$1 = (
+      // @ts-ignore
+      (__9, IOTA_NAMES_OBJECT_ID, PAYMENTS_PACKAGE_ID, SUBNAME_PACKAGE_ID, SUBNAME_PROXY_PACKAGE_ID, AUCTION_PACKAGE_ID, COUPONS_PACKAGE_ID) => {
+        set$1(IOTA_NAMES_OBJECT_ID, "");
+        set$1(PAYMENTS_PACKAGE_ID, "");
+        set$1(SUBNAME_PACKAGE_ID, "");
+        set$1(SUBNAME_PROXY_PACKAGE_ID, "");
+        set$1(AUCTION_PACKAGE_ID, "");
+        set$1(COUPONS_PACKAGE_ID, "");
+      }
+    );
+    var root_3$a = /* @__PURE__ */ from_html(` <br/>`, 1);
+    var root_1$g = /* @__PURE__ */ from_html(`<details><summary>IOTA-Names IDs</summary> <div> <br/> <!></div></details>`);
+    var root$k = /* @__PURE__ */ from_html(`<main><span>IotaNames package id (default for devnet): <input placeholder="package id 0x..." size="67"/></span> <br/> <br/> <span>address: <input placeholder="address 0x..." size="67"/></span> <span>name: <input placeholder="name.iota"/></span> <br/> <br/> <!> General information: <button class="svelte-8fa537">list registered names</button> <button class="svelte-8fa537">get reverse registered addresses</button> <button class="svelte-8fa537">show package ids</button> <button class="svelte-8fa537">get dynamic fields</button> <hr/> Resolver: <button class="svelte-8fa537">resolve address (by name)</button> <button class="svelte-8fa537">resolve name (by address)</button> <hr/> Tx actions: <button class="svelte-8fa537">register name</button> <button class="svelte-8fa537">set target address</button> <button class="svelte-8fa537">set reverse lookup</button> <hr/> Auction: <span>bid price: <input type="number" placeholder="0" style="width: 14rem;"/></span> <button class="svelte-8fa537">start auction and place bid</button> <button class="svelte-8fa537">place bid</button> <button class="svelte-8fa537">claim</button> <button class="svelte-8fa537">list auctions</button> <!></main>`);
     function IotaNames($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
@@ -35281,10 +37059,7 @@ zoo`.split("\n");
           let client2 = getClient();
           let object2 = await client2.getObject({
             id: AUCTION_HOUSE_OBJECT_ID,
-            options: {
-              showContent: true,
-              showPreviousTransaction: true
-            }
+            options: { showContent: true, showPreviousTransaction: true }
           });
           let res = {
             objectId: "",
@@ -35380,7 +37155,7 @@ zoo`.split("\n");
         }
       }
       init();
-      var main = root$h();
+      var main = root$k();
       var span = child(main);
       var input = sibling(child(span));
       input.__change = [
@@ -35399,7 +37174,7 @@ zoo`.split("\n");
       var node = sibling(span_2, 6);
       {
         var consequent_1 = ($$anchor2) => {
-          var details = root_1$d();
+          var details = root_1$g();
           var div = sibling(child(details), 2);
           var text2 = child(div);
           var node_1 = sibling(text2, 3);
@@ -35409,10 +37184,7 @@ zoo`.split("\n");
             () => [
               ["Payments", get$2(PAYMENTS_PACKAGE_ID)],
               ["Subname", get$2(SUBNAME_PACKAGE_ID)],
-              [
-                "Subname Proxy",
-                get$2(SUBNAME_PROXY_PACKAGE_ID)
-              ],
+              ["Subname Proxy", get$2(SUBNAME_PROXY_PACKAGE_ID)],
               ["Auction", get$2(AUCTION_PACKAGE_ID)],
               ["Coupons", get$2(COUPONS_PACKAGE_ID)]
             ],
@@ -35422,13 +37194,13 @@ zoo`.split("\n");
               var node_2 = first_child(fragment);
               {
                 var consequent = ($$anchor4) => {
-                  var fragment_1 = root_3$9();
+                  var fragment_1 = root_3$a();
                   var text_1 = first_child(fragment_1);
-                  template_effect(() => set_text(text_1, `${(get$2(item), untrack(() => get$2(item)[0])) ?? ""} Package ID: ${(get$2(item), untrack(() => get$2(item)[1])) ?? ""} `));
+                  template_effect(() => set_text(text_1, `${get$2(item)[0] ?? ""} Package ID: ${get$2(item)[1] ?? ""} `));
                   append($$anchor4, fragment_1);
                 };
                 if_block(node_2, ($$render) => {
-                  if (get$2(item), untrack(() => get$2(item)[1].length != 0)) $$render(consequent);
+                  if (get$2(item)[1].length != 0) $$render(consequent);
                 });
               }
               append($$anchor3, fragment);
@@ -35442,11 +37214,7 @@ zoo`.split("\n");
         });
       }
       var button = sibling(node, 2);
-      button.__click = [
-        listRegisteredNames,
-        getRegisteredNamesInner,
-        value2
-      ];
+      button.__click = [listRegisteredNames, getRegisteredNamesInner, value2];
       var button_1 = sibling(button, 2);
       button_1.__click = [
         getReverseRegisteredAddresses,
@@ -35456,11 +37224,7 @@ zoo`.split("\n");
         value2
       ];
       var button_2 = sibling(button_1, 2);
-      button_2.__click = [
-        toggleIotaNamesIds,
-        showIotaNamesIds,
-        getPackageIds
-      ];
+      button_2.__click = [toggleIotaNamesIds, showIotaNamesIds, getPackageIds];
       var button_3 = sibling(button_2, 2);
       button_3.__click = [getDynamicFields, value2, queryDynamicFields2];
       var button_4 = sibling(button_3, 4);
@@ -35541,8 +37305,8 @@ zoo`.split("\n");
       $$cleanup();
     }
     delegate(["change", "click"]);
-    var root_1$c = /* @__PURE__ */ from_html(`<div> </div>`);
-    var root$g = /* @__PURE__ */ from_html(`<main><button class="svelte-8fa537">get latest IOTA system state</button> <button class="svelte-8fa537">candidate validators</button> <button class="svelte-8fa537">pending validators</button> show full data (set before requesting): <select><option></option><option></option></select> <!> <!> <pre class="value" style="text-align: left"> </pre></main>`);
+    var root_1$f = /* @__PURE__ */ from_html(`<div> </div>`);
+    var root$j = /* @__PURE__ */ from_html(`<main><button class="svelte-8fa537">get latest IOTA system state</button> <button class="svelte-8fa537">candidate validators</button> <button class="svelte-8fa537">pending validators</button> show full data (set before requesting): <select><option></option><option></option></select> <!> <!> <pre class="value" style="text-align: left"> </pre></main>`);
     function IotaSystemState($$anchor, $$props) {
       push($$props, false);
       let value2 = /* @__PURE__ */ mutable_source({});
@@ -35583,10 +37347,7 @@ zoo`.split("\n");
           let nextPageCursor;
           let validatorCandidates = [];
           while (hasNextPage) {
-            const candidateValidatorsPage = await client2.getDynamicFields({
-              parentId: validatorCandidatesId,
-              cursor: nextPageCursor
-            });
+            const candidateValidatorsPage = await client2.getDynamicFields({ parentId: validatorCandidatesId, cursor: nextPageCursor });
             for (const candidateValidator of candidateValidatorsPage.data) {
               const validatorWrapper = await client2.getDynamicFieldObject({
                 parentId: validatorCandidatesId,
@@ -35640,10 +37401,7 @@ zoo`.split("\n");
           let nextPageCursor;
           let pendingValidators = [];
           while (hasNextPage) {
-            const pendingValidatorsPage = await client2.getDynamicFields({
-              parentId: pendingActiveValidatorsId,
-              cursor: nextPageCursor
-            });
+            const pendingValidatorsPage = await client2.getDynamicFields({ parentId: pendingActiveValidatorsId, cursor: nextPageCursor });
             for (const pendingValidator of pendingValidatorsPage.data) {
               const validatorObject = await client2.getObject({
                 id: pendingValidator.objectId,
@@ -35710,7 +37468,7 @@ zoo`.split("\n");
         delete validator.staking_pool.fields.id;
       }
       init();
-      var main = root$g();
+      var main = root$j();
       var button = child(main);
       var button_1 = sibling(button, 2);
       var button_2 = sibling(button_1, 2);
@@ -35721,15 +37479,15 @@ zoo`.split("\n");
         });
       });
       var option = child(select);
-      option.value = option.__value = true;
       option.textContent = "true";
+      option.value = option.__value = true;
       var option_1 = sibling(option);
-      option_1.value = option_1.__value = false;
       option_1.textContent = "false";
+      option_1.value = option_1.__value = false;
       var node = sibling(select, 2);
       {
         var consequent = ($$anchor2) => {
-          var div = root_1$c();
+          var div = root_1$f();
           var text2 = child(div);
           template_effect(() => set_text(text2, `API Version: ${get$2(apiVersion) ?? ""}`));
           append($$anchor2, div);
@@ -35748,15 +37506,12 @@ zoo`.split("\n");
       var text_1 = child(pre);
       template_effect(
         ($0) => {
-          pre.hidden = (get$2(stakeInfo), untrack(() => get$2(stakeInfo).totalSupply == 0));
+          pre.hidden = get$2(stakeInfo).totalSupply == 0;
           set_text(text_1, `
         ${$0 ?? ""}
     `);
         },
-        [
-          () => (get$2(stakeInfo), untrack(() => "\n" + JSON.stringify(get$2(stakeInfo), null, 2)))
-        ],
-        derived_safe_equal
+        [() => "\n" + JSON.stringify(get$2(stakeInfo), null, 2)]
       );
       event("click", button, () => getLatestSystemState());
       event("click", button_1, () => getCandidateValidators());
@@ -38356,7 +40111,7 @@ zoo`.split("\n");
       const buf2 = slice(data, pos + prefix, pos + prefix + length);
       return new Token(Type.bytes, buf2, prefix + length);
     }
-    function decodeBytesCompact(data, pos, minor, _options2) {
+    function decodeBytesCompact(data, pos, minor, _options3) {
       return toToken$3(data, pos, 1, minor);
     }
     function decodeBytes8(data, pos, _minor, options) {
@@ -38428,7 +40183,7 @@ zoo`.split("\n");
     function toToken$1(_data2, _pos, prefix, length) {
       return new Token(Type.array, length, prefix);
     }
-    function decodeArrayCompact(data, pos, minor, _options2) {
+    function decodeArrayCompact(data, pos, minor, _options3) {
       return toToken$1(data, pos, 1, minor);
     }
     function decodeArray8(data, pos, _minor, options) {
@@ -38463,7 +40218,7 @@ zoo`.split("\n");
     function toToken(_data2, _pos, prefix, length) {
       return new Token(Type.map, length, prefix);
     }
-    function decodeMapCompact(data, pos, minor, _options2) {
+    function decodeMapCompact(data, pos, minor, _options3) {
       return toToken(data, pos, 1, minor);
     }
     function decodeMap8(data, pos, _minor, options) {
@@ -38495,7 +40250,7 @@ zoo`.split("\n");
     encodeMap.encodedSize = function encodedSize(token) {
       return encodeUintValue.encodedSize(token.value);
     };
-    function decodeTagCompact(_data2, _pos, minor, _options2) {
+    function decodeTagCompact(_data2, _pos, minor, _options3) {
       return new Token(Type.tag, minor, 1);
     }
     function decodeTag8(data, pos, _minor, options) {
@@ -38914,7 +40669,7 @@ zoo`.split("\n");
        * @param {Reference} [_refStack]
        * @returns {TokenOrNestedTokens}
        */
-      number(obj, _typ, _options2, _refStack) {
+      number(obj, _typ, _options3, _refStack) {
         if (!Number.isInteger(obj) || !Number.isSafeInteger(obj)) {
           return new Token(Type.float, obj);
         } else if (obj >= 0) {
@@ -38930,7 +40685,7 @@ zoo`.split("\n");
        * @param {Reference} [_refStack]
        * @returns {TokenOrNestedTokens}
        */
-      bigint(obj, _typ, _options2, _refStack) {
+      bigint(obj, _typ, _options3, _refStack) {
         if (obj >= BigInt(0)) {
           return new Token(Type.uint, obj);
         } else {
@@ -38944,7 +40699,7 @@ zoo`.split("\n");
        * @param {Reference} [_refStack]
        * @returns {TokenOrNestedTokens}
        */
-      Uint8Array(obj, _typ, _options2, _refStack) {
+      Uint8Array(obj, _typ, _options3, _refStack) {
         return new Token(Type.bytes, obj);
       },
       /**
@@ -38954,7 +40709,7 @@ zoo`.split("\n");
        * @param {Reference} [_refStack]
        * @returns {TokenOrNestedTokens}
        */
-      string(obj, _typ, _options2, _refStack) {
+      string(obj, _typ, _options3, _refStack) {
         return new Token(Type.string, obj);
       },
       /**
@@ -38964,7 +40719,7 @@ zoo`.split("\n");
        * @param {Reference} [_refStack]
        * @returns {TokenOrNestedTokens}
        */
-      boolean(obj, _typ, _options2, _refStack) {
+      boolean(obj, _typ, _options3, _refStack) {
         return obj ? simpleTokens.true : simpleTokens.false;
       },
       /**
@@ -38974,7 +40729,7 @@ zoo`.split("\n");
        * @param {Reference} [_refStack]
        * @returns {TokenOrNestedTokens}
        */
-      null(_obj, _typ, _options2, _refStack) {
+      null(_obj, _typ, _options3, _refStack) {
         return simpleTokens.null;
       },
       /**
@@ -38984,7 +40739,7 @@ zoo`.split("\n");
        * @param {Reference} [_refStack]
        * @returns {TokenOrNestedTokens}
        */
-      undefined(_obj, _typ, _options2, _refStack) {
+      undefined(_obj, _typ, _options3, _refStack) {
         return simpleTokens.undefined;
       },
       /**
@@ -38994,7 +40749,7 @@ zoo`.split("\n");
        * @param {Reference} [_refStack]
        * @returns {TokenOrNestedTokens}
        */
-      ArrayBuffer(obj, _typ, _options2, _refStack) {
+      ArrayBuffer(obj, _typ, _options3, _refStack) {
         return new Token(Type.bytes, new Uint8Array(obj));
       },
       /**
@@ -39004,7 +40759,7 @@ zoo`.split("\n");
        * @param {Reference} [_refStack]
        * @returns {TokenOrNestedTokens}
        */
-      DataView(obj, _typ, _options2, _refStack) {
+      DataView(obj, _typ, _options3, _refStack) {
         return new Token(Type.bytes, new Uint8Array(obj.buffer, obj.byteOffset, obj.byteLength));
       },
       /**
@@ -44236,17 +45991,17 @@ zoo`.split("\n");
       return "data:image/gif;base64," + base64;
     };
     qrcode.stringToBytes;
-    var root_2$8 = /* @__PURE__ */ from_html(`<span class="animation-status svelte-p4ja95"> </span> <span class="part-indicator svelte-p4ja95"> </span> <button class="control-btn svelte-p4ja95">Stop Animation</button>`, 1);
-    var root_4$7 = /* @__PURE__ */ from_html(`<span class="part-indicator svelte-p4ja95"> </span> <button class="control-btn svelte-p4ja95">Start Animation</button>`, 1);
+    var root_2$9 = /* @__PURE__ */ from_html(`<span class="animation-status svelte-p4ja95"> </span> <span class="part-indicator svelte-p4ja95"> </span> <button class="control-btn svelte-p4ja95">Stop Animation</button>`, 1);
+    var root_4$8 = /* @__PURE__ */ from_html(`<span class="part-indicator svelte-p4ja95"> </span> <button class="control-btn svelte-p4ja95">Start Animation</button>`, 1);
     var root_5$5 = /* @__PURE__ */ from_html(`<span class="part-indicator svelte-p4ja95">Single QR code - no animation needed</span>`);
-    var root_3$8 = /* @__PURE__ */ from_html(`<span class="animation-status svelte-p4ja95">📱 Static QR</span> <!>`, 1);
+    var root_3$9 = /* @__PURE__ */ from_html(`<span class="animation-status svelte-p4ja95">📱 Static QR</span> <!>`, 1);
     var root_6$3 = /* @__PURE__ */ from_html(`<button class="control-btn svelte-p4ja95">Next Part</button>`);
     var root_8$3 = /* @__PURE__ */ from_html(`<div><div class="part-header svelte-p4ja95"><strong class="svelte-p4ja95"></strong> <span> </span> <span class="part-sequence svelte-p4ja95"> </span></div> <code class="part-data svelte-p4ja95"> </code></div>`);
-    var root_7$3 = /* @__PURE__ */ from_html(`<div class="all-parts-section svelte-p4ja95"><h4 class="svelte-p4ja95"> </h4> <div class="fountain-explanation svelte-p4ja95"><p class="svelte-p4ja95"><strong class="svelte-p4ja95">📡 Fountain Code Structure:</strong></p> <ul class="svelte-p4ja95"><li class="svelte-p4ja95"><strong class="svelte-p4ja95">Basic Parts:</strong> </li> <li class="svelte-p4ja95"><strong class="svelte-p4ja95">Fountain Parts:</strong> Redundant parts beyond the basic sequence
+    var root_7$4 = /* @__PURE__ */ from_html(`<div class="all-parts-section svelte-p4ja95"><h4 class="svelte-p4ja95"> </h4> <div class="fountain-explanation svelte-p4ja95"><p class="svelte-p4ja95"><strong class="svelte-p4ja95">📡 Fountain Code Structure:</strong></p> <ul class="svelte-p4ja95"><li class="svelte-p4ja95"><strong class="svelte-p4ja95">Basic Parts:</strong> </li> <li class="svelte-p4ja95"><strong class="svelte-p4ja95">Fountain Parts:</strong> Redundant parts beyond the basic sequence
                             (for error recovery)</li> <li class="svelte-p4ja95"><strong class="svelte-p4ja95">Collection:</strong> You need to collect <em class="svelte-p4ja95"> </em> parts total to decode reliably</li> <li class="svelte-p4ja95"><strong class="svelte-p4ja95">Redundancy:</strong> </li></ul></div> <div class="parts-list svelte-p4ja95"></div></div>`);
-    var root_1$b = /* @__PURE__ */ from_html(`<div class="qr-section svelte-p4ja95"><h3 class="svelte-p4ja95">Scan with Keystone to Sign</h3> <div class="qr-controls svelte-p4ja95"><!> <!></div> <div class="qr-container svelte-p4ja95"><canvas class="qr-canvas svelte-p4ja95" width="400" height="400"></canvas></div> <div class="qr-data svelte-p4ja95"><strong class="svelte-p4ja95">Current UR Data:</strong> <code class="svelte-p4ja95"> </code></div> <!></div>`);
-    var root_9$3 = /* @__PURE__ */ from_html(`<div class="error-message svelte-p4ja95"><strong class="svelte-p4ja95">QR Generation Error:</strong> </div>`);
-    var root$f = /* @__PURE__ */ from_html(`<!> <!>`, 1);
+    var root_1$e = /* @__PURE__ */ from_html(`<div class="qr-section svelte-p4ja95"><h3 class="svelte-p4ja95">Scan with Keystone to Sign</h3> <div class="qr-controls svelte-p4ja95"><!> <!></div> <div class="qr-container svelte-p4ja95"><canvas class="qr-canvas svelte-p4ja95" width="400" height="400"></canvas></div> <div class="qr-data svelte-p4ja95"><strong class="svelte-p4ja95">Current UR Data:</strong> <code class="svelte-p4ja95"> </code></div> <!></div>`);
+    var root_9$4 = /* @__PURE__ */ from_html(`<div class="error-message svelte-p4ja95"><strong class="svelte-p4ja95">QR Generation Error:</strong> </div>`);
+    var root$i = /* @__PURE__ */ from_html(`<!> <!>`, 1);
     function QrGenerator($$anchor, $$props) {
       push($$props, false);
       let cbor = prop($$props, "cbor", 8, "");
@@ -44380,11 +46135,7 @@ zoo`.split("\n");
           const seqNum = parseInt(seqNumStr);
           const seqLen = parseInt(seqLenStr);
           const isBasic = seqNum >= 1 && seqNum <= totalBasicParts2;
-          return {
-            type: isBasic ? "basic" : "fountain",
-            seqNum,
-            seqLen
-          };
+          return { type: isBasic ? "basic" : "fountain", seqNum, seqLen };
         }
         return { type: "basic", seqNum: 1, seqLen: 1 };
       }
@@ -44433,26 +46184,23 @@ zoo`.split("\n");
           }
         }
       );
-      legacy_pre_effect(
-        () => (get$2(currentQR), get$2(canvasElement)),
-        () => {
-          if (get$2(currentQR) && get$2(canvasElement)) {
-            updateQRCode(get$2(currentQR));
-          }
+      legacy_pre_effect(() => (get$2(currentQR), get$2(canvasElement)), () => {
+        if (get$2(currentQR) && get$2(canvasElement)) {
+          updateQRCode(get$2(currentQR));
         }
-      );
+      });
       legacy_pre_effect_reset();
       init();
-      var fragment = root$f();
+      var fragment = root$i();
       var node = first_child(fragment);
       {
         var consequent_4 = ($$anchor2) => {
-          var div = root_1$b();
+          var div = root_1$e();
           var div_1 = sibling(child(div), 2);
           var node_1 = child(div_1);
           {
             var consequent = ($$anchor3) => {
-              var fragment_1 = root_2$8();
+              var fragment_1 = root_2$9();
               var span = first_child(fragment_1);
               var text2 = child(span);
               var span_1 = sibling(span, 2);
@@ -44465,12 +46213,12 @@ zoo`.split("\n");
               event("click", button, stopQRAnimation);
               append($$anchor3, fragment_1);
             };
-            var alternate = ($$anchor3) => {
-              var fragment_2 = root_3$8();
+            var alternate_1 = ($$anchor3) => {
+              var fragment_2 = root_3$9();
               var node_2 = sibling(first_child(fragment_2), 2);
               {
                 var consequent_1 = ($$anchor4) => {
-                  var fragment_3 = root_4$7();
+                  var fragment_3 = root_4$8();
                   var span_2 = first_child(fragment_3);
                   var text_2 = child(span_2);
                   var button_1 = sibling(span_2, 2);
@@ -44478,20 +46226,20 @@ zoo`.split("\n");
                   event("click", button_1, startQRAnimation);
                   append($$anchor4, fragment_3);
                 };
-                var alternate_1 = ($$anchor4) => {
+                var alternate = ($$anchor4) => {
                   var span_3 = root_5$5();
                   append($$anchor4, span_3);
                 };
                 if_block(node_2, ($$render) => {
                   if (get$2(allQRParts), untrack(() => get$2(allQRParts).length > 1)) $$render(consequent_1);
-                  else $$render(alternate_1, false);
+                  else $$render(alternate, false);
                 });
               }
               append($$anchor3, fragment_2);
             };
             if_block(node_1, ($$render) => {
               if (get$2(isAnimated)) $$render(consequent);
-              else $$render(alternate, false);
+              else $$render(alternate_1, false);
             });
           }
           var node_3 = sibling(node_1, 2);
@@ -44514,7 +46262,7 @@ zoo`.split("\n");
           var node_4 = sibling(div_3, 2);
           {
             var consequent_3 = ($$anchor3) => {
-              var div_4 = root_7$3();
+              var div_4 = root_7$4();
               var h4 = child(div_4);
               var text_4 = child(h4);
               var div_5 = sibling(h4, 2);
@@ -44582,7 +46330,7 @@ zoo`.split("\n");
       var node_5 = sibling(node, 2);
       {
         var consequent_5 = ($$anchor2) => {
-          var div_9 = root_9$3();
+          var div_9 = root_9$4();
           var text_11 = sibling(child(div_9));
           template_effect(() => set_text(text_11, ` ${scanError() ?? ""}`));
           append($$anchor2, div_9);
@@ -45052,16 +46800,16 @@ zoo`.split("\n");
     e.NO_QR_CODE_FOUND = "No QR code found";
     e._disableBarcodeDetector = false;
     e._workerMessageId = 0;
-    var root_1$a = /* @__PURE__ */ from_html(`<button class="action-btn svelte-57l17z">Start Camera</button>`);
-    var root_2$7 = /* @__PURE__ */ from_html(`<button class="action-btn danger svelte-57l17z">Stop Camera</button>`);
-    var root_3$7 = /* @__PURE__ */ from_html(`<button class="control-btn svelte-57l17z">Reset Scanner</button>`);
+    var root_1$d = /* @__PURE__ */ from_html(`<button class="action-btn svelte-57l17z">Start Camera</button>`);
+    var root_2$8 = /* @__PURE__ */ from_html(`<button class="action-btn danger svelte-57l17z">Stop Camera</button>`);
+    var root_3$8 = /* @__PURE__ */ from_html(`<button class="control-btn svelte-57l17z">Reset Scanner</button>`);
     var root_5$4 = /* @__PURE__ */ from_html(`<div class="multipart-message svelte-57l17z"><strong>Multipart mode:</strong> Keep scanning until all parts are collected<br/> <span> </span></div>`);
-    var root_4$6 = /* @__PURE__ */ from_html(`<div class="video-container svelte-57l17z"><video autoplay playsinline="" width="500" height="300" class="svelte-57l17z"></video> <p class="scanner-instructions svelte-57l17z">Position the QR code displayed on the Keystone within the camera view</p> <!></div>`, 2);
+    var root_4$7 = /* @__PURE__ */ from_html(`<div class="video-container svelte-57l17z"><video autoplay playsinline="" width="500" height="300" class="svelte-57l17z"></video> <p class="scanner-instructions svelte-57l17z">Position the QR code displayed on the Keystone within the camera view</p> <!></div>`, 2);
     var root_6$2 = /* @__PURE__ */ from_html(`<div class="error-message svelte-57l17z"><strong>Error:</strong> </div>`);
-    var root_7$2 = /* @__PURE__ */ from_html(`<div class="error-message svelte-57l17z"><strong>Scan Error:</strong> </div>`);
-    var root_9$2 = /* @__PURE__ */ from_html(`<div class="multipart-progress svelte-57l17z"><div class="progress-bar svelte-57l17z"><div class="progress-fill svelte-57l17z"></div></div> <span class="progress-text svelte-57l17z"> </span></div>`);
+    var root_7$3 = /* @__PURE__ */ from_html(`<div class="error-message svelte-57l17z"><strong>Scan Error:</strong> </div>`);
+    var root_9$3 = /* @__PURE__ */ from_html(`<div class="multipart-progress svelte-57l17z"><div class="progress-bar svelte-57l17z"><div class="progress-fill svelte-57l17z"></div></div> <span class="progress-text svelte-57l17z"> </span></div>`);
     var root_8$2 = /* @__PURE__ */ from_html(`<div class="debug-info svelte-57l17z"><strong>Debug:</strong> <!></div>`);
-    var root$e = /* @__PURE__ */ from_html(`<div class="qr-scanner svelte-57l17z"><p class="info svelte-57l17z">On your Keystone device, navigate to the IOTA wallet and generate a connection QR code. Then
+    var root$h = /* @__PURE__ */ from_html(`<div class="qr-scanner svelte-57l17z"><p class="info svelte-57l17z">On your Keystone device, navigate to the IOTA wallet and generate a connection QR code. Then
         use the camera scanner below to scan it and capture your account information.</p> <div class="scanner-controls svelte-57l17z"><!> <button class="control-btn svelte-57l17z">Check Camera</button> <!></div> <!> <!> <!> <!></div>`);
     function QrScanner_1($$anchor, $$props) {
       push($$props, false);
@@ -45198,17 +46946,17 @@ zoo`.split("\n");
         stopScanning();
       });
       init();
-      var div = root$e();
+      var div = root$h();
       var div_1 = sibling(child(div), 2);
       var node = child(div_1);
       {
         var consequent = ($$anchor2) => {
-          var button = root_1$a();
+          var button = root_1$d();
           event("click", button, startScanning);
           append($$anchor2, button);
         };
         var alternate = ($$anchor2) => {
-          var button_1 = root_2$7();
+          var button_1 = root_2$8();
           event("click", button_1, stopScanning);
           append($$anchor2, button_1);
         };
@@ -45221,7 +46969,7 @@ zoo`.split("\n");
       var node_1 = sibling(button_2, 2);
       {
         var consequent_1 = ($$anchor2) => {
-          var button_3 = root_3$7();
+          var button_3 = root_3$8();
           event("click", button_3, reset);
           append($$anchor2, button_3);
         };
@@ -45232,7 +46980,7 @@ zoo`.split("\n");
       var node_2 = sibling(div_1, 2);
       {
         var consequent_3 = ($$anchor2) => {
-          var div_2 = root_4$6();
+          var div_2 = root_4$7();
           var video = child(div_2);
           video.muted = true;
           bind_this(video, ($$value) => set$1(videoElement, $$value), () => get$2(videoElement));
@@ -45270,7 +47018,7 @@ zoo`.split("\n");
       var node_5 = sibling(node_4, 2);
       {
         var consequent_5 = ($$anchor2) => {
-          var div_5 = root_7$2();
+          var div_5 = root_7$3();
           var text_2 = sibling(child(div_5));
           template_effect(() => set_text(text_2, ` ${get$2(scanError) ?? ""}`));
           append($$anchor2, div_5);
@@ -45287,7 +47035,7 @@ zoo`.split("\n");
           var node_7 = sibling(text_3);
           {
             var consequent_6 = ($$anchor3) => {
-              var div_7 = root_9$2();
+              var div_7 = root_9$3();
               var div_8 = child(div_7);
               var div_9 = child(div_8);
               var span_1 = sibling(div_8, 2);
@@ -45315,12 +47063,7 @@ zoo`.split("\n");
       bind_prop($$props, "stopScanning", stopScanning);
       bind_prop($$props, "checkCamera", checkCamera);
       bind_prop($$props, "reset", reset);
-      return pop({
-        startScanning,
-        stopScanning,
-        checkCamera,
-        reset
-      });
+      return pop({ startScanning, stopScanning, checkCamera, reset });
     }
     class RegistryType {
       constructor(type2, tag) {
@@ -46864,7 +48607,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         if (cleanHex.startsWith(ADDRESS_PREFIXES.HEX)) {
           cleanHex = cleanHex.slice(2);
         }
-        let bytes = fromHEX(cleanHex);
+        let bytes = fromHEX$1(cleanHex);
         const publicKey = new Ed25519PublicKey(bytes);
         return publicKey.toIotaAddress();
       } catch (error2) {
@@ -47080,22 +48823,22 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       };
       return onSucceed({ type: type2, cbor: cborHex });
     }
-    var root_2$6 = /* @__PURE__ */ from_html(`<option> </option>`);
-    var root_1$9 = /* @__PURE__ */ from_html(`<div class="account-info svelte-18r9j1v"><h2 class="svelte-18r9j1v">Connected Keystone Device</h2> <label for="account-select">Select Account:</label> <select id="account-select" class="svelte-18r9j1v"></select> <div class="account-details svelte-18r9j1v"><p class="svelte-18r9j1v"><strong>Device:</strong> </p> <p class="svelte-18r9j1v"><strong>Master Fingerprint:</strong> <code class="svelte-18r9j1v"> </code></p> <p class="svelte-18r9j1v"><strong>Selected Path:</strong> <code class="svelte-18r9j1v"> </code></p> <p class="svelte-18r9j1v"><strong>Address:</strong> <code class="svelte-18r9j1v"> </code></p></div></div>`);
-    var root_4$5 = /* @__PURE__ */ from_html(`<div class="controls svelte-18r9j1v"><button class="svelte-18r9j1v">Reset Multipart</button></div>`);
+    var root_2$7 = /* @__PURE__ */ from_html(`<option> </option>`);
+    var root_1$c = /* @__PURE__ */ from_html(`<div class="account-info svelte-18r9j1v"><h2 class="svelte-18r9j1v">Connected Keystone Device</h2> <label for="account-select">Select Account:</label> <select id="account-select" class="svelte-18r9j1v"></select> <div class="account-details svelte-18r9j1v"><p class="svelte-18r9j1v"><strong>Device:</strong> </p> <p class="svelte-18r9j1v"><strong>Master Fingerprint:</strong> <code class="svelte-18r9j1v"> </code></p> <p class="svelte-18r9j1v"><strong>Selected Path:</strong> <code class="svelte-18r9j1v"> </code></p> <p class="svelte-18r9j1v"><strong>Address:</strong> <code class="svelte-18r9j1v"> </code></p></div></div>`);
+    var root_4$6 = /* @__PURE__ */ from_html(`<div class="controls svelte-18r9j1v"><button class="svelte-18r9j1v">Reset Multipart</button></div>`);
     var root_5$3 = /* @__PURE__ */ from_html(`<div class="success svelte-18r9j1v"><p> </p> <button>Clear Connection</button></div>`);
-    var root_3$6 = /* @__PURE__ */ from_html(`<div class="step-content svelte-18r9j1v"><h2>Step 1: Connect Keystone Device</h2> <p>Display the wallet connect QR code on your Keystone device and scan it with the
+    var root_3$7 = /* @__PURE__ */ from_html(`<div class="step-content svelte-18r9j1v"><h2>Step 1: Connect Keystone Device</h2> <p>Display the wallet connect QR code on your Keystone device and scan it with the
                 camera below.</p> <!> <!> <button style="margin: 0;">Simulate Scan</button> <!></div>`);
-    var root_7$1 = /* @__PURE__ */ from_html(`<div class="qr-section svelte-18r9j1v"><h3 class="svelte-18r9j1v">3. Scan this QR code with your Keystone device to approve the transaction</h3> <!></div>`);
+    var root_7$2 = /* @__PURE__ */ from_html(`<div class="qr-section svelte-18r9j1v"><h3 class="svelte-18r9j1v">3. Scan this QR code with your Keystone device to approve the transaction</h3> <!></div>`);
     var root_6$1 = /* @__PURE__ */ from_html(`<div class="step-content svelte-18r9j1v"><h2>Step 2: Prepare Transaction</h2> <p>Configure the transaction parameters and generate a signing request QR code.</p> <div class="form-section svelte-18r9j1v"><div class="form-row svelte-18r9j1v"><label for="request-id" class="svelte-18r9j1v">Request ID:</label> <input id="request-id" class="svelte-18r9j1v"/></div> <label for="raw-tx" class="full-width svelte-18r9j1v">Transaction Bytes (Base64):</label> <textarea id="raw-tx" rows="4" class="full-width svelte-18r9j1v"></textarea> <div class="example-buttons svelte-18r9j1v"><button class="svelte-18r9j1v"> </button> <button class="svelte-18r9j1v"> </button></div> <div class="form-row svelte-18r9j1v"><label for="account-address" class="svelte-18r9j1v">Account Address:</label> <input id="account-address" class="svelte-18r9j1v"/></div> <div class="form-row svelte-18r9j1v"><label for="derivation-path" class="svelte-18r9j1v">Derivation Path:</label> <input id="derivation-path" class="svelte-18r9j1v"/></div> <div class="form-row svelte-18r9j1v"><label for="master-fingerprint" class="svelte-18r9j1v">Master Fingerprint:</label> <input id="master-fingerprint" class="svelte-18r9j1v"/></div> <div class="form-row svelte-18r9j1v"><label for="wallet-origin" class="svelte-18r9j1v">Wallet Origin:</label> <input id="wallet-origin" class="svelte-18r9j1v"/></div></div> <!></div>`);
-    var root_10$1 = /* @__PURE__ */ from_html(`<div class="error svelte-18r9j1v"> </div>`);
-    var root_9$1 = /* @__PURE__ */ from_html(`<div class="result svelte-18r9j1v"><h3 class="svelte-18r9j1v">Signature Result:</h3> <pre class="svelte-18r9j1v"> </pre> <button> </button> <!> <!></div>`);
+    var root_10$2 = /* @__PURE__ */ from_html(`<div class="error svelte-18r9j1v"> </div>`);
+    var root_9$2 = /* @__PURE__ */ from_html(`<div class="result svelte-18r9j1v"><h3 class="svelte-18r9j1v">Signature Result:</h3> <pre class="svelte-18r9j1v"> </pre> <button> </button> <!> <!></div>`);
     var root_8$1 = /* @__PURE__ */ from_html(`<div class="step-content svelte-18r9j1v"><h2>Step 4: Scan Signature</h2> <p>After approving the transaction on your Keystone device, scan the signature QR code
                 it displays.</p> <!> <button style="margin: 0;">Simulate Scan</button> <!></div>`);
     var root_13$2 = /* @__PURE__ */ from_html(`<div class="result svelte-18r9j1v"><h3 class="svelte-18r9j1v">Decoded Data:</h3> <pre class="svelte-18r9j1v"> </pre></div>`);
     var root_12$2 = /* @__PURE__ */ from_html(`<div class="step-content svelte-18r9j1v"><h2>UR Decode Tool</h2> <p>Decode and analyze UR strings from Keystone devices.</p> <div class="form-section svelte-18r9j1v"><label for="ur-input" class="full-width svelte-18r9j1v">UR String:</label> <textarea id="ur-input" rows="4" placeholder="Paste UR string here..." class="full-width svelte-18r9j1v"></textarea> <div class="example-buttons svelte-18r9j1v"><button class="svelte-18r9j1v">Load Sign Request Example</button> <button class="svelte-18r9j1v">Load Signature Example</button> <button class="svelte-18r9j1v">Load Multipart Example</button></div></div> <!></div>`);
     var root_14$2 = /* @__PURE__ */ from_html(`<div class="error svelte-18r9j1v"><p> </p></div>`);
-    var root$d = /* @__PURE__ */ from_html(`<div class="keystone-container svelte-18r9j1v"><h1 class="svelte-18r9j1v">Keystone Hardware Wallet - IOTA Integration</h1> <!> <div class="steps svelte-18r9j1v"><button>1. Connect Wallet</button> <button>2. Prepare Transaction</button> <button>4. Scan Signature</button> <button>UR Decode Tool</button></div> <!> <!> <!> <!> <!></div>`);
+    var root$g = /* @__PURE__ */ from_html(`<div class="keystone-container svelte-18r9j1v"><h1 class="svelte-18r9j1v">Keystone Hardware Wallet - IOTA Integration</h1> <!> <div class="steps svelte-18r9j1v"><button>1. Connect Wallet</button> <button>2. Prepare Transaction</button> <button>4. Scan Signature</button> <button>UR Decode Tool</button></div> <!> <!> <!> <!> <!></div>`);
     function Keystone($$anchor, $$props) {
       push($$props, false);
       const isMultipart = /* @__PURE__ */ mutable_source();
@@ -47221,7 +48964,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           set$1(derivationPaths, "");
           set$1(derivationPaths, selectedAccount.path + "");
           set$1(masterFingerprint, get$2(keystoneAccountData).masterFingerprint);
-          set$1(accountAddress, deriveIotaAddress(toHEX(selectedAccount.getKey())));
+          set$1(accountAddress, deriveIotaAddress(toHEX$1(selectedAccount.getKey())));
         }
       }
       function loadExampleUR(type2) {
@@ -47299,14 +49042,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           const publicKeyHex = parsed.specific.key;
           const signatureBytes = bufferExports.Buffer.from(signatureHex, "hex");
           const publicKeyBytes = bufferExports.Buffer.from(publicKeyHex, "hex");
-          const bcsSignature = bufferExports.Buffer.concat([
-            bufferExports.Buffer.from([0]),
-            signatureBytes,
-            publicKeyBytes
-          ]);
+          const bcsSignature = bufferExports.Buffer.concat([bufferExports.Buffer.from([0]), signatureBytes, publicKeyBytes]);
           const result = await getClient().executeTransactionBlock({
             transactionBlock: txBytes,
-            signature: toB64(bcsSignature),
+            signature: toB64$1(bcsSignature),
             options: {
               showBalanceChanges: true,
               showObjectChanges: true,
@@ -47375,11 +49114,11 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       });
       legacy_pre_effect_reset();
       init();
-      var div = root$d();
+      var div = root$g();
       var node = sibling(child(div), 2);
       {
         var consequent = ($$anchor2) => {
-          var div_1 = root_1$9();
+          var div_1 = root_1$c();
           var select = sibling(child(div_1), 4);
           template_effect(() => {
             get$2(selectedAccountIndex);
@@ -47393,16 +49132,12 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             () => (get$2(keystoneAccountData), untrack(() => get$2(keystoneAccountData).keys)),
             index$1,
             ($$anchor3, account, index2) => {
-              var option = root_2$6();
-              option.value = option.__value = index2;
+              var option = root_2$7();
               var text2 = child(option);
-              template_effect(
-                ($0) => set_text(text2, `Account ${index2} - ${(get$2(account), untrack(() => get$2(account).path)) ?? ""} - ${$0 ?? ""}`),
-                [
-                  () => (deep_read_state(deriveIotaAddress), deep_read_state(toHEX), get$2(account), untrack(() => deriveIotaAddress(toHEX(get$2(account).getKey()))))
-                ],
-                derived_safe_equal
-              );
+              option.value = option.__value = index2;
+              template_effect(($0) => set_text(text2, `Account ${index2} - ${(get$2(account), untrack(() => get$2(account).path)) ?? ""} - ${$0 ?? ""}`), [
+                () => (deep_read_state(deriveIotaAddress), deep_read_state(toHEX$1), get$2(account), untrack(() => deriveIotaAddress(toHEX$1(get$2(account).getKey()))))
+              ]);
               append($$anchor3, option);
             }
           );
@@ -47429,12 +49164,11 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
               set_text(text_4, $0);
             },
             [
-              () => (deep_read_state(deriveIotaAddress), deep_read_state(toHEX), get$2(keystoneAccountData), get$2(selectedAccountIndex), untrack(() => {
+              () => (deep_read_state(deriveIotaAddress), deep_read_state(toHEX$1), get$2(keystoneAccountData), get$2(selectedAccountIndex), untrack(() => {
                 var _a3;
-                return deriveIotaAddress(toHEX((_a3 = get$2(keystoneAccountData).keys[get$2(selectedAccountIndex)]) == null ? void 0 : _a3.key) || "");
+                return deriveIotaAddress(toHEX$1((_a3 = get$2(keystoneAccountData).keys[get$2(selectedAccountIndex)]) == null ? void 0 : _a3.key) || "");
               }))
-            ],
-            derived_safe_equal
+            ]
           );
           bind_select_value(select, () => get$2(selectedAccountIndex), ($$value) => set$1(selectedAccountIndex, $$value));
           event("change", select, updateSelectedAccount);
@@ -47452,7 +49186,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       var node_1 = sibling(div_3, 2);
       {
         var consequent_3 = ($$anchor2) => {
-          var div_4 = root_3$6();
+          var div_4 = root_3$7();
           var node_2 = sibling(child(div_4), 4);
           bind_this(
             QrScanner_1(node_2, {
@@ -47487,7 +49221,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           var node_3 = sibling(node_2, 2);
           {
             var consequent_1 = ($$anchor3) => {
-              var div_5 = root_4$5();
+              var div_5 = root_4$6();
               var button_4 = child(div_5);
               event("click", button_4, resetMultipartState$1);
               append($$anchor3, div_5);
@@ -47543,7 +49277,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           var node_6 = sibling(div_8, 2);
           {
             var consequent_4 = ($$anchor3) => {
-              var div_15 = root_7$1();
+              var div_15 = root_7$2();
               var node_7 = sibling(child(div_15), 2);
               bind_this(
                 QrGenerator(node_7, {
@@ -47620,7 +49354,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           var node_10 = sibling(button_9, 2);
           {
             var consequent_8 = ($$anchor3) => {
-              var div_17 = root_9$1();
+              var div_17 = root_9$2();
               var pre = sibling(child(div_17), 2);
               var text_8 = child(pre);
               var button_10 = sibling(pre, 2);
@@ -47628,7 +49362,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
               var node_11 = sibling(button_10, 2);
               {
                 var consequent_6 = ($$anchor4) => {
-                  var div_18 = root_10$1();
+                  var div_18 = root_10$2();
                   var text_10 = child(div_18);
                   template_effect(() => set_text(text_10, get$2(submitError)));
                   append($$anchor4, div_18);
@@ -48152,14 +49886,14 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     }
     var sha256Exports = requireSha256();
     const sha256 = /* @__PURE__ */ getDefaultExportFromCjs(sha256Exports);
-    var __typeError = (msg) => {
+    var __typeError2 = (msg) => {
       throw TypeError(msg);
     };
-    var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
-    var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), member.get(obj));
-    var __privateAdd = (obj, member, value2) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value2);
-    var __privateSet = (obj, member, value2, setter) => (__accessCheck(obj, member, "write to private field"), member.set(obj, value2), value2);
-    var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
+    var __accessCheck2 = (obj, member, msg) => member.has(obj) || __typeError2("Cannot " + msg);
+    var __privateGet2 = (obj, member, getter) => (__accessCheck2(obj, member, "read from private field"), member.get(obj));
+    var __privateAdd2 = (obj, member, value2) => member.has(obj) ? __typeError2("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value2);
+    var __privateSet2 = (obj, member, value2, setter) => (__accessCheck2(obj, member, "write to private field"), member.set(obj, value2), value2);
+    var __privateMethod2 = (obj, member, method) => (__accessCheck2(obj, member, "access private method"), method);
     var _verbose, _Iota_instances, sendChunks_fn, handleBlocksProtocol_fn, log_fn;
     var LedgerToHost = /* @__PURE__ */ ((LedgerToHost2) => {
       LedgerToHost2[LedgerToHost2["RESULT_ACCUMULATING"] = 0] = "RESULT_ACCUMULATING";
@@ -48170,9 +49904,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     })(LedgerToHost || {});
     class Iota {
       constructor(transport, scrambleKey = "default_iota_scramble_key", verbose = false) {
-        __privateAdd(this, _Iota_instances);
-        __privateAdd(this, _verbose);
-        __privateSet(this, _verbose, verbose);
+        __privateAdd2(this, _Iota_instances);
+        __privateAdd2(this, _verbose);
+        __privateSet2(this, _verbose, verbose);
         this.transport = transport;
         this.transport.decorateAppAPIMethods(
           this,
@@ -48193,7 +49927,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         const p1 = 0;
         const p2 = 0;
         const payload = buildBip32KeyPayload(path);
-        const response = await __privateMethod(this, _Iota_instances, sendChunks_fn).call(this, cla, ins, p1, p2, payload);
+        const response = await __privateMethod2(this, _Iota_instances, sendChunks_fn).call(this, cla, ins, p1, p2, payload);
         const keySize = response[0];
         const publicKey = response.slice(1, keySize + 1);
         let address = null;
@@ -48218,14 +49952,14 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         const ins = 3;
         const p1 = 0;
         const p2 = 0;
-        if (__privateGet(this, _verbose)) __privateMethod(this, _Iota_instances, log_fn).call(this, txn);
+        if (__privateGet2(this, _verbose)) __privateMethod2(this, _Iota_instances, log_fn).call(this, txn);
         const rawTxn = typeof txn == "string" ? bufferExports.Buffer.from(txn, "hex") : bufferExports.Buffer.from(txn);
         const hashSize = bufferExports.Buffer.alloc(4);
         hashSize.writeUInt32LE(rawTxn.length, 0);
         const bip32KeyPayload = buildBip32KeyPayload(path);
         const payload_txn = bufferExports.Buffer.concat([hashSize, rawTxn]);
-        __privateMethod(this, _Iota_instances, log_fn).call(this, "Payload Txn", payload_txn);
-        const signature = await __privateMethod(this, _Iota_instances, sendChunks_fn).call(this, cla, ins, p1, p2, [payload_txn, bip32KeyPayload]);
+        __privateMethod2(this, _Iota_instances, log_fn).call(this, "Payload Txn", payload_txn);
+        const signature = await __privateMethod2(this, _Iota_instances, sendChunks_fn).call(this, cla, ins, p1, p2, [payload_txn, bip32KeyPayload]);
         return {
           signature
         };
@@ -48234,7 +49968,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
        * Retrieve the app version on the attached Ledger device.
        */
       async getVersion() {
-        const [major, minor, patch] = await __privateMethod(this, _Iota_instances, sendChunks_fn).call(this, 0, 0, 0, 0, bufferExports.Buffer.alloc(1));
+        const [major, minor, patch] = await __privateMethod2(this, _Iota_instances, sendChunks_fn).call(this, 0, 0, 0, 0, bufferExports.Buffer.alloc(1));
         return {
           major,
           minor,
@@ -48258,11 +49992,11 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           chunkList.push(cur);
         }
         let lastHash = bufferExports.Buffer.alloc(32);
-        __privateMethod(this, _Iota_instances, log_fn).call(this, lastHash);
+        __privateMethod2(this, _Iota_instances, log_fn).call(this, lastHash);
         data = chunkList.reduceRight((blocks, chunk2) => {
           const linkedChunk = bufferExports.Buffer.concat([lastHash, chunk2]);
-          __privateMethod(this, _Iota_instances, log_fn).call(this, "Chunk: ", chunk2);
-          __privateMethod(this, _Iota_instances, log_fn).call(this, "linkedChunk: ", linkedChunk);
+          __privateMethod2(this, _Iota_instances, log_fn).call(this, "Chunk: ", chunk2);
+          __privateMethod2(this, _Iota_instances, log_fn).call(this, "linkedChunk: ", linkedChunk);
           lastHash = bufferExports.Buffer.from(sha256(linkedChunk));
           blocks.set(lastHash.toString("hex"), linkedChunk);
           return blocks;
@@ -48270,8 +50004,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         parameterList.push(lastHash);
         lastHash = bufferExports.Buffer.alloc(32);
       }
-      __privateMethod(this, _Iota_instances, log_fn).call(this, data);
-      return await __privateMethod(this, _Iota_instances, handleBlocksProtocol_fn).call(this, cla, ins, p1, p2, bufferExports.Buffer.concat([bufferExports.Buffer.from([
+      __privateMethod2(this, _Iota_instances, log_fn).call(this, data);
+      return await __privateMethod2(this, _Iota_instances, handleBlocksProtocol_fn).call(this, cla, ins, p1, p2, bufferExports.Buffer.concat([bufferExports.Buffer.from([
         0
         /* START */
       ])].concat(parameterList)), data);
@@ -48281,9 +50015,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       let result = bufferExports.Buffer.alloc(0);
       let rv_instruction;
       do {
-        __privateMethod(this, _Iota_instances, log_fn).call(this, "Sending payload to ledger: ", payload.toString("hex"));
+        __privateMethod2(this, _Iota_instances, log_fn).call(this, "Sending payload to ledger: ", payload.toString("hex"));
         const rv = await this.transport.send(cla, ins, p1, p2, payload);
-        __privateMethod(this, _Iota_instances, log_fn).call(this, "Received response: ", rv);
+        __privateMethod2(this, _Iota_instances, log_fn).call(this, "Received response: ", rv);
         rv_instruction = rv[0];
         const rv_payload = rv.slice(1, rv.length - 2);
         if (!(rv_instruction in LedgerToHost)) {
@@ -48300,8 +50034,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             break;
           case 2:
             const chunk2 = data.get(rv_payload.toString("hex"));
-            __privateMethod(this, _Iota_instances, log_fn).call(this, "Getting block ", rv_payload);
-            __privateMethod(this, _Iota_instances, log_fn).call(this, "Found block ", chunk2);
+            __privateMethod2(this, _Iota_instances, log_fn).call(this, "Getting block ", rv_payload);
+            __privateMethod2(this, _Iota_instances, log_fn).call(this, "Found block ", chunk2);
             if (chunk2) {
               payload = bufferExports.Buffer.concat([
                 bufferExports.Buffer.from([
@@ -48329,7 +50063,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       return result;
     };
     log_fn = function(...args) {
-      if (__privateGet(this, _verbose)) console.log(args);
+      if (__privateGet2(this, _verbose)) console.log(args);
     };
     function buildBip32KeyPayload(path) {
       const paths = splitPath(path);
@@ -48622,7 +50356,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         }
         return this;
       };
-      function _listeners(target2, type2, unwrap) {
+      function _listeners2(target2, type2, unwrap) {
         var events2 = target2._events;
         if (events2 === void 0)
           return [];
@@ -48634,10 +50368,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         return unwrap ? unwrapListeners(evlistener) : arrayClone(evlistener, evlistener.length);
       }
       EventEmitter2.prototype.listeners = function listeners2(type2) {
-        return _listeners(this, type2, true);
+        return _listeners2(this, type2, true);
       };
       EventEmitter2.prototype.rawListeners = function rawListeners(type2) {
-        return _listeners(this, type2, false);
+        return _listeners2(this, type2, false);
       };
       EventEmitter2.listenerCount = function(emitter, type2) {
         if (typeof emitter.listenerCount === "function") {
@@ -48813,9 +50547,14 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     createCustomErrorClass("NotEnoughBalanceFees");
     createCustomErrorClass("NotEnoughBalanceSwap");
     createCustomErrorClass("NotEnoughBalanceToDelegate");
+    createCustomErrorClass("UnstakeNotEnoughStakedBalanceLeft");
+    createCustomErrorClass("RestakeNotEnoughStakedBalanceLeft");
+    createCustomErrorClass("NotEnoughToRestake");
+    createCustomErrorClass("NotEnoughToUnstake");
     createCustomErrorClass("NotEnoughBalanceInParentAccount");
     createCustomErrorClass("NotEnoughSpendableBalance");
     createCustomErrorClass("NotEnoughBalanceBecauseDestinationNotCreated");
+    createCustomErrorClass("NotEnoughToStake");
     createCustomErrorClass("NoAccessToCamera");
     createCustomErrorClass("NotEnoughGas");
     createCustomErrorClass("NotEnoughGasSwap");
@@ -51756,7 +53495,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       };
     });
     let TransportWebHID = _TransportWebHID;
-    var on_click$5 = (_, connect) => connect();
+    var on_click$6 = (_, connect) => connect();
     var on_click_1$1 = (__1, generateAddress) => generateAddress();
     var on_click_2 = (__2, generateMultipleAddresses) => generateMultipleAddresses();
     var on_click_3 = (__3, getAllBalances) => getAllBalances(true);
@@ -51777,10 +53516,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       set$1(expanded, [], true);
     };
     var on_click_12 = (__12, toggle, index2) => toggle(index2());
-    var root_3$5 = /* @__PURE__ */ from_html(`<tr><td class="svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td><td class="mono svelte-s5ncdi"> </td><td class="mono svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td></tr>`);
-    var root_2$5 = /* @__PURE__ */ from_html(`<tr><td colspan="2" class="svelte-s5ncdi"><table class="inner-table svelte-s5ncdi"><thead><tr><th class="svelte-s5ncdi">Index</th><th class="svelte-s5ncdi">Internal</th><th class="svelte-s5ncdi">Address</th><th class="svelte-s5ncdi">PublicKey</th><th class="svelte-s5ncdi">Balance</th><th class="svelte-s5ncdi">Owned Objects</th></tr></thead><tbody></tbody></table></td></tr>`);
-    var root_1$8 = /* @__PURE__ */ from_html(`<tr class="clickable svelte-s5ncdi"><td class="svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td></tr> <!>`, 1);
-    var root$c = /* @__PURE__ */ from_html(`<main><button class="svelte-s5ncdi">connect</button> <br/> BIP 44 path: (m/44'/coinType'/accountIndex'/change'/addressIndex') <br/> <input type="number" list="coinTypes" placeholder="BIP-44 coin type" class="svelte-s5ncdi"/> <datalist id="coinTypes"><option>IOTA</option><option>Testnet</option></datalist> <input type="number" min="0" placeholder="account index" class="svelte-s5ncdi"/> <select><option>0</option><option>1</option></select> <input type="number" width="1" min="0" placeholder="address index" class="svelte-s5ncdi"/> <button class="svelte-s5ncdi">generate address</button> <br/> increase <select><option>account</option><option>address</option></select> index by: <input type="number" min="1" placeholder="number to generate" class="svelte-s5ncdi"/> <button class="svelte-s5ncdi">generate multiple addresses</button> <hr/> <button class="svelte-s5ncdi">get unknown balances</button> <button class="svelte-s5ncdi">get all balances</button> <button class="svelte-s5ncdi">get unknown objects</button> <button class="svelte-s5ncdi">get all objects</button> <hr/> <div>Sender address: <input type="string" size="70" placeholder="sender address" class="svelte-s5ncdi"/></div> <div>Recipient address: <input type="string" size="70" placeholder="recipient address" class="svelte-s5ncdi"/></div> <select><option>dry run</option><option>send</option></select> <button class="svelte-s5ncdi">send all objects</button> IOTA amount(in Nanos) to send: <input type="number" min="0" placeholder="IOTA amount to send" class="svelte-s5ncdi"/> <button class="svelte-s5ncdi">send IOTA</button> <hr/> <button class="svelte-s5ncdi">clear address list</button> <button class="svelte-s5ncdi">expand all</button> <button class="svelte-s5ncdi">collapse all</button> <!> <table class="svelte-s5ncdi"><thead><tr><th class="svelte-s5ncdi">Account</th><th class="svelte-s5ncdi">Addresses</th></tr></thead><tbody></tbody></table></main>`);
+    var root_3$6 = /* @__PURE__ */ from_html(`<tr><td class="svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td><td class="mono svelte-s5ncdi"> </td><td class="mono svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td></tr>`);
+    var root_2$6 = /* @__PURE__ */ from_html(`<tr><td colspan="2" class="svelte-s5ncdi"><table class="inner-table svelte-s5ncdi"><thead><tr><th class="svelte-s5ncdi">Index</th><th class="svelte-s5ncdi">Internal</th><th class="svelte-s5ncdi">Address</th><th class="svelte-s5ncdi">PublicKey</th><th class="svelte-s5ncdi">Balance</th><th class="svelte-s5ncdi">Owned Objects</th></tr></thead><tbody></tbody></table></td></tr>`);
+    var root_1$b = /* @__PURE__ */ from_html(`<tr class="clickable svelte-s5ncdi"><td class="svelte-s5ncdi"> </td><td class="svelte-s5ncdi"> </td></tr> <!>`, 1);
+    var root$f = /* @__PURE__ */ from_html(`<main><button class="svelte-s5ncdi">connect</button> <br/> BIP 44 path: (m/44'/coinType'/accountIndex'/change'/addressIndex') <br/> <input type="number" list="coinTypes" placeholder="BIP-44 coin type" class="svelte-s5ncdi"/> <datalist id="coinTypes"><option>IOTA</option><option>Testnet</option></datalist> <input type="number" min="0" placeholder="account index" class="svelte-s5ncdi"/> <select><option>0</option><option>1</option></select> <input type="number" width="1" min="0" placeholder="address index" class="svelte-s5ncdi"/> <button class="svelte-s5ncdi">generate address</button> <br/> increase <select><option>account</option><option>address</option></select> index by: <input type="number" min="1" placeholder="number to generate" class="svelte-s5ncdi"/> <button class="svelte-s5ncdi">generate multiple addresses</button> <hr/> <button class="svelte-s5ncdi">get unknown balances</button> <button class="svelte-s5ncdi">get all balances</button> <button class="svelte-s5ncdi">get unknown objects</button> <button class="svelte-s5ncdi">get all objects</button> <hr/> <div>Sender address: <input type="string" size="70" placeholder="sender address" class="svelte-s5ncdi"/></div> <div>Recipient address: <input type="string" size="70" placeholder="recipient address" class="svelte-s5ncdi"/></div> <select><option>dry run</option><option>send</option></select> <button class="svelte-s5ncdi">send all objects</button> IOTA amount(in Nanos) to send: <input type="number" min="0" placeholder="IOTA amount to send" class="svelte-s5ncdi"/> <button class="svelte-s5ncdi">send IOTA</button> <hr/> <button class="svelte-s5ncdi">clear address list</button> <button class="svelte-s5ncdi">expand all</button> <button class="svelte-s5ncdi">collapse all</button> <!> <table class="svelte-s5ncdi"><thead><tr><th class="svelte-s5ncdi">Account</th><th class="svelte-s5ncdi">Addresses</th></tr></thead><tbody></tbody></table></main>`);
     function LedgerNano($$anchor, $$props) {
       push($$props, true);
       const IOTA_BIP44_COIN_TYPE = 4218;
@@ -51819,8 +53558,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           }
           let result = await ledgerClient.getPublicKey(bip44Path);
           console.log(result);
-          let publicKey = "0x" + toHEX(result.publicKey);
-          let address = "0x" + toHEX(result.address);
+          let publicKey = "0x" + toHEX$1(result.publicKey);
+          let address = "0x" + toHEX$1(result.address);
           get$2(accountEntries).push({ address, publicKey, bip44Path });
           set$1(value2, get$2(accountEntries), true);
           formatAsTable();
@@ -51931,10 +53670,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           }
           const client2 = getClient();
           const tx = new Transaction$1();
-          let page = await client2.getOwnedObjects({
-            owner: get$2(senderAddress),
-            options: { showType: true }
-          });
+          let page = await client2.getOwnedObjects({ owner: get$2(senderAddress), options: { showType: true } });
           if (page.data.length == 0) {
             throw new Error("No objects found");
           }
@@ -52019,9 +53755,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           console.error(err);
         }
       }
-      var main = root$c();
+      var main = root$f();
       var button = child(main);
-      button.__click = [on_click$5, connect];
+      button.__click = [on_click$6, connect];
       var input = sibling(button, 6);
       var datalist = sibling(input, 2);
       var option = child(datalist);
@@ -52068,12 +53804,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       var button_8 = sibling(input_6, 2);
       button_8.__click = [on_click_8, sendIotaAmount];
       var button_9 = sibling(button_8, 4);
-      button_9.__click = [
-        on_click_9,
-        accountEntries,
-        tableAccounts,
-        value2
-      ];
+      button_9.__click = [on_click_9, accountEntries, tableAccounts, value2];
       var button_10 = sibling(button_9, 2);
       button_10.__click = [on_click_10, expanded, tableAccounts];
       var button_11 = sibling(button_10, 2);
@@ -52090,7 +53821,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         var $$array = /* @__PURE__ */ user_derived(() => to_array(get$2($$item), 2));
         let index2 = () => get$2($$array)[0];
         let addresses = () => get$2($$array)[1];
-        var fragment = root_1$8();
+        var fragment = root_1$b();
         var tr = first_child(fragment);
         tr.__click = [on_click_12, toggle, index2];
         var td = child(tr);
@@ -52100,12 +53831,12 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         var node_1 = sibling(tr, 2);
         {
           var consequent = ($$anchor3) => {
-            var tr_1 = root_2$5();
+            var tr_1 = root_2$6();
             var td_2 = child(tr_1);
             var table_1 = child(td_2);
             var tbody_1 = sibling(child(table_1));
             each$1(tbody_1, 21, addresses, index$1, ($$anchor4, addr) => {
-              var tr_2 = root_3$5();
+              var tr_2 = root_3$6();
               var td_3 = child(tr_2);
               var text_2 = child(td_3);
               var td_4 = sibling(td_3);
@@ -52618,6 +54349,19 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           indexOfMin = _i;
         }
       }
+      if (children.length > 0) {
+        var originalLen = children.length;
+        var template = children[originalLen - 1];
+        var phantom = template.cloneNode(false);
+        phantom.style.visibility = "hidden";
+        phantom.style.pointerEvents = "none";
+        collectionBelowEl.appendChild(phantom);
+        var phantomDistance = calcDistanceBetweenCenters(floatingAboveEl, phantom);
+        if (phantomDistance < minDistanceSoFar) {
+          indexOfMin = originalLen;
+        }
+        collectionBelowEl.removeChild(phantom);
+      }
       return {
         index: indexOfMin,
         isProximityBased: true
@@ -53091,6 +54835,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     var MIN_OBSERVATION_INTERVAL_MS = 100;
     var DISABLED_OBSERVATION_INTERVAL_MS = 20;
     var MIN_MOVEMENT_BEFORE_DRAG_START_PX = 3;
+    var DEFAULT_TOUCH_DELAY_MS = 80;
     var DEFAULT_DROP_TARGET_STYLE$1 = {
       outline: "rgba(255, 255, 102, 0.7) solid 2px"
     };
@@ -53111,6 +54856,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     var isDraggedOutsideOfAnyDz = false;
     var scheduledForRemovalAfterDrop = [];
     var multiScroller;
+    var touchDragHoldTimer;
+    var touchHoldElapsed = false;
     var typeToDropZones$1 = /* @__PURE__ */ new Map();
     var dzToConfig$1 = /* @__PURE__ */ new Map();
     var elToMouseDownListener = /* @__PURE__ */ new WeakMap();
@@ -53206,8 +54953,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           source: SOURCES.POINTER
         });
       }
-      var _e$detail$indexObj = e2.detail.indexObj, index2 = _e$detail$indexObj.index, isProximityBased = _e$detail$indexObj.isProximityBased;
-      var shadowElIdx = isProximityBased && index2 === e2.currentTarget.children.length - 1 ? index2 + 1 : index2;
+      var shadowElIdx = e2.detail.indexObj.index;
       shadowElDropZone = e2.currentTarget;
       items.splice(shadowElIdx, 0, shadowElData);
       dispatchConsiderEvent(e2.currentTarget, items, {
@@ -53350,15 +55096,11 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       });
     }
     function cleanupPostDrop() {
-      draggedEl.remove();
-      originalDragTarget.remove();
-      if (scheduledForRemovalAfterDrop.length) {
-        scheduledForRemovalAfterDrop.forEach(function(_ref) {
-          var dz = _ref.dz, destroy = _ref.destroy;
-          destroy();
-          dz.remove();
-        });
-        scheduledForRemovalAfterDrop = [];
+      if (draggedEl && draggedEl.remove) {
+        draggedEl.remove();
+      }
+      if (originalDragTarget && originalDragTarget.remove) {
+        originalDragTarget.remove();
       }
       draggedEl = void 0;
       originalDragTarget = void 0;
@@ -53374,6 +55116,19 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       finalizingPreviousDrag = false;
       unlockOriginDzMinDimensions = void 0;
       isDraggedOutsideOfAnyDz = false;
+      if (touchDragHoldTimer) {
+        clearTimeout(touchDragHoldTimer);
+      }
+      touchDragHoldTimer = void 0;
+      touchHoldElapsed = false;
+      if (scheduledForRemovalAfterDrop.length) {
+        scheduledForRemovalAfterDrop.forEach(function(_ref) {
+          var dz = _ref.dz, destroy = _ref.destroy;
+          destroy();
+          dz.remove();
+        });
+        scheduledForRemovalAfterDrop = [];
+      }
     }
     function dndzone$2(node, options) {
       var initialized = false;
@@ -53389,7 +55144,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         transformDraggedElement: function transformDraggedElement() {
         },
         centreDraggedOnCursor: false,
-        dropAnimationDisabled: false
+        dropAnimationDisabled: false,
+        delayTouchStartMs: 0
       };
       var elToIdx = /* @__PURE__ */ new Map();
       function addMaybeListeners() {
@@ -53412,6 +55168,11 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         window.removeEventListener("touchmove", handleMouseMoveMaybeDragStart);
         window.removeEventListener("mouseup", handleFalseAlarm);
         window.removeEventListener("touchend", handleFalseAlarm);
+        if (touchDragHoldTimer) {
+          clearTimeout(touchDragHoldTimer);
+          touchDragHoldTimer = void 0;
+          touchHoldElapsed = false;
+        }
       }
       function handleFalseAlarm(e2) {
         removeMaybeListeners();
@@ -53427,8 +55188,23 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         }
       }
       function handleMouseMoveMaybeDragStart(e2) {
+        var isTouch = !!e2.touches;
+        var c = isTouch ? e2.touches[0] : e2;
+        if (isTouch && config.delayTouchStartMs > 0 && !touchHoldElapsed) {
+          currentMousePosition = {
+            x: c.clientX,
+            y: c.clientY
+          };
+          if (Math.abs(currentMousePosition.x - dragStartMousePosition.x) >= MIN_MOVEMENT_BEFORE_DRAG_START_PX || Math.abs(currentMousePosition.y - dragStartMousePosition.y) >= MIN_MOVEMENT_BEFORE_DRAG_START_PX) {
+            if (touchDragHoldTimer) {
+              clearTimeout(touchDragHoldTimer);
+              touchDragHoldTimer = void 0;
+            }
+            handleFalseAlarm(e2);
+          }
+          return;
+        }
         e2.preventDefault();
-        var c = e2.touches ? e2.touches[0] : e2;
         currentMousePosition = {
           x: c.clientX,
           y: c.clientY
@@ -53448,15 +55224,28 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         if (isWorkingOnPreviousDrag) {
           return;
         }
-        e2.preventDefault();
+        var isTouchStart = !!e2.touches;
+        var useDelay = isTouchStart && config.delayTouchStartMs > 0;
+        if (!useDelay) {
+          e2.preventDefault();
+        }
         e2.stopPropagation();
-        var c = e2.touches ? e2.touches[0] : e2;
+        var c = isTouchStart ? e2.touches[0] : e2;
         dragStartMousePosition = {
           x: c.clientX,
           y: c.clientY
         };
         currentMousePosition = _objectSpread2({}, dragStartMousePosition);
         originalDragTarget = e2.currentTarget;
+        if (useDelay) {
+          touchHoldElapsed = false;
+          touchDragHoldTimer = window.setTimeout(function() {
+            if (!originalDragTarget) return;
+            touchHoldElapsed = true;
+            removeMaybeListeners();
+            handleDragStart();
+          }, config.delayTouchStartMs);
+        }
         addMaybeListeners();
       }
       function handleDragStart() {
@@ -53516,8 +55305,15 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
       function configure(_ref2) {
         var _ref2$items = _ref2.items, items = _ref2$items === void 0 ? void 0 : _ref2$items, _ref2$flipDurationMs = _ref2.flipDurationMs, dropAnimationDurationMs = _ref2$flipDurationMs === void 0 ? 0 : _ref2$flipDurationMs, _ref2$type = _ref2.type, newType = _ref2$type === void 0 ? DEFAULT_DROP_ZONE_TYPE$1 : _ref2$type, _ref2$dragDisabled = _ref2.dragDisabled, dragDisabled = _ref2$dragDisabled === void 0 ? false : _ref2$dragDisabled, _ref2$morphDisabled = _ref2.morphDisabled, morphDisabled = _ref2$morphDisabled === void 0 ? false : _ref2$morphDisabled, _ref2$dropFromOthersD = _ref2.dropFromOthersDisabled, dropFromOthersDisabled = _ref2$dropFromOthersD === void 0 ? false : _ref2$dropFromOthersD, _ref2$dropTargetStyle = _ref2.dropTargetStyle, dropTargetStyle = _ref2$dropTargetStyle === void 0 ? DEFAULT_DROP_TARGET_STYLE$1 : _ref2$dropTargetStyle, _ref2$dropTargetClass = _ref2.dropTargetClasses, dropTargetClasses = _ref2$dropTargetClass === void 0 ? [] : _ref2$dropTargetClass, _ref2$transformDragge = _ref2.transformDraggedElement, transformDraggedElement = _ref2$transformDragge === void 0 ? function() {
-        } : _ref2$transformDragge, _ref2$centreDraggedOn = _ref2.centreDraggedOnCursor, centreDraggedOnCursor = _ref2$centreDraggedOn === void 0 ? false : _ref2$centreDraggedOn, _ref2$dropAnimationDi = _ref2.dropAnimationDisabled, dropAnimationDisabled = _ref2$dropAnimationDi === void 0 ? false : _ref2$dropAnimationDi;
+        } : _ref2$transformDragge, _ref2$centreDraggedOn = _ref2.centreDraggedOnCursor, centreDraggedOnCursor = _ref2$centreDraggedOn === void 0 ? false : _ref2$centreDraggedOn, _ref2$dropAnimationDi = _ref2.dropAnimationDisabled, dropAnimationDisabled = _ref2$dropAnimationDi === void 0 ? false : _ref2$dropAnimationDi, _ref2$delayTouchStart = _ref2.delayTouchStart, delayTouchStartOpt = _ref2$delayTouchStart === void 0 ? false : _ref2$delayTouchStart;
         config.dropAnimationDurationMs = dropAnimationDurationMs;
+        var effectiveDelayMs = 0;
+        if (delayTouchStartOpt === true) {
+          effectiveDelayMs = DEFAULT_TOUCH_DELAY_MS;
+        } else if (typeof delayTouchStartOpt === "number" && isFinite(delayTouchStartOpt) && delayTouchStartOpt >= 0) {
+          effectiveDelayMs = delayTouchStartOpt;
+        }
+        config.delayTouchStartMs = effectiveDelayMs;
         if (config.type && newType !== config.type) {
           unregisterDropZone$1(node, config.type);
         }
@@ -53993,7 +55789,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       dzToHandles.set(node, handles);
       return handles;
     }
-    var _excluded = ["items", "flipDurationMs", "type", "dragDisabled", "morphDisabled", "dropFromOthersDisabled", "zoneTabIndex", "zoneItemTabIndex", "dropTargetStyle", "dropTargetClasses", "transformDraggedElement", "autoAriaDisabled", "centreDraggedOnCursor", "dropAnimationDisabled"];
+    var _excluded = ["items", "flipDurationMs", "type", "dragDisabled", "morphDisabled", "dropFromOthersDisabled", "zoneTabIndex", "zoneItemTabIndex", "dropTargetStyle", "dropTargetClasses", "transformDraggedElement", "autoAriaDisabled", "centreDraggedOnCursor", "delayTouchStart", "dropAnimationDisabled"];
     function dndzone(node, options) {
       if (shouldIgnoreZone(node)) {
         return {
@@ -54034,6 +55830,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       options.transformDraggedElement;
       options.autoAriaDisabled;
       options.centreDraggedOnCursor;
+      var delayTouchStart = options.delayTouchStart;
       options.dropAnimationDisabled;
       var rest = _objectWithoutProperties(options, _excluded);
       if (Object.keys(rest).length > 0) {
@@ -54056,6 +55853,13 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       }
       if (zoneItemTabIndex && !isInt(zoneItemTabIndex)) {
         throw new Error("zoneItemTabIndex should be a number but instead it is a ".concat(_typeof(zoneItemTabIndex), ", ").concat(toString(zoneItemTabIndex)));
+      }
+      if (delayTouchStart !== void 0 && delayTouchStart !== false) {
+        var validBoolean = delayTouchStart === true;
+        var validNumber = typeof delayTouchStart === "number" && isFinite(delayTouchStart) && delayTouchStart >= 0;
+        if (!validBoolean && !validNumber) {
+          throw new Error("delayTouchStart should be a boolean (true/false) or a non-negative number but instead it is a ".concat(_typeof(delayTouchStart), ", ").concat(toString(delayTouchStart)));
+        }
       }
     }
     function isInt(value2) {
@@ -54086,20 +55890,22 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       };
     }
     var isItemsDragDisabled = createStore(true);
+    var userDragDisabled = createStore(false);
     function getAddedOptions() {
-      var isItemsDragDisabled2 = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : true;
       return {
-        dragDisabled: isItemsDragDisabled2,
+        dragDisabled: userDragDisabled.get() || isItemsDragDisabled.get(),
         zoneItemTabIndex: -1
       };
     }
     function dragHandleZone(node, options) {
+      var _options$dragDisabled;
+      userDragDisabled.set((_options$dragDisabled = options === null || options === void 0 ? void 0 : options.dragDisabled) !== null && _options$dragDisabled !== void 0 ? _options$dragDisabled : false);
       var currentOptions = options;
       var zone = dndzone(node, _objectSpread2(_objectSpread2({}, currentOptions), getAddedOptions()));
-      function isItemDisabledCB(isItemsDragDisabled2) {
-        zone.update(_objectSpread2(_objectSpread2({}, currentOptions), getAddedOptions(isItemsDragDisabled2)));
+      function updateZone() {
+        zone.update(_objectSpread2(_objectSpread2({}, currentOptions), getAddedOptions()));
       }
-      isItemsDragDisabled.subscribe(isItemDisabledCB);
+      isItemsDragDisabled.subscribe(updateZone);
       function consider(e2) {
         var _e$detail$info = e2.detail.info, source2 = _e$detail$info.source, trigger = _e$detail$info.trigger;
         if (source2 === SOURCES.KEYBOARD && trigger === TRIGGERS.DRAG_STOPPED) {
@@ -54116,13 +55922,15 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       node.addEventListener("finalize", finalize);
       return {
         update: function update2(newOptions) {
+          var _currentOptions$dragD, _currentOptions;
           currentOptions = newOptions;
-          zone.update(_objectSpread2(_objectSpread2({}, currentOptions), getAddedOptions(isItemsDragDisabled.get())));
+          userDragDisabled.set((_currentOptions$dragD = (_currentOptions = currentOptions) === null || _currentOptions === void 0 ? void 0 : _currentOptions.dragDisabled) !== null && _currentOptions$dragD !== void 0 ? _currentOptions$dragD : false);
+          updateZone();
         },
         destroy: function destroy() {
           node.removeEventListener("consider", consider);
           node.removeEventListener("finalize", finalize);
-          isItemsDragDisabled.unsubscribe(isItemDisabledCB);
+          isItemsDragDisabled.unsubscribe(updateZone);
         }
       };
     }
@@ -54142,10 +55950,19 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         window.removeEventListener("mouseup", resetStartDrag);
         window.removeEventListener("touchend", resetStartDrag);
       }
-      isItemsDragDisabled.subscribe(function(disabled) {
-        handle.tabIndex = disabled ? 0 : -1;
-        handle.style.cursor = disabled ? "grab" : "grabbing";
-      });
+      var recomputeHandleState = function recomputeHandleState2() {
+        var userDisabled = userDragDisabled.get();
+        var internalDisabled = isItemsDragDisabled.get();
+        if (userDisabled) {
+          handle.tabIndex = -1;
+          handle.style.cursor = "";
+        } else {
+          handle.tabIndex = internalDisabled ? 0 : -1;
+          handle.style.cursor = internalDisabled ? "grab" : "grabbing";
+        }
+      };
+      userDragDisabled.subscribe(recomputeHandleState);
+      isItemsDragDisabled.subscribe(recomputeHandleState);
       handle.addEventListener("mousedown", startDrag);
       handle.addEventListener("touchstart", startDrag);
       handle.addEventListener("keydown", handleKeyDown);
@@ -54156,6 +55973,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           handle.removeEventListener("mousedown", startDrag);
           handle.removeEventListener("touchstart", startDrag);
           handle.removeEventListener("keydown", handleKeyDown);
+          userDragDisabled.unsubscribe(recomputeHandleState);
+          isItemsDragDisabled.unsubscribe(recomputeHandleState);
         }
       };
     }
@@ -54215,9 +56034,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         for (const preparedTx of preparedTxs) {
           const { sender, recipients, transaction } = preparedTx;
           console.log(`Dry run moving objects from ${sender} to:`, recipients.join(", "));
-          let dryRunResult = await client2.dryRunTransactionBlock({
-            transactionBlock: await transaction.build({ client: client2 })
-          });
+          let dryRunResult = await client2.dryRunTransactionBlock({ transactionBlock: await transaction.build({ client: client2 }) });
           dryRunResult.sender = sender;
           dryRunResult.recipients = recipients;
           txResults.push(dryRunResult);
@@ -54285,17 +56102,17 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       );
       set$1(newAccountAddress, "");
     }
-    var root_1$7 = /* @__PURE__ */ from_html(`<div style="color: #d63031; margin: 0.5rem;"> </div>`);
-    var on_click$4 = (__4, removeExternalAccount, account) => removeExternalAccount(get$2(account).address);
-    var root_3$4 = /* @__PURE__ */ from_html(`<button style="margin:0.2rem; background-color: #d63031; " class="svelte-197n9ug">Remove External Account</button> <br/>`, 1);
+    var root_1$a = /* @__PURE__ */ from_html(`<div style="color: #d63031; margin: 0.5rem;"> </div>`);
+    var on_click$5 = (__4, removeExternalAccount, account) => removeExternalAccount(get$2(account).address);
+    var root_3$5 = /* @__PURE__ */ from_html(`<button style="margin:0.2rem; background-color: #d63031; " class="svelte-197n9ug">Remove External Account</button> <br/>`, 1);
     var root_11$1 = /* @__PURE__ */ from_html(`<div> </div>`);
-    var root_4$4 = /* @__PURE__ */ from_html(`<div style="border-top: 1px solid #525252;"><div class="handle svelte-197n9ug"><span><!></span> <!></div> <div class="item"><details><summary>Show object data</summary> <pre style="font-size:0.7rem;  text-align: left;" class="svelte-197n9ug"> </pre></details></div></div>`);
+    var root_4$5 = /* @__PURE__ */ from_html(`<div style="border-top: 1px solid #525252;"><div class="handle svelte-197n9ug"><span><!></span> <!></div> <div class="item"><details><summary>Show object data</summary> <pre style="font-size:0.7rem;  text-align: left;" class="svelte-197n9ug"> </pre></details></div></div>`);
     var root_12$1 = /* @__PURE__ */ from_html(`<br/> <br/> <br/> <br/>`, 1);
     var root_21$1 = /* @__PURE__ */ from_html(`<div> </div>`);
     var root_14$1 = /* @__PURE__ */ from_html(`<div style="border-top: 1px solid #525252;"><span style="word-break: break-all;"><!></span> <!></div> <div class="item"><details><summary>Show object data</summary> <pre style="font-size:0.7rem;  text-align: left;" class="svelte-197n9ug"> </pre></details></div>`, 1);
     var root_13$1 = /* @__PURE__ */ from_html(`<details><summary style="color: #ff9991;">Timelocked objects</summary> <!></details>`);
-    var root_2$4 = /* @__PURE__ */ from_html(`<div class="account svelte-197n9ug"><div class="accountHeader svelte-197n9ug"> </div> <!> <div style="text-align: left;"> </div> <div style="max-height: 300px; overflow-y: auto;"><!> <!> <!></div></div>`);
-    var root$b = /* @__PURE__ */ from_html(`<main><span style="float:left">Drag and drop objects between accounts.</span> <br/> <input type="text" placeholder="Enter external address" style="margin:0.5rem;" size="67"/> <button class="svelte-197n9ug">Add External Account</button> <!> <br/> <button class="svelte-197n9ug">sync/reset</button> <button class="svelte-197n9ug">dry run</button> <button class="svelte-197n9ug">send</button> <!> <br/> <div style="text-align:left"> </div> <div class="grid svelte-197n9ug"></div></main>`);
+    var root_2$5 = /* @__PURE__ */ from_html(`<div class="account svelte-197n9ug"><div class="accountHeader svelte-197n9ug"> </div> <!> <div style="text-align: left;"> </div> <div style="max-height: 300px; overflow-y: auto;"><!> <!> <!></div></div>`);
+    var root$e = /* @__PURE__ */ from_html(`<main><span style="float:left">Drag and drop objects between accounts.</span> <br/> <input type="text" placeholder="Enter external address" style="margin:0.5rem;" size="67"/> <button class="svelte-197n9ug">Add External Account</button> <!> <br/> <button class="svelte-197n9ug">sync/reset</button> <button class="svelte-197n9ug">dry run</button> <button class="svelte-197n9ug">send</button> <!> <br/> <div style="text-align:left"> </div> <div class="grid svelte-197n9ug"></div></main>`);
     function MultiAccountView($$anchor, $$props) {
       push($$props, true);
       const [$$stores, $$cleanup] = setup_stores();
@@ -54322,10 +56139,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             extendedAccounts,
             [
               ...get$2(extendedAccounts).slice(0, idx),
-              {
-                ...get$2(extendedAccounts)[idx],
-                objects: uniqueItems
-              },
+              { ...get$2(extendedAccounts)[idx], objects: uniqueItems },
               ...get$2(extendedAccounts).slice(idx + 1)
             ],
             true
@@ -54363,11 +56177,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                 filteredObjects.push(obj);
               }
             }
-            return {
-              ...account,
-              objects: filteredObjects,
-              timelockedObjects
-            };
+            return { ...account, objects: filteredObjects, timelockedObjects };
           }));
           set$1(extendedAccounts, updatedAccounts, true);
         } catch (err) {
@@ -54442,7 +56252,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         if ($iota_accounts().some((acc) => acc.address === address)) return;
         set$1(extendedAccounts, get$2(extendedAccounts).filter((acc) => acc.address !== address), true);
       }
-      var main = root$b();
+      var main = root$e();
       var input = sibling(child(main), 4);
       var button = sibling(input, 2);
       button.__click = [
@@ -54455,7 +56265,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       var node = sibling(button, 2);
       {
         var consequent = ($$anchor2) => {
-          var div = root_1$7();
+          var div = root_1$a();
           var text2 = child(div);
           template_effect(() => set_text(text2, get$2(newAccountError)));
           append($$anchor2, div);
@@ -54487,15 +56297,15 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       var text_1 = child(div_1);
       var div_2 = sibling(div_1, 2);
       each$1(div_2, 21, () => get$2(extendedAccounts), (account) => account.id, ($$anchor2, account) => {
-        var div_3 = root_2$4();
+        var div_3 = root_2$5();
         var div_4 = child(div_3);
         var text_2 = child(div_4);
         var node_2 = sibling(div_4, 2);
         {
           var consequent_1 = ($$anchor3) => {
-            var fragment = root_3$4();
+            var fragment = root_3$5();
             var button_4 = first_child(fragment);
-            button_4.__click = [on_click$4, removeExternalAccount, account];
+            button_4.__click = [on_click$5, removeExternalAccount, account];
             append($$anchor3, fragment);
           };
           if_block(node_2, ($$render) => {
@@ -54507,22 +56317,22 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         var div_6 = sibling(div_5, 2);
         var node_3 = child(div_6);
         each$1(node_3, 17, () => get$2(account).objects, (item) => item.id, ($$anchor3, item) => {
-          var div_7 = root_4$4();
+          var div_7 = root_4$5();
           var div_8 = child(div_7);
           var span = child(div_8);
           var node_4 = child(span);
           {
             var consequent_2 = ($$anchor4) => {
               var text_4 = text();
-              template_effect(($0) => set_text(text_4, `${get$2(item).label ?? ""}: ${$0 ?? ""} IOTA`), [
-                () => {
-                  var _a3, _b2;
-                  return nanoToIota((_b2 = (_a3 = get$2(item).data) == null ? void 0 : _a3.content.fields) == null ? void 0 : _b2.balance);
-                }
-              ]);
+              template_effect(($0) => set_text(text_4, `${get$2(item).label ?? ""}: ${$0 ?? ""} IOTA`), [() => {
+                var _a3, _b2;
+                return nanoToIota((_b2 = (_a3 = get$2(item).data) == null ? void 0 : _a3.content.fields) == null ? void 0 : _b2.balance);
+              }]);
               append($$anchor4, text_4);
             };
-            var alternate = ($$anchor4, $$elseif) => {
+            var alternate_2 = ($$anchor4) => {
+              var fragment_2 = comment$1();
+              var node_5 = first_child(fragment_2);
               {
                 var consequent_3 = ($$anchor5) => {
                   var text_5 = text();
@@ -54538,7 +56348,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                   );
                   append($$anchor5, text_5);
                 };
-                var alternate_1 = ($$anchor5, $$elseif2) => {
+                var alternate_1 = ($$anchor5) => {
+                  var fragment_4 = comment$1();
+                  var node_6 = first_child(fragment_4);
                   {
                     var consequent_4 = ($$anchor6) => {
                       var text_6 = text();
@@ -54547,37 +56359,39 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                       ]);
                       append($$anchor6, text_6);
                     };
-                    var alternate_2 = ($$anchor6) => {
+                    var alternate = ($$anchor6) => {
                       var text_7 = text();
                       template_effect(() => set_text(text_7, get$2(item).label));
                       append($$anchor6, text_7);
                     };
                     if_block(
-                      $$anchor5,
+                      node_6,
                       ($$render) => {
                         if (get$2(item).label == "TimelockedStakedIota") $$render(consequent_4);
-                        else $$render(alternate_2, false);
+                        else $$render(alternate, false);
                       },
-                      $$elseif2
+                      true
                     );
                   }
+                  append($$anchor5, fragment_4);
                 };
                 if_block(
-                  $$anchor4,
+                  node_5,
                   ($$render) => {
                     if (get$2(item).label == "StakedIota") $$render(consequent_3);
                     else $$render(alternate_1, false);
                   },
-                  $$elseif
+                  true
                 );
               }
+              append($$anchor4, fragment_2);
             };
             if_block(node_4, ($$render) => {
               if (get$2(item).label.startsWith("Coin<0x2::iota::IOTA>")) $$render(consequent_2);
-              else $$render(alternate, false);
+              else $$render(alternate_2, false);
             });
           }
-          var node_5 = sibling(span, 2);
+          var node_7 = sibling(span, 2);
           {
             var consequent_5 = ($$anchor4) => {
               var div_9 = root_11$1();
@@ -54587,7 +56401,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
               ]);
               append($$anchor4, div_9);
             };
-            if_block(node_5, ($$render) => {
+            if_block(node_7, ($$render) => {
               if (get$2(account).address !== get$2(item).currentOwner) $$render(consequent_5);
             });
           }
@@ -54603,44 +56417,42 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                                         ${$0 ?? ""}
                                     `);
             },
-            [
-              () => "\n" + JSON.stringify(get$2(item), null, 2)
-            ]
+            [() => "\n" + JSON.stringify(get$2(item), null, 2)]
           );
           append($$anchor3, div_7);
         });
-        var node_6 = sibling(node_3, 2);
+        var node_8 = sibling(node_3, 2);
         {
           var consequent_6 = ($$anchor3) => {
-            var fragment_5 = root_12$1();
-            append($$anchor3, fragment_5);
+            var fragment_7 = root_12$1();
+            append($$anchor3, fragment_7);
           };
-          if_block(node_6, ($$render) => {
+          if_block(node_8, ($$render) => {
             if (get$2(account).objects.length == 0) $$render(consequent_6);
           });
         }
-        var node_7 = sibling(node_6, 2);
+        var node_9 = sibling(node_8, 2);
         {
           var consequent_11 = ($$anchor3) => {
             var details_1 = root_13$1();
-            var node_8 = sibling(child(details_1), 2);
-            each$1(node_8, 17, () => get$2(account).timelockedObjects, (item) => item.id, ($$anchor4, item) => {
-              var fragment_6 = root_14$1();
-              var div_11 = first_child(fragment_6);
+            var node_10 = sibling(child(details_1), 2);
+            each$1(node_10, 17, () => get$2(account).timelockedObjects, (item) => item.id, ($$anchor4, item) => {
+              var fragment_8 = root_14$1();
+              var div_11 = first_child(fragment_8);
               var span_1 = child(div_11);
-              var node_9 = child(span_1);
+              var node_11 = child(span_1);
               {
                 var consequent_7 = ($$anchor5) => {
                   var text_10 = text();
-                  template_effect(($0) => set_text(text_10, `${get$2(item).label ?? ""}: ${$0 ?? ""} IOTA`), [
-                    () => {
-                      var _a3, _b2;
-                      return nanoToIota((_b2 = (_a3 = get$2(item).data) == null ? void 0 : _a3.content.fields) == null ? void 0 : _b2.balance);
-                    }
-                  ]);
+                  template_effect(($0) => set_text(text_10, `${get$2(item).label ?? ""}: ${$0 ?? ""} IOTA`), [() => {
+                    var _a3, _b2;
+                    return nanoToIota((_b2 = (_a3 = get$2(item).data) == null ? void 0 : _a3.content.fields) == null ? void 0 : _b2.balance);
+                  }]);
                   append($$anchor5, text_10);
                 };
-                var alternate_3 = ($$anchor5, $$elseif) => {
+                var alternate_5 = ($$anchor5) => {
+                  var fragment_10 = comment$1();
+                  var node_12 = first_child(fragment_10);
                   {
                     var consequent_8 = ($$anchor6) => {
                       var text_11 = text();
@@ -54656,7 +56468,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                       );
                       append($$anchor6, text_11);
                     };
-                    var alternate_4 = ($$anchor6, $$elseif2) => {
+                    var alternate_4 = ($$anchor6) => {
+                      var fragment_12 = comment$1();
+                      var node_13 = first_child(fragment_12);
                       {
                         var consequent_9 = ($$anchor7) => {
                           var text_12 = text();
@@ -54665,37 +56479,39 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                           ]);
                           append($$anchor7, text_12);
                         };
-                        var alternate_5 = ($$anchor7) => {
+                        var alternate_3 = ($$anchor7) => {
                           var text_13 = text();
                           template_effect(() => set_text(text_13, get$2(item).label));
                           append($$anchor7, text_13);
                         };
                         if_block(
-                          $$anchor6,
+                          node_13,
                           ($$render) => {
                             if (get$2(item).label == "TimelockedStakedIota") $$render(consequent_9);
-                            else $$render(alternate_5, false);
+                            else $$render(alternate_3, false);
                           },
-                          $$elseif2
+                          true
                         );
                       }
+                      append($$anchor6, fragment_12);
                     };
                     if_block(
-                      $$anchor5,
+                      node_12,
                       ($$render) => {
                         if (get$2(item).label == "StakedIota") $$render(consequent_8);
                         else $$render(alternate_4, false);
                       },
-                      $$elseif
+                      true
                     );
                   }
+                  append($$anchor5, fragment_10);
                 };
-                if_block(node_9, ($$render) => {
+                if_block(node_11, ($$render) => {
                   if (get$2(item).label.startsWith("Coin<0x2::iota::IOTA>")) $$render(consequent_7);
-                  else $$render(alternate_3, false);
+                  else $$render(alternate_5, false);
                 });
               }
-              var node_10 = sibling(span_1, 2);
+              var node_14 = sibling(span_1, 2);
               {
                 var consequent_10 = ($$anchor5) => {
                   var div_12 = root_21$1();
@@ -54705,7 +56521,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                   ]);
                   append($$anchor5, div_12);
                 };
-                if_block(node_10, ($$render) => {
+                if_block(node_14, ($$render) => {
                   if (get$2(account).address !== get$2(item).currentOwner) $$render(consequent_10);
                 });
               }
@@ -54717,22 +56533,17 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                 ($0) => set_text(text_15, `
                                         ${$0 ?? ""}
                                     `),
-                [
-                  () => "\n" + JSON.stringify(get$2(item), null, 2)
-                ]
+                [() => "\n" + JSON.stringify(get$2(item), null, 2)]
               );
-              append($$anchor4, fragment_6);
+              append($$anchor4, fragment_8);
             });
             append($$anchor3, details_1);
           };
-          if_block(node_7, ($$render) => {
+          if_block(node_9, ($$render) => {
             if (get$2(account).timelockedObjects.length != 0) $$render(consequent_11);
           });
         }
-        action(div_6, ($$node, $$action_arg) => dragHandleZone == null ? void 0 : dragHandleZone($$node, $$action_arg), () => ({
-          items: get$2(account).objects,
-          flipDurationMs: 200
-        }));
+        action(div_6, ($$node, $$action_arg) => dragHandleZone == null ? void 0 : dragHandleZone($$node, $$action_arg), () => ({ items: get$2(account).objects, flipDurationMs: 200 }));
         template_effect(
           ($0, $1) => {
             set_text(text_2, `${$0 ?? ""}: ${$1 ?? ""}`);
@@ -65204,7 +67015,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       heightForLine(length) {
         if (!this.lineWrapping)
           return this.lineHeight;
-        let lines = 1 + Math.max(0, Math.ceil((length - this.lineLength) / (this.lineLength - 5)));
+        let lines = 1 + Math.max(0, Math.ceil((length - this.lineLength) / Math.max(1, this.lineLength - 5)));
         return lines * this.lineHeight;
       }
       setDoc(doc2) {
@@ -66121,7 +67932,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             refresh = true;
           if (refresh || oracle.lineWrapping && Math.abs(contentWidth - this.contentDOMWidth) > oracle.charWidth) {
             let { lineHeight, charWidth, textHeight } = view.docView.measureTextSize();
-            refresh = lineHeight > 0 && oracle.refresh(whiteSpace, lineHeight, charWidth, textHeight, contentWidth / charWidth, lineHeights);
+            refresh = lineHeight > 0 && oracle.refresh(whiteSpace, lineHeight, charWidth, textHeight, Math.max(5, contentWidth / charWidth), lineHeights);
             if (refresh) {
               view.docView.minWidth = 0;
               result |= 16;
@@ -66636,13 +68447,16 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         display: "flex",
         height: "100%",
         boxSizing: "border-box",
-        insetInlineStart: 0,
         zIndex: 200
       },
+      ".cm-gutters-before": { insetInlineStart: 0 },
+      ".cm-gutters-after": { insetInlineEnd: 0 },
       "&light .cm-gutters": {
         backgroundColor: "#f5f5f5",
         color: "#6c6c6c",
-        borderRight: "1px solid #ddd"
+        border: "0px solid #ddd",
+        "&.cm-gutters-before": { borderRightWidth: "1px" },
+        "&.cm-gutters-after": { borderLeftWidth: "1px" }
       },
       "&dark .cm-gutters": {
         backgroundColor: "#333338",
@@ -66812,7 +68626,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           else
             this.flush();
         });
-        if (window.EditContext && view.constructor.EDIT_CONTEXT !== false && // Chrome <126 doesn't support inverted selections in edit context (#1392)
+        if (window.EditContext && browser.android && view.constructor.EDIT_CONTEXT !== false && // Chrome <126 doesn't support inverted selections in edit context (#1392)
         !(browser.chrome && browser.chrome_version < 126)) {
           this.editContext = new EditContextManager(view);
           if (view.state.facet(editable))
@@ -75879,10 +77693,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     const getTicksLimit = (ticksLength, maxTicksLimit) => Math.min(maxTicksLimit || ticksLength, ticksLength);
     function sample(arr, numItems) {
       const result = [];
-      const increment = arr.length / numItems;
+      const increment2 = arr.length / numItems;
       const len = arr.length;
       let i2 = 0;
-      for (; i2 < len; i2 += increment) {
+      for (; i2 < len; i2 += increment2) {
         result.push(arr[Math.floor(i2)]);
       }
       return result;
@@ -76439,11 +78253,11 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         const { ctx, _longestTextCache: caches } = this;
         const widths = [];
         const heights = [];
-        const increment = Math.floor(length / getTicksLimit(length, maxTicksLimit));
+        const increment2 = Math.floor(length / getTicksLimit(length, maxTicksLimit));
         let widestLabelSize = 0;
         let highestLabelSize = 0;
         let i2, j, jlen, label, tickFont, fontString, cache, lineHeight, width, height, nestedLabel;
-        for (i2 = 0; i2 < length; i2 += increment) {
+        for (i2 = 0; i2 < length; i2 += increment2) {
           label = ticks[i2].label;
           tickFont = this._resolveTickFontOptions(i2);
           ctx.font = fontString = tickFont.string;
@@ -86981,7 +88795,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       nextWeek: "eeee 'at' p",
       other: "P"
     };
-    const formatRelative = (token, _date, _baseDate, _options2) => formatRelativeLocale[token];
+    const formatRelative = (token, _date, _baseDate, _options3) => formatRelativeLocale[token];
     function buildLocalizeFn(args) {
       return (value2, options) => {
         const context = (options == null ? void 0 : options.context) ? String(options.context) : "standalone";
@@ -87118,7 +88932,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         night: "at night"
       }
     };
-    const ordinalNumber = (dirtyNumber, _options2) => {
+    const ordinalNumber = (dirtyNumber, _options3) => {
       const number2 = Number(dirtyNumber);
       const rem100 = number2 % 100;
       if (rem100 > 20 || rem100 < 10) {
@@ -88260,7 +90074,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       constructor() {
         __publicField(this, "subPriority", 0);
       }
-      validate(_utcDate, _options2) {
+      validate(_utcDate, _options3) {
         return true;
       }
     }
@@ -88311,7 +90125,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           rest: result.rest
         };
       }
-      validate(_utcDate, _value, _options2) {
+      validate(_utcDate, _value, _options3) {
         return true;
       }
     }
@@ -90310,12 +92124,12 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         }
       }
     });
-    var root_1$6 = /* @__PURE__ */ from_html(`<option> </option>`);
-    var root_2$3 = /* @__PURE__ */ from_html(`<button class="filter-btn svelte-960tk1" title="Apply data filter to current zoom level for better performance">Filter Data</button>`);
-    var root_3$3 = /* @__PURE__ */ from_html(`<button class="clear-filter-btn svelte-960tk1" title="Show all data">Show All Data</button>`);
-    var root_4$3 = /* @__PURE__ */ from_html(`<div class="selection-feedback svelte-960tk1">📍 <strong>Selected:</strong> </div>`);
+    var root_1$9 = /* @__PURE__ */ from_html(`<option> </option>`);
+    var root_2$4 = /* @__PURE__ */ from_html(`<button class="filter-btn svelte-960tk1" title="Apply data filter to current zoom level for better performance">Filter Data</button>`);
+    var root_3$4 = /* @__PURE__ */ from_html(`<button class="clear-filter-btn svelte-960tk1" title="Show all data">Show All Data</button>`);
+    var root_4$4 = /* @__PURE__ */ from_html(`<div class="selection-feedback svelte-960tk1">📍 <strong>Selected:</strong> </div>`);
     var root_5$2 = /* @__PURE__ */ from_html(`<div class="data-filter-info svelte-960tk1">📊 <strong>Data Filtered:</strong> </div>`);
-    var root$a = /* @__PURE__ */ from_html(`<div class="chart-container svelte-960tk1"><div class="chart-controls svelte-960tk1"><div class="control-group svelte-960tk1"><label for="bucket-time" class="svelte-960tk1">Time bucket:</label> <select id="bucket-time" class="svelte-960tk1"></select></div> <div class="control-group svelte-960tk1"><button class="reset-zoom-btn svelte-960tk1" title="Reset zoom to show all data">Reset Zoom</button> <!> <!></div> <div class="zoom-instructions svelte-960tk1"><small class="svelte-960tk1">💡 Drag to select range, Ctrl+drag to pan, mouse wheel to zoom, click data point to
+    var root$d = /* @__PURE__ */ from_html(`<div class="chart-container svelte-960tk1"><div class="chart-controls svelte-960tk1"><div class="control-group svelte-960tk1"><label for="bucket-time" class="svelte-960tk1">Time bucket:</label> <select id="bucket-time" class="svelte-960tk1"></select></div> <div class="control-group svelte-960tk1"><button class="reset-zoom-btn svelte-960tk1" title="Reset zoom to show all data">Reset Zoom</button> <!> <!></div> <div class="zoom-instructions svelte-960tk1"><small class="svelte-960tk1">💡 Drag to select range, Ctrl+drag to pan, mouse wheel to zoom, click data point to
                 select checkpoint</small></div></div> <!> <!> <canvas class="svelte-960tk1"></canvas></div>`);
     function TransactionChart($$anchor, $$props) {
       push($$props, false);
@@ -90339,26 +92153,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       let cachedAggregatedData = [];
       let lastBucketTime = 0;
       const bucketOptions = [
-        {
-          value: 36e5,
-          label: "1 hour",
-          displayUnit: "hour"
-        },
-        {
-          value: 6e5,
-          label: "10 minutes",
-          displayUnit: "10 minutes"
-        },
-        {
-          value: 6e4,
-          label: "1 minute",
-          displayUnit: "minute"
-        },
-        {
-          value: 1e4,
-          label: "10 seconds",
-          displayUnit: "10 seconds"
-        },
+        { value: 36e5, label: "1 hour", displayUnit: "hour" },
+        { value: 6e5, label: "10 minutes", displayUnit: "10 minutes" },
+        { value: 6e4, label: "1 minute", displayUnit: "minute" },
+        { value: 1e4, label: "10 seconds", displayUnit: "10 seconds" },
         {
           value: 1e3,
           label: "1 second (only use for small selections)",
@@ -90721,11 +92519,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
               },
               plugins: {
                 zoom: {
-                  pan: {
-                    enabled: true,
-                    mode: "x",
-                    modifierKey: "ctrl"
-                  },
+                  pan: { enabled: true, mode: "x", modifierKey: "ctrl" },
                   zoom: {
                     wheel: { enabled: true },
                     pinch: { enabled: true },
@@ -90738,10 +92532,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                     mode: "x",
                     onZoomComplete({ chart: chart2 }) {
                       if (chart2.scales && chart2.scales.x) {
-                        zoomState = {
-                          min: chart2.scales.x.min,
-                          max: chart2.scales.x.max
-                        };
+                        zoomState = { min: chart2.scales.x.min, max: chart2.scales.x.max };
                       }
                     }
                   }
@@ -90874,30 +92665,30 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       );
       legacy_pre_effect_reset();
       init();
-      var div = root$a();
+      var div = root$d();
       var div_1 = child(div);
       var div_2 = child(div_1);
       var select = sibling(child(div_2), 2);
-      init_select(select, () => get$2(bucketTime));
-      var select_value;
       each$1(select, 5, () => bucketOptions, index$1, ($$anchor2, option) => {
-        var option_1 = root_1$6();
-        var option_1_value = {};
+        var option_1 = root_1$9();
         var text2 = child(option_1);
+        var option_1_value = {};
         template_effect(() => {
+          set_text(text2, (get$2(option), untrack(() => get$2(option).label)));
           if (option_1_value !== (option_1_value = (get$2(option), untrack(() => get$2(option).value)))) {
             option_1.value = (option_1.__value = (get$2(option), untrack(() => get$2(option).value))) ?? "";
           }
-          set_text(text2, (get$2(option), untrack(() => get$2(option).label)));
         });
         append($$anchor2, option_1);
       });
+      var select_value;
+      init_select(select);
       var div_3 = sibling(div_2, 2);
       var button = child(div_3);
       var node = sibling(button, 2);
       {
         var consequent = ($$anchor2) => {
-          var button_1 = root_2$3();
+          var button_1 = root_2$4();
           event("click", button_1, applyDataFilter);
           append($$anchor2, button_1);
         };
@@ -90908,7 +92699,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       var node_1 = sibling(node, 2);
       {
         var consequent_1 = ($$anchor2) => {
-          var button_2 = root_3$3();
+          var button_2 = root_3$4();
           event("click", button_2, clearDataFilter);
           append($$anchor2, button_2);
         };
@@ -90919,7 +92710,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       var node_2 = sibling(div_1, 2);
       {
         var consequent_2 = ($$anchor2) => {
-          var div_4 = root_4$3();
+          var div_4 = root_4$4();
           var text_1 = sibling(child(div_4), 2);
           template_effect(() => set_text(text_1, ` Checkpoint ${get$2(selectedCheckpoint) ?? ""}`));
           append($$anchor2, div_4);
@@ -90938,8 +92729,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             (${$0 ?? ""}% of total data)`),
             [
               () => (get$2(filteredDataLength), get$2(originalDataLength), untrack(() => Math.round(get$2(filteredDataLength) / get$2(originalDataLength) * 100)))
-            ],
-            derived_safe_equal
+            ]
           );
           append($$anchor2, div_5);
         };
@@ -91000,7 +92790,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         if ((_c = (_b2 = tx.effects) == null ? void 0 : _b2.transactionBlock) == null ? void 0 : _c.bcs) {
           try {
             decodedData = iotaBcs$1.SenderSignedData.parse(
-              fromB64(tx.effects.transactionBlock.bcs)
+              fromB64$1(tx.effects.transactionBlock.bcs)
             )[0];
           } catch (e2) {
             console.warn("Failed to decode BCS data for transaction:", tx.digest, e2);
@@ -91568,11 +93358,11 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         return finalData;
       }
     }
-    var root_4$2 = /* @__PURE__ */ from_html(`<span class="checkpoint-count svelte-ex19u4"> </span>`);
-    var root_1$5 = /* @__PURE__ */ from_html(`<input id="epoch-input" type="number" placeholder="Epoch" min="0" style="width: 7rem;"/> <button class="fetch-current-epoch-btn" title="Fetch current epoch"><!></button> <!>`, 1);
+    var root_4$3 = /* @__PURE__ */ from_html(`<span class="checkpoint-count svelte-ex19u4"> </span>`);
+    var root_1$8 = /* @__PURE__ */ from_html(`<input id="epoch-input" type="number" placeholder="Epoch" min="0" style="width: 7rem;"/> <button class="fetch-current-epoch-btn" title="Fetch current epoch"><!></button> <!>`, 1);
     var root_8 = /* @__PURE__ */ from_html(`<span class="checkpoint-count svelte-ex19u4"> </span>`);
     var root_5$1 = /* @__PURE__ */ from_html(`<input id="start-checkpoint" type="number" placeholder="Start" min="0" style="width: 8rem;"/> <span class="range-separator svelte-ex19u4">to</span> <input id="end-checkpoint" type="number" placeholder="End" min="0" style="width: 8rem;"/> <button class="fetch-current-epoch-btn" title="Fetch current epoch range"><!></button> <!>`, 1);
-    var root_9 = /* @__PURE__ */ from_html(`<div class="error"><strong>Error:</strong> </div>`);
+    var root_9$1 = /* @__PURE__ */ from_html(`<div class="error"><strong>Error:</strong> </div>`);
     var root_12 = /* @__PURE__ */ from_html(`<p> </p>`);
     var root_13 = /* @__PURE__ */ from_html(`<p> </p>`);
     var root_11 = /* @__PURE__ */ from_html(`<!> <p><em> </em></p>`, 1);
@@ -91581,7 +93371,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     var root_14 = /* @__PURE__ */ from_html(`<!> <p><em>This may take a while for large ranges with many transactions.</em></p>`, 1);
     var root_18 = /* @__PURE__ */ from_html(`<div class="progress-section svelte-ex19u4"><div class="progress-label svelte-ex19u4"><span> </span> <span class="progress-percentage svelte-ex19u4"> </span></div> <div class="progress-bar svelte-ex19u4"><div class="progress-fill svelte-ex19u4"></div></div></div>`);
     var root_17 = /* @__PURE__ */ from_html(`<div class="progress-info svelte-ex19u4"><div class="progress-header svelte-ex19u4"><p class="svelte-ex19u4"><strong>Progress:</strong> </p> <button class="stop-btn svelte-ex19u4" title="Stop fetching data"> </button></div> <!></div>`);
-    var root_10 = /* @__PURE__ */ from_html(`<div class="loading"><!> <!></div>`);
+    var root_10$1 = /* @__PURE__ */ from_html(`<div class="loading"><!> <!></div>`);
     var root_20 = /* @__PURE__ */ from_html(`<h3> </h3>`);
     var root_21 = /* @__PURE__ */ from_html(`<h3> </h3>`);
     var root_22 = /* @__PURE__ */ from_html(`<div class="checkpoint-info"><p><strong>Checkpoint Range:</strong> </p></div>`);
@@ -91604,7 +93394,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                                 number to inspect its transactions</p></div>`);
     var root_30 = /* @__PURE__ */ from_html(`<!> <div class="checkpoint-inspector svelte-ex19u4"><h4 class="svelte-ex19u4">Checkpoint Inspector</h4> <div class="checkpoint-input-section svelte-ex19u4"><label for="checkpoint-input" class="svelte-ex19u4">Checkpoint Number:</label> <input id="checkpoint-input" type="number" placeholder="Enter checkpoint number or click on chart" min="0" class="svelte-ex19u4"/> <!> <h5> </h5></div> <!></div>`, 1);
     var root_19 = /* @__PURE__ */ from_html(`<div class="results"><!> <!> <div class="summary-cards svelte-ex19u4"><div class="summary-card svelte-ex19u4"><h4 class="svelte-ex19u4">Total PTBs</h4> <div class="metric svelte-ex19u4"> </div> </div> <div class="summary-card svelte-ex19u4"><h4 class="svelte-ex19u4">Unique Senders</h4> <div class="metric svelte-ex19u4"> </div></div> <div class="summary-card svelte-ex19u4"><h4 class="svelte-ex19u4">Called Functions</h4> <div class="metric svelte-ex19u4"> </div></div> <div class="summary-card svelte-ex19u4"><h4 class="svelte-ex19u4">Published Packages</h4> <div class="metric svelte-ex19u4"> </div></div></div> <div class="details-section svelte-ex19u4"><details class="svelte-ex19u4"><summary class="svelte-ex19u4"> </summary> <div class="function-list svelte-ex19u4"></div></details> <details class="svelte-ex19u4"><summary class="svelte-ex19u4"> </summary> <div class="address-list svelte-ex19u4"></div></details> <details class="svelte-ex19u4"><summary class="svelte-ex19u4"> </summary> <div class="address-list svelte-ex19u4"></div></details> <details class="svelte-ex19u4"><summary class="svelte-ex19u4"> </summary> <div class="package-list svelte-ex19u4"></div></details></div> <!></div>`);
-    var root$9 = /* @__PURE__ */ from_html(`<div class="epoch-transaction-blocks svelte-ex19u4"><p style="margin-top:0;">Query programmable transaction blocks data for a specific epoch or checkpoint range</p> <div class="input-section svelte-ex19u4"><div class="filter-section svelte-ex19u4"><div class="filter-row svelte-ex19u4"><div class="filter-group svelte-ex19u4"><label for="input-object-filter" class="svelte-ex19u4">Input Object:</label> <div class="input-with-button svelte-ex19u4"><input id="input-object-filter" type="text" placeholder="0x... object ID" style="width: 30rem; font-size: 12px;" class="svelte-ex19u4"/> <button class="example-btn svelte-ex19u4" title="Insert example object ID">Example</button></div></div> <div class="filter-group svelte-ex19u4"><label for="function-filter" class="svelte-ex19u4">Function:</label> <div class="input-with-button svelte-ex19u4"><input id="function-filter" type="text" placeholder="package::module::function" style="width: 30rem; font-size: 12px;" class="svelte-ex19u4"/> <button class="example-btn svelte-ex19u4" title="Insert example function">Example</button></div></div></div></div> <div class="input-row-single svelte-ex19u4"><div class="mode-selection-column svelte-ex19u4"><label class="mode-option-stacked svelte-ex19u4"><span class="mode-label-stacked svelte-ex19u4">Epoch Number</span> <input type="radio" class="svelte-ex19u4"/></label> <label class="mode-option-stacked svelte-ex19u4"><span class="mode-label-stacked svelte-ex19u4">Checkpoint Range</span> <input type="radio" class="svelte-ex19u4"/></label></div> <div class="input-controls svelte-ex19u4"><!></div></div> <div class="button-row svelte-ex19u4"><button> </button> <div class="input-group svelte-ex19u4"><label for="transaction-limit">Limit to:</label> <input id="transaction-limit" type="number" placeholder="Max transactions" min="1" style="width: 6rem;"/></div> <button> </button></div></div> <!> <!> <!></div>`);
+    var root$c = /* @__PURE__ */ from_html(`<div class="epoch-transaction-blocks svelte-ex19u4"><p style="margin-top:0;">Query programmable transaction blocks data for a specific epoch or checkpoint range</p> <div class="input-section svelte-ex19u4"><div class="filter-section svelte-ex19u4"><div class="filter-row svelte-ex19u4"><div class="filter-group svelte-ex19u4"><label for="input-object-filter" class="svelte-ex19u4">Input Object:</label> <div class="input-with-button svelte-ex19u4"><input id="input-object-filter" type="text" placeholder="0x... object ID" style="width: 30rem; font-size: 12px;" class="svelte-ex19u4"/> <button class="example-btn svelte-ex19u4" title="Insert example object ID">Example</button></div></div> <div class="filter-group svelte-ex19u4"><label for="function-filter" class="svelte-ex19u4">Function:</label> <div class="input-with-button svelte-ex19u4"><input id="function-filter" type="text" placeholder="package::module::function" style="width: 30rem; font-size: 12px;" class="svelte-ex19u4"/> <button class="example-btn svelte-ex19u4" title="Insert example function">Example</button></div></div></div></div> <div class="input-row-single svelte-ex19u4"><div class="mode-selection-column svelte-ex19u4"><label class="mode-option-stacked svelte-ex19u4"><span class="mode-label-stacked svelte-ex19u4">Epoch Number</span> <input type="radio" class="svelte-ex19u4"/></label> <label class="mode-option-stacked svelte-ex19u4"><span class="mode-label-stacked svelte-ex19u4">Checkpoint Range</span> <input type="radio" class="svelte-ex19u4"/></label></div> <div class="input-controls svelte-ex19u4"><!></div></div> <div class="button-row svelte-ex19u4"><button> </button> <div class="input-group svelte-ex19u4"><label for="transaction-limit">Limit to:</label> <input id="transaction-limit" type="number" placeholder="Max transactions" min="1" style="width: 6rem;"/></div> <button> </button></div></div> <!> <!> <!></div>`);
     function PTBs($$anchor, $$props) {
       push($$props, false);
       const epochCheckpointCount = /* @__PURE__ */ mutable_source();
@@ -91654,10 +93444,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             try {
               const range2 = await analyzer.getCheckpointRangeForEpoch(parseInt(currentEpochId));
               if (range2) {
-                set$1(displayData, {
-                  ...get$2(displayData),
-                  checkpointRange: range2
-                });
+                set$1(displayData, { ...get$2(displayData), checkpointRange: range2 });
                 console.log("Current epoch checkpoint range:", range2);
               }
             } catch (rangeErr) {
@@ -91909,15 +93696,12 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       legacy_pre_effect(() => (get$2(epoch), get$2(displayData)), () => {
         set$1(epochCheckpointCount, get$2(epoch) && get$2(epoch).toString().trim() !== "" && get$2(displayData).checkpointRange ? get$2(displayData).checkpointRange.last - get$2(displayData).checkpointRange.first + 1 : null);
       });
-      legacy_pre_effect(
-        () => (get$2(startCheckpoint), get$2(endCheckpoint)),
-        () => {
-          set$1(checkpointRangeCount, get$2(startCheckpoint) && get$2(endCheckpoint) && get$2(startCheckpoint).toString().trim() !== "" && get$2(endCheckpoint).toString().trim() !== "" ? parseInt(get$2(endCheckpoint)) - parseInt(get$2(startCheckpoint)) + 1 : null);
-        }
-      );
+      legacy_pre_effect(() => (get$2(startCheckpoint), get$2(endCheckpoint)), () => {
+        set$1(checkpointRangeCount, get$2(startCheckpoint) && get$2(endCheckpoint) && get$2(startCheckpoint).toString().trim() !== "" && get$2(endCheckpoint).toString().trim() !== "" ? parseInt(get$2(endCheckpoint)) - parseInt(get$2(startCheckpoint)) + 1 : null);
+      });
       legacy_pre_effect_reset();
       init();
-      var div = root$9();
+      var div = root$c();
       var div_1 = sibling(child(div), 2);
       var div_2 = child(div_1);
       var div_3 = child(div_2);
@@ -91941,7 +93725,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       var node = child(div_10);
       {
         var consequent_2 = ($$anchor2) => {
-          var fragment = root_1$5();
+          var fragment = root_1$8();
           var input_4 = first_child(fragment);
           var button_2 = sibling(input_4, 2);
           var node_1 = child(button_2);
@@ -91962,15 +93746,11 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           var node_2 = sibling(button_2, 2);
           {
             var consequent_1 = ($$anchor3) => {
-              var span = root_4$2();
+              var span = root_4$3();
               var text_3 = child(span);
-              template_effect(
-                ($0) => set_text(text_3, `(${$0 ?? ""} checkpoints)`),
-                [
-                  () => (get$2(epochCheckpointCount), untrack(() => get$2(epochCheckpointCount).toLocaleString()))
-                ],
-                derived_safe_equal
-              );
+              template_effect(($0) => set_text(text_3, `(${$0 ?? ""} checkpoints)`), [
+                () => (get$2(epochCheckpointCount), untrack(() => get$2(epochCheckpointCount).toLocaleString()))
+              ]);
               append($$anchor3, span);
             };
             if_block(node_2, ($$render) => {
@@ -91985,7 +93765,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           event("click", button_2, getCurrentEpoch);
           append($$anchor2, fragment);
         };
-        var alternate_1 = ($$anchor2) => {
+        var alternate_2 = ($$anchor2) => {
           var fragment_1 = root_5$1();
           var input_5 = first_child(fragment_1);
           var input_6 = sibling(input_5, 4);
@@ -91996,13 +93776,13 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
               var text_4 = text("Loading...");
               append($$anchor3, text_4);
             };
-            var alternate_2 = ($$anchor3) => {
+            var alternate_1 = ($$anchor3) => {
               var text_5 = text("Get Current");
               append($$anchor3, text_5);
             };
             if_block(node_3, ($$render) => {
               if (get$2(epochLoading)) $$render(consequent_3);
-              else $$render(alternate_2, false);
+              else $$render(alternate_1, false);
             });
           }
           var node_4 = sibling(button_3, 2);
@@ -92010,13 +93790,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             var consequent_4 = ($$anchor3) => {
               var span_1 = root_8();
               var text_6 = child(span_1);
-              template_effect(
-                ($0) => set_text(text_6, `(${$0 ?? ""} checkpoints)`),
-                [
-                  () => (get$2(checkpointRangeCount), untrack(() => get$2(checkpointRangeCount).toLocaleString()))
-                ],
-                derived_safe_equal
-              );
+              template_effect(($0) => set_text(text_6, `(${$0 ?? ""} checkpoints)`), [
+                () => (get$2(checkpointRangeCount), untrack(() => get$2(checkpointRangeCount).toLocaleString()))
+              ]);
               append($$anchor3, span_1);
             };
             if_block(node_4, ($$render) => {
@@ -92035,7 +93811,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         };
         if_block(node, ($$render) => {
           if (get$2(inputMode) === "epoch") $$render(consequent_2);
-          else $$render(alternate_1, false);
+          else $$render(alternate_2, false);
         });
       }
       var div_11 = sibling(div_8, 2);
@@ -92048,7 +93824,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       var node_5 = sibling(div_1, 2);
       {
         var consequent_5 = ($$anchor2) => {
-          var div_13 = root_9();
+          var div_13 = root_9$1();
           var text_9 = sibling(child(div_13));
           template_effect(() => set_text(text_9, ` ${get$2(error2) ?? ""}`));
           append($$anchor2, div_13);
@@ -92060,7 +93836,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       var node_6 = sibling(node_5, 2);
       {
         var consequent_11 = ($$anchor2) => {
-          var div_14 = root_10();
+          var div_14 = root_10$1();
           var node_7 = child(div_14);
           {
             var consequent_7 = ($$anchor3) => {
@@ -92091,7 +93867,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
               template_effect(() => set_text(text_12, `This query will stop after finding ${get$2(transactionLimit) ?? ""} transactions.`));
               append($$anchor3, fragment_2);
             };
-            var alternate_4 = ($$anchor3) => {
+            var alternate_5 = ($$anchor3) => {
               var fragment_3 = root_14();
               var node_9 = first_child(fragment_3);
               {
@@ -92101,7 +93877,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                   template_effect(() => set_text(text_13, `Fetching all transaction blocks for epoch ${get$2(epoch) ?? ""}...`));
                   append($$anchor4, p_3);
                 };
-                var alternate_5 = ($$anchor4) => {
+                var alternate_4 = ($$anchor4) => {
                   var p_4 = root_16();
                   var text_14 = child(p_4);
                   template_effect(() => set_text(text_14, `Fetching all transaction blocks for checkpoint range ${get$2(startCheckpoint) ?? ""} - ${get$2(endCheckpoint) ?? ""}...`));
@@ -92109,14 +93885,14 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                 };
                 if_block(node_9, ($$render) => {
                   if (get$2(inputMode) === "epoch") $$render(consequent_8);
-                  else $$render(alternate_5, false);
+                  else $$render(alternate_4, false);
                 });
               }
               append($$anchor3, fragment_3);
             };
             if_block(node_7, ($$render) => {
               if (get$2(isLimitedQuery)) $$render(consequent_7);
-              else $$render(alternate_4, false);
+              else $$render(alternate_5, false);
             });
           }
           var node_10 = sibling(node_7, 2);
@@ -92150,8 +93926,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                       () => (get$2(totalCheckpoints), untrack(() => get$2(totalCheckpoints).toLocaleString())),
                       () => (get$2(processedCheckpoints), get$2(totalCheckpoints), untrack(() => Math.round(get$2(processedCheckpoints) / get$2(totalCheckpoints) * 100))),
                       () => (get$2(processedCheckpoints), get$2(totalCheckpoints), untrack(() => Math.round(get$2(processedCheckpoints) / get$2(totalCheckpoints) * 100)))
-                    ],
-                    derived_safe_equal
+                    ]
                   );
                   append($$anchor4, div_17);
                 };
@@ -92167,8 +93942,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                 },
                 [
                   () => (get$2(processedTransactions), untrack(() => get$2(processedTransactions).toLocaleString()))
-                ],
-                derived_safe_equal
+                ]
               );
               event("click", button_6, stopFetching);
               append($$anchor3, div_15);
@@ -92219,8 +93993,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                   () => (get$2(displayData), untrack(() => get$2(displayData).checkpointRange.first.toLocaleString())),
                   () => (get$2(displayData), untrack(() => get$2(displayData).checkpointRange.last.toLocaleString())),
                   () => (get$2(displayData), untrack(() => (get$2(displayData).checkpointRange.last - get$2(displayData).checkpointRange.first + 1).toLocaleString()))
-                ],
-                derived_safe_equal
+                ]
               );
               append($$anchor3, div_22);
             };
@@ -92275,30 +94048,23 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
               var text_32 = child(span_8);
               var div_42 = sibling(div_35, 2);
               var div_43 = child(div_42);
-              each$1(
-                div_43,
-                5,
-                () => (get$2(func), untrack(() => get$2(func).transactionIds)),
-                index$1,
-                ($$anchor4, txId) => {
-                  var div_44 = root_24();
-                  var span_9 = child(div_44);
-                  var text_33 = child(span_9);
-                  var button_8 = sibling(span_9, 2);
-                  template_effect(
-                    ($0) => {
-                      set_attribute(span_9, "title", get$2(txId));
-                      set_text(text_33, $0);
-                    },
-                    [
-                      () => (get$2(txId), untrack(() => formatAddress(get$2(txId))))
-                    ],
-                    derived_safe_equal
-                  );
-                  event("click", button_8, () => copyToClipboard(get$2(txId)));
-                  append($$anchor4, div_44);
-                }
-              );
+              each$1(div_43, 5, () => (get$2(func), untrack(() => get$2(func).transactionIds)), index$1, ($$anchor4, txId) => {
+                var div_44 = root_24();
+                var span_9 = child(div_44);
+                var text_33 = child(span_9);
+                var button_8 = sibling(span_9, 2);
+                template_effect(
+                  ($0) => {
+                    set_attribute(span_9, "title", get$2(txId));
+                    set_text(text_33, $0);
+                  },
+                  [
+                    () => (get$2(txId), untrack(() => formatAddress(get$2(txId))))
+                  ]
+                );
+                event("click", button_8, () => copyToClipboard(get$2(txId)));
+                append($$anchor4, div_44);
+              });
               template_effect(
                 ($0, $1) => {
                   set_attribute(span_4, "title", (get$2(func), untrack(() => get$2(func).package)));
@@ -92311,8 +94077,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                 [
                   () => (get$2(func), untrack(() => get$2(func).callCount.toLocaleString())),
                   () => (get$2(func), untrack(() => get$2(func).transactionIds.length.toLocaleString()))
-                ],
-                derived_safe_equal
+                ]
               );
               event("click", button_7, () => copyToClipboard(get$2(func).fullName));
               event("toggle", details_1, toggleTransactionIds);
@@ -92347,8 +94112,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                 },
                 [
                   () => (get$2(sender), untrack(() => get$2(sender).txCount.toLocaleString()))
-                ],
-                derived_safe_equal
+                ]
               );
               event("click", button_9, () => copyToClipboard(get$2(sender).address));
               append($$anchor3, div_46);
@@ -92382,8 +94146,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                 },
                 [
                   () => (get$2(pkg), untrack(() => get$2(pkg).callCount.toLocaleString()))
-                ],
-                derived_safe_equal
+                ]
               );
               event("click", button_10, () => copyToClipboard(get$2(pkg).package));
               append($$anchor3, div_53);
@@ -92412,18 +94175,12 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                 var consequent_14 = ($$anchor4) => {
                   var div_65 = root_28();
                   var div_66 = sibling(child(div_65), 2);
-                  each$1(
-                    div_66,
-                    5,
-                    () => (get$2(pkg), untrack(() => get$2(pkg).modules)),
-                    index$1,
-                    ($$anchor5, moduleName) => {
-                      var span_15 = root_29();
-                      var text_42 = child(span_15);
-                      template_effect(() => set_text(text_42, get$2(moduleName)));
-                      append($$anchor5, span_15);
-                    }
-                  );
+                  each$1(div_66, 5, () => (get$2(pkg), untrack(() => get$2(pkg).modules)), index$1, ($$anchor5, moduleName) => {
+                    var span_15 = root_29();
+                    var text_42 = child(span_15);
+                    template_effect(() => set_text(text_42, get$2(moduleName)));
+                    append($$anchor5, span_15);
+                  });
                   append($$anchor4, div_65);
                 };
                 if_block(node_15, ($$render) => {
@@ -92448,8 +94205,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                 },
                 [
                   () => (get$2(pkg), untrack(() => formatAddress(get$2(pkg).txId)))
-                ],
-                derived_safe_equal
+                ]
               );
               event("click", button_11, () => copyToClipboard(get$2(pkg).packageId));
               event("click", button_12, () => copyToClipboard(get$2(pkg).sender));
@@ -92497,7 +94253,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                   template_effect(() => set_text(text_46, `Loading transactions for checkpoint ${get$2(selectedCheckpoint) ?? ""}...`));
                   append($$anchor4, div_72);
                 };
-                var alternate_7 = ($$anchor4, $$elseif) => {
+                var alternate_10 = ($$anchor4) => {
+                  var fragment_5 = comment$1();
+                  var node_20 = first_child(fragment_5);
                   {
                     var consequent_20 = ($$anchor5) => {
                       var div_73 = root_34();
@@ -92507,7 +94265,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                         var summary_4 = child(details_5);
                         var span_18 = child(summary_4);
                         span_18.textContent = `Transaction ${index2 + 1}`;
-                        var node_20 = sibling(span_18, 2);
+                        var node_21 = sibling(span_18, 2);
                         {
                           var consequent_17 = ($$anchor7) => {
                             var span_19 = root_36();
@@ -92518,7 +94276,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                             });
                             append($$anchor7, span_19);
                           };
-                          var alternate_8 = ($$anchor7, $$elseif2) => {
+                          var alternate_7 = ($$anchor7) => {
+                            var fragment_6 = comment$1();
+                            var node_22 = first_child(fragment_6);
                             {
                               var consequent_18 = ($$anchor8) => {
                                 var span_20 = root_38();
@@ -92530,20 +94290,21 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                                 append($$anchor8, span_20);
                               };
                               if_block(
-                                $$anchor7,
+                                node_22,
                                 ($$render) => {
                                   if (get$2(tx), untrack(() => get$2(tx).transactionDigest)) $$render(consequent_18);
                                 },
-                                $$elseif2
+                                true
                               );
                             }
+                            append($$anchor7, fragment_6);
                           };
-                          if_block(node_20, ($$render) => {
+                          if_block(node_21, ($$render) => {
                             if (get$2(tx), untrack(() => get$2(tx).digest)) $$render(consequent_17);
-                            else $$render(alternate_8, false);
+                            else $$render(alternate_7, false);
                           });
                         }
-                        var node_21 = sibling(node_20, 2);
+                        var node_23 = sibling(node_21, 2);
                         {
                           var consequent_19 = ($$anchor7) => {
                             var span_21 = root_39();
@@ -92559,18 +94320,17 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                                   success: get$2(tx).effects.status.status === "success",
                                   failure: get$2(tx).effects.status.status === "failure"
                                 })
-                              ],
-                              derived_safe_equal
+                              ]
                             );
                             append($$anchor7, span_21);
                           };
-                          if_block(node_21, ($$render) => {
+                          if_block(node_23, ($$render) => {
                             if (get$2(tx), untrack(() => get$2(tx).effects && get$2(tx).effects.status)) $$render(consequent_19);
                           });
                         }
                         var div_75 = sibling(summary_4, 2);
-                        var node_22 = child(div_75);
-                        TransactionView(node_22, {
+                        var node_24 = child(div_75);
+                        TransactionView(node_24, {
                           get value() {
                             return get$2(tx);
                           }
@@ -92579,7 +94339,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                       });
                       append($$anchor5, div_73);
                     };
-                    var alternate_9 = ($$anchor5, $$elseif2) => {
+                    var alternate_9 = ($$anchor5) => {
+                      var fragment_7 = comment$1();
+                      var node_25 = first_child(fragment_7);
                       {
                         var consequent_21 = ($$anchor6) => {
                           var div_76 = root_41();
@@ -92588,33 +94350,35 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
                           template_effect(() => set_text(text_50, `No transactions found for checkpoint ${get$2(selectedCheckpoint) ?? ""}`));
                           append($$anchor6, div_76);
                         };
-                        var alternate_10 = ($$anchor6) => {
+                        var alternate_8 = ($$anchor6) => {
                           var div_77 = root_42();
                           append($$anchor6, div_77);
                         };
                         if_block(
-                          $$anchor5,
+                          node_25,
                           ($$render) => {
                             if (get$2(selectedCheckpoint), get$2(checkpointTransactions), get$2(loadingCheckpointTransactions), untrack(() => get$2(selectedCheckpoint) && get$2(checkpointTransactions).length === 0 && !get$2(loadingCheckpointTransactions))) $$render(consequent_21);
-                            else $$render(alternate_10, false);
+                            else $$render(alternate_8, false);
                           },
-                          $$elseif2
+                          true
                         );
                       }
+                      append($$anchor5, fragment_7);
                     };
                     if_block(
-                      $$anchor4,
+                      node_20,
                       ($$render) => {
                         if (get$2(selectedCheckpoint), get$2(checkpointTransactions), untrack(() => get$2(selectedCheckpoint) && get$2(checkpointTransactions).length > 0)) $$render(consequent_20);
                         else $$render(alternate_9, false);
                       },
-                      $$elseif
+                      true
                     );
                   }
+                  append($$anchor4, fragment_5);
                 };
                 if_block(node_19, ($$render) => {
                   if (get$2(loadingCheckpointTransactions)) $$render(consequent_16);
-                  else $$render(alternate_7, false);
+                  else $$render(alternate_10, false);
                 });
               }
               template_effect(() => {
@@ -92646,8 +94410,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
               () => (get$2(displayData), untrack(() => get$2(displayData).uniqueSendersCount.toLocaleString())),
               () => (get$2(displayData), untrack(() => get$2(displayData).calledFunctionsCount.toLocaleString())),
               () => (get$2(displayData), untrack(() => get$2(displayData).publishedPackagesCount.toLocaleString()))
-            ],
-            derived_safe_equal
+            ]
           );
           append($$anchor2, div_21);
         };
@@ -92680,7 +94443,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       append($$anchor, div);
       pop();
     }
-    var root$8 = /* @__PURE__ */ from_html(`<main>Publish data as input to a tx <br/> <span>pure input data: <input placeholder="string" size="60"/></span> <br/> <button class="svelte-8fa537">publish data in tx</button> <!></main>`);
+    var root$b = /* @__PURE__ */ from_html(`<main>Publish data as input to a tx <br/> <span>pure input data: <input placeholder="string" size="60"/></span> <br/> <button class="svelte-8fa537">publish data in tx</button> <!></main>`);
     function PublishData($$anchor, $$props) {
       push($$props, false);
       let pureInputData = /* @__PURE__ */ mutable_source("some data");
@@ -92696,7 +94459,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         }
       };
       init();
-      var main = root$8();
+      var main = root$b();
       var span = sibling(child(main), 3);
       var input = sibling(child(span));
       var button = sibling(span, 4);
@@ -92711,9 +94474,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       append($$anchor, main);
       pop();
     }
-    var root_1$4 = /* @__PURE__ */ from_html(`<div style="color: red;"> </div>`);
-    var on_click$3 = (_, store5, defaultValue) => store5().set(defaultValue());
-    var root$7 = /* @__PURE__ */ from_html(`<div><textarea rows="10" style="width: 100%"></textarea> <!> <button> </button></div>`);
+    var root_1$7 = /* @__PURE__ */ from_html(`<div style="color: red;"> </div>`);
+    var on_click$4 = (_, store5, defaultValue) => store5().set(defaultValue());
+    var root$a = /* @__PURE__ */ from_html(`<div><textarea rows="10" style="width: 100%"></textarea> <!> <button> </button></div>`);
     function JsonStoreEditor($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
@@ -92737,7 +94500,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         }
       }
       init();
-      var div = root$7();
+      var div = root$a();
       var textarea = child(div);
       textarea.__input = handleChange;
       textarea.__change = [
@@ -92750,7 +94513,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       var node = sibling(textarea, 2);
       {
         var consequent = ($$anchor2) => {
-          var div_1 = root_1$4();
+          var div_1 = root_1$7();
           var text2 = child(div_1);
           template_effect(() => set_text(text2, $errorStore()));
           append($$anchor2, div_1);
@@ -92760,17 +94523,14 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         });
       }
       var button = sibling(node, 2);
-      button.__click = [on_click$3, store5, defaultValue];
+      button.__click = [on_click$4, store5, defaultValue];
       var text_1 = child(button);
       template_effect(
         ($0) => {
           classes = set_class(textarea, 1, "svelte-qazvf7", null, classes, $0);
           set_text(text_1, `Reset ${label() ?? ""}`);
         },
-        [
-          () => ({ error: errorStore() && $errorStore() })
-        ],
-        derived_safe_equal
+        [() => ({ error: errorStore() && $errorStore() })]
       );
       bind_value(textarea, () => get$2(jsonText), ($$value) => set$1(jsonText, $$value));
       append($$anchor, div);
@@ -92778,7 +94538,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       $$cleanup();
     }
     delegate(["input", "change", "click"]);
-    var on_click$2 = (_, newBech32PrivateKey, error2) => {
+    var on_click$3 = (_, newBech32PrivateKey, error2) => {
       sharedPrivateKeyAccounts.update((privateKeys) => {
         try {
           const address = keypairFromBech32PrivateKey(get$2(newBech32PrivateKey)).toIotaAddress();
@@ -92788,10 +94548,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             // keep all other keys
             accounts: {
               ...privateKeys.accounts,
-              [address]: {
-                bech32PrivateKey: get$2(newBech32PrivateKey),
-                address
-              }
+              [address]: { bech32PrivateKey: get$2(newBech32PrivateKey), address }
             }
           };
         } catch (e2) {
@@ -92802,12 +94559,12 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       updateSelectedSignerAccounts();
       set$1(newBech32PrivateKey, "");
     };
-    var root$6 = /* @__PURE__ */ from_html(`<main>Data is stored in your browser's local storage and can be deleted at any time. <div style="flex-direction: column; display: flex; gap: 1rem;"><details style=" margin: 1rem;"><summary style="float:left;"></summary> <!></details> <details style=" margin: 1rem;"><summary style="float:left;"></summary> <button>Add private key:</button> <input type="text" placeholder="iotaprivkey1..." size="75"/> <!></details></div></main>`);
+    var root$9 = /* @__PURE__ */ from_html(`<main>Data is stored in your browser's local storage and can be deleted at any time. <div style="flex-direction: column; display: flex; gap: 1rem;"><details style=" margin: 1rem;"><summary style="float:left;"></summary> <!></details> <details style=" margin: 1rem;"><summary style="float:left;"></summary> <button>Add private key:</button> <input type="text" placeholder="iotaprivkey1..." size="75"/> <!></details></div></main>`);
     function Settings($$anchor, $$props) {
       push($$props, true);
       let newBech32PrivateKey = /* @__PURE__ */ state("");
       let error2 = /* @__PURE__ */ state("");
-      var main = root$6();
+      var main = root$9();
       var div = sibling(child(main));
       var details = child(div);
       var summary = child(details);
@@ -92829,7 +94586,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       var summary_1 = child(details_1);
       summary_1.textContent = "Private keys:";
       var button = sibling(summary_1, 2);
-      button.__click = [on_click$2, newBech32PrivateKey, error2];
+      button.__click = [on_click$3, newBech32PrivateKey, error2];
       var input = sibling(button, 2);
       var text2 = sibling(input);
       var node_1 = sibling(text2);
@@ -92852,7 +94609,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       pop();
     }
     delegate(["click"]);
-    var root$5 = /* @__PURE__ */ from_html(`<main><div> </div> <button class="svelte-8fa537">List all IOTA coins</button> <br/> <button class="svelte-8fa537">Merge all IOTA coins (max 2048 at once)</button> <br/> <span>object count: <input placeholder="0"/></span> <span>amount per object: <input placeholder="0"/></span> <br/> <button class="svelte-8fa537">Split IOTA coins (max 2048)</button> <!></main>`);
+    var root$8 = /* @__PURE__ */ from_html(`<main><div> </div> <button class="svelte-8fa537">List all IOTA coins</button> <br/> <button class="svelte-8fa537">Merge all IOTA coins (max 2048 at once)</button> <br/> <span>object count: <input placeholder="0"/></span> <span>amount per object: <input placeholder="0"/></span> <br/> <button class="svelte-8fa537">Split IOTA coins (max 2048)</button> <!></main>`);
     function SplitMergeCoins($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
@@ -92946,7 +94703,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         return coins;
       }
       init();
-      var main = root$5();
+      var main = root$8();
       var div = child(main);
       var text2 = child(div);
       var button = sibling(div, 2);
@@ -92977,13 +94734,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           else $$render(alternate, false);
         });
       }
-      template_effect(
-        ($0) => set_text(text2, `IOTA balance: ${$0 ?? ""}`),
-        [
-          () => (get$2(iotaBalance), untrack(() => (get$2(iotaBalance) / 1e9).toFixed(9)))
-        ],
-        derived_safe_equal
-      );
+      template_effect(($0) => set_text(text2, `IOTA balance: ${$0 ?? ""}`), [() => (get$2(iotaBalance) / 1e9).toFixed(9)]);
       event("click", button, () => listAllIotaCoinObjects());
       event("click", button_1, () => mergeAllIotaCoins());
       bind_value(input, () => get$2(objectCount), ($$value) => set$1(objectCount, $$value));
@@ -92993,8 +94744,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       pop();
       $$cleanup();
     }
-    var root_1$3 = /* @__PURE__ */ from_html(`<div style="text-align: center;"><pre style="display: inline-block; text-align: left; margin: 0rem;"> </pre></div>`);
-    var root$4 = /* @__PURE__ */ from_html(`<main><button class="svelte-8fa537">list staked IOTA</button> <br/> <span>staked object id: <input placeholder="staked IOTA object id 0x..." size="67"/></span> <button class="svelte-8fa537">compute real rewards</button> <!> <hr/> It's only possible to stake to a candidate or active/committee validator, pending is not possible. <br/> <span>validator address: <input placeholder="validator address 0x..." size="67"/></span> <br/> <span>amount (min 1 IOTA, to unstake with rewards even more): <input type="number" placeholder="amount in NANO" min="1000000000" style="width: 14rem;"/> <input type="number" placeholder="amount in IOTA" min="1" style="width: 14rem;"/></span> <br/> <button class="svelte-8fa537">stake</button> <button class="svelte-8fa537">unstake single object</button> <button class="svelte-8fa537">unstake all</button> <button class="svelte-8fa537">simulate unstake specific amount</button> <button class="svelte-8fa537">unstake specific amount (exact is usually not possible)</button> <hr/> <button class="svelte-8fa537">list timelocked objects</button> <button class="svelte-8fa537">stake all timelocked objects</button> <!></main>`);
+    var root_1$6 = /* @__PURE__ */ from_html(`<div style="text-align: center;"><pre style="display: inline-block; text-align: left; margin: 0rem;"> </pre></div>`);
+    var root$7 = /* @__PURE__ */ from_html(`<main><button class="svelte-8fa537">list staked IOTA</button> <br/> <span>staked object id: <input placeholder="staked IOTA object id 0x..." size="67"/></span> <button class="svelte-8fa537">compute real rewards</button> <!> <hr/> It's only possible to stake to a candidate or active/committee validator, pending is not possible. <br/> <span>validator address: <input placeholder="validator address 0x..." size="67"/></span> <br/> <span>amount (min 1 IOTA, to unstake with rewards even more): <input type="number" placeholder="amount in NANO" min="1000000000" style="width: 14rem;"/> <input type="number" placeholder="amount in IOTA" min="1" style="width: 14rem;"/></span> <br/> <button class="svelte-8fa537">stake</button> <button class="svelte-8fa537">unstake single object</button> <button class="svelte-8fa537">unstake all</button> <button class="svelte-8fa537">simulate unstake specific amount</button> <button class="svelte-8fa537">unstake specific amount (exact is usually not possible)</button> <hr/> <button class="svelte-8fa537">list timelocked objects</button> <button class="svelte-8fa537">stake all timelocked objects</button> <!></main>`);
     function Stake($$anchor, $$props) {
       push($$props, false);
       const [$$stores, $$cleanup] = setup_stores();
@@ -93106,17 +94857,14 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           for (let diff of amountDifferences) {
             let unstakeAmount = initialUnstakeAmount + diff;
             let tx = await buildSingleObjectUnstakeTransaction(stakedIotaObjectId2, unstakeAmount, timelocked);
-            let txRes = await getClient().devInspectTransactionBlock({
-              sender: $activeAddress(),
-              transactionBlock: tx
-            });
+            let txRes = await getClient().devInspectTransactionBlock({ sender: $activeAddress(), transactionBlock: tx });
             if (txRes.error) {
               results.push(txRes.error);
               continue;
             }
             let index2 = timelocked ? 1 : 0;
             let amountBytes = txRes.results[1].returnValues[index2][0];
-            let amountString = bcs.u64().parse(new Uint8Array(amountBytes));
+            let amountString = bcs$1.u64().parse(new Uint8Array(amountBytes));
             let resString = `Unstake amount with ${diff.toString().padStart(12, " ")}: ${formatNumberWithUnderscores(unstakeAmount)}, would result in: ${formatNumberWithUnderscores(amountString)} for target amount: ${formatNumberWithUnderscores(get$2(amount))}`;
             if (unstakeAmount == initialUnstakeAmount) {
               results.push(resString + " this would be used");
@@ -93135,19 +94883,13 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         const tx = new Transaction$1();
         let splitStakedIota = tx.moveCall({
           target: timelocked ? "0x3::timelocked_staking::split" : "0x3::staking_pool::split",
-          arguments: [
-            tx.object(stakedIotaObjectId2),
-            tx.pure.u64(unstakeAmount)
-          ]
+          arguments: [tx.object(stakedIotaObjectId2), tx.pure.u64(unstakeAmount)]
         });
         let unstakedBalanceWithRewards;
         if (timelocked) {
           let [timelock, balance] = tx.moveCall({
             target: "0x3::timelocked_staking::request_withdraw_stake_non_entry",
-            arguments: [
-              tx.object("0x5"),
-              tx.object(splitStakedIota)
-            ]
+            arguments: [tx.object("0x5"), tx.object(splitStakedIota)]
           });
           tx.moveCall({
             target: "0x2::timelock::transfer_to_sender",
@@ -93173,10 +94915,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       async function computeRequiredUnstakeAmount(stakedIotaObjectId2) {
         var _a3, _b2, _c, _d;
         let stakeData = await devInspectStakedObject(stakedIotaObjectId2);
-        let obj = await getClient().getObject({
-          id: stakedIotaObjectId2,
-          options: { showContent: true }
-        });
+        let obj = await getClient().getObject({ id: stakedIotaObjectId2, options: { showContent: true } });
         let timelocked = false;
         if (((_b2 = (_a3 = obj.data) == null ? void 0 : _a3.content) == null ? void 0 : _b2.type) === "0x3::timelocked_staking::TimelockedStakedIota") {
           timelocked = true;
@@ -93208,10 +94947,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       async function devInspectStakedObject(stakedIotaObjectId2) {
         var _a3, _b2, _c, _d;
         const client2 = getClient();
-        let obj = await client2.getObject({
-          id: stakedIotaObjectId2,
-          options: { showContent: true }
-        });
+        let obj = await client2.getObject({ id: stakedIotaObjectId2, options: { showContent: true } });
         let target2;
         let timelocked = false;
         if (((_b2 = (_a3 = obj.data) == null ? void 0 : _a3.content) == null ? void 0 : _b2.type) === "0x3::staking_pool::StakedIota") {
@@ -93227,18 +94963,12 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         const tx = new Transaction$1();
         tx.moveCall({
           target: target2,
-          arguments: [
-            tx.object("0x5"),
-            tx.object(stakedIotaObjectId2)
-          ]
+          arguments: [tx.object("0x5"), tx.object(stakedIotaObjectId2)]
         });
-        const devInspectResult = await client2.devInspectTransactionBlock({
-          sender: $activeAddress(),
-          transactionBlock: tx
-        });
+        const devInspectResult = await client2.devInspectTransactionBlock({ sender: $activeAddress(), transactionBlock: tx });
         let index2 = timelocked ? 1 : 0;
         let amountBytes = devInspectResult.results[0].returnValues[index2][0];
-        let amountString = bcs.u64().parse(new Uint8Array(amountBytes));
+        let amountString = bcs$1.u64().parse(new Uint8Array(amountBytes));
         let totalUnstakeAmount = BigInt(amountString);
         let initialStakedAmount = BigInt(timelocked ? (
           // @ts-ignore
@@ -93264,10 +94994,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             for (let [innerIndex, stake2] of delegatedStake.stakes.entries()) {
               let balance = tx.moveCall({
                 target: "0x3::iota_system::request_withdraw_stake_non_entry",
-                arguments: [
-                  tx.object("0x5"),
-                  tx.object(stake2.stakedIotaId)
-                ]
+                arguments: [tx.object("0x5"), tx.object(stake2.stakedIotaId)]
               });
               if (index2 == 0 && innerIndex == 0) {
                 firstBalance = balance;
@@ -93407,7 +95134,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         }
       }
       init();
-      var main = root$4();
+      var main = root$7();
       var button = child(main);
       var span = sibling(button, 4);
       var input = sibling(child(span));
@@ -93415,20 +95142,14 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       var node = sibling(button_1, 2);
       {
         var consequent = ($$anchor2) => {
-          var div = root_1$3();
+          var div = root_1$6();
           var pre = child(div);
           var text2 = child(pre);
-          template_effect(
-            ($0) => set_text(text2, $0),
-            [
-              () => (get$2(devInspectValue), untrack(() => JSON.stringify(get$2(devInspectValue), null, 2)))
-            ],
-            derived_safe_equal
-          );
+          template_effect(($0) => set_text(text2, $0), [() => JSON.stringify(get$2(devInspectValue), null, 2)]);
           append($$anchor2, div);
         };
         if_block(node, ($$render) => {
-          if (get$2(devInspectValue), untrack(() => Object.keys(get$2(devInspectValue)).length > 0)) $$render(consequent);
+          if (Object.keys(get$2(devInspectValue)).length > 0) $$render(consequent);
         });
       }
       var span_1 = sibling(node, 6);
@@ -93449,13 +95170,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           return get$2(value2);
         }
       });
-      template_effect(
-        ($0) => set_value(input_3, $0),
-        [
-          () => (get$2(amount), untrack(() => (get$2(amount) / 1e9).toFixed(9)))
-        ],
-        derived_safe_equal
-      );
+      template_effect(($0) => set_value(input_3, $0), [() => (get$2(amount) / 1e9).toFixed(9)]);
       event("click", button, () => listStakedIota());
       bind_value(input, () => get$2(stakedIotaObjectId), ($$value) => set$1(stakedIotaObjectId, $$value));
       event("click", button_1, () => computeRewards(get$2(stakedIotaObjectId)));
@@ -93482,6 +95197,1059 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       pop();
       $$cleanup();
     }
+    var root_1$5 = /* @__PURE__ */ from_html(`<div><!></div>`);
+    var root$6 = /* @__PURE__ */ from_html(`<div><!> <div></div> <!></div>`);
+    function List($$anchor, $$props) {
+      const $$slots = sanitize_slots($$props);
+      push($$props, false);
+      const isVertical = /* @__PURE__ */ mutable_source();
+      const innerSize = /* @__PURE__ */ mutable_source();
+      const itemSizeInternal = /* @__PURE__ */ mutable_source();
+      const size = /* @__PURE__ */ mutable_source();
+      let itemCount = prop($$props, "itemCount", 8);
+      let itemSize = prop($$props, "itemSize", 8);
+      let height = prop($$props, "height", 8);
+      let width = prop($$props, "width", 8, "100%");
+      let overScan = prop($$props, "overScan", 8, 1);
+      let marginLeft = prop($$props, "marginLeft", 8, 0);
+      let marginTop = prop($$props, "marginTop", 8, 0);
+      let layout = prop($$props, "layout", 8, "vertical");
+      let scrollToIndex = prop($$props, "scrollToIndex", 28, () => void 0);
+      let scrollToPosition = prop($$props, "scrollToPosition", 28, () => void 0);
+      let scrollToBehavior = prop($$props, "scrollToBehavior", 8, "auto");
+      let list = /* @__PURE__ */ mutable_source();
+      let scrollPosition = /* @__PURE__ */ mutable_source(0);
+      let headerHeight = /* @__PURE__ */ mutable_source(0);
+      let offsetHeight = /* @__PURE__ */ mutable_source(0);
+      let clientHeight = /* @__PURE__ */ mutable_source(0);
+      let offsetWidth = /* @__PURE__ */ mutable_source(0);
+      let clientWidth = /* @__PURE__ */ mutable_source(0);
+      let indexes = /* @__PURE__ */ mutable_source([]);
+      const scrollTo = {
+        index: (index2) => {
+          scrollToIndex(index2);
+        },
+        position: (position) => {
+          scrollToPosition(position);
+        }
+      };
+      const getIndexes = (itemCount2, itemSize2, size2, overScan2, scrollPosition2) => {
+        const indexes2 = [];
+        const startIndexTemp = ~~(scrollPosition2 / itemSize2);
+        const startIndexOverScan = startIndexTemp > overScan2 ? startIndexTemp - overScan2 : 0;
+        const startIndex = startIndexOverScan >= 0 ? startIndexOverScan : startIndexTemp;
+        const endIndexTemp = Math.min(itemCount2, ~~((scrollPosition2 + size2) / itemSize2));
+        const endIndexOverScan = endIndexTemp + overScan2;
+        const endIndex = endIndexOverScan < itemCount2 ? endIndexOverScan : itemCount2;
+        for (let i2 = 0; i2 < endIndex - startIndex; i2++) indexes2.push(i2 + startIndex);
+        return indexes2;
+      };
+      const getItemStyle = (index2) => {
+        const ixis = index2 * itemSize();
+        return `position: absolute; transform: translate3d(${get$2(isVertical) ? `${marginLeft()}px, ${ixis + marginTop()}px` : `${ixis + marginLeft()}px, ${marginTop()}px`}, 0px); ${get$2(itemSizeInternal)} will-change: transform;`;
+      };
+      const onScroll = ({ currentTarget }) => {
+        if (scrollToIndex() === void 0 && scrollToPosition() === void 0) {
+          if (get$2(isVertical)) {
+            set$1(scrollPosition, Math.max(0, currentTarget.scrollTop - get$2(headerHeight)));
+          } else {
+            set$1(scrollPosition, currentTarget.scrollLeft);
+          }
+        }
+      };
+      legacy_pre_effect(() => deep_read_state(layout()), () => {
+        set$1(isVertical, layout() === "vertical");
+      });
+      legacy_pre_effect(
+        () => (get$2(list), deep_read_state(scrollToIndex()), get$2(isVertical), deep_read_state(itemSize()), get$2(headerHeight), deep_read_state(marginTop()), deep_read_state(marginLeft()), deep_read_state(scrollToBehavior())),
+        () => {
+          if (get$2(list) && scrollToIndex() !== void 0) {
+            get$2(list).scrollTo({
+              [get$2(isVertical) ? "top" : "left"]: scrollToIndex() * itemSize() + get$2(headerHeight) + (get$2(isVertical) ? marginTop() : marginLeft()),
+              behavior: scrollToBehavior()
+            });
+            scrollToIndex(void 0);
+          }
+        }
+      );
+      legacy_pre_effect(
+        () => (get$2(list), deep_read_state(scrollToPosition()), get$2(isVertical), get$2(headerHeight), deep_read_state(scrollToBehavior())),
+        () => {
+          if (get$2(list) && scrollToPosition() !== void 0) {
+            get$2(list).scrollTo({
+              [get$2(isVertical) ? "top" : "left"]: scrollToPosition() + get$2(headerHeight),
+              behavior: scrollToBehavior()
+            });
+            scrollToPosition(void 0);
+          }
+        }
+      );
+      legacy_pre_effect(() => (get$2(isVertical), get$2(offsetHeight), get$2(offsetWidth)), () => {
+        set$1(size, get$2(isVertical) ? get$2(offsetHeight) : get$2(offsetWidth));
+      });
+      legacy_pre_effect(
+        () => (deep_read_state(itemCount()), deep_read_state(itemSize()), get$2(size)),
+        () => {
+          set$1(innerSize, Math.max(itemCount() * itemSize(), get$2(size)));
+        }
+      );
+      legacy_pre_effect(
+        () => (get$2(isVertical), deep_read_state(itemSize()), deep_read_state(marginLeft()), get$2(clientWidth), deep_read_state(marginTop()), get$2(clientHeight)),
+        () => {
+          set$1(itemSizeInternal, get$2(isVertical) ? `height: ${itemSize()}px; width: ${marginLeft() > 0 ? `${get$2(clientWidth) - marginLeft()}px` : "100%"};` : `height: ${marginTop() > 0 ? `${get$2(clientHeight) - marginTop()}px` : "100%"}; width: ${itemSize()}px;`);
+        }
+      );
+      legacy_pre_effect(
+        () => (get$2(offsetHeight), deep_read_state(itemCount()), deep_read_state(itemSize()), get$2(size), deep_read_state(overScan()), get$2(scrollPosition)),
+        () => {
+          if (get$2(offsetHeight)) {
+            set$1(indexes, getIndexes(itemCount(), itemSize(), get$2(size), overScan(), get$2(scrollPosition)));
+          }
+        }
+      );
+      legacy_pre_effect_reset();
+      var div = root$6();
+      var node = child(div);
+      {
+        var consequent = ($$anchor2) => {
+          var div_1 = root_1$5();
+          var node_1 = child(div_1);
+          slot(node_1, $$props, "header", {}, null);
+          bind_element_size(div_1, "offsetHeight", ($$value) => set$1(headerHeight, $$value));
+          append($$anchor2, div_1);
+        };
+        if_block(node, ($$render) => {
+          if (untrack(() => $$slots.header)) $$render(consequent);
+        });
+      }
+      var div_2 = sibling(node, 2);
+      each$1(div_2, 5, () => get$2(indexes), (index2) => index2, ($$anchor2, index2) => {
+        var fragment = comment$1();
+        const style = /* @__PURE__ */ derived_safe_equal(() => (get$2(index2), untrack(() => getItemStyle(get$2(index2)))));
+        var node_2 = first_child(fragment);
+        slot(
+          node_2,
+          $$props,
+          "item",
+          {
+            get index() {
+              return get$2(index2);
+            },
+            get scrollPosition() {
+              return get$2(scrollPosition);
+            },
+            get style() {
+              return get$2(style);
+            }
+          },
+          ($$anchor3) => {
+            var text$1 = text("Missing template");
+            append($$anchor3, text$1);
+          }
+        );
+        append($$anchor2, fragment);
+      });
+      var node_3 = sibling(div_2, 2);
+      slot(node_3, $$props, "footer", {}, null);
+      bind_this(div, ($$value) => set$1(list, $$value), () => get$2(list));
+      template_effect(() => {
+        set_style(div, `position: relative; overflow: auto; height: ${height() ?? ""}px; width: ${width() ?? ""};`);
+        set_style(div_2, `height: ${get$2(isVertical) ? `${get$2(innerSize)}px` : "100%"}; width: ${!get$2(isVertical) ? `${get$2(innerSize)}px` : "100%"};`);
+      });
+      event("scroll", div, onScroll);
+      bind_element_size(div, "offsetHeight", ($$value) => set$1(offsetHeight, $$value));
+      bind_element_size(div, "clientHeight", ($$value) => set$1(clientHeight, $$value));
+      bind_element_size(div, "offsetWidth", ($$value) => set$1(offsetWidth, $$value));
+      bind_element_size(div, "clientWidth", ($$value) => set$1(clientWidth, $$value));
+      append($$anchor, div);
+      bind_prop($$props, "scrollTo", scrollTo);
+      return pop({ scrollTo });
+    }
+    var root_1$4 = /* @__PURE__ */ from_html(`<div class="address-hover-inline svelte-1i1p8ob"><button class="close-hover svelte-1i1p8ob" aria-label="Close address info">×</button> <div class="full-address svelte-1i1p8ob"> </div> <div class="principal svelte-1i1p8ob"> </div> <div class="pool-id svelte-1i1p8ob"> </div> </div>`);
+    var root_2$3 = /* @__PURE__ */ from_html(`<div class="header-cell stake-header-cell svelte-1i1p8ob"><div class="stake-header svelte-1i1p8ob"><div class="address-container svelte-1i1p8ob"><span class="address svelte-1i1p8ob" role="button" tabindex="0"> <button class="copy-btn svelte-1i1p8ob" title="Copy full address">📋</button></span></div></div></div>`);
+    var root_7$1 = /* @__PURE__ */ from_html(`<div class="pre-active-indicator svelte-1i1p8ob">pre-active</div>`);
+    var root_9 = /* @__PURE__ */ from_html(`<div class="stake-cell-content svelte-1i1p8ob"><span class="stake-value svelte-1i1p8ob"> </span> <div class="stake-popup svelte-1i1p8ob"><div> </div> <div> </div></div></div>`);
+    var root_10 = /* @__PURE__ */ from_html(`<div class="inactive-indicator svelte-1i1p8ob">-</div>`);
+    var root_4$2 = /* @__PURE__ */ from_html(`<div class="table-cell stake-cell svelte-1i1p8ob"><div class="stake-popup-container svelte-1i1p8ob"><!></div></div>`);
+    var root_3$3 = /* @__PURE__ */ from_html(`<div slot="item" class="table-row svelte-1i1p8ob"><div class="data-row svelte-1i1p8ob"><div class="table-cell epoch-cell svelte-1i1p8ob"> </div> <div class="table-cell rewards-cell svelte-1i1p8ob"> </div> <div class="table-cell rewards-cell svelte-1i1p8ob"> </div> <!></div></div>`);
+    var root$5 = /* @__PURE__ */ from_html(
+      `<!> <div style="float: left">Data might be incomplete. Values are estimates due to rounding. Epochs before the first
+    transaction are hidden.</div> <br/> <div style="float: left">Transfer history is currently not taken into account, values are computed like the objects were
+    always owned by the provided address.</div> <br/> <div class="table-container svelte-1i1p8ob"><div class="virtual-table svelte-1i1p8ob"><div class="table-header svelte-1i1p8ob"><div class="header-row svelte-1i1p8ob"><div class="header-cell epoch-header svelte-1i1p8ob">Epoch</div> <div class="header-cell rewards-header svelte-1i1p8ob">Rewards</div> <div class="header-cell rewards-header svelte-1i1p8ob">Accumulated</div> <!></div></div> <div class="table-body svelte-1i1p8ob"><!></div></div></div>`,
+      1
+    );
+    function StakingRewardsTable($$anchor, $$props) {
+      push($$props, false);
+      let currentEpoch = prop($$props, "currentEpoch", 8, 91);
+      let stakeObjects = prop($$props, "stakeObjects", 24, () => []);
+      function copyToClipboard(text2) {
+        navigator.clipboard.writeText(text2);
+      }
+      let minEpoch = /* @__PURE__ */ mutable_source(0);
+      let epochs = /* @__PURE__ */ mutable_source([]);
+      function isActiveInEpoch(stakeObject, epoch) {
+        return epoch >= stakeObject.firstEpoch && epoch <= stakeObject.lastEpoch;
+      }
+      function isPreActivationInEpoch(stakeObject, epoch) {
+        return epoch >= stakeObject.firstEpoch && epoch < stakeObject.stakeActivationEpoch;
+      }
+      function getTotalRewardsForEpoch(epoch) {
+        let total = 0n;
+        stakeObjects().forEach((stakeObject) => {
+          const rewards = stakeObject.rewardsByEpoch[epoch];
+          if (rewards && rewards !== "0") {
+            try {
+              total += BigInt(rewards);
+            } catch (e2) {
+            }
+          }
+        });
+        return total === 0n ? "0" : (Number(total) / 1e9).toFixed(2) + " IOTA";
+      }
+      function getTotalAccumulatedRewardsForEpoch(epoch) {
+        let total = 0n;
+        stakeObjects().forEach((stakeObject) => {
+          const rewards = stakeObject.accumulatedRewards[epoch];
+          if (rewards && rewards !== "0") {
+            try {
+              total += BigInt(rewards);
+            } catch (e2) {
+            }
+          }
+        });
+        return total === 0n ? "0" : (Number(total) / 1e9).toFixed(2) + " IOTA";
+      }
+      function formatPrincipal(principal) {
+        if (!principal || principal === "0") return "N/A";
+        try {
+          const value2 = BigInt(principal);
+          return "Initial amount: " + (Number(value2) / 1e9).toFixed(2) + " IOTA";
+        } catch {
+          return "N/A";
+        }
+      }
+      function getFirstPrincipal(stakeObject) {
+        const epochs2 = Object.keys(stakeObject.principalByEpoch).map(Number);
+        if (epochs2.length === 0) return "";
+        const minEpoch2 = Math.min(...epochs2);
+        return stakeObject.principalByEpoch[minEpoch2];
+      }
+      let headerElement = /* @__PURE__ */ mutable_source();
+      let listElement = /* @__PURE__ */ mutable_source();
+      function syncHeaderScroll(event2) {
+        var _a3, _b2, _c, _d;
+        const target2 = event2.target;
+        let scrollContainer = null;
+        if (get$2(listElement)) {
+          scrollContainer = ((_b2 = (_a3 = get$2(listElement)).querySelector) == null ? void 0 : _b2.call(_a3, "[data-virtual-list-viewport]")) || ((_d = (_c = get$2(listElement)).querySelector) == null ? void 0 : _d.call(_c, '[style*="overflow"]'));
+        }
+        if (scrollContainer && scrollContainer.scrollLeft !== target2.scrollLeft) {
+          scrollContainer.scrollLeft = target2.scrollLeft;
+        }
+      }
+      function syncListScroll(event2) {
+        const target2 = event2.target;
+        if (get$2(headerElement) && get$2(headerElement).scrollLeft !== target2.scrollLeft) {
+          mutate(headerElement, get$2(headerElement).scrollLeft = target2.scrollLeft);
+        }
+      }
+      function setupScrollSync(node) {
+        const findScrollContainer = () => {
+          return node.querySelector('[style*="overflow"]') || node.querySelector("[data-virtual-list-viewport]");
+        };
+        let scrollContainer = null;
+        const timeout = setTimeout(
+          () => {
+            scrollContainer = findScrollContainer();
+            if (scrollContainer) {
+              scrollContainer.addEventListener("scroll", syncListScroll);
+            }
+          },
+          100
+        );
+        return {
+          destroy() {
+            clearTimeout(timeout);
+            if (scrollContainer) {
+              scrollContainer.removeEventListener("scroll", syncListScroll);
+            }
+          }
+        };
+      }
+      let selectedStakeObject = /* @__PURE__ */ mutable_source(null);
+      legacy_pre_effect(() => deep_read_state(stakeObjects()), () => {
+        set$1(minEpoch, (() => {
+          if (stakeObjects().length === 0) return 0;
+          let min = Infinity;
+          stakeObjects().forEach((stakeObject) => {
+            if (stakeObject.firstEpoch < min) min = stakeObject.firstEpoch;
+          });
+          return min === Infinity ? 0 : min;
+        })());
+      });
+      legacy_pre_effect(() => (deep_read_state(currentEpoch()), get$2(minEpoch)), () => {
+        set$1(epochs, Array.from({ length: currentEpoch() + 1 }, (_, i2) => i2).slice(get$2(minEpoch)));
+      });
+      legacy_pre_effect_reset();
+      init();
+      var fragment = root$5();
+      var node_1 = first_child(fragment);
+      {
+        var consequent = ($$anchor2) => {
+          var div = root_1$4();
+          var button = child(div);
+          var div_1 = sibling(button, 2);
+          var text_1 = child(div_1);
+          var div_2 = sibling(div_1, 2);
+          var text_2 = child(div_2);
+          var div_3 = sibling(div_2, 2);
+          var text_3 = child(div_3);
+          var text_4 = sibling(div_3);
+          template_effect(
+            ($0) => {
+              set_text(text_1, (get$2(selectedStakeObject), untrack(() => get$2(selectedStakeObject).address)));
+              set_text(text_2, $0);
+              set_text(text_3, `Pool: ${(get$2(selectedStakeObject), untrack(() => get$2(selectedStakeObject).poolId)) ?? ""}`);
+              set_text(text_4, ` First Epoch: ${(get$2(selectedStakeObject), untrack(() => get$2(selectedStakeObject).firstEpoch)) ?? ""}
+        Last Epoch: ${(get$2(selectedStakeObject), untrack(() => get$2(selectedStakeObject).lastEpoch)) ?? ""}`);
+            },
+            [
+              () => (get$2(selectedStakeObject), untrack(() => formatPrincipal(getFirstPrincipal(get$2(selectedStakeObject)))))
+            ]
+          );
+          event("click", button, () => set$1(selectedStakeObject, null));
+          append($$anchor2, div);
+        };
+        if_block(node_1, ($$render) => {
+          if (get$2(selectedStakeObject)) $$render(consequent);
+        });
+      }
+      var div_4 = sibling(node_1, 10);
+      var div_5 = child(div_4);
+      var div_6 = child(div_5);
+      var div_7 = child(div_6);
+      var node_2 = sibling(child(div_7), 6);
+      each$1(node_2, 1, stakeObjects, index$1, ($$anchor2, stakeObject) => {
+        var div_8 = root_2$3();
+        var div_9 = child(div_8);
+        var div_10 = child(div_9);
+        var span = child(div_10);
+        var text_5 = child(span);
+        var button_1 = sibling(text_5);
+        template_effect(($0, $1) => set_text(text_5, `${$0 ?? ""}..${$1 ?? ""} `), [
+          () => (get$2(stakeObject), untrack(() => get$2(stakeObject).address.slice(0, 6))),
+          () => (get$2(stakeObject), untrack(() => get$2(stakeObject).address.slice(-3)))
+        ]);
+        event("click", button_1, (e2) => {
+          e2.stopPropagation();
+          copyToClipboard(get$2(stakeObject).address);
+        });
+        event("click", span, () => {
+          set$1(selectedStakeObject, get$2(stakeObject));
+        });
+        event("keydown", span, (e2) => {
+          if (e2.key === "Enter" || e2.key === " ") {
+            set$1(selectedStakeObject, get$2(stakeObject));
+          }
+        });
+        append($$anchor2, div_8);
+      });
+      bind_this(div_6, ($$value) => set$1(headerElement, $$value), () => get$2(headerElement));
+      var div_11 = sibling(div_6, 2);
+      var node_3 = child(div_11);
+      bind_this(
+        List(node_3, {
+          get itemCount() {
+            return get$2(epochs), untrack(() => get$2(epochs).length);
+          },
+          itemSize: 50,
+          height: 800,
+          $$slots: {
+            item: ($$anchor2, $$slotProps) => {
+              var div_12 = root_3$3();
+              const index2 = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.index);
+              const style = /* @__PURE__ */ derived_safe_equal(() => $$slotProps.style);
+              var div_13 = child(div_12);
+              var div_14 = child(div_13);
+              var text_6 = child(div_14);
+              var div_15 = sibling(div_14, 2);
+              var text_7 = child(div_15);
+              var div_16 = sibling(div_15, 2);
+              var text_8 = child(div_16);
+              var node_4 = sibling(div_16, 2);
+              each$1(node_4, 1, stakeObjects, index$1, ($$anchor3, stakeObject) => {
+                var div_17 = root_4$2();
+                var div_18 = child(div_17);
+                var node_5 = child(div_18);
+                {
+                  var consequent_1 = ($$anchor4) => {
+                    var text_9 = text("pending");
+                    append($$anchor4, text_9);
+                  };
+                  var alternate_2 = ($$anchor4) => {
+                    var fragment_1 = comment$1();
+                    var node_6 = first_child(fragment_1);
+                    {
+                      var consequent_2 = ($$anchor5) => {
+                        var div_19 = root_7$1();
+                        append($$anchor5, div_19);
+                      };
+                      var alternate_1 = ($$anchor5) => {
+                        var fragment_2 = comment$1();
+                        var node_7 = first_child(fragment_2);
+                        {
+                          var consequent_3 = ($$anchor6) => {
+                            var div_20 = root_9();
+                            var span_1 = child(div_20);
+                            var text_10 = child(span_1);
+                            var div_21 = sibling(span_1, 2);
+                            var div_22 = child(div_21);
+                            var text_11 = child(div_22);
+                            var div_23 = sibling(div_22, 2);
+                            var text_12 = child(div_23);
+                            template_effect(
+                              ($0, $1, $2) => {
+                                set_text(text_10, $0);
+                                set_text(text_11, `Rewards this epoch: ${$1 ?? ""} IOTA`);
+                                set_text(text_12, `Accumulated rewards: ${$2 ?? ""} IOTA`);
+                              },
+                              [
+                                () => (get$2(stakeObject), get$2(epochs), deep_read_state(get$2(index2)), untrack(() => get$2(stakeObject).rewardsByEpoch[get$2(epochs)[get$2(index2)]] === "0" ? "-" : (Number(get$2(stakeObject).rewardsByEpoch[get$2(epochs)[get$2(index2)]]) / 1e9).toFixed(2) + " IOTA")),
+                                () => (get$2(stakeObject), get$2(epochs), deep_read_state(get$2(index2)), untrack(() => (Number(get$2(stakeObject).rewardsByEpoch[get$2(epochs)[get$2(index2)]]) / 1e9).toFixed(9))),
+                                () => (get$2(stakeObject), get$2(epochs), deep_read_state(get$2(index2)), untrack(() => (Number(get$2(stakeObject).accumulatedRewards[get$2(epochs)[get$2(index2)]]) / 1e9).toFixed(9)))
+                              ]
+                            );
+                            append($$anchor6, div_20);
+                          };
+                          var alternate = ($$anchor6) => {
+                            var div_24 = root_10();
+                            append($$anchor6, div_24);
+                          };
+                          if_block(
+                            node_7,
+                            ($$render) => {
+                              if (get$2(stakeObject), get$2(epochs), deep_read_state(get$2(index2)), untrack(() => isActiveInEpoch(get$2(stakeObject), get$2(epochs)[get$2(index2)]) && get$2(epochs)[get$2(index2)] >= get$2(stakeObject).firstEpoch)) $$render(consequent_3);
+                              else $$render(alternate, false);
+                            },
+                            true
+                          );
+                        }
+                        append($$anchor5, fragment_2);
+                      };
+                      if_block(
+                        node_6,
+                        ($$render) => {
+                          if (get$2(stakeObject), get$2(epochs), deep_read_state(get$2(index2)), untrack(() => isPreActivationInEpoch(get$2(stakeObject), get$2(epochs)[get$2(index2)]))) $$render(consequent_2);
+                          else $$render(alternate_1, false);
+                        },
+                        true
+                      );
+                    }
+                    append($$anchor4, fragment_1);
+                  };
+                  if_block(node_5, ($$render) => {
+                    if (get$2(epochs), deep_read_state(get$2(index2)), deep_read_state(currentEpoch()), untrack(() => get$2(epochs)[get$2(index2)] === currentEpoch())) $$render(consequent_1);
+                    else $$render(alternate_2, false);
+                  });
+                }
+                append($$anchor3, div_17);
+              });
+              template_effect(
+                ($0, $1) => {
+                  set_style(div_12, get$2(style));
+                  set_text(text_6, (get$2(epochs), deep_read_state(get$2(index2)), untrack(() => get$2(epochs)[get$2(index2)])));
+                  set_text(text_7, $0);
+                  set_text(text_8, $1);
+                },
+                [
+                  () => (get$2(epochs), deep_read_state(get$2(index2)), deep_read_state(currentEpoch()), untrack(() => get$2(epochs)[get$2(index2)] === currentEpoch() ? "pending" : getTotalRewardsForEpoch(get$2(epochs)[get$2(index2)]))),
+                  () => (get$2(epochs), deep_read_state(get$2(index2)), deep_read_state(currentEpoch()), untrack(() => get$2(epochs)[get$2(index2)] === currentEpoch() ? "pending" : getTotalAccumulatedRewardsForEpoch(get$2(epochs)[get$2(index2)])))
+                ]
+              );
+              append($$anchor2, div_12);
+            }
+          },
+          $$legacy: true
+        }),
+        ($$value) => set$1(listElement, $$value),
+        () => get$2(listElement)
+      );
+      action(div_11, ($$node) => setupScrollSync == null ? void 0 : setupScrollSync($$node));
+      event("scroll", div_6, syncHeaderScroll);
+      append($$anchor, fragment);
+      pop();
+    }
+    const exchangeRateCacheData = /* @__PURE__ */ JSON.parse('[{"poolId":"0xac52ad5da1f6f4a314e9a879f73b9eee255951c0c710095fdc7eb86a58e4b7ee","exchangeRateId":"0xf0b434459d5a69bdbc18d5bb2b29dd3c01f41503b9904ad8ace48bc71b391058","epochData":{"2":{"iota":"0","pool":"0"},"3":{"iota":"9597963477406400","pool":"9586792720940331"},"4":{"iota":"13283085361033507","pool":"13257761994117178"},"5":{"iota":"13651961112346578","pool":"13616576578863898"},"6":{"iota":"12166482227719467","pool":"12127666576930058"},"7":{"iota":"11965538003315683","pool":"11921427525979015"},"8":{"iota":"11952263373660406","pool":"11902587933376055"},"9":{"iota":"12105495394497914","pool":"12049684765636317"},"10":{"iota":"12372556375519692","pool":"12310164155777177"},"11":{"iota":"12331132786789449","pool":"12263729382453359"},"12":{"iota":"12347246577358366","pool":"12274601076132085"},"13":{"iota":"11921760086658624","pool":"11846538850613102"},"14":{"iota":"11960714396358313","pool":"11880342085969879"},"15":{"iota":"11965742846280752","pool":"11880536901113461"},"16":{"iota":"11971188546284515","pool":"11881077371951748"},"17":{"iota":"11965578854089944","pool":"11870645446852199"},"18":{"iota":"11923416039455158","pool":"11824365182576608"},"19":{"iota":"16898199263222135","pool":"16751599010841053"},"20":{"iota":"16904622831904465","pool":"16751876235315717"},"21":{"iota":"16910515462735590","pool":"16751627218711004"},"22":{"iota":"16877578312866468","pool":"16712981736128638"},"23":{"iota":"16870534081057334","pool":"16700058220952980"},"24":{"iota":"16887206981060901","pool":"16710613960892968"},"25":{"iota":"16893879881063163","pool":"16711274038159718"},"26":{"iota":"16889677830539677","pool":"16701176057069153"},"27":{"iota":"16872165909092299","pool":"16677920764451313"},"28":{"iota":"16676944168473927","pool":"16479009840413949"},"29":{"iota":"16682453586512211","pool":"16478655732434639"},"30":{"iota":"16843456351316509","pool":"16631841890335206"},"31":{"iota":"16849976851319314","pool":"16632486412408053"},"32":{"iota":"16856496351322799","pool":"16633129723372735"},"33":{"iota":"16863017951326454","pool":"16633774881938005"},"34":{"iota":"16869537451328749","pool":"16634417745364710"},"35":{"iota":"16876056951331044","pool":"16635060385268880"},"36":{"iota":"16882576451335124","pool":"16635702801814701"},"37":{"iota":"16898984251341088","pool":"16646153353115856"},"38":{"iota":"16925308954296857","pool":"16666365502169330"},"39":{"iota":"16991658783457144","pool":"16725956250573874"},"40":{"iota":"16973567850147082","pool":"16702303717471199"},"41":{"iota":"16980164050153790","pool":"16702952568775112"},"42":{"iota":"16986760250155424","pool":"16703601193307370"},"43":{"iota":"16989204276147425","pool":"16700166631409350"},"44":{"iota":"16995800476153273","pool":"16700814802790593"},"45":{"iota":"16819513431412171","pool":"16521746747390973"},"46":{"iota":"17924153093244812","pool":"17600690195080339"},"47":{"iota":"17931056093245982","pool":"17601367802920793"},"48":{"iota":"17937959093247332","pool":"17602045176066993"},"49":{"iota":"17944862093249042","pool":"17602722314690499"},"50":{"iota":"17951765093250032","pool":"17603399218962556"},"51":{"iota":"17957162855459677","pool":"17602599861378269"},"52":{"iota":"17964065855466607","pool":"17603276297422206"},"53":{"iota":"17965876105064018","pool":"17598962031726792"},"54":{"iota":"17972769850729960","pool":"17599628933383114"},"55":{"iota":"17979672850731490","pool":"17600304668165164"},"56":{"iota":"17986575850733200","pool":"17600980169534344"},"57":{"iota":"17993478850734190","pool":"17601655437660711"},"58":{"iota":"17992224962728811","pool":"17594351207818402"},"59":{"iota":"17999218878786368","pool":"17595182368021676"},"60":{"iota":"18006045178787080","pool":"17595849447027088"},"61":{"iota":"18012871478791085","pool":"17596516298502824"},"62":{"iota":"18019697778791886","pool":"17597182922612025"},"63":{"iota":"18026524078792687","pool":"17597849319518599"},"64":{"iota":"18008199175947212","pool":"17573962387422717"},"65":{"iota":"18016366475952374","pool":"17575936547558295"},"66":{"iota":"18029724031055067","pool":"17582971672326155"},"67":{"iota":"18030844271233454","pool":"17578072489401216"},"68":{"iota":"18036994776671639","pool":"17578011624737871"},"69":{"iota":"18043897776677579","pool":"17578684127199015"},"70":{"iota":"18050800776716279","pool":"17579356398193516"},"71":{"iota":"18057703776730499","pool":"17580028437883928"},"72":{"iota":"18064530076735038","pool":"17580692784438885"},"73":{"iota":"22070173119069934","pool":"21471910557326952"},"74":{"iota":"22119004352390796","pool":"21512318540512096"},"75":{"iota":"22123029586054758","pool":"21509116624996465"},"76":{"iota":"22131159786056242","pool":"21509906822375046"},"77":{"iota":"22138524289435309","pool":"21509952556134298"},"78":{"iota":"22146914489437853","pool":"21510994765766706"},"79":{"iota":"22171190885586438","pool":"21527461579655242"},"80":{"iota":"22154617479465903","pool":"21504306516594982"},"81":{"iota":"22280058519782696","pool":"21618992535536699"},"82":{"iota":"22259505257038989","pool":"21592013752462954"},"83":{"iota":"22271538454044983","pool":"21596586847896249"},"84":{"iota":"22474485721439832","pool":"21786282195188776"},"85":{"iota":"22482615921442482","pool":"21787070062746985"},"86":{"iota":"22488592144061631","pool":"21785703431813296"},"87":{"iota":"22496799044070405","pool":"21786498209825932"},"88":{"iota":"22505005944080142","pool":"21787292726980636"},"89":{"iota":"22604034300097754","pool":"21875983180114248"},"90":{"iota":"22816017590336960","pool":"22073925732374119"},"91":{"iota":"22824301190339012","pool":"22074726888151774"},"92":{"iota":"22831552805294205","pool":"22074529688753939"},"93":{"iota":"22814605739611027","pool":"22049403666506142"},"94":{"iota":"22822889339612539","pool":"22050203981781823"},"95":{"iota":"22831172939613943","pool":"22051004035714856"},"96":{"iota":"22839456539616103","pool":"22051803828485425"}}},{"poolId":"0x29e717d670eda89e7f4772df48113c8063895da31dbe6c4515775a18cde3b918","exchangeRateId":"0x5a0f82dbfc71b1858168b3c3335a88a8fbf608e202a319621dbd43af7f0dcf9c","epochData":{"2":{"iota":"0","pool":"0"},"3":{"iota":"6675193517308200","pool":"6667364476500133"},"4":{"iota":"12696674922110985","pool":"12672077457575936"},"5":{"iota":"18149402514229444","pool":"18101809248200623"},"6":{"iota":"23639728601752257","pool":"23564242340592418"},"7":{"iota":"26399491106754123","pool":"26300995541127773"},"8":{"iota":"26622714400750605","pool":"26509485443790094"},"9":{"iota":"27024383798433792","pool":"26896456063936698"},"10":{"iota":"27245003664121088","pool":"27103421395075772"},"11":{"iota":"25298881931378026","pool":"25155986175165876"},"12":{"iota":"24837940880421545","pool":"24687182233015026"},"13":{"iota":"24714110382573024","pool":"24553910689186824"},"14":{"iota":"25226807740482184","pool":"25052924925619553"},"15":{"iota":"24665454625508990","pool":"24485356061949440"},"16":{"iota":"24677396784810316","pool":"24487479492574981"},"17":{"iota":"24666258577240170","pool":"24466751058356331"},"18":{"iota":"24470985624047014","pool":"24264081825577178"},"19":{"iota":"29267086729708020","pool":"29008865785364230"},"20":{"iota":"28792264919528024","pool":"28527749516306972"},"21":{"iota":"28634737890831175","pool":"28361356200668956"},"22":{"iota":"28463738237395400","pool":"28181801428913883"},"23":{"iota":"28376389180940257","pool":"28085269975268710"},"24":{"iota":"28373904254822384","pool":"28072903490425932"},"25":{"iota":"28368144713169204","pool":"28057301492684429"},"26":{"iota":"28354481025119113","pool":"28033887463030914"},"27":{"iota":"28215463447021698","pool":"27886527412352841"},"28":{"iota":"28017912170197815","pool":"27681438978633271"},"29":{"iota":"28023939825135902","pool":"27677641117586337"},"30":{"iota":"27912675824852327","pool":"27558002322817030"},"31":{"iota":"27910936764694252","pool":"27546607275230659"},"32":{"iota":"27900800242627668","pool":"27526994714204464"},"33":{"iota":"27900527406032014","pool":"27517111527669229"},"34":{"iota":"27797810895875362","pool":"27406206725888220"},"35":{"iota":"27762917620887642","pool":"27362344652591981"},"36":{"iota":"27777896947455057","pool":"27367647283213678"},"37":{"iota":"24927068801327996","pool":"24549468938500914"},"38":{"iota":"24909702960256758","pool":"24523926845113495"},"39":{"iota":"24194893580020524","pool":"23811755651063829"},"40":{"iota":"24204982996481648","pool":"23813461935749410"},"41":{"iota":"24235864593982610","pool":"23835618844848287"},"42":{"iota":"24253607400315276","pool":"23844850764436954"},"43":{"iota":"24202078967331624","pool":"23785969017839894"},"44":{"iota":"24222215169059943","pool":"23797545947707749"},"45":{"iota":"23949579270301312","pool":"23521471354885026"},"46":{"iota":"28450648494027424","pool":"27932293953048031"},"47":{"iota":"28402546699978129","pool":"27875512286182931"},"48":{"iota":"28413284699980229","pool":"27876565802405379"},"49":{"iota":"28326384958887706","pool":"27781825138848794"},"50":{"iota":"28233806132039672","pool":"27681547319797781"},"51":{"iota":"28210940359609360","pool":"27649720964262207"},"52":{"iota":"28214981136269889","pool":"27644276712868744"},"53":{"iota":"28190946276440106","pool":"27611326562105516"},"54":{"iota":"28204513400719519","pool":"27615215523991656"},"55":{"iota":"28163677643356431","pool":"27565837931854433"},"56":{"iota":"28174338943359072","pool":"27566881075368367"},"57":{"iota":"28185004243360601","pool":"27567927776170700"},"58":{"iota":"28194370385492509","pool":"27567703407681156"},"59":{"iota":"28204960281993579","pool":"27568675670079098"},"60":{"iota":"28215621581994691","pool":"27569717394526793"},"61":{"iota":"28226147867797826","pool":"27570694296205046"},"62":{"iota":"28236732467799068","pool":"27571727828362986"},"63":{"iota":"28238793242083173","pool":"27564437931164502"},"64":{"iota":"28207904104371300","pool":"27524987439842957"},"65":{"iota":"28201741265328544","pool":"27509677928964151"},"66":{"iota":"28212215362875985","pool":"27510602275222885"},"67":{"iota":"28187122814742285","pool":"27476911492857633"},"68":{"iota":"28180121616507520","pool":"27460732937795484"},"69":{"iota":"28190820950740363","pool":"27461741288143765"},"70":{"iota":"28181763134895772","pool":"27443503103839437"},"71":{"iota":"28137820151802674","pool":"27391367102207926"},"72":{"iota":"28138750560767024","pool":"27383066257615002"},"73":{"iota":"28035738678260381","pool":"27273818890866085"},"74":{"iota":"28044760716630810","pool":"27273663934122589"},"75":{"iota":"28016020005960310","pool":"27236784573725366"},"76":{"iota":"28033221105962172","pool":"27244579058709224"},"77":{"iota":"28043052756490394","pool":"27245211089997992"},"78":{"iota":"28043678187122874","pool":"27236898616946149"},"79":{"iota":"27882319887215118","pool":"27071265190842662"},"80":{"iota":"27662335984011055","pool":"26848833057482349"},"81":{"iota":"27671825185555703","pool":"26849265886217903"},"82":{"iota":"27657444523487848","pool":"26826534895370981"},"83":{"iota":"27634631207265869","pool":"26795635383995338"},"84":{"iota":"27074362472121565","pool":"26243674808219987"},"85":{"iota":"27065463268308378","pool":"26226483595142002"},"86":{"iota":"27073057615742571","pool":"26225280276067041"},"87":{"iota":"27082875215753067","pool":"26226230982531986"},"88":{"iota":"27092692815764715","pool":"26227181378928394"},"89":{"iota":"27102587115773745","pool":"26228138885581555"},"90":{"iota":"27112404715775153","pool":"26229088660061411"},"91":{"iota":"27120246756949762","pool":"26228060143654199"},"92":{"iota":"27113046568469018","pool":"26212551349978424"},"93":{"iota":"27122905750568514","pool":"26213540381891142"},"94":{"iota":"27132646650570292","pool":"26214481508815707"},"95":{"iota":"27126902886167533","pool":"26200461666150684"},"96":{"iota":"27135094819120052","pool":"26199906118398373"}}},{"poolId":"0xb1f597fd821e018038b32bfe48a00eaf7c20d7ba1aada965cdd35b31230fa690","exchangeRateId":"0xe52471c4656ba83f4b120cfbd7a21ba5b54621829b21113482d7124d14da41fc","epochData":{"3":{"iota":"0","pool":"0"},"4":{"iota":"8501494571480665","pool":"8494693604639544"},"5":{"iota":"8554100481981065","pool":"8541216056013620"},"6":{"iota":"13733888873750098","pool":"13705374037926527"},"7":{"iota":"16634738915688264","pool":"16591392795615360"},"8":{"iota":"16698906015692784","pool":"16646892727838754"},"9":{"iota":"16727319694201212","pool":"16667113490372863"},"10":{"iota":"17731972146594985","pool":"17659896718294575"},"11":{"iota":"18865120212983935","pool":"18779841106677032"},"12":{"iota":"18937039136335668","pool":"18842876102816723"},"13":{"iota":"18978175028234544","pool":"18875340277165181"},"14":{"iota":"19245225188299905","pool":"19132380631361456"},"15":{"iota":"19296639876684802","pool":"19175099723639804"},"16":{"iota":"19341057273690738","pool":"19210855867268544"},"17":{"iota":"19363695493727698","pool":"19224973625594609"},"18":{"iota":"19379495005356257","pool":"19232955767416520"},"19":{"iota":"19405148105366969","pool":"19250724235784836"},"20":{"iota":"18594731192858882","pool":"18439144126063122"},"21":{"iota":"18606756792860058","pool":"18443762642575056"},"22":{"iota":"18850908661779446","pool":"18678531888436200"},"23":{"iota":"18880150561781192","pool":"18700273554425321"},"24":{"iota":"18906133600569222","pool":"18718780260486815"},"25":{"iota":"18925541685431598","pool":"18730770431877196"},"26":{"iota":"19004482010610406","pool":"18801646906614390"},"27":{"iota":"18998533642270196","pool":"18788548485796407"},"28":{"iota":"19113234423986767","pool":"18894730248613691"},"29":{"iota":"19147131675854250","pool":"18920983763857980"},"30":{"iota":"19183894575856093","pool":"18950096382803357"},"31":{"iota":"19245327553694274","pool":"19003557722302384"},"32":{"iota":"19318703740242198","pool":"19068761342755751"},"33":{"iota":"19418112541040569","pool":"19159652933490951"},"34":{"iota":"19469664037922412","pool":"19203233514357723"},"35":{"iota":"19527531739282542","pool":"19253021066535917"},"36":{"iota":"20069712071706292","pool":"19780116959452143"},"37":{"iota":"20073839403267824","pool":"19776771768606033"},"38":{"iota":"20091448693024918","pool":"19786711104420680"},"39":{"iota":"20160282267141651","pool":"19847074338512969"},"40":{"iota":"20165679450233914","pool":"19844839793229674"},"41":{"iota":"20182672986456070","pool":"19854014521256539"},"42":{"iota":"20192907510837187","pool":"19856538728378167"},"43":{"iota":"20237693817370621","pool":"19893099945228771"},"44":{"iota":"20239887445130206","pool":"19887719034425821"},"45":{"iota":"20207850513352556","pool":"19848705937314201"},"46":{"iota":"20215597213354273","pool":"19848858060595199"},"47":{"iota":"20229343913355586","pool":"19854899066861004"},"48":{"iota":"20237238786132461","pool":"19855195887828779"},"49":{"iota":"20239855030770318","pool":"19850314238397838"},"50":{"iota":"20251055730771429","pool":"19853852386920223"},"51":{"iota":"20270414276723662","pool":"19865384050732261"},"52":{"iota":"20280834356633039","pool":"19868154813387918"},"53":{"iota":"20290073199106240","pool":"19869767401406788"},"54":{"iota":"20290689014464070","pool":"19862932277539928"},"55":{"iota":"20298443714465787","pool":"19863091717003958"},"56":{"iota":"20430140618006744","pool":"19984478399102223"},"57":{"iota":"20444407318007855","pool":"19991005301002712"},"58":{"iota":"20452154018017147","pool":"19991156742747173"},"59":{"iota":"20466485418018460","pool":"19997742019079810"},"60":{"iota":"20472290157149706","pool":"19995994004460445"},"61":{"iota":"20371347580878649","pool":"19889984148054589"},"62":{"iota":"20414870389675903","pool":"19925053091510282"},"63":{"iota":"20391888726682690","pool":"19895213159462071"},"64":{"iota":"20410635426693598","pool":"19906092347772457"},"65":{"iota":"20418682654932656","pool":"19906536385993393"},"66":{"iota":"20426955290681794","pool":"19907199931282372"},"67":{"iota":"20432406046728331","pool":"19905186395955212"},"68":{"iota":"20788887643275580","pool":"20244947543231397"},"69":{"iota":"20793722337579780","pool":"20242042953893160"},"70":{"iota":"20798419499476618","pool":"20239071117516108"},"71":{"iota":"20811650638157413","pool":"20244410549484960"},"72":{"iota":"20826305083345789","pool":"20251203300413945"},"73":{"iota":"20735565769271816","pool":"20155659497923219"},"74":{"iota":"20978690848570105","pool":"20384669653351430"},"75":{"iota":"20998303398571305","pool":"20396418891297266"},"76":{"iota":"21006973398572705","pool":"20397538829940527"},"77":{"iota":"21104513398574405","pool":"20484919289672289"},"78":{"iota":"21083968626126944","pool":"20457677372143152"},"79":{"iota":"21092938626129844","pool":"20459087096872116"},"80":{"iota":"21054159291992784","pool":"20414176575282373"},"81":{"iota":"21063841804773340","pool":"20416348764303208"},"82":{"iota":"21071458104775716","pool":"20416518195144392"},"83":{"iota":"21160078417809980","pool":"20495141769618850"},"84":{"iota":"21050867543471082","pool":"20382081801246270"},"85":{"iota":"21029737781776508","pool":"20354416703130771"},"86":{"iota":"21036679324006575","pool":"20353858663560314"},"87":{"iota":"21050223351998573","pool":"20359610309806935"},"88":{"iota":"21046195579738097","pool":"20348444547244391"},"89":{"iota":"21053771919292904","pool":"20348498754495725"},"90":{"iota":"21043917234335799","pool":"20331709309268762"},"91":{"iota":"21186867206581787","pool":"20462508802202166"},"92":{"iota":"21157899026661581","pool":"20427270883075839"},"93":{"iota":"21270608123073617","pool":"20528794086961986"},"94":{"iota":"20149927440941353","pool":"19439866420509168"},"95":{"iota":"20157290640942601","pool":"19440008444229269"},"96":{"iota":"20162404699904940","pool":"19438052601838378"}}},{"poolId":"0x15a42067fb6b495f769e763d92f249abcd20c0b2250103ca9911fac7ac979938","exchangeRateId":"0x00e56f7ad84de5d150ee2a8d3e282930aab2215eb352dea60b9bc49caed7b980","epochData":{"3":{"iota":"0","pool":"0"},"4":{"iota":"2872237941805633","pool":"2869940228757911"},"5":{"iota":"2901949854222833","pool":"2897345733190456"},"6":{"iota":"3785533185587285","pool":"3777276482634396"},"7":{"iota":"10038928971890476","pool":"10011860866171826"},"8":{"iota":"10428017393471153","pool":"10394561741957211"},"9":{"iota":"11447809362127740","pool":"11405393645249066"},"10":{"iota":"11484646772967415","pool":"11436685401197763"},"11":{"iota":"11506990308623990","pool":"11453685857678682"},"12":{"iota":"11589688191155570","pool":"11530725052218050"},"13":{"iota":"11736018280215700","pool":"11671011522956264"},"14":{"iota":"12011641944389912","pool":"11939754647956632"},"15":{"iota":"12234949857551398","pool":"12156398228964622"},"16":{"iota":"12455693634167350","pool":"12370177007349044"},"17":{"iota":"12552449356277062","pool":"12460691995954720"},"18":{"iota":"12649560990104841","pool":"12551961858716285"},"19":{"iota":"12672478907087962","pool":"12569608681178517"},"20":{"iota":"12699662679645188","pool":"12591492737505317"},"21":{"iota":"12720696554567790","pool":"12607260819457545"},"22":{"iota":"12838623746762855","pool":"12719149247719576"},"23":{"iota":"12923641739415723","pool":"12798355552231436"},"24":{"iota":"13526546818116870","pool":"13390197929024101"},"25":{"iota":"13554464928200996","pool":"13412614987631184"},"26":{"iota":"13631949620180590","pool":"13484046703812319"},"27":{"iota":"13802280767444350","pool":"13647337496302256"},"28":{"iota":"14016525510939936","pool":"13853895849506348"},"29":{"iota":"14556341227988723","pool":"14381945414530094"},"30":{"iota":"14731996062612785","pool":"14549897360009401"},"31":{"iota":"14866395120955507","pool":"14677084764724854"},"32":{"iota":"14909329705662593","pool":"14713892995538037"},"33":{"iota":"14972095205665818","pool":"14770250881276013"},"34":{"iota":"15408173426550314","pool":"15194728892843316"},"35":{"iota":"15620611326552393","pool":"15398439832309187"},"36":{"iota":"16225236421283850","pool":"15988460526674505"},"37":{"iota":"15622104665423918","pool":"15387971863951196"},"38":{"iota":"15737661086387400","pool":"15495979914613823"},"39":{"iota":"16019708729726999","pool":"15767777895638755"},"40":{"iota":"16118184424821316","pool":"15858677050437900"},"41":{"iota":"16159451657010172","pool":"15893198219314188"},"42":{"iota":"16169590626767480","pool":"15897106585791672"},"43":{"iota":"16241831790657607","pool":"15962045003066100"},"44":{"iota":"17362968345559357","pool":"17057395203588701"},"45":{"iota":"17323309264130253","pool":"17011933757036502"},"46":{"iota":"17286271717021078","pool":"16969131751266284"},"47":{"iota":"16982788042932059","pool":"16664794479019730"},"48":{"iota":"16995564809662189","pool":"16671058922205561"},"49":{"iota":"16911561367723456","pool":"16582389639293194"},"50":{"iota":"16900586993335475","pool":"16565345302186508"},"51":{"iota":"16855861677382737","pool":"16515242930134453"},"52":{"iota":"16949790737735134","pool":"16600916030925891"},"53":{"iota":"17084811296764777","pool":"16726841532860462"},"54":{"iota":"17098082384119025","pool":"16733503203446935"},"55":{"iota":"17108791384120487","pool":"16737655848007684"},"56":{"iota":"17099528294453542","pool":"16722269042994838"},"57":{"iota":"17657790794454477","pool":"17261765118361526"},"58":{"iota":"17679045394462573","pool":"17276071408184688"},"59":{"iota":"17713642899424335","pool":"17303406055401275"},"60":{"iota":"17679816861753005","pool":"17263898283537341"},"61":{"iota":"17655580009912088","pool":"17233716874712662"},"62":{"iota":"17666228794521143","pool":"17237652755690523"},"63":{"iota":"17681411445425053","pool":"17246009775738546"},"64":{"iota":"17688469004463757","pool":"17246441657609363"},"65":{"iota":"17601035322097780","pool":"17154740715398220"},"66":{"iota":"17598767828596999","pool":"17146157041587120"},"67":{"iota":"17622357659121169","pool":"17162732077128633"},"68":{"iota":"17637809672988561","pool":"17171335756670280"},"69":{"iota":"17644262033490608","pool":"17171177750919843"},"70":{"iota":"17645694517771318","pool":"17166093153943522"},"71":{"iota":"17553262602797136","pool":"17069729785067361"},"72":{"iota":"28983569959905236","pool":"28174671410790688"},"73":{"iota":"28987867276909416","pool":"28168765308935506"},"74":{"iota":"29007139782166503","pool":"28177476723167327"},"75":{"iota":"29030776381330658","pool":"28190414686687548"},"76":{"iota":"29041934492953802","pool":"28191246461901060"},"77":{"iota":"29055580282421743","pool":"28194494111338738"},"78":{"iota":"29067190962425031","pool":"28195767687959415"},"79":{"iota":"29119738783429873","pool":"28236729424798208"},"80":{"iota":"29125595893914776","pool":"28232350143121262"},"81":{"iota":"29064073851833118","pool":"28162730041548519"},"82":{"iota":"29038731655877755","pool":"28128195242128861"},"83":{"iota":"28899370264993796","pool":"27983210695323288"},"84":{"iota":"28921091464996652","pool":"27994340856161928"},"85":{"iota":"28931902665000052","pool":"27994910416910902"},"86":{"iota":"29979877903136413","pool":"28998623232785434"},"87":{"iota":"29981126587121044","pool":"28989309965217268"},"88":{"iota":"29989003287133875","pool":"28986678200503881"},"89":{"iota":"29922668838614072","pool":"28912243505555479"},"90":{"iota":"29915553077483978","pool":"28895053973684378"},"91":{"iota":"29914228379570545","pool":"28883537524545601"},"92":{"iota":"29804414226660401","pool":"28767261245709224"},"93":{"iota":"29653397859759494","pool":"28611270337448155"},"94":{"iota":"28631512457371179","pool":"27615142769405469"},"95":{"iota":"28631446021802133","pool":"27605361692710562"},"96":{"iota":"28591465172413715","pool":"27557017592946362"}}},{"poolId":"0x7421a0e150317c97939aae42ae758b3f77d7808a98b0021601ce9533b96d04fa","exchangeRateId":"0x5d5529297231e00b5a2b4d79d332bf8ceca26f822341b21a41d92ca299cc7cc3","epochData":{"3":{"iota":"0","pool":"0"},"4":{"iota":"8460888563471600","pool":"8454120080343983"},"5":{"iota":"8467134843471540","pool":"8454911816092066"},"6":{"iota":"8463708640459167","pool":"8447009610925485"},"7":{"iota":"8469544052778386","pool":"8448698810546882"},"8":{"iota":"8476415952780666","pool":"8451627410990217"},"9":{"iota":"8483604506738040","pool":"8454870126063745"},"10":{"iota":"8487746306739390","pool":"8455282721925160"},"11":{"iota":"8491734706742562","pool":"8455679868500965"},"12":{"iota":"8495723106743602","pool":"8456076847268783"},"13":{"iota":"8499634806745642","pool":"8456466030556548"},"14":{"iota":"9201637262499692","pool":"9151187007722237"},"15":{"iota":"9205807062499746","pool":"9151626585286273"},"16":{"iota":"9210102262502714","pool":"9152053398134408"},"17":{"iota":"9214397462521194","pool":"9152480031916618"},"18":{"iota":"9218309162524305","pool":"9152868425002761"},"19":{"iota":"9222144162529505","pool":"9153249060021842"},"20":{"iota":"9225902462530191","pool":"9153621945574274"},"21":{"iota":"9229660762530779","pool":"9153994694466683"},"22":{"iota":"9233436183142543","pool":"9154384280837086"},"23":{"iota":"9237117783143407","pool":"9154749157904791"},"24":{"iota":"9240804383145375","pool":"9155118857772152"},"25":{"iota":"9244409283146597","pool":"9155475879773226"},"26":{"iota":"9248014183147255","pool":"9155832776518066"},"27":{"iota":"9251619083147725","pool":"9156189548099446"},"28":{"iota":"9255223983149182","pool":"9156546194610112"},"29":{"iota":"9258828883150404","pool":"9156902716142469"},"30":{"iota":"9262834783151297","pool":"9157655559445413"},"31":{"iota":"9266439683152848","pool":"9158011831303793"},"32":{"iota":"9270044583154775","pool":"9158367978466268"},"33":{"iota":"9273651483156796","pool":"9158725976239529"},"34":{"iota":"9277256383158065","pool":"9159081874286284"},"35":{"iota":"9280861283159334","pool":"9159437647913117"},"36":{"iota":"9284526089484790","pool":"9159852399106078"},"37":{"iota":"9288230989488127","pool":"9160306546894780"},"38":{"iota":"9291835889493532","pool":"9160661947815522"},"39":{"iota":"9295238612756934","pool":"9160817902092153"},"40":{"iota":"9298920212759766","pool":"9161180608748231"},"41":{"iota":"9302602812763510","pool":"9161544171045545"},"42":{"iota":"9306284412764422","pool":"9161906619407558"},"43":{"iota":"9309966012765286","pool":"9162268938768193"},"44":{"iota":"9313724312768618","pool":"9162638672118628"},"45":{"iota":"9317482612769402","pool":"9163008271241311"},"46":{"iota":"9321240912770235","pool":"9163377736239330"},"47":{"iota":"9324999212770872","pool":"9163747067215372"},"48":{"iota":"9328680812771592","pool":"9164108732314571"},"49":{"iota":"9332362412772504","pool":"9164470269000121"},"50":{"iota":"9336044012773032","pool":"9164831677368183"},"51":{"iota":"9339725612773560","pool":"9165192957514903"},"52":{"iota":"9343407212777256","pool":"9165554109536591"},"53":{"iota":"9347088812777784","pool":"9165915133528512"},"54":{"iota":"9350768398522860","pool":"9166274054372243"},"55":{"iota":"9354448993864712","pool":"9166633837755794"},"56":{"iota":"9358130593865624","pool":"9166994478233514"},"57":{"iota":"9361810481111751","pool":"9167353173553901"},"58":{"iota":"9365492081116167","pool":"9167713558827694"},"59":{"iota":"9369173681116791","pool":"9168073816644635"},"60":{"iota":"9372855281117175","pool":"9168433947100197"},"61":{"iota":"9376536881119335","pool":"9168793950289595"},"62":{"iota":"9380218481119767","pool":"9169153826307395"},"63":{"iota":"9383900081120199","pool":"9169513575248568"},"64":{"iota":"9392581681125383","pool":"9174757241634560"},"65":{"iota":"9396263281128167","pool":"9175116736774201"},"66":{"iota":"9399944881134791","pool":"9175476105188769"},"67":{"iota":"9403626481203863","pool":"9175835346978250"},"68":{"iota":"9407308081240295","pool":"9176194462227529"},"69":{"iota":"9411063312513962","pool":"9176557933937126"},"70":{"iota":"9414821612535032","pool":"9176924267321725"},"71":{"iota":"9418979912542774","pool":"9177680221758369"},"72":{"iota":"9422661512545222","pool":"9178038823918825"},"73":{"iota":"9426189712570568","pool":"9178382368552369"},"74":{"iota":"9429717912575030","pool":"9178725797493721"},"75":{"iota":"9433246112575582","pool":"9179069110826749"},"76":{"iota":"9439439078061706","pool":"9182004399987097"},"77":{"iota":"9442967278062488","pool":"9182347482383133"},"78":{"iota":"9446495478063592","pool":"9182690449449904"},"79":{"iota":"9450273678064926","pool":"9183276238049433"},"80":{"iota":"9453801878066398","pool":"9183618974706049"},"81":{"iota":"9457330078068422","pool":"9183961596281642"},"82":{"iota":"9460858278069526","pool":"9184304102857614"},"83":{"iota":"9464386478070630","pool":"9184646494515511"},"84":{"iota":"9469091947306796","pool":"9186130860706292"},"85":{"iota":"9472620147307946","pool":"9186473022786323"},"86":{"iota":"9476148347309326","pool":"9186815070206386"},"87":{"iota":"9479686547313098","pool":"9187166694472327"},"88":{"iota":"9483291447317375","pool":"9187515941107203"},"89":{"iota":"9488746347320665","pool":"9189656755459368"},"90":{"iota":"9492371247321182","pool":"9190025126287864"},"91":{"iota":"9495974535116245","pool":"9190372319732013"},"92":{"iota":"9499579435117796","pool":"9190721089176964"},"93":{"iota":"9503184335119300","pool":"9191069739546666"},"94":{"iota":"9506989235119958","pool":"9191611636279606"},"95":{"iota":"9511594135120569","pool":"9192926545690061"},"96":{"iota":"9515210035121509","pool":"9193285467206924"}}},{"poolId":"0x984282b077e9efb2348cd5b9f560d41696b33cb9c66224d6cb7fbbf9908de9cc","exchangeRateId":"0xea485c0baba1e1159fbb1a7aff6f825ce4642aa2393d8a1b180153edb8905f92","epochData":{"3":{"iota":"0","pool":"0"},"4":{"iota":"2980727652905134","pool":"2978343151008511"},"5":{"iota":"6023958431558134","pool":"6014437716619551"},"6":{"iota":"6566996743473934","pool":"6552856244766575"},"7":{"iota":"8306899774349030","pool":"8284555946110668"},"8":{"iota":"8664913172893763","pool":"8637227149960731"},"9":{"iota":"9812731704784915","pool":"9776456744947996"},"10":{"iota":"9844846540615148","pool":"9803790208326289"},"11":{"iota":"9982357409116356","pool":"9936171186147707"},"12":{"iota":"9997706609117576","pool":"9946880538038790"},"13":{"iota":"10187650909845543","pool":"10131287339098658"},"14":{"iota":"10947138080582801","pool":"10881673180411587"},"15":{"iota":"12662047018506508","pool":"12580798046649638"},"16":{"iota":"13229077704968883","pool":"13138340741227794"},"17":{"iota":"14165791058514489","pool":"14062397004681464"},"18":{"iota":"14807248670745722","pool":"14693226607787911"},"19":{"iota":"14978869422937303","pool":"14857561986902707"},"20":{"iota":"15826335293297537","pool":"15691863309347965"},"21":{"iota":"15859894913298545","pool":"15718866713336471"},"22":{"iota":"15934744895248297","pool":"15786915869495567"},"23":{"iota":"16083286935455660","pool":"15927902121441483"},"24":{"iota":"16177902838554282","pool":"16015391474661795"},"25":{"iota":"16303065100939149","pool":"16133073018720313"},"26":{"iota":"16367128820047525","pool":"16190198512956008"},"27":{"iota":"16395022657180829","pool":"16211610710587268"},"28":{"iota":"16753064665170003","pool":"16559344025113876"},"29":{"iota":"17058629730360548","pool":"16854945433540401"},"30":{"iota":"17188508642099582","pool":"16976840276327623"},"31":{"iota":"18013118590575698","pool":"17784512497663415"},"32":{"iota":"18244630901058524","pool":"18006240744284033"},"33":{"iota":"18253444067095488","pool":"18008109784699840"},"34":{"iota":"18359481653692323","pool":"18105862213560224"},"35":{"iota":"18733360278029788","pool":"18467619048718605"},"36":{"iota":"19307538834612114","pool":"19026474312169792"},"37":{"iota":"19418206454404572","pool":"19128380817664171"},"38":{"iota":"19444382657200298","pool":"19146971470977957"},"39":{"iota":"20101322417709640","pool":"19786440483956451"},"40":{"iota":"20393772229180461","pool":"20066729262371523"},"41":{"iota":"20405735578004582","pool":"20070871966485724"},"42":{"iota":"20733370948397625","pool":"20385349268550729"},"43":{"iota":"20719844418090746","pool":"20364332276686156"},"44":{"iota":"21518721494808089","pool":"21141500380578525"},"45":{"iota":"21551656765700617","pool":"21165863062089095"},"46":{"iota":"21513796655925871","pool":"21120706917133885"},"47":{"iota":"21475150424263742","pool":"21074853614880856"},"48":{"iota":"21486189059511566","pool":"21077792542074426"},"49":{"iota":"21509816054790200","pool":"21093037566909694"},"50":{"iota":"21724460127373896","pool":"21295558723390302"},"51":{"iota":"21723384504357449","pool":"21286161331623190"},"52":{"iota":"21735704253580453","pool":"21290276895728088"},"53":{"iota":"21647636834848925","pool":"21195953765370383"},"54":{"iota":"21740506630311651","pool":"21278906081267818"},"55":{"iota":"21805822728145818","pool":"21334867578106223"},"56":{"iota":"21843754769281035","pool":"21364025024223870"},"57":{"iota":"22342729839767492","pool":"21843863996476587"},"58":{"iota":"22383634532776684","pool":"21875740648540694"},"59":{"iota":"22392272755330901","pool":"21876093282039032"},"60":{"iota":"22319191692673626","pool":"21796614797154254"},"61":{"iota":"22346923057486619","pool":"21815566175546882"},"62":{"iota":"22368754553523603","pool":"21828796484552381"},"63":{"iota":"22385842045165611","pool":"21837377914253325"},"64":{"iota":"22465514314371538","pool":"21906942495977109"},"65":{"iota":"22475403121393518","pool":"21908522169099248"},"66":{"iota":"22483856821408698","pool":"21908702865404969"},"67":{"iota":"22492473643868766","pool":"21909037737233140"},"68":{"iota":"22832609537238559","pool":"22231995114932638"},"69":{"iota":"22727034755480602","pool":"22120853774761417"},"70":{"iota":"22925852600097235","pool":"22305957405915075"},"71":{"iota":"23006233271826173","pool":"22375801005708640"},"72":{"iota":"28617372091278336","pool":"27822880305113617"},"73":{"iota":"28712705912986072","pool":"27905599095407333"},"74":{"iota":"28427515275029518","pool":"27618478401756624"},"75":{"iota":"28427412061128563","pool":"27608457042489520"},"76":{"iota":"28281968988463428","pool":"27457348718780371"},"77":{"iota":"27311096101213881","pool":"26504994941942892"},"78":{"iota":"27347374278696699","pool":"26530782481495640"},"79":{"iota":"27373627790560260","pool":"26546839422710413"},"80":{"iota":"27623894334069651","pool":"26779981492112212"},"81":{"iota":"27642098611441589","pool":"26788153678897025"},"82":{"iota":"27613350860042636","pool":"26750751234302141"},"83":{"iota":"27200334049960942","pool":"26340985456040494"},"84":{"iota":"27222610847843630","pool":"26353236841670429"},"85":{"iota":"27248422025181230","pool":"26368904196468940"},"86":{"iota":"27260610686277403","pool":"26371313712305981"},"87":{"iota":"27800999543549958","pool":"26884266279455674"},"88":{"iota":"27823130243561879","pool":"26896140966290750"},"89":{"iota":"27828090606753892","pool":"26891342907995847"},"90":{"iota":"27886025999113547","pool":"26937722740417087"},"91":{"iota":"27872151854061195","pool":"26914732813397296"},"92":{"iota":"27389892311661169","pool":"26439453485458289"},"93":{"iota":"33174563988872518","pool":"32011885339759604"},"94":{"iota":"32072103959235830","pool":"30936741183200425"},"95":{"iota":"32004913739267675","pool":"30860974785570750"},"96":{"iota":"32014867992231451","pool":"30859679443881660"}}},{"poolId":"0x442b87454d80793e1baa48dcbceded872f8fb960079242b922e9046375e19eda","exchangeRateId":"0xec8f2510ddb37fb7a7c3a8720f873f9604ae83f4318e323f58465ee770a7cf89","epochData":{"4":{"iota":"0","pool":"0"},"5":{"iota":"8753532875959000","pool":"8747177673642059"},"6":{"iota":"8789888803766200","pool":"8778456745162005"},"7":{"iota":"8532213250121646","pool":"8516746798276709"},"8":{"iota":"8541183980123966","pool":"8521613639316539"},"9":{"iota":"8545555880126303","pool":"8521962425685232"},"10":{"iota":"8549540904686193","pool":"8522065990316941"},"11":{"iota":"8553606004689426","pool":"8522390011485502"},"12":{"iota":"8557594404690466","pool":"8522707782729353"},"13":{"iota":"8561129374639823","pool":"8522573815611099"},"14":{"iota":"8565041074639874","pool":"8522885211386472"},"15":{"iota":"8568876074639924","pool":"8523190375655917"},"16":{"iota":"8572653679929004","pool":"8523297918515471"},"17":{"iota":"14576670079946164","pool":"14486546464749436"},"18":{"iota":"14583641078682623","pool":"14487933361047044"},"19":{"iota":"14590623678690735","pool":"14489401711253769"},"20":{"iota":"14596606278691827","pool":"14489876819702525"},"21":{"iota":"14692899268692751","pool":"14580038460659422"},"22":{"iota":"14699305168695523","pool":"14581003106069055"},"23":{"iota":"14705135896296891","pool":"14581467034978652"},"24":{"iota":"14721055157482732","pool":"14591930837738833"},"25":{"iota":"14726884357484708","pool":"14592392914983382"},"26":{"iota":"14752713557485772","pool":"14612664962550419"},"27":{"iota":"14758487985034522","pool":"14613142341973970"},"28":{"iota":"14764910485036847","pool":"14614261010306792"},"29":{"iota":"14774462985038797","pool":"14618476231699788"},"30":{"iota":"14790215485040222","pool":"14628822288324640"},"31":{"iota":"14805967985042697","pool":"14639164644202275"},"32":{"iota":"14811720485045772","pool":"14639619497026626"},"33":{"iota":"14817472985048997","pool":"14640074187387904"},"34":{"iota":"14823225485051022","pool":"14640528715407058"},"35":{"iota":"14828901285053020","pool":"14640977025127817"},"36":{"iota":"14834577085056572","pool":"14641425177039909"},"37":{"iota":"14841162885061826","pool":"14642771006672754"},"38":{"iota":"14856837924070336","pool":"14653080945826903"},"39":{"iota":"14862513724080696","pool":"14653528625133196"},"40":{"iota":"14868342924085180","pool":"14653988238036874"},"41":{"iota":"14874172124091108","pool":"14654447685222617"},"42":{"iota":"14880001324092552","pool":"14654906966814608"},"43":{"iota":"14885830524093920","pool":"14655366082937701"},"44":{"iota":"14891659724099088","pool":"14655825033716566"},"45":{"iota":"14897866837219724","pool":"14656655613606428"},"46":{"iota":"14903698039391016","pool":"14657116203116723"},"47":{"iota":"14909450539391991","pool":"14657568628446961"},"48":{"iota":"14915203039393116","pool":"14658020893240043"},"49":{"iota":"14920575218157611","pool":"14658099234235040"},"50":{"iota":"14926327718158436","pool":"14658551178301966"},"51":{"iota":"14932080218159261","pool":"14659002962183756"},"52":{"iota":"14937832718165036","pool":"14659454585999240"},"53":{"iota":"14943585218165861","pool":"14659906049865950"},"54":{"iota":"14949337718168711","pool":"14660357353902610"},"55":{"iota":"14955090218169986","pool":"14660808498226980"},"56":{"iota":"14960842718171411","pool":"14661259482957107"},"57":{"iota":"14854854735375316","pool":"14552207370318420"},"58":{"iota":"14860607235382216","pool":"14552658033816157"},"59":{"iota":"14866359735383191","pool":"14553108536876019"},"60":{"iota":"14872112235383791","pool":"14553558879617594"},"61":{"iota":"14877788035387121","pool":"14554003061833016"},"62":{"iota":"14883413017302377","pool":"14554397376072875"},"63":{"iota":"14904788817303043","pool":"14570188794869224"},"64":{"iota":"14910541317311143","pool":"14570638504085430"},"65":{"iota":"14921217117315435","pool":"14575966370627898"},"66":{"iota":"14968900917325647","pool":"14617431426223893"},"67":{"iota":"14974653417433572","pool":"14617880661916987"},"68":{"iota":"14980405917490497","pool":"14618329738894571"},"69":{"iota":"14986235117495513","pool":"14618784640709911"},"70":{"iota":"14992090769331884","pool":"14619333985583835"},"71":{"iota":"14997843269343734","pool":"14619782585015010"},"72":{"iota":"15003595769347559","pool":"14620231026203786"},"73":{"iota":"15012052559948022","pool":"14623519828482591"},"74":{"iota":"14972387699785814","pool":"14579932289022398"},"75":{"iota":"14977910099786678","pool":"14580362354859592"},"76":{"iota":"14983432499787686","pool":"14580792274865035"},"77":{"iota":"14988852324623183","pool":"14581122230412175"},"78":{"iota":"14993693016807622","pool":"14580888695205270"},"79":{"iota":"14999215416809710","pool":"14581318178317823"},"80":{"iota":"15004737816812014","pool":"14581747516003021"},"81":{"iota":"15010183516815138","pool":"14582170749348335"},"82":{"iota":"15015629216816842","pool":"14582593841475401"},"83":{"iota":"15021074916818546","pool":"14583016792482629"},"84":{"iota":"15027670616820037","pool":"14584555692877317"},"85":{"iota":"15033116316821812","pool":"14584978361950143"},"86":{"iota":"15038648716823972","pool":"14585416537921607"},"87":{"iota":"15045747816829958","pool":"14587305112715396"},"88":{"iota":"15051346916836601","pool":"14587739243754154"},"89":{"iota":"15056946016841711","pool":"14588173226266646"},"90":{"iota":"15062545116842514","pool":"14588607060358665"},"91":{"iota":"15068287516843882","pool":"14589247813163492"},"92":{"iota":"15073809916846258","pool":"14589675415867762"},"93":{"iota":"15079309884785183","pool":"14590081162897953"},"94":{"iota":"15084832284786191","pool":"14590508477554210"},"95":{"iota":"15090354684787127","pool":"14590935648338308"},"96":{"iota":"15095877084788567","pool":"14591362675351348"}}},{"poolId":"0x91337f8fb3b0f965a0f0c34335d7f21a8b0993f70f8e24f376e8899dc704a10d","exchangeRateId":"0x2e4eaa3e623e4d3d57fa9e222b6b58472ac16a88844e8957d49d2ff4c26b35f7","epochData":{"3":{"iota":"0","pool":"0"},"4":{"iota":"4787163076928000","pool":"4783706675527719"},"5":{"iota":"7607565835581000","pool":"7596924389311856"},"6":{"iota":"7621014435581000","pool":"7606351076748022"},"7":{"iota":"7625156235581000","pool":"7606764257740375"},"8":{"iota":"7630767935583040","pool":"7608849421092186"},"9":{"iota":"8983633237102108","pool":"8953697767594836"},"10":{"iota":"8988005137103533","pool":"8954133310018695"},"11":{"iota":"8992223637106888","pool":"8954553392804021"},"12":{"iota":"8998743399200300","pool":"8957263952790321"},"13":{"iota":"9002885199202460","pool":"8957676052932380"},"14":{"iota":"9005648498078207","pool":"8956785093302796"},"15":{"iota":"9009713598078260","pool":"8957189233451725"},"16":{"iota":"9014432098081175","pool":"8958105323262486"},"17":{"iota":"9018573898098995","pool":"8958516745126229"},"18":{"iota":"9022436898102045","pool":"8958925348458705"},"19":{"iota":"9026195198107141","pool":"8959298393030167"},"20":{"iota":"9029946798107813","pool":"8959733146054038"},"21":{"iota":"9033628398108389","pool":"8960098309380302"},"22":{"iota":"9037310998110117","pool":"8960464330314450"},"23":{"iota":"9040915898110963","pool":"8960821626701825"},"24":{"iota":"9044525798112890","pool":"8961183748843238"},"25":{"iota":"9048053998114086","pool":"8961533195049417"},"26":{"iota":"9051582198114730","pool":"8961882518661753"},"27":{"iota":"9055110398115190","pool":"8962231719771044"},"28":{"iota":"9070638598116616","pool":"8974453550473421"},"29":{"iota":"9074266798117812","pool":"8974901411986517"},"30":{"iota":"9077794998118686","pool":"8975250246454952"},"31":{"iota":"9081324298120204","pool":"8975600046138941"},"32":{"iota":"9084860494946445","pool":"8975956537357307"},"33":{"iota":"9088388694948423","pool":"8976305006160781"},"34":{"iota":"9091918904949665","pool":"8976655337773712"},"35":{"iota":"9095447104950907","pool":"8977003563249793"},"36":{"iota":"9098975304953115","pool":"8977351667196780"},"37":{"iota":"9102503504956381","pool":"8977699649704186"},"38":{"iota":"9106031704961671","pool":"8978047510861511"},"39":{"iota":"9109559904968111","pool":"8978395250757971"},"40":{"iota":"9113164804970884","pool":"8978750423720602"},"41":{"iota":"9120899704974550","pool":"8983173106823426"},"42":{"iota":"9124504604975443","pool":"8983528027135213"},"43":{"iota":"9128109504976289","pool":"8983882821292451"},"44":{"iota":"9119727748568283","pool":"8972372280602256"},"45":{"iota":"9123409348569051","pool":"8972734360363952"},"46":{"iota":"9127090948569867","pool":"8973096308673259"},"47":{"iota":"9130772548570491","pool":"8973458125630861"},"48":{"iota":"9134454148571211","pool":"8973819811337379"},"49":{"iota":"9138135748572123","pool":"8974181365893295"},"50":{"iota":"9132670555484352","pool":"8965560105890079"},"51":{"iota":"9136275455484869","pool":"8965913873933590"},"52":{"iota":"9139880355488488","pool":"8966267516394377"},"53":{"iota":"9143485255489005","pool":"8966621033365909"},"54":{"iota":"9147098148693704","pool":"8966982260400783"},"55":{"iota":"9150694985827545","pool":"8967327622575516"},"56":{"iota":"9154299885828438","pool":"8967680763643604"},"57":{"iota":"9157903676010384","pool":"8968032692404059"},"58":{"iota":"9161508576014708","pool":"8968385583338558"},"59":{"iota":"9165113476015319","pool":"8968738349345936"},"60":{"iota":"9168718376015695","pool":"8969090990519860"},"61":{"iota":"9172323276017810","pool":"8969443506953746"},"62":{"iota":"9175927165657797","pool":"8969794910727771"},"63":{"iota":"9179532065658220","pool":"8970147177960286"},"64":{"iota":"9183136965663296","pool":"8970499320732061"},"65":{"iota":"9186741865666022","pool":"8970851339135209"},"66":{"iota":"9190346765672508","pool":"8971203233263018"},"67":{"iota":"9193951665740141","pool":"8971555003213673"},"68":{"iota":"9199556565775814","pool":"8973857581709017"},"69":{"iota":"9203238165778982","pool":"8974216580087570"},"70":{"iota":"9206919765799622","pool":"8974575449264229"},"71":{"iota":"9210601365807206","pool":"8974934189334146"},"72":{"iota":"13755936265809603","pool":"13399249966007947"},"73":{"iota":"13760998465845969","pool":"13399742896656453"},"74":{"iota":"13766060665852371","pool":"13400235664156985"},"75":{"iota":"13771122865853163","pool":"13400728268625864"},"76":{"iota":"13776185065854087","pool":"13401220710177477"},"77":{"iota":"13781547265855209","pool":"13402004726953244"},"78":{"iota":"13786609465856793","pool":"13402496843014904"},"79":{"iota":"13791671665858707","pool":"13402988796503611"},"80":{"iota":"13796733865860819","pool":"13403480587532692"},"81":{"iota":"13801796065863723","pool":"13403972216215422"},"82":{"iota":"13806858265865307","pool":"13404463682664696"},"83":{"iota":"13822572889651891","pool":"13415293539238631"},"84":{"iota":"13827635089653277","pool":"13415784681684854"},"85":{"iota":"13832697289654927","pool":"13416275662360986"},"86":{"iota":"13837759489656907","pool":"13416766481379479"},"87":{"iota":"13842821689662319","pool":"13417257138852959"},"88":{"iota":"13847960589668416","pool":"13417755064169358"},"89":{"iota":"13853099489673106","pool":"13418252823241598"},"90":{"iota":"13858238389673843","pool":"13418750416186563"},"91":{"iota":"13863452289675116","pool":"13419320440409298"},"92":{"iota":"13868591189677327","pool":"13419817701452416"},"93":{"iota":"13873730089679471","pool":"13420314796720175"},"94":{"iota":"13878868989680409","pool":"13420811726329094"},"95":{"iota":"13884007889681280","pool":"13421308490395788"},"96":{"iota":"13889146789682620","pool":"13421805089036687"}}},{"poolId":"0xfa266d81922fd9625f4cd0c20a9bdb96701be378b9d2de3a36dd3ac4079ce9e2","exchangeRateId":"0x029390e597e8cc356fd6144cac689b0b9667baa549e7597f637a77cabc1a6cfc","epochData":{"5":{"iota":"121135534978971425","pool":"120593102554431639"},"6":{"iota":"124805102386359336","pool":"124181928169913784"},"7":{"iota":"125703053161056992","pool":"125014735118684720"},"8":{"iota":"125841545723575354","pool":"125093660095237505"},"9":{"iota":"127308689415931595","pool":"126496968570466070"},"10":{"iota":"128066424043021604","pool":"127196121815378191"},"11":{"iota":"128371395969276722","pool":"127446113701474086"},"12":{"iota":"127927636914560007","pool":"126952992927755606"},"13":{"iota":"121394791945682033","pool":"120418183332385197"},"14":{"iota":"121379635601405234","pool":"120354322309025786"},"15":{"iota":"121376161526873997","pool":"120302660321689948"},"16":{"iota":"121608432845702230","pool":"120486107256077730"},"17":{"iota":"121781243417210475","pool":"120610892843429832"},"18":{"iota":"121880008891472018","pool":"120664963543376996"},"19":{"iota":"121872886856253735","pool":"120614331859812701"},"20":{"iota":"121930948073616094","pool":"120628808402525562"},"21":{"iota":"121968997567081930","pool":"120623611174170859"},"22":{"iota":"122355557621957854","pool":"120963017372639304"},"23":{"iota":"122385694658562745","pool":"120950187948509659"},"24":{"iota":"122171150962585565","pool":"120695698053738781"},"25":{"iota":"122242867880348929","pool":"120724243064794298"},"26":{"iota":"122291252698512239","pool":"120729751407371932"},"27":{"iota":"122031207646722708","pool":"120430837648457013"},"28":{"iota":"122058819141964199","pool":"120416047966505736"},"29":{"iota":"122077685924388688","pool":"120392639669338316"},"30":{"iota":"121964894239217209","pool":"120239398442690880"},"31":{"iota":"122011052279031661","pool":"120243096621424846"},"32":{"iota":"122230879869407475","pool":"120417951744628496"},"33":{"iota":"122307871440345834","pool":"120452096669856013"},"34":{"iota":"122390308600773630","pool":"120491594299649849"},"35":{"iota":"122129893150880716","pool":"120193620331985717"},"36":{"iota":"120854915059498063","pool":"118897412503340174"},"37":{"iota":"120838892099851151","pool":"118840764091931591"},"38":{"iota":"121140425754757475","pool":"119096354907727154"},"39":{"iota":"121031335345542763","pool":"118948214729551989"},"40":{"iota":"120774750870636820","pool":"118655877455083458"},"41":{"iota":"120787859064664817","pool":"118628731366563040"},"42":{"iota":"120890892459500711","pool":"118689889559068064"},"43":{"iota":"114768125649757624","pool":"112638601711397279"},"44":{"iota":"114656705922826162","pool":"112491238629118134"},"45":{"iota":"118018732777428221","pool":"115749932661027909"},"46":{"iota":"118102936287433420","pool":"115793639550960722"},"47":{"iota":"118138911048143343","pool":"115790060230022751"},"48":{"iota":"118283446829908979","pool":"115892919794612729"},"49":{"iota":"118347254655380461","pool":"115916606862167290"},"50":{"iota":"118414172402934330","pool":"115943321092953241"},"51":{"iota":"118471683951756471","pool":"115960829476776473"},"52":{"iota":"118508272201869274","pool":"115957842779170242"},"53":{"iota":"118567063136707292","pool":"115976589994255857"},"54":{"iota":"118612511400630620","pool":"115982285867755407"},"55":{"iota":"118652289065321888","pool":"115982500341391198"},"56":{"iota":"118705877170796259","pool":"115996203644732854"},"57":{"iota":"116572130634418925","pool":"113872467860672064"},"58":{"iota":"116481793484375424","pool":"113746320419609243"},"59":{"iota":"116524170639527550","pool":"113749873025511296"},"60":{"iota":"116567267955393437","pool":"113754127708861402"},"61":{"iota":"116644086668827882","pool":"113791288943749466"},"62":{"iota":"116814010169637590","pool":"113919226019896242"},"63":{"iota":"116762795134018940","pool":"113831442811204016"},"64":{"iota":"116911394873584197","pool":"113938521147205666"},"65":{"iota":"116588941942789429","pool":"113586592482895984"},"66":{"iota":"116510678107253806","pool":"113472741634763791"},"67":{"iota":"116567555512373100","pool":"113490608328436510"},"68":{"iota":"116548529101201231","pool":"113434299538324837"},"69":{"iota":"116308047728124896","pool":"113160575036903050"},"70":{"iota":"116196962085651493","pool":"113014731334075498"},"71":{"iota":"116189221386036452","pool":"112969504880335471"},"72":{"iota":"116212925221392686","pool":"112955229707411459"},"73":{"iota":"116273742426792152","pool":"112978002044468259"},"74":{"iota":"116375858674483648","pool":"113040930916408637"},"75":{"iota":"116249221092447109","pool":"112881632206778104"},"76":{"iota":"116031289817980521","pool":"112633814185325845"},"77":{"iota":"116020272573592015","pool":"112586996452288598"},"78":{"iota":"115946403759523975","pool":"112479257637988124"},"79":{"iota":"115863133426411007","pool":"112362426330323647"},"80":{"iota":"115731589418932526","pool":"112198896314477988"},"81":{"iota":"115563815448890785","pool":"112000324214418684"},"82":{"iota":"115519563296510700","pool":"111921642815204822"},"83":{"iota":"115614604158170054","pool":"111977990052891662"},"84":{"iota":"115691072925795864","pool":"112016334294132155"},"85":{"iota":"115696708135026321","pool":"111986043108095831"},"86":{"iota":"115723865306031811","pool":"111976316143734092"},"87":{"iota":"115739712720501321","pool":"111955776940076027"},"88":{"iota":"115653888630568045","pool":"111836964129395383"},"89":{"iota":"115641419617077211","pool":"111787541025060890"},"90":{"iota":"115717651058685623","pool":"111825516307005891"},"91":{"iota":"115963916443836668","pool":"112027811971361741"},"92":{"iota":"115452189003035751","pool":"111497764202902995"},"93":{"iota":"115493207958985355","pool":"111501842536517554"},"94":{"iota":"115518152791536609","pool":"111490466817822890"},"95":{"iota":"115498552995672735","pool":"111436105571626925"},"96":{"iota":"115509340343390570","pool":"111411143467854715"}}},{"poolId":"0xab283660ebfe5bd43b5fea206932567152924a8c68facfc4bc61190ba889589b","exchangeRateId":"0x6576611b15dca75e3defd5909758c00ee297801c707c2fe39cc73630f5a57c93","epochData":{"6":{"iota":"0","pool":"0"},"7":{"iota":"6256284688934231","pool":"6253114014641029"},"8":{"iota":"6508049122390311","pool":"6501470150303125"},"9":{"iota":"8041402732428080","pool":"8029089776608547"},"10":{"iota":"11734924828853169","pool":"11711255193409293"},"11":{"iota":"11988515166215299","pool":"11958705708608018"},"12":{"iota":"12722189414928079","pool":"12684621972371203"},"13":{"iota":"12855937148108533","pool":"12812104224089465"},"14":{"iota":"13287870886879206","pool":"13236469252525141"},"15":{"iota":"18145850924627655","pool":"18067596089414956"},"16":{"iota":"19755750321321612","pool":"19661735411858942"},"17":{"iota":"26308754730162105","pool":"26171949493657364"},"18":{"iota":"28291613792112620","pool":"28133003737513955"},"19":{"iota":"33328210137720752","pool":"33127882456419689"},"20":{"iota":"33814643624253170","pool":"33597914248863174"},"21":{"iota":"33953364082124600","pool":"33722276210328361"},"22":{"iota":"34650180724432890","pool":"34400656306342826"},"23":{"iota":"42852187351985050","pool":"42526838433808080"},"24":{"iota":"43166835867282562","pool":"42822193975276923"},"25":{"iota":"43424343118557011","pool":"43060799723543114"},"26":{"iota":"43890406635476664","pool":"43505916413471623"},"27":{"iota":"44359200763019326","pool":"43953462195745542"},"28":{"iota":"45441282589865440","pool":"45008124237937338"},"29":{"iota":"45598599967784870","pool":"45146329691449239"},"30":{"iota":"45444670685657543","pool":"44976334568500839"},"31":{"iota":"45506178774189721","pool":"45019637492096737"},"32":{"iota":"45583704494829408","pool":"45078844418869101"},"33":{"iota":"45701663737230738","pool":"45178011179798172"},"34":{"iota":"45938645106012139","pool":"45394746401378195"},"35":{"iota":"46139888228437827","pool":"45575960250816411"},"36":{"iota":"46272483705136154","pool":"45689367462051516"},"37":{"iota":"46505116812624720","pool":"45901399949918539"},"38":{"iota":"47082807989405112","pool":"46453717492844260"},"39":{"iota":"47351286837332572","pool":"46700805390229711"},"40":{"iota":"47330582567721260","pool":"46662649133243090"},"41":{"iota":"47889558191787639","pool":"47195817824488247"},"42":{"iota":"48280428851628449","pool":"47563040992013977"},"43":{"iota":"48412321154112020","pool":"47674926301954469"},"44":{"iota":"49326172293667329","pool":"48556495113965907"},"45":{"iota":"49804244479330666","pool":"49008578277999920"},"46":{"iota":"49890794815859692","pool":"49075282737854970"},"47":{"iota":"50069366668802703","pool":"49232455525869119"},"48":{"iota":"50315500524916661","pool":"49455841075617076"},"49":{"iota":"50469720279517429","pool":"49588793891288382"},"50":{"iota":"56047926382058706","pool":"55048927252059750"},"51":{"iota":"56140172457564491","pool":"55118883740296963"},"52":{"iota":"56177295133102013","pool":"55134684277918996"},"53":{"iota":"56287494899454933","pool":"55222148306715418"},"54":{"iota":"56451721389208380","pool":"55362586108113016"},"55":{"iota":"56529126550424220","pool":"55417773997907399"},"56":{"iota":"58535892565502880","pool":"57363585327557302"},"57":{"iota":"59071767285242495","pool":"57867143084618065"},"58":{"iota":"59296859851277383","pool":"58066000348934929"},"59":{"iota":"59346624666942940","pool":"58093066589452779"},"60":{"iota":"59640696072178115","pool":"58359170228906226"},"61":{"iota":"59639778008243407","pool":"58336562306757708"},"62":{"iota":"59708071626345177","pool":"58381654480870530"},"63":{"iota":"59747263619199762","pool":"58398288883153479"},"64":{"iota":"60905460529858481","pool":"59507933051239510"},"65":{"iota":"61065823415806762","pool":"59642522988949403"},"66":{"iota":"63138168136333167","pool":"61643723016690686"},"67":{"iota":"59937130912121553","pool":"58493921259241413"},"68":{"iota":"59957677133912556","pool":"58492126923794573"},"69":{"iota":"60015066473307288","pool":"58526146163471240"},"70":{"iota":"60617301448117760","pool":"59091264331522946"},"71":{"iota":"60792794069933040","pool":"59240179032758634"},"72":{"iota":"63712336822582325","pool":"62062192762742573"},"73":{"iota":"65995925227963712","pool":"64263549891791429"},"74":{"iota":"66334240281708160","pool":"64569737705680873"},"75":{"iota":"66574833429702534","pool":"64780644895137753"},"76":{"iota":"67174625058208979","pool":"65340833925928073"},"77":{"iota":"68049538951862461","pool":"66168069292392088"},"78":{"iota":"68241298342864173","pool":"66330726362105440"},"79":{"iota":"68450334997259003","pool":"66510134231174877"},"80":{"iota":"68531345823363125","pool":"66564982130559975"},"81":{"iota":"68597329621487537","pool":"66605272605192461"},"82":{"iota":"68601066955317087","pool":"66585114946905363"},"83":{"iota":"68378256360753562","pool":"66345062270050557"},"84":{"iota":"69446354412464729","pool":"67357439475699214"},"85":{"iota":"69208885329499940","pool":"67103041555706084"},"86":{"iota":"65684129567297141","pool":"63661227177788602"},"87":{"iota":"65830517967300023","pool":"63779524880737550"},"88":{"iota":"65850606924372769","pool":"63776130467428836"},"89":{"iota":"64407961428386720","pool":"62355961834713062"},"90":{"iota":"64673112834380905","pool":"62590278611732799"},"91":{"iota":"63941981349484387","pool":"61860236027337224"},"92":{"iota":"64796796523294986","pool":"62664892920887285"},"93":{"iota":"64904124015953437","pool":"62746287583161161"},"94":{"iota":"66666253676128989","pool":"64426461548310652"},"95":{"iota":"66794189842790335","pool":"64527158458647809"},"96":{"iota":"66851459447657798","pool":"64559524282860009"}}},{"poolId":"0x829fcfaca1ce8ca42161469447c23a600b2df7215a5b784a51e930e323bdd3bb","exchangeRateId":"0xe48bba7eacf83d9bed3e794d7de4d152e50360bcd69c4277ea0caaee8c1c3d78","epochData":{"7":{"iota":"0","pool":"0"},"8":{"iota":"2818031658653760","pool":"2816687532323051"},"9":{"iota":"2873906911319821","pool":"2870928018725508"},"10":{"iota":"5693005769973321","pool":"5684306442935801"},"11":{"iota":"5695766969975517","pool":"5684520564552117"},"12":{"iota":"5698510469976217","pool":"5684787505811271"},"13":{"iota":"5701146269977577","pool":"5685017479420229"},"14":{"iota":"5703754069977611","pool":"5685219447037111"},"15":{"iota":"5728071869977645","pool":"5707051660700752"},"16":{"iota":"5730662620694883","pool":"5707095499842390"},"17":{"iota":"5733347120706433","pool":"5707303137983747"},"18":{"iota":"5735801520708385","pool":"5707492903644432"},"19":{"iota":"5738255920711713","pool":"5707682594441797"},"20":{"iota":"5718887426194466","pool":"5686235955756795"},"21":{"iota":"5722565126194838","pool":"5687711660145934"},"22":{"iota":"5724942826195954","pool":"5687895211887600"},"23":{"iota":"5726315550808593","pool":"5687132883004505"},"24":{"iota":"5728621550809823","pool":"5687366289907648"},"25":{"iota":"5730922550810603","pool":"5687594650266362"},"26":{"iota":"5733146850811009","pool":"5687815321530349"},"27":{"iota":"5736666673537499","pool":"5689320746270648"},"28":{"iota":"5738890973538398","pool":"5689541263556931"},"29":{"iota":"5741115273539152","pool":"5689761703948028"},"30":{"iota":"5743339573539703","pool":"5689982067500518"},"31":{"iota":"5754037873540660","pool":"5698594702839614"},"32":{"iota":"5756262173541849","pool":"5698814912997448"},"33":{"iota":"5753557148905994","pool":"5694154916353984"},"34":{"iota":"5755781448906777","pool":"5694374973324006"},"35":{"iota":"5758005748907560","pool":"5694594953784472"},"36":{"iota":"5768230048908952","pool":"5702724006987965"},"37":{"iota":"5770577348911011","pool":"5703065395684742"},"38":{"iota":"5772828648914346","pool":"5703311822030678"},"39":{"iota":"5775052948918406","pool":"5703531497334868"},"40":{"iota":"5777430648920235","pool":"5703766235678139"},"41":{"iota":"5779808348922653","pool":"5704000887107810"},"42":{"iota":"5782186048923242","pool":"5704235451691551"},"43":{"iota":"5784563748923800","pool":"5704469929497366"},"44":{"iota":"5787018148925976","pool":"5704711878710020"},"45":{"iota":"5789472548926488","pool":"5704953735603428"},"46":{"iota":"5791773548926998","pool":"5705180395364583"},"47":{"iota":"5794151248927401","pool":"5705414523945855"},"48":{"iota":"5796528948927866","pool":"5705648566089312"},"49":{"iota":"5798906648928455","pool":"5705882521862303"},"50":{"iota":"5801284348928796","pool":"5706116391332054"},"51":{"iota":"5803662048929137","pool":"5706350174565771"},"52":{"iota":"5806039748931524","pool":"5706583871630756"},"53":{"iota":"5808417448931865","pool":"5706817482593631"},"54":{"iota":"5811189148933043","pool":"5707437973167343"},"55":{"iota":"5813566848933570","pool":"5707671412132994"},"56":{"iota":"5818594548934159","pool":"5710505537528354"},"57":{"iota":"5820895548934489","pool":"5710731282734963"},"58":{"iota":"5909539809176941","pool":"5795567273616324"},"59":{"iota":"5911994209177357","pool":"5795807890071355"},"60":{"iota":"5914559196349013","pool":"5796156790004312"},"61":{"iota":"5917013596350453","pool":"5796397226791047"},"62":{"iota":"5919467996350741","pool":"5796637573850472"},"63":{"iota":"5842904434905386","pool":"5719499510805499"},"64":{"iota":"5845282134908734","pool":"5719732173778727"},"65":{"iota":"5840276767765518","pool":"5712740264174241"},"66":{"iota":"5842849600131996","pool":"5713163557972915"},"67":{"iota":"5870227300176605","pool":"5737832123610146"},"68":{"iota":"5864377525631898","pool":"5729955052723895"},"69":{"iota":"5866831925634010","pool":"5730194776483664"},"70":{"iota":"5869286325647770","pool":"5730434410018551"},"71":{"iota":"5871740725652826","pool":"5730673953398229"},"72":{"iota":"5874118425654407","pool":"5730905926505393"},"73":{"iota":"5876419425670937","pool":"5731130337495250"},"74":{"iota":"5878720425673847","pool":"5731354669427305"},"75":{"iota":"5881021425674207","pool":"5731578922361409"},"76":{"iota":"5883322425674627","pool":"5731803096356523"},"77":{"iota":"5885623425675137","pool":"5732027191471289"},"78":{"iota":"5888874425675857","pool":"5733176090329636"},"79":{"iota":"5891564109186576","pool":"5733778263694004"},"80":{"iota":"5894865119187536","pool":"5734975008651828"},"81":{"iota":"5897166119188856","pool":"5735198788890574"},"82":{"iota":"5899467119189576","pool":"5735422490572239"},"83":{"iota":"5901768119190296","pool":"5735646113755077"},"84":{"iota":"5904069119190926","pool":"5735869658497209"},"85":{"iota":"5906370119191676","pool":"5736093124856719"},"86":{"iota":"5908671119192576","pool":"5736316512891609"},"87":{"iota":"5910982119195036","pool":"5736549527560779"},"88":{"iota":"5913359819197857","pool":"5736780197479552"},"89":{"iota":"5915737519200027","pool":"5737010783953498"},"90":{"iota":"5918115219200368","pool":"5737241287046203"},"91":{"iota":"5920492919200957","pool":"5737471706821495"},"92":{"iota":"5922870619201980","pool":"5737702043342945"},"93":{"iota":"5925248319202972","pool":"5737932296673987"},"94":{"iota":"5927626019203406","pool":"5738162466877973"},"95":{"iota":"5939265719203809","pool":"5747355278891999"},"96":{"iota":"5942438147376038","pool":"5748353704440644"}}},{"poolId":"0x3a45ee9b0a4e1d6407e1a94b19df99c252654248dad3716f61dd36cf8e7fbdf7","exchangeRateId":"0x200ec83dfbd8896b195eb94f7f6595340dadd311a5ad4ea3ec5d7e5998d3a44b","epochData":{"7":{"iota":"1","pool":"1"},"8":{"iota":"0","pool":"0"},"9":{"iota":"2899389858653820","pool":"2897890480506526"},"10":{"iota":"5726545803587320","pool":"5720709042147079"},"11":{"iota":"5746656003589516","pool":"5738170261760057"},"12":{"iota":"5751518028325436","pool":"5740404797685503"},"13":{"iota":"5804484076316796","pool":"5790774184115026"},"14":{"iota":"5807091876316830","pool":"5790904210643986"},"15":{"iota":"5813990676316864","pool":"5795311395532581"},"16":{"iota":"5818328576318825","pool":"5796947256861487"},"17":{"iota":"11829249776330705","pool":"11780635924192972"},"18":{"iota":"11840856576334609","pool":"11787694793125741"},"19":{"iota":"11847763376341265","pool":"11790073856231520"},"20":{"iota":"11803459473506199","pool":"11741561274010489"},"21":{"iota":"11808214873506943","pool":"11741939570781282"},"22":{"iota":"11822815273509175","pool":"11752103845190380"},"23":{"iota":"11830153673510291","pool":"11755048463471818"},"24":{"iota":"11836645013450273","pool":"11757217582420171"},"25":{"iota":"11841323713451859","pool":"11757589231631612"},"26":{"iota":"11851303149027936","pool":"11763290647642272"},"27":{"iota":"11855925849028536","pool":"11763676481974874"},"28":{"iota":"11860527849030396","pool":"11764041646968339"},"29":{"iota":"11865129849031956","pool":"11764406681655736"},"30":{"iota":"11869731849033096","pool":"11764771586134060"},"31":{"iota":"11792362019014842","pool":"11683889379680911"},"32":{"iota":"11796965019017302","pool":"11684255012670058"},"33":{"iota":"11803567019019882","pool":"11686599705415580"},"34":{"iota":"11808169019021502","pool":"11686964086437958"},"35":{"iota":"11812694319023095","pool":"11687322268157049"},"36":{"iota":"11817219619025927","pool":"11687680323682845"},"37":{"iota":"11811691758374021","pool":"11678095294184820"},"38":{"iota":"11836217058380806","pool":"11698219919611326"},"39":{"iota":"11840742358389066","pool":"11698577597004812"},"40":{"iota":"11845421058392665","pool":"11698947264671934"},"41":{"iota":"11850099758397423","pool":"11699316798057641"},"42":{"iota":"11854778458398582","pool":"11699686197263314"},"43":{"iota":"11861407158399680","pool":"11701979252649307"},"44":{"iota":"11866085858403828","pool":"11702348383822535"},"45":{"iota":"11870764558404804","pool":"11702717381142316"},"46":{"iota":"11875443258405841","pool":"11703086244710158"},"47":{"iota":"11880111830738621","pool":"11703444993949321"},"48":{"iota":"11871310712818712","pool":"11690534227999378"},"49":{"iota":"11875989412819871","pool":"11690902690614361"},"50":{"iota":"11880668112820542","pool":"11691271019729917"},"51":{"iota":"11884998320713351","pool":"11691296278863868"},"52":{"iota":"11889677020718048","pool":"11691664341275743"},"53":{"iota":"12582575720718719","pool":"12368545621703682"},"54":{"iota":"12589586021479030","pool":"12370996519563045"},"55":{"iota":"12599274821480118","pool":"12376077588668637"},"56":{"iota":"12604183621481334","pool":"12376463197665676"},"57":{"iota":"12597488588637257","pool":"12365454482611587"},"58":{"iota":"12602397388643145","pool":"12365839815228458"},"59":{"iota":"12607306188643977","pool":"12366225009809632"},"60":{"iota":"12612265988644489","pool":"12366660073306278"},"61":{"iota":"12616568943778500","pool":"12366450822363563"},"62":{"iota":"12639055731016529","pool":"12384058949101688"},"63":{"iota":"12643964531017105","pool":"12384443592741369"},"64":{"iota":"12649873331024017","pool":"12385807224045778"},"65":{"iota":"12637870071106508","pool":"12369632334499522"},"66":{"iota":"12642778871115340","pool":"12370016566086882"},"67":{"iota":"12647687671207436","pool":"12370400660479342"},"68":{"iota":"12654127693241212","pool":"12372281734777853"},"69":{"iota":"12659036493245436","pool":"12372665555083680"},"70":{"iota":"12664810293272956","pool":"12373894369105403"},"71":{"iota":"12669719093283068","pool":"12374277915765660"},"72":{"iota":"12678976059885332","pool":"12378906585620826"},"73":{"iota":"12687168759918943","pool":"12382701570138550"},"74":{"iota":"12691847459924860","pool":"12383066759869709"},"75":{"iota":"12699664159925592","pool":"12386492443203942"},"76":{"iota":"12704342859926446","pool":"12386857385430698"},"77":{"iota":"12709021559927483","pool":"12387222204051961"},"78":{"iota":"12714700259928947","pool":"12388561248608506"},"79":{"iota":"12719378959930716","pool":"12388925820290440"},"80":{"iota":"12724557659932668","pool":"12389777113739129"},"81":{"iota":"12740236359935352","pool":"12400848409158978"},"82":{"iota":"12745880025426016","pool":"12402151553698814"},"83":{"iota":"12754870725427480","pool":"12406709931151363"},"84":{"iota":"12760699425428761","pool":"12408192119312481"},"85":{"iota":"12768378125430286","pool":"12411472095848047"},"86":{"iota":"12774266825432116","pool":"12413011588084862"},"87":{"iota":"12778945525437118","pool":"12413375176510118"},"88":{"iota":"12771387863633242","pool":"12401783779697511"},"89":{"iota":"12776143263637582","pool":"12402153075486213"},"90":{"iota":"12780898663638264","pool":"12402522244859001"},"91":{"iota":"12785654063639442","pool":"12402891287906476"},"92":{"iota":"12790409463641488","pool":"12403260204718845"},"93":{"iota":"12796464863643472","pool":"12404889214997654"},"94":{"iota":"12801220263644340","pool":"12405257879622535"},"95":{"iota":"12805975663645146","pool":"12405626418294973"},"96":{"iota":"12810616883470146","pool":"12405884220506852"}}},{"poolId":"0x2a34df301290096539dfedd18c492f65d2aa807b1ea10c82c75f811b6e6defef","exchangeRateId":"0x5d72ab4debd1ffea6b678ac2c9eecb5f1af183dc3951e4fbc8ea549761a906b3","epochData":{"2":{"iota":"0","pool":"0"},"3":{"iota":"15024027570866850","pool":"15009928788253891"},"4":{"iota":"15364990128003950","pool":"15339282611046685"},"5":{"iota":"15443430428003950","pool":"15407963239178076"},"6":{"iota":"15464858832115640","pool":"15421208331680836"},"7":{"iota":"15479310519034240","pool":"15428112836229171"},"8":{"iota":"15509164019038440","pool":"15450632874280374"},"9":{"iota":"18380292232161039","pool":"18302697564879840"},"10":{"iota":"18488045123336494","pool":"18402116375287953"},"11":{"iota":"18497975523343326","pool":"18404304279647790"},"12":{"iota":"18506637745712964","pool":"18405298675575304"},"13":{"iota":"18526403420446564","pool":"18417399431579527"},"14":{"iota":"18554940420446674","pool":"18438211374858325"},"15":{"iota":"18563214016348147","pool":"18439024251883917"},"16":{"iota":"18571497616353871","pool":"18439846739750616"},"17":{"iota":"18579784516389181","pool":"18440740689343085"},"18":{"iota":"18587400594118413","pool":"18441516291790905"},"19":{"iota":"23594993894128709","pool":"23401203357019974"},"20":{"iota":"23605504694130445","pool":"23403137710659950"},"21":{"iota":"23602465627163088","pool":"23391706460344544"},"22":{"iota":"23593624909428310","pool":"23374528764184944"},"23":{"iota":"23526085173358453","pool":"23299272432260794"},"24":{"iota":"23516608999274438","pool":"23281615185744608"},"25":{"iota":"23390627816273249","pool":"23148620215468191"},"26":{"iota":"23398830745086420","pool":"23148540056452791"},"27":{"iota":"23404669640429254","pool":"23146121179825564"},"28":{"iota":"23454873640432974","pool":"23187563822637481"},"29":{"iota":"23463496022564291","pool":"23187966671107413"},"30":{"iota":"23484140022566571","pool":"23200177613262446"},"31":{"iota":"23492653777778198","pool":"23200541066108443"},"32":{"iota":"23501704377783036","pool":"23201434562598692"},"33":{"iota":"23308396449881545","pool":"23002554655143725"},"34":{"iota":"23304882862039616","pool":"22991116330171975"},"35":{"iota":"23314672091828631","pool":"22992805319317773"},"36":{"iota":"23323645991834247","pool":"22993690014082127"},"37":{"iota":"23332743191842483","pool":"22994763949280560"},"38":{"iota":"23341640391855823","pool":"22995640480704045"},"39":{"iota":"23350537591872063","pool":"22996516711531940"},"40":{"iota":"23359511491878966","pool":"22997400190494245"},"41":{"iota":"23378577391888092","pool":"23008215487292527"},"42":{"iota":"23387551291890315","pool":"23009098355897324"},"43":{"iota":"23386429705446794","pool":"23000048796400013"},"44":{"iota":"23394705131748528","pool":"23000244121584432"},"45":{"iota":"23403679031750400","pool":"23001126076105588"},"46":{"iota":"23415852931752389","pool":"23005151600112510"},"47":{"iota":"23424826831753910","pool":"23006032946389156"},"48":{"iota":"23433724031755650","pool":"23006906461191707"},"49":{"iota":"23442621231757854","pool":"23007779677609677"},"50":{"iota":"23450513598246166","pool":"23007666401176552"},"51":{"iota":"23459410798247442","pool":"23008539021444688"},"52":{"iota":"23468307998256374","pool":"23009411343960781"},"53":{"iota":"23477205198257650","pool":"23010283368937734"},"54":{"iota":"23488597082777658","pool":"23013599332391676"},"55":{"iota":"23497504382779630","pool":"23014480655346253"},"56":{"iota":"23506561582781834","pool":"23015508446648124"},"57":{"iota":"23515458782783110","pool":"23016379283707625"},"58":{"iota":"23488640475022789","pool":"22982292156059844"},"59":{"iota":"23497537675024297","pool":"22983162399552433"},"60":{"iota":"23507434875025225","pool":"22985010122775415"},"61":{"iota":"23405383987000429","pool":"22877397373301658"},"62":{"iota":"23434201373171245","pool":"22897798394839397"},"63":{"iota":"23367932556170409","pool":"22825289420726082"},"64":{"iota":"23376704191364851","pool":"22826102965343382"},"65":{"iota":"23385387859499496","pool":"22826830338658783"},"66":{"iota":"23385170398595812","pool":"22818868938527775"},"67":{"iota":"23364499692343087","pool":"22790952296566563"},"68":{"iota":"22559327913306045","pool":"21997734405502793"},"69":{"iota":"22527833115406212","pool":"21959417142145032"},"70":{"iota":"22537323515454372","pool":"21961131210291741"},"71":{"iota":"22213698282045562","pool":"21638245833645555"},"72":{"iota":"22221834818860853","pool":"21638841963747080"},"73":{"iota":"22229965018919259","pool":"21639633393461564"},"74":{"iota":"22238109218929541","pool":"21640438186487582"},"75":{"iota":"22246339418930813","pool":"21641326375930276"},"76":{"iota":"22254469618932297","pool":"21642117024922954"},"77":{"iota":"22262599818934099","pool":"21642907414038904"},"78":{"iota":"22270730018936643","pool":"21643697543458429"},"79":{"iota":"22253178991984698","pool":"21619529241134764"},"80":{"iota":"22261309191988090","pool":"21620318851102805"},"81":{"iota":"22269439391992754","pool":"21621108201615439"},"82":{"iota":"22277492891995274","pool":"21621889851017433"},"83":{"iota":"22285809725267908","pool":"21622859766975018"},"84":{"iota":"22293939925270134","pool":"21623648342643530"},"85":{"iota":"22302307425272759","pool":"21624733685303136"},"86":{"iota":"22310437625275939","pool":"21625521746119880"},"87":{"iota":"22318567825284631","pool":"21626309548560681"},"88":{"iota":"22325792962348224","pool":"21626220102316884"},"89":{"iota":"22333923162355644","pool":"21627007388519815"},"90":{"iota":"22345290362356810","pool":"21630927932371630"},"91":{"iota":"22352397130233080","pool":"21630723989318916"},"92":{"iota":"22360527330236578","pool":"21631510502553447"},"93":{"iota":"22368657530239970","pool":"21632296758496350"},"94":{"iota":"20288911344089987","pool":"19613937794731750"},"95":{"iota":"19850467445350046","pool":"19183670066549040"},"96":{"iota":"19857677245351926","pool":"19184366600411700"}}},{"poolId":"0x7c46e2a0ec46e98cbb67abd1b96039ce7f945b0e4379fa0a39a87908e66676e3","exchangeRateId":"0x365d2a3e159b6eccf3abcb0d56549edee200352bf44ac21f4cf1591d4daac61f","epochData":{"10":{"iota":"0","pool":"0"},"11":{"iota":"2817945458654098","pool":"2816592457395464"},"12":{"iota":"2951026058654458","pool":"2948193635990165"},"13":{"iota":"9832915920305178","pool":"9818884554567003"},"14":{"iota":"10357329948505112","pool":"10337792600785229"},"15":{"iota":"11133598728793213","pool":"11107661691913963"},"16":{"iota":"11389751065480403","pool":"11357968962769102"},"17":{"iota":"11712633838966699","pool":"11674604719819282"},"18":{"iota":"11804616960097407","pool":"11761359922558555"},"19":{"iota":"12139078369699961","pool":"12089555430744316"},"20":{"iota":"12393519631457495","pool":"12337872551118021"},"21":{"iota":"15482227716582494","pool":"15406513761266048"},"22":{"iota":"16190001108154278","pool":"16104361485078187"},"23":{"iota":"16480345924382014","pool":"16386649419489972"},"24":{"iota":"16551932589188607","pool":"16451296377564748"},"25":{"iota":"16562579257584213","pool":"16455392779875418"},"26":{"iota":"16667171816303582","pool":"16552788872710942"},"27":{"iota":"16787427141473665","pool":"16665615253584895"},"28":{"iota":"16593129934235286","pool":"16466243918589638"},"29":{"iota":"16634480734237470","pool":"16500871535330915"},"30":{"iota":"16773945834239066","pool":"16632774303775107"},"31":{"iota":"16889360317009578","pool":"16740710121664017"},"32":{"iota":"16946471880198948","pool":"16790826737992951"},"33":{"iota":"16958629718631324","pool":"16796410793597635"},"34":{"iota":"17009603942355706","pool":"16840423362643119"},"35":{"iota":"16940873535779651","pool":"16765921847634929"},"36":{"iota":"17042600855628810","pool":"16860104763447685"},"37":{"iota":"17049162557500650","pool":"16860116525867530"},"38":{"iota":"17075087071674373","pool":"16879296234316116"},"39":{"iota":"17958253244956926","pool":"17745560120494728"},"40":{"iota":"17998627974962295","pool":"17778546807302866"},"41":{"iota":"18063011588799322","pool":"17835226825404477"},"42":{"iota":"18080635786051440","pool":"17845727608409268"},"43":{"iota":"18227067210682869","pool":"17983272236874787"},"44":{"iota":"18376349102767053","pool":"18123535704178544"},"45":{"iota":"18436855454894508","pool":"18176144789767769"},"46":{"iota":"19009175754562215","pool":"18733118630016103"},"47":{"iota":"18794121093887786","pool":"18514000278727945"},"48":{"iota":"18785459051169609","pool":"18498364985627657"},"49":{"iota":"18822946450529963","pool":"18528168269311989"},"50":{"iota":"18745072393136456","pool":"18444398514609184"},"51":{"iota":"18762414784272341","pool":"18454360403208608"},"52":{"iota":"18783293584279579","pool":"18467799811717754"},"53":{"iota":"18875940812045670","pool":"18551769957707197"},"54":{"iota":"18919744932298767","pool":"18587721746982445"},"55":{"iota":"18946206513700365","pool":"18606628473439936"},"56":{"iota":"19115081925372069","pool":"18765335881962755"},"57":{"iota":"19206331542144283","pool":"18847712016467165"},"58":{"iota":"19206712580740963","pool":"18840928744034120"},"59":{"iota":"19225049805776219","pool":"18851762666805245"},"60":{"iota":"19313947691247692","pool":"18931757228157411"},"61":{"iota":"19342829290629768","pool":"18952836925888848"},"62":{"iota":"19362768377549887","pool":"18965153308305653"},"63":{"iota":"19475117315116540","pool":"19067939210413559"},"64":{"iota":"19978195130617665","pool":"19553101988807302"},"65":{"iota":"20145600489517529","pool":"19709506274710798"},"66":{"iota":"20169233077657071","pool":"19725192141376576"},"67":{"iota":"19619247829053933","pool":"19179864661636601"},"68":{"iota":"19622747735043359","pool":"19176012412745446"},"69":{"iota":"19695821955657326","pool":"19239972544003302"},"70":{"iota":"19760569894930184","pool":"19295817054046831"},"71":{"iota":"19965866721602018","pool":"19488852241367328"},"72":{"iota":"19812587898083302","pool":"19331891245943357"},"73":{"iota":"19857639553750759","pool":"19368710291378293"},"74":{"iota":"19899489385039126","pool":"19402397712039210"},"75":{"iota":"20023527158377721","pool":"19516164681184135"},"76":{"iota":"20117229877785550","pool":"19600359892930613"},"77":{"iota":"20048970993130284","pool":"19526745595068999"},"78":{"iota":"20240089853626977","pool":"19705721175521773"},"79":{"iota":"20291736112786597","pool":"19748816544692276"},"80":{"iota":"20497601832744999","pool":"19941918997520821"},"81":{"iota":"20526527695640052","pool":"19962814862927627"},"82":{"iota":"19817662343948511","pool":"19266500334582366"},"83":{"iota":"19510352841105516","pool":"18961036625096108"},"84":{"iota":"13245549944781014","pool":"12865817891491540"},"85":{"iota":"13326465982072060","pool":"12939915606672641"},"86":{"iota":"13326529528346301","pool":"12935442861009141"},"87":{"iota":"13088825466060462","pool":"12700169669472232"},"88":{"iota":"13092727525034034","pool":"12699409912620785"},"89":{"iota":"12745826395701263","pool":"12358400528204890"},"90":{"iota":"12735483957167877","pool":"12343990792766737"},"91":{"iota":"12707801503302307","pool":"12312776506977479"},"92":{"iota":"12721253163272361","pool":"12321372790472654"},"93":{"iota":"12721226575369887","pool":"12316968511491539"},"94":{"iota":"12715282024610418","pool":"12306835867200059"},"95":{"iota":"12690145919271429","pool":"12278108574702649"},"96":{"iota":"12722288623324880","pool":"12304897633483650"}}},{"poolId":"0xd2f2ee6d18ddbd7b69213773cfc13e93e0341c375a4ad2c6c516489e66eb9cd7","exchangeRateId":"0x6fb6876f6efee1be16e4c556d398a7674bb4b65dab1a872625bc4386c1ebde51","epochData":{"10":{"iota":"1","pool":"1"},"11":{"iota":"0","pool":"0"},"12":{"iota":"2839387301591816","pool":"2838024005301269"},"13":{"iota":"2933348204344896","pool":"2930620394360784"},"14":{"iota":"8568358521650914","pool":"8556443938907817"},"15":{"iota":"8617664521650964","pool":"8601908361489162"},"16":{"iota":"8651292086540049","pool":"8631483674887790"},"17":{"iota":"8919047546650932","pool":"8894607507993370"},"18":{"iota":"16988811813017077","pool":"16935257658138490"},"19":{"iota":"21645108981183979","pool":"21568192816685905"},"20":{"iota":"21859802068251331","pool":"21773503236128149"},"21":{"iota":"22126093867529899","pool":"22030108077012774"},"22":{"iota":"22403009812399039","pool":"22297111823252600"},"23":{"iota":"26883073289272837","pool":"26745678468371392"},"24":{"iota":"26988625946560583","pool":"26840335246544342"},"25":{"iota":"26999366966719268","pool":"26840701151271891"},"26":{"iota":"28502501566721200","pool":"28324120490031947"},"27":{"iota":"28430445164876683","pool":"28241680274502871"},"28":{"iota":"28441566664881178","pool":"28241901142999595"},"29":{"iota":"27773865267502744","pool":"27568056914441720"},"30":{"iota":"27784679967505423","pool":"27568271523777850"},"31":{"iota":"27840252818142253","pool":"27612878619987217"},"32":{"iota":"27845726899188361","pool":"27607866842734426"},"33":{"iota":"27876541593929624","pool":"27627902816659347"},"34":{"iota":"28087356293933431","pool":"27826257911981384"},"35":{"iota":"28233170993937238","pool":"27960166714630170"},"36":{"iota":"28755620721811806","pool":"28466878410575390"},"37":{"iota":"28892416312637979","pool":"28591612970428927"},"38":{"iota":"28904516191407539","pool":"28592875187953115"},"39":{"iota":"28930560991427699","pool":"28607926339976644"},"40":{"iota":"29176035049945441","pool":"28839840717803148"},"41":{"iota":"29313407169668872","pool":"28964777750845816"},"42":{"iota":"29328735369671646","pool":"28969078322368609"},"43":{"iota":"29657733569674274","pool":"29283084876807235"},"44":{"iota":"29654791209032121","pool":"29269261638356599"},"45":{"iota":"29669561109034473","pool":"29272932399984970"},"46":{"iota":"29681423259036972","pool":"29273733984482526"},"47":{"iota":"29697871214169487","pool":"29279056400737671"},"48":{"iota":"29711546114171692","pool":"29281643909890779"},"49":{"iota":"29725600510883961","pool":"29284603583393402"},"50":{"iota":"29778802584126929","pool":"29326113323608335"},"51":{"iota":"29801573208224299","pool":"29337652081425333"},"52":{"iota":"29815102240183818","pool":"29340092206256639"},"53":{"iota":"29828291586865349","pool":"29342167356862368"},"54":{"iota":"29945813874617469","pool":"29446863888607297"},"55":{"iota":"29978705847840804","pool":"29468333556465590"},"56":{"iota":"30062586690717367","pool":"29539898701802315"},"57":{"iota":"30075354104975400","pool":"29541512378090130"},"58":{"iota":"30081667532032059","pool":"29536786553086400"},"59":{"iota":"30090811005372871","pool":"29534820000846703"},"60":{"iota":"30667630629221387","pool":"30089843635958283"},"61":{"iota":"30679212329228182","pool":"30090070821825834"},"62":{"iota":"30718440011347315","pool":"30117476746903195"},"63":{"iota":"30687355205053782","pool":"30075945548098580"},"64":{"iota":"30699100205069982","pool":"30076406112689361"},"65":{"iota":"30710528505078624","pool":"30076629960839928"},"66":{"iota":"30733256805099186","pool":"30087916448724818"},"67":{"iota":"26305080952674207","pool":"25741658849101223"},"68":{"iota":"26194179038340422","pool":"25623569957972315"},"69":{"iota":"26187661220119849","pool":"25607635008904371"},"70":{"iota":"26238313354650555","pool":"25647577995430210"},"71":{"iota":"27282717291893258","pool":"26658539905394582"},"72":{"iota":"27296726724542631","pool":"26662459028824666"},"73":{"iota":"27417663859797727","pool":"26771002153837063"},"74":{"iota":"26350375167797943","pool":"25719341269925577"},"75":{"iota":"26358942975347359","pool":"25718533088172122"},"76":{"iota":"26368630475349109","pool":"25718817648458893"},"77":{"iota":"26412276854762925","pool":"25752147917877186"},"78":{"iota":"26473587789259371","pool":"25802746487894562"},"79":{"iota":"26487290703240528","pool":"25806942311632305"},"80":{"iota":"26497393203244528","pool":"25807630663985833"},"81":{"iota":"26507549703250028","pool":"25808371348007013"},"82":{"iota":"26553832932941006","pool":"25844346396177794"},"83":{"iota":"26613955323518469","pool":"25893700218567771"},"84":{"iota":"26627973288776115","pool":"25898122636975909"},"85":{"iota":"26656271597429467","pool":"25916500036962623"},"86":{"iota":"26566409147580669","pool":"25819723270569406"},"87":{"iota":"26575049363962579","pool":"25818718713240479"},"88":{"iota":"26576053572688611","pool":"25810280341973216"},"89":{"iota":"26531161649707157","pool":"25757556463385056"},"90":{"iota":"26539754548974706","pool":"25756776937996976"},"91":{"iota":"26548977284852465","pool":"25756608911454068"},"92":{"iota":"26379121901539244","pool":"25582698233129492"},"93":{"iota":"26391322701543212","pool":"25585490504663388"},"94":{"iota":"26390836301577324","pool":"25575978761091702"},"95":{"iota":"26386822922643481","pool":"25563054111406587"},"96":{"iota":"26440437540794974","pool":"25605950146062604"}}},{"poolId":"0xbf93d38ff24532817a62bfa4abe851b12ed68331134b955da31ea79169d22a0c","exchangeRateId":"0x46e3bd99f4bc1facd5a358da1ce556943c5859aef2d22c36be6d7a872ca8b358","epochData":{"16":{"iota":"0","pool":"0"},"17":{"iota":"5687136520851777","pool":"5684481728189407"},"18":{"iota":"6315959087455114","pool":"6310287422780680"},"19":{"iota":"6682010118547526","pool":"6673159469376204"},"20":{"iota":"6687965598138938","pool":"6676346188097396"},"21":{"iota":"6727818631845970","pool":"6713358299045561"},"22":{"iota":"6818746831847266","pool":"6801299706166423"},"23":{"iota":"6838704849280843","pool":"6818445579015581"},"24":{"iota":"6710812862588926","pool":"6688206692767683"},"25":{"iota":"6911269664094662","pool":"6885311644507800"},"26":{"iota":"6943954164095152","pool":"6915187363153422"},"27":{"iota":"6946715364095512","pool":"6915187363153422"},"28":{"iota":"6948750682340951","pool":"6914464546401266"},"29":{"iota":"6964050031971487","pool":"6926935875309091"},"30":{"iota":"6967226331972171","pool":"6927348599435825"},"31":{"iota":"6990068831973326","pool":"6947383503243610"},"32":{"iota":"7032285031974802","pool":"6986582084485697"},"33":{"iota":"7143196231976350","pool":"7093987043532406"},"34":{"iota":"7174955431977322","pool":"7122774149843425"},"35":{"iota":"7181278394715164","pool":"7126308648744792"},"36":{"iota":"7092981312816071","pool":"7035943892227399"},"37":{"iota":"7243198126328890","pool":"7182156839128717"},"38":{"iota":"7291134326333030","pool":"7226934061935988"},"39":{"iota":"7332766297540688","pool":"7265367494325063"},"40":{"iota":"7490044601713380","pool":"7418231206201248"},"41":{"iota":"7682398954658376","pool":"7605695551938113"},"42":{"iota":"7831887213925022","pool":"7750595635454455"},"43":{"iota":"9116824810478770","pool":"9018663241330092"},"44":{"iota":"9261014585334884","pool":"9157602310426403"},"45":{"iota":"9650267912114603","pool":"9538717037358411"},"46":{"iota":"9795578645075515","pool":"9678496179116050"},"47":{"iota":"9584624360309941","pool":"9466121041360412"},"48":{"iota":"9742410389751935","pool":"9618092886027535"},"49":{"iota":"10386247996163803","pool":"10249668433264829"},"50":{"iota":"11803110416526111","pool":"11643251957359476"},"51":{"iota":"11983594207871797","pool":"11816671455551235"},"52":{"iota":"12143805935527987","pool":"11969978166398411"},"53":{"iota":"12367083338977200","pool":"12185277575298063"},"54":{"iota":"12445565460689215","pool":"12257815555313133"},"55":{"iota":"13418009187485372","pool":"13210436540727129"},"56":{"iota":"13823825909014072","pool":"13604679870015229"},"57":{"iota":"14161803694249416","pool":"13931872488711298"},"58":{"iota":"14610798044278510","pool":"14368049355074705"},"59":{"iota":"14778546198276557","pool":"14527433577276674"},"60":{"iota":"15045896469192773","pool":"14784555924865195"},"61":{"iota":"15288311190070177","pool":"15016993073028944"},"62":{"iota":"15371590840032864","pool":"15093028945243961"},"63":{"iota":"15731836106035883","pool":"15440801485423457"},"64":{"iota":"16052164099650268","pool":"15749211500475260"},"65":{"iota":"16360221432925316","pool":"16045311845582513"},"66":{"iota":"16655165335605203","pool":"16328363280902422"},"67":{"iota":"16801993003629377","pool":"16465967290077263"},"68":{"iota":"17240804805020308","pool":"16889479924423569"},"69":{"iota":"19201333034202893","pool":"18802832053802293"},"70":{"iota":"19417311586321179","pool":"19006680543570028"},"71":{"iota":"20241944387324903","pool":"19806304129810961"},"72":{"iota":"20466541790028358","pool":"20018439050568820"},"73":{"iota":"20484161633391594","pool":"20028292086251885"},"74":{"iota":"20914769221144149","pool":"20441743792849551"},"75":{"iota":"21096459109388954","pool":"20611753332397350"},"76":{"iota":"21522630426733655","pool":"21020369465002120"},"77":{"iota":"21789042638781386","pool":"21272742588796010"},"78":{"iota":"21929128952711833","pool":"21401575937098059"},"79":{"iota":"21916492288092103","pool":"21381406239962751"},"80":{"iota":"22586354885734957","pool":"22026973230460450"},"81":{"iota":"23148391304170471","pool":"22566875087374159"},"82":{"iota":"24776631425855025","pool":"24145490216309340"},"83":{"iota":"26864153700180323","pool":"26170245632981497"},"84":{"iota":"27843288495537027","pool":"27114256388909662"},"85":{"iota":"28483569897724910","pool":"27727411580466626"},"86":{"iota":"28904628335748591","pool":"28127032430879427"},"87":{"iota":"29344106296416183","pool":"28544227082573689"},"88":{"iota":"29396390060571884","pool":"28584748613698858"},"89":{"iota":"29750448755930291","pool":"28918356275918416"},"90":{"iota":"29855235298065984","pool":"29009646823502074"},"91":{"iota":"32780185257523429","pool":"31840163078688675"},"92":{"iota":"32469002398170770","pool":"31526350563142183"},"93":{"iota":"32827723933670610","pool":"31863070924245751"},"94":{"iota":"35677849121903419","pool":"34616884151262046"},"95":{"iota":"35753588187200580","pool":"34677828577675008"},"96":{"iota":"35601863813707435","pool":"34518159335071519"}}},{"poolId":"0x1160f915cb5a63440a92c7d3c6f4549f281c61f73b1d6e399c9fcfb3f6be1a62","exchangeRateId":"0xa26ee6fe7abe58f9b945ebf0b52296df72791c62e590894d643640924c032be5","epochData":{"22":{"iota":"0","pool":"0"},"23":{"iota":"5896880916924934","pool":"5894521300102407"},"24":{"iota":"6050578890997424","pool":"6045798663811694"},"25":{"iota":"6157884071473230","pool":"6150602062236242"},"26":{"iota":"6410403957307642","pool":"6400272319801903"},"27":{"iota":"6445501013337545","pool":"6432773972334067"},"28":{"iota":"6503525463072168","pool":"6488136006754690"},"29":{"iota":"6526085663073026","pool":"6508109937757759"},"30":{"iota":"6528944387974113","pool":"6508436533566323"},"31":{"iota":"6543426140964802","pool":"6520345032137692"},"32":{"iota":"6561067240966155","pool":"6535395911605560"},"33":{"iota":"6563598340967574","pool":"6535395911605560"},"34":{"iota":"6625129440968465","pool":"6594119755271952"},"35":{"iota":"6661654240969383","pool":"6627864720047720"},"36":{"iota":"6665262040971015","pool":"6628859258479627"},"37":{"iota":"6677984327562429","pool":"6638966499864756"},"38":{"iota":"6687441127566339","pool":"6645824709484017"},"39":{"iota":"6789037044540783","pool":"6744210059663347"},"40":{"iota":"6792296544542907","pool":"6744759709748466"},"41":{"iota":"6825057744545715","pool":"6774592702935753"},"42":{"iota":"6828918944546399","pool":"6775738930661412"},"43":{"iota":"6831637567867445","pool":"6775833252383914"},"44":{"iota":"6752589948642026","pool":"6694757111371770"},"45":{"iota":"7449027148642602","pool":"7382361862132975"},"46":{"iota":"7451391878949503","pool":"7381816814117832"},"47":{"iota":"7454582709783976","pool":"7382162488144242"},"48":{"iota":"7457574009784561","pool":"7382310543701616"},"49":{"iota":"7460565309785302","pool":"7382458542863393"},"50":{"iota":"7464256609785731","pool":"7383298893437130"},"51":{"iota":"7467247909786160","pool":"7383446779945136"},"52":{"iota":"7470403209789163","pool":"7383756708018392"},"53":{"iota":"7473394509789592","pool":"7383904482055018"},"54":{"iota":"7477166565268961","pool":"7384823124765724"},"55":{"iota":"7482165665269624","pool":"7386953036699141"},"56":{"iota":"7485237349676565","pool":"7387179973744604"},"57":{"iota":"7579753649676994","pool":"7477619257706722"},"58":{"iota":"7647027875957274","pool":"7541087256703825"},"59":{"iota":"7650429718121834","pool":"7541567565632410"},"60":{"iota":"7654305924703354","pool":"7542515127992387"},"61":{"iota":"7657473924705154","pool":"7542764732052756"},"62":{"iota":"7689591924705514","pool":"7571519719461783"},"63":{"iota":"7692659924705874","pool":"7571670706805293"},"64":{"iota":"7696365924710194","pool":"7572449364744315"},"65":{"iota":"7746674579644314","pool":"7619062691796098"},"66":{"iota":"7764833585188796","pool":"7634045195700081"},"67":{"iota":"7805098577712956","pool":"7670752691539197"},"68":{"iota":"7808358277744075","pool":"7671020138306494"},"69":{"iota":"7811526977746781","pool":"7671198117541005"},"70":{"iota":"7722865280546799","pool":"7581195259462114"},"71":{"iota":"7726042637346940","pool":"7581441820201453"},"72":{"iota":"7729110637348980","pool":"7581592292398449"},"73":{"iota":"7739625237369918","pool":"7589187465967690"},"74":{"iota":"7745139837373604","pool":"7591878863410566"},"75":{"iota":"7769901919879660","pool":"7613429169624295"},"76":{"iota":"7773816519880192","pool":"7614551426624304"},"77":{"iota":"7781800439108238","pool":"7619657814395256"},"78":{"iota":"7761750121121143","pool":"7597311400996223"},"79":{"iota":"7764664721122245","pool":"7597539550332500"},"80":{"iota":"7768079321123461","pool":"7598256690108166"},"81":{"iota":"7770993921125133","pool":"7598484681983506"},"82":{"iota":"7773908521126045","pool":"7598712595215843"},"83":{"iota":"7780310435045543","pool":"7602344150272461"},"84":{"iota":"7785235322046341","pool":"7604535533391893"},"85":{"iota":"7788149922047291","pool":"7604763211010674"},"86":{"iota":"7779834712177723","pool":"7594025390360885"},"87":{"iota":"7782083038535682","pool":"7593659432659493"},"88":{"iota":"7785074338539231","pool":"7593951219035840"},"89":{"iota":"7788065638541961","pool":"7594242904543839"},"90":{"iota":"7791056938542390","pool":"7594534489256928"},"91":{"iota":"7799687431585594","pool":"7600320841643633"},"92":{"iota":"7796005949780154","pool":"7594076999800559"},"93":{"iota":"7801039380124327","pool":"7596340722133032"},"94":{"iota":"7787031026996656","pool":"7580051141922068"},"95":{"iota":"7790022326997163","pool":"7580342220390598"},"96":{"iota":"7793013626997943","pool":"7580633198299496"}}},{"poolId":"0x733531ed10cc84db699e1f968ea7765c37fc5db4e4effbc3924837484f79602b","exchangeRateId":"0x29b2d96ee1a3c9fbd4521db842e66672e9624a8563fc47284957c43469f36985","epochData":{"24":{"iota":"0","pool":"0"},"25":{"iota":"5635364017306754","pool":"5633184182230092"},"26":{"iota":"5637588317307160","pool":"5633228633827999"},"27":{"iota":"5639822617307450","pool":"5633283056649686"},"28":{"iota":"5642046917308349","pool":"5633327473899271"},"29":{"iota":"5669863217309103","pool":"5658914454683904"},"30":{"iota":"5669863217309103","pool":"5658914454683904"},"31":{"iota":"5669863217309103","pool":"5658914454683904"},"32":{"iota":"5669863217309103","pool":"5658914454683904"},"33":{"iota":"5669863217309103","pool":"5658914454683904"},"34":{"iota":"5669863217309103","pool":"5658914454683904"},"35":{"iota":"5669863217309103","pool":"5658914454683904"},"36":{"iota":"5669863217309103","pool":"5658914454683904"},"37":{"iota":"5669863217309103","pool":"5658914454683904"},"38":{"iota":"5669863217309103","pool":"5658914454683904"},"39":{"iota":"5669863217309103","pool":"5658914454683904"},"40":{"iota":"5669863217309103","pool":"5658914454683904"},"41":{"iota":"5669863217309103","pool":"5658914454683904"},"42":{"iota":"5669863217309103","pool":"5658914454683904"},"43":{"iota":"5669863217309103","pool":"5658914454683904"},"44":{"iota":"5669863217309103","pool":"5658914454683904"},"45":{"iota":"5669863217309103","pool":"5658914454683904"},"46":{"iota":"5669863217309103","pool":"5658914454683904"},"47":{"iota":"5669863217309103","pool":"5658914454683904"},"48":{"iota":"5669863217309103","pool":"5658914454683904"},"49":{"iota":"5669863217309103","pool":"5658914454683904"},"50":{"iota":"5669863217309103","pool":"5658914454683904"},"51":{"iota":"5669863217309103","pool":"5658914454683904"},"52":{"iota":"5669863217309103","pool":"5658914454683904"},"53":{"iota":"5669863217309103","pool":"5658914454683904"},"54":{"iota":"5669863217309103","pool":"5658914454683904"},"55":{"iota":"5669863217309103","pool":"5658914454683904"},"56":{"iota":"5669863217309103","pool":"5658914454683904"},"57":{"iota":"5669863217309103","pool":"5658914454683904"},"58":{"iota":"5669863217309103","pool":"5658914454683904"},"59":{"iota":"5669863217309103","pool":"5658914454683904"},"60":{"iota":"5669863217309103","pool":"5658914454683904"},"61":{"iota":"5669863217309103","pool":"5658914454683904"},"62":{"iota":"5669863217309103","pool":"5658914454683904"},"63":{"iota":"5669863217309103","pool":"5658914454683904"},"64":{"iota":"5669863217309103","pool":"5658914454683904"},"65":{"iota":"5669863217309103","pool":"5658914454683904"},"66":{"iota":"5669863217309103","pool":"5658914454683904"},"67":{"iota":"5669863217309103","pool":"5658914454683904"},"68":{"iota":"5669863217309103","pool":"5658914454683904"},"69":{"iota":"5669863217309103","pool":"5658914454683904"},"70":{"iota":"5669863217309103","pool":"5658914454683904"},"71":{"iota":"5669863217309103","pool":"5658914454683904"},"72":{"iota":"5669863217309103","pool":"5658914454683904"},"73":{"iota":"5669863217309103","pool":"5658914454683904"},"74":{"iota":"5669863217309103","pool":"5658914454683904"},"75":{"iota":"5669863217309103","pool":"5658914454683904"},"76":{"iota":"5669863217309103","pool":"5658914454683904"},"77":{"iota":"5669863217309103","pool":"5658914454683904"},"78":{"iota":"5669863217309103","pool":"5658914454683904"},"79":{"iota":"5669863217309103","pool":"5658914454683904"},"80":{"iota":"5669863217309103","pool":"5658914454683904"},"81":{"iota":"5665363217309103","pool":"5654423144387681"},"82":{"iota":"5665363217309103","pool":"5654423144387681"},"83":{"iota":"5665463217309103","pool":"5654522951283152"},"84":{"iota":"5665463217309103","pool":"5654522951283152"},"85":{"iota":"5665463217309103","pool":"5654522951283152"},"86":{"iota":"5665463217309103","pool":"5654522951283152"},"87":{"iota":"5665463217309103","pool":"5654522951283152"},"88":{"iota":"5665463217309103","pool":"5654522951283152"},"89":{"iota":"5665463217309103","pool":"5654522951283152"},"90":{"iota":"5665463217309103","pool":"5654522951283152"},"91":{"iota":"5665463217309103","pool":"5654522951283152"},"92":{"iota":"5665463217309103","pool":"5654522951283152"},"93":{"iota":"5665463217309103","pool":"5654522951283152"},"94":{"iota":"5665463217309103","pool":"5654522951283152"},"95":{"iota":"5665463217309103","pool":"5654522951283152"},"96":{"iota":"5665463217309103","pool":"5654522951283152"}}},{"poolId":"0x7d6c7791a8bd1bdce51d1a42c6cb6b76308faf61979dcd7237a3a847752dba64","exchangeRateId":"0xf147b1be21b85c42f1d2a97ce816239b374e28d02d7da564f5ea07e4a764f580","epochData":{"1":{"iota":"27533496860552100","pool":"27481643875506998"},"2":{"iota":"35799873696733400","pool":"35696833199216998"},"3":{"iota":"38128127088461387","pool":"37987775405103992"},"4":{"iota":"38034154518918804","pool":"37868902488856233"},"5":{"iota":"38523562484695719","pool":"38332669511919205"},"6":{"iota":"46305157747203503","pool":"46051773786496427"},"7":{"iota":"44245764244991672","pool":"43981195749096174"},"8":{"iota":"44336493524271179","pool":"44050687893975908"},"9":{"iota":"44594358090589421","pool":"44287423895696454"},"10":{"iota":"44573159083848668","pool":"44247462793186873"},"11":{"iota":"44687024230273166","pool":"44341944559469568"},"12":{"iota":"44361872844902886","pool":"44000974858982254"},"13":{"iota":"42826231669349382","pool":"42459872371470759"},"14":{"iota":"42206209296374596","pool":"41827898276470893"},"15":{"iota":"42267321187294565","pool":"41871662793177680"},"16":{"iota":"42031177511083991","pool":"41621316398261735"},"17":{"iota":"47980136848325132","pool":"47493748453944268"},"18":{"iota":"47257002443281667","pool":"46760655826023744"},"19":{"iota":"47163125987319559","pool":"46650820438995830"},"20":{"iota":"47187015612688649","pool":"46657715225063023"},"21":{"iota":"47092331197505909","pool":"46547436341319267"},"22":{"iota":"47141217215089608","pool":"46579122392703323"},"23":{"iota":"46860487296268498","pool":"46285232680305272"},"24":{"iota":"46793512958011200","pool":"46202778466924148"},"25":{"iota":"46811580766489042","pool":"46204395103449943"},"26":{"iota":"46835306803791650","pool":"46211594777775613"},"27":{"iota":"46739380101306460","pool":"46100734559886364"},"28":{"iota":"46583659776502408","pool":"45931003931353149"},"29":{"iota":"45461628482204436","pool":"44808629207753418"},"30":{"iota":"45476956299049855","pool":"44808019360665619"},"31":{"iota":"45376425533604958","pool":"44693323005920235"},"32":{"iota":"45325950896520000","pool":"44628037551895610"},"33":{"iota":"45208967448217624","pool":"44497358275730566"},"34":{"iota":"44160389766421251","pool":"43449793685683139"},"35":{"iota":"44176403737317634","pool":"43450471323503972"},"36":{"iota":"41559200112376687","pool":"40861201660083199"},"37":{"iota":"41460406139102312","pool":"40750017202634639"},"38":{"iota":"39410590215928879","pool":"38721278196500412"},"39":{"iota":"39315691023976832","pool":"38614744482449190"},"40":{"iota":"39263000702921974","pool":"38549771521704744"},"41":{"iota":"39232758792467724","pool":"38506929917887720"},"42":{"iota":"39248138592471410","pool":"38508880453299669"},"43":{"iota":"39091609113025737","pool":"38342158869407870"},"44":{"iota":"38776274333701590","pool":"38019801705687949"},"45":{"iota":"36040578740132820","pool":"35324480102249318"},"46":{"iota":"36048983684006802","pool":"35320671043528479"},"47":{"iota":"36057194413790231","pool":"35316676338902666"},"48":{"iota":"36086670313792886","pool":"35333573778433939"},"49":{"iota":"36084346213796249","pool":"35319334405415635"},"50":{"iota":"36088444937424703","pool":"35311384252833264"},"51":{"iota":"36102322475946202","pool":"35313006775159933"},"52":{"iota":"36115934375959831","pool":"35314369435520244"},"53":{"iota":"36067639108678512","pool":"35255198012826949"},"54":{"iota":"36076009471065067","pool":"35251436292645520"},"55":{"iota":"36069335510707775","pool":"35232975054021921"},"56":{"iota":"36073775327298379","pool":"35225376475841158"},"57":{"iota":"36084527385391699","pool":"35224008381710501"},"58":{"iota":"35915359247887631","pool":"35046938170176281"},"59":{"iota":"35928716527981641","pool":"35048116515785815"},"60":{"iota":"35938658568987857","pool":"35045962743912773"},"61":{"iota":"35952157768995777","pool":"35047278687806265"},"62":{"iota":"35965656968997361","pool":"35048594187153640"},"63":{"iota":"35965720987457063","pool":"35036812485193529"},"64":{"iota":"35978196459327630","pool":"35037129808201722"},"65":{"iota":"35989164214171618","pool":"35035978743891514"},"66":{"iota":"35994973878705627","pool":"35029806591730425"},"67":{"iota":"36016786375692652","pool":"35039274700965310"},"68":{"iota":"35757680399719104","pool":"34775313825912379"},"69":{"iota":"35769149778673476","pool":"34774652157767121"},"70":{"iota":"35764482367305815","pool":"34758302539068645"},"71":{"iota":"35699086659344319","pool":"34682938708786500"},"72":{"iota":"35742237612585060","pool":"34713181833404008"},"73":{"iota":"35752297499408441","pool":"34711621324543089"},"74":{"iota":"35610526609891760","pool":"34562649860787847"},"75":{"iota":"35595994154587272","pool":"34537288845563179"},"76":{"iota":"35607266742962222","pool":"34536973636652914"},"77":{"iota":"35561786642031458","pool":"34481602753550111"},"78":{"iota":"35427720934299527","pool":"34340431018811385"},"79":{"iota":"35439131867263754","pool":"34340316932385338"},"80":{"iota":"35450931914836099","pool":"34340580131616295"},"81":{"iota":"35423776061802995","pool":"34303174347316055"},"82":{"iota":"35436508261806979","pool":"34304406891353215"},"83":{"iota":"35427549192741878","pool":"34284640667732604"},"84":{"iota":"35337142414515572","pool":"34186060744690125"},"85":{"iota":"35349895923581522","pool":"34187312699109053"},"86":{"iota":"35362644643525727","pool":"34188556453755336"},"87":{"iota":"35373397230164549","pool":"34187806371908152"},"88":{"iota":"35372844035276064","pool":"34176196403871497"},"89":{"iota":"35385652935287754","pool":"34177433558743022"},"90":{"iota":"35414433129489062","pool":"34194089627190702"},"91":{"iota":"35422073338264346","pool":"34190335392924950"},"92":{"iota":"35432584524076789","pool":"34189353524676278"}}},{"poolId":"0xd5b0b86c7d74871300cbc57380c6f85ecb97b1f0a4b9f80e941284bb5bedf572","exchangeRateId":"0xe4c6edcca552e3ecaa0f01b0e13639aeab9520f3ec0d392d913b4475929a1d9f","epochData":{"36":{"iota":"7216482817057762","pool":"7168659205486627"},"37":{"iota":"7632489017060318","pool":"7579037610587885"},"38":{"iota":"7681484093539011","pool":"7624807017742384"},"39":{"iota":"7684525393544471","pool":"7624886310543037"},"40":{"iota":"7745709521707593","pool":"7682559050014242"},"41":{"iota":"7813618596474913","pool":"7746876687025108"},"42":{"iota":"7988958407289453","pool":"7917641034780038"},"43":{"iota":"8037273208857748","pool":"7962399843885074"},"44":{"iota":"8046570308860672","pool":"7968373205694261"},"45":{"iota":"8266718408861360","pool":"8183061387838959"},"46":{"iota":"8290484873287291","pool":"8203347252687728"},"47":{"iota":"9930208595193814","pool":"9821878362508787"},"48":{"iota":"9938420356786179","pool":"9826168531227512"},"49":{"iota":"10132839277778748","pool":"10014489318137847"},"50":{"iota":"10195538562970899","pool":"10072531270132004"},"51":{"iota":"10201213962971482","pool":"10074161659154895"},"52":{"iota":"10213824062975563","pool":"10082637035489267"},"53":{"iota":"10232929744371746","pool":"10097518699874340"},"54":{"iota":"10317458510544140","pool":"10176923929773182"},"55":{"iota":"10376068029759191","pool":"10230744500852757"},"56":{"iota":"10473602785324398","pool":"10322909388267046"},"57":{"iota":"11035498247140592","pool":"10872463806272928"},"58":{"iota":"11101119220555027","pool":"10932902603883750"},"59":{"iota":"11127490183574924","pool":"10954602773955325"},"60":{"iota":"11140728820832978","pool":"10963364786185964"},"61":{"iota":"11153670227833213","pool":"10971837480115715"},"62":{"iota":"11346524970977750","pool":"11157218650173206"},"63":{"iota":"11625641085105865","pool":"11427242487089580"},"64":{"iota":"12737086385112237","pool":"12514897570568222"},"65":{"iota":"12772022022167170","pool":"12544437573208931"},"66":{"iota":"13116055172176002","pool":"12877440578793781"},"67":{"iota":"13138871181052239","pool":"12894908568514773"},"68":{"iota":"13277815480627399","pool":"13026235337340726"},"69":{"iota":"14930848259740941","pool":"14642304465985633"},"70":{"iota":"15128277965836280","pool":"14830222083727469"},"71":{"iota":"15210944544622248","pool":"14905558804321820"},"72":{"iota":"15283202477033742","pool":"14970569742056760"},"73":{"iota":"15291571942346738","pool":"14973261467479299"},"74":{"iota":"16310981568742963","pool":"15965650837378380"},"75":{"iota":"16345338988939899","pool":"15993473371807329"},"76":{"iota":"16361660715130184","pool":"16003644744833261"},"77":{"iota":"16717179087273039","pool":"16345466270176410"},"78":{"iota":"16935770746728157","pool":"16553148816627368"},"79":{"iota":"16993538685551197","pool":"16603581226908528"},"80":{"iota":"17282490484874965","pool":"16879789174682945"},"81":{"iota":"17540485249586349","pool":"17125595177935536"},"82":{"iota":"17563323342248341","pool":"17141733439185187"},"83":{"iota":"17931720217714042","pool":"17495009034018012"},"84":{"iota":"24794630097207415","pool":"24182025338058278"},"85":{"iota":"25030560410695897","pool":"24403451058959178"},"86":{"iota":"25140063714400003","pool":"24501346897597880"},"87":{"iota":"25183110200212805","pool":"24534279337124415"},"88":{"iota":"25442201175489957","pool":"24777798985636885"},"89":{"iota":"25815777545849733","pool":"25132601598881305"},"90":{"iota":"26075911374064191","pool":"25376735919951095"},"91":{"iota":"26155162469801728","pool":"25444748358132746"},"92":{"iota":"26195874988718534","pool":"25475192620775589"}}},{"poolId":"0x938adccbab74e47ddc10d5a772a71b5a330b37ae97a24173f670c5ae015df5c5","exchangeRateId":"0x6b2809305395c8ef3b08ff147e227552699e7e6560d421db3591716f5ca26818","epochData":{"2":{"iota":"0","pool":"0"},"3":{"iota":"16522849310137382","pool":"16505707713245602"},"4":{"iota":"21912540060925482","pool":"21873786017791827"},"5":{"iota":"22506307952095281","pool":"22451408948310608"},"6":{"iota":"27356237122398727","pool":"27273807759438595"},"7":{"iota":"27522312770291297","pool":"27424836738154855"},"8":{"iota":"27900249370298817","pool":"27787167600045649"},"9":{"iota":"28124111448482356","pool":"27996619225043153"},"10":{"iota":"28745460813049469","pool":"28601846703462964"},"11":{"iota":"29139587390703563","pool":"28980818143438782"},"12":{"iota":"28774012743147203","pool":"28605184838032277"},"13":{"iota":"28779965859498159","pool":"28599346322857781"},"14":{"iota":"28735240595650936","pool":"28543231548740376"},"15":{"iota":"28591165479125370","pool":"28388626854222793"},"16":{"iota":"28737914225379156","pool":"28523032294874476"},"17":{"iota":"68634340832660967","pool":"68094113314574795"},"18":{"iota":"68609777843066134","pool":"68045014863249084"},"19":{"iota":"28387213189340324","pool":"28128829517185721"},"20":{"iota":"28435855178458897","pool":"28166891255521454"},"21":{"iota":"28488179230705447","pool":"28208579097346283"},"22":{"iota":"28486999978311717","pool":"28197293488592197"},"23":{"iota":"28563442879734591","pool":"28262890317293489"},"24":{"iota":"28503344808710860","pool":"28193447505799725"},"25":{"iota":"29262755783107987","pool":"28934368592375083"},"26":{"iota":"29773686400339529","pool":"29429213737154010"},"27":{"iota":"30271944478335896","pool":"29911158193500387"},"28":{"iota":"31296086149292414","pool":"30912202084882613"},"29":{"iota":"31482884444352552","pool":"31085803457468555"},"30":{"iota":"36495168444355592","pool":"36022232240576380"},"31":{"iota":"36512551273558625","pool":"36026782809699275"},"32":{"iota":"35513665833770024","pool":"35028585539594834"},"33":{"iota":"35527428133777721","pool":"35029971783712234"},"34":{"iota":"35541157433782554","pool":"35031325019243890"},"35":{"iota":"35564886733787387","pool":"35042530910438407"},"36":{"iota":"35579489333795931","pool":"35044811377402346"},"37":{"iota":"35588141960727712","pool":"35041298775271620"},"38":{"iota":"35588160509207849","pool":"35029286014877790"},"39":{"iota":"35585152442403088","pool":"35014297890837369"},"40":{"iota":"35588492145735805","pool":"35005561221739196"},"41":{"iota":"35539132226779844","pool":"34945059074688225"},"42":{"iota":"35552635499029440","pool":"34946389700394026"},"43":{"iota":"35566749699032608","pool":"34948320454663671"},"44":{"iota":"35580259899044576","pool":"34949657254555735"},"45":{"iota":"35539584367741628","pool":"34897768221720582"},"46":{"iota":"35552192660506529","pool":"34898286280595199"},"47":{"iota":"35565615160508804","pool":"34899603395242415"},"48":{"iota":"35549630714155819","pool":"34872063465250771"},"49":{"iota":"35563122193988044","pool":"34873447327130156"},"50":{"iota":"35409428507410552","pool":"34710887791894295"},"51":{"iota":"35418851855240650","pool":"34708350526560836"},"52":{"iota":"35432203655254048","pool":"34709663769213055"},"53":{"iota":"35439448009919160","pool":"34704993335463535"},"54":{"iota":"35453510202402172","pool":"34707001122665917"},"55":{"iota":"35467233764617513","pool":"34708676831068746"},"56":{"iota":"35480237625136599","pool":"34709645952570952"},"57":{"iota":"35493933425138513","pool":"34711293387638832"},"58":{"iota":"35505448573521992","pool":"34710807811342146"},"59":{"iota":"35518769797616872","pool":"34712088055255198"},"60":{"iota":"35438820177898620","pool":"34622212527762750"},"61":{"iota":"35457203514911619","pool":"34628435660644746"},"62":{"iota":"35462074443501673","pool":"34621461823147226"},"63":{"iota":"35475214248205864","pool":"34622557970095757"},"64":{"iota":"35488560048224656","pool":"34623860032256749"},"65":{"iota":"35501829148234690","pool":"34625154175811164"},"66":{"iota":"35515148248258564","pool":"34626496633098078"},"67":{"iota":"35523837901126674","pool":"34623325045032986"},"68":{"iota":"35537171410927479","pool":"34624613375626130"},"69":{"iota":"35053536252000972","pool":"34141626978165537"},"70":{"iota":"34096480220474674","pool":"33197835705136607"},"71":{"iota":"34065126084494116","pool":"33156016120279368"},"72":{"iota":"33808371866101495","pool":"32894960417253506"},"73":{"iota":"33719645771831672","pool":"32797884673512493"},"74":{"iota":"33155822798412266","pool":"32238798250528182"},"75":{"iota":"32911784664032584","pool":"31990971382826198"},"76":{"iota":"32869635576908378","pool":"31939600883323621"},"77":{"iota":"32460168616147712","pool":"31531322357155814"},"78":{"iota":"32362052032390599","pool":"31425753632391515"},"79":{"iota":"32344572618376425","pool":"31398523535306056"},"80":{"iota":"32167054451147421","pool":"31216011263543082"},"81":{"iota":"31856830157185419","pool":"30904843264598702"},"82":{"iota":"31556283016585342","pool":"30603232021625185"},"83":{"iota":"31291646976357395","pool":"30336680061758939"},"84":{"iota":"31084728053558637","pool":"30126237857787542"},"85":{"iota":"31095926253562287","pool":"30127322796642555"},"86":{"iota":"31107211153566697","pool":"30128424495583793"},"87":{"iota":"31118496053578751","pool":"30129525835260352"},"88":{"iota":"31129255801283536","pool":"30130118356513096"},"89":{"iota":"31140530701293826","pool":"30131209302506706"},"90":{"iota":"31151805601295443","pool":"30132299893121136"},"91":{"iota":"31160511099065316","pool":"30130904815213022"},"92":{"iota":"31150784316489923","pool":"30111686949717144"}}},{"poolId":"0x0245500bc452ffe587ca1c40aa77612e7a54840c2afa0176fc86456bed0415d0","exchangeRateId":"0xf1ad391ae68f37497f2720d70866540babb72f1f483e4f370bf1881238c97e21","epochData":{"2":{"iota":"0","pool":"0"},"3":{"iota":"10035484353849300","pool":"10025391453243840"},"4":{"iota":"10202664590100889","pool":"10184843833893152"},"5":{"iota":"10384475456210163","pool":"10359382616380169"},"6":{"iota":"10411962345459528","pool":"10381047313366855"},"7":{"iota":"10425287834933631","pool":"10388947946133655"},"8":{"iota":"10437256834936431","pool":"10395789107448906"},"9":{"iota":"10455649134939260","pool":"10409094215040872"},"10":{"iota":"10707559717542673","pool":"10654982020194317"},"11":{"iota":"10716679917546699","pool":"10659270035325653"},"12":{"iota":"10724067617547999","pool":"10661906141194675"},"13":{"iota":"10760738117550599","pool":"10693641295246810"},"14":{"iota":"10765623004878729","pool":"10693788921630559"},"15":{"iota":"10803361730737392","pool":"10726701935279858"},"16":{"iota":"10825438297240837","pool":"10743911686291553"},"17":{"iota":"10839561841359255","pool":"10753295024759102"},"18":{"iota":"10884349129284044","pool":"10793444730533243"},"19":{"iota":"15889699361344983","pool":"15750769807659676"},"20":{"iota":"15897483122088404","pool":"15752415456970443"},"21":{"iota":"15903925922089412","pool":"15752734534532084"},"22":{"iota":"15920292022092400","pool":"15762950863132241"},"23":{"iota":"15725151620362265","pool":"15563821887359661"},"24":{"iota":"15732715075884780","pool":"15565465616168032"},"25":{"iota":"15744700331351226","pool":"15571478144015538"},"26":{"iota":"15761590594411388","pool":"15582645423637625"},"27":{"iota":"15767756594412188","pool":"15583281493830021"},"28":{"iota":"15788190537886751","pool":"15598013139984276"},"29":{"iota":"15918458595032291","pool":"15721213074473083"},"30":{"iota":"16014810295033830","pool":"15810817260664786"},"31":{"iota":"16074490080894503","pool":"15864198013849546"},"32":{"iota":"16166031317517640","pool":"15948993889390447"},"33":{"iota":"16736952339525051","pool":"16506540745601903"},"34":{"iota":"16796135607705558","pool":"16559172330960536"},"35":{"iota":"16722030444434660","pool":"16480394922536685"},"36":{"iota":"16908603035505911","pool":"16658494992212399"},"37":{"iota":"16913114842059113","pool":"16657159079756016"},"38":{"iota":"16929741312288682","pool":"16667751503341036"},"39":{"iota":"16938569219015180","pool":"16670731971767098"},"40":{"iota":"16950657375533654","pool":"16676784156733926"},"41":{"iota":"16962251810160132","pool":"16682348647469991"},"42":{"iota":"16968848010161766","pool":"16682997155758827"},"43":{"iota":"16976444210163314","pool":"16684628247782124"},"44":{"iota":"16967961901918439","pool":"16670456985657374"},"45":{"iota":"16974558101919815","pool":"16671104813665234"},"46":{"iota":"16982058040949609","pool":"16672639687808382"},"47":{"iota":"17985558571124166","pool":"17651685459713608"},"48":{"iota":"17992461571125516","pool":"17652362711457841"},"49":{"iota":"17999364571127226","pool":"17653039729431452"},"50":{"iota":"18005250980137615","pool":"17652719482975439"},"51":{"iota":"18012153980138605","pool":"17653396033891969"},"52":{"iota":"18018003818825202","pool":"17653040166593016"},"53":{"iota":"17993295032844796","pool":"17622744777202644"},"54":{"iota":"17998106724092861","pool":"17621372385124227"},"55":{"iota":"17999926724918656","pool":"17617071394745077"},"56":{"iota":"18014672780328971","pool":"17625359124823045"},"57":{"iota":"18007687166439382","pool":"17612445669915771"},"58":{"iota":"18014590166447662","pool":"17613120586027810"},"59":{"iota":"18021493166448832","pool":"17613795269460768"},"60":{"iota":"18023361325246704","pool":"17609548781674742"},"61":{"iota":"18030264325250754","pool":"17610223000129049"},"62":{"iota":"18037167325251564","pool":"17610896986347166"},"63":{"iota":"18044070325252374","pool":"17611570740498222"},"64":{"iota":"18050895613399580","pool":"17612235794109250"},"65":{"iota":"18057721913404742","pool":"17612901608717089"},"66":{"iota":"18064548213417024","pool":"17613567196876570"},"67":{"iota":"18071374513545095","pool":"17614232558760811"},"68":{"iota":"18078277513613405","pool":"17614905165382035"},"69":{"iota":"18085180513619345","pool":"17615577540931607"},"70":{"iota":"18067589186672591","pool":"17592391371094213"},"71":{"iota":"18147705206209373","pool":"17664326044796613"},"72":{"iota":"18591477937372486","pool":"18090085547207834"},"73":{"iota":"18598573816993261","pool":"18090944621293830"},"74":{"iota":"18605323417001797","pool":"18091600944579122"},"75":{"iota":"18612073017002853","pool":"18092257053644010"},"76":{"iota":"18618822617004085","pool":"18092912948636794"},"77":{"iota":"18625572217005581","pool":"18093568629704882"},"78":{"iota":"18634363493214721","pool":"18096206648975588"},"79":{"iota":"18720586414523217","pool":"18174014898476582"},"80":{"iota":"18727412714526065","pool":"18174677380807416"},"81":{"iota":"18734256132785411","pool":"18175356253443037"},"82":{"iota":"18912740706802394","pool":"18342500890722774"},"83":{"iota":"18919567006804530","pool":"18343162723690170"},"84":{"iota":"19004135792212170","pool":"18419173800192759"},"85":{"iota":"19011038792214420","pool":"18419842633574936"},"86":{"iota":"19030165435933843","pool":"18432350898039083"},"87":{"iota":"19081983758540457","pool":"18476442447590624"},"88":{"iota":"19170149197980187","pool":"18555693636035950"},"89":{"iota":"19177128897986557","pool":"18556369012885145"},"90":{"iota":"19186568412465960","pool":"18559423579936988"},"91":{"iota":"19432619608553380","pool":"18791278482950872"},"92":{"iota":"19439676008556416","pool":"18791960611556605"}}},{"poolId":"0x8ca92957d8754ad49ad09d1d575fdd65de20fea421a13fc008a14a3215034d21","exchangeRateId":"0x3b06c83bdfd222771cdfd7fe954de476fe2409d66920ad2cc106ee5faf5ad358","epochData":{"2":{"iota":"0","pool":"0"},"3":{"iota":"9475410844820088","pool":"9465580598835441"},"4":{"iota":"11464565402334148","pool":"11444137663000348"},"5":{"iota":"13089918879735715","pool":"13057529402699150"},"6":{"iota":"17675228954502354","pool":"17620914553240628"},"7":{"iota":"19965264333001181","pool":"19893241167391054"},"8":{"iota":"20998065671005615","pool":"20911608871593144"},"9":{"iota":"19245816619368879","pool":"19157093311240477"},"10":{"iota":"19559649378399738","pool":"19461091488184426"},"11":{"iota":"18682480543427203","pool":"18580091964133899"},"12":{"iota":"18924852592284283","pool":"18813260909675925"},"13":{"iota":"18991961897718154","pool":"18872186051722828"},"14":{"iota":"19100855252447162","pool":"18972589607511896"},"15":{"iota":"19297417230096778","pool":"19160145364302057"},"16":{"iota":"19784150027453249","pool":"19635516743341289"},"17":{"iota":"19720597195280794","pool":"19564627839001326"},"18":{"iota":"19526972624659039","pool":"19365328538425131"},"19":{"iota":"24376596931333866","pool":"24165850362259110"},"20":{"iota":"24273301087853448","pool":"24054686281785181"},"21":{"iota":"24258246090583888","pool":"24031077940524387"},"22":{"iota":"24240219824799209","pool":"24004603277257646"},"23":{"iota":"24249884024801477","pool":"24005559960318008"},"24":{"iota":"24159046457582610","pool":"23907163686759082"},"25":{"iota":"24162089842891283","pool":"23901704531671699"},"26":{"iota":"24171605582893019","pool":"23902649914107990"},"27":{"iota":"24167828689105324","pool":"23890450127909164"},"28":{"iota":"24177262789109137","pool":"23891382382699930"},"29":{"iota":"24186630583943982","pool":"23892248679456163"},"30":{"iota":"24190873295410762","pool":"23888052077088285"},"31":{"iota":"24095103123356318","pool":"23785163849645767"},"32":{"iota":"24099170429174837","pool":"23780933323908068"},"33":{"iota":"24140604129180040","pool":"23813566237626939"},"34":{"iota":"23863813715260236","pool":"23532285058470686"},"35":{"iota":"23867916054185110","pool":"23528161570663168"},"36":{"iota":"23567643058402965","pool":"23224063142806291"},"37":{"iota":"23371511149628222","pool":"23022763433565511"},"38":{"iota":"21781356212633066","pool":"21448380333468288"},"39":{"iota":"21755080263180551","pool":"21415164519792665"},"40":{"iota":"21763440563186982","pool":"21415987202573117"},"41":{"iota":"21771800863195484","pool":"21416809601026118"},"42":{"iota":"21780161163197555","pool":"21417631715358204"},"43":{"iota":"21813779183199517","pool":"21443282275133830"},"44":{"iota":"21822139483206929","pool":"21444103822175454"},"45":{"iota":"21800908124329698","pool":"21415846057650457"},"46":{"iota":"21809268424331551","pool":"21416667037786021"},"47":{"iota":"21822588724332968","pool":"21422356767087353"},"48":{"iota":"21736878142396062","pool":"21330831582503871"},"49":{"iota":"21627796496067431","pool":"21216471333978726"},"50":{"iota":"21636080096068619","pool":"21217283659918406"},"51":{"iota":"21643854518691678","pool":"21217596384499697"},"52":{"iota":"21652138118699994","pool":"21218408151009648"},"53":{"iota":"21655392476218246","pool":"21214290778594380"},"54":{"iota":"21770290588805509","pool":"21319508909236015"},"55":{"iota":"21782502358807345","pool":"21324165354605205"},"56":{"iota":"21788584202440647","pool":"21322820579106130"},"57":{"iota":"21792800735585406","pool":"21319650827128050"},"58":{"iota":"21805295428786712","pool":"21324579181296969"},"59":{"iota":"21813579028788116","pool":"21325389002519511"},"60":{"iota":"21821862628788980","pool":"21326198547063475"},"61":{"iota":"21835682204628624","pool":"21332416198501735"},"62":{"iota":"21852249528004543","pool":"21341311837286602"},"63":{"iota":"21860533128005515","pool":"21342120553107022"},"64":{"iota":"21867794262529795","pool":"21341930775023409"},"65":{"iota":"21876031162536001","pool":"21342760727815205"},"66":{"iota":"21887510836450767","pool":"21346753057674376"},"67":{"iota":"21895717736604740","pool":"21347553201518775"},"68":{"iota":"21904001336686712","pool":"21348360548443525"},"69":{"iota":"21912438336693972","pool":"21349182561268646"},"70":{"iota":"21900384317022963","pool":"21330107222849924"},"71":{"iota":"21962872562751261","pool":"21383614701697615"},"72":{"iota":"21971156162756769","pool":"21384420940514126"},"73":{"iota":"21979209662814624","pool":"21385204525313233"},"74":{"iota":"21987263162824809","pool":"21385987851787777"},"75":{"iota":"21984560676646869","pool":"21376307833083020"},"76":{"iota":"21890242841448724","pool":"21277551642436880"},"77":{"iota":"21898219641450492","pool":"21278326741780892"},"78":{"iota":"21945538097293019","pool":"21317316167913672"},"79":{"iota":"21953514897296035","pool":"21318090759805824"},"80":{"iota":"21753114023150557","pool":"21116518399996313"},"81":{"iota":"21761014123155089","pool":"21117285040111047"},"82":{"iota":"21768914223157561","pool":"21118051429819061"},"83":{"iota":"22190097416971873","pool":"21519613118778234"},"84":{"iota":"22214336756282307","pool":"21536152504528022"},"85":{"iota":"22490982927679525","pool":"21797308563641837"},"86":{"iota":"22818008290135239","pool":"22106987598259760"},"87":{"iota":"22827911876371670","pool":"22109292013905470"},"88":{"iota":"22889714033246313","pool":"22161910911990950"},"89":{"iota":"23051688082978966","pool":"22311464649222514"},"90":{"iota":"23060048382980165","pool":"22312273569037632"},"91":{"iota":"23065432890406890","pool":"22310202897701610"},"92":{"iota":"23081531020006054","pool":"22318491415118749"}}},{"poolId":"0xa05f4fb4ffbd0b270279feea497a2f9b0b360a0cb754676707fe8669836dbbbe","exchangeRateId":"0x7fb7590a41e4c391acf7ff6cff4a5acc80d18476dfa0bf739a659670ce2d02e8","epochData":{"2":{"iota":"0","pool":"0"},"3":{"iota":"21713274342703250","pool":"21691088910020285"},"4":{"iota":"22592609005955262","pool":"22553129709180860"},"5":{"iota":"22985429755704431","pool":"22929853847135174"},"6":{"iota":"28184612114128655","pool":"28100341922800906"},"7":{"iota":"30001322672446719","pool":"29895822495635695"},"8":{"iota":"30456402169951344","pool":"30333721943434586"},"9":{"iota":"36486712121049730","pool":"36321538901754443"},"10":{"iota":"35989392859934165","pool":"35812665062759140"},"11":{"iota":"35804270285123110","pool":"35613535731275402"},"12":{"iota":"35817149336274727","pool":"35611643556873089"},"13":{"iota":"35815017820234957","pool":"35594954451645368"},"14":{"iota":"35902569554691152","pool":"35667462661347113"},"15":{"iota":"36079355803850939","pool":"35828753641280823"},"16":{"iota":"36238385532341734","pool":"35972419394479017"},"17":{"iota":"36211651293157779","pool":"35931833467376058"},"18":{"iota":"28959920626786477","pool":"28723055496150119"},"19":{"iota":"28950495783302531","pool":"28703226206358653"},"20":{"iota":"28962105483304645","pool":"28704401821865430"},"21":{"iota":"28951243131832374","pool":"28683304414119303"},"22":{"iota":"28945565961857120","pool":"28667420706687558"},"23":{"iota":"28852244793909427","pool":"28564808965107392"},"24":{"iota":"28726636581775377","pool":"28430337044421541"},"25":{"iota":"28487412029466361","pool":"28183536467380114"},"26":{"iota":"28452930279950915","pool":"28139448464373467"},"27":{"iota":"28449911454338687","pool":"28126563440458334"},"28":{"iota":"28461032954343182","pool":"28127662563599188"},"29":{"iota":"28472548838418020","pool":"28129149950509094"},"30":{"iota":"32483152912943839","pool":"32080104810121886"},"31":{"iota":"32348717780047537","pool":"31936086515420613"},"32":{"iota":"32361296580054261","pool":"31937327915806435"},"33":{"iota":"32374798680061270","pool":"31939547873704968"},"34":{"iota":"32387300780065671","pool":"31940780847206162"},"35":{"iota":"32419802880070072","pool":"31961730804677817"},"36":{"iota":"32432228280077848","pool":"31962955365945771"},"37":{"iota":"32400776536695731","pool":"31920937217081956"},"38":{"iota":"32446519236714246","pool":"31955041552642797"},"39":{"iota":"32591757936736786","pool":"32087089560744702"},"40":{"iota":"32694072037344568","pool":"32176775476777842"},"41":{"iota":"32501459653369221","pool":"31976204328639054"},"42":{"iota":"32492883088173849","pool":"31956831728472782"},"43":{"iota":"32567220798176747","pool":"32018991311476574"},"44":{"iota":"32569091982805983","pool":"32009835967336640"},"45":{"iota":"31466104337932919","pool":"30914864715378161"},"46":{"iota":"31478069537935571","pool":"30916039871942040"},"47":{"iota":"31490034737937599","pool":"30917214626621072"},"48":{"iota":"31501923237939924","pool":"30918381454357954"},"49":{"iota":"31513811737942869","pool":"30919547885915612"},"50":{"iota":"31525700237944574","pool":"30920713921577737"},"51":{"iota":"31537086848834767","pool":"30921387303891665"},"52":{"iota":"31548975348846702","pool":"30922552548601764"},"53":{"iota":"31560863848848407","pool":"30923717398258929"},"54":{"iota":"31572753348854297","pool":"30924882832627292"},"55":{"iota":"31584641848856932","pool":"30926046893028320"},"56":{"iota":"31545976250841928","pool":"30877710500527972"},"57":{"iota":"31557864750843633","pool":"30878873771534371"},"58":{"iota":"31569753250857893","pool":"30880036648270264"},"59":{"iota":"31581641750859908","pool":"30881199131015231"},"60":{"iota":"31593530250861148","pool":"30882361220052092"},"61":{"iota":"31604347168360488","pool":"30882475454418859"},"62":{"iota":"31616235668361883","pool":"30883636756856878"},"63":{"iota":"31628245650975701","pool":"30884983637603426"},"64":{"iota":"31641057450992333","pool":"30887112844345316"},"65":{"iota":"31652869251001265","pool":"30888265491872210"},"66":{"iota":"31664757751022655","pool":"30889425232096404"},"67":{"iota":"31676646251245700","pool":"30890584580591706"},"68":{"iota":"31688611451364104","pool":"30891751012208427"},"69":{"iota":"31700653351374466","pool":"30892924519593177"},"70":{"iota":"31712708715496097","pool":"30894110742433365"},"71":{"iota":"31731251915520745","pool":"30901682008311024"},"72":{"iota":"31716729845300845","pool":"30877119284656309"},"73":{"iota":"27680252189478163","pool":"26937411500203173"},"74":{"iota":"27689276964726893","pool":"26937393513301322"},"75":{"iota":"27699281792282543","pool":"26938328972053244"},"76":{"iota":"27709329492284377","pool":"26939305820169377"},"77":{"iota":"27718923448299028","pool":"26939840450087977"},"78":{"iota":"27728971148302172","pool":"26940816661005438"},"79":{"iota":"27713332436587568","pool":"26916836239446686"},"80":{"iota":"27722167512317988","pool":"26916634008986888"},"81":{"iota":"27737215212323752","pool":"26922462394904257"},"82":{"iota":"27750549912326896","pool":"26926626740808066"},"83":{"iota":"27760597612330040","pool":"26927601361254139"},"84":{"iota":"27770645312332791","pool":"26928575664323921"},"85":{"iota":"27779665368330811","pool":"26928553166741394"},"86":{"iota":"27789889605281224","pool":"26929630980413720"},"87":{"iota":"27800024005292048","pool":"26930621445192251"},"88":{"iota":"27810071705303969","pool":"26931594476060368"},"89":{"iota":"27816078979831922","pool":"26928587541294540"},"90":{"iota":"27822798129924928","pool":"26926337587047087"},"91":{"iota":"27830870297998486","pool":"26925330976778530"},"92":{"iota":"27840994698002842","pool":"26926310154202323"}}},{"poolId":"0x9657646b25c7000dccbd05740d72cecf9f0cdc97646ecc5711a7307f6dee3540","exchangeRateId":"0x1268a6282d36c8de3563f148d457bbeada54bc0d00b00701dd69782f2fc641d2","epochData":{"3":{"iota":"0","pool":"0"},"4":{"iota":"10031812153851000","pool":"10023925713259303"},"5":{"iota":"11316078253851000","pool":"11299308532484694"},"6":{"iota":"11324155485580570","pool":"11301307847024309"},"7":{"iota":"11327385507564618","pool":"11298835113390700"},"8":{"iota":"11334833883403898","pool":"11300785126924187"},"9":{"iota":"11340586383406973","pool":"11301186402932620"},"10":{"iota":"10573434092846656","pool":"10531581211732963"},"11":{"iota":"10578419592850621","pool":"10531928662984551"},"12":{"iota":"10586333392851901","pool":"10535261124060164"},"13":{"iota":"10591242192854461","pool":"10535602934933152"},"14":{"iota":"10596650992854525","pool":"10536441757581534"},"15":{"iota":"10601406392854587","pool":"10536772606118194"},"16":{"iota":"10606315192857979","pool":"10537113980185820"},"17":{"iota":"18611815672664169","pool":"18482551356182300"},"18":{"iota":"18618512171115541","pool":"18482117570500035"},"19":{"iota":"18626105471125837","pool":"18482871061267266"},"20":{"iota":"18633622071127209","pool":"18483616670213064"},"21":{"iota":"18636336884270391","pool":"18479598697185516"},"22":{"iota":"19145717584582483","pool":"18977876702625789"},"23":{"iota":"19152230084275665","pool":"18977557781903617"},"24":{"iota":"19157847102464553","pool":"18976351649084176"},"25":{"iota":"19185380359629901","pool":"18996847505170792"},"26":{"iota":"19192973659631287","pool":"18997599105583905"},"27":{"iota":"19187390108644502","pool":"18985376053526539"},"28":{"iota":"19195265708647540","pool":"18986474632636685"},"29":{"iota":"19202706608650062","pool":"18987211262259338"},"30":{"iota":"19210146508651905","pool":"18987946646678337"},"31":{"iota":"19227660044893027","pool":"18998630455462137"},"32":{"iota":"19235099944897004","pool":"18999365327537565"},"33":{"iota":"19242539844901175","pool":"19000099943886504"},"34":{"iota":"19249979744903794","pool":"19000834304696574"},"35":{"iota":"19246007735435091","pool":"18990304200699036"},"36":{"iota":"19253370935439699","pool":"18991030487832049"},"37":{"iota":"19260734135446515","pool":"18991756525068175"},"38":{"iota":"19268097335457555","pool":"18992482312589065"},"39":{"iota":"19275460535470995","pool":"18993207850575787"},"40":{"iota":"19282900435476718","pool":"18993940691674736"},"41":{"iota":"19290515335484284","pool":"18994845596124677"},"42":{"iota":"19297955235486127","pool":"18995577928636291"},"43":{"iota":"19305395135487873","pool":"18996310007134883"},"44":{"iota":"19312835035494469","pool":"18997041831806868"},"45":{"iota":"19320274935496021","pool":"18997773402836996"},"46":{"iota":"19327714835497670","pool":"18998504720411285"},"47":{"iota":"19335154735498931","pool":"18999235784714996"},"48":{"iota":"19342594635500386","pool":"18999966595933286"},"49":{"iota":"19350034535502229","pool":"19000697154251068"},"50":{"iota":"19352392781469580","pool":"18996437547796465"},"51":{"iota":"19359832681470647","pool":"18997167600734309"},"52":{"iota":"19367272581478116","pool":"18997897401259513"},"53":{"iota":"19374712481479183","pool":"18998626949554989"},"54":{"iota":"19382151373131744","pool":"18999355257027706"},"55":{"iota":"19389821373133393","pool":"19000309779062728"},"56":{"iota":"19397261273135236","pool":"19001038571776887"},"57":{"iota":"19404624473136292","pool":"19001759604830301"},"58":{"iota":"19411987673145124","pool":"19002480391728294"},"59":{"iota":"19419350873146372","pool":"19003200932646705"},"60":{"iota":"19424511747980826","pool":"19001755228506535"},"61":{"iota":"19431874947985146","pool":"19002475277531243"},"62":{"iota":"19439238147986010","pool":"19003195081079983"},"63":{"iota":"19446739347986874","pool":"19004049497867357"},"64":{"iota":"19454102547997242","pool":"19004768810997123"},"65":{"iota":"19461465748002810","pool":"19005487879181758"},"66":{"iota":"19468828948016058","pool":"19006206702598502"},"67":{"iota":"19476192148154202","pool":"19006925281434617"},"68":{"iota":"19483632048227825","pool":"19007651095925661"},"69":{"iota":"19491235648234293","pool":"19008468983662376"},"70":{"iota":"19498675548276003","pool":"19009194297056577"},"71":{"iota":"19506115448291329","pool":"19009919361458679"},"72":{"iota":"19493158277237025","pool":"18990833245050521"},"73":{"iota":"19500368077288819","pool":"18991535412170934"},"74":{"iota":"19507501177297840","pool":"18992229880795606"},"75":{"iota":"19514710977298968","pool":"18992931583415289"},"76":{"iota":"19521844077300270","pool":"18993625592803973"},"77":{"iota":"19528977177301851","pool":"18994319374041602"},"78":{"iota":"19536125277304083","pool":"18995027511827115"},"79":{"iota":"19543181677306751","pool":"18995713384548305"},"80":{"iota":"19550238077309695","pool":"18996399034460457"},"81":{"iota":"19557294477313743","pool":"18997084461716399"},"82":{"iota":"19564350877315951","pool":"18997769666468434"},"83":{"iota":"19571516277318159","pool":"18998560457895950"},"84":{"iota":"19578572677320091","pool":"18999245218098867"},"85":{"iota":"19585629077322391","pool":"18999929756256137"},"86":{"iota":"19592762177325181","pool":"19000621508302669"},"87":{"iota":"19599971977332889","pool":"19001320467059386"},"88":{"iota":"19607181777341443","pool":"19002019194493581"},"89":{"iota":"19612210873280991","pool":"19000654719572596"},"90":{"iota":"19619343973282014","pool":"19001345560704812"},"91":{"iota":"19626477073283781","pool":"19002036175855831"},"92":{"iota":"19121706568996400","pool":"18507109807797573"}}},{"poolId":"0x8324fb8a2d58521fc4407a0f8a10d98790f5551f405693d021f228244fdea358","exchangeRateId":"0x4164a72c3a3de2723243e25320f747afba6ec34d362a10bc76fb99c544fb3a6d","epochData":{"4":{"iota":"0","pool":"0"},"5":{"iota":"9578451053846000","pool":"9571949938044383"},"6":{"iota":"9797524053846000","pool":"9785268652472532"},"7":{"iota":"9595328658841200","pool":"9578568443479102"},"8":{"iota":"9601582043607981","pool":"9580330860289463"},"9":{"iota":"9605600321700245","pool":"9579931877623795"},"10":{"iota":"9610279021701770","pool":"9580398292900670"},"11":{"iota":"9614804321705369","pool":"9580849224771778"},"12":{"iota":"9619329621706549","pool":"9581299965711648"},"13":{"iota":"9623778221708869","pool":"9581742882624609"},"14":{"iota":"9628150121708926","pool":"9582177985145905"},"15":{"iota":"9632445321708982","pool":"9582605282730642"},"16":{"iota":"9636893921712056","pool":"9583047657070164"},"17":{"iota":"9641370521731196","pool":"9583517679685532"},"18":{"iota":"9644430267852582","pool":"9582922275864519"},"19":{"iota":"9648495367858094","pool":"9583326040153699"},"20":{"iota":"9652771767858822","pool":"9584007987288158"},"21":{"iota":"9656683467859434","pool":"9584396229098713"},"22":{"iota":"9661976167861270","pool":"9586154492119953"},"23":{"iota":"9665887867862188","pool":"9586542451080653"},"24":{"iota":"9669804567864279","pool":"9586935225940145"},"25":{"iota":"9673562867865553","pool":"9587307704819451"},"26":{"iota":"9677321167866239","pool":"9587680053502795"},"27":{"iota":"9681080467866729","pool":"9588053262477078"},"28":{"iota":"9684838767868248","pool":"9588425351056713"},"29":{"iota":"9688630597869522","pool":"9588830494344273"},"30":{"iota":"9691004474580541","pool":"9587832160485246"},"31":{"iota":"9694762774582158","pool":"9588203859591441"},"32":{"iota":"9698521074584167","pool":"9588575429058342"},"33":{"iota":"9702279374586274","pool":"9588946868981338"},"34":{"iota":"9706037674587597","pool":"9589318179455650"},"35":{"iota":"9709795974588920","pool":"9589689360576559"},"36":{"iota":"9702020701996511","pool":"9578669505752545"},"37":{"iota":"9705779001999990","pool":"9579040428144935"},"38":{"iota":"9709537302005625","pool":"9579411221315888"},"39":{"iota":"9713295602012485","pool":"9579781885360313"},"40":{"iota":"9717130602015435","pool":"9580159979625532"},"41":{"iota":"9720965602019335","pool":"9580537939640412"},"42":{"iota":"9724877302020304","pool":"9580923319286790"},"43":{"iota":"9728712302021204","pool":"9581301008422157"},"44":{"iota":"9732624002024672","pool":"9581686111983021"},"45":{"iota":"9752860702025488","pool":"9598137089411352"},"46":{"iota":"9756772402026355","pool":"9598521914808884"},"47":{"iota":"9760684102027018","pool":"9598906601400177"},"48":{"iota":"9764595802027783","pool":"9599291149290916"},"49":{"iota":"9768607502028752","pool":"9599773830257691"},"50":{"iota":"9767437630086093","pool":"9595164355329070"},"51":{"iota":"9771349330086654","pool":"9595548487609642"},"52":{"iota":"9775261030090581","pool":"9595932481540956"},"53":{"iota":"9779482730091142","pool":"9596620540675652"},"54":{"iota":"9783393189566951","pool":"9597003040897200"},"55":{"iota":"9787304889567818","pool":"9597386620418579"},"56":{"iota":"9791139889568768","pool":"9597762546202389"},"57":{"iota":"9794974889569318","pool":"9598138339514289"},"58":{"iota":"9798809889573918","pool":"9598514000453226"},"59":{"iota":"9802643878516878","pool":"9598888538725979"},"60":{"iota":"9806478878517278","pool":"9599263935212846"},"61":{"iota":"9810313878519528","pool":"9599639199621386"},"62":{"iota":"9814148878519978","pool":"9600014332049306"},"63":{"iota":"9817983878520428","pool":"9600389332594737"},"64":{"iota":"9821818878525828","pool":"9600764201356006"},"65":{"iota":"9825653878528728","pool":"9601138938430117"},"66":{"iota":"9829488878535628","pool":"9601513543915327"},"67":{"iota":"9821302512035045","pool":"9590145462735375"},"68":{"iota":"9825137512072995","pool":"9590519805015785"},"69":{"iota":"9829049212076361","pool":"9590901497370864"},"70":{"iota":"9832973077132812","pool":"9591294919101807"},"71":{"iota":"9836884777140870","pool":"9591676338232553"},"72":{"iota":"9840719777143420","pool":"9592050147396646"},"73":{"iota":"9844401377169868","pool":"9592408883407559"},"74":{"iota":"9848082977174524","pool":"9592767498713194"},"75":{"iota":"9851764577175100","pool":"9593125993400984"},"76":{"iota":"9855446177175772","pool":"9593484367556948"},"77":{"iota":"9859127777176588","pool":"9593842621266611"},"78":{"iota":"9863809377177740","pool":"9595173520121445"},"79":{"iota":"9867490977179132","pool":"9595531533206916"},"80":{"iota":"9871172577180668","pool":"9595889426114264"},"81":{"iota":"9874854177182780","pool":"9596247198928666"},"82":{"iota":"9878535777183932","pool":"9596604851735013"},"83":{"iota":"9882217377185084","pool":"9596962384618349"},"84":{"iota":"9891567977186092","pool":"9602823313940440"},"85":{"iota":"9895249577187292","pool":"9603180607300850"},"86":{"iota":"9898931177188732","pool":"9603537781061084"},"87":{"iota":"9910991812500468","pool":"9612021112251943"},"88":{"iota":"9914750112504927","pool":"9612385480773441"},"89":{"iota":"9918508412508357","pool":"9612749725030964"},"90":{"iota":"9922266712508896","pool":"9613113845113763"},"91":{"iota":"9926025012509827","pool":"9613477841111492"},"92":{"iota":"9929783312511444","pool":"9613841713113415"}}},{"poolId":"0x67e8650534f15b9ff435ae8bb351a50f5e78879b784150e580745c05a59c0a1b","exchangeRateId":"0x4aa5aa0e4de5129e51711dcbdcc61815c4101ce60815e7c266dc96b0956df6f9","epochData":{"4":{"iota":"0","pool":"0"},"5":{"iota":"9557451053846000","pool":"9550964191229065"},"6":{"iota":"9567930153846000","pool":"9556397544287589"},"7":{"iota":"9573145753846000","pool":"9556918220186095"},"8":{"iota":"9579631253848600","pool":"9558912447726660"},"9":{"iota":"12981039593055224","pool":"12946993353189340"},"10":{"iota":"12987650993057274","pool":"12947941385700419"},"11":{"iota":"12993710293062093","pool":"12948545209537343"},"12":{"iota":"13000104391128473","pool":"12949482274428186"},"13":{"iota":"13006286991131593","pool":"12950277096824954"},"14":{"iota":"13026469591131671","pool":"12965005532755581"},"15":{"iota":"13032326791131747","pool":"12965613325409939"},"16":{"iota":"13062998464997028","pool":"12990829603523554"},"17":{"iota":"13068904365022438","pool":"12991416691821297"},"18":{"iota":"13074360065026769","pool":"12991967767019956"},"19":{"iota":"13079729065034049","pool":"12992501086464731"},"20":{"iota":"13085098065035029","pool":"12993034208955169"},"21":{"iota":"13096847065035869","pool":"12999899907792972"},"22":{"iota":"13102077665038317","pool":"13000432305183612"},"23":{"iota":"13107293265039541","pool":"13000949633601873"},"24":{"iota":"13112543865042329","pool":"13001501480424429"},"25":{"iota":"13117759465044097","pool":"13002018438580064"},"26":{"iota":"13133014188677435","pool":"13012550650382677"},"27":{"iota":"13137952106427794","pool":"13012860508708545"},"28":{"iota":"13143091006429871","pool":"13013369326639021"},"29":{"iota":"13148229906431613","pool":"13013877965581113"},"30":{"iota":"13153368806432886","pool":"13014386425667677"},"31":{"iota":"13158607706435097","pool":"13014993615623622"},"32":{"iota":"13163669906437803","pool":"13015494137400039"},"33":{"iota":"13168732106440641","pool":"13015994486004531"},"34":{"iota":"13173794306442423","pool":"13016494661563418"},"35":{"iota":"13172514677719000","pool":"13010728535955200"},"36":{"iota":"13177576877722168","pool":"13011228365634698"},"37":{"iota":"13182639077726854","pool":"13011728022564303"},"38":{"iota":"13187701277734444","pool":"13012227506870148"},"39":{"iota":"13192763477743684","pool":"13012726818677965"},"40":{"iota":"13197979077747696","pool":"13013241078170419"},"41":{"iota":"13203194677753000","pool":"13013755154824676"},"42":{"iota":"13208410277754292","pool":"13014269048777394"},"43":{"iota":"13213625877755516","pool":"13014782760165984"},"44":{"iota":"13218841477760140","pool":"13015296289127655"},"45":{"iota":"13224057077761228","pool":"13015809635798433"},"46":{"iota":"13229195977762367","pool":"13016315256416634"},"47":{"iota":"13234334877763238","pool":"13016820700328444"},"48":{"iota":"13239473777764243","pool":"13017325967664224"},"49":{"iota":"13244612677765516","pool":"13017831058554164"},"50":{"iota":"13249751577766253","pool":"13018335973128215"},"51":{"iota":"13254890477766990","pool":"13018840711516315"},"52":{"iota":"13260029377772149","pool":"13019345273848635"},"53":{"iota":"13265168277772886","pool":"13019849660253899"},"54":{"iota":"13270311177775432","pool":"13020357795520035"},"55":{"iota":"13275464277776571","pool":"13020875758141658"},"56":{"iota":"13280603177777844","pool":"13021379617543504"},"57":{"iota":"13285742077778581","pool":"13021883301535832"},"58":{"iota":"13290880977784745","pool":"13022386810248093"},"59":{"iota":"13296019877785616","pool":"13022890143807958"},"60":{"iota":"13301158777786152","pool":"13023393302344491"},"61":{"iota":"13306297677789167","pool":"13023896285986401"},"62":{"iota":"13311436577789770","pool":"13024399094861500"},"63":{"iota":"13316575477790373","pool":"13024901729098170"},"64":{"iota":"13321714377797609","pool":"13025404188825062"},"65":{"iota":"13326853277801495","pool":"13025906474169061"},"66":{"iota":"13331992177810741","pool":"13026408585258734"},"67":{"iota":"13337131077907154","pool":"13026910522229643"},"68":{"iota":"13342269977958007","pool":"13027412285196255"},"69":{"iota":"13347485577962495","pool":"13027921358057181"},"70":{"iota":"13352701177991735","pool":"13028430251952859"},"71":{"iota":"13357840078002321","pool":"13028931488498386"},"72":{"iota":"13362978978005738","pool":"13029432551555461"},"73":{"iota":"13367887778041002","pool":"13029911020770195"},"74":{"iota":"13372796578047210","pool":"13030389331906238"},"75":{"iota":"13377705378047978","pool":"13030867485076105"},"76":{"iota":"13382614178048874","pool":"13031345480390433"},"77":{"iota":"13387522978049962","pool":"13031823317959206"},"78":{"iota":"13392831778051498","pool":"13032690241644717"},"79":{"iota":"13397740578053354","pool":"13033167764056586"},"80":{"iota":"13402547702723573","pool":"13033546220463586"},"81":{"iota":"13410156502726389","pool":"13036648226028299"},"82":{"iota":"13415067302727925","pool":"13037127220216049"},"83":{"iota":"13419976102729461","pool":"13037604113696360"},"84":{"iota":"13424947588063405","pool":"13038141729446242"},"85":{"iota":"13432356388065005","pool":"13041045479241005"},"86":{"iota":"13437265188066925","pool":"13041521902247046"},"87":{"iota":"13442183988072173","pool":"13042007870964260"},"88":{"iota":"13447169488078088","pool":"13042491417639992"},"89":{"iota":"13452154988082638","pool":"13042974803023206"},"90":{"iota":"13457140488083353","pool":"13043458027227200"},"91":{"iota":"13462125988084588","pool":"13043941090365812"},"92":{"iota":"13467111488086733","pool":"13044423992552374"}}},{"poolId":"0x9cfdd71f7be0108a85227cf245e7e6d2a328be14ab1c60842550a45cbe0d1bbb","exchangeRateId":"0x4b554b5a34c7d1ccf7328311fb32b55147172b0006791787419d6e25efe89c50","epochData":{"5":{"iota":"0","pool":"0"},"6":{"iota":"4803170976923000","pool":"4800376180440779"},"7":{"iota":"4806702076923000","pool":"4801627967617560"},"8":{"iota":"4810656476924280","pool":"4803370764158411"},"9":{"iota":"9596177353848674","pool":"9576971589278879"},"10":{"iota":"9602556862435709","pool":"9579134978175601"},"11":{"iota":"9602079968425044","pool":"9574596219899856"},"12":{"iota":"9606605268426224","pool":"9575047263324471"},"13":{"iota":"9611053868428544","pool":"9575490477227361"},"14":{"iota":"9615425768428601","pool":"9575925871263208"},"15":{"iota":"9619720968428657","pool":"9576353454906174"},"16":{"iota":"9624169568431731","pool":"9576796125153916"},"17":{"iota":"9605106055271791","pool":"9553842232331194"},"18":{"iota":"9609199155275024","pool":"9554274258730497"},"19":{"iota":"9613187555280432","pool":"9554670670933383"},"20":{"iota":"9617175955281160","pool":"9555066935170913"},"21":{"iota":"9621087655281772","pool":"9555455436724759"},"22":{"iota":"9624999355283608","pool":"9555843796170980"},"23":{"iota":"9628834355284508","pool":"9556224404240935"},"24":{"iota":"9632674355286558","pool":"9556609836446621"},"25":{"iota":"9636432655287832","pool":"9556982567818090"},"26":{"iota":"9640190955288518","pool":"9557355168403519"},"27":{"iota":"9643949255289008","pool":"9557727638299791"},"28":{"iota":"9647707555290527","pool":"9558099977603759"},"29":{"iota":"9651465855291801","pool":"9558472186411922"},"30":{"iota":"9655224155292732","pool":"9558844264820787"},"31":{"iota":"9658982455294349","pool":"9559216212926860"},"32":{"iota":"9662740755296358","pool":"9559588030826410"},"33":{"iota":"9666499055298465","pool":"9559959718615598"},"34":{"iota":"9683257459279988","pool":"9573183602457015"},"35":{"iota":"9687015759281311","pool":"9573555030487874"},"36":{"iota":"9690774059283663","pool":"9573926328870481"},"37":{"iota":"9694532359287142","pool":"9574297497700345"},"38":{"iota":"9698290659292777","pool":"9574668537072961"},"39":{"iota":"9702048959299637","pool":"9575039447083522"},"40":{"iota":"9705883959302587","pool":"9575417792089653"},"41":{"iota":"9709718959306487","pool":"9575796002600804"},"42":{"iota":"9713830659307456","pool":"9576378807475532"},"43":{"iota":"9727670659308356","pool":"9586616671274415"},"44":{"iota":"9731582359311824","pool":"9587002029733997"},"45":{"iota":"9735494059312640","pool":"9587387248835159"},"46":{"iota":"9739405759313507","pool":"9587772328684517"},"47":{"iota":"9743317459314170","pool":"9588157269388272"},"48":{"iota":"9747152459314920","pool":"9588534528593745"},"49":{"iota":"9750987459315870","pool":"9588911654257752"},"50":{"iota":"9754822459316420","pool":"9589288646479987"},"51":{"iota":"9758756459316970","pool":"9589762790964118"},"52":{"iota":"9762591459320820","pool":"9590139516603374"},"53":{"iota":"9776107459321370","pool":"9600022737429599"},"54":{"iota":"9779942459323270","pool":"9600399197016063"},"55":{"iota":"9783785359324120","pool":"9600783276024038"},"56":{"iota":"9787620359325070","pool":"9601159470085772"},"57":{"iota":"9791445075957157","pool":"9601518687253991"},"58":{"iota":"9795280075961757","pool":"9601894615921784"},"59":{"iota":"9799115075962407","pool":"9602270412172276"},"60":{"iota":"9802950075962807","pool":"9602646076104259"},"61":{"iota":"9806785075965057","pool":"9603021607816255"},"62":{"iota":"9800555968748934","pool":"9593542010111272"},"63":{"iota":"9804390968749384","pool":"9593917277406103"},"64":{"iota":"9808225968754784","pool":"9594292412640257"},"65":{"iota":"9812060968757684","pool":"9594667415911078"},"66":{"iota":"9815895968764584","pool":"9595042287317164"},"67":{"iota":"9820109976088441","pool":"9595787376481051"},"68":{"iota":"9823944976126391","pool":"9596161984458436"},"69":{"iota":"9827856676129757","pool":"9596543947710745"},"70":{"iota":"9831798621473807","pool":"9596955297066507"},"71":{"iota":"9835710321481865","pool":"9597336986867667"},"72":{"iota":"9839545321484415","pool":"9597711061286168"},"73":{"iota":"9842202806665332","pool":"9597071107460762"},"74":{"iota":"9845884406669988","pool":"9597429977185300"},"75":{"iota":"9849566006670564","pool":"9597788726179477"},"76":{"iota":"9853247606671236","pool":"9598147354529412"},"77":{"iota":"9856922168625005","pool":"9598496499358242"},"78":{"iota":"9860603768626157","pool":"9598854886582703"},"79":{"iota":"9864285368627549","pool":"9599213153419461"},"80":{"iota":"9867966968629085","pool":"9599571299953847"},"81":{"iota":"9871648568631197","pool":"9599929326271154"},"82":{"iota":"9875330168632349","pool":"9600287232456390"},"83":{"iota":"9881617641548579","pool":"9603177464289399"},"84":{"iota":"9885299241549587","pool":"9603535130497392"},"85":{"iota":"9888980841550787","pool":"9603892676859926"},"86":{"iota":"9892672441552227","pool":"9604259811920074"},"87":{"iota":"9896354041556163","pool":"9604617118846180"},"88":{"iota":"9900112341560622","pool":"9604981745041214"},"89":{"iota":"9903870641564052","pool":"9605346246700599"},"90":{"iota":"9907628941564591","pool":"9605710623913914"},"91":{"iota":"9911387241565522","pool":"9606074876771141"},"92":{"iota":"9915145541567139","pool":"9606439005361870"}}},{"poolId":"0x49976354d0dc89ea6f0102c653f737d223ea4c0623e9d3e3ce73cb49f38bb0eb","exchangeRateId":"0x6b43414321f7dbdeaacd87f56e8623e0c5b53a0a7d3a6586a8fa424a998f364f","epochData":{"5":{"iota":"130005231079435415","pool":"129431364485908802"},"6":{"iota":"130304252934886102","pool":"129659984552870999"},"7":{"iota":"131016841936853875","pool":"130305756503410514"},"8":{"iota":"131429690414925182","pool":"130654859185583677"},"9":{"iota":"132352427364383608","pool":"131514926714925748"},"10":{"iota":"133696880973779782","pool":"132794762963342226"},"11":{"iota":"135220446595263841","pool":"134252300144804340"},"12":{"iota":"137592845475031591","pool":"136551520532710176"},"13":{"iota":"139804047221958733","pool":"138689539208776623"},"14":{"iota":"139684717109277401","pool":"138514909069908456"},"15":{"iota":"136972656063768085","pool":"135770008954554618"},"16":{"iota":"135995921847013066","pool":"134749083933412521"},"17":{"iota":"136188709394536369","pool":"134888199249188959"},"18":{"iota":"136202052719185006","pool":"134852562766495105"},"19":{"iota":"136211608554313649","pool":"134813426152563730"},"20":{"iota":"134925156143431857","pool":"133492142267187488"},"21":{"iota":"134979042236841768","pool":"133498054163789475"},"22":{"iota":"135876499643090547","pool":"134338034090834090"},"23":{"iota":"135901119887452646","pool":"134315136161134178"},"24":{"iota":"135960892692236879","pool":"134327063628885800"},"25":{"iota":"136001459482987841","pool":"134320078274328498"},"26":{"iota":"135736891761440294","pool":"134011801186988171"},"27":{"iota":"134548012395488197","pool":"132791195985365613"},"28":{"iota":"134600692354645819","pool":"132796781692638401"},"29":{"iota":"134975722217557341","pool":"133120340556399914"},"30":{"iota":"135032545031262150","pool":"133129944130543738"},"31":{"iota":"135237259815245528","pool":"133285441182069794"},"32":{"iota":"135279265083283260","pool":"133280474021494933"},"33":{"iota":"135341053722030131","pool":"133295148445086383"},"34":{"iota":"135397174201049352","pool":"133304318938003360"},"35":{"iota":"135494488220063868","pool":"133354100622824204"},"36":{"iota":"135278753536039841","pool":"133095769813562300"},"37":{"iota":"135348642156604141","pool":"133118737362158934"},"38":{"iota":"135475335965709664","pool":"133197542788213904"},"39":{"iota":"135145345212338003","pool":"132827339366231704"},"40":{"iota":"135208065224820862","pool":"132844090432747802"},"41":{"iota":"135164595284760035","pool":"132756534833596919"},"42":{"iota":"135231694896063709","pool":"132777683725228062"},"43":{"iota":"135327335609868438","pool":"132826887847725499"},"44":{"iota":"134140621593004900","pool":"131617310035798408"},"45":{"iota":"133837413486628093","pool":"131275424549518698"},"46":{"iota":"133894913623759146","pool":"131287806966019829"},"47":{"iota":"133959429450105434","pool":"131307064085589197"},"48":{"iota":"133901401316490849","pool":"131206199674685437"},"49":{"iota":"133995166390344498","pool":"131254092035960261"},"50":{"iota":"134029092300580828","pool":"131243366862761407"},"51":{"iota":"134068190496165413","pool":"131237702953797620"},"52":{"iota":"134121269794499786","pool":"131245803214055878"},"53":{"iota":"134184875313392556","pool":"131264127620498439"},"54":{"iota":"134228631604231763","pool":"131263090130868632"},"55":{"iota":"135002717879196992","pool":"131976024044203210"},"56":{"iota":"135950346875578753","pool":"132858080649561876"},"57":{"iota":"136204755442475453","pool":"133062446372017255"},"58":{"iota":"136069821390475099","pool":"132886383959272309"},"59":{"iota":"136090514403517165","pool":"132862430982450630"},"60":{"iota":"136133198375724137","pool":"132859958506971605"},"61":{"iota":"136185346130968000","pool":"132866789686479145"},"62":{"iota":"136082243468115500","pool":"132722152285354636"},"63":{"iota":"136018632332116407","pool":"132616146293349665"},"64":{"iota":"136201235445068412","pool":"132750186801473382"},"65":{"iota":"136246852446609322","pool":"132750760820185961"},"66":{"iota":"134257809525230137","pool":"130768890012274076"},"67":{"iota":"134202724664192039","pool":"130672068295191470"},"68":{"iota":"133580698594376102","pool":"130022947821721140"},"69":{"iota":"133594516293586147","pool":"129992909849956658"},"70":{"iota":"133576412597100010","pool":"129931961778198076"},"71":{"iota":"133230633088790407","pool":"129552372155826008"},"72":{"iota":"133250025652991061","pool":"129528423377734186"},"73":{"iota":"133235052538824125","pool":"129472256612274371"},"74":{"iota":"133351732194702422","pool":"129544078399563092"},"75":{"iota":"133482581615692444","pool":"129629640383218491"},"76":{"iota":"133489262389188213","pool":"129594630417091276"},"77":{"iota":"133537412313442145","pool":"129599877990014778"},"78":{"iota":"133446780665644359","pool":"129470442801930257"},"79":{"iota":"133321421284402880","pool":"129307427865419559"},"80":{"iota":"133376944136349956","pool":"129319965860395178"},"81":{"iota":"133425569632491973","pool":"129325814440776960"},"82":{"iota":"133338348729061339","pool":"129199988747495493"},"83":{"iota":"133376791441833817","pool":"129196031610697652"},"84":{"iota":"133291658140842315","pool":"129072369054159542"},"85":{"iota":"133237705865361451","pool":"128979012560082075"},"86":{"iota":"133280046880678037","pool":"128978766751645356"},"87":{"iota":"133298475277790381","pool":"128955315172418579"},"88":{"iota":"133348977227535324","pool":"128962961607473638"},"89":{"iota":"133329279522756411","pool":"128902777082411078"},"90":{"iota":"133377054826672609","pool":"128907851890070507"},"91":{"iota":"133311929470996649","pool":"128803871108664251"},"92":{"iota":"134440068236848443","pool":"129852158684853785"}}},{"poolId":"0x1b082e39106ca88b08e6f3f580d230dfc47d0b065902c570d1dacca7bac2e911","exchangeRateId":"0x5de09c65faf718f9297781d591f6ad76324baa88a4b84b16a936798387e7b57a","epochData":{"11":{"iota":"0","pool":"0"},"12":{"iota":"2753708059490360","pool":"2752465001241397"},"13":{"iota":"2761011959491040","pool":"2758485565230933"},"14":{"iota":"7539238936414057","pool":"7529140243706045"},"15":{"iota":"7542668885997701","pool":"7529532189465956"},"16":{"iota":"7546273786000192","pool":"7529891896893590"},"17":{"iota":"7549801986015372","pool":"7530243802895216"},"18":{"iota":"7559051386017934","pool":"7536575061186368"},"19":{"iota":"7562272786022302","pool":"7536896120183860"},"20":{"iota":"7559326092707078","pool":"7531207269112251"},"21":{"iota":"7562394092707558","pool":"7531512816284756"},"22":{"iota":"7565462092708998","pool":"7531818251935937"},"23":{"iota":"7568530092709718","pool":"7532123576151524"},"24":{"iota":"7571526392711317","pool":"7532426135588418"},"25":{"iota":"7574517692712331","pool":"7532723615072544"},"26":{"iota":"7577508992712877","pool":"7533020988862660"},"27":{"iota":"7580510292713267","pool":"7533328194796723"},"28":{"iota":"7579077369282885","pool":"7529228670894912"},"29":{"iota":"7582068669283899","pool":"7529525727955459"},"30":{"iota":"7585059969284640","pool":"7529822679577175"},"31":{"iota":"7588051269285927","pool":"7530119525839119"},"32":{"iota":"7591042569287526","pool":"7530416266820154"},"33":{"iota":"7593987097212200","pool":"7530734977827130"},"34":{"iota":"7596901697213226","pool":"7531023910383739"},"35":{"iota":"7599816297214252","pool":"7531312743209041"},"36":{"iota":"7602730897216076","pool":"7531601476375761"},"37":{"iota":"7605645497218774","pool":"7531890109956471"},"38":{"iota":"7608560097223144","pool":"7532178644023735"},"39":{"iota":"7611811714418064","pool":"7532800597578422"},"40":{"iota":"7614879714420424","pool":"7533104102876892"},"41":{"iota":"7617947714423544","pool":"7533407498162529"},"42":{"iota":"7621051229466485","pool":"7533814134596318"},"43":{"iota":"7624042529467187","pool":"7534109736075083"},"44":{"iota":"7627187229469975","pool":"7534420381285186"},"45":{"iota":"7630255229470615","pool":"7534723340105265"},"46":{"iota":"7633323229471295","pool":"7535026189331729"},"47":{"iota":"7636391229471815","pool":"7535328929048219"},"48":{"iota":"7639459229472415","pool":"7535631559338323"},"49":{"iota":"7642527229473175","pool":"7535934080285515"},"50":{"iota":"7645595229473615","pool":"7536236491973117"},"51":{"iota":"7648663229474055","pool":"7536538794484432"},"52":{"iota":"7651731229477135","pool":"7536840987902896"},"53":{"iota":"7656999229477575","pool":"7539309257767015"},"54":{"iota":"7661070229479095","pool":"7540598460916106"},"55":{"iota":"7664146129479775","pool":"7540908100599337"},"56":{"iota":"7667214129480535","pool":"7541209858597238"},"57":{"iota":"7670282129480975","pool":"7541511507961878"},"58":{"iota":"7673350129484655","pool":"7541813048776137"},"59":{"iota":"7667010639370619","pool":"7532868254698371"},"60":{"iota":"7670078639370939","pool":"7533169578392111"},"61":{"iota":"7673146639372739","pool":"7533470793649615"},"62":{"iota":"7676214639373099","pool":"7533771900552945"},"63":{"iota":"7679282639373459","pool":"7534072899184495"},"64":{"iota":"7682350639377779","pool":"7534373789626811"},"65":{"iota":"7687483639380099","pool":"7536699068442457"},"66":{"iota":"7690551639385619","pool":"7536999742780745"},"67":{"iota":"7693619639443179","pool":"7537300309209373"},"68":{"iota":"7696687639473539","pool":"7537600767802311"},"69":{"iota":"7699755639476179","pool":"7537901118641152"},"70":{"iota":"7702823639493379","pool":"7538201361811580"},"71":{"iota":"7720210670313157","pool":"7552509445256194"},"72":{"iota":"7723278670315197","pool":"7552809473527467"},"73":{"iota":"7726193270336135","pool":"7553094403613171"},"74":{"iota":"7729107870339821","pool":"7553379236992666"},"75":{"iota":"7732022470340277","pool":"7553663973736586"},"76":{"iota":"7754937070340809","pool":"7573480637369112"},"77":{"iota":"7783851670341455","pool":"7599148225868549"},"78":{"iota":"7786766270342367","pool":"7599432673939922"},"79":{"iota":"7789680870343469","pool":"7599717026221121"},"80":{"iota":"7792595470344685","pool":"7600001282780213"},"81":{"iota":"7795510070346357","pool":"7600285443685233"},"82":{"iota":"7798424670347269","pool":"7600569509003990"},"83":{"iota":"7809508770348181","pool":"7608813031689274"},"84":{"iota":"7812423370348979","pool":"7609096906138946"},"85":{"iota":"7815337970349929","pool":"7609380685305461"},"86":{"iota":"7818343270351099","pool":"7609685458417370"},"87":{"iota":"7821334570354297","pool":"7609976504945794"},"88":{"iota":"7824325870357846","pool":"7610267451328029"},"89":{"iota":"7827317170360576","pool":"7610558297636681"},"90":{"iota":"7830308470361005","pool":"7610849043944243"},"91":{"iota":"7833299770361746","pool":"7611139690323530"},"92":{"iota":"7836291070363033","pool":"7611430236847042"}}},{"poolId":"0x807d6386648a633cab2f9021532a226a07959b4d89aa8a46f82196d80f4a0b88","exchangeRateId":"0x40e618062a39e4f13fb35c21cb0d5aed2f6ed79514313721caec458c48fded5a","epochData":{"2":{"iota":"0","pool":"0"},"3":{"iota":"12799807072883050","pool":"12787795533596586"},"4":{"iota":"13056187722956620","pool":"13034360934552470"},"5":{"iota":"14281780077169568","pool":"14248939311745062"},"6":{"iota":"14079337451190924","pool":"14039374630735294"},"7":{"iota":"13951442971198659","pool":"13904995306132760"},"8":{"iota":"14108975995464927","pool":"14055416136610180"},"9":{"iota":"14454333225495132","pool":"14392983554197531"},"10":{"iota":"14683108135714596","pool":"14614431803235293"},"11":{"iota":"14596667607399057","pool":"14522272737505926"},"12":{"iota":"14816866919260152","pool":"14735213994277302"},"13":{"iota":"14731343379300781","pool":"14644051654149549"},"14":{"iota":"14757661010467764","pool":"14664166182293991"},"15":{"iota":"14764858634845999","pool":"14665418732456985"},"16":{"iota":"14776883887403254","pool":"14671394792712021"},"17":{"iota":"20625028703431507","pool":"20469465781802545"},"18":{"iota":"20639101703438217","pool":"20475894242393641"},"19":{"iota":"25566752753267398","pool":"25355139234145232"},"20":{"iota":"25577030553269274","pool":"25356158138672175"},"21":{"iota":"25591886653270870","pool":"25361782222033442"},"22":{"iota":"25598651491371387","pool":"25359383964179828"},"23":{"iota":"25671892819198543","pool":"25422887753718366"},"24":{"iota":"25692129234935222","pool":"25433900398738392"},"25":{"iota":"25712605460240213","pool":"25445142883356746"},"26":{"iota":"25722729860242061","pool":"25446144437026145"},"27":{"iota":"25732857560243371","pool":"25447217165840024"},"28":{"iota":"25742922260247432","pool":"25448227239012504"},"29":{"iota":"25752531522899414","pool":"25448786346607032"},"30":{"iota":"25841560596814607","pool":"25527801326489226"},"31":{"iota":"25977538816367807","pool":"25653151547019800"},"32":{"iota":"26257085940960019","pool":"25920184940083247"},"33":{"iota":"26269288040965738","pool":"25923166244207847"},"34":{"iota":"26279462440969302","pool":"25924214322049447"},"35":{"iota":"26299586840972866","pool":"25935074129448032"},"36":{"iota":"26398874985208894","pool":"26023967940189213"},"37":{"iota":"26411334362137110","pool":"26027266303112901"},"38":{"iota":"26421698762152290","pool":"26028500104731946"},"39":{"iota":"26416577667698749","pool":"26014546525567876"},"40":{"iota":"26424285635353330","pool":"26013163347061522"},"41":{"iota":"26437190035363626","pool":"26016895495411910"},"42":{"iota":"26447314435366134","pool":"26017891496504482"},"43":{"iota":"26457458835368510","pool":"26018906823045617"},"44":{"iota":"26466966597161188","pool":"26019295720988357"},"45":{"iota":"26375640445632106","pool":"25920556108029993"},"46":{"iota":"20297472896540720","pool":"19938371156022363"},"47":{"iota":"20267172888187681","pool":"19901690267193009"},"48":{"iota":"20408483091650147","pool":"20033560525103847"},"49":{"iota":"20516434309331659","pool":"20132582707265739"},"50":{"iota":"20571774874829510","pool":"20179962294379342"},"51":{"iota":"20696347183509186","pool":"20295147502324302"},"52":{"iota":"20758498796531386","pool":"20349103506559991"},"53":{"iota":"20766398896532519","pool":"20349877670965733"},"54":{"iota":"20757685859492592","pool":"20334370455582783"},"55":{"iota":"20765587654856166","pool":"20335145749987875"},"56":{"iota":"20892365626345748","pool":"20452292970899490"},"57":{"iota":"22366640329249858","pool":"21887992601777396"},"58":{"iota":"22388749671033681","pool":"21902092648698871"},"59":{"iota":"22512268281722161","pool":"22015391822720141"},"60":{"iota":"22524007800254557","pool":"22019376374216487"},"61":{"iota":"22532013486081619","pool":"22019711754396358"},"62":{"iota":"22540527186082618","pool":"22020543484282426"},"63":{"iota":"22677409872990817","pool":"22146739979406878"},"64":{"iota":"22733795158437288","pool":"22194232315469578"},"65":{"iota":"22749893446858578","pool":"22202397886627197"},"66":{"iota":"23033604268934541","pool":"22471644166818468"},"67":{"iota":"23121129033445698","pool":"22549397142327370"},"68":{"iota":"23457585251688893","pool":"22869749717145706"},"69":{"iota":"24236250922033626","pool":"23620767812906510"},"70":{"iota":"24891136160409283","pool":"24250664548153296"},"71":{"iota":"24900646945479095","pool":"24251590822227097"},"72":{"iota":"24909554144277210","pool":"24252063376500211"},"73":{"iota":"26999272348150382","pool":"26277957372697552"},"74":{"iota":"26979372758688482","pool":"26249988690650466"},"75":{"iota":"27070277393653333","pool":"26329812623082607"},"76":{"iota":"27336693177411662","pool":"26580264989636570"},"77":{"iota":"27411281187726456","pool":"26644042568520871"},"78":{"iota":"27537572808095425","pool":"26758039239923487"},"79":{"iota":"27528969154450897","pool":"26740951815587843"},"80":{"iota":"28869834582449478","pool":"28034296314301918"},"81":{"iota":"28880788934965299","pool":"28035816762001625"},"82":{"iota":"28890890860609476","pool":"28036509393433509"},"83":{"iota":"28901378060612740","pool":"28037575663010940"},"84":{"iota":"28911960410975596","pool":"28038733862881041"},"85":{"iota":"28922891610978996","pool":"28040229890323244"},"86":{"iota":"28933399510983106","pool":"28041248279582343"},"87":{"iota":"28944363836432759","pool":"28042708543263446"},"88":{"iota":"28954872736445226","pool":"28043727235770670"},"89":{"iota":"28965380636454816","pool":"28044744627449510"},"90":{"iota":"28976886361075337","pool":"28046727480793397"},"91":{"iota":"28987394261077940","pool":"28047744208577853"},"92":{"iota":"29017590386556361","pool":"28067801187656762"}}},{"poolId":"0xe539b8f3d4d77f9ee7968662f0d9cb76d76fcab0c1b014c3b702846fb56439a2","exchangeRateId":"0x8cda05ed613c7f8135de6d9c41ee7edf5b92d9d5f94d1ea80e7159866d2bb4f2","epochData":{"2":{"iota":"0","pool":"0"},"3":{"iota":"12685185561078899","pool":"12672224534294341"},"4":{"iota":"18454701153901989","pool":"18422309151898835"},"5":{"iota":"20401922078538812","pool":"20352351689134463"},"6":{"iota":"26223471522187406","pool":"26144732779522464"},"7":{"iota":"26740323098116432","pool":"26645418258864146"},"8":{"iota":"28627918598800527","pool":"28511711301502982"},"9":{"iota":"31457412022506046","pool":"31314600104079854"},"10":{"iota":"31958302972473377","pool":"31798440678745198"},"11":{"iota":"33281436668757488","pool":"33099928583935282"},"12":{"iota":"36564304367095850","pool":"36348555775182403"},"13":{"iota":"39118782083348344","pool":"38870673713470899"},"14":{"iota":"42316759940669848","pool":"42029580906379026"},"15":{"iota":"43908563127269610","pool":"43591462475482999"},"16":{"iota":"44196117475331107","pool":"43858209685766912"},"17":{"iota":"44460569146637489","pool":"44101612240065315"},"18":{"iota":"44997042439396027","pool":"44616079456121466"},"19":{"iota":"51064360141923589","pool":"50612074003934310"},"20":{"iota":"51499517389813454","pool":"51023423054123056"},"21":{"iota":"51840436662832318","pool":"51341256263785089"},"22":{"iota":"52087335483499336","pool":"51565605998179766"},"23":{"iota":"56916662319250017","pool":"56324857564172908"},"24":{"iota":"59059690960080844","pool":"58423198694206941"},"25":{"iota":"59240798165631534","pool":"58579900031259701"},"26":{"iota":"60831896130242543","pool":"60130157193303603"},"27":{"iota":"62038477441172155","pool":"61299269943648460"},"28":{"iota":"62375287337562501","pool":"61608524194655856"},"29":{"iota":"64990577671633425","pool":"64166811426816290"},"30":{"iota":"65886375347409679","pool":"65026509083643799"},"31":{"iota":"66225195894139567","pool":"65336098140108328"},"32":{"iota":"68414269665172117","pool":"67470196643701329"},"33":{"iota":"68481480024372005","pool":"67510803370244897"},"34":{"iota":"68728112749572375","pool":"67728353580879251"},"35":{"iota":"68885194426253901","pool":"67857608352537456"},"36":{"iota":"69198919683089550","pool":"68140954141251208"},"37":{"iota":"69409622357726998","pool":"68322644190330662"},"38":{"iota":"70677104845222862","pool":"69543817983324874"},"39":{"iota":"70789576603953892","pool":"69628302779571314"},"40":{"iota":"71145378620311329","pool":"69952410218930696"},"41":{"iota":"71113429460552244","pool":"69895142574151699"},"42":{"iota":"71111120549976547","pool":"69867039952374766"},"43":{"iota":"71748438077878677","pool":"70467240893537381"},"44":{"iota":"71690762997225849","pool":"70384586668633147"},"45":{"iota":"75078045853438002","pool":"73682900400674571"},"46":{"iota":"75320158272982550","pool":"73893422324368857"},"47":{"iota":"75210778887640161","pool":"73759047388036078"},"48":{"iota":"74901395233133046","pool":"73428627687890738"},"49":{"iota":"74209636803252148","pool":"72723547289179133"},"50":{"iota":"74515667411246164","pool":"72996736401696080"},"51":{"iota":"73922196812901487","pool":"72387141653097687"},"52":{"iota":"73787888105742124","pool":"72229191564752169"},"53":{"iota":"73851174427909229","pool":"72264696343733669"},"54":{"iota":"73965674726218144","pool":"72350300748065792"},"55":{"iota":"73986419914450919","pool":"72344194114924931"},"56":{"iota":"74052010552151425","pool":"72381876216957510"},"57":{"iota":"71088340391546665","pool":"69458313566410119"},"58":{"iota":"71207829652207093","pool":"69549736735200928"},"59":{"iota":"71257080760569975","pool":"69572502198326543"},"60":{"iota":"71402476947449662","pool":"69689098364116865"},"61":{"iota":"71488654856626836","pool":"69747851692005376"},"62":{"iota":"71651950125633145","pool":"69881746656342475"},"63":{"iota":"71740209210730168","pool":"69942437942610051"},"64":{"iota":"70938613215459659","pool":"69135315933318337"},"65":{"iota":"70971497214494624","pool":"69142308177552214"},"66":{"iota":"71125495825709094","pool":"69267101009176914"},"67":{"iota":"71250215273364872","pool":"69363240235794254"},"68":{"iota":"72424041593205207","pool":"70480187649097336"},"69":{"iota":"73240898409775369","pool":"71249015993260526"},"70":{"iota":"76491549943770700","pool":"74384009893690513"},"71":{"iota":"77261515851363117","pool":"75105264621385040"},"72":{"iota":"77493026034173433","pool":"75302920396493908"},"73":{"iota":"78309295378241317","pool":"76069352625764939"},"74":{"iota":"78461867053828275","pool":"76190633840120603"},"75":{"iota":"78876965417773047","pool":"76566866199428703"},"76":{"iota":"79130491360789566","pool":"76786107475218913"},"77":{"iota":"79698595221764965","pool":"77310338688315138"},"78":{"iota":"79967775139290450","pool":"77544312294053138"},"79":{"iota":"80032751789205749","pool":"77580175327907235"},"80":{"iota":"80351749587811516","pool":"77862062962917754"},"81":{"iota":"80371728245516943","pool":"77854203314306674"},"82":{"iota":"80946075185487871","pool":"78383160300999788"},"83":{"iota":"81025783901499846","pool":"78432988923601235"},"84":{"iota":"81336918119474044","pool":"78706757996223096"},"85":{"iota":"81643478281822320","pool":"78975869869397207"},"86":{"iota":"80870343559397583","pool":"78200333112874172"},"87":{"iota":"80610176468821296","pool":"77921332621703487"},"88":{"iota":"81227311056035296","pool":"78490148460624535"},"89":{"iota":"83643733827288355","pool":"80796949028095446"},"90":{"iota":"83762350254868366","pool":"80883299194474423"},"91":{"iota":"81553226316626963","pool":"78721808964955068"},"92":{"iota":"81626035210276902","pool":"78764519838360891"}}},{"poolId":"0x128642aa7443f309b7dc3bc8914a4a9cf5a7a1ee27e39adcbfe1a0e239ad20bc","exchangeRateId":"0x9a031348f587456ba44f0479cdc0d62338a1bdbc7d92b17a071b4114061e62bf","epochData":{"3":{"iota":"0","pool":"0"},"4":{"iota":"9518759569231400","pool":"9511879206287894"},"5":{"iota":"10513009235003600","pool":"10498561394299880"},"6":{"iota":"10549031235003600","pool":"10528880247727702"},"7":{"iota":"10554783735003600","pool":"10529339338324454"},"8":{"iota":"10561729435006440","pool":"10531269411893615"},"9":{"iota":"10568598435009310","pool":"10533192467789611"},"10":{"iota":"10573503873095626","pool":"10533369339513031"},"11":{"iota":"10578489373099591","pool":"10533766493329928"},"12":{"iota":"10583398173100871","pool":"10534157370217419"},"13":{"iota":"10588410021343431","pool":"10534650605427132"},"14":{"iota":"10593242121343494","pool":"10535035049337915"},"15":{"iota":"10600025521343556","pool":"10537429258839926"},"16":{"iota":"10605434321346948","pool":"10538316313235238"},"17":{"iota":"10610523020927338","pool":"10538955142637330"},"18":{"iota":"10713967233751004","pool":"10637598080932189"},"19":{"iota":"10718415833757036","pool":"10637951297235336"},"20":{"iota":"10724301433757848","pool":"10639730046596522"},"21":{"iota":"10667993835329014","pool":"10579944650592548"},"22":{"iota":"10672289035331030","pool":"10580285304345909"},"23":{"iota":"10676584235332038","pool":"10580625832013429"},"24":{"iota":"10665778309684000","pool":"10566000830708613"},"25":{"iota":"10670073509685456","pool":"10566341106140029"},"26":{"iota":"10674215309686212","pool":"10566669111741304"},"27":{"iota":"10778357109686752","pool":"10665954142218711"},"28":{"iota":"10782575609688457","pool":"10666287982573753"},"29":{"iota":"10788789109689887","pool":"10668594477120472"},"30":{"iota":"10911751009690932","pool":"10786306368935321"},"31":{"iota":"10967194787969147","pool":"10837258224630463"},"32":{"iota":"10971489987971443","pool":"10837597647257583"},"33":{"iota":"10975709487973808","pool":"10837931878332872"},"34":{"iota":"10979927987975293","pool":"10838265004167475"},"35":{"iota":"10953730599888519","pool":"10808574263610263"},"36":{"iota":"10757042388051769","pool":"10610662809275837"},"37":{"iota":"10761184188055603","pool":"10610989528682939"},"38":{"iota":"10765325988061813","pool":"10611316132442244"},"39":{"iota":"10769467788069373","pool":"10611642620639070"},"40":{"iota":"10773686288072618","pool":"10611975035120227"},"41":{"iota":"10777981488076986","pool":"10612313369406519"},"42":{"iota":"10783586688078050","pool":"10613940970975574"},"43":{"iota":"10787805188079040","pool":"10614273022287026"},"44":{"iota":"10792100388082848","pool":"10614610987098416"},"45":{"iota":"10796395588083744","pool":"10614948828207288"},"46":{"iota":"10800690788084696","pool":"10615286545708331"},"47":{"iota":"10804985988085424","pool":"10615624139695868"},"48":{"iota":"10809281188086264","pool":"10615961610264161"},"49":{"iota":"10813576388087328","pool":"10616298957507345"},"50":{"iota":"10812788404153437","pool":"10611645732569429"},"51":{"iota":"10816261713192763","pool":"10611176231415342"},"52":{"iota":"10820556913197075","pool":"10611513209054824"},"53":{"iota":"10824852113197691","pool":"10611850063677304"},"54":{"iota":"10829154305932648","pool":"10612193647650891"},"55":{"iota":"10833458205933600","pool":"10612538779107738"},"56":{"iota":"10837753405934664","pool":"10612875265242036"},"57":{"iota":"10841971905935269","pool":"10613205624393093"},"58":{"iota":"10846190405940329","pool":"10613535865330607"},"59":{"iota":"10877009516249644","pool":"10639886695330756"},"60":{"iota":"10881228016250084","pool":"10640216700393333"},"61":{"iota":"10885446516252559","pool":"10640546587794754"},"62":{"iota":"10889665016253054","pool":"10640876357622221"},"63":{"iota":"10893883516253549","pool":"10641206009963307"},"64":{"iota":"10898102016259489","pool":"10641535544905757"},"65":{"iota":"10902320516262679","pool":"10641864962536151"},"66":{"iota":"10906539016270269","pool":"10642194262942169"},"67":{"iota":"10910757516349414","pool":"10642523446216073"},"68":{"iota":"10915052716391918","pool":"10642858493292366"},"69":{"iota":"10918330805774703","pool":"10642201672685054"},"70":{"iota":"10806777783763288","pool":"10529617719918096"},"71":{"iota":"10810996283771978","pool":"10529946426564003"},"72":{"iota":"10815214783774783","pool":"10530275015249993"},"73":{"iota":"10819279883803986","pool":"10530591545802562"},"74":{"iota":"10824286283809030","pool":"10531892499805765"},"75":{"iota":"10838494683809654","pool":"10542143407486913"},"76":{"iota":"10844326383810396","pool":"10544177318463783"},"77":{"iota":"10848391483811297","pool":"10544493416349890"},"78":{"iota":"10852379883812545","pool":"10544803445261700"},"79":{"iota":"10855448891336996","pool":"10544220001328892"},"80":{"iota":"10859437291338660","pool":"10544529820717327"},"81":{"iota":"10863898691340948","pool":"10545298664025116"},"82":{"iota":"10904642259115596","pool":"10581273495786683"},"83":{"iota":"10908707359116868","pool":"10581588951804304"},"84":{"iota":"10915922459117981","pool":"10584958793759342"},"85":{"iota":"10919987559119306","pool":"10585274033660525"},"86":{"iota":"10925352659120896","pool":"10586848887310070"},"87":{"iota":"10929417759125242","pool":"10587163911447756"},"88":{"iota":"10933706559130156","pool":"10587627114651656"},"89":{"iota":"10937848359133936","pool":"10587947858995826"},"90":{"iota":"10941990159134530","pool":"10588268491639848"},"91":{"iota":"10944077350395016","pool":"10586600823231329"},"92":{"iota":"10948219150396798","pool":"10586921232677124"}}},{"poolId":"0x953c009733345b8d9abaec00a84c99c0fab00245d59524cc55b20d83f064790f","exchangeRateId":"0xb49814d6d1fa2ce2be4f6f75485cd7c22cff5556faf902fc33b0ffb606307677","epochData":{"3":{"iota":"0","pool":"0"},"4":{"iota":"9566328653855500","pool":"9559766739900902"},"5":{"iota":"14844996030778500","pool":"14825292203282996"},"6":{"iota":"19853663130778500","pool":"19816898372590103"},"7":{"iota":"19864401130778500","pool":"19817969662667446"},"8":{"iota":"19876473330783940","pool":"19820646243775233"},"9":{"iota":"19886057584651373","pool":"19821392120551382"},"10":{"iota":"19995568384654473","pool":"19921971634649960"},"11":{"iota":"20020295064239254","pool":"19938278605218427"},"12":{"iota":"20030499064241654","pool":"19940190346979044"},"13":{"iota":"20039626364246414","pool":"19941098589408028"},"14":{"iota":"20048753664246533","pool":"19942006459685701"},"15":{"iota":"20057727564246650","pool":"19942898712201258"},"16":{"iota":"20079252063626998","pool":"19956332984491223"},"17":{"iota":"26088177263665278","pool":"25918137379591969"},"18":{"iota":"26098838563673757","pool":"25919196171253084"},"19":{"iota":"26109433163688109","pool":"25920256889712192"},"20":{"iota":"26120941063690027","pool":"25922292083515404"},"21":{"iota":"26131372263691659","pool":"25923326898697933"},"22":{"iota":"26142303463696555","pool":"25924857183344999"},"23":{"iota":"26258059434892035","pool":"26030371171225699"},"24":{"iota":"26268413934897570","pool":"26031397278488711"},"25":{"iota":"26278768434901080","pool":"26032423021856171"},"26":{"iota":"26289046234902956","pool":"26033440808867549"},"27":{"iota":"26299324034904296","pool":"26034458237887995"},"28":{"iota":"26324601834908450","pool":"26050319020315654"},"29":{"iota":"26334879634911934","pool":"26051335734355031"},"30":{"iota":"26345157434914480","pool":"26052352091403011"},"31":{"iota":"26355435234918902","pool":"26053368091724392"},"32":{"iota":"26365636334924355","pool":"26054376158790929"},"33":{"iota":"26377144315639007","pool":"26056674877698305"},"34":{"iota":"26387368712377771","pool":"26057773419379913"},"35":{"iota":"26397493112381335","pool":"26058772868225288"},"36":{"iota":"26407617512387671","pool":"26059771972197452"},"37":{"iota":"26417741912397043","pool":"26060770731547564"},"38":{"iota":"26427866312412223","pool":"26061769146526751"},"39":{"iota":"26437914012430563","pool":"26062759658828814"},"40":{"iota":"26448038412438351","pool":"26063757388419912"},"41":{"iota":"26458162812448647","pool":"26064754774388758"},"42":{"iota":"26468287212451155","pool":"26065751816984082"},"43":{"iota":"26478411612453531","pool":"26066748516456106"},"44":{"iota":"26486244472819817","pool":"26065484627274318"},"45":{"iota":"26496368872821929","pool":"26066480641022177"},"46":{"iota":"26506544272824173","pool":"26067526467670392"},"47":{"iota":"26516668672825889","pool":"26068521796855144"},"48":{"iota":"26526716372827854","pool":"26069509248918376"},"49":{"iota":"26536764072830343","pool":"26070496364474994"},"50":{"iota":"26546811772831784","pool":"26071483143766845"},"51":{"iota":"26556859472833225","pool":"26072469587035768"},"52":{"iota":"26566907172843312","pool":"26073455694524081"},"53":{"iota":"26576954872844753","pool":"26074441466471294"},"54":{"iota":"26587006572849731","pool":"26075430826153264"},"55":{"iota":"26605633272851958","pool":"26084826993492618"},"56":{"iota":"26607108972854447","pool":"26077407555156053"},"57":{"iota":"26617156672855888","pool":"26078391987349278"},"58":{"iota":"26627204372867940","pool":"26079376085205501"},"59":{"iota":"26637252072869643","pool":"26080359848962295"},"60":{"iota":"26647299772870691","pool":"26081343278859972"},"61":{"iota":"26657347472876586","pool":"26082326375138173"},"62":{"iota":"26667395172877765","pool":"26083309138034803"},"63":{"iota":"26677442872878944","pool":"26084291567788902"},"64":{"iota":"26687490572893092","pool":"26085273664640058"},"65":{"iota":"26697468572900632","pool":"26086254776702028"},"66":{"iota":"26707432572918572","pool":"26087221881906922"},"67":{"iota":"26717403573105642","pool":"26088195499726843"},"68":{"iota":"26727527973205830","pool":"26089183759228171"},"69":{"iota":"26737729073214608","pool":"26090179163610367"},"70":{"iota":"26747930173271798","pool":"26091174226320521"},"71":{"iota":"26758131273292812","pool":"26092168947597881"},"72":{"iota":"26768178973299493","pool":"26093148379659397"},"73":{"iota":"26777919873369470","pool":"26094097594528536"},"74":{"iota":"26787660773381789","pool":"26095046498730777"},"75":{"iota":"26797350186855626","pool":"26095944937178249"},"76":{"iota":"26807091086857404","pool":"26096893220699187"},"77":{"iota":"26816831986859563","pool":"26097841194201311"},"78":{"iota":"26826572886862611","pool":"26098788857898561"},"79":{"iota":"26836313786866294","pool":"26099736212004578"},"80":{"iota":"26846054686870358","pool":"26100683256732777"},"81":{"iota":"26855795586875946","pool":"26101629992296484"},"82":{"iota":"26865536486878994","pool":"26102576418908297"},"83":{"iota":"26875277386882042","pool":"26103522536781231"},"84":{"iota":"26885018286884709","pool":"26104468346127792"},"85":{"iota":"26894682486887859","pool":"26105406404678144"},"86":{"iota":"26904429392956669","pool":"26106357427939884"},"87":{"iota":"26914256992967165","pool":"26107319453203113"},"88":{"iota":"26923997892978722","pool":"26108264030566429"},"89":{"iota":"26933738792987612","pool":"26109208300462713"},"90":{"iota":"26943479692989009","pool":"26110152263102706"},"91":{"iota":"26953297292991441","pool":"26111103346621329"},"92":{"iota":"26963038192995632","pool":"26112046692967984"}}},{"poolId":"0x78a7fd41d26aff8d3726d865196451d6b02fff1efcb6d3adf8c10bc66ead7124","exchangeRateId":"0x51befe73ac5f17a08db0a40762b8da962ce52b7120b22e4444d45f449d5b3576","epochData":{"4":{"iota":"0","pool":"0"},"5":{"iota":"4782208976923000","pool":"4778963181316619"},"6":{"iota":"4883323108159000","pool":"4877403731889318"},"7":{"iota":"4885907554750420","pool":"4877571791763691"},"8":{"iota":"4806952762768542","pool":"4796476769960244"},"9":{"iota":"10032637639692936","pool":"10005887666354136"},"10":{"iota":"10037546439694536","pool":"10006377022033204"},"11":{"iota":"10042301839698318","pool":"10006850883300151"},"12":{"iota":"10050380539699538","pool":"10010703483660069"},"13":{"iota":"10055059239701978","pool":"10011169311426621"},"14":{"iota":"10059661239702038","pool":"10011627314015394"},"15":{"iota":"10064186539702097","pool":"10012077500964303"},"16":{"iota":"10072345108607530","pool":"10016003157292147"},"17":{"iota":"16076947108627330","pool":"15980445810115949"},"18":{"iota":"16082733179943525","pool":"15980295769066357"},"19":{"iota":"16089629379952469","pool":"15981248925024494"},"20":{"iota":"16096148879953659","pool":"15981896247395708"},"21":{"iota":"16102668379954679","pool":"15982543333883629"},"22":{"iota":"16109111179957703","pool":"15983182577399969"},"23":{"iota":"16115477279959197","pool":"15983813986302568"},"24":{"iota":"16121853379962600","pool":"15984455085577243"},"25":{"iota":"16128219479964758","pool":"15985086045841872"},"26":{"iota":"16134585579965920","pool":"15985716782039714"},"27":{"iota":"16140874979966740","pool":"15986339700469167"},"28":{"iota":"16147364379969282","pool":"15987160416249628"},"29":{"iota":"16155657476386614","pool":"15989766019912585"},"30":{"iota":"16149027301997054","pool":"15977601371488174"},"31":{"iota":"16155316701999760","pool":"15978223417098646"},"32":{"iota":"16161606102003122","pool":"15978845244834715"},"33":{"iota":"16167818802006605","pool":"15979459276869096"},"34":{"iota":"16174031502008792","pool":"15980073096621764"},"35":{"iota":"16180244202010979","pool":"15980686704247722"},"36":{"iota":"16186456902014867","pool":"15981300099901840"},"37":{"iota":"16192669602020618","pool":"15981913283738663"},"38":{"iota":"16198882302029933","pool":"15982526255912715"},"39":{"iota":"16205095002041273","pool":"15983139016578030"},"40":{"iota":"16211384402046111","pool":"15983759125584321"},"41":{"iota":"16217673802052507","pool":"15984379018145522"},"42":{"iota":"16232973202054065","pool":"15993875985156552"},"43":{"iota":"16239262602055541","pool":"15994495445424810"},"44":{"iota":"16245552002061117","pool":"15995114689845723"},"45":{"iota":"16251841402062429","pool":"15995733718577186"},"46":{"iota":"16258130802063823","pool":"15996352531778164"},"47":{"iota":"16264420202064889","pool":"15996971129606980"},"48":{"iota":"16270709602066119","pool":"15997589512221866"},"49":{"iota":"16276999002067677","pool":"15998207679780844"},"50":{"iota":"16283288402068579","pool":"15998825632441648"},"51":{"iota":"16289577802069481","pool":"15999443370361995"},"52":{"iota":"16295867202075795","pool":"16000060893699893"},"53":{"iota":"16302156602076697","pool":"16000678202611580"},"54":{"iota":"16308446002079813","pool":"16001295297254929"},"55":{"iota":"16314735402081207","pool":"16001912177786502"},"56":{"iota":"16321024802082765","pool":"16002528844363258"},"57":{"iota":"16327314202083667","pool":"16003145297141715"},"58":{"iota":"16333603602091211","pool":"16003761536279011"},"59":{"iota":"16339893002092277","pool":"16004377561930109"},"60":{"iota":"16346182402092933","pool":"16004993374251679"},"61":{"iota":"16352471802096623","pool":"16005608973399958"},"62":{"iota":"16378761202097361","pool":"16025793352758592"},"63":{"iota":"16385050602098099","pool":"16026408526286246"},"64":{"iota":"16391340002106955","pool":"16027023487367221"},"65":{"iota":"16397552702111653","pool":"16027630741775202"},"66":{"iota":"16403765402122831","pool":"16028237789185664"},"67":{"iota":"16410858102239390","pool":"16029704191128080"},"68":{"iota":"10311350793716941","pool":"10066332971136235"},"69":{"iota":"10312653527339152","pool":"10064032953706474"},"70":{"iota":"10316733091416063","pool":"10064443633097332"},"71":{"iota":"10320798191424437","pool":"10064840061558189"},"72":{"iota":"10324863291427140","pool":"10065236349539509"},"73":{"iota":"10328698291454690","pool":"10065610081193289"},"74":{"iota":"10332533291459540","pool":"10065983687998158"},"75":{"iota":"10336368291460140","pool":"10066357170043926"},"76":{"iota":"10340203291460840","pool":"10066730527418936"},"77":{"iota":"10344038291461690","pool":"10067103760211015"},"78":{"iota":"10347873291462890","pool":"10067476868507911"},"79":{"iota":"10351708291464340","pool":"10067849852397250"},"80":{"iota":"10355543291465940","pool":"10068222711966562"},"81":{"iota":"10359378291468140","pool":"10068595447303337"},"82":{"iota":"10363224291469340","pool":"10068978746169100"},"83":{"iota":"10367059291470540","pool":"10069351233302684"},"84":{"iota":"10376894291471590","pool":"10075549356509084"},"85":{"iota":"10380729291472840","pool":"10075921595859978"},"86":{"iota":"10384574291474340","pool":"10076303414631155"},"87":{"iota":"10388622291478440","pool":"10076882014945748"},"88":{"iota":"10392533991483081","pool":"10077261318233835"},"89":{"iota":"10396445691486651","pool":"10077640493074184"},"90":{"iota":"10400144247125668","pool":"10077812931228992"},"91":{"iota":"10404055947126637","pool":"10078191849443844"},"92":{"iota":"10407967647128320","pool":"10078570639483590"}}},{"poolId":"0xfd6700f0f6c97d1f088b90b74564f167ff2f0f91377295787b1809ab929a4ace","exchangeRateId":"0x4ea55782a90b5fc6f9ca163f50cfe628c6ea9db7e0a46ee4b0d25faf26c50bf1","epochData":{"4":{"iota":"0","pool":"0"},"5":{"iota":"9562219053846000","pool":"9555728955077419"},"6":{"iota":"9577818153846000","pool":"9566276139566237"},"7":{"iota":"9583033753846000","pool":"9566796815865147"},"8":{"iota":"9595370475576800","pool":"9574629619933768"},"9":{"iota":"9600279275579424","pool":"9575119213453611"},"10":{"iota":"9604957975580949","pool":"9575585652689698"},"11":{"iota":"9609483275584548","pool":"9576036607618824"},"12":{"iota":"15615008575585728","pool":"15554066886285280"},"13":{"iota":"15622141675589448","pool":"15554777120407076"},"14":{"iota":"15629274775589541","pool":"15555487062783559"},"15":{"iota":"15636282475589632","pool":"15556209315102436"},"16":{"iota":"15643338875594508","pool":"15556911056515365"},"17":{"iota":"15653718575624538","pool":"15560984749830721"},"18":{"iota":"15660161375629662","pool":"15561624975911855"},"19":{"iota":"9642125765736777","pool":"9575693450180965"},"20":{"iota":"9646614165737505","pool":"9576585765163399"},"21":{"iota":"9654753767157717","pool":"9581169632124896"},"22":{"iota":"14658665467159553","pool":"14541641301566102"},"23":{"iota":"14664494667160921","pool":"14542219361069980"},"24":{"iota":"14670323867164037","pool":"14542797213844954"},"25":{"iota":"14900653067166013","pool":"14765843761886231"},"26":{"iota":"14906558967167091","pool":"14766428800003061"},"27":{"iota":"14912388167167851","pool":"14767006037066886"},"28":{"iota":"14923727367170207","pool":"14773037434789190"},"29":{"iota":"14930588867172183","pool":"14774635783482963"},"30":{"iota":"14936418067173627","pool":"14775212412148730"},"31":{"iota":"14942248767176135","pool":"14775790321639999"},"32":{"iota":"14950573067179210","pool":"14778901235243639"},"33":{"iota":"14956525567182435","pool":"14779667318050879"},"34":{"iota":"14962278067184460","pool":"14780235569120398"},"35":{"iota":"14968030567186485","pool":"14780803623631598"},"36":{"iota":"14973783067190085","pool":"14781371481728114"},"37":{"iota":"14979535567195410","pool":"14781939143553278"},"38":{"iota":"14985948067204035","pool":"14783157678106629"},"39":{"iota":"14991700567214535","pool":"14783724947827207"},"40":{"iota":"14997529767219019","pool":"14784299580053419"},"41":{"iota":"15003358967224947","pool":"14784874011338191"},"42":{"iota":"15009188167226391","pool":"14785448241829222"},"43":{"iota":"15015017367227759","pool":"14786022271675063"},"44":{"iota":"15020846567232927","pool":"14786596101024045"},"45":{"iota":"15026675767234143","pool":"14787169730023188"},"46":{"iota":"15032504967235435","pool":"14787743158820506"},"47":{"iota":"15034898366808140","pool":"14784936529377672"},"48":{"iota":"15040727566809280","pool":"14785509558122127"},"49":{"iota":"15046556766810724","pool":"14786082387061051"},"50":{"iota":"15086885966811560","pool":"14820545962214579"},"51":{"iota":"15092715166812396","pool":"14821118392439297"},"52":{"iota":"15098544366818248","pool":"14821690623754923"},"53":{"iota":"15104373566819084","pool":"14822262656306330"},"54":{"iota":"15110204766821972","pool":"14822836452203585"},"55":{"iota":"15116033966823264","pool":"14823408087664535"},"56":{"iota":"15121963166824708","pool":"14824077554911231"},"57":{"iota":"15127790853729439","pool":"14824647310574611"},"58":{"iota":"15133620053736431","pool":"14825218351492853"},"59":{"iota":"15139449253737419","pool":"14825789194519826"},"60":{"iota":"15145076637460078","pool":"14826162204762522"},"61":{"iota":"15150905837463498","pool":"14826732652437106"},"62":{"iota":"15156735037464182","pool":"14827302902651789"},"63":{"iota":"15162564237464866","pool":"14827872955551080"},"64":{"iota":"15168393437473074","pool":"14828442811279792"},"65":{"iota":"15174222637477482","pool":"14829012469980737"},"66":{"iota":"15180051837487970","pool":"14829581931798639"},"67":{"iota":"15185881037597334","pool":"14830151196886154"},"68":{"iota":"15191710237655018","pool":"14830720265372018"},"69":{"iota":"15198616137660100","pool":"14832272516191130"},"70":{"iota":"15204445337692780","pool":"14832841189341812"},"71":{"iota":"15210274537704788","pool":"14833409666338007"},"72":{"iota":"15216103737708664","pool":"14833977947323721"},"73":{"iota":"15221702837748887","pool":"14834523615457288"},"74":{"iota":"15227301937755968","pool":"14835069103002351"},"75":{"iota":"15232901037756844","pool":"14835614410087656"},"76":{"iota":"15238500137757866","pool":"14836159536839809"},"77":{"iota":"15245589237759107","pool":"14838154663505872"},"78":{"iota":"15251188337760859","pool":"14838699429986780"},"79":{"iota":"15260787437762976","pool":"14843134545666445"},"80":{"iota":"15266386537765312","pool":"14843678952443069"},"81":{"iota":"15271985637768524","pool":"14844223179579106"},"82":{"iota":"15277584737770276","pool":"14844767227199423"},"83":{"iota":"15283183837772028","pool":"14845311095429123"},"84":{"iota":"15288787937773561","pool":"14845859639539053"},"85":{"iota":"15294387037775386","pool":"14846403149361939"},"86":{"iota":"15300996137777576","pool":"14847926573601806"},"87":{"iota":"15306671937783644","pool":"14848477163482591"},"88":{"iota":"15312347737790378","pool":"14849027569679100"},"89":{"iota":"15318023537795558","pool":"14849577792320438"},"90":{"iota":"15323699337796372","pool":"14850127831535514"},"91":{"iota":"15329375137797778","pool":"14850677687453850"},"92":{"iota":"15335050937800220","pool":"14851227360204395"}}},{"poolId":"0x4bc6ae30753d3e4f2650dca5313cb6bf6d688b64f9636a8f07b44f2043072bee","exchangeRateId":"0x753f414e2cb1a2cf7713dd17df344cc8ccc68350daa2f70523d5885e12da79b7","epochData":{"5":{"iota":"118418820385101350","pool":"117913620495579502"},"6":{"iota":"123134032529350229","pool":"122545370054533181"},"7":{"iota":"123934172559445903","pool":"123281670679713857"},"8":{"iota":"128495087338549642","pool":"127758534724808855"},"9":{"iota":"133058959087379082","pool":"132238533129546871"},"10":{"iota":"133961786388629055","pool":"133079431648548182"},"11":{"iota":"134843639328836870","pool":"133899807251369326"},"12":{"iota":"134874224171914611","pool":"133874856761153334"},"13":{"iota":"134731489506487731","pool":"133678676680662793"},"14":{"iota":"133731307918202388","pool":"132631979646098998"},"15":{"iota":"130838889575493027","pool":"129710001732956491"},"16":{"iota":"131642732961385153","pool":"130456296294119727"},"17":{"iota":"131745064216109587","pool":"130507324659082130"},"18":{"iota":"131451460808801923","pool":"130169064375063813"},"19":{"iota":"131502583451282804","pool":"130172719637760657"},"20":{"iota":"131761171355337412","pool":"130382168198851115"},"21":{"iota":"131752838723121827","pool":"130327636306733190"},"22":{"iota":"131906487641451276","pool":"130433469569841359"},"23":{"iota":"131749489273459937","pool":"130232267180854705"},"24":{"iota":"131920595594008043","pool":"130355623043343112"},"25":{"iota":"132191233554913398","pool":"130577241606966537"},"26":{"iota":"132029410492624535","pool":"130371673295554304"},"27":{"iota":"132322341785283458","pool":"130614944951333222"},"28":{"iota":"132397026822009142","pool":"130643039388326308"},"29":{"iota":"132636402039837354","pool":"130833584129905070"},"30":{"iota":"132724730179720637","pool":"130874991652947433"},"31":{"iota":"132942207540458922","pool":"131043872169208597"},"32":{"iota":"133103005120405017","pool":"131156797845287349"},"33":{"iota":"133106511044567827","pool":"131114801242042376"},"34":{"iota":"133245508447085012","pool":"131206332613890681"},"35":{"iota":"133204545487720026","pool":"131120679154391265"},"36":{"iota":"133086838173557929","pool":"130959577817627448"},"37":{"iota":"133808047585676328","pool":"131623945231119222"},"38":{"iota":"133862853874436319","pool":"131632600481311919"},"39":{"iota":"133609536027177908","pool":"131338244446239243"},"40":{"iota":"133595743787946026","pool":"131280364590277683"},"41":{"iota":"133669611214841881","pool":"131308631927313831"},"42":{"iota":"133838137262146817","pool":"131429830715278075"},"43":{"iota":"133748440320681040","pool":"131297454009140164"},"44":{"iota":"132853831454636383","pool":"130374768046715241"},"45":{"iota":"132955647045213917","pool":"130430623593900148"},"46":{"iota":"133003949327352909","pool":"130434259868515095"},"47":{"iota":"135027655817831381","pool":"132374460566809376"},"48":{"iota":"134841021369383599","pool":"132147097436432144"},"49":{"iota":"135056403754072158","pool":"132313871724807421"},"50":{"iota":"135091836719539635","pool":"132304268198396669"},"51":{"iota":"135096848092338264","pool":"132264844869605357"},"52":{"iota":"133207239572472906","pool":"130370526756201205"},"53":{"iota":"133299394845055754","pool":"130417126740113667"},"54":{"iota":"133189332525503167","pool":"130265912022407690"},"55":{"iota":"133075717717693465","pool":"130111371456163473"},"56":{"iota":"133095772069690598","pool":"130087642661269789"},"57":{"iota":"133651901748788831","pool":"130587707177610572"},"58":{"iota":"133677421910534382","pool":"130569183283430345"},"59":{"iota":"133734058718000754","pool":"130581130543526283"},"60":{"iota":"133076191862515950","pool":"129895428047666518"},"61":{"iota":"133187632306416640","pool":"129961042312826632"},"62":{"iota":"133286365215844461","pool":"130014171633084035"},"63":{"iota":"133379164271104329","pool":"130061545864562338"},"64":{"iota":"133534876052540373","pool":"130170266683982681"},"65":{"iota":"133556649320457315","pool":"130148468649220978"},"66":{"iota":"133789648364568595","pool":"130332460096661947"},"67":{"iota":"133739760982404159","pool":"130240796050531619"},"68":{"iota":"133608398827510873","pool":"130069560467576772"},"69":{"iota":"133700007949855665","pool":"130115232454668718"},"70":{"iota":"133651116763612668","pool":"130024197401074818"},"71":{"iota":"133676254914342431","pool":"130005390322579847"},"72":{"iota":"133755958326511527","pool":"130039904476498919"},"73":{"iota":"133919989228234051","pool":"130157380718892062"},"74":{"iota":"134075931390178100","pool":"130267143707565848"},"75":{"iota":"133987806070771867","pool":"130139662956348370"},"76":{"iota":"133963140371610200","pool":"130073840975392798"},"77":{"iota":"134045392935239862","pool":"130112060010267337"},"78":{"iota":"134110377262993340","pool":"130133497779745585"},"79":{"iota":"134320496250172850","pool":"130295729148773566"},"80":{"iota":"134387829530395013","pool":"130319340053162773"},"81":{"iota":"134402488362253785","pool":"130291982056295170"},"82":{"iota":"134456364160070972","pool":"130302612225184905"},"83":{"iota":"134306690469137062","pool":"130116010380529993"},"84":{"iota":"134212661855330429","pool":"129983439391793629"},"85":{"iota":"134143003050191453","pool":"129874574804803491"},"86":{"iota":"134141874993349136","pool":"129831907650775204"},"87":{"iota":"134169097646378616","pool":"129816679753455455"},"88":{"iota":"134205258607915728","pool":"129810133522378999"},"89":{"iota":"134108845551632259","pool":"129675461516268941"},"90":{"iota":"134115893950305004","pool":"129640958358435536"},"91":{"iota":"134042579532036191","pool":"129528744102188325"},"92":{"iota":"134133267957042308","pool":"129575104317305795"}}},{"poolId":"0x75bc87e5433c67ed46646a10c0166d8bb5d458d2a1a313af897cc0c7fe3f955a","exchangeRateId":"0xa7c2ac8c9124e417fa6371c9c2d03660f5a2416b7664ec6f43781bfab833d03e","epochData":{"5":{"iota":"0","pool":"0"},"6":{"iota":"9678117998648748","pool":"9669273480636810"},"7":{"iota":"18136904239093571","pool":"18110557790830199"},"8":{"iota":"25375968705518902","pool":"25325810988759046"},"9":{"iota":"33139601557895002","pool":"33057010331132631"},"10":{"iota":"45940350584346101","pool":"45804064559092522"},"11":{"iota":"48733415633335182","pool":"48566278156875813"},"12":{"iota":"54936625346003637","pool":"54723115772294532"},"13":{"iota":"63141154426542552","pool":"62867121612814241"},"14":{"iota":"66176610931372194","pool":"65859713767389519"},"15":{"iota":"70164042076354638","pool":"69796906725758180"},"16":{"iota":"71967034310086309","pool":"71559359964425450"},"17":{"iota":"74533804067467153","pool":"74079758766427971"},"18":{"iota":"75749091677889254","pool":"75257176559241089"},"19":{"iota":"77110708659807203","pool":"76579230220430898"},"20":{"iota":"79588045589168578","pool":"79008112562068178"},"21":{"iota":"85061076492163887","pool":"84407797726024771"},"22":{"iota":"86376204180648360","pool":"85679360374230668"},"23":{"iota":"88335720723965499","pool":"87588989684721944"},"24":{"iota":"88818291112183057","pool":"88033453131391784"},"25":{"iota":"89829725802354805","pool":"89001573013111913"},"26":{"iota":"90257042483670889","pool":"89390302963204561"},"27":{"iota":"92124199361243671","pool":"91204354195620412"},"28":{"iota":"92851764750819635","pool":"91888776716247850"}}},{"poolId":"0x4c3ccbb03e2bbf98941aed5c171496b36d8ee3cd78016fca2de3c0c1ea24a7e6","exchangeRateId":"0x98f1babd8db265158187e1dab6cd12a8307af27f1eb183aa961c80d2a40ba1bd","epochData":{"6":{"iota":"45813405157548828","pool":"45567762584819964"},"7":{"iota":"45921019277710737","pool":"45652647443482020"},"8":{"iota":"45881367705323162","pool":"45591736333546891"},"9":{"iota":"47036478021765818","pool":"46719097633756268"},"10":{"iota":"47967583198633631","pool":"47623621553139190"},"11":{"iota":"48232395873302997","pool":"47866544363574460"},"12":{"iota":"48170619534217240","pool":"47785505739866692"},"13":{"iota":"47970054655548574","pool":"47567027168192610"},"14":{"iota":"47729074986700883","pool":"47308768289741680"},"15":{"iota":"47749667385935847","pool":"47310225553701424"},"16":{"iota":"47761886686982030","pool":"47303796431727578"},"17":{"iota":"53706514631019830","pool":"53170699292502013"},"18":{"iota":"53742567466268350","pool":"53187036628166344"},"19":{"iota":"53763283773811773","pool":"53188272781063898"},"20":{"iota":"53606030406323472","pool":"53013645706318511"},"21":{"iota":"53627276306326796","pool":"53015746068889876"},"22":{"iota":"53630750501475971","pool":"53000344882790660"},"23":{"iota":"45706642337553522","pool":"45150620109385559"},"24":{"iota":"45645050853617043","pool":"45073887892658665"},"25":{"iota":"45653005118895896","pool":"45065857520810479"},"26":{"iota":"45666774746065751","pool":"45063640449381308"},"27":{"iota":"45684265970512282","pool":"45065096600793151"},"28":{"iota":"45702126370519474","pool":"45066916391179774"},"29":{"iota":"44109045169018332","pool":"43479273087129945"},"30":{"iota":"43010313624944737","pool":"42380985995162025"},"31":{"iota":"43026958524951898","pool":"42382626445816839"},"32":{"iota":"43056793502359995","pool":"42397254358830063"},"33":{"iota":"43036882240869564","pool":"42362897469461567"},"34":{"iota":"42953122410210529","pool":"42265703532540390"},"35":{"iota":"42972689610216361","pool":"42270284136625328"},"36":{"iota":"42717161026327286","pool":"42004259243559221"},"37":{"iota":"40331282392575288","pool":"39643667319506458"},"38":{"iota":"40346809092598403","pool":"39645290271560092"},"39":{"iota":"40311404887232420","pool":"39596935178550902"},"40":{"iota":"40311989118996998","pool":"39583945872879827"},"41":{"iota":"40312628071561582","pool":"39571083897720044"},"42":{"iota":"40327907471565363","pool":"39572597439217979"},"43":{"iota":"40343170771568945","pool":"39574094672250981"},"44":{"iota":"40358434071582477","pool":"39575591395646178"},"45":{"iota":"40272266063605679","pool":"39477623789045816"},"46":{"iota":"40287452663609045","pool":"39479111978152995"},"47":{"iota":"40211006592889239","pool":"39390805538683502"},"48":{"iota":"40221046822345798","pool":"39387318945591938"},"49":{"iota":"40236054787854244","pool":"39388698293168269"},"50":{"iota":"39123382715326704","pool":"38286145648554688"},"51":{"iota":"39137093698100553","pool":"38286592598743213"},"52":{"iota":"39161320098115337","pool":"38297323154785371"},"53":{"iota":"39079264412342616","pool":"38204115985987459"},"54":{"iota":"39086196704190186","pool":"38198003082987463"},"55":{"iota":"39110846404193433","pool":"38209203745078647"},"56":{"iota":"39125496104197062","pool":"38210634460053600"},"57":{"iota":"39109530888889307","pool":"38182162344753104"},"58":{"iota":"39092995848088832","pool":"38153078967266975"},"59":{"iota":"39107645548091315","pool":"38154508232801933"},"60":{"iota":"39114865487929012","pool":"38148687677458833"},"61":{"iota":"39019966900256028","pool":"38043273647203002"},"62":{"iota":"39024009589776142","pool":"38034359954909614"},"63":{"iota":"38936748656492393","pool":"37936461112075120"},"64":{"iota":"38947286406554952","pool":"37933948911653491"},"65":{"iota":"38961909406565972","pool":"37935416500234326"},"66":{"iota":"38963417776398435","pool":"37924114499847716"},"67":{"iota":"38863173948397147","pool":"37813845418515503"},"68":{"iota":"38877626269874743","pool":"37815145471925413"},"69":{"iota":"38892275969887349","pool":"37816569922902015"},"70":{"iota":"38912236928117912","pool":"37823147695161912"},"71":{"iota":"38886658558986448","pool":"37785469028294282"},"72":{"iota":"51160332868803896","pool":"49694901059959111"},"73":{"iota":"51178740868936136","pool":"49696688553425990"},"74":{"iota":"50983365636650931","pool":"49490882584919765"},"75":{"iota":"51001696936653799","pool":"49492661476368396"},"76":{"iota":"50998882197409274","pool":"49473913139452778"},"77":{"iota":"51027163497413337","pool":"49485340233516421"},"78":{"iota":"51048974936348105","pool":"49490488031281185"},"79":{"iota":"51069482236355036","pool":"49494373509829516"},"80":{"iota":"51088273536362684","pool":"49496595196324746"},"81":{"iota":"51106528136373156","pool":"49498363214725930"},"82":{"iota":"51124782736378868","pool":"49500130664947045"},"83":{"iota":"51109769350163960","pool":"49469686756527745"},"84":{"iota":"51128023950168958","pool":"49471453070806492"},"85":{"iota":"51146278550174908","pool":"49473218817691942"},"86":{"iota":"51169761815039333","pool":"49479970093230492"},"87":{"iota":"51188093115058931","pool":"49481742115990123"},"88":{"iota":"51206424415080680","pool":"49483513567802474"},"89":{"iota":"51224755715097410","pool":"49485284449055074"},"90":{"iota":"51243087015100039","pool":"49487054760134862"},"91":{"iota":"51230464030412994","pool":"49458930978451124"},"92":{"iota":"51248795330420881","pool":"49460700149662266"}}},{"poolId":"0xce58406934b29daefc19c86820d81cad4c65c38176264627ecb2a2ddf387ba8a","exchangeRateId":"0x351b78a5711f75b547059ef5945b285e3570570fea3f96a4a3f56d950f220205","epochData":{"10":{"iota":"0","pool":"0"},"11":{"iota":"5002877700001891","pool":"5000547298942748"},"12":{"iota":"5005265400002511","pool":"5000604799351953"},"13":{"iota":"5116950448896111","pool":"5109883741057721"},"14":{"iota":"5271806646185894","pool":"5262207083014847"},"15":{"iota":"5278054637286525","pool":"5266116066238239"},"16":{"iota":"5281512437288327","pool":"5267015746001178"},"17":{"iota":"5298440534034417","pool":"5281416945357698"},"18":{"iota":"5303046981595447","pool":"5283759860656439"},"19":{"iota":"5310518669036767","pool":"5288955385730523"},"20":{"iota":"5313261072434773","pool":"5289515460847515"},"21":{"iota":"5331965372435121","pool":"5305959350648387"},"22":{"iota":"5389506209488283","pool":"5361027554770780"},"23":{"iota":"5394282628639405","pool":"5363609394978209"},"24":{"iota":"5411796883340965","pool":"5378925137297272"},"25":{"iota":"5400551120290701","pool":"5367747682033686"},"26":{"iota":"5299898428920997","pool":"5267706364257751"},"27":{"iota":"5299898428920997","pool":"5267706364257751"},"28":{"iota":"5299898428920997","pool":"5267706364257751"},"29":{"iota":"5295858902022744","pool":"5263691373812952"},"30":{"iota":"5296358902022744","pool":"5264188336767516"},"31":{"iota":"5281358902022744","pool":"5249279448130578"},"32":{"iota":"5290410902022744","pool":"5258276465460015"},"33":{"iota":"5281410902022744","pool":"5249331132277853"},"34":{"iota":"5280442288195001","pool":"5248368401898517"},"35":{"iota":"5277488736323835","pool":"5245432790169806"},"36":{"iota":"5277488736323835","pool":"5245432790169806"},"37":{"iota":"5272805634427766","pool":"5240778133860210"},"38":{"iota":"5272805634427766","pool":"5240778133860210"},"39":{"iota":"5281044736084238","pool":"5248967190464526"},"40":{"iota":"5277155605923476","pool":"5245101683233769"},"41":{"iota":"5227116864662795","pool":"5195366881834565"},"42":{"iota":"5227116864662795","pool":"5195366881834565"},"43":{"iota":"5227116864662795","pool":"5195366881834565"},"44":{"iota":"5227116864662795","pool":"5195366881834565"},"45":{"iota":"5227116864662795","pool":"5195366881834565"},"46":{"iota":"5234336524358795","pool":"5202542688661515"},"47":{"iota":"5231070497084600","pool":"5199296499533768"},"48":{"iota":"5231070497084600","pool":"5199296499533768"},"49":{"iota":"5231070497084600","pool":"5199296499533768"},"50":{"iota":"5223798837388600","pool":"5192069008559544"},"51":{"iota":"5223798837388600","pool":"5192069008559544"},"52":{"iota":"5223798837388600","pool":"5192069008559544"},"53":{"iota":"5223798837388600","pool":"5192069008559544"},"54":{"iota":"5223798837388600","pool":"5192069008559544"},"55":{"iota":"5223798837388600","pool":"5192069008559544"},"56":{"iota":"5223798837388600","pool":"5192069008559544"},"57":{"iota":"5223798837388600","pool":"5192069008559544"},"58":{"iota":"5223298837388600","pool":"5191572045604980"},"59":{"iota":"5221293080123179","pool":"5189578471491453"},"60":{"iota":"5221293080123179","pool":"5189578471491453"},"61":{"iota":"5221293080123179","pool":"5189578471491453"},"62":{"iota":"5221293080123179","pool":"5189578471491453"},"63":{"iota":"5221293080123179","pool":"5189578471491453"},"64":{"iota":"5221293080123179","pool":"5189578471491453"},"65":{"iota":"5221293080123179","pool":"5189578471491453"},"66":{"iota":"5221293080123179","pool":"5189578471491453"},"67":{"iota":"5221293080123179","pool":"5189578471491453"},"68":{"iota":"5068085075021978","pool":"5037301065735370"},"69":{"iota":"5068085075021978","pool":"5037301065735370"},"70":{"iota":"5069084075021978","pool":"5038293997718590"},"71":{"iota":"5069084075021978","pool":"5038293997718590"},"72":{"iota":"5069084075021978","pool":"5038293997718590"},"73":{"iota":"5069011867760424","pool":"5038222229050504"},"74":{"iota":"5068011867760424","pool":"5037228303141375"},"75":{"iota":"5066961867760424","pool":"5036184680936790"},"76":{"iota":"5066961867760424","pool":"5036184680936790"},"77":{"iota":"5066112020568430","pool":"5035339995793866"},"78":{"iota":"5066112020568430","pool":"5035339995793866"},"79":{"iota":"5066112020568430","pool":"5035339995793866"},"80":{"iota":"5066112020568430","pool":"5035339995793866"},"81":{"iota":"5066112020568430","pool":"5035339995793866"},"82":{"iota":"5066112020568430","pool":"5035339995793866"},"83":{"iota":"5066112020568430","pool":"5035339995793866"},"84":{"iota":"5064107968746274","pool":"5033348116764586"},"85":{"iota":"5064607968746274","pool":"5033845079719150"},"86":{"iota":"5064607968746274","pool":"5033845079719150"},"87":{"iota":"5064607968746274","pool":"5033845079719150"},"88":{"iota":"5064607968746274","pool":"5033845079719150"},"89":{"iota":"5064607968746274","pool":"5033845079719150"},"90":{"iota":"5064607968746274","pool":"5033845079719150"},"91":{"iota":"5064607968746274","pool":"5033845079719150"},"92":{"iota":"5064607968746274","pool":"5033845079719150"}}},{"poolId":"0xbb02d49bafcd0e828cde32745d87451106925700b75586b7518a10d4d3df6f2f","exchangeRateId":"0x99e07d00978fe50286f9c571231c2d4999638b741f54933864c4b39bb0652fbc","epochData":{"19":{"iota":"0","pool":"0"},"20":{"iota":"5002070900000378","pool":"5000207012833519"},"21":{"iota":"5025735166039102","pool":"5021991228552497"},"22":{"iota":"5027806066040074","pool":"5022198087565907"},"23":{"iota":"5027806066040074","pool":"5022198087565907"},"24":{"iota":"5027806066040074","pool":"5022198087565907"},"25":{"iota":"5027806066040074","pool":"5022198087565907"},"26":{"iota":"5027806066040074","pool":"5022198087565907"},"27":{"iota":"5027806066040074","pool":"5022198087565907"},"28":{"iota":"5027806066040074","pool":"5022198087565907"},"29":{"iota":"7027806066040074","pool":"7019967302050114"},"30":{"iota":"7030567266040758","pool":"7020243016573403"},"31":{"iota":"7033328466041946","pool":"7020518633674938"},"32":{"iota":"7036089666043422","pool":"7020794153427341"},"33":{"iota":"7038850866044970","pool":"7021069575903150"},"34":{"iota":"7041617066045942","pool":"7021349886783781"},"35":{"iota":"7044378266046914","pool":"7021625114923751"},"36":{"iota":"7047139466048642","pool":"7021900246004450"},"37":{"iota":"7049900666051198","pool":"7022175280098117"},"38":{"iota":"7052951866055338","pool":"7022738974997350"},"39":{"iota":"7055636366060238","pool":"7023006183497843"},"40":{"iota":"7058474266062421","pool":"7023288558836551"},"41":{"iota":"7061312166065307","pool":"7023570832034728"},"42":{"iota":"7066550066066010","pool":"7026239312499550"},"43":{"iota":"7069387966066676","pool":"7026521381684738"},"44":{"iota":"7072402566069260","pool":"7026910323673181"},"45":{"iota":"7075217166069868","pool":"7027100444765235"},"46":{"iota":"7078055066070497","pool":"7027382203069914"},"47":{"iota":"7080969666070991","pool":"7027671469261321"},"48":{"iota":"7083884266071561","pool":"7027960628333970"},"49":{"iota":"7086798866072283","pool":"7028249680371576"},"50":{"iota":"7089713466072701","pool":"7028538625457702"},"51":{"iota":"7092628066073119","pool":"7028827463675886"},"52":{"iota":"7095542666076045","pool":"7029116195109786"},"53":{"iota":"7101457266076463","pool":"7032375636411092"},"54":{"iota":"7104366831493422","pool":"7032659168961556"},"55":{"iota":"7107281431494068","pool":"7032947580630920"},"56":{"iota":"7110196031494790","pool":"7033235885893212"},"57":{"iota":"7113110631495208","pool":"7033524084831237"},"58":{"iota":"7116025231498704","pool":"7033812177528076"},"59":{"iota":"7118939831499198","pool":"7034100164065775"},"60":{"iota":"7121854431499502","pool":"7034388044527161"},"61":{"iota":"7124692331501167","pool":"7034668248697471"},"62":{"iota":"7127530231501500","pool":"7034948352454078"},"63":{"iota":"7131368131501833","pool":"7036215012974916"},"64":{"iota":"7134206031505829","pool":"7036494916146515"},"65":{"iota":"7137043931507975","pool":"7036774719145938"},"66":{"iota":"7139881831513081","pool":"7037054422049312"},"67":{"iota":"7142719731566324","pool":"7037334024936651"},"68":{"iota":"7145634331595166","pool":"7037621079236502"},"69":{"iota":"7148548931597674","pool":"7037908028195694"},"70":{"iota":"7151463531614014","pool":"7038194871899754"},"71":{"iota":"7154402395674139","pool":"7038505481419161"},"72":{"iota":"7157240295676026","pool":"7038784574560262"},"73":{"iota":"7160001495695862","pool":"7039056030392532"},"74":{"iota":"7162762695699354","pool":"7039327392039500"},"75":{"iota":"7165523895699786","pool":"7039598659571431"},"76":{"iota":"7168339169398890","pool":"7039922938060240"},"77":{"iota":"7171100369399502","pool":"7040194017569997"},"78":{"iota":"7174861569400366","pool":"7041446408365879"},"79":{"iota":"7179642769401410","pool":"7043699052235220"},"80":{"iota":"7182403969402562","pool":"7043969850280575"},"81":{"iota":"7185165169404146","pool":"7044240554663453"},"82":{"iota":"7187926369405010","pool":"7044511165452106"},"83":{"iota":"7190687569405874","pool":"7044781682714893"},"84":{"iota":"7193372069406609","pool":"7045044597270737"},"85":{"iota":"7196056569407484","pool":"7045307423550689"},"86":{"iota":"7198532833110439","pool":"7045298695234942"},"87":{"iota":"7201294033113391","pool":"7045568844247384"},"88":{"iota":"7204131933116758","pool":"7045846398957721"},"89":{"iota":"7206969833119348","pool":"7046123855300264"},"90":{"iota":"7209807733119755","pool":"7046401213348444"},"91":{"iota":"7212645633120458","pool":"7046678473175990"},"92":{"iota":"7215483533121679","pool":"7046955634856325"}}}]');
+    async function fetchStakeTransactionsByRole(address, role) {
+      var _a3, _b2, _c;
+      const gqlClient = new IotaGraphQLClient({
+        url: getSelectedNetworkConfig().graphql
+      });
+      let allNodes = [];
+      let cursorSection = "";
+      let hasNextPage = true;
+      let endCursor = "";
+      while (hasNextPage) {
+        console.log(`Fetching transactions for address: ${address}, role: ${role}, cursor: ${endCursor}`);
+        const query = `
+            query ($address: IotaAddress) {
+                transactionBlocks(
+                    filter: {
+                        ${role}: $address
+                    }
+                    ${cursorSection}
+                ) {
+                    pageInfo {
+                        hasNextPage
+                        endCursor
+                    }
+                    nodes {
+                        digest
+                        effects {
+                            epoch {
+                                epochId
+                            }
+                            objectChanges {
+                                nodes {
+                                    idDeleted
+                                    idCreated
+                                    address
+                                    inputState {
+                                        asMoveObject {
+                                            owner {
+                                                ... on AddressOwner {
+                                                    owner {
+                                                        ... on IOwner {
+                                                            address
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            contents {
+                                                type {
+                                                    repr
+                                                }
+                                                json
+                                            }
+                                        }
+                                    }
+                                    outputState {
+                                        asMoveObject {
+                                            owner {
+                                                ... on AddressOwner {
+                                                    owner {
+                                                        ... on IOwner {
+                                                            address
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            contents {
+                                                type {
+                                                    repr
+                                                }
+                                                json
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        `;
+        const variables = { address };
+        const result = await gqlClient.query({ query, variables });
+        const txBlocks = (_a3 = result.data) == null ? void 0 : _a3.transactionBlocks;
+        if (txBlocks == null ? void 0 : txBlocks.nodes) {
+          allNodes.push(...txBlocks.nodes);
+        }
+        hasNextPage = (_b2 = txBlocks == null ? void 0 : txBlocks.pageInfo) == null ? void 0 : _b2.hasNextPage;
+        endCursor = (_c = txBlocks == null ? void 0 : txBlocks.pageInfo) == null ? void 0 : _c.endCursor;
+        if (hasNextPage && endCursor) {
+          cursorSection = `after: "${endCursor}"`;
+        } else {
+          break;
+        }
+      }
+      const stakeTypes = [
+        "0x0000000000000000000000000000000000000000000000000000000000000003::staking_pool::StakedIota",
+        "0x0000000000000000000000000000000000000000000000000000000000000003::timelocked_staking::TimelockedStakedIota"
+      ];
+      const filteredNodes = allNodes.map((tx) => {
+        var _a4, _b3, _c2;
+        const objectNodes = ((_b3 = (_a4 = tx.effects) == null ? void 0 : _a4.objectChanges) == null ? void 0 : _b3.nodes) || [];
+        const stakeObjects = objectNodes.filter((obj) => {
+          var _a5, _b4, _c3, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p;
+          const inputType = (_d = (_c3 = (_b4 = (_a5 = obj.inputState) == null ? void 0 : _a5.asMoveObject) == null ? void 0 : _b4.contents) == null ? void 0 : _c3.type) == null ? void 0 : _d.repr;
+          const outputType = (_h = (_g = (_f = (_e = obj.outputState) == null ? void 0 : _e.asMoveObject) == null ? void 0 : _f.contents) == null ? void 0 : _g.type) == null ? void 0 : _h.repr;
+          const isStakeType = stakeTypes.includes(inputType) || stakeTypes.includes(outputType);
+          if (!isStakeType) return false;
+          const inputOwner = (_l = (_k = (_j = (_i = obj.inputState) == null ? void 0 : _i.asMoveObject) == null ? void 0 : _j.owner) == null ? void 0 : _k.owner) == null ? void 0 : _l.address;
+          const outputOwner = (_p = (_o = (_n = (_m = obj.outputState) == null ? void 0 : _m.asMoveObject) == null ? void 0 : _n.owner) == null ? void 0 : _o.owner) == null ? void 0 : _p.address;
+          return inputOwner === address || outputOwner === address;
+        });
+        if (stakeObjects.length > 0) {
+          return {
+            ...tx,
+            effects: {
+              ...tx.effects,
+              objectChanges: {
+                ...(_c2 = tx.effects) == null ? void 0 : _c2.objectChanges,
+                nodes: stakeObjects
+              }
+            }
+          };
+        }
+        return null;
+      }).filter((tx) => tx !== null);
+      console.log(`Filtered transactions count: ${filteredNodes.length}`);
+      return filteredNodes;
+    }
+    async function fetchStakeTransactions(address) {
+      return fetchStakeTransactionsByRole(address, "signAddress");
+    }
+    async function fetchReceivedStakeTransactions(address) {
+      return fetchStakeTransactionsByRole(address, "recvAddress");
+    }
+    async function fetchSystemState() {
+      var _a3, _b2, _c;
+      const gqlClient = new IotaGraphQLClient({
+        url: getSelectedNetworkConfig().graphql
+      });
+      const query = `{
+        owner(address: "0x5") {
+            dynamicFields {
+                nodes {
+                    value {
+                        ... on MoveValue {
+                            type {
+                                repr
+                            }
+                            json
+                        }
+                    }
+                }
+            }
+        }
+    }`;
+      const result = await gqlClient.query({ query });
+      const nodes = ((_c = (_b2 = (_a3 = result.data) == null ? void 0 : _a3.owner) == null ? void 0 : _b2.dynamicFields) == null ? void 0 : _c.nodes) || [];
+      return nodes.map((node) => node.value);
+    }
+    async function fetchPoolExchangeRates(exchangeRatesId, epoch, poolId, createOneToOneCache = false) {
+      var _a3, _b2, _c, _d;
+      epoch += 1;
+      if (poolId && exchangeRateCache.has(poolId)) {
+        const cached = exchangeRateCache.get(poolId);
+        if (cached.epochData[epoch]) {
+          const cachedData = cached.epochData[epoch];
+          return {
+            iota_amount: cachedData.iota,
+            pool_token_amount: cachedData.pool
+          };
+        }
+      }
+      console.log(`Fetching exchange rates for poolId ${poolId}, epoch ${epoch}, exchangeRatesId ${exchangeRatesId}`);
+      const gqlClient = new IotaGraphQLClient({
+        url: getSelectedNetworkConfig().graphql
+      });
+      const epochBcs = toB64$1(bcs$1.u64().serialize(epoch).toBytes());
+      const query = `query getDynamicFieldObject($parentId: IotaAddress!, $epochBcs: Base64!) {
+      owner(address: $parentId) {
+        address
+        dynamicField(name: {type: "u64", bcs: $epochBcs}) {
+          value {
+            ... on MoveValue {
+              json
+            }
+          }
+        }
+      }
+    }`;
+      const variables = { parentId: exchangeRatesId, epochBcs };
+      const result = await gqlClient.query({ query, variables });
+      let data = (_d = (_c = (_b2 = (_a3 = result.data) == null ? void 0 : _a3.owner) == null ? void 0 : _b2.dynamicField) == null ? void 0 : _c.value) == null ? void 0 : _d.json;
+      if (!data && createOneToOneCache) {
+        console.log(`No exchange rate data found for pool ${poolId}, epoch ${epoch}. Using 1:1 ratio.`);
+        data = {
+          iota_amount: "1",
+          pool_token_amount: "1"
+        };
+      }
+      if (data && poolId) {
+        let cacheEntry = exchangeRateCache.get(poolId);
+        if (!cacheEntry) {
+          cacheEntry = {
+            poolId,
+            exchangeRateId: exchangeRatesId,
+            epochData: {}
+          };
+          exchangeRateCache.set(poolId, cacheEntry);
+        }
+        cacheEntry.epochData[epoch] = {
+          iota: data.iota_amount,
+          pool: data.pool_token_amount
+        };
+        console.log(`Cached exchange rates for pool ${poolId}, epoch ${epoch}`);
+      }
+      return data;
+    }
+    const exchangeRateCache = /* @__PURE__ */ new Map();
+    function setInitialExchangeRateCache(cacheData) {
+      exchangeRateCache.clear();
+      if (!cacheData || !Array.isArray(cacheData)) {
+        console.log("No cache data provided or invalid format");
+        return;
+      }
+      cacheData.forEach((entry) => {
+        if (entry && entry.poolId && entry.epochData) {
+          exchangeRateCache.set(entry.poolId, entry);
+        } else {
+          console.warn("Skipping invalid cache entry:", entry);
+        }
+      });
+      const totalEpochs = cacheData.reduce((sum, entry) => {
+        if (entry && entry.epochData && typeof entry.epochData === "object") {
+          return sum + Object.keys(entry.epochData).length;
+        }
+        return sum;
+      }, 0);
+      console.log(`Loaded ${cacheData.length} pools with ${totalEpochs} total epoch entries into cache`);
+    }
+    function getExchangeRateCacheStats() {
+      const stats = {
+        totalEntries: exchangeRateCache.size,
+        poolIds: /* @__PURE__ */ new Set(),
+        epochs: /* @__PURE__ */ new Set(),
+        exchangeRateIds: /* @__PURE__ */ new Set()
+      };
+      exchangeRateCache.forEach((entry) => {
+        stats.poolIds.add(entry.poolId);
+        stats.exchangeRateIds.add(entry.exchangeRateId);
+        Object.keys(entry.epochData).forEach((epochStr) => {
+          stats.epochs.add(parseInt(epochStr));
+        });
+      });
+      return {
+        totalEntries: stats.totalEntries,
+        uniquePoolIds: stats.poolIds.size,
+        uniqueEpochs: stats.epochs.size,
+        uniqueExchangeRateIds: stats.exchangeRateIds.size,
+        epochRange: stats.epochs.size > 0 ? {
+          min: Math.min(...stats.epochs),
+          max: Math.max(...stats.epochs)
+        } : null
+      };
+    }
+    function getIotaAmount(exchangeRate, tokenAmount) {
+      const iotaAmount = "iota" in exchangeRate ? BigInt(exchangeRate.iota) : BigInt(exchangeRate.iota_amount);
+      const poolTokenAmount = "pool" in exchangeRate ? BigInt(exchangeRate.pool) : BigInt(exchangeRate.pool_token_amount);
+      if (iotaAmount === 0n || poolTokenAmount === 0n) {
+        return tokenAmount;
+      }
+      return iotaAmount * tokenAmount / poolTokenAmount;
+    }
+    function getTokenAmount(exchangeRate, iotaAmount) {
+      const iotaAmountBig = "iota" in exchangeRate ? BigInt(exchangeRate.iota) : BigInt(exchangeRate.iota_amount);
+      const poolTokenAmount = "pool" in exchangeRate ? BigInt(exchangeRate.pool) : BigInt(exchangeRate.pool_token_amount);
+      if (iotaAmountBig === 0n || poolTokenAmount === 0n) {
+        return iotaAmount;
+      }
+      return poolTokenAmount * iotaAmount / iotaAmountBig;
+    }
+    async function computeRewardsForStakeObject(stakeObject, exchangeRateId) {
+      const principalAmount = BigInt(Object.values(stakeObject.principalByEpoch)[0] || "0");
+      const epochs = Object.keys(stakeObject.exchangeRatesByEpoch).map(Number).sort((a2, b) => a2 - b);
+      let previousAccumulatedRewards = 0n;
+      for (const epoch of epochs) {
+        const exchangeRate = stakeObject.exchangeRatesByEpoch[epoch];
+        try {
+          let preStakingEpoch = stakeObject.stakeActivationEpoch - 1;
+          let preStakingEpochExchangeRate = stakeObject.exchangeRatesByEpoch[preStakingEpoch];
+          if (!preStakingEpochExchangeRate) {
+            try {
+              const fetchedRate = await fetchPoolExchangeRates(exchangeRateId, preStakingEpoch, stakeObject.poolId, true);
+              if (fetchedRate) {
+                preStakingEpochExchangeRate = fetchedRate;
+                stakeObject.exchangeRatesByEpoch[preStakingEpoch] = fetchedRate;
+              } else {
+                preStakingEpochExchangeRate = {
+                  iota_amount: "1",
+                  pool_token_amount: "1"
+                };
+              }
+            } catch (err) {
+              console.warn(`Failed to fetch exchange rate for pre staking epoch ${preStakingEpoch}, using 1:1 ratio`);
+              preStakingEpochExchangeRate = {
+                iota_amount: "1",
+                pool_token_amount: "1"
+              };
+            }
+          }
+          const poolTokenWithdrawAmount = getTokenAmount(preStakingEpochExchangeRate, principalAmount);
+          const totalIotaWithdrawAmount = getIotaAmount(exchangeRate, poolTokenWithdrawAmount);
+          const currentAccumulatedRewards = totalIotaWithdrawAmount > principalAmount ? totalIotaWithdrawAmount - principalAmount : 0n;
+          const newEpochRewards = currentAccumulatedRewards > previousAccumulatedRewards ? currentAccumulatedRewards - previousAccumulatedRewards : 0n;
+          stakeObject.accumulatedRewards[epoch] = currentAccumulatedRewards.toString();
+          stakeObject.rewardsByEpoch[epoch] = newEpochRewards.toString();
+          previousAccumulatedRewards = currentAccumulatedRewards;
+        } catch (err) {
+          console.error(`Error computing rewards for epoch ${epoch}:`, err);
+          stakeObject.accumulatedRewards[epoch] = previousAccumulatedRewards.toString();
+          stakeObject.rewardsByEpoch[epoch] = "0";
+        }
+      }
+    }
+    function getCurrentActiveValidatorsExchangeRateIds(systemState) {
+      var _a3, _b2, _c, _d, _e;
+      const validatorMap = {};
+      const activeValidators = ((_b2 = (_a3 = systemState == null ? void 0 : systemState.json) == null ? void 0 : _a3.validators) == null ? void 0 : _b2.active_validators) || [];
+      for (const validator of activeValidators) {
+        const poolId = (_c = validator == null ? void 0 : validator.staking_pool) == null ? void 0 : _c.id;
+        const exchangeRateId = (_e = (_d = validator == null ? void 0 : validator.staking_pool) == null ? void 0 : _d.exchange_rates) == null ? void 0 : _e.id;
+        if (poolId && exchangeRateId) {
+          validatorMap[poolId] = exchangeRateId;
+        }
+      }
+      return validatorMap;
+    }
+    async function processStakeTransactionsWithExchangeRates(transactions, currentEpoch) {
+      const systemState = (await fetchSystemState())[0];
+      const validatorMap = getCurrentActiveValidatorsExchangeRateIds(systemState);
+      const stakeObjects = /* @__PURE__ */ new Map();
+      transactions.forEach((transactionSet) => {
+        if (!Array.isArray(transactionSet)) return;
+        transactionSet.forEach((transaction) => {
+          const epochId = transaction.effects.epoch.epochId;
+          transaction.effects.objectChanges.nodes.forEach((node) => {
+            var _a3, _b2, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w;
+            const address = node.address;
+            const outputState = (_b2 = (_a3 = node.outputState) == null ? void 0 : _a3.asMoveObject) == null ? void 0 : _b2.contents;
+            const inputState = (_d = (_c = node.inputState) == null ? void 0 : _c.asMoveObject) == null ? void 0 : _d.contents;
+            let poolId = void 0;
+            let principal = void 0;
+            let stakeActivationEpoch = void 0;
+            if ((_f = (_e = outputState == null ? void 0 : outputState.type) == null ? void 0 : _e.repr) == null ? void 0 : _f.includes("timelocked_staking::TimelockedStakedIota")) {
+              const stakedIota = (_g = outputState.json) == null ? void 0 : _g.staked_iota;
+              poolId = (stakedIota == null ? void 0 : stakedIota.pool_id) ?? "";
+              principal = ((_h = stakedIota == null ? void 0 : stakedIota.principal) == null ? void 0 : _h.value) ?? "";
+              stakeActivationEpoch = (stakedIota == null ? void 0 : stakedIota.stake_activation_epoch) ?? "";
+            } else if ((_j = (_i = outputState == null ? void 0 : outputState.type) == null ? void 0 : _i.repr) == null ? void 0 : _j.includes("staking_pool::StakedIota")) {
+              poolId = ((_k = outputState.json) == null ? void 0 : _k.pool_id) ?? "";
+              principal = ((_m = (_l = outputState.json) == null ? void 0 : _l.principal) == null ? void 0 : _m.value) ?? "";
+              stakeActivationEpoch = ((_n = outputState.json) == null ? void 0 : _n.stake_activation_epoch) ?? "";
+            }
+            if (poolId && principal && stakeActivationEpoch) {
+              if (!stakeObjects.has(address)) {
+                stakeObjects.set(address, {
+                  address,
+                  poolId,
+                  principalByEpoch: {},
+                  exchangeRatesByEpoch: {},
+                  rewardsByEpoch: {},
+                  accumulatedRewards: {},
+                  firstEpoch: epochId,
+                  lastEpoch: currentEpoch,
+                  stakeActivationEpoch: parseInt(stakeActivationEpoch)
+                });
+              }
+              const obj = stakeObjects.get(address);
+              obj.principalByEpoch[epochId] = principal;
+              obj.rewardsByEpoch[epochId] = "0";
+              obj.accumulatedRewards[epochId] = "0";
+            }
+            let inputPoolId = "";
+            let inputPrincipal = "";
+            if ((_p = (_o = inputState == null ? void 0 : inputState.type) == null ? void 0 : _o.repr) == null ? void 0 : _p.includes("timelocked_staking::TimelockedStakedIota")) {
+              const stakedIota = (_q = inputState.json) == null ? void 0 : _q.staked_iota;
+              inputPoolId = (stakedIota == null ? void 0 : stakedIota.pool_id) ?? "";
+              inputPrincipal = ((_r = stakedIota == null ? void 0 : stakedIota.principal) == null ? void 0 : _r.value) ?? "";
+            } else if ((_t = (_s = inputState == null ? void 0 : inputState.type) == null ? void 0 : _s.repr) == null ? void 0 : _t.includes("staking_pool::StakedIota")) {
+              inputPoolId = ((_u = inputState.json) == null ? void 0 : _u.pool_id) ?? "";
+              inputPrincipal = ((_w = (_v = inputState.json) == null ? void 0 : _v.principal) == null ? void 0 : _w.value) ?? "";
+            }
+            if (inputPoolId && inputPrincipal && !node.outputState) {
+              const existing = stakeObjects.get(address);
+              if (existing) {
+                existing.lastEpoch = epochId;
+              }
+            }
+          });
+        });
+      });
+      const stakeObjectsArray = Array.from(stakeObjects.values());
+      for (const stakeObject of stakeObjectsArray) {
+        const exchangeRateId = validatorMap[stakeObject.poolId];
+        if (!exchangeRateId) {
+          console.warn(`No exchange rate ID found for pool ${stakeObject.poolId}`);
+          continue;
+        }
+        const activeEpochs = [];
+        for (let epoch = stakeObject.stakeActivationEpoch; epoch <= stakeObject.lastEpoch; epoch++) {
+          activeEpochs.push(epoch);
+        }
+        let lastKnownPrincipal;
+        const existingEpochs = Object.keys(stakeObject.principalByEpoch).map(Number).sort((a2, b) => a2 - b);
+        if (existingEpochs.length > 0) {
+          lastKnownPrincipal = stakeObject.principalByEpoch[existingEpochs[0]];
+        }
+        for (const epoch of activeEpochs) {
+          if (stakeObject.principalByEpoch[epoch]) {
+            lastKnownPrincipal = stakeObject.principalByEpoch[epoch];
+          } else if (lastKnownPrincipal) {
+            stakeObject.principalByEpoch[epoch] = lastKnownPrincipal;
+            stakeObject.rewardsByEpoch[epoch] = "0";
+            stakeObject.accumulatedRewards[epoch] = "0";
+          }
+        }
+        const rewardEpochs = activeEpochs.filter((epoch) => epoch >= stakeObject.stakeActivationEpoch);
+        for (const epoch of rewardEpochs) {
+          if (epoch == currentEpoch) {
+            continue;
+          }
+          try {
+            const exchangeRates = await fetchPoolExchangeRates(exchangeRateId, epoch, stakeObject.poolId);
+            if (exchangeRates) {
+              stakeObject.exchangeRatesByEpoch[epoch] = exchangeRates;
+            }
+          } catch (err) {
+            console.error(
+              `Error fetching exchange rates for poolId ${stakeObject.poolId}, epoch ${epoch}:`,
+              err
+            );
+          }
+        }
+        await computeRewardsForStakeObject(stakeObject, exchangeRateId);
+      }
+      const cacheArray = Array.from(exchangeRateCache.values());
+      const cacheStats = getExchangeRateCacheStats();
+      console.log("=== EXCHANGE RATE CACHE DATA ===");
+      console.log("Cache Statistics:", cacheStats);
+      console.log("Copy this data to a JSON file for initial cache loading:");
+      console.log(JSON.stringify(cacheArray, null, 2));
+      console.log("=== END CACHE DATA ===");
+      return stakeObjectsArray;
+    }
+    async function fetchTransactions(_, error2, transactions, stakeObjects, loadingTxs, address, getCurrentEpoch, epoch) {
+      set$1(error2, "");
+      set$1(transactions, []);
+      set$1(stakeObjects, []);
+      set$1(loadingTxs, true);
+      try {
+        const sentTxs = await fetchStakeTransactions(get$2(address));
+        const receivedTxs = await fetchReceivedStakeTransactions(get$2(address));
+        await getCurrentEpoch();
+        set$1(stakeObjects, await processStakeTransactionsWithExchangeRates([sentTxs, receivedTxs], get$2(epoch)));
+        console.log(get$2(stakeObjects));
+        set$1(transactions, [sentTxs, receivedTxs]);
+        console.log("fetching txs complete");
+      } catch (err) {
+        set$1(error2, (err == null ? void 0 : err.toString()) ?? "Error fetching transactions.");
+      } finally {
+        set$1(loadingTxs, false);
+      }
+    }
+    var on_click$2 = (__1, address, $activeAddress) => set$1(address, $activeAddress());
+    var root_1$3 = /* @__PURE__ */ from_html(`<div class="error-message svelte-1oorb02"> </div>`);
+    var root$4 = /* @__PURE__ */ from_html(`<main><div class="input-row svelte-1oorb02"><button class="svelte-1oorb02"> </button> <span class="svelte-1oorb02">address: <input placeholder="address" size="67"/> <button class="svelte-1oorb02">Set to active address</button></span></div> <!> <div><h3>Staking Rewards:</h3> <!></div> <div><h3>Stake objects:</h3> <!></div> <div><h3>Transactions:</h3> <!></div></main>`);
+    function StakingRewards($$anchor, $$props) {
+      push($$props, false);
+      const [$$stores, $$cleanup] = setup_stores();
+      const $activeAddress = () => store_get(activeAddress, "$activeAddress", $$stores);
+      let address = /* @__PURE__ */ mutable_source("0x1ee12dca0e798966a82f74c010c109e1bd0674f4f47517db6843f223bad5eb7c");
+      let epoch = /* @__PURE__ */ mutable_source("");
+      let epochLoading = false;
+      let error2 = /* @__PURE__ */ mutable_source("");
+      let transactions = /* @__PURE__ */ mutable_source([]);
+      let stakeObjects = /* @__PURE__ */ mutable_source([]);
+      let loadingTxs = /* @__PURE__ */ mutable_source(false);
+      setInitialExchangeRateCache(exchangeRateCacheData);
+      async function getCurrentEpoch() {
+        try {
+          set$1(error2, "");
+          epochLoading = true;
+          const currentEpochId = await new EpochPTBAnalyzer().getCurrentEpoch();
+          if (currentEpochId) {
+            set$1(epoch, parseInt(currentEpochId));
+          } else {
+            set$1(error2, "Failed to fetch current epoch.");
+          }
+        } catch (err) {
+          set$1(error2, (err == null ? void 0 : err.toString()) ?? "Error fetching current epoch.");
+        } finally {
+          epochLoading = false;
+        }
+      }
+      init();
+      var main = root$4();
+      var div = child(main);
+      var button = child(div);
+      button.__click = [
+        fetchTransactions,
+        error2,
+        transactions,
+        stakeObjects,
+        loadingTxs,
+        address,
+        getCurrentEpoch,
+        epoch
+      ];
+      var text2 = child(button);
+      var span = sibling(button, 2);
+      var input = sibling(child(span));
+      var button_1 = sibling(input, 2);
+      button_1.__click = [on_click$2, address, $activeAddress];
+      var node = sibling(div, 2);
+      {
+        var consequent = ($$anchor2) => {
+          var div_1 = root_1$3();
+          var text_1 = child(div_1);
+          template_effect(() => set_text(text_1, get$2(error2)));
+          append($$anchor2, div_1);
+        };
+        if_block(node, ($$render) => {
+          if (get$2(error2)) $$render(consequent);
+        });
+      }
+      var div_2 = sibling(node, 2);
+      var node_1 = sibling(child(div_2), 2);
+      {
+        let $0 = /* @__PURE__ */ derived_safe_equal(() => get$2(epoch) || 1);
+        StakingRewardsTable(node_1, {
+          get currentEpoch() {
+            return get$2($0);
+          },
+          get stakeObjects() {
+            return get$2(stakeObjects);
+          }
+        });
+      }
+      var div_3 = sibling(div_2, 2);
+      var node_2 = sibling(child(div_3), 2);
+      JsonToggleView(node_2, {
+        get value() {
+          return get$2(stakeObjects);
+        }
+      });
+      var div_4 = sibling(div_3, 2);
+      var node_3 = sibling(child(div_4), 2);
+      JsonToggleView(node_3, {
+        get value() {
+          return get$2(transactions);
+        }
+      });
+      template_effect(() => {
+        button.disabled = get$2(loadingTxs);
+        set_text(text2, get$2(loadingTxs) ? "Loading..." : "Fetch data");
+      });
+      bind_value(input, () => get$2(address), ($$value) => set$1(address, $$value));
+      append($$anchor, main);
+      pop();
+      $$cleanup();
+    }
+    delegate(["click"]);
     var on_click$1 = (_, textContent, limit) => {
       if (get$2(textContent).length > 0) {
         const repeatCount = Math.ceil(get$2(limit) / get$2(textContent).length);
@@ -93882,13 +96650,13 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         index$1,
         ($$anchor2, signer) => {
           var option = root_1$1();
-          var option_value = {};
           var text2 = child(option);
+          var option_value = {};
           template_effect(() => {
+            set_text(text2, get$2(signer));
             if (option_value !== (option_value = get$2(signer))) {
               option.value = (option.__value = get$2(signer)) ?? "";
             }
-            set_text(text2, get$2(signer));
           });
           append($$anchor2, option);
         }
@@ -93910,13 +96678,7 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           var input = root_3$1();
           let classes;
           input.__input = [on_input, foreignAddress];
-          template_effect(
-            ($0) => classes = set_class(input, 1, "foreign-address-input svelte-1b5880f", null, classes, $0),
-            [
-              () => ({ "invalid-address": !get$2(isAddressValid) })
-            ],
-            derived_safe_equal
-          );
+          template_effect(($0) => classes = set_class(input, 1, "foreign-address-input svelte-1b5880f", null, classes, $0), [() => ({ "invalid-address": !get$2(isAddressValid) })]);
           bind_value(input, () => get$2(foreignAddress), ($$value) => set$1(foreignAddress, $$value));
           append($$anchor2, input);
         };
@@ -93936,22 +96698,21 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
       });
       each$1(select_1, 5, $iota_accounts, index$1, ($$anchor2, account) => {
         var option_1 = root_4();
-        var option_1_value = {};
         var text_1 = child(option_1);
+        var option_1_value = {};
         template_effect(
           ($0, $1, $2) => {
+            set_text(text_1, `${$0 ?? ""}
+                                        ${$1 ?? ""}...${$2 ?? ""}`);
             if (option_1_value !== (option_1_value = (get$2(account), untrack(() => get$2(account).address)))) {
               option_1.value = (option_1.__value = (get$2(account), untrack(() => get$2(account).address))) ?? "";
             }
-            set_text(text_1, `${$0 ?? ""}
-                                        ${$1 ?? ""}...${$2 ?? ""}`);
           },
           [
             () => (get$2(account), untrack(() => (get$2(account).label || "Account").padEnd(15, " "))),
             () => (get$2(account), untrack(() => get$2(account).address.slice(0, 8))),
             () => (get$2(account), untrack(() => get$2(account).address.slice(-6)))
-          ],
-          derived_safe_equal
+          ]
         );
         append($$anchor2, option_1);
       });
@@ -93968,9 +96729,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
     }
     delegate(["change", "click", "input"]);
     var root_2 = /* @__PURE__ */ from_html(`<button> </button>`);
-    var root_1 = /* @__PURE__ */ from_html(`<div class="tab-group svelte-qwkk9g"><div class="group-label svelte-qwkk9g"> </div> <div class="tab-buttons-row svelte-qwkk9g"></div></div>`);
-    var root_3 = /* @__PURE__ */ from_html(`<div class="pageBox svelte-qwkk9g"><!></div>`);
-    var root$1 = /* @__PURE__ */ from_html(`<div class="tab-groups-row svelte-qwkk9g"></div> <!>`, 1);
+    var root_1 = /* @__PURE__ */ from_html(`<div class="tab-group svelte-19gbzbp"><div class="group-label svelte-19gbzbp"> </div> <div class="tab-buttons-row svelte-19gbzbp"></div></div>`);
+    var root_3 = /* @__PURE__ */ from_html(`<div class="pageBox svelte-19gbzbp"><!></div>`);
+    var root$1 = /* @__PURE__ */ from_html(`<div class="tab-groups-row svelte-19gbzbp"></div> <!>`, 1);
     function Tabs($$anchor, $$props) {
       push($$props, false);
       const groups = /* @__PURE__ */ mutable_source();
@@ -94003,13 +96764,12 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
             var text_1 = child(button);
             template_effect(
               ($0) => {
-                set_class(button, 1, $0, "svelte-qwkk9g");
+                set_class(button, 1, $0, "svelte-19gbzbp");
                 set_text(text_1, (get$2(item), untrack(() => get$2(item).label)));
               },
               [
                 () => clsx((get$2(activeTabs), get$2(item), untrack(() => get$2(activeTabs).includes(get$2(item).value) ? "active" : "")))
-              ],
-              derived_safe_equal
+              ]
             );
             event("click", button, function(...$$args) {
               var _a3;
@@ -94028,13 +96788,9 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
         component(node_1, () => get$2(item).component, ($$anchor3, $$component) => {
           $$component($$anchor3, {});
         });
-        template_effect(
-          ($0) => div_4.hidden = $0,
-          [
-            () => (get$2(activeTabs), get$2(item), untrack(() => !get$2(activeTabs).includes(get$2(item).value)))
-          ],
-          derived_safe_equal
-        );
+        template_effect(($0) => div_4.hidden = $0, [
+          () => (get$2(activeTabs), get$2(item), untrack(() => !get$2(activeTabs).includes(get$2(item).value)))
+        ]);
         append($$anchor2, div_4);
       });
       append($$anchor, fragment);
@@ -94050,14 +96806,15 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           component: IotaSystemState,
           group: "Info"
         },
-        {
-          label: "PTBs",
-          component: PTBs,
-          group: "Info"
-        },
+        { label: "PTBs", component: PTBs, group: "Info" },
         {
           label: "Dynamic Fields",
           component: DynamicFields,
+          group: "Info"
+        },
+        {
+          label: "Staking Rewards",
+          component: StakingRewards,
           group: "Info"
         },
         // Wallet
@@ -94071,16 +96828,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           component: AccountsList,
           group: "Wallet"
         },
-        {
-          label: "Keystone",
-          component: Keystone,
-          group: "Wallet"
-        },
-        {
-          label: "LedgerNano",
-          component: LedgerNano,
-          group: "Wallet"
-        },
+        { label: "Keystone", component: Keystone, group: "Wallet" },
+        { label: "LedgerNano", component: LedgerNano, group: "Wallet" },
         // Transactions
         {
           label: "Publish Data",
@@ -94097,22 +96846,10 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           component: BulkTransfer,
           group: "Transactions"
         },
-        {
-          label: "Stake",
-          component: Stake,
-          group: "Transactions"
-        },
+        { label: "Stake", component: Stake, group: "Transactions" },
         // Utilities
-        {
-          label: "Faucet",
-          component: Faucet,
-          group: "Utilities"
-        },
-        {
-          label: "Converter",
-          component: Converter,
-          group: "Utilities"
-        },
+        { label: "Faucet", component: Faucet, group: "Utilities" },
+        { label: "Converter", component: Converter, group: "Utilities" },
         {
           label: "Text Analyzer",
           component: TextAnalyzer,
@@ -94124,16 +96861,8 @@ UR:IOTA-SIGN-REQUEST/4-2/LPAAAOCFAONSCYKBBBMWSSHKADGLAEAEAEAEAEAEAEAEAEAEAEAEAOA
           group: "Utilities"
         },
         // Other
-        {
-          label: "IOTA-Names",
-          component: IotaNames,
-          group: "Other"
-        },
-        {
-          label: "⚙ Settings",
-          component: Settings,
-          group: "Other"
-        }
+        { label: "IOTA-Names", component: IotaNames, group: "Other" },
+        { label: "⚙ Settings", component: Settings, group: "Other" }
       ].map((e2, index2) => {
         e2.value = index2;
         return e2;
