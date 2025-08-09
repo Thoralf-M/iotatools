@@ -17,6 +17,7 @@
     import Settings from './lib/pages/Settings.svelte';
     import SplitMergeCoins from './lib/pages/SplitMergeCoins.svelte';
     import Stake from './lib/pages/Stake.svelte';
+    import StakingRewards from './lib/pages/StakingRewards.svelte';
     import TextAnalyzer from './lib/pages/TextAnalyzer.svelte';
     import Signer from './lib/Signer.svelte';
     import Tabs from './lib/Tabs.svelte';
@@ -27,6 +28,7 @@
         { label: 'IOTA System State', component: IotaSystemState, group: 'Info' },
         { label: 'PTBs', component: PTBs, group: 'Info' },
         { label: 'Dynamic Fields', component: DynamicFields, group: 'Info' },
+        { label: 'Staking Rewards', component: StakingRewards, group: 'Info' },
         // Wallet
         { label: 'Multi Account View', component: MultiAccountView, group: 'Wallet' },
         { label: 'Accounts List', component: AccountsList, group: 'Wallet' },

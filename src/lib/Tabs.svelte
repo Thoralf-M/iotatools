@@ -98,14 +98,6 @@
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
     }
-    /* Remove list styles */
-    ul,
-    li {
-        display: contents;
-        list-style: none;
-        margin: 0;
-        padding: 0;
-    }
 
     .pageBox {
         padding: 2rem;
@@ -124,10 +116,6 @@
         box-shadow:
             0 10px 15px -3px rgba(0, 0, 0, 0.3),
             0 4px 6px -2px rgba(0, 0, 0, 0.1);
-    }
-
-    li {
-        margin-bottom: 0px;
     }
 
     /* Mobile responsiveness */
