@@ -1,9 +1,12 @@
 <script lang="ts">
+    import { decode as msgpackDecode } from '@msgpack/msgpack';
+    import { inflate } from 'pako';
+
     import JsonToggleView from '../components/JsonToggleView.svelte';
     import StakingRewardsTable from '../components/StakingRewardsTable.svelte';
     import TestData2 from '../components/TestData2.json';
     import { EpochPTBAnalyzer } from '../epoch-ptb-analyzer';
-    import exchangeRateCacheData from '../lib/exchange-rate-cache.json';
+    import exchangeRateCacheRaw from '../lib/exchange-rate-cache.json';
     import { activeAddress } from '../lib/signer-data';
     import {
         fetchReceivedStakeTransactions,
@@ -21,8 +24,16 @@
     let stakeObjects: StakeObject[] = [];
     let loadingTxs = false;
 
+    // Helper to decode and decompress base64-encoded MessagePack cache
+    function loadExchangeRateCache(base64: string): any {
+        const compressed = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+        const binary = inflate(compressed);
+        return msgpackDecode(binary);
+    }
+
     // Initialize exchange rate cache on component load
-    setInitialExchangeRateCache(exchangeRateCacheData as any);
+    const exchangeRateCacheData = loadExchangeRateCache(exchangeRateCacheRaw.data);
+    setInitialExchangeRateCache(exchangeRateCacheData);
 
     async function getCurrentEpoch() {
         try {
