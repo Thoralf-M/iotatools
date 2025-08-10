@@ -1,0 +1,222 @@
+import { p as push, i as init, f as from_html, s as sibling, c as child, g as get, m as mutable_source, t as template_effect, d as set_text, E as bind_value, e as event, k as append, l as pop, j as set, N as fromB64, aq as TransactionDataBuilder, L as iotaBcs, a0 as bcs, ar as fromB58, a7 as toHEX, as as toB58, M as toB64, o as mutate } from "./index-BnYhK8oQ.js";
+import { b as bind_this } from "./this-lhlH9jsk.js";
+import { T as TransactionView, b as bytesToUtf8, a as bcsBytesToInteger, h as hexToBytes } from "./TransactionView-BslK_vRY.js";
+import { n as nanoToIota, i as iotaToNano } from "./iota-nano-conversion-BN70dJwt.js";
+import "./transaction-view-D84UYr3l.js";
+import "./style-CPwsKZh8.js";
+var root = from_html(`<main><div class="wrapper svelte-xku9c2"><div class="box">Bytes:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="bytes like: 1, 2, 3"/></div> <div class="box">Hex:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="hex string"/></div> <div class="box">Base64:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="base64 string"/></div> <div class="box">Base58:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="base58 string"/></div> <div class="box">UTF-8:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="UTF-8 string"/></div> <div class="box"> </div> <div class="box"><input type="string" style="width: 100%;" placeholder="number"/></div></div> <br/> <div class="wrapper svelte-xku9c2"><div class="box">NANO:</div> <div class="box"><input type="string" size="40" placeholder="NANO amount"/> </div> <div class="box">IOTA:</div> <div class="box"><input type="string" size="40" placeholder="IOTA amount"/> </div></div> <br/> <div><div style="float: left; display: flex; align-items: center; gap: 10px;"><span>Tx bytes base64:</span> <button style="padding: 4px 8px; font-size: 12px;">Example tx</button></div> <div class="box"><textarea placeholder="base64 transaction bytes" class="svelte-xku9c2"></textarea></div></div> <!> <br/> </main>`);
+function Converter($$anchor, $$props) {
+  push($$props, false);
+  let bytes = mutable_source();
+  let hex = mutable_source("");
+  let base58 = mutable_source("");
+  let base64 = mutable_source("");
+  let utf8 = mutable_source("");
+  let bcsNumber = mutable_source("");
+  let bcsNumberType = mutable_source("");
+  let error = mutable_source("");
+  let value = mutable_source();
+  let nano = mutable_source("");
+  let nanoWithUnderscore = mutable_source("");
+  let iota = mutable_source("");
+  let iotaWithUnderscore = mutable_source("");
+  let txBytesTextarea = mutable_source();
+  const exampleTx = "AQAAAAAABQAgAADITWzmvxDdFgAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAQOrTZ5H0khvmeaMM7Q+RqIE3kXhhUmg8Ye1x03DM1/oxo+fFQAAAAABAQC1UdUC/HAd21HmDkcdewfnQ/8ZyCdSznxVvhX2A+UdkhQ/8xUAAAAAIGvBzsOprOdLXmvbV4WNEAdCeVyxUQC4casadEmSiOz8AQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgEAAAAAAAAAAAEBVB+vemIenOWjJKPeaiUWCEN25jsEPmTpIlut31oacd9AaKkVAAAAAAEEAKBMDds1kJoNC+au685RIk/bcqEzZUlnLfnwjJpgx1omB2ZpeGVkMTgNZnJvbV9yYXdfdTI1NgABAQAAAHS7cwUfi9jmrdrHu2LvhWKLCdye6W294+RBZ4pEgCvbC21vY2tfc291cmNlCXNldF92YWx1ZQADAQEAAQIAAgAAAHS7cwUfi9jmrdrHu2LvhWKLCdye6W294+RBZ4pEgCvbC21vY2tfc291cmNlBXByaWNlAAIBAQABAwAADSboscHb0PENnJ/ZKPsb8EgfRLahSRbrPfEuFCT0XaoGbWFya2V0DHVwZGF0ZV9wcmljZQEHVk0OWNWfzsxej+coc1GWFdn7sceB009VRe4/PcHNRf0Gc3RhYmxlBlNUQUJMRQACAQQAAgIAKncQef3db67TtP+AYhEsoc86M8mLAnwGhbj7/3IK0mEBRfaRcZkkQl7YnEMWcsyOrUsBJtE2Di3bqK/2JiFVZP0UP/MVAAAAACDNN3mgas1+l1nWysvP0pprzh7yATGvFfv+hKdhxMIwiyp3EHn93W+u07T/gGIRLKHPOjPJiwJ8BoW4+/9yCtJh6AMAAAAAAACcxWVRAAAAAAABYQBuCFSJ1RJeUMmPez2iX78Kz4uLyOBFD+mUii8dqFUHgMeg+ioHP3cI/3LnNc+id/JHyjRpl1Lgc9tXdRpnPoADDR2pqxdjx19PH7B5MVEMS2PLUy97CDQNgDC1vbQqPXQ=";
+  function insertExampleTx() {
+    if (get(txBytesTextarea)) {
+      mutate(txBytesTextarea, get(txBytesTextarea).value = exampleTx);
+      const event2 = new Event("input", { bubbles: true });
+      get(txBytesTextarea).dispatchEvent(event2);
+    }
+  }
+  var SourceType = /* @__PURE__ */ ((SourceType2) => {
+    SourceType2[SourceType2["Bytes"] = 0] = "Bytes";
+    SourceType2[SourceType2["Hex"] = 1] = "Hex";
+    SourceType2[SourceType2["Base58"] = 2] = "Base58";
+    SourceType2[SourceType2["Base64"] = 3] = "Base64";
+    SourceType2[SourceType2["UTF8"] = 4] = "UTF8";
+    SourceType2[SourceType2["BcsNumber"] = 5] = "BcsNumber";
+    return SourceType2;
+  })(SourceType || {});
+  function convert(source) {
+    set(error, "");
+    try {
+      let sourceBytes;
+      switch (+source) {
+        case 0:
+          let bytes_strings = get(bytes).trim().split(",");
+          let parsedBytes = [];
+          for (let byte_string of bytes_strings) {
+            if (Number.isInteger(parseInt(byte_string))) {
+              parsedBytes.push(parseInt(byte_string, 10));
+            }
+          }
+          sourceBytes = parsedBytes;
+          break;
+        case 1:
+          if (get(hex).length % 2 != 0) {
+            return;
+          }
+          sourceBytes = hexToBytesLocal(get(hex));
+          break;
+        case 2:
+          sourceBytes = fromB58(get(base58));
+          break;
+        case 3:
+          sourceBytes = fromB64(get(base64));
+          break;
+        case 4:
+          sourceBytes = new TextEncoder().encode(get(utf8));
+          break;
+        case 5:
+          if (get(bcsNumber) === "") {
+            sourceBytes = [];
+            set(bcsNumberType, "");
+            break;
+          }
+          sourceBytes = bcs.u64().serialize(get(bcsNumber)).toBytes();
+          break;
+      }
+      if (source != 0) {
+        set(bytes, sourceBytes);
+      }
+      set(hex, toHEX(sourceBytes));
+      set(base58, toB58(sourceBytes));
+      set(base64, toB64(sourceBytes));
+      set(utf8, bytesToUtf8(sourceBytes));
+      const integerResult = bcsBytesToInteger(sourceBytes);
+      set(bcsNumber, integerResult.value);
+      if (get(bytes).length === 0) {
+        set(bcsNumber, "");
+        set(bcsNumberType, "");
+      } else {
+        set(bcsNumberType, integerResult.type);
+      }
+    } catch (err) {
+      try {
+        set(error, JSON.stringify(JSON.parse(err.message).payload.error));
+      } catch (e) {
+        set(error, err);
+      }
+    }
+  }
+  function hexToBytesLocal(hex2) {
+    var re = /^(0[xX])?[A-Fa-f0-9]+$/;
+    if (!re.test(hex2)) {
+      console.error("invalid hex");
+      throw "invalid hex";
+    }
+    if (hex2.toLowerCase().startsWith("0x")) {
+      hex2 = hex2.slice(2, hex2.length);
+    }
+    return hexToBytes(hex2);
+  }
+  function convertToIota() {
+    set(error, "");
+    try {
+      if (get(nano)) {
+        set(iota, nanoToIota(get(nano)));
+        set(iotaWithUnderscore, get(iota).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1_"));
+        set(nanoWithUnderscore, get(nano).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1_"));
+      } else {
+        set(iota, "");
+      }
+    } catch (err) {
+      set(error, err);
+    }
+  }
+  function convertToNano() {
+    set(error, "");
+    try {
+      if (get(iota)) {
+        set(nano, iotaToNano(get(iota)));
+        set(iotaWithUnderscore, get(iota).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1_"));
+        set(nanoWithUnderscore, get(nano).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1_"));
+      } else {
+        set(nano, "");
+      }
+    } catch (err) {
+      set(error, err);
+    }
+  }
+  init();
+  var main = root();
+  var div = child(main);
+  var div_1 = sibling(child(div), 2);
+  var input = child(div_1);
+  var div_2 = sibling(div_1, 4);
+  var input_1 = child(div_2);
+  var div_3 = sibling(div_2, 4);
+  var input_2 = child(div_3);
+  var div_4 = sibling(div_3, 4);
+  var input_3 = child(div_4);
+  var div_5 = sibling(div_4, 4);
+  var input_4 = child(div_5);
+  var div_6 = sibling(div_5, 2);
+  var text = child(div_6);
+  var div_7 = sibling(div_6, 2);
+  var input_5 = child(div_7);
+  var div_8 = sibling(div, 4);
+  var div_9 = sibling(child(div_8), 2);
+  var input_6 = child(div_9);
+  var text_1 = sibling(input_6);
+  var div_10 = sibling(div_9, 4);
+  var input_7 = child(div_10);
+  var text_2 = sibling(input_7);
+  var div_11 = sibling(div_8, 4);
+  var div_12 = child(div_11);
+  var button = sibling(child(div_12), 2);
+  var div_13 = sibling(div_12, 2);
+  var textarea = child(div_13);
+  bind_this(textarea, ($$value) => set(txBytesTextarea, $$value), () => get(txBytesTextarea));
+  var node = sibling(div_11, 2);
+  TransactionView(node, {
+    get value() {
+      return get(value);
+    }
+  });
+  var text_3 = sibling(node, 3);
+  template_effect(() => {
+    set_text(text, `number (from/to BCS bytes): ${get(bcsNumberType) ?? ""}`);
+    set_text(text_1, ` ${get(nanoWithUnderscore) ?? ""}`);
+    set_text(text_2, ` ${get(iotaWithUnderscore) ?? ""}`);
+    set_text(text_3, ` ${get(error) ?? ""}`);
+  });
+  bind_value(input, () => get(bytes), ($$value) => set(bytes, $$value));
+  event("input", input, () => convert(SourceType.Bytes));
+  bind_value(input_1, () => get(hex), ($$value) => set(hex, $$value));
+  event("input", input_1, () => convert(SourceType.Hex));
+  bind_value(input_2, () => get(base64), ($$value) => set(base64, $$value));
+  event("input", input_2, () => convert(SourceType.Base64));
+  bind_value(input_3, () => get(base58), ($$value) => set(base58, $$value));
+  event("input", input_3, () => convert(SourceType.Base58));
+  bind_value(input_4, () => get(utf8), ($$value) => set(utf8, $$value));
+  event("input", input_4, () => convert(SourceType.UTF8));
+  bind_value(input_5, () => get(bcsNumber), ($$value) => set(bcsNumber, $$value));
+  event("input", input_5, () => convert(SourceType.BcsNumber));
+  bind_value(input_6, () => get(nano), ($$value) => set(nano, $$value));
+  event("input", input_6, () => convertToIota());
+  bind_value(input_7, () => get(iota), ($$value) => set(iota, $$value));
+  event("input", input_7, () => convertToNano());
+  event("click", button, insertExampleTx);
+  event("input", textarea, (event2) => {
+    let inputString = event2.target.value;
+    try {
+      let txBytes = fromB64(inputString);
+      set(value, TransactionDataBuilder.fromBytes(txBytes));
+    } catch (e) {
+      console.log("error TransactionDataBuilder", e);
+      try {
+        set(value, iotaBcs.SenderSignedData.parse(fromB64(inputString))[0]);
+      } catch (e2) {
+        console.log("error SenderSignedData", e2);
+        set(value, e2);
+      }
+    }
+  });
+  append($$anchor, main);
+  pop();
+}
+export {
+  Converter as default
+};

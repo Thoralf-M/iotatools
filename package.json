@@ -5,7 +5,7 @@
     "scripts": {
         "dev": "vite",
         "prettier:fix": "prettier -w --ignore-unknown .",
-        "build": "vite build && rm -rf docs && mv dist docs && sed -i 's|/assets|./assets|g' docs/index.html && sed -i 's|debug2(|JSON.stringify(|g' docs/assets/*.js",
+        "build": "vite build && rm -rf docs && mv dist docs && sed -i 's|/assets|./assets|g' docs/index.html && sed -i 's|debug2(|JSON.stringify(|g' docs/assets/*.js && sed -i 's|module.exports = debug;||g' docs/assets/*.js",
         "preview": "vite preview",
         "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json"
     },
@@ -55,6 +55,7 @@
         "qr-scanner": "^1.4.2",
         "qrcode-generator": "^2.0.2",
         "svelte-dnd-action": "^0.9.64",
+        "svelte-spa-router": "^4.0.1",
         "svelte-virtual": "^0.6.3",
         "uuid": "^11.1.0"
     }
