@@ -1,58 +1,77 @@
 <script>
+    import Router from 'svelte-spa-router';
+    import { wrap } from 'svelte-spa-router/wrap';
+
     import Options from './lib/Options.svelte';
-    import AccountsList from './lib/pages/AccountsList.svelte';
-    import BulkTransfer from './lib/pages/BulkTransfer.svelte';
-    import Converter from './lib/pages/Converter.svelte';
-    import DynamicFields from './lib/pages/DynamicFields.svelte';
-    import Ed25519AddressGeneration from './lib/pages/Ed25519AddressGeneration.svelte';
-    import Faucet from './lib/pages/Faucet.svelte';
-    import IotaNames from './lib/pages/IotaNames.svelte';
-    import IotaSystemState from './lib/pages/IotaSystemState.svelte';
-    import Keystone from './lib/pages/Keystone.svelte';
-    import LedgerNano from './lib/pages/LedgerNano.svelte';
-    import MultiAccountView from './lib/pages/MultiAccountView.svelte';
-    import ProgrammableTransactionBlock from './lib/pages/ProgrammableTransactionBlock.svelte';
-    import PTBs from './lib/pages/PTBs.svelte';
-    import PublishData from './lib/pages/PublishData.svelte';
-    import Settings from './lib/pages/Settings.svelte';
-    import SplitMergeCoins from './lib/pages/SplitMergeCoins.svelte';
-    import Stake from './lib/pages/Stake.svelte';
-    import StakingRewards from './lib/pages/StakingRewards.svelte';
-    import TextAnalyzer from './lib/pages/TextAnalyzer.svelte';
     import Signer from './lib/Signer.svelte';
     import Tabs from './lib/Tabs.svelte';
 
-    // List of tab items with labels, values, assigned components, and group
+    // Lazy-load page components using dynamic imports
+    const pageImports = {
+        IotaSystemState: () => import('./lib/pages/IotaSystemState.svelte'),
+        PTBs: () => import('./lib/pages/PTBs.svelte'),
+        DynamicFields: () => import('./lib/pages/DynamicFields.svelte'),
+        StakingRewards: () => import('./lib/pages/StakingRewards.svelte'),
+        MultiAccountView: () => import('./lib/pages/MultiAccountView.svelte'),
+        AccountsList: () => import('./lib/pages/AccountsList.svelte'),
+        Keystone: () => import('./lib/pages/Keystone.svelte'),
+        LedgerNano: () => import('./lib/pages/LedgerNano.svelte'),
+        PublishData: () => import('./lib/pages/PublishData.svelte'),
+        SplitMergeCoins: () => import('./lib/pages/SplitMergeCoins.svelte'),
+        BulkTransfer: () => import('./lib/pages/BulkTransfer.svelte'),
+        Stake: () => import('./lib/pages/Stake.svelte'),
+        Faucet: () => import('./lib/pages/Faucet.svelte'),
+        Converter: () => import('./lib/pages/Converter.svelte'),
+        TextAnalyzer: () => import('./lib/pages/TextAnalyzer.svelte'),
+        Ed25519AddressGeneration: () => import('./lib/pages/Ed25519AddressGeneration.svelte'),
+        IotaNames: () => import('./lib/pages/IotaNames.svelte'),
+        Settings: () => import('./lib/pages/Settings.svelte'),
+    };
+
+    // Route definitions: map route paths to lazy-loaded components using wrap
+    const routes = {
+        '/': wrap({ asyncComponent: pageImports['IotaSystemState'] }),
+        '/iota-system-state': wrap({ asyncComponent: pageImports['IotaSystemState'] }),
+        '/ptbs': wrap({ asyncComponent: pageImports['PTBs'] }),
+        '/dynamic-fields': wrap({ asyncComponent: pageImports['DynamicFields'] }),
+        '/staking-rewards': wrap({ asyncComponent: pageImports['StakingRewards'] }),
+        '/multi-account-view': wrap({ asyncComponent: pageImports['MultiAccountView'] }),
+        '/accounts-list': wrap({ asyncComponent: pageImports['AccountsList'] }),
+        '/keystone': wrap({ asyncComponent: pageImports['Keystone'] }),
+        '/ledger-nano': wrap({ asyncComponent: pageImports['LedgerNano'] }),
+        '/publish-data': wrap({ asyncComponent: pageImports['PublishData'] }),
+        '/split-merge-coins': wrap({ asyncComponent: pageImports['SplitMergeCoins'] }),
+        '/bulk-transfer': wrap({ asyncComponent: pageImports['BulkTransfer'] }),
+        '/stake': wrap({ asyncComponent: pageImports['Stake'] }),
+        '/faucet': wrap({ asyncComponent: pageImports['Faucet'] }),
+        '/converter': wrap({ asyncComponent: pageImports['Converter'] }),
+        '/text-analyzer': wrap({ asyncComponent: pageImports['TextAnalyzer'] }),
+        '/address-generation': wrap({ asyncComponent: pageImports['Ed25519AddressGeneration'] }),
+        '/iota-names': wrap({ asyncComponent: pageImports['IotaNames'] }),
+        '/settings': wrap({ asyncComponent: pageImports['Settings'] }),
+    };
+
+    // Tab items with route paths
     let items = [
-        // Info
-        { label: 'IOTA System State', component: IotaSystemState, group: 'Info' },
-        { label: 'PTBs', component: PTBs, group: 'Info' },
-        { label: 'Dynamic Fields', component: DynamicFields, group: 'Info' },
-        { label: 'Staking Rewards', component: StakingRewards, group: 'Info' },
-        // Wallet
-        { label: 'Multi Account View', component: MultiAccountView, group: 'Wallet' },
-        { label: 'Accounts List', component: AccountsList, group: 'Wallet' },
-        { label: 'Keystone', component: Keystone, group: 'Wallet' },
-        { label: 'LedgerNano', component: LedgerNano, group: 'Wallet' },
-        // Transactions
-        { label: 'Publish Data', component: PublishData, group: 'Transactions' },
-        { label: 'Split Merge Coins', component: SplitMergeCoins, group: 'Transactions' },
-        { label: 'Bulk Transfer', component: BulkTransfer, group: 'Transactions' },
-        { label: 'Stake', component: Stake, group: 'Transactions' },
-        // Utilities
-        { label: 'Faucet', component: Faucet, group: 'Utilities' },
-        { label: 'Converter', component: Converter, group: 'Utilities' },
-        { label: 'Text Analyzer', component: TextAnalyzer, group: 'Utilities' },
-        {
-            label: 'Address generation',
-            component: Ed25519AddressGeneration,
-            group: 'Utilities',
-        },
-        // Other
-        { label: 'IOTA-Names', component: IotaNames, group: 'Other' },
-        { label: '⚙ Settings', component: Settings, group: 'Other' },
+        { label: 'IOTA System State', route: '/iota-system-state', group: 'Info' },
+        { label: 'PTBs', route: '/ptbs', group: 'Info' },
+        { label: 'Dynamic Fields', route: '/dynamic-fields', group: 'Info' },
+        { label: 'Staking Rewards', route: '/staking-rewards', group: 'Info' },
+        { label: 'Multi Account View', route: '/multi-account-view', group: 'Wallet' },
+        { label: 'Accounts List', route: '/accounts-list', group: 'Wallet' },
+        { label: 'Keystone', route: '/keystone', group: 'Wallet' },
+        { label: 'LedgerNano', route: '/ledger-nano', group: 'Wallet' },
+        { label: 'Publish Data', route: '/publish-data', group: 'Transactions' },
+        { label: 'Split Merge Coins', route: '/split-merge-coins', group: 'Transactions' },
+        { label: 'Bulk Transfer', route: '/bulk-transfer', group: 'Transactions' },
+        { label: 'Stake', route: '/stake', group: 'Transactions' },
+        { label: 'Faucet', route: '/faucet', group: 'Utilities' },
+        { label: 'Converter', route: '/converter', group: 'Utilities' },
+        { label: 'Text Analyzer', route: '/text-analyzer', group: 'Utilities' },
+        { label: 'Address generation', route: '/address-generation', group: 'Utilities' },
+        { label: 'IOTA-Names', route: '/iota-names', group: 'Other' },
+        { label: '⚙ Settings', route: '/settings', group: 'Other' },
     ].map((e, index) => {
-        // @ts-ignore
         e.value = index;
         return e;
     });
@@ -69,6 +88,9 @@
     <div class="app-content">
         <Signer />
         <Tabs {items} />
+        <div class="pageBox">
+            <Router {routes} />
+        </div>
     </div>
 
     <footer class="app-footer">
@@ -113,6 +135,25 @@
         flex: 1;
         display: flex;
         flex-direction: column;
+    }
+
+    .pageBox {
+        padding: 2rem;
+        background: rgba(24, 29, 37, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(156, 163, 175, 0.2);
+        border-radius: 16px16px 16px 16px;
+        box-shadow:
+            0 4px 6px -1px rgba(0, 0, 0, 0.2),
+            0 2px 4px -1px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .pageBox:hover {
+        border-color: rgba(156, 163, 175, 0.4);
+        box-shadow:
+            0 10px 15px -3px rgba(0, 0, 0, 0.3),
+            0 4px 6px -2px rgba(0, 0, 0, 0.1);
     }
 
     .app-footer {
@@ -160,6 +201,9 @@
         .github-link {
             padding: 0.6rem 1.2rem;
             font-size: 0.9rem;
+        }
+        .pageBox {
+            padding: 1.5rem;
         }
     }
 </style>

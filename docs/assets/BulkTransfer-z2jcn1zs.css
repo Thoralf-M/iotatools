@@ -1,0 +1,21 @@
+
+    button.svelte-12h7i3q {
+        margin: 0.5rem;
+    }
+
+    textarea.svelte-12h7i3q {
+        font-family: monospace;
+        font-size: 14px;
+        padding: 0.5rem;
+
+        border: 1px solid #cccccc;
+    }
+
+    textarea.error.svelte-12h7i3q {
+        border-color: #ff4444;
+    }
+
+    textarea.error.svelte-12h7i3q:focus {
+        border-color: #ff4444;
+        outline: none;
+    }

@@ -1,14 +1,13 @@
 <script lang="ts">
+    import { link, location } from 'svelte-spa-router';
+
+    let currentRoute = '';
+    $: currentRoute = $location;
+
     export let items: any[] = [];
-    let activeTabs = JSON.parse(localStorage.getItem('activeTabs') || '[0]');
 
     // Get unique groups from items
     $: groups = Array.from(new Set(items.map((item) => item.group)));
-
-    const handleClick = (tabValue: number) => () => {
-        activeTabs[0] = tabValue;
-        localStorage.setItem('activeTabs', JSON.stringify(activeTabs));
-    };
 </script>
 
 <div class="tab-groups-row">
@@ -17,21 +16,16 @@
             <div class="group-label">{group}</div>
             <div class="tab-buttons-row">
                 {#each items.filter((item) => item.group === group) as item}
-                    <button
-                        class={activeTabs.includes(item.value) ? 'active' : ''}
-                        on:click={handleClick(item.value)}>{item.label}</button
-                    >
+                    <a href={item.route} use:link>
+                        <button class={$location === item.route ? 'active' : ''}
+                            >{item.label}</button
+                        >
+                    </a>
                 {/each}
             </div>
         </div>
     {/each}
 </div>
-
-{#each items as item}
-    <div class="pageBox" hidden={!activeTabs.includes(item.value)}>
-        <svelte:component this={item.component} />
-    </div>
-{/each}
 
 <style>
     .tab-groups-row {
@@ -69,6 +63,10 @@
         gap: 0.1rem;
         width: 100%;
     }
+    a {
+        margin: 0;
+        padding: 0;
+    }
     button {
         border: 1px solid rgba(156, 163, 175, 0.1);
         border-radius: 12px;
@@ -99,34 +97,11 @@
         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
     }
 
-    .pageBox {
-        padding: 2rem;
-        background: rgba(24, 29, 37, 0.8);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(156, 163, 175, 0.2);
-        border-radius: 16px16px 16px 16px;
-        box-shadow:
-            0 4px 6px -1px rgba(0, 0, 0, 0.2),
-            0 2px 4px -1px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-    }
-
-    .pageBox:hover {
-        border-color: rgba(156, 163, 175, 0.4);
-        box-shadow:
-            0 10px 15px -3px rgba(0, 0, 0, 0.3),
-            0 4px 6px -2px rgba(0, 0, 0, 0.1);
-    }
-
     /* Mobile responsiveness */
     @media (max-width: 768px) {
         button {
             padding: 0.5rem 0.75rem;
             font-size: 0.85rem;
-        }
-
-        .pageBox {
-            padding: 1.5rem;
         }
     }
 
@@ -134,10 +109,6 @@
         button {
             padding: 0.4rem 0.6rem;
             font-size: 0.8rem;
-        }
-
-        .pageBox {
-            padding: 1rem;
         }
     }
 </style>
