@@ -21,6 +21,7 @@
         "prettier-plugin-svelte": "^3.4.0",
         "svelte": "^5.37.3",
         "svelte-check": "^4.3.1",
+        "tsx": "^4.20.3",
         "typescript": "^5.9.2",
         "vite": "^6.3.5"
     },
@@ -36,6 +37,7 @@
         "@iota/wallet-standard": "^0.2.12",
         "@ledgerhq/hw-transport-webhid": "^6.30.4",
         "@lezer/highlight": "^1.2.1",
+        "@msgpack/msgpack": "^3.1.2",
         "@noble/hashes": "^1.8.0",
         "@rollup/plugin-inject": "^5.0.5",
         "@scure/bip39": "^1.6.0",
@@ -48,6 +50,7 @@
         "chartjs-plugin-zoom": "^2.2.0",
         "codemirror": "^6.0.2",
         "date-fns": "^4.1.0",
+        "pako": "^2.1.0",
         "process": "^0.11.10",
         "qr-scanner": "^1.4.2",
         "qrcode-generator": "^2.0.2",

@@ -41,6 +41,9 @@ importers:
       '@lezer/highlight':
         specifier: ^1.2.1
         version: 1.2.1
+      '@msgpack/msgpack':
+        specifier: ^3.1.2
+        version: 3.1.2
       '@noble/hashes':
         specifier: ^1.8.0
         version: 1.8.0
@@ -77,6 +80,9 @@ importers:
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
+      pako:
+        specifier: ^2.1.0
+        version: 2.1.0
       process:
         specifier: ^0.11.10
         version: 0.11.10
@@ -101,7 +107,7 @@ importers:
         version: 4.5.1(prettier@3.6.2)
       '@sveltejs/vite-plugin-svelte':
         specifier: ^5.1.1
-        version: 5.1.1(svelte@5.37.3)(vite@6.3.5(@types/node@24.2.0)(terser@5.43.1))
+        version: 5.1.1(svelte@5.37.3)(vite@6.3.5(@types/node@24.2.0)(terser@5.43.1)(tsx@4.20.3))
       '@tsconfig/svelte':
         specifier: ^5.0.4
         version: 5.0.4
@@ -126,12 +132,15 @@ importers:
       svelte-check:
         specifier: ^4.3.1
         version: 4.3.1(picomatch@4.0.3)(svelte@5.37.3)(typescript@5.9.2)
+      tsx:
+        specifier: ^4.20.3
+        version: 4.20.3
       typescript:
         specifier: ^5.9.2
         version: 5.9.2
       vite:
         specifier: ^6.3.5
-        version: 6.3.5(@types/node@24.2.0)(terser@5.43.1)
+        version: 6.3.5(@types/node@24.2.0)(terser@5.43.1)(tsx@4.20.3)
 
 packages:
 
@@ -494,6 +503,10 @@ packages:
   '@marijn/find-cluster-break@1.0.2':
     resolution: {integrity: sha512-l0h88YhZFyKdXIFNfSWpyjStDjGHwZ/U7iobcK1cQQD8sejsONdQtTVU+1wVN1PBw40PiiHB1vA5S7VTfQiP9g==}
 
+  '@msgpack/msgpack@3.1.2':
+    resolution: {integrity: sha512-JEW4DEtBzfe8HvUYecLU9e6+XJnKDlUAIve8FvPzF3Kzs6Xo/KuZkZJsDH0wJXl/qEZbeeE7edxDNY3kMs39hQ==}
+    engines: {node: '>= 18'}
+
   '@noble/curves@1.9.6':
     resolution: {integrity: sha512-GIKz/j99FRthB8icyJQA51E8Uk5hXmdyThjgQXRKiv9h0zeRlzSCLIzFw6K1LotZ3XuB7yzlf76qk7uBmTdFqA==}
     engines: {node: ^14.21.3 || >=16}
@@ -838,6 +851,9 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
+  get-tsconfig@4.10.1:
+    resolution: {integrity: sha512-auHyJ4AgMz7vgS8Hp3N6HXSmlMdUyhSUrfBF16w153rxtLIEOE+HGqaBppczZvnHLqQJfiHotCYpNhl0lUROFQ==}
+
   gql.tada@1.8.12:
     resolution: {integrity: sha512-VuHbhYyhPN7XDc06Gl3jYWxMlqa1MLX5xbrmbBbzelX/+M5khxDsNBE7FvTEvAmx0RyLyDkEtRPWRfIdMCTKTw==}
     hasBin: true
@@ -891,6 +907,9 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  pako@2.1.0:
+    resolution: {integrity: sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug==}
+
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
@@ -926,6 +945,9 @@ packages:
   readdirp@4.1.2:
     resolution: {integrity: sha512-GDhwkLfywWL2s6vEjyhri+eXmfH6j1L7JE27WhqLeYzoh/A3DBaYGEj2H/HFZCn/kMfim73FXxEJTw06WtxQwg==}
     engines: {node: '>= 14.18.0'}
+
+  resolve-pkg-maps@1.0.0:
+    resolution: {integrity: sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==}
 
   rollup@4.46.2:
     resolution: {integrity: sha512-WMmLFI+Boh6xbop+OAGo9cQ3OgX9MIg7xOQjn+pTCwOkk+FNDAeAemXkJ3HzDJrVXleLOFVa1ipuc1AmEx1Dwg==}
@@ -992,6 +1014,11 @@ packages:
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
+
+  tsx@4.20.3:
+    resolution: {integrity: sha512-qjbnuR9Tr+FJOMBqJCW5ehvIo/buZq7vH7qD7JziU98h6l3qGy0a/yPFjwO+y0/T7GFpNgNAvEcPPVfyT8rrPQ==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
 
   tweetnacl@1.0.3:
     resolution: {integrity: sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==}
@@ -1445,6 +1472,8 @@ snapshots:
 
   '@marijn/find-cluster-break@1.0.2': {}
 
+  '@msgpack/msgpack@3.1.2': {}
+
   '@noble/curves@1.9.6':
     dependencies:
       '@noble/hashes': 1.8.0
@@ -1550,25 +1579,25 @@ snapshots:
     dependencies:
       svelte: 5.37.3
 
-  '@sveltejs/vite-plugin-svelte-inspector@4.0.1(@sveltejs/vite-plugin-svelte@5.1.1(svelte@5.37.3)(vite@6.3.5(@types/node@24.2.0)(terser@5.43.1)))(svelte@5.37.3)(vite@6.3.5(@types/node@24.2.0)(terser@5.43.1))':
+  '@sveltejs/vite-plugin-svelte-inspector@4.0.1(@sveltejs/vite-plugin-svelte@5.1.1(svelte@5.37.3)(vite@6.3.5(@types/node@24.2.0)(terser@5.43.1)(tsx@4.20.3)))(svelte@5.37.3)(vite@6.3.5(@types/node@24.2.0)(terser@5.43.1)(tsx@4.20.3))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 5.1.1(svelte@5.37.3)(vite@6.3.5(@types/node@24.2.0)(terser@5.43.1))
+      '@sveltejs/vite-plugin-svelte': 5.1.1(svelte@5.37.3)(vite@6.3.5(@types/node@24.2.0)(terser@5.43.1)(tsx@4.20.3))
       debug: 4.4.1
       svelte: 5.37.3
-      vite: 6.3.5(@types/node@24.2.0)(terser@5.43.1)
+      vite: 6.3.5(@types/node@24.2.0)(terser@5.43.1)(tsx@4.20.3)
     transitivePeerDependencies:
       - supports-color
 
-  '@sveltejs/vite-plugin-svelte@5.1.1(svelte@5.37.3)(vite@6.3.5(@types/node@24.2.0)(terser@5.43.1))':
+  '@sveltejs/vite-plugin-svelte@5.1.1(svelte@5.37.3)(vite@6.3.5(@types/node@24.2.0)(terser@5.43.1)(tsx@4.20.3))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte-inspector': 4.0.1(@sveltejs/vite-plugin-svelte@5.1.1(svelte@5.37.3)(vite@6.3.5(@types/node@24.2.0)(terser@5.43.1)))(svelte@5.37.3)(vite@6.3.5(@types/node@24.2.0)(terser@5.43.1))
+      '@sveltejs/vite-plugin-svelte-inspector': 4.0.1(@sveltejs/vite-plugin-svelte@5.1.1(svelte@5.37.3)(vite@6.3.5(@types/node@24.2.0)(terser@5.43.1)(tsx@4.20.3)))(svelte@5.37.3)(vite@6.3.5(@types/node@24.2.0)(terser@5.43.1)(tsx@4.20.3))
       debug: 4.4.1
       deepmerge: 4.3.1
       kleur: 4.1.5
       magic-string: 0.30.17
       svelte: 5.37.3
-      vite: 6.3.5(@types/node@24.2.0)(terser@5.43.1)
-      vitefu: 1.1.1(vite@6.3.5(@types/node@24.2.0)(terser@5.43.1))
+      vite: 6.3.5(@types/node@24.2.0)(terser@5.43.1)(tsx@4.20.3)
+      vitefu: 1.1.1(vite@6.3.5(@types/node@24.2.0)(terser@5.43.1)(tsx@4.20.3))
     transitivePeerDependencies:
       - supports-color
 
@@ -1756,6 +1785,10 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
+  get-tsconfig@4.10.1:
+    dependencies:
+      resolve-pkg-maps: 1.0.0
+
   gql.tada@1.8.12(graphql@16.11.0)(typescript@5.9.2):
     dependencies:
       '@0no-co/graphql.web': 1.2.0(graphql@16.11.0)
@@ -1798,6 +1831,8 @@ snapshots:
 
   nanoid@3.3.11: {}
 
+  pako@2.1.0: {}
+
   picocolors@1.1.1: {}
 
   picomatch@4.0.3: {}
@@ -1824,6 +1859,8 @@ snapshots:
   qrcode-generator@2.0.2: {}
 
   readdirp@4.1.2: {}
+
+  resolve-pkg-maps@1.0.0: {}
 
   rollup@4.46.2:
     dependencies:
@@ -1926,6 +1963,13 @@ snapshots:
 
   tslib@2.8.1: {}
 
+  tsx@4.20.3:
+    dependencies:
+      esbuild: 0.25.8
+      get-tsconfig: 4.10.1
+    optionalDependencies:
+      fsevents: 2.3.3
+
   tweetnacl@1.0.3: {}
 
   typescript@5.9.2: {}
@@ -1936,7 +1980,7 @@ snapshots:
 
   valibot@0.36.0: {}
 
-  vite@6.3.5(@types/node@24.2.0)(terser@5.43.1):
+  vite@6.3.5(@types/node@24.2.0)(terser@5.43.1)(tsx@4.20.3):
     dependencies:
       esbuild: 0.25.8
       fdir: 6.4.6(picomatch@4.0.3)
@@ -1948,10 +1992,11 @@ snapshots:
       '@types/node': 24.2.0
       fsevents: 2.3.3
       terser: 5.43.1
+      tsx: 4.20.3
 
-  vitefu@1.1.1(vite@6.3.5(@types/node@24.2.0)(terser@5.43.1)):
+  vitefu@1.1.1(vite@6.3.5(@types/node@24.2.0)(terser@5.43.1)(tsx@4.20.3)):
     optionalDependencies:
-      vite: 6.3.5(@types/node@24.2.0)(terser@5.43.1)
+      vite: 6.3.5(@types/node@24.2.0)(terser@5.43.1)(tsx@4.20.3)
 
   w3c-keyname@2.2.8: {}
 

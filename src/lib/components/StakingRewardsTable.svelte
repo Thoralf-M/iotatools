@@ -250,6 +250,28 @@
                                                           ) / 1_000_000_000
                                                       ).toFixed(2) + ' IOTA'}
                                             </span>
+                                            {#if stakeObject.principalByEpoch[epochs[index]] && stakeObject.principalByEpoch[epochs[index - 1]] && stakeObject.principalByEpoch[epochs[index]] !== stakeObject.principalByEpoch[epochs[index - 1]]}
+                                                <span class="principal-change-tooltip">
+                                                    <span class="principal-change-icon">❗</span>
+                                                    <span class="principal-tooltip-text">
+                                                        Principal amount changed from
+                                                        {(
+                                                            Number(
+                                                                stakeObject.principalByEpoch[
+                                                                    epochs[index - 1]
+                                                                ],
+                                                            ) / 1_000_000_000
+                                                        ).toFixed(2)} IOTA to
+                                                        {(
+                                                            Number(
+                                                                stakeObject.principalByEpoch[
+                                                                    epochs[index]
+                                                                ],
+                                                            ) / 1_000_000_000
+                                                        ).toFixed(2)} IOTA
+                                                    </span>
+                                                </span>
+                                            {/if}
                                             <div class="stake-popup">
                                                 <div>
                                                     Rewards this epoch: {(
@@ -507,5 +529,38 @@
         cursor: pointer;
         font-weight: bold;
         color: #38a169;
+    }
+
+    .principal-change-tooltip {
+        position: relative;
+        display: inline-block;
+        margin-left: 6px;
+    }
+    .principal-change-icon {
+        color: #ff9800;
+        font-size: 1.2em;
+        cursor: pointer;
+        vertical-align: middle;
+    }
+    .principal-tooltip-text {
+        visibility: hidden;
+        width: max-content;
+        background-color: #232b3a;
+        color: #fff;
+        text-align: left;
+        border-radius: 6px;
+        padding: 8px 12px;
+        position: absolute;
+        z-index: 10000;
+        left: 50%;
+        bottom: 120%;
+        transform: translateX(-50%);
+        box-shadow: 0 2px 8px #0002;
+        font-size: 0.95em;
+        white-space: pre-line;
+        border: 1px solid #ff9800;
+    }
+    .principal-change-tooltip:hover .principal-tooltip-text {
+        visibility: visible;
     }
 </style>
