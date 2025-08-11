@@ -87,10 +87,29 @@
 
     <div class="app-content">
         <Signer />
-        <Tabs {items} />
-        <div class="pageBox">
-            <Router {routes} />
-        </div>
+        <Tabs
+            {items}
+            tabComponents={{
+                '/iota-system-state': pageImports.IotaSystemState,
+                '/ptbs': pageImports.PTBs,
+                '/dynamic-fields': pageImports.DynamicFields,
+                '/staking-rewards': pageImports.StakingRewards,
+                '/multi-account-view': pageImports.MultiAccountView,
+                '/accounts-list': pageImports.AccountsList,
+                '/keystone': pageImports.Keystone,
+                '/ledger-nano': pageImports.LedgerNano,
+                '/publish-data': pageImports.PublishData,
+                '/split-merge-coins': pageImports.SplitMergeCoins,
+                '/bulk-transfer': pageImports.BulkTransfer,
+                '/stake': pageImports.Stake,
+                '/faucet': pageImports.Faucet,
+                '/converter': pageImports.Converter,
+                '/text-analyzer': pageImports.TextAnalyzer,
+                '/address-generation': pageImports.Ed25519AddressGeneration,
+                '/iota-names': pageImports.IotaNames,
+                '/settings': pageImports.Settings,
+            }}
+        />
     </div>
 
     <footer class="app-footer">
@@ -135,25 +154,6 @@
         flex: 1;
         display: flex;
         flex-direction: column;
-    }
-
-    .pageBox {
-        padding: 2rem;
-        background: rgba(24, 29, 37, 0.8);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(156, 163, 175, 0.2);
-        border-radius: 16px16px 16px 16px;
-        box-shadow:
-            0 4px 6px -1px rgba(0, 0, 0, 0.2),
-            0 2px 4px -1px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-    }
-
-    .pageBox:hover {
-        border-color: rgba(156, 163, 175, 0.4);
-        box-shadow:
-            0 10px 15px -3px rgba(0, 0, 0, 0.3),
-            0 4px 6px -2px rgba(0, 0, 0, 0.1);
     }
 
     .app-footer {
@@ -201,9 +201,6 @@
         .github-link {
             padding: 0.6rem 1.2rem;
             font-size: 0.9rem;
-        }
-        .pageBox {
-            padding: 1.5rem;
         }
     }
 </style>

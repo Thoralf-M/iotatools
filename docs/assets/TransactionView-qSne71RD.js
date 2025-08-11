@@ -1,7 +1,6 @@
-import { a0 as bcs, N as fromB64, p as push, r as prop, w as legacy_pre_effect, j as set, m as mutable_source, x as deep_read_state, g as get, y as legacy_pre_effect_reset, i as init, f as from_html, b as if_block, c as child, k as append, l as pop, G as first_child, s as sibling, C as untrack, t as template_effect, I as set_attribute, d as set_text, J as comment, z as each, A as index, _ as derived_safe_equal, H as text, K as set_class, e as event } from "/iota-utils/assets/index-BnYhK8oQ.js";
-import { f as formatJsonWithCompactArrays, r as removeKindFields, i as isTransactionData, g as getTransactionData, R as Root } from "/iota-utils/assets/transaction-view-D84UYr3l.js";
-import { s as set_style } from "/iota-utils/assets/style-CPwsKZh8.js";
-import { a as formatNumberWithUnderscores, n as nanoToIota } from "/iota-utils/assets/iota-nano-conversion-BN70dJwt.js";
+import { a1 as bcs, O as fromB64, p as push, r as prop, w as legacy_pre_effect, j as set, m as mutable_source, x as deep_read_state, g as get, y as legacy_pre_effect_reset, i as init, f as from_html, b as if_block, c as child, k as append, l as pop, G as first_child, s as sibling, C as untrack, t as template_effect, J as set_attribute, d as set_text, I as set_style, K as comment, z as each, A as index, $ as derived_safe_equal, H as text, L as set_class, e as event } from "/iota-utils/assets/index-DQ2bHYtd.js";
+import { f as formatJsonWithCompactArrays, r as removeKindFields, i as isTransactionData, g as getTransactionData, R as Root } from "/iota-utils/assets/transaction-view-UUMqIsYl.js";
+import { a as formatNumberWithUnderscores, n as nanoToIota } from "/iota-utils/assets/iota-nano-conversion-z5qFk9Ov.js";
 function bytesToUtf8(bytes) {
   try {
     return new TextDecoder().decode(new Uint8Array(bytes));

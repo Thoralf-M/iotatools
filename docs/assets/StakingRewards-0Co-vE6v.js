@@ -10,14 +10,13 @@ var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot
 var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
 var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
 var _listeners, _observer, _options, _ResizeObserverSingleton_instances, getObserver_fn;
-import { Z as effect, C as untrack, p as push, r as prop, w as legacy_pre_effect, j as set, m as mutable_source, x as deep_read_state, g as get, y as legacy_pre_effect_reset, f as from_html, b as if_block, c as child, s as sibling, z as each, t as template_effect, e as event, k as append, l as pop, J as comment, G as first_child, _ as derived_safe_equal, H as text, i as init, A as index, d as set_text, $ as action, o as mutate, T as getSelectedNetworkConfig, M as toB64, a0 as bcs, V as store_get, E as bind_value, U as setup_stores, a1 as activeAddress, Y as delegate } from "/iota-utils/assets/index-BnYhK8oQ.js";
-import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-DSuOfcyF.js";
-import { s as set_style } from "/iota-utils/assets/style-CPwsKZh8.js";
-import { b as bind_this } from "/iota-utils/assets/this-lhlH9jsk.js";
-import { s as sanitize_slots, a as slot } from "/iota-utils/assets/transaction-view-D84UYr3l.js";
-import { b as bind_prop } from "/iota-utils/assets/props-D-Q2s4a6.js";
-import { E as EpochPTBAnalyzer } from "/iota-utils/assets/index-C8LxPBX8.js";
-import { I as IotaGraphQLClient } from "/iota-utils/assets/index-BBHJ0dF4.js";
+import { _ as effect, C as untrack, p as push, r as prop, w as legacy_pre_effect, j as set, m as mutable_source, x as deep_read_state, g as get, y as legacy_pre_effect_reset, f as from_html, b as if_block, c as child, s as sibling, z as each, t as template_effect, I as set_style, e as event, k as append, l as pop, K as comment, G as first_child, $ as derived_safe_equal, H as text, i as init, A as index, d as set_text, a0 as action, o as mutate, U as getSelectedNetworkConfig, N as toB64, a1 as bcs, W as store_get, E as bind_value, V as setup_stores, a2 as activeAddress, Z as delegate } from "/iota-utils/assets/index-DQ2bHYtd.js";
+import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-BAztsTPk.js";
+import { b as bind_this } from "/iota-utils/assets/this-DHhlXNIM.js";
+import { s as sanitize_slots, a as slot } from "/iota-utils/assets/transaction-view-UUMqIsYl.js";
+import { b as bind_prop } from "/iota-utils/assets/props-BSwp6hro.js";
+import { E as EpochPTBAnalyzer } from "/iota-utils/assets/index-DSz9yfgj.js";
+import { I as IotaGraphQLClient } from "/iota-utils/assets/index-BJp_IuEY.js";
 const _ResizeObserverSingleton = class _ResizeObserverSingleton {
   /** @param {ResizeObserverOptions} options */
   constructor(options) {

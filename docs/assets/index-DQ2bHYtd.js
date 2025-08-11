@@ -1,4 +1,4 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["iota-utils/assets/IotaSystemState-BY8N85IO.js","iota-utils/assets/JsonToggleView-DSuOfcyF.js","iota-utils/assets/transaction-view-D84UYr3l.js","iota-utils/assets/transaction-view-BucjpHvO.css","iota-utils/assets/JsonToggleView-FheaJgbA.css","iota-utils/assets/iota-nano-conversion-BN70dJwt.js","iota-utils/assets/IotaSystemState-DJm4xoge.css","iota-utils/assets/PTBs-CNV7ssue.js","iota-utils/assets/style-CPwsKZh8.js","iota-utils/assets/this-lhlH9jsk.js","iota-utils/assets/TransactionView-BslK_vRY.js","iota-utils/assets/TransactionView-BYIzDu-1.css","iota-utils/assets/index-C8LxPBX8.js","iota-utils/assets/index-BBHJ0dF4.js","iota-utils/assets/PTBs-BlFTUzXd.css","iota-utils/assets/DynamicFields-Dtz8j5iC.js","iota-utils/assets/StakingRewards-DPjncYW-.js","iota-utils/assets/props-D-Q2s4a6.js","iota-utils/assets/StakingRewards-CKCBxqmG.css","iota-utils/assets/MultiAccountView-CPdefOms.js","iota-utils/assets/MultiAccountView-D61lEXHE.css","iota-utils/assets/AccountsList-B_bf7szz.js","iota-utils/assets/AccountsList-e96FKZJa.css","iota-utils/assets/Keystone-PevettkV.js","iota-utils/assets/index-DDJ5SC1F.js","iota-utils/assets/Keystone-CLSPZRvC.css","iota-utils/assets/LedgerNano-LUBtSblX.js","iota-utils/assets/LedgerNano-QxKjjy9Y.css","iota-utils/assets/PublishData-B2fAt_I7.js","iota-utils/assets/transaction-execution-CVwcsiKm.js","iota-utils/assets/SplitMergeCoins-DJh52H_9.js","iota-utils/assets/BulkTransfer-DCzyNtY5.js","iota-utils/assets/BulkTransfer-z2jcn1zs.css","iota-utils/assets/Stake-DU96ynGD.js","iota-utils/assets/Faucet-CFkIlwA6.js","iota-utils/assets/Converter-DhJXtp1i.js","iota-utils/assets/Converter-BB97tH9s.css","iota-utils/assets/TextAnalyzer-BEnttCHA.js","iota-utils/assets/TextAnalyzer-BeSUleA5.css","iota-utils/assets/Ed25519AddressGeneration-O6WVM6q9.js","iota-utils/assets/Ed25519AddressGeneration-Bk9cmk1E.css","iota-utils/assets/IotaNames-1qCJgPrO.js","iota-utils/assets/Settings-DFcu6MjN.js","iota-utils/assets/Settings-CK220tqd.css"])))=>i.map(i=>d[i]);
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["iota-utils/assets/IotaSystemState-D3sc2u7f.js","iota-utils/assets/JsonToggleView-BAztsTPk.js","iota-utils/assets/transaction-view-UUMqIsYl.js","iota-utils/assets/transaction-view-BucjpHvO.css","iota-utils/assets/JsonToggleView-FheaJgbA.css","iota-utils/assets/iota-nano-conversion-z5qFk9Ov.js","iota-utils/assets/IotaSystemState-DJm4xoge.css","iota-utils/assets/PTBs-C2XSShV6.js","iota-utils/assets/this-DHhlXNIM.js","iota-utils/assets/TransactionView-qSne71RD.js","iota-utils/assets/TransactionView-BYIzDu-1.css","iota-utils/assets/index-DSz9yfgj.js","iota-utils/assets/index-BJp_IuEY.js","iota-utils/assets/PTBs-BlFTUzXd.css","iota-utils/assets/DynamicFields-DsX6wmvD.js","iota-utils/assets/StakingRewards-0Co-vE6v.js","iota-utils/assets/props-BSwp6hro.js","iota-utils/assets/StakingRewards-CKCBxqmG.css","iota-utils/assets/MultiAccountView-C6cLcGm_.js","iota-utils/assets/MultiAccountView-D61lEXHE.css","iota-utils/assets/AccountsList-Dk5hF7VW.js","iota-utils/assets/AccountsList-e96FKZJa.css","iota-utils/assets/Keystone-CTbS3s2f.js","iota-utils/assets/index-DDJ5SC1F.js","iota-utils/assets/Keystone-CLSPZRvC.css","iota-utils/assets/LedgerNano-DYEVczdy.js","iota-utils/assets/LedgerNano-QxKjjy9Y.css","iota-utils/assets/PublishData-DrBA1hM7.js","iota-utils/assets/transaction-execution-8LbwSYam.js","iota-utils/assets/SplitMergeCoins-GJNZ8hAs.js","iota-utils/assets/BulkTransfer-Dcbdjosq.js","iota-utils/assets/BulkTransfer-z2jcn1zs.css","iota-utils/assets/Stake-CcFqoxtA.js","iota-utils/assets/Faucet-vwAVxKde.js","iota-utils/assets/Converter-CtwrSyCD.js","iota-utils/assets/Converter-BB97tH9s.css","iota-utils/assets/TextAnalyzer-BLgvLXYq.js","iota-utils/assets/TextAnalyzer-BeSUleA5.css","iota-utils/assets/Ed25519AddressGeneration-DiyrUIC0.js","iota-utils/assets/Ed25519AddressGeneration-Bk9cmk1E.css","iota-utils/assets/IotaNames-DvNxUxka.js","iota-utils/assets/Settings-CcH_znL7.js","iota-utils/assets/Settings-CK220tqd.css"])))=>i.map(i=>d[i]);
 var __defProp = Object.defineProperty;
 var __typeError = (msg) => {
   throw TypeError(msg);
@@ -161,11 +161,6 @@ function effect_orphan(rune) {
 function effect_update_depth_exceeded() {
   {
     throw new Error(`https://svelte.dev/e/effect_update_depth_exceeded`);
-  }
-}
-function lifecycle_legacy_only(name) {
-  {
-    throw new Error(`https://svelte.dev/e/lifecycle_legacy_only`);
   }
 }
 function props_invalid_value(key) {
@@ -3135,6 +3130,21 @@ function set_class(dom, is_html, value, hash, prev_classes, next_classes) {
   }
   return next_classes;
 }
+function set_style(dom, value, prev_styles, next_styles) {
+  var prev = dom.__style;
+  if (prev !== value) {
+    var next_style_attr = to_style(value);
+    {
+      if (next_style_attr == null) {
+        dom.removeAttribute("style");
+      } else {
+        dom.style.cssText = next_style_attr;
+      }
+    }
+    dom.__style = value;
+  }
+  return next_styles;
+}
 function select_option(select, value, mounting = false) {
   if (select.multiple) {
     if (value == void 0) {
@@ -3455,17 +3465,6 @@ function observe_all(context, props) {
     for (const signal of context.l.s) get$2(signal);
   }
   props();
-}
-function bubble_event($$props, event2) {
-  var _a2;
-  var events = (
-    /** @type {Record<string, Function[] | Function>} */
-    (_a2 = $$props.$$events) == null ? void 0 : _a2[event2.type]
-  );
-  var callbacks = is_array(events) ? events.slice() : events == null ? [] : [events];
-  for (var fn of callbacks) {
-    fn.call(this, event2);
-  }
 }
 function subscribe_to_store(store5, run2, invalidate) {
   if (store5 == null) {
@@ -3880,15 +3879,6 @@ function createEventDispatcher() {
     return true;
   };
 }
-function afterUpdate(fn) {
-  if (component_context === null) {
-    lifecycle_outside_component();
-  }
-  if (component_context.l === null) {
-    lifecycle_legacy_only();
-  }
-  init_update_callbacks(component_context).a.push(fn);
-}
 function init_update_callbacks(context) {
   var l = (
     /** @type {ComponentContextLegacy} */
@@ -3975,30 +3965,6 @@ if (typeof window !== "undefined") {
   ((_a = window.__svelte ?? (window.__svelte = {})).v ?? (_a.v = /* @__PURE__ */ new Set())).add(PUBLIC_VERSION);
 }
 enable_legacy_mode_flag();
-function parse$1(str, loose) {
-  if (str instanceof RegExp) return { keys: false, pattern: str };
-  var c, o, tmp, ext, keys = [], pattern = "", arr = str.split("/");
-  arr[0] || arr.shift();
-  while (tmp = arr.shift()) {
-    c = tmp[0];
-    if (c === "*") {
-      keys.push("wild");
-      pattern += "/(.*)";
-    } else if (c === ":") {
-      o = tmp.indexOf("?", 1);
-      ext = tmp.indexOf(".", 1);
-      keys.push(tmp.substring(1, !!~o ? o : !!~ext ? ext : tmp.length));
-      pattern += !!~o && !~ext ? "(?:/([^/]+?))?" : "/([^/]+?)";
-      if (!!~ext) pattern += (!!~o ? "?" : "") + "\\" + tmp.substring(ext);
-    } else {
-      pattern += "/" + tmp;
-    }
-  }
-  return {
-    keys,
-    pattern: new RegExp("^" + pattern + "/?$", "i")
-  };
-}
 function getLocation() {
   const hashPosition = window.location.href.indexOf("#/");
   let location2 = hashPosition > -1 ? window.location.href.substr(hashPosition + 1) : "/";
@@ -4026,7 +3992,6 @@ const loc = readable(
 );
 const location = derived(loc, (_loc) => _loc.location);
 derived(loc, (_loc) => _loc.querystring);
-const params = writable(void 0);
 function link(node, opts) {
   opts = linkOpts(opts);
   if (!node || !node.tagName || node.tagName.toLowerCase() != "a") {
@@ -4039,13 +4004,6 @@ function link(node, opts) {
       updateLink(node, updated);
     }
   };
-}
-function restoreScroll(state2) {
-  if (state2) {
-    window.scrollTo(state2.__svelte_spa_router_scrollX, state2.__svelte_spa_router_scrollY);
-  } else {
-    window.scrollTo(0, 0);
-  }
 }
 function updateLink(node, opts) {
   let href = opts.href || node.getAttribute("href");
@@ -4079,265 +4037,6 @@ function scrollstateHistoryHandler(href) {
     void 0
   );
   window.location.hash = href;
-}
-function Router($$anchor, $$props) {
-  push($$props, false);
-  let routes = prop($$props, "routes", 24, () => ({}));
-  let prefix = prop($$props, "prefix", 8, "");
-  let restoreScrollState = prop($$props, "restoreScrollState", 8, false);
-  class RouteItem {
-    /**
-     * Initializes the object and creates a regular expression from the path, using regexparam.
-     *
-     * @param {string} path - Path to the route (must start with '/' or '*')
-     * @param {SvelteComponent|WrappedComponent} component - Svelte component for the route, optionally wrapped
-     */
-    constructor(path, component2) {
-      if (!component2 || typeof component2 != "function" && (typeof component2 != "object" || component2._sveltesparouter !== true)) {
-        throw Error("Invalid component object");
-      }
-      if (!path || typeof path == "string" && (path.length < 1 || path.charAt(0) != "/" && path.charAt(0) != "*") || typeof path == "object" && !(path instanceof RegExp)) {
-        throw Error('Invalid value for "path" argument - strings must start with / or *');
-      }
-      const { pattern, keys } = parse$1(path);
-      this.path = path;
-      if (typeof component2 == "object" && component2._sveltesparouter === true) {
-        this.component = component2.component;
-        this.conditions = component2.conditions || [];
-        this.userData = component2.userData;
-        this.props = component2.props || {};
-      } else {
-        this.component = () => Promise.resolve(component2);
-        this.conditions = [];
-        this.props = {};
-      }
-      this._pattern = pattern;
-      this._keys = keys;
-    }
-    /**
-     * Checks if `path` matches the current route.
-     * If there's a match, will return the list of parameters from the URL (if any).
-     * In case of no match, the method will return `null`.
-     *
-     * @param {string} path - Path to test
-     * @returns {null|Object.<string, string>} List of paramters from the URL if there's a match, or `null` otherwise.
-     */
-    match(path) {
-      if (prefix()) {
-        if (typeof prefix() == "string") {
-          if (path.startsWith(prefix())) {
-            path = path.substr(prefix().length) || "/";
-          } else {
-            return null;
-          }
-        } else if (prefix() instanceof RegExp) {
-          const match = path.match(prefix());
-          if (match && match[0]) {
-            path = path.substr(match[0].length) || "/";
-          } else {
-            return null;
-          }
-        }
-      }
-      const matches = this._pattern.exec(path);
-      if (matches === null) {
-        return null;
-      }
-      if (this._keys === false) {
-        return matches;
-      }
-      const out = {};
-      let i = 0;
-      while (i < this._keys.length) {
-        try {
-          out[this._keys[i]] = decodeURIComponent(matches[i + 1] || "") || null;
-        } catch (e) {
-          out[this._keys[i]] = null;
-        }
-        i++;
-      }
-      return out;
-    }
-    /**
-     * Dictionary with route details passed to the pre-conditions functions, as well as the `routeLoading`, `routeLoaded` and `conditionsFailed` events
-     * @typedef {Object} RouteDetail
-     * @property {string|RegExp} route - Route matched as defined in the route definition (could be a string or a reguar expression object)
-     * @property {string} location - Location path
-     * @property {string} querystring - Querystring from the hash
-     * @property {object} [userData] - Custom data passed by the user
-     * @property {SvelteComponent} [component] - Svelte component (only in `routeLoaded` events)
-     * @property {string} [name] - Name of the Svelte component (only in `routeLoaded` events)
-     */
-    /**
-     * Executes all conditions (if any) to control whether the route can be shown. Conditions are executed in the order they are defined, and if a condition fails, the following ones aren't executed.
-     * 
-     * @param {RouteDetail} detail - Route detail
-     * @returns {boolean} Returns true if all the conditions succeeded
-     */
-    async checkConditions(detail) {
-      for (let i = 0; i < this.conditions.length; i++) {
-        if (!await this.conditions[i](detail)) {
-          return false;
-        }
-      }
-      return true;
-    }
-  }
-  const routesList = [];
-  if (routes() instanceof Map) {
-    routes().forEach((route, path) => {
-      routesList.push(new RouteItem(path, route));
-    });
-  } else {
-    Object.keys(routes()).forEach((path) => {
-      routesList.push(new RouteItem(path, routes()[path]));
-    });
-  }
-  let component$1 = /* @__PURE__ */ mutable_source(null);
-  let componentParams = /* @__PURE__ */ mutable_source(null);
-  let props = /* @__PURE__ */ mutable_source({});
-  const dispatch = createEventDispatcher();
-  async function dispatchNextTick(name, detail) {
-    await tick();
-    dispatch(name, detail);
-  }
-  let previousScrollState = null;
-  let popStateChanged = null;
-  if (restoreScrollState()) {
-    popStateChanged = (event2) => {
-      if (event2.state && (event2.state.__svelte_spa_router_scrollY || event2.state.__svelte_spa_router_scrollX)) {
-        previousScrollState = event2.state;
-      } else {
-        previousScrollState = null;
-      }
-    };
-    window.addEventListener("popstate", popStateChanged);
-    afterUpdate(() => {
-      restoreScroll(previousScrollState);
-    });
-  }
-  let lastLoc = null;
-  let componentObj = null;
-  const unsubscribeLoc = loc.subscribe(async (newLoc) => {
-    lastLoc = newLoc;
-    let i = 0;
-    while (i < routesList.length) {
-      const match = routesList[i].match(newLoc.location);
-      if (!match) {
-        i++;
-        continue;
-      }
-      const detail = {
-        route: routesList[i].path,
-        location: newLoc.location,
-        querystring: newLoc.querystring,
-        userData: routesList[i].userData,
-        params: match && typeof match == "object" && Object.keys(match).length ? match : null
-      };
-      if (!await routesList[i].checkConditions(detail)) {
-        set(component$1, null);
-        componentObj = null;
-        dispatchNextTick("conditionsFailed", detail);
-        return;
-      }
-      dispatchNextTick("routeLoading", Object.assign({}, detail));
-      const obj = routesList[i].component;
-      if (componentObj != obj) {
-        if (obj.loading) {
-          set(component$1, obj.loading);
-          componentObj = obj;
-          set(componentParams, obj.loadingParams);
-          set(props, {});
-          dispatchNextTick("routeLoaded", Object.assign({}, detail, {
-            component: get$2(component$1),
-            name: get$2(component$1).name,
-            params: get$2(componentParams)
-          }));
-        } else {
-          set(component$1, null);
-          componentObj = null;
-        }
-        const loaded = await obj();
-        if (newLoc != lastLoc) {
-          return;
-        }
-        set(component$1, loaded && loaded.default || loaded);
-        componentObj = obj;
-      }
-      if (match && typeof match == "object" && Object.keys(match).length) {
-        set(componentParams, match);
-      } else {
-        set(componentParams, null);
-      }
-      set(props, routesList[i].props);
-      dispatchNextTick("routeLoaded", Object.assign({}, detail, {
-        component: get$2(component$1),
-        name: get$2(component$1).name,
-        params: get$2(componentParams)
-      })).then(() => {
-        params.set(get$2(componentParams));
-      });
-      return;
-    }
-    set(component$1, null);
-    componentObj = null;
-    params.set(void 0);
-  });
-  onDestroy(() => {
-    unsubscribeLoc();
-    popStateChanged && window.removeEventListener("popstate", popStateChanged);
-  });
-  legacy_pre_effect(() => deep_read_state(restoreScrollState()), () => {
-    history.scrollRestoration = restoreScrollState() ? "manual" : "auto";
-  });
-  legacy_pre_effect_reset();
-  init();
-  var fragment = comment();
-  var node_1 = first_child(fragment);
-  {
-    var consequent = ($$anchor2) => {
-      var fragment_1 = comment();
-      var node_2 = first_child(fragment_1);
-      component(node_2, () => get$2(component$1), ($$anchor3, $$component) => {
-        $$component($$anchor3, spread_props(
-          {
-            get params() {
-              return get$2(componentParams);
-            }
-          },
-          () => get$2(props),
-          {
-            $$events: {
-              routeEvent($$arg) {
-                bubble_event.call(this, $$props, $$arg);
-              }
-            }
-          }
-        ));
-      });
-      append($$anchor2, fragment_1);
-    };
-    var alternate = ($$anchor2) => {
-      var fragment_2 = comment();
-      var node_3 = first_child(fragment_2);
-      component(node_3, () => get$2(component$1), ($$anchor3, $$component) => {
-        $$component($$anchor3, spread_props(() => get$2(props), {
-          $$events: {
-            routeEvent($$arg) {
-              bubble_event.call(this, $$props, $$arg);
-            }
-          }
-        }));
-      });
-      append($$anchor2, fragment_2);
-    };
-    if_block(node_1, ($$render) => {
-      if (get$2(componentParams)) $$render(consequent);
-      else $$render(alternate, false);
-    });
-  }
-  append($$anchor, fragment);
-  pop();
 }
 function wrap$1(args) {
   if (!args) {
@@ -7785,8 +7484,8 @@ function _createCurveFields(type, CURVE, curveOpts = {}, FpFnLE) {
   const Fp = createField(CURVE.p, curveOpts.Fp, FpFnLE);
   const Fn = createField(CURVE.n, curveOpts.Fn, FpFnLE);
   const _b = "b";
-  const params2 = ["Gx", "Gy", "a", _b];
-  for (const p of params2) {
+  const params = ["Gx", "Gy", "a", _b];
+  for (const p of params) {
     if (!Fp.isValid(CURVE[p]))
       throw new Error(`CURVE.${p} must be valid field element of CURVE.Fp`);
   }
@@ -7952,8 +7651,8 @@ function _normFnElement(Fn, key) {
     throw new Error("invalid private key: out of range [1..N-1]");
   return num;
 }
-function weierstrassN(params2, extraOpts = {}) {
-  const validated = _createCurveFields("weierstrass", params2, extraOpts);
+function weierstrassN(params, extraOpts = {}) {
+  const validated = _createCurveFields("weierstrass", params, extraOpts);
   const { Fp, Fn } = validated;
   let CURVE = validated.CURVE;
   const { h: cofactor, n: CURVE_ORDER } = CURVE;
@@ -13570,7 +13269,7 @@ let WebsocketClient$1 = class WebsocketClient {
     }
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async makeRequest(method, params2) {
+  async makeRequest(method, params) {
     const webSocket = await __privateMethod$6(this, _WebsocketClient_instances$1, setupWebSocket_fn$1).call(this);
     return new Promise((resolve, reject) => {
       __privateSet$7(this, _requestId$3, __privateGet$7(this, _requestId$3) + 1);
@@ -13582,7 +13281,7 @@ let WebsocketClient$1 = class WebsocketClient {
           reject(new Error(`Request timeout: ${method}`));
         }, this.options.callTimeout)
       });
-      webSocket.send(JSON.stringify({ jsonrpc: "2.0", id: __privateGet$7(this, _requestId$3), method, params: params2 }));
+      webSocket.send(JSON.stringify({ jsonrpc: "2.0", id: __privateGet$7(this, _requestId$3), method, params }));
     }).then(({ error, result }) => {
       if (error) {
         throw new JsonRpcError$1(error.message, error.code);
@@ -13639,11 +13338,11 @@ setupWebSocket_fn$1 = function() {
         clearTimeout(timeout);
         resolve2(json);
       } else if ("params" in json) {
-        const { params: params2 } = json;
+        const { params } = json;
         __privateGet$7(this, _subscriptions$1).forEach((subscription) => {
-          if (subscription.subscriptionId === params2.subscription) {
-            if (params2.subscription === subscription.subscriptionId) {
-              subscription.onMessage(params2.result);
+          if (subscription.subscriptionId === params.subscription) {
+            if (params.subscription === subscription.subscriptionId) {
+              subscription.onMessage(params.result);
             }
           }
         });
@@ -17364,8 +17063,8 @@ async function normalizeInputs$1(transactionData, options) {
           return;
         }
         const hasTxContext = parameters.length > 0 && isTxContext$1(parameters.at(-1));
-        const params2 = hasTxContext ? parameters.slice(0, parameters.length - 1) : parameters;
-        moveCall._argumentTypes = params2;
+        const params = hasTxContext ? parameters.slice(0, parameters.length - 1) : parameters;
+        moveCall._argumentTypes = params;
       })
     );
   }
@@ -17375,14 +17074,14 @@ async function normalizeInputs$1(transactionData, options) {
     }
     const moveCall = command.MoveCall;
     const fnName = `${moveCall.package}::${moveCall.module}::${moveCall.function}`;
-    const params2 = moveCall._argumentTypes;
-    if (!params2) {
+    const params = moveCall._argumentTypes;
+    if (!params) {
       return;
     }
-    if (params2.length !== command.MoveCall.arguments.length) {
+    if (params.length !== command.MoveCall.arguments.length) {
       throw new Error(`Incorrect number of arguments for ${fnName}`);
     }
-    params2.forEach((param, i) => {
+    params.forEach((param, i) => {
       var _a2, _b;
       const arg = moveCall.arguments[i];
       if (arg.$kind !== "Input") return;
@@ -24387,7 +24086,7 @@ class WebsocketClient2 {
     }
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async makeRequest(method, params2) {
+  async makeRequest(method, params) {
     const webSocket = await __privateMethod$2(this, _WebsocketClient_instances, setupWebSocket_fn).call(this);
     return new Promise((resolve, reject) => {
       __privateSet$2(this, _requestId$1, __privateGet$2(this, _requestId$1) + 1);
@@ -24399,7 +24098,7 @@ class WebsocketClient2 {
           reject(new Error(`Request timeout: ${method}`));
         }, this.options.callTimeout)
       });
-      webSocket.send(JSON.stringify({ jsonrpc: "2.0", id: __privateGet$2(this, _requestId$1), method, params: params2 }));
+      webSocket.send(JSON.stringify({ jsonrpc: "2.0", id: __privateGet$2(this, _requestId$1), method, params }));
     }).then(({ error, result }) => {
       if (error) {
         throw new JsonRpcError2(error.message, error.code);
@@ -24456,11 +24155,11 @@ setupWebSocket_fn = function() {
         clearTimeout(timeout);
         resolve2(json);
       } else if ("params" in json) {
-        const { params: params2 } = json;
+        const { params } = json;
         __privateGet$2(this, _subscriptions).forEach((subscription) => {
-          if (subscription.subscriptionId === params2.subscription) {
-            if (params2.subscription === subscription.subscriptionId) {
-              subscription.onMessage(params2.result);
+          if (subscription.subscriptionId === params.subscription) {
+            if (params.subscription === subscription.subscriptionId) {
+              subscription.onMessage(params.result);
             }
           }
         });
@@ -25835,8 +25534,8 @@ async function normalizeInputs(transactionData, options) {
           return;
         }
         const hasTxContext = parameters.length > 0 && isTxContext(parameters.at(-1));
-        const params2 = hasTxContext ? parameters.slice(0, parameters.length - 1) : parameters;
-        moveCall._argumentTypes = params2;
+        const params = hasTxContext ? parameters.slice(0, parameters.length - 1) : parameters;
+        moveCall._argumentTypes = params;
       })
     );
   }
@@ -25846,14 +25545,14 @@ async function normalizeInputs(transactionData, options) {
     }
     const moveCall = command.MoveCall;
     const fnName = `${moveCall.package}::${moveCall.module}::${moveCall.function}`;
-    const params2 = moveCall._argumentTypes;
-    if (!params2) {
+    const params = moveCall._argumentTypes;
+    if (!params) {
       return;
     }
-    if (params2.length !== command.MoveCall.arguments.length) {
+    if (params.length !== command.MoveCall.arguments.length) {
       throw new Error(`Incorrect number of arguments for ${fnName}`);
     }
-    params2.forEach((param, i) => {
+    params.forEach((param, i) => {
       var _a2, _b;
       const arg = moveCall.arguments[i];
       if (arg.$kind !== "Input") return;
@@ -26804,8 +26503,8 @@ class IotaClient {
    * @param method the method to be invoked
    * @param args the arguments to be passed to the RPC request
    */
-  async call(method, params2) {
-    return await this.transport.request({ method, params: params2 });
+  async call(method, params) {
+    return await this.transport.request({ method, params });
   }
   /**
    * Get Move function argument types like read, write and full access
@@ -27490,8 +27189,8 @@ function toWalletAccounts(sharedPrivateKeyAccounts2) {
   );
 }
 class PrivateKeyWallet {
-  async signAndExecuteTransaction(params2) {
-    let senderAddress = params2.account.address;
+  async signAndExecuteTransaction(params) {
+    let senderAddress = params.account.address;
     let senderAccount = get$1(sharedPrivateKeyAccounts).accounts[senderAddress];
     if (!senderAccount) {
       throw new Error(`No account found for address: ${senderAddress}`);
@@ -27500,9 +27199,9 @@ class PrivateKeyWallet {
     let client2 = getClient();
     return client2.signAndExecuteTransaction({
       // @ts-ignore
-      transaction: params2.transaction,
+      transaction: params.transaction,
       signer: keypair,
-      options: params2.options
+      options: params.options
     });
   }
 }
@@ -27838,7 +27537,7 @@ function setSigningWithPrivateKeyAccounts() {
   activeAddress.set(Object.keys(get$1(sharedPrivateKeyAccounts).accounts)[0]);
 }
 class ForeignAddressWallet {
-  async signAndExecuteTransaction(params2) {
+  async signAndExecuteTransaction(params) {
     return {
       errors: ["Foreign address wallet cannot sign and execute transactions."]
     };
@@ -27881,7 +27580,7 @@ var on_input = (__1, foreignAddress) => {
     updateSelectedSignerAccounts(get$2(foreignAddress));
   }
 };
-var root_3 = /* @__PURE__ */ from_html(`<input type="string" placeholder="any address, can't be used for signing"/>`);
+var root_3$1 = /* @__PURE__ */ from_html(`<input type="string" placeholder="any address, can't be used for signing"/>`);
 var root_4 = /* @__PURE__ */ from_html(`<option class="svelte-1b5880f"> </option>`);
 var on_click_1 = (__2, $activeAddress) => {
   navigator.clipboard.writeText($activeAddress());
@@ -27952,7 +27651,7 @@ function Signer2($$anchor, $$props) {
   var node_1 = sibling(node, 2);
   {
     var consequent_1 = ($$anchor2) => {
-      var input = root_3();
+      var input = root_3$1();
       let classes;
       input.__input = [on_input, foreignAddress];
       template_effect(($0) => classes = set_class(input, 1, "foreign-address-input svelte-1b5880f", null, classes, $0), [() => ({ "invalid-address": !get$2(isAddressValid) })]);
@@ -28005,9 +27704,10 @@ function Signer2($$anchor, $$props) {
   $$cleanup();
 }
 delegate(["change", "click", "input"]);
-var root_2 = /* @__PURE__ */ from_html(`<a class="svelte-166jz40"><button> </button></a>`);
-var root_1 = /* @__PURE__ */ from_html(`<div class="tab-group svelte-166jz40"><div class="group-label svelte-166jz40"> </div> <div class="tab-buttons-row svelte-166jz40"></div></div>`);
-var root$1 = /* @__PURE__ */ from_html(`<div class="tab-groups-row svelte-166jz40"></div>`);
+var root_2 = /* @__PURE__ */ from_html(`<a class="svelte-kdsnic"><button> </button></a>`);
+var root_1 = /* @__PURE__ */ from_html(`<div class="tab-group svelte-kdsnic"><div class="group-label svelte-kdsnic"> </div> <div class="tab-buttons-row svelte-kdsnic"></div></div>`);
+var root_3 = /* @__PURE__ */ from_html(`<div><!></div>`);
+var root$1 = /* @__PURE__ */ from_html(`<div class="tab-groups-row svelte-kdsnic"></div> <div class="tab-contents"><div class="pageBox svelte-kdsnic"></div></div>`, 1);
 function Tabs($$anchor, $$props) {
   push($$props, false);
   const [$$stores, $$cleanup] = setup_stores();
@@ -28015,15 +27715,30 @@ function Tabs($$anchor, $$props) {
   const groups = /* @__PURE__ */ mutable_source();
   let currentRoute = /* @__PURE__ */ mutable_source("");
   let items = prop($$props, "items", 24, () => []);
+  let loadedTabs = /* @__PURE__ */ mutable_source({});
+  let tabComponents = prop($$props, "tabComponents", 24, () => ({}));
+  async function loadTab(route) {
+    if (!get$2(loadedTabs)[route] && tabComponents()[route]) {
+      const mod2 = await tabComponents()[route]();
+      mutate(loadedTabs, get$2(loadedTabs)[route] = mod2.default);
+    }
+  }
+  onMount(() => {
+    loadTab($location());
+  });
   legacy_pre_effect(() => $location(), () => {
     set(currentRoute, $location());
   });
   legacy_pre_effect(() => deep_read_state(items()), () => {
     set(groups, Array.from(new Set(items().map((item) => item.group))));
   });
+  legacy_pre_effect(() => $location(), () => {
+    loadTab($location());
+  });
   legacy_pre_effect_reset();
   init();
-  var div = root$1();
+  var fragment = root$1();
+  var div = first_child(fragment);
   each(div, 5, () => get$2(groups), index, ($$anchor2, group) => {
     var div_1 = root_1();
     var div_2 = child(div_1);
@@ -28039,13 +27754,14 @@ function Tabs($$anchor, $$props) {
         var button = child(a);
         var text_1 = child(button);
         action(a, ($$node) => link == null ? void 0 : link($$node));
+        effect(() => event("click", a, () => loadTab(get$2(item).route)));
         template_effect(() => {
           set_attribute(a, "href", (get$2(item), untrack(() => get$2(item).route)));
           set_class(
             button,
             1,
             clsx(($location(), get$2(item), untrack(() => $location() === get$2(item).route ? "active" : ""))),
-            "svelte-166jz40"
+            "svelte-kdsnic"
           );
           set_text(text_1, (get$2(item), untrack(() => get$2(item).label)));
         });
@@ -28055,34 +27771,54 @@ function Tabs($$anchor, $$props) {
     template_effect(() => set_text(text2, get$2(group)));
     append($$anchor2, div_1);
   });
-  append($$anchor, div);
+  var div_4 = sibling(div, 2);
+  var div_5 = child(div_4);
+  each(
+    div_5,
+    5,
+    () => (get$2(loadedTabs), untrack(() => Object.entries(get$2(loadedTabs)))),
+    index,
+    ($$anchor2, $$item) => {
+      var $$array = /* @__PURE__ */ user_derived(() => to_array(get$2($$item), 2));
+      let route = () => get$2($$array)[0];
+      let TabComponent = () => get$2($$array)[1];
+      var div_6 = root_3();
+      var node = child(div_6);
+      component(node, TabComponent, ($$anchor3, $$component) => {
+        $$component($$anchor3, {});
+      });
+      template_effect(() => set_style(div_6, `display: ${route() === $location() ? "block" : "none"};`));
+      append($$anchor2, div_6);
+    }
+  );
+  append($$anchor, fragment);
   pop();
   $$cleanup();
 }
-var root = /* @__PURE__ */ from_html(`<main class="svelte-g3fao0"><header class="app-header svelte-g3fao0"><div class="header-row svelte-g3fao0"><div class="warning-banner svelte-g3fao0">Experimental website, use at your own risk.</div> <!></div></header> <div class="app-content svelte-g3fao0"><!> <!> <div class="pageBox svelte-g3fao0"><!></div></div> <footer class="app-footer svelte-g3fao0"><div class="footer-content svelte-g3fao0"><a href="https://github.com/Thoralf-M/iota-utils" target="_blank" rel="noopener noreferrer" class="github-link svelte-g3fao0">View on GitHub</a></div></footer></main>`);
+var root = /* @__PURE__ */ from_html(`<main class="svelte-1j87mpa"><header class="app-header svelte-1j87mpa"><div class="header-row svelte-1j87mpa"><div class="warning-banner svelte-1j87mpa">Experimental website, use at your own risk.</div> <!></div></header> <div class="app-content svelte-1j87mpa"><!> <!></div> <footer class="app-footer svelte-1j87mpa"><div class="footer-content svelte-1j87mpa"><a href="https://github.com/Thoralf-M/iota-utils" target="_blank" rel="noopener noreferrer" class="github-link svelte-1j87mpa">View on GitHub</a></div></footer></main>`);
 function App($$anchor, $$props) {
   push($$props, false);
   const pageImports = {
-    IotaSystemState: () => __vitePreload(() => import("./IotaSystemState-BY8N85IO.js"), true ? __vite__mapDeps([0,1,2,3,4,5,6]) : void 0),
-    PTBs: () => __vitePreload(() => import("./PTBs-CNV7ssue.js"), true ? __vite__mapDeps([7,8,9,10,2,3,5,11,12,13,14]) : void 0),
-    DynamicFields: () => __vitePreload(() => import("./DynamicFields-Dtz8j5iC.js"), true ? __vite__mapDeps([15,1,2,3,4,13]) : void 0),
-    StakingRewards: () => __vitePreload(() => import("./StakingRewards-DPjncYW-.js"), true ? __vite__mapDeps([16,1,2,3,4,8,9,17,12,13,18]) : void 0),
-    MultiAccountView: () => __vitePreload(() => import("./MultiAccountView-CPdefOms.js"), true ? __vite__mapDeps([19,8,10,2,3,5,11,20]) : void 0),
-    AccountsList: () => __vitePreload(() => import("./AccountsList-B_bf7szz.js"), true ? __vite__mapDeps([21,22]) : void 0),
-    Keystone: () => __vitePreload(() => import("./Keystone-PevettkV.js"), true ? __vite__mapDeps([23,9,24,17,8,10,2,3,5,11,25]) : void 0),
-    LedgerNano: () => __vitePreload(() => import("./LedgerNano-LUBtSblX.js"), true ? __vite__mapDeps([26,24,1,2,3,4,27]) : void 0),
-    PublishData: () => __vitePreload(() => import("./PublishData-B2fAt_I7.js"), true ? __vite__mapDeps([28,10,2,3,8,5,11,29,6]) : void 0),
-    SplitMergeCoins: () => __vitePreload(() => import("./SplitMergeCoins-DJh52H_9.js"), true ? __vite__mapDeps([30,1,2,3,4,10,8,5,11,29,6]) : void 0),
-    BulkTransfer: () => __vitePreload(() => import("./BulkTransfer-DCzyNtY5.js"), true ? __vite__mapDeps([31,10,2,3,8,5,11,29,32]) : void 0),
-    Stake: () => __vitePreload(() => import("./Stake-DU96ynGD.js"), true ? __vite__mapDeps([33,1,2,3,4,5,29,6]) : void 0),
-    Faucet: () => __vitePreload(() => import("./Faucet-CFkIlwA6.js"), true ? __vite__mapDeps([34,1,2,3,4,6]) : void 0),
-    Converter: () => __vitePreload(() => import("./Converter-DhJXtp1i.js"), true ? __vite__mapDeps([35,9,10,2,3,8,5,11,36]) : void 0),
-    TextAnalyzer: () => __vitePreload(() => import("./TextAnalyzer-BEnttCHA.js"), true ? __vite__mapDeps([37,8,38]) : void 0),
-    Ed25519AddressGeneration: () => __vitePreload(() => import("./Ed25519AddressGeneration-O6WVM6q9.js"), true ? __vite__mapDeps([39,40]) : void 0),
-    IotaNames: () => __vitePreload(() => import("./IotaNames-1qCJgPrO.js"), true ? __vite__mapDeps([41,13,10,2,3,8,5,11,29,6]) : void 0),
-    Settings: () => __vitePreload(() => import("./Settings-DFcu6MjN.js"), true ? __vite__mapDeps([42,43]) : void 0)
+    IotaSystemState: () => __vitePreload(() => import("./IotaSystemState-D3sc2u7f.js"), true ? __vite__mapDeps([0,1,2,3,4,5,6]) : void 0),
+    PTBs: () => __vitePreload(() => import("./PTBs-C2XSShV6.js"), true ? __vite__mapDeps([7,8,9,2,3,5,10,11,12,13]) : void 0),
+    DynamicFields: () => __vitePreload(() => import("./DynamicFields-DsX6wmvD.js"), true ? __vite__mapDeps([14,1,2,3,4,12]) : void 0),
+    StakingRewards: () => __vitePreload(() => import("./StakingRewards-0Co-vE6v.js"), true ? __vite__mapDeps([15,1,2,3,4,8,16,11,12,17]) : void 0),
+    MultiAccountView: () => __vitePreload(() => import("./MultiAccountView-C6cLcGm_.js"), true ? __vite__mapDeps([18,9,2,3,5,10,19]) : void 0),
+    AccountsList: () => __vitePreload(() => import("./AccountsList-Dk5hF7VW.js"), true ? __vite__mapDeps([20,21]) : void 0),
+    Keystone: () => __vitePreload(() => import("./Keystone-CTbS3s2f.js"), true ? __vite__mapDeps([22,8,23,16,9,2,3,5,10,24]) : void 0),
+    LedgerNano: () => __vitePreload(() => import("./LedgerNano-DYEVczdy.js"), true ? __vite__mapDeps([25,23,1,2,3,4,26]) : void 0),
+    PublishData: () => __vitePreload(() => import("./PublishData-DrBA1hM7.js"), true ? __vite__mapDeps([27,9,2,3,5,10,28,6]) : void 0),
+    SplitMergeCoins: () => __vitePreload(() => import("./SplitMergeCoins-GJNZ8hAs.js"), true ? __vite__mapDeps([29,1,2,3,4,9,5,10,28,6]) : void 0),
+    BulkTransfer: () => __vitePreload(() => import("./BulkTransfer-Dcbdjosq.js"), true ? __vite__mapDeps([30,9,2,3,5,10,28,31]) : void 0),
+    Stake: () => __vitePreload(() => import("./Stake-CcFqoxtA.js"), true ? __vite__mapDeps([32,1,2,3,4,5,28,6]) : void 0),
+    Faucet: () => __vitePreload(() => import("./Faucet-vwAVxKde.js"), true ? __vite__mapDeps([33,1,2,3,4,6]) : void 0),
+    Converter: () => __vitePreload(() => import("./Converter-CtwrSyCD.js"), true ? __vite__mapDeps([34,8,9,2,3,5,10,35]) : void 0),
+    TextAnalyzer: () => __vitePreload(() => import("./TextAnalyzer-BLgvLXYq.js"), true ? __vite__mapDeps([36,37]) : void 0),
+    Ed25519AddressGeneration: () => __vitePreload(() => import("./Ed25519AddressGeneration-DiyrUIC0.js"), true ? __vite__mapDeps([38,39]) : void 0),
+    IotaNames: () => __vitePreload(() => import("./IotaNames-DvNxUxka.js"), true ? __vite__mapDeps([40,12,9,2,3,5,10,28,6]) : void 0),
+    Settings: () => __vitePreload(() => import("./Settings-CcH_znL7.js"), true ? __vite__mapDeps([41,42]) : void 0)
   };
-  const routes = {
+  ({
     "/": wrap$1({ asyncComponent: pageImports["IotaSystemState"] }),
     "/iota-system-state": wrap$1({ asyncComponent: pageImports["IotaSystemState"] }),
     "/ptbs": wrap$1({ asyncComponent: pageImports["PTBs"] }),
@@ -28102,7 +27838,7 @@ function App($$anchor, $$props) {
     "/address-generation": wrap$1({ asyncComponent: pageImports["Ed25519AddressGeneration"] }),
     "/iota-names": wrap$1({ asyncComponent: pageImports["IotaNames"] }),
     "/settings": wrap$1({ asyncComponent: pageImports["Settings"] })
-  };
+  });
   let items = [
     {
       label: "IOTA System State",
@@ -28176,25 +27912,43 @@ function App($$anchor, $$props) {
   var node_1 = child(div_1);
   Signer2(node_1, {});
   var node_2 = sibling(node_1, 2);
-  Tabs(node_2, {
-    get items() {
-      return items;
-    }
-  });
-  var div_2 = sibling(node_2, 2);
-  var node_3 = child(div_2);
-  Router(node_3, {
-    get routes() {
-      return routes;
-    }
-  });
+  {
+    let $0 = /* @__PURE__ */ derived_safe_equal(() => ({
+      "/iota-system-state": pageImports.IotaSystemState,
+      "/ptbs": pageImports.PTBs,
+      "/dynamic-fields": pageImports.DynamicFields,
+      "/staking-rewards": pageImports.StakingRewards,
+      "/multi-account-view": pageImports.MultiAccountView,
+      "/accounts-list": pageImports.AccountsList,
+      "/keystone": pageImports.Keystone,
+      "/ledger-nano": pageImports.LedgerNano,
+      "/publish-data": pageImports.PublishData,
+      "/split-merge-coins": pageImports.SplitMergeCoins,
+      "/bulk-transfer": pageImports.BulkTransfer,
+      "/stake": pageImports.Stake,
+      "/faucet": pageImports.Faucet,
+      "/converter": pageImports.Converter,
+      "/text-analyzer": pageImports.TextAnalyzer,
+      "/address-generation": pageImports.Ed25519AddressGeneration,
+      "/iota-names": pageImports.IotaNames,
+      "/settings": pageImports.Settings
+    }));
+    Tabs(node_2, {
+      get items() {
+        return items;
+      },
+      get tabComponents() {
+        return get$2($0);
+      }
+    });
+  }
   append($$anchor, main);
   pop();
 }
 const target = document.getElementById("app");
 mount(App, { target });
 export {
-  action as $,
+  derived_safe_equal as $,
   index as A,
   init_select as B,
   untrack as C,
@@ -28203,53 +27957,53 @@ export {
   bind_group as F,
   first_child as G,
   text as H,
-  set_attribute as I,
-  comment as J,
-  set_class as K,
-  iotaBcs$1 as L,
-  toB64$1 as M,
-  fromB64$1 as N,
-  blake2b$1 as O,
-  bytesToHex as P,
-  proxy as Q,
-  user_effect as R,
-  state as S,
-  getSelectedNetworkConfig as T,
-  setup_stores as U,
-  store_get as V,
-  writable as W,
-  user_derived as X,
-  delegate as Y,
-  effect as Z,
-  derived_safe_equal as _,
+  set_style as I,
+  set_attribute as J,
+  comment as K,
+  set_class as L,
+  iotaBcs$1 as M,
+  toB64$1 as N,
+  fromB64$1 as O,
+  blake2b$1 as P,
+  bytesToHex as Q,
+  proxy as R,
+  user_effect as S,
+  state as T,
+  getSelectedNetworkConfig as U,
+  setup_stores as V,
+  store_get as W,
+  writable as X,
+  user_derived as Y,
+  delegate as Z,
+  effect as _,
   invalidate_inner_signals as a,
-  bcs$1 as a0,
-  activeAddress as a1,
-  iota_accounts as a2,
-  iota_wallets as a3,
-  Transaction as a4,
-  isValidIotaAddress$1 as a5,
-  clsx as a6,
-  toHEX$1 as a7,
-  sha256 as a8,
-  __vitePreload as a9,
-  mnemonicToEntropy as aA,
-  mnemonicToSeedSync as aB,
-  Ed25519Keypair as aC,
-  decodeIotaPrivateKey as aD,
-  IOTA_CLOCK_OBJECT_ID as aE,
-  print as aF,
-  get$1 as aG,
-  sharedTransactionExecution as aH,
-  TransactionExecution as aI,
-  IOTA_DECIMALS as aJ,
-  getContext as aK,
-  setContext as aL,
-  store_set as aM,
-  component as aN,
-  spread_props as aO,
-  readable as aP,
-  to_style as aQ,
+  action as a0,
+  bcs$1 as a1,
+  activeAddress as a2,
+  iota_accounts as a3,
+  iota_wallets as a4,
+  Transaction as a5,
+  isValidIotaAddress$1 as a6,
+  clsx as a7,
+  toHEX$1 as a8,
+  sha256 as a9,
+  entropyToMnemonic as aA,
+  mnemonicToEntropy as aB,
+  mnemonicToSeedSync as aC,
+  Ed25519Keypair as aD,
+  decodeIotaPrivateKey as aE,
+  IOTA_CLOCK_OBJECT_ID as aF,
+  print as aG,
+  get$1 as aH,
+  sharedTransactionExecution as aI,
+  TransactionExecution as aJ,
+  IOTA_DECIMALS as aK,
+  getContext as aL,
+  setContext as aM,
+  store_set as aN,
+  component as aO,
+  spread_props as aP,
+  readable as aQ,
   clientConfigErrorMsg as aR,
   defaultClientConfig as aS,
   updateSelectedSignerAccounts as aT,
@@ -28257,32 +28011,32 @@ export {
   defaultPrivateKeyAccounts as aV,
   sharedPrivateKeyAccounts as aW,
   keypairFromBech32PrivateKey as aX,
-  createEventDispatcher as aa,
-  tick as ab,
-  base58$1 as ac,
-  fromHEX$1 as ad,
-  Ed25519PublicKey as ae,
-  messageWithIntent as af,
-  get_descriptor as ag,
-  teardown as ah,
-  getAugmentedNamespace as ai,
-  update as aj,
-  toSerializedSignature as ak,
-  to_array as al,
-  set_selected as am,
-  set_value as an,
-  IOTA_SYSTEM_STATE_OBJECT_ID as ao,
-  sharedClientConfig as ap,
-  TransactionDataBuilder2 as aq,
-  fromB58$1 as ar,
-  toB58$1 as as,
-  render_effect as at,
-  queue_micro_task as au,
-  STATE_SYMBOL as av,
-  hmac as aw,
-  sha512 as ax,
-  generateMnemonic as ay,
-  entropyToMnemonic as az,
+  __vitePreload as aa,
+  createEventDispatcher as ab,
+  tick as ac,
+  base58$1 as ad,
+  fromHEX$1 as ae,
+  Ed25519PublicKey as af,
+  messageWithIntent as ag,
+  get_descriptor as ah,
+  teardown as ai,
+  getAugmentedNamespace as aj,
+  update as ak,
+  toSerializedSignature as al,
+  to_array as am,
+  set_selected as an,
+  set_value as ao,
+  IOTA_SYSTEM_STATE_OBJECT_ID as ap,
+  sharedClientConfig as aq,
+  TransactionDataBuilder2 as ar,
+  fromB58$1 as as,
+  toB58$1 as at,
+  render_effect as au,
+  queue_micro_task as av,
+  STATE_SYMBOL as aw,
+  hmac as ax,
+  sha512 as ay,
+  generateMnemonic as az,
   if_block as b,
   child as c,
   set_text as d,
