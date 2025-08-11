@@ -1,8 +1,8 @@
 var __defProp = Object.defineProperty;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-import { q as getDefaultExportFromCjs, ai as getAugmentedNamespace, p as push, S as state, Q as proxy, f as from_html, c as child, s as sibling, g as get, z as each, A as index, E as bind_value, h as bind_select_value, j as set, k as append, l as pop, a7 as toHEX, aj as update, n as getClient, a5 as isValidIotaAddress, a4 as Transaction, af as messageWithIntent, ak as toSerializedSignature, ae as Ed25519PublicKey, Y as delegate, G as first_child, b as if_block, t as template_effect, d as set_text, X as user_derived, al as to_array } from "/iota-utils/index-BnYhK8oQ.js";
-import { b as bufferExports } from "/iota-utils/index-DDJ5SC1F.js";
+import { q as getDefaultExportFromCjs, ai as getAugmentedNamespace, p as push, S as state, Q as proxy, f as from_html, c as child, s as sibling, g as get, z as each, A as index, E as bind_value, h as bind_select_value, j as set, k as append, l as pop, a7 as toHEX, aj as update, n as getClient, a5 as isValidIotaAddress, a4 as Transaction, af as messageWithIntent, ak as toSerializedSignature, ae as Ed25519PublicKey, Y as delegate, G as first_child, b as if_block, t as template_effect, d as set_text, X as user_derived, al as to_array } from "/assets/index-BnYhK8oQ.js";
+import { b as bufferExports } from "/assets/index-DDJ5SC1F.js";
 import { J as JsonToggleView } from "/iota-utils/JsonToggleView-DSuOfcyF.js";
 import "/iota-utils/transaction-view-D84UYr3l.js";
 var browser = { exports: {} };

@@ -1,4 +1,4 @@
-import { p as push, i as init, f as from_html, s as sibling, c as child, b as if_block, g as get, m as mutable_source, t as template_effect, an as set_value, e as event, E as bind_value, k as append, l as pop, U as setup_stores, d as set_text, j as set, n as getClient, V as store_get, a5 as isValidIotaAddress, a4 as Transaction, ao as IOTA_SYSTEM_STATE_OBJECT_ID, a0 as bcs, a1 as activeAddress } from "/iota-utils/index-BnYhK8oQ.js";
+import { p as push, i as init, f as from_html, s as sibling, c as child, b as if_block, g as get, m as mutable_source, t as template_effect, an as set_value, e as event, E as bind_value, k as append, l as pop, U as setup_stores, d as set_text, j as set, n as getClient, V as store_get, a5 as isValidIotaAddress, a4 as Transaction, ao as IOTA_SYSTEM_STATE_OBJECT_ID, a0 as bcs, a1 as activeAddress } from "/assets/index-BnYhK8oQ.js";
 import { J as JsonToggleView } from "/iota-utils/JsonToggleView-DSuOfcyF.js";
 import { f as formatNumbersWithUnderscores, a as formatNumberWithUnderscores } from "/iota-utils/iota-nano-conversion-BN70dJwt.js";
 import { e as executeTransaction } from "/iota-utils/transaction-execution-CVwcsiKm.js";

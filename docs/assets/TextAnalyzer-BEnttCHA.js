@@ -1,4 +1,4 @@
-import { p as push, f as from_html, s as sibling, c as child, S as state, b as if_block, g as get, X as user_derived, t as template_effect, d as set_text, E as bind_value, k as append, l as pop, G as first_child, j as set, Y as delegate } from "/iota-utils/index-BnYhK8oQ.js";
+import { p as push, f as from_html, s as sibling, c as child, S as state, b as if_block, g as get, X as user_derived, t as template_effect, d as set_text, E as bind_value, k as append, l as pop, G as first_child, j as set, Y as delegate } from "/assets/index-BnYhK8oQ.js";
 import { s as set_style } from "/iota-utils/style-CPwsKZh8.js";
 var on_click = (_, textContent, limit) => {
   if (get(textContent).length > 0) {

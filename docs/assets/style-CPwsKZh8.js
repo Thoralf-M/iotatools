@@ -1,4 +1,4 @@
-import { aQ as to_style } from "/iota-utils/index-BnYhK8oQ.js";
+import { aQ as to_style } from "/assets/index-BnYhK8oQ.js";
 function set_style(dom, value, prev_styles, next_styles) {
   var prev = dom.__style;
   if (prev !== value) {
