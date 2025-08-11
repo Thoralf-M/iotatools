@@ -6,6 +6,9 @@ try {
     execSync("sed -i 's|/assets|./assets|g' docs/index.html");
     execSync("sed -i 's|import \"\./|import \"/iota-utils/|g' docs/assets/*.js");
     execSync("sed -i 's|from \"\./|from \"/iota-utils/|g' docs/assets/*.js");
+    execSync("sed -i 's|\"assets/|\"iota-utils/assets/|g' docs/assets/*.js");
+    // Entry point needs to be without iota-utils, but with assets
+    execSync("sed -i 's|/iota-utils/index-|/assets/index-|g' docs/assets/*.js");
     // ledger nano dependency needs debug module fixed
     execSync("sed -i 's|module.exports = debug;||g' docs/assets/*.js");
     execSync("sed -i 's|debug2(|JSON.stringify(|g' docs/assets/*.js");

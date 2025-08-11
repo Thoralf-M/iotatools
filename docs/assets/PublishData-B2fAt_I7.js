@@ -1,4 +1,4 @@
-import { p as push, i as init, f as from_html, s as sibling, c as child, g as get, m as mutable_source, E as bind_value, e as event, k as append, l as pop, j as set, a4 as Transaction } from "/iota-utils/index-BnYhK8oQ.js";
+import { p as push, i as init, f as from_html, s as sibling, c as child, g as get, m as mutable_source, E as bind_value, e as event, k as append, l as pop, j as set, a4 as Transaction } from "/assets/index-BnYhK8oQ.js";
 import { T as TransactionView } from "/iota-utils/TransactionView-BslK_vRY.js";
 import { e as executeTransaction } from "/iota-utils/transaction-execution-CVwcsiKm.js";
 import "/iota-utils/transaction-view-D84UYr3l.js";

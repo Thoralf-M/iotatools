@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-import { a8 as sha256, q as getDefaultExportFromCjs, p as push, r as prop, u as onMount, g as get, m as mutable_source, o as mutate, v as onDestroy, w as legacy_pre_effect, x as deep_read_state, y as legacy_pre_effect_reset, i as init, f as from_html, G as first_child, b as if_block, s as sibling, k as append, l as pop, j as set, c as child, C as untrack, t as template_effect, d as set_text, e as event, z as each, K as set_class, _ as derived_safe_equal, A as index, a9 as __vitePreload, aa as createEventDispatcher, ab as tick, ac as base58, ad as fromHEX, ae as Ed25519PublicKey, af as messageWithIntent, a as invalidate_inner_signals, a7 as toHEX, h as bind_select_value, E as bind_value, n as getClient, M as toB64 } from "/iota-utils/index-BnYhK8oQ.js";
+import { a8 as sha256, q as getDefaultExportFromCjs, p as push, r as prop, u as onMount, g as get, m as mutable_source, o as mutate, v as onDestroy, w as legacy_pre_effect, x as deep_read_state, y as legacy_pre_effect_reset, i as init, f as from_html, G as first_child, b as if_block, s as sibling, k as append, l as pop, j as set, c as child, C as untrack, t as template_effect, d as set_text, e as event, z as each, K as set_class, _ as derived_safe_equal, A as index, a9 as __vitePreload, aa as createEventDispatcher, ab as tick, ac as base58, ad as fromHEX, ae as Ed25519PublicKey, af as messageWithIntent, a as invalidate_inner_signals, a7 as toHEX, h as bind_select_value, E as bind_value, n as getClient, M as toB64 } from "/assets/index-BnYhK8oQ.js";
 import { b as bind_this } from "/iota-utils/this-lhlH9jsk.js";
-import { b as bufferExports } from "/iota-utils/index-DDJ5SC1F.js";
+import { b as bufferExports } from "/assets/index-DDJ5SC1F.js";
 import { b as bind_prop } from "/iota-utils/props-D-Q2s4a6.js";
 import { s as set_style } from "/iota-utils/style-CPwsKZh8.js";
 import { T as TransactionView } from "/iota-utils/TransactionView-BslK_vRY.js";
