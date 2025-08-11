@@ -7,6 +7,7 @@
         "prettier:fix": "prettier -w --ignore-unknown .",
         "build": "vite build && node scripts/postbuild.js",
         "preview": "vite preview",
+        "production": "node scripts/server.js",
         "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json"
     },
     "license": "Apache-2.0",
@@ -50,6 +51,7 @@
         "chartjs-plugin-zoom": "^2.2.0",
         "codemirror": "^6.0.2",
         "date-fns": "^4.1.0",
+        "express": "^5.1.0",
         "pako": "^2.1.0",
         "process": "^0.11.10",
         "qr-scanner": "^1.4.2",
