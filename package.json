@@ -5,7 +5,7 @@
     "scripts": {
         "dev": "vite",
         "prettier:fix": "prettier -w --ignore-unknown .",
-        "build": "vite build && rm -rf docs && mv dist docs && sed -i 's|/assets|./assets|g' docs/index.html && sed -i 's|debug2(|JSON.stringify(|g' docs/assets/*.js && sed -i 's|module.exports = debug;||g' docs/assets/*.js",
+        "build": "vite build && node scripts/postbuild.js",
         "preview": "vite preview",
         "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json"
     },

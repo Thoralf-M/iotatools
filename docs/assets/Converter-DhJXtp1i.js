@@ -1,9 +1,9 @@
-import { p as push, i as init, f as from_html, s as sibling, c as child, g as get, m as mutable_source, t as template_effect, d as set_text, E as bind_value, e as event, k as append, l as pop, j as set, N as fromB64, aq as TransactionDataBuilder, L as iotaBcs, a0 as bcs, ar as fromB58, a7 as toHEX, as as toB58, M as toB64, o as mutate } from "./index-BnYhK8oQ.js";
-import { b as bind_this } from "./this-lhlH9jsk.js";
-import { T as TransactionView, b as bytesToUtf8, a as bcsBytesToInteger, h as hexToBytes } from "./TransactionView-BslK_vRY.js";
-import { n as nanoToIota, i as iotaToNano } from "./iota-nano-conversion-BN70dJwt.js";
-import "./transaction-view-D84UYr3l.js";
-import "./style-CPwsKZh8.js";
+import { p as push, i as init, f as from_html, s as sibling, c as child, g as get, m as mutable_source, t as template_effect, d as set_text, E as bind_value, e as event, k as append, l as pop, j as set, N as fromB64, aq as TransactionDataBuilder, L as iotaBcs, a0 as bcs, ar as fromB58, a7 as toHEX, as as toB58, M as toB64, o as mutate } from "/index-BnYhK8oQ.js";
+import { b as bind_this } from "/this-lhlH9jsk.js";
+import { T as TransactionView, b as bytesToUtf8, a as bcsBytesToInteger, h as hexToBytes } from "/TransactionView-BslK_vRY.js";
+import { n as nanoToIota, i as iotaToNano } from "/iota-nano-conversion-BN70dJwt.js";
+import "/transaction-view-D84UYr3l.js";
+import "/style-CPwsKZh8.js";
 var root = from_html(`<main><div class="wrapper svelte-xku9c2"><div class="box">Bytes:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="bytes like: 1, 2, 3"/></div> <div class="box">Hex:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="hex string"/></div> <div class="box">Base64:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="base64 string"/></div> <div class="box">Base58:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="base58 string"/></div> <div class="box">UTF-8:</div> <div class="box"><input type="string" style="width: 100%;" placeholder="UTF-8 string"/></div> <div class="box"> </div> <div class="box"><input type="string" style="width: 100%;" placeholder="number"/></div></div> <br/> <div class="wrapper svelte-xku9c2"><div class="box">NANO:</div> <div class="box"><input type="string" size="40" placeholder="NANO amount"/> </div> <div class="box">IOTA:</div> <div class="box"><input type="string" size="40" placeholder="IOTA amount"/> </div></div> <br/> <div><div style="float: left; display: flex; align-items: center; gap: 10px;"><span>Tx bytes base64:</span> <button style="padding: 4px 8px; font-size: 12px;">Example tx</button></div> <div class="box"><textarea placeholder="base64 transaction bytes" class="svelte-xku9c2"></textarea></div></div> <!> <br/> </main>`);
 function Converter($$anchor, $$props) {
   push($$props, false);

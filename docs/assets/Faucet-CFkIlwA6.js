@@ -1,6 +1,6 @@
-import { p as push, i as init, f as from_html, s as sibling, c as child, z as each, A as index, V as store_get, g as get, m as mutable_source, e as event, E as bind_value, k as append, l as pop, U as setup_stores, ap as sharedClientConfig, j as set, a1 as activeAddress, a5 as isValidIotaAddress, t as template_effect, d as set_text } from "./index-BnYhK8oQ.js";
-import { J as JsonToggleView } from "./JsonToggleView-DSuOfcyF.js";
-import "./transaction-view-D84UYr3l.js";
+import { p as push, i as init, f as from_html, s as sibling, c as child, z as each, A as index, V as store_get, g as get, m as mutable_source, e as event, E as bind_value, k as append, l as pop, U as setup_stores, ap as sharedClientConfig, j as set, a1 as activeAddress, a5 as isValidIotaAddress, t as template_effect, d as set_text } from "/index-BnYhK8oQ.js";
+import { J as JsonToggleView } from "/JsonToggleView-DSuOfcyF.js";
+import "/transaction-view-D84UYr3l.js";
 class FaucetRateLimitError extends Error {
 }
 async function faucetRequest({ host, path, body, headers, method }) {

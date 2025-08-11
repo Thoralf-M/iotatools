@@ -1,8 +1,8 @@
 var __defProp = Object.defineProperty;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-import { L as iotaBcs, N as fromB64, T as getSelectedNetworkConfig } from "./index-BnYhK8oQ.js";
-import { g as graphql, I as IotaGraphQLClient } from "./index-BBHJ0dF4.js";
+import { L as iotaBcs, N as fromB64, T as getSelectedNetworkConfig } from "/index-BnYhK8oQ.js";
+import { g as graphql, I as IotaGraphQLClient } from "/index-BBHJ0dF4.js";
 class TransactionDataProcessor {
   constructor() {
     __publicField(this, "transactionData");
