@@ -840,7 +840,7 @@ tr:hover td {
         }
     }
 
-    .tab-groups-row.svelte-166jz40 {
+    .tab-groups-row.svelte-kdsnic {
         display: flex;
         flex-direction: row;
         align-items: stretch;
@@ -849,7 +849,7 @@ tr:hover td {
         width: 100%;
         justify-content: space-between;
     }
-    .tab-group.svelte-166jz40 {
+    .tab-group.svelte-kdsnic {
         display: flex;
         flex-direction: column;
         margin: 0;
@@ -858,7 +858,7 @@ tr:hover td {
         min-width: 0;
         border: 1px solid rgba(156, 163, 175, 0.1);
     }
-    .group-label.svelte-166jz40 {
+    .group-label.svelte-kdsnic {
         font-weight: 500;
         font-size: 0.75rem;
         color: #8fa1c7;
@@ -868,18 +868,38 @@ tr:hover td {
         letter-spacing: 0.03em;
         white-space: nowrap;
     }
-    .tab-buttons-row.svelte-166jz40 {
+    .tab-buttons-row.svelte-kdsnic {
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
         gap: 0.1rem;
         width: 100%;
     }
-    a.svelte-166jz40 {
+
+    .pageBox.svelte-kdsnic {
+        padding: 2rem;
+        background: rgba(24, 29, 37, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(156, 163, 175, 0.2);
+        border-radius: 16px16px 16px 16px;
+        box-shadow:
+            0 4px 6px -1px rgba(0, 0, 0, 0.2),
+            0 2px 4px -1px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .pageBox.svelte-kdsnic:hover {
+        border-color: rgba(156, 163, 175, 0.4);
+        box-shadow:
+            0 10px 15px -3px rgba(0, 0, 0, 0.3),
+            0 4px 6px -2px rgba(0, 0, 0, 0.1);
+    }
+
+    a.svelte-kdsnic {
         margin: 0;
         padding: 0;
     }
-    button.svelte-166jz40 {
+    button.svelte-kdsnic {
         border: 1px solid rgba(156, 163, 175, 0.1);
         border-radius: 12px;
         display: block;
@@ -895,13 +915,13 @@ tr:hover td {
         overflow: hidden;
         word-break: break-word;
     }
-    button.active.svelte-166jz40 {
+    button.active.svelte-kdsnic {
         background: linear-gradient(135deg, #171a2f 75%, rgb(57, 73, 115));
         border-color: rgba(255, 255, 255, 0.2);
         color: white;
         box-shadow: 0 4px 12px rgba(58, 40, 88, 0.4);
     }
-    button.svelte-166jz40:hover {
+    button.svelte-kdsnic:hover {
         border-color: rgba(59, 130, 246, 0.5);
         background: rgba(59, 130, 246, 0.1);
         color: rgba(255, 255, 255, 0.95);
@@ -911,35 +931,35 @@ tr:hover td {
 
     /* Mobile responsiveness */
     @media (max-width: 768px) {
-        button.svelte-166jz40 {
+        button.svelte-kdsnic {
             padding: 0.5rem 0.75rem;
             font-size: 0.85rem;
         }
     }
 
     @media (max-width: 480px) {
-        button.svelte-166jz40 {
+        button.svelte-kdsnic {
             padding: 0.4rem 0.6rem;
             font-size: 0.8rem;
         }
     }
 
-    main.svelte-g3fao0 {
+    main.svelte-1j87mpa {
         min-height: 92vh;
         display: flex;
         flex-direction: column;
         position: relative;
     }
 
-    .app-header.svelte-g3fao0 {
+    .app-header.svelte-1j87mpa {
         margin-bottom: 0.5rem;
     }
 
-    .header-row.svelte-g3fao0 {
+    .header-row.svelte-1j87mpa {
         display: flex;
     }
 
-    .warning-banner.svelte-g3fao0 {
+    .warning-banner.svelte-1j87mpa {
         color: rgba(255, 255, 255, 0.7);
         font-weight: 400;
         font-size: 0.85rem;
@@ -947,41 +967,22 @@ tr:hover td {
         text-align: left;
     }
 
-    .app-content.svelte-g3fao0 {
+    .app-content.svelte-1j87mpa {
         flex: 1;
         display: flex;
         flex-direction: column;
     }
 
-    .pageBox.svelte-g3fao0 {
-        padding: 2rem;
-        background: rgba(24, 29, 37, 0.8);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(156, 163, 175, 0.2);
-        border-radius: 16px16px 16px 16px;
-        box-shadow:
-            0 4px 6px -1px rgba(0, 0, 0, 0.2),
-            0 2px 4px -1px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-    }
-
-    .pageBox.svelte-g3fao0:hover {
-        border-color: rgba(156, 163, 175, 0.4);
-        box-shadow:
-            0 10px 15px -3px rgba(0, 0, 0, 0.3),
-            0 4px 6px -2px rgba(0, 0, 0, 0.1);
-    }
-
-    .app-footer.svelte-g3fao0 {
+    .app-footer.svelte-1j87mpa {
         margin-top: 2rem;
         padding-top: 2rem;
     }
 
-    .footer-content.svelte-g3fao0 {
+    .footer-content.svelte-1j87mpa {
         text-align: center;
     }
 
-    .github-link.svelte-g3fao0 {
+    .github-link.svelte-1j87mpa {
         align-items: center;
         gap: 0.5rem;
         padding: 0.75rem 1.5rem;
@@ -995,7 +996,7 @@ tr:hover td {
         backdrop-filter: blur(5px);
     }
 
-    .github-link.svelte-g3fao0:hover {
+    .github-link.svelte-1j87mpa:hover {
         background: rgba(59, 130, 246, 0.1);
         border-color: rgba(59, 130, 246, 0.3);
         color: rgba(255, 255, 255, 0.95);
@@ -1004,21 +1005,18 @@ tr:hover td {
     }
 
     @media (max-width: 768px) {
-        .header-row.svelte-g3fao0 {
+        .header-row.svelte-1j87mpa {
             flex-direction: column;
             align-items: flex-start;
             gap: 0.5rem;
         }
 
-        .warning-banner.svelte-g3fao0 {
+        .warning-banner.svelte-1j87mpa {
             font-size: 0.8rem;
         }
 
-        .github-link.svelte-g3fao0 {
+        .github-link.svelte-1j87mpa {
             padding: 0.6rem 1.2rem;
             font-size: 0.9rem;
-        }
-        .pageBox.svelte-g3fao0 {
-            padding: 1.5rem;
         }
     }
