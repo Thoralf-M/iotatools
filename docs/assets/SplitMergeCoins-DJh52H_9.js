@@ -1,10 +1,10 @@
-import { p as push, i as init, f as from_html, s as sibling, c as child, b as if_block, g as get, m as mutable_source, t as template_effect, d as set_text, e as event, E as bind_value, k as append, l as pop, U as setup_stores, j as set, n as getClient, V as store_get, a4 as Transaction, a1 as activeAddress } from "/assets/index-BnYhK8oQ.js";
-import { J as JsonToggleView } from "/iota-utils/JsonToggleView-DSuOfcyF.js";
-import { T as TransactionView } from "/iota-utils/TransactionView-BslK_vRY.js";
-import { e as executeTransaction } from "/iota-utils/transaction-execution-CVwcsiKm.js";
-import "/iota-utils/transaction-view-D84UYr3l.js";
-import "/iota-utils/style-CPwsKZh8.js";
-import "/iota-utils/iota-nano-conversion-BN70dJwt.js";
+import { p as push, i as init, f as from_html, s as sibling, c as child, b as if_block, g as get, m as mutable_source, t as template_effect, d as set_text, e as event, E as bind_value, k as append, l as pop, U as setup_stores, j as set, n as getClient, V as store_get, a4 as Transaction, a1 as activeAddress } from "/iota-utils/assets/index-BnYhK8oQ.js";
+import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-DSuOfcyF.js";
+import { T as TransactionView } from "/iota-utils/assets/TransactionView-BslK_vRY.js";
+import { e as executeTransaction } from "/iota-utils/assets/transaction-execution-CVwcsiKm.js";
+import "/iota-utils/assets/transaction-view-D84UYr3l.js";
+import "/iota-utils/assets/style-CPwsKZh8.js";
+import "/iota-utils/assets/iota-nano-conversion-BN70dJwt.js";
 var root = from_html(`<main><div> </div> <button class="svelte-8fa537">List all IOTA coins</button> <br/> <button class="svelte-8fa537">Merge all IOTA coins (max 2048 at once)</button> <br/> <span>object count: <input placeholder="0"/></span> <span>amount per object: <input placeholder="0"/></span> <br/> <button class="svelte-8fa537">Split IOTA coins (max 2048)</button> <!></main>`);
 function SplitMergeCoins($$anchor, $$props) {
   push($$props, false);
