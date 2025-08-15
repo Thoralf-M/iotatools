@@ -23,6 +23,7 @@
     let stakeObjects: StakeObject[] = [];
     let validatorInfo: Record<string, ValidatorInfo> = {};
     let loadingTxs = false;
+    let loadingStep: string | null = null;
     let endTimestamp: number | null = null;
 
     // Initialize exchange rate cache on component load
@@ -55,11 +56,22 @@
         stakeObjects = [];
         validatorInfo = {};
         loadingTxs = true;
+        loadingStep = 'Fetching stake txs...';
         try {
+            // Step 1: Fetch sent stake transactions
+            loadingStep = 'Fetching stake txs...';
             const sentTxs = await fetchStakeTransactions(address);
+
+            // Step 2: Fetch received stake transactions
+            loadingStep = 'Fetching received txs...';
             const receivedTxs = await fetchReceivedStakeTransactions(address);
 
+            // Step 3: Get current epoch and end timestamp
+            loadingStep = 'Fetching epoch info...';
             await getCurrentEpochAndEndTimestamp();
+
+            // Step 4: Process transactions with exchange rates
+            loadingStep = 'Fetching exchange rates...';
             const result = await processStakeTransactionsWithExchangeRates(
                 [sentTxs, receivedTxs],
                 epoch as number,
@@ -74,6 +86,7 @@
             error = err?.toString() ?? 'Error fetching transactions.';
         } finally {
             loadingTxs = false;
+            loadingStep = null;
         }
     }
 </script>
@@ -81,7 +94,7 @@
 <main>
     <div class="input-row">
         <button onclick={fetchTransactions} disabled={loadingTxs}>
-            {loadingTxs ? 'Loading...' : 'Fetch data'}
+            {loadingTxs ? (loadingStep ?? 'Loading...') : 'Fetch data'}
         </button>
         <span>
             address:
@@ -89,6 +102,11 @@
             <button onclick={() => (address = $activeAddress)}> Set to active address </button>
         </span>
     </div>
+    {#if loadingTxs}
+        <div style="text-align: left;">
+            Loading can take over a minute, depending on the number of transactions.
+        </div>
+    {/if}
     {#if error}
         <div class="error-message">{error}</div>
     {/if}
