@@ -1,4 +1,4 @@
-import { fetchPoolExchangeRates, fetchSystemState, getExchangeRateCacheStats, exchangeRateCache } from "./graphql-requests";
+import { fetchPoolExchangeRates, fetchSystemState, getExchangeRateCacheStats, exchangeRateCache, fetchAllExchangeRates } from "./graphql-requests";
 
 export type StakeObject = {
     address: string;
@@ -146,14 +146,14 @@ export async function processStakeTransactionsWithExchangeRates(
     transactions: Array<Array<any>>,
     currentEpoch: number
 ): Promise<StakeObject[]> {
-    // First, get system state to map pool IDs to exchange rate IDs
+    // Get system state to map pool IDs to exchange rate IDs
     const systemState = (await fetchSystemState())[0];
     // TODO: handle inactive validators
     const validatorMap = getCurrentActiveValidatorsExchangeRateIds(systemState);
 
     const stakeObjects = new Map<string, StakeObject>();
 
-    // Process transactions to build stake objects
+    // Process transactions to build stake objects first
     transactions.forEach((transactionSet) => {
         if (!Array.isArray(transactionSet)) return;
         transactionSet.forEach((transaction) => {
@@ -219,7 +219,16 @@ export async function processStakeTransactionsWithExchangeRates(
         });
     });
 
-    // Now fetch exchange rates for all active epochs and fill in missing principal entries
+    // Extract the required pool IDs from stake objects
+    const requiredPoolIds = new Set<string>();
+    stakeObjects.forEach(stakeObject => {
+        requiredPoolIds.add(stakeObject.poolId);
+    });
+
+    console.log(`Found ${stakeObjects.size} stake objects requiring exchange rates for ${requiredPoolIds.size} pools`);
+
+    // Now fetch exchange rates for the required pools only
+    await fetchAllExchangeRates(currentEpoch, requiredPoolIds);    // Now fetch exchange rates for all active epochs and fill in missing principal entries
     const stakeObjectsArray = Array.from(stakeObjects.values());
 
     for (const stakeObject of stakeObjectsArray) {

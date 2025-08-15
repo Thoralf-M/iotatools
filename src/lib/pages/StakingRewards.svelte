@@ -2,13 +2,14 @@
     import JsonToggleView from '../components/JsonToggleView.svelte';
     import StakingRewardsTable from '../components/StakingRewardsTable.svelte';
     import { EpochPTBAnalyzer } from '../epoch-ptb-analyzer';
-    import exchangeRateCacheData from '../lib/exchange-rate-cache.json';
+    // @ts-ignore
+    import exchangeRateCacheBinary from '../lib/exchange-rate-cache.bin?raw';
     import { activeAddress } from '../lib/signer-data';
     import {
         fetchReceivedStakeTransactions,
         fetchStakeTransactions,
         processStakeTransactionsWithExchangeRates,
-        setInitialExchangeRateCache,
+        setInitialExchangeRateCacheFromBinary,
         type StakeObject,
     } from '../lib/staking-rewards/index';
 
@@ -21,7 +22,7 @@
     let loadingTxs = false;
 
     // Initialize exchange rate cache on component load
-    setInitialExchangeRateCache(exchangeRateCacheData as any);
+    setInitialExchangeRateCacheFromBinary(exchangeRateCacheBinary);
 
     async function getCurrentEpoch() {
         try {
