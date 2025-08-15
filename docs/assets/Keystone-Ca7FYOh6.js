@@ -1,13 +1,13 @@
 var __defProp = Object.defineProperty;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-import { a9 as sha256, q as getDefaultExportFromCjs, p as push, r as prop, u as onMount, g as get, m as mutable_source, o as mutate, v as onDestroy, w as legacy_pre_effect, x as deep_read_state, y as legacy_pre_effect_reset, i as init, f as from_html, G as first_child, b as if_block, s as sibling, k as append, l as pop, j as set, c as child, C as untrack, t as template_effect, d as set_text, e as event, z as each, L as set_class, $ as derived_safe_equal, A as index, aa as __vitePreload, ab as createEventDispatcher, ac as tick, I as set_style, ad as base58, ae as fromHEX, af as Ed25519PublicKey, ag as messageWithIntent, a as invalidate_inner_signals, a8 as toHEX, h as bind_select_value, E as bind_value, n as getClient, N as toB64 } from "/iota-utils/assets/index-DQ2bHYtd.js";
-import { b as bind_this } from "/iota-utils/assets/this-DHhlXNIM.js";
+import { a9 as sha256, q as getDefaultExportFromCjs, p as push, r as prop, u as onMount, g as get, m as mutable_source, o as mutate, v as onDestroy, w as legacy_pre_effect, x as deep_read_state, y as legacy_pre_effect_reset, i as init, f as from_html, G as first_child, b as if_block, s as sibling, k as append, l as pop, j as set, c as child, C as untrack, t as template_effect, d as set_text, e as event, z as each, L as set_class, $ as derived_safe_equal, A as index, aa as __vitePreload, ab as createEventDispatcher, ac as tick, I as set_style, ad as base58, ae as fromHEX, af as Ed25519PublicKey, ag as messageWithIntent, a as invalidate_inner_signals, a8 as toHEX, h as bind_select_value, E as bind_value, n as getClient, N as toB64 } from "/iota-utils/assets/index-DCz9zvTe.js";
+import { b as bind_this } from "/iota-utils/assets/this-DwjEDSyY.js";
 import { b as bufferExports } from "/iota-utils/assets/index-DDJ5SC1F.js";
-import { b as bind_prop } from "/iota-utils/assets/props-BSwp6hro.js";
-import { T as TransactionView } from "/iota-utils/assets/TransactionView-qSne71RD.js";
-import "/iota-utils/assets/transaction-view-UUMqIsYl.js";
-import "/iota-utils/assets/iota-nano-conversion-z5qFk9Ov.js";
+import { b as bind_prop } from "/iota-utils/assets/props-BDNeTQB3.js";
+import { T as TransactionView } from "/iota-utils/assets/TransactionView-txdXO-_1.js";
+import "/iota-utils/assets/transaction-view-DX7hjqvT.js";
+import "/iota-utils/assets/iota-nano-conversion-DyT0voG1.js";
 var __extends = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {

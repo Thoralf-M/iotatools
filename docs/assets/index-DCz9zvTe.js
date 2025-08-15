@@ -1,4 +1,4 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["iota-utils/assets/IotaSystemState-D3sc2u7f.js","iota-utils/assets/JsonToggleView-BAztsTPk.js","iota-utils/assets/transaction-view-UUMqIsYl.js","iota-utils/assets/transaction-view-BucjpHvO.css","iota-utils/assets/JsonToggleView-FheaJgbA.css","iota-utils/assets/iota-nano-conversion-z5qFk9Ov.js","iota-utils/assets/IotaSystemState-DJm4xoge.css","iota-utils/assets/PTBs-C2XSShV6.js","iota-utils/assets/this-DHhlXNIM.js","iota-utils/assets/TransactionView-qSne71RD.js","iota-utils/assets/TransactionView-BYIzDu-1.css","iota-utils/assets/index-DSz9yfgj.js","iota-utils/assets/index-BJp_IuEY.js","iota-utils/assets/PTBs-BlFTUzXd.css","iota-utils/assets/DynamicFields-DsX6wmvD.js","iota-utils/assets/StakingRewards-0Co-vE6v.js","iota-utils/assets/props-BSwp6hro.js","iota-utils/assets/StakingRewards-CKCBxqmG.css","iota-utils/assets/MultiAccountView-C6cLcGm_.js","iota-utils/assets/MultiAccountView-D61lEXHE.css","iota-utils/assets/AccountsList-Dk5hF7VW.js","iota-utils/assets/AccountsList-e96FKZJa.css","iota-utils/assets/Keystone-CTbS3s2f.js","iota-utils/assets/index-DDJ5SC1F.js","iota-utils/assets/Keystone-CLSPZRvC.css","iota-utils/assets/LedgerNano-DYEVczdy.js","iota-utils/assets/LedgerNano-QxKjjy9Y.css","iota-utils/assets/PublishData-DrBA1hM7.js","iota-utils/assets/transaction-execution-8LbwSYam.js","iota-utils/assets/SplitMergeCoins-GJNZ8hAs.js","iota-utils/assets/BulkTransfer-Dcbdjosq.js","iota-utils/assets/BulkTransfer-z2jcn1zs.css","iota-utils/assets/Stake-CcFqoxtA.js","iota-utils/assets/Faucet-vwAVxKde.js","iota-utils/assets/Converter-CtwrSyCD.js","iota-utils/assets/Converter-BB97tH9s.css","iota-utils/assets/TextAnalyzer-BLgvLXYq.js","iota-utils/assets/TextAnalyzer-BeSUleA5.css","iota-utils/assets/Ed25519AddressGeneration-DiyrUIC0.js","iota-utils/assets/Ed25519AddressGeneration-Bk9cmk1E.css","iota-utils/assets/IotaNames-DvNxUxka.js","iota-utils/assets/Settings-CcH_znL7.js","iota-utils/assets/Settings-CK220tqd.css"])))=>i.map(i=>d[i]);
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["iota-utils/assets/IotaSystemState-Kn5Kd0yq.js","iota-utils/assets/JsonToggleView-BIu5FcFI.js","iota-utils/assets/transaction-view-DX7hjqvT.js","iota-utils/assets/transaction-view-BucjpHvO.css","iota-utils/assets/JsonToggleView-FheaJgbA.css","iota-utils/assets/iota-nano-conversion-DyT0voG1.js","iota-utils/assets/IotaSystemState-DJm4xoge.css","iota-utils/assets/PTBs-BRqfzR9f.js","iota-utils/assets/this-DwjEDSyY.js","iota-utils/assets/TransactionView-txdXO-_1.js","iota-utils/assets/TransactionView-BYIzDu-1.css","iota-utils/assets/index-Byh9kW70.js","iota-utils/assets/index-DDFTq39d.js","iota-utils/assets/PTBs-BlFTUzXd.css","iota-utils/assets/DynamicFields-CXNOQ30q.js","iota-utils/assets/StakingRewards-oLBVq89L.js","iota-utils/assets/props-BDNeTQB3.js","iota-utils/assets/StakingRewards-B30SK_pc.css","iota-utils/assets/MultiAccountView-Bwm2oc7b.js","iota-utils/assets/MultiAccountView-D61lEXHE.css","iota-utils/assets/AccountsList-odLQWPUl.js","iota-utils/assets/AccountsList-e96FKZJa.css","iota-utils/assets/Keystone-Ca7FYOh6.js","iota-utils/assets/index-DDJ5SC1F.js","iota-utils/assets/Keystone-CLSPZRvC.css","iota-utils/assets/LedgerNano-CFf_L9YI.js","iota-utils/assets/LedgerNano-QxKjjy9Y.css","iota-utils/assets/PublishData-DaD3KZ54.js","iota-utils/assets/transaction-execution-Z8EEOhMz.js","iota-utils/assets/SplitMergeCoins-CWOrmIk5.js","iota-utils/assets/BulkTransfer-CL4MGcb6.js","iota-utils/assets/BulkTransfer-z2jcn1zs.css","iota-utils/assets/Stake-DvUK5EuI.js","iota-utils/assets/Faucet-6tmfSL6i.js","iota-utils/assets/Converter-STT9Gy-X.js","iota-utils/assets/Converter-BB97tH9s.css","iota-utils/assets/TextAnalyzer-zT03hB7i.js","iota-utils/assets/TextAnalyzer-BeSUleA5.css","iota-utils/assets/Ed25519AddressGeneration-fvjVjkyC.js","iota-utils/assets/Ed25519AddressGeneration-Bk9cmk1E.css","iota-utils/assets/IotaNames-D6HEMyfC.js","iota-utils/assets/Settings-BHPCpXfb.js","iota-utils/assets/Settings-CK220tqd.css"])))=>i.map(i=>d[i]);
 var __defProp = Object.defineProperty;
 var __typeError = (msg) => {
   throw TypeError(msg);
@@ -27799,24 +27799,24 @@ var root = /* @__PURE__ */ from_html(`<main class="svelte-1j87mpa"><header class
 function App($$anchor, $$props) {
   push($$props, false);
   const pageImports = {
-    IotaSystemState: () => __vitePreload(() => import("./IotaSystemState-D3sc2u7f.js"), true ? __vite__mapDeps([0,1,2,3,4,5,6]) : void 0),
-    PTBs: () => __vitePreload(() => import("./PTBs-C2XSShV6.js"), true ? __vite__mapDeps([7,8,9,2,3,5,10,11,12,13]) : void 0),
-    DynamicFields: () => __vitePreload(() => import("./DynamicFields-DsX6wmvD.js"), true ? __vite__mapDeps([14,1,2,3,4,12]) : void 0),
-    StakingRewards: () => __vitePreload(() => import("./StakingRewards-0Co-vE6v.js"), true ? __vite__mapDeps([15,1,2,3,4,8,16,11,12,17]) : void 0),
-    MultiAccountView: () => __vitePreload(() => import("./MultiAccountView-C6cLcGm_.js"), true ? __vite__mapDeps([18,9,2,3,5,10,19]) : void 0),
-    AccountsList: () => __vitePreload(() => import("./AccountsList-Dk5hF7VW.js"), true ? __vite__mapDeps([20,21]) : void 0),
-    Keystone: () => __vitePreload(() => import("./Keystone-CTbS3s2f.js"), true ? __vite__mapDeps([22,8,23,16,9,2,3,5,10,24]) : void 0),
-    LedgerNano: () => __vitePreload(() => import("./LedgerNano-DYEVczdy.js"), true ? __vite__mapDeps([25,23,1,2,3,4,26]) : void 0),
-    PublishData: () => __vitePreload(() => import("./PublishData-DrBA1hM7.js"), true ? __vite__mapDeps([27,9,2,3,5,10,28,6]) : void 0),
-    SplitMergeCoins: () => __vitePreload(() => import("./SplitMergeCoins-GJNZ8hAs.js"), true ? __vite__mapDeps([29,1,2,3,4,9,5,10,28,6]) : void 0),
-    BulkTransfer: () => __vitePreload(() => import("./BulkTransfer-Dcbdjosq.js"), true ? __vite__mapDeps([30,9,2,3,5,10,28,31]) : void 0),
-    Stake: () => __vitePreload(() => import("./Stake-CcFqoxtA.js"), true ? __vite__mapDeps([32,1,2,3,4,5,28,6]) : void 0),
-    Faucet: () => __vitePreload(() => import("./Faucet-vwAVxKde.js"), true ? __vite__mapDeps([33,1,2,3,4,6]) : void 0),
-    Converter: () => __vitePreload(() => import("./Converter-CtwrSyCD.js"), true ? __vite__mapDeps([34,8,9,2,3,5,10,35]) : void 0),
-    TextAnalyzer: () => __vitePreload(() => import("./TextAnalyzer-BLgvLXYq.js"), true ? __vite__mapDeps([36,37]) : void 0),
-    Ed25519AddressGeneration: () => __vitePreload(() => import("./Ed25519AddressGeneration-DiyrUIC0.js"), true ? __vite__mapDeps([38,39]) : void 0),
-    IotaNames: () => __vitePreload(() => import("./IotaNames-DvNxUxka.js"), true ? __vite__mapDeps([40,12,9,2,3,5,10,28,6]) : void 0),
-    Settings: () => __vitePreload(() => import("./Settings-CcH_znL7.js"), true ? __vite__mapDeps([41,42]) : void 0)
+    IotaSystemState: () => __vitePreload(() => import("./IotaSystemState-Kn5Kd0yq.js"), true ? __vite__mapDeps([0,1,2,3,4,5,6]) : void 0),
+    PTBs: () => __vitePreload(() => import("./PTBs-BRqfzR9f.js"), true ? __vite__mapDeps([7,8,9,2,3,5,10,11,12,13]) : void 0),
+    DynamicFields: () => __vitePreload(() => import("./DynamicFields-CXNOQ30q.js"), true ? __vite__mapDeps([14,1,2,3,4,12]) : void 0),
+    StakingRewards: () => __vitePreload(() => import("./StakingRewards-oLBVq89L.js"), true ? __vite__mapDeps([15,1,2,3,4,8,16,11,12,17]) : void 0),
+    MultiAccountView: () => __vitePreload(() => import("./MultiAccountView-Bwm2oc7b.js"), true ? __vite__mapDeps([18,9,2,3,5,10,19]) : void 0),
+    AccountsList: () => __vitePreload(() => import("./AccountsList-odLQWPUl.js"), true ? __vite__mapDeps([20,21]) : void 0),
+    Keystone: () => __vitePreload(() => import("./Keystone-Ca7FYOh6.js"), true ? __vite__mapDeps([22,8,23,16,9,2,3,5,10,24]) : void 0),
+    LedgerNano: () => __vitePreload(() => import("./LedgerNano-CFf_L9YI.js"), true ? __vite__mapDeps([25,23,1,2,3,4,26]) : void 0),
+    PublishData: () => __vitePreload(() => import("./PublishData-DaD3KZ54.js"), true ? __vite__mapDeps([27,9,2,3,5,10,28,6]) : void 0),
+    SplitMergeCoins: () => __vitePreload(() => import("./SplitMergeCoins-CWOrmIk5.js"), true ? __vite__mapDeps([29,1,2,3,4,9,5,10,28,6]) : void 0),
+    BulkTransfer: () => __vitePreload(() => import("./BulkTransfer-CL4MGcb6.js"), true ? __vite__mapDeps([30,9,2,3,5,10,28,31]) : void 0),
+    Stake: () => __vitePreload(() => import("./Stake-DvUK5EuI.js"), true ? __vite__mapDeps([32,1,2,3,4,5,28,6]) : void 0),
+    Faucet: () => __vitePreload(() => import("./Faucet-6tmfSL6i.js"), true ? __vite__mapDeps([33,1,2,3,4,6]) : void 0),
+    Converter: () => __vitePreload(() => import("./Converter-STT9Gy-X.js"), true ? __vite__mapDeps([34,8,9,2,3,5,10,35]) : void 0),
+    TextAnalyzer: () => __vitePreload(() => import("./TextAnalyzer-zT03hB7i.js"), true ? __vite__mapDeps([36,37]) : void 0),
+    Ed25519AddressGeneration: () => __vitePreload(() => import("./Ed25519AddressGeneration-fvjVjkyC.js"), true ? __vite__mapDeps([38,39]) : void 0),
+    IotaNames: () => __vitePreload(() => import("./IotaNames-D6HEMyfC.js"), true ? __vite__mapDeps([40,12,9,2,3,5,10,28,6]) : void 0),
+    Settings: () => __vitePreload(() => import("./Settings-BHPCpXfb.js"), true ? __vite__mapDeps([41,42]) : void 0)
   };
   ({
     "/": wrap$1({ asyncComponent: pageImports["IotaSystemState"] }),

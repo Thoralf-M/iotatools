@@ -1,10 +1,10 @@
 var __defProp = Object.defineProperty;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-import { q as getDefaultExportFromCjs, aj as getAugmentedNamespace, p as push, T as state, R as proxy, f as from_html, c as child, s as sibling, g as get, z as each, A as index, E as bind_value, h as bind_select_value, j as set, k as append, l as pop, a8 as toHEX, ak as update, n as getClient, a6 as isValidIotaAddress, a5 as Transaction, ag as messageWithIntent, al as toSerializedSignature, af as Ed25519PublicKey, Z as delegate, G as first_child, b as if_block, t as template_effect, d as set_text, Y as user_derived, am as to_array } from "/iota-utils/assets/index-DQ2bHYtd.js";
+import { q as getDefaultExportFromCjs, aj as getAugmentedNamespace, p as push, T as state, R as proxy, f as from_html, c as child, s as sibling, g as get, z as each, A as index, E as bind_value, h as bind_select_value, j as set, k as append, l as pop, a8 as toHEX, ak as update, n as getClient, a6 as isValidIotaAddress, a5 as Transaction, ag as messageWithIntent, al as toSerializedSignature, af as Ed25519PublicKey, Z as delegate, G as first_child, b as if_block, t as template_effect, d as set_text, Y as user_derived, am as to_array } from "/iota-utils/assets/index-DCz9zvTe.js";
 import { b as bufferExports } from "/iota-utils/assets/index-DDJ5SC1F.js";
-import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-BAztsTPk.js";
-import "/iota-utils/assets/transaction-view-UUMqIsYl.js";
+import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-BIu5FcFI.js";
+import "/iota-utils/assets/transaction-view-DX7hjqvT.js";
 var browser = { exports: {} };
 var hasRequiredBrowser;
 function requireBrowser() {
