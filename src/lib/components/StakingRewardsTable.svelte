@@ -266,7 +266,109 @@
     let isFetchingPrice = false;
     let priceError: string = '';
     let epochPrices: Record<number, number> = {};
+
     let loadedCache: Record<string, { usd: number; eur: number }> = pricesCache;
+
+    // Export table data to CSV
+    function exportTableToCSV() {
+        // Build header row
+        let headers = ['Epoch', 'End Date', 'Rewards', 'Accumulated'];
+        if (Object.keys(epochPrices).length > 0) {
+            headers.push(
+                `Price (${selectedCurrency.toUpperCase()})`,
+                `Rewards in ${selectedCurrency.toUpperCase()}`,
+                `Accumulated in ${selectedCurrency.toUpperCase()}`,
+            );
+        }
+        uniqueValidators.forEach((validator) => {
+            headers.push(`Validator: ${validator.name}`);
+        });
+        stakeObjects.forEach((stakeObject) => {
+            headers.push(`Stake: ${stakeObject.address}`);
+        });
+
+        let rows: string[][] = [];
+        for (let i = 0; i < epochs.length; i++) {
+            const epoch = epochs[i];
+            const row: string[] = [];
+            row.push(
+                epoch.toString(),
+                epochEndDates[i] || '-',
+                epoch === currentEpoch ? 'pending' : getTotalRewardsForEpoch(epoch),
+                epoch === currentEpoch ? 'pending' : getTotalAccumulatedRewardsForEpoch(epoch),
+            );
+            if (Object.keys(epochPrices).length > 0) {
+                row.push(
+                    epoch === currentEpoch
+                        ? 'pending'
+                        : epochPrices[epoch]
+                          ? epochPrices[epoch].toFixed(6)
+                          : 'no price',
+                    epoch === currentEpoch
+                        ? 'pending'
+                        : epochPrices[epoch]
+                          ? (
+                                Number(getTotalRewardsForEpoch(epoch).replace(' IOTA', '')) *
+                                epochPrices[epoch]
+                            ).toFixed(2) + ` ${selectedCurrency.toUpperCase()}`
+                          : 'no price',
+                    epoch === currentEpoch
+                        ? 'pending'
+                        : epochPrices[epoch]
+                          ? (
+                                Number(
+                                    getTotalAccumulatedRewardsForEpoch(epoch).replace(' IOTA', ''),
+                                ) * epochPrices[epoch]
+                            ).toFixed(2) + ` ${selectedCurrency.toUpperCase()}`
+                          : 'no price',
+                );
+            }
+            uniqueValidators.forEach((validator) => {
+                row.push(
+                    epoch === currentEpoch
+                        ? 'pending'
+                        : getValidatorRewardsForEpoch(validator.poolId, epoch),
+                );
+            });
+            stakeObjects.forEach((stakeObject) => {
+                if (epoch === currentEpoch) {
+                    row.push('pending');
+                } else if (isPreActivationInEpoch(stakeObject, epoch)) {
+                    row.push('pre-active');
+                } else if (isActiveInEpoch(stakeObject, epoch) && epoch >= stakeObject.firstEpoch) {
+                    row.push(
+                        stakeObject.rewardsByEpoch[epoch] === '0'
+                            ? '-'
+                            : (Number(stakeObject.rewardsByEpoch[epoch]) / 1_000_000_000).toFixed(
+                                  2,
+                              ) + ' IOTA',
+                    );
+                } else {
+                    row.push('-');
+                }
+            });
+            rows.push(row);
+        }
+
+        // Convert to CSV string
+        let csvContent = '';
+        csvContent += headers.map((h) => '"' + h.replace(/"/g, '""') + '"').join(',') + '\n';
+        rows.forEach((row) => {
+            csvContent +=
+                row.map((cell) => '"' + String(cell).replace(/"/g, '""') + '"').join(',') + '\n';
+        });
+
+        // Download as file
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'staking-rewards-table.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
 
     // Helper to format date for CoinGecko API (DD-MM-YYYY)
     function formatDateForCoinGecko(dateStr: string): string {
@@ -426,6 +528,7 @@
     <button on:click={fetchAllPrices} disabled={isFetchingPrice}>
         {isFetchingPrice ? 'Fetching... (rate limited)' : 'Fetch prices from coingecko'}
     </button>
+    <button on:click={exportTableToCSV} style="min-width: 120px;"> Export table to CSV </button>
     {#if priceError}
         <span style="color: red;">{priceError}</span>
     {/if}
