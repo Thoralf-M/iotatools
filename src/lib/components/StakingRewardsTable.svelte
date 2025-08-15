@@ -13,127 +13,145 @@
         navigator.clipboard.writeText(text);
     }
 
+    // Efficient computation: single pass over stakeObjects
     let minEpoch = 0;
-    $: minEpoch = (() => {
-        if (stakeObjects.length === 0) return 0;
-        let min = Infinity;
-        stakeObjects.forEach((stakeObject) => {
-            if (stakeObject.firstEpoch < min) min = stakeObject.firstEpoch;
-        });
-        return min === Infinity ? 0 : min;
-    })();
+    let uniqueValidators: ValidatorInfo[] = [];
+    let epochData: Record<
+        number,
+        {
+            totalRewards: bigint;
+            totalAccumulated: bigint;
+            validatorRewards: Record<string, bigint>;
+            validatorAccumulated: Record<string, bigint>;
+            stakeRewards: Record<string, string>;
+            stakeAccumulated: Record<string, string>;
+            preActive: Record<string, boolean>;
+            active: Record<string, boolean>;
+        }
+    > = {};
+    let validatorPrincipal: Record<string, bigint> = {};
+
+    $: {
+        // Reset
+        minEpoch = 0;
+        uniqueValidators = [];
+        epochData = {};
+        validatorPrincipal = {};
+        if (stakeObjects.length === 0) {
+            minEpoch = 0;
+            uniqueValidators = [];
+            epochData = {};
+            validatorPrincipal = {};
+        } else {
+            let min = Infinity;
+            const poolIds = new Set<string>();
+            // Find minEpoch and uniqueValidators
+            stakeObjects.forEach((stakeObject) => {
+                if (stakeObject.firstEpoch < min) min = stakeObject.firstEpoch;
+                poolIds.add(stakeObject.poolId);
+            });
+            minEpoch = min === Infinity ? 0 : min;
+            uniqueValidators = Array.from(poolIds).map(
+                (poolId) =>
+                    validatorInfo[poolId] || { name: `Unknown (${poolId.slice(0, 6)}...)`, poolId },
+            );
+
+            // Build epochData and validatorPrincipal
+            const epochRange = Array.from({ length: currentEpoch + 1 }, (_, i) => i).slice(
+                minEpoch,
+            );
+            epochRange.forEach((epoch) => {
+                epochData[epoch] = {
+                    totalRewards: 0n,
+                    totalAccumulated: 0n,
+                    validatorRewards: {},
+                    validatorAccumulated: {},
+                    stakeRewards: {},
+                    stakeAccumulated: {},
+                    preActive: {},
+                    active: {},
+                };
+            });
+            stakeObjects.forEach((stakeObject) => {
+                // Principal for validator
+                if (!validatorPrincipal[stakeObject.poolId]) {
+                    const firstPrincipal = getFirstPrincipal(stakeObject);
+                    if (firstPrincipal && firstPrincipal !== '0') {
+                        try {
+                            validatorPrincipal[stakeObject.poolId] = BigInt(firstPrincipal);
+                        } catch {}
+                    } else {
+                        validatorPrincipal[stakeObject.poolId] = 0n;
+                    }
+                }
+                epochRange.forEach((epoch) => {
+                    // Rewards
+                    const rewards = stakeObject.rewardsByEpoch[epoch];
+                    if (rewards && rewards !== '0') {
+                        try {
+                            epochData[epoch].totalRewards += BigInt(rewards);
+                            if (!epochData[epoch].validatorRewards[stakeObject.poolId]) {
+                                epochData[epoch].validatorRewards[stakeObject.poolId] = 0n;
+                            }
+                            epochData[epoch].validatorRewards[stakeObject.poolId] +=
+                                BigInt(rewards);
+                        } catch {}
+                    }
+                    epochData[epoch].stakeRewards[stakeObject.address] = rewards || '0';
+                    // Accumulated
+                    const accRewards = stakeObject.accumulatedRewards[epoch];
+                    if (accRewards && accRewards !== '0') {
+                        try {
+                            epochData[epoch].totalAccumulated += BigInt(accRewards);
+                            if (!epochData[epoch].validatorAccumulated[stakeObject.poolId]) {
+                                epochData[epoch].validatorAccumulated[stakeObject.poolId] = 0n;
+                            }
+                            epochData[epoch].validatorAccumulated[stakeObject.poolId] +=
+                                BigInt(accRewards);
+                        } catch {}
+                    }
+                    epochData[epoch].stakeAccumulated[stakeObject.address] = accRewards || '0';
+                    // Pre-active/active
+                    epochData[epoch].preActive[stakeObject.address] =
+                        epoch >= stakeObject.firstEpoch && epoch < stakeObject.stakeActivationEpoch;
+                    epochData[epoch].active[stakeObject.address] =
+                        epoch >= stakeObject.firstEpoch && epoch <= stakeObject.lastEpoch;
+                });
+            });
+        }
+    }
 
     let epochs: number[] = [];
     $: epochs = Array.from({ length: currentEpoch + 1 }, (_, i) => i).slice(minEpoch);
 
-    // Check if a stake object was active in a given epoch
+    // Efficient lookup helpers
     function isActiveInEpoch(stakeObject: StakeObject, epoch: number): boolean {
-        return epoch >= stakeObject.firstEpoch && epoch <= stakeObject.lastEpoch;
+        return epochData[epoch]?.active[stakeObject.address] ?? false;
     }
-
-    // Check if a stake object is pending in a given epoch
     function isPreActivationInEpoch(stakeObject: StakeObject, epoch: number): boolean {
-        return epoch >= stakeObject.firstEpoch && epoch < stakeObject.stakeActivationEpoch;
+        return epochData[epoch]?.preActive[stakeObject.address] ?? false;
     }
-
-    // Calculate total rewards for all objects in a given epoch
     function getTotalRewardsForEpoch(epoch: number): string {
-        let total = 0n;
-        stakeObjects.forEach((stakeObject) => {
-            const rewards = stakeObject.rewardsByEpoch[epoch];
-            if (rewards && rewards !== '0') {
-                try {
-                    total += BigInt(rewards);
-                } catch (e) {
-                    // Ignore invalid values
-                }
-            }
-        });
+        const total = epochData[epoch]?.totalRewards ?? 0n;
         return total === 0n ? '0' : (Number(total) / 1_000_000_000).toFixed(2) + ' IOTA';
     }
-
-    // Calculate total accumulated rewards for all objects in a given epoch
     function getTotalAccumulatedRewardsForEpoch(epoch: number): string {
-        let total = 0n;
-        stakeObjects.forEach((stakeObject) => {
-            const rewards = stakeObject.accumulatedRewards[epoch];
-            if (rewards && rewards !== '0') {
-                try {
-                    total += BigInt(rewards);
-                } catch (e) {
-                    // Ignore invalid values
-                }
-            }
-        });
+        const total = epochData[epoch]?.totalAccumulated ?? 0n;
         return total === 0n ? '0' : (Number(total) / 1_000_000_000).toFixed(2) + ' IOTA';
     }
-
-    // Get unique validators from stake objects
-    let uniqueValidators: ValidatorInfo[] = [];
-    $: uniqueValidators = (() => {
-        const poolIds = new Set<string>();
-        stakeObjects.forEach((stakeObject) => {
-            poolIds.add(stakeObject.poolId);
-        });
-        return Array.from(poolIds).map(
-            (poolId) =>
-                validatorInfo[poolId] || { name: `Unknown (${poolId.slice(0, 6)}...)`, poolId },
-        );
-    })();
-
-    // Calculate total rewards for a specific validator in a given epoch
     function getValidatorRewardsForEpoch(validatorPoolId: string, epoch: number): string {
-        let total = 0n;
-        stakeObjects.forEach((stakeObject) => {
-            if (stakeObject.poolId === validatorPoolId) {
-                const rewards = stakeObject.rewardsByEpoch[epoch];
-                if (rewards && rewards !== '0') {
-                    try {
-                        total += BigInt(rewards);
-                    } catch (e) {
-                        // Ignore invalid values
-                    }
-                }
-            }
-        });
+        const total = epochData[epoch]?.validatorRewards[validatorPoolId] ?? 0n;
         return total === 0n ? '0' : (Number(total) / 1_000_000_000).toFixed(2) + ' IOTA';
     }
-
-    // Calculate total accumulated rewards for a specific validator in a given epoch
     function getValidatorAccumulatedRewardsForEpoch(
         validatorPoolId: string,
         epoch: number,
     ): string {
-        let total = 0n;
-        stakeObjects.forEach((stakeObject) => {
-            if (stakeObject.poolId === validatorPoolId) {
-                const rewards = stakeObject.accumulatedRewards[epoch];
-                if (rewards && rewards !== '0') {
-                    try {
-                        total += BigInt(rewards);
-                    } catch (e) {
-                        // Ignore invalid values
-                    }
-                }
-            }
-        });
+        const total = epochData[epoch]?.validatorAccumulated[validatorPoolId] ?? 0n;
         return total === 0n ? '0' : (Number(total) / 1_000_000_000).toFixed(2) + ' IOTA';
     }
-    // Calculate total principal for a validator
     function getValidatorTotalPrincipal(validatorPoolId: string): string {
-        let total = 0n;
-        stakeObjects.forEach((stakeObject) => {
-            if (stakeObject.poolId === validatorPoolId) {
-                const firstPrincipal = getFirstPrincipal(stakeObject);
-                if (firstPrincipal && firstPrincipal !== '0') {
-                    try {
-                        total += BigInt(firstPrincipal);
-                    } catch (e) {
-                        // Ignore invalid values
-                    }
-                }
-            }
-        });
+        const total = validatorPrincipal[validatorPoolId] ?? 0n;
         return total === 0n ? '0' : (Number(total) / 1_000_000_000).toFixed(2) + ' IOTA';
     }
     function formatPrincipal(principal: string): string {
@@ -490,17 +508,6 @@
                 ).length}
             </div>
             <div>
-                {#if Object.keys(epochPrices).length > 0}
-                    <div class="header-cell rewards-header">
-                        Price ({selectedCurrency.toUpperCase()})
-                    </div>
-                    <div class="header-cell rewards-header">
-                        Rewards in {selectedCurrency.toUpperCase()}
-                    </div>
-                    <div class="header-cell rewards-header">
-                        Accumulated in {selectedCurrency.toUpperCase()}
-                    </div>
-                {/if}
                 Total principal staked: {selectedValidator
                     ? getValidatorTotalPrincipal(selectedValidator.poolId)
                     : '0'}
