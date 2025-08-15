@@ -1,6 +1,7 @@
 import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
+
 import { getSelectedNetworkConfig } from './client';
-import Mainnet0Until90 from './MainnetEndOfEpochPoolExchangeRates0-90.json'
+import Mainnet0Until90 from './MainnetEndOfEpochPoolExchangeRates0-90.json';
 
 async function fetchStakeTransactionsByRole(address: string, role: 'signAddress' | 'recvAddress') {
     const gqlClient = new IotaGraphQLClient({
@@ -11,7 +12,9 @@ async function fetchStakeTransactionsByRole(address: string, role: 'signAddress'
     let hasNextPage = true;
     let endCursor = '';
     while (hasNextPage) {
-        console.log(`Fetching transactions for address: ${address}, role: ${role}, cursor: ${endCursor}`);
+        console.log(
+            `Fetching transactions for address: ${address}, role: ${role}, cursor: ${endCursor}`,
+        );
 
         const query = `
             query ($address: IotaAddress) {
@@ -102,11 +105,11 @@ async function fetchStakeTransactionsByRole(address: string, role: 'signAddress'
     }
     const stakeTypes = [
         '0x0000000000000000000000000000000000000000000000000000000000000003::staking_pool::StakedIota',
-        '0x0000000000000000000000000000000000000000000000000000000000000003::timelocked_staking::TimelockedStakedIota'
+        '0x0000000000000000000000000000000000000000000000000000000000000003::timelocked_staking::TimelockedStakedIota',
     ];
     // Filter transactions and their object nodes to only stake-related objects
     const filteredNodes = allNodes
-        .map(tx => {
+        .map((tx) => {
             // @ts-ignore
             const objectNodes: any[] = tx.effects?.objectChanges?.nodes || [];
             // Only keep stake-related objects with matching owner address
@@ -114,7 +117,8 @@ async function fetchStakeTransactionsByRole(address: string, role: 'signAddress'
             const stakeObjects = objectNodes.filter((obj: any) => {
                 const inputType = obj.inputState?.asMoveObject?.contents?.type?.repr;
                 const outputType = obj.outputState?.asMoveObject?.contents?.type?.repr;
-                const isStakeType = stakeTypes.includes(inputType) || stakeTypes.includes(outputType);
+                const isStakeType =
+                    stakeTypes.includes(inputType) || stakeTypes.includes(outputType);
                 if (!isStakeType) return false;
                 // Extract owner addresses
                 const inputOwner = obj.inputState?.asMoveObject?.owner?.owner?.address;
@@ -130,14 +134,14 @@ async function fetchStakeTransactionsByRole(address: string, role: 'signAddress'
                         ...tx.effects,
                         objectChanges: {
                             ...tx.effects?.objectChanges,
-                            nodes: stakeObjects
-                        }
-                    }
+                            nodes: stakeObjects,
+                        },
+                    },
                 };
             }
             return null;
         })
-        .filter(tx => tx !== null);
+        .filter((tx) => tx !== null);
     console.log(`Filtered transactions count: ${filteredNodes.length}`);
     return filteredNodes;
 }
@@ -159,7 +163,7 @@ export async function fetchEndOfEpochTransactions() {
     let hasNextPage = true;
     let endCursor = '';
     // checkpoint 34832389 is the latest checkpoint of epoch 90 (MainnetEndOfEpochPoolExchangeRates0-90.json)
-    let mainnetCheckpointFilter = ''
+    let mainnetCheckpointFilter = '';
     if (getSelectedNetworkConfig().name === 'mainnet') {
         mainnetCheckpointFilter = ', afterCheckpoint: 34832389';
     }
@@ -219,27 +223,31 @@ export async function fetchEndOfEpochTransactions() {
         }
     }
     // Filter for PoolTokenExchangeRate objects
-    const filteredNodes = allNodes.map(tx => {
-        // @ts-ignore
-        const objectNodes: any[] = tx.effects?.objectChanges?.nodes || [];
-        const poolTokenObjects = objectNodes.filter((obj: any) => {
-            const repr = obj.outputState?.asMoveObject?.contents?.type?.repr;
-            return typeof repr === 'string' && repr.includes('staking_pool::PoolTokenExchangeRate');
-        });
-        if (poolTokenObjects.length > 0) {
-            return {
-                ...tx,
-                effects: {
-                    ...tx.effects,
-                    objectChanges: {
-                        ...tx.effects?.objectChanges,
-                        nodes: poolTokenObjects
-                    }
-                }
-            };
-        }
-        return null;
-    }).filter(tx => tx !== null);
+    const filteredNodes = allNodes
+        .map((tx) => {
+            // @ts-ignore
+            const objectNodes: any[] = tx.effects?.objectChanges?.nodes || [];
+            const poolTokenObjects = objectNodes.filter((obj: any) => {
+                const repr = obj.outputState?.asMoveObject?.contents?.type?.repr;
+                return (
+                    typeof repr === 'string' && repr.includes('staking_pool::PoolTokenExchangeRate')
+                );
+            });
+            if (poolTokenObjects.length > 0) {
+                return {
+                    ...tx,
+                    effects: {
+                        ...tx.effects,
+                        objectChanges: {
+                            ...tx.effects?.objectChanges,
+                            nodes: poolTokenObjects,
+                        },
+                    },
+                };
+            }
+            return null;
+        })
+        .filter((tx) => tx !== null);
     console.log(`Filtered END_OF_EPOCH_TX transactions count: ${filteredNodes.length}`);
     return Mainnet0Until90.concat(filteredNodes);
 }

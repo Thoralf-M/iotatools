@@ -1,10 +1,11 @@
-import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
-import { getSelectedNetworkConfig } from '../client';
 import { bcs, toB64 } from '@iota/bcs';
+import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
+
+import { getSelectedNetworkConfig } from '../client';
 import {
-    decompressExchangeRateCache,
     compressExchangeRateCache,
-    getCompressionStats
+    decompressExchangeRateCache,
+    getCompressionStats,
 } from './binary-cache';
 
 async function fetchStakeTransactionsByRole(address: string, role: 'signAddress' | 'recvAddress') {
@@ -16,7 +17,9 @@ async function fetchStakeTransactionsByRole(address: string, role: 'signAddress'
     let hasNextPage = true;
     let endCursor = '';
     while (hasNextPage) {
-        console.log(`Fetching transactions for address: ${address}, role: ${role}, cursor: ${endCursor}`);
+        console.log(
+            `Fetching transactions for address: ${address}, role: ${role}, cursor: ${endCursor}`,
+        );
 
         const query = `
             query ($address: IotaAddress) {
@@ -107,11 +110,11 @@ async function fetchStakeTransactionsByRole(address: string, role: 'signAddress'
     }
     const stakeTypes = [
         '0x0000000000000000000000000000000000000000000000000000000000000003::staking_pool::StakedIota',
-        '0x0000000000000000000000000000000000000000000000000000000000000003::timelocked_staking::TimelockedStakedIota'
+        '0x0000000000000000000000000000000000000000000000000000000000000003::timelocked_staking::TimelockedStakedIota',
     ];
     // Filter transactions and their object nodes to only stake-related objects
     const filteredNodes = allNodes
-        .map(tx => {
+        .map((tx) => {
             // @ts-ignore
             const objectNodes: any[] = tx.effects?.objectChanges?.nodes || [];
             // Only keep stake-related objects with matching owner address
@@ -119,7 +122,8 @@ async function fetchStakeTransactionsByRole(address: string, role: 'signAddress'
             const stakeObjects = objectNodes.filter((obj: any) => {
                 const inputType = obj.inputState?.asMoveObject?.contents?.type?.repr;
                 const outputType = obj.outputState?.asMoveObject?.contents?.type?.repr;
-                const isStakeType = stakeTypes.includes(inputType) || stakeTypes.includes(outputType);
+                const isStakeType =
+                    stakeTypes.includes(inputType) || stakeTypes.includes(outputType);
                 if (!isStakeType) return false;
                 // Extract owner addresses
                 const inputOwner = obj.inputState?.asMoveObject?.owner?.owner?.address;
@@ -135,14 +139,14 @@ async function fetchStakeTransactionsByRole(address: string, role: 'signAddress'
                         ...tx.effects,
                         objectChanges: {
                             ...tx.effects?.objectChanges,
-                            nodes: stakeObjects
-                        }
-                    }
+                            nodes: stakeObjects,
+                        },
+                    },
                 };
             }
             return null;
         })
-        .filter(tx => tx !== null);
+        .filter((tx) => tx !== null);
     console.log(`Filtered transactions count: ${filteredNodes.length}`);
     return filteredNodes;
 }
@@ -210,7 +214,11 @@ function parseExchangeRateData(structData: any): { iota: string; pool: string } 
 let allExchangeRatesFetched = false;
 
 // Function to determine what epochs are missing from cache
-function getMissingEpochs(currentEpoch: number): { missingEpochs: Set<number>; maxCachedEpoch: number; shouldUseDynamicFieldFetch: boolean } {
+function getMissingEpochs(currentEpoch: number): {
+    missingEpochs: Set<number>;
+    maxCachedEpoch: number;
+    shouldUseDynamicFieldFetch: boolean;
+} {
     if (exchangeRateCache.size === 0) {
         return { missingEpochs: new Set(), maxCachedEpoch: 0, shouldUseDynamicFieldFetch: false };
     }
@@ -219,8 +227,8 @@ function getMissingEpochs(currentEpoch: number): { missingEpochs: Set<number>; m
     let maxCachedEpoch = 0;
     const allCachedEpochs = new Set<number>();
 
-    exchangeRateCache.forEach(entry => {
-        Object.keys(entry.epochData).forEach(epochStr => {
+    exchangeRateCache.forEach((entry) => {
+        Object.keys(entry.epochData).forEach((epochStr) => {
             const epoch = parseInt(epochStr);
             allCachedEpochs.add(epoch);
             if (epoch > maxCachedEpoch) {
@@ -243,8 +251,13 @@ function getMissingEpochs(currentEpoch: number): { missingEpochs: Set<number>; m
 }
 
 // Function to fetch missing epochs using the old dynamic field approach
-async function fetchMissingEpochsWithDynamicFields(missingEpochs: Set<number>, requiredPoolIds: Set<string>): Promise<void> {
-    console.log(`Fetching ${missingEpochs.size} missing epochs for ${requiredPoolIds.size} required pools using dynamic field approach`);
+async function fetchMissingEpochsWithDynamicFields(
+    missingEpochs: Set<number>,
+    requiredPoolIds: Set<string>,
+): Promise<void> {
+    console.log(
+        `Fetching ${missingEpochs.size} missing epochs for ${requiredPoolIds.size} required pools using dynamic field approach`,
+    );
 
     const gqlClient = new IotaGraphQLClient({
         url: getSelectedNetworkConfig().graphql,
@@ -292,21 +305,28 @@ async function fetchMissingEpochsWithDynamicFields(missingEpochs: Set<number>, r
                 if (data) {
                     cacheEntry.epochData[epoch] = {
                         iota: data.iota_amount,
-                        pool: data.pool_token_amount
+                        pool: data.pool_token_amount,
                     };
                     console.log(`Cached exchange rates for pool ${poolId}, epoch ${epoch}`);
                 }
             } catch (err) {
-                console.warn(`Failed to fetch exchange rate for pool ${poolId}, epoch ${epoch}:`, err);
+                console.warn(
+                    `Failed to fetch exchange rate for pool ${poolId}, epoch ${epoch}:`,
+                    err,
+                );
             }
         }
     }
 }
 
 // Function to fetch all exchange rates for all validators and all epochs in one go
-export async function fetchAllExchangeRates(currentEpoch: number, requiredPoolIds?: Set<string>): Promise<void> {
+export async function fetchAllExchangeRates(
+    currentEpoch: number,
+    requiredPoolIds?: Set<string>,
+): Promise<void> {
     // Check what we're missing from cache
-    const { missingEpochs, maxCachedEpoch, shouldUseDynamicFieldFetch } = getMissingEpochs(currentEpoch);
+    const { missingEpochs, maxCachedEpoch, shouldUseDynamicFieldFetch } =
+        getMissingEpochs(currentEpoch);
 
     // If we already have all data up to currentEpoch (since currentEpoch data isn't available yet), skip
     if (missingEpochs.size === 0 && maxCachedEpoch >= currentEpoch) {
@@ -316,7 +336,9 @@ export async function fetchAllExchangeRates(currentEpoch: number, requiredPoolId
 
     // If we have cached data and only need a few recent epochs, use dynamic field approach
     if (shouldUseDynamicFieldFetch && requiredPoolIds) {
-        console.log(`Using dynamic field approach to fetch ${missingEpochs.size} missing recent epochs for ${requiredPoolIds.size} required pools`);
+        console.log(
+            `Using dynamic field approach to fetch ${missingEpochs.size} missing recent epochs for ${requiredPoolIds.size} required pools`,
+        );
         await fetchMissingEpochsWithDynamicFields(missingEpochs, requiredPoolIds);
         return;
     }
@@ -327,7 +349,9 @@ export async function fetchAllExchangeRates(currentEpoch: number, requiredPoolId
         return;
     }
 
-    console.log(`Fetching all exchange rates for epoch ${currentEpoch} and all historical data (cache has ${exchangeRateCache.size} pools, max epoch: ${maxCachedEpoch})`);
+    console.log(
+        `Fetching all exchange rates for epoch ${currentEpoch} and all historical data (cache has ${exchangeRateCache.size} pools, max epoch: ${maxCachedEpoch})`,
+    );
 
     const gqlClient = new IotaGraphQLClient({
         url: getSelectedNetworkConfig().graphql,
@@ -391,7 +415,9 @@ export async function fetchAllExchangeRates(currentEpoch: number, requiredPoolId
         // Process each validator
         for (const validator of activeValidators.nodes) {
             console.log(`Processing validator: ${validator.name} (${validator.address.address})`);
-            console.log(`stakingPoolId: ${validator.stakingPoolId} table id (${validator.exchangeRatesTable?.address})`);
+            console.log(
+                `stakingPoolId: ${validator.stakingPoolId} table id (${validator.exchangeRatesTable?.address})`,
+            );
 
             const poolId = validator.stakingPoolId;
             if (!poolId) continue;
@@ -402,7 +428,7 @@ export async function fetchAllExchangeRates(currentEpoch: number, requiredPoolId
                 cacheEntry = {
                     poolId,
                     exchangeRateId: validator.exchangeRatesTable?.address || '',
-                    epochData: {}
+                    epochData: {},
                 };
                 exchangeRateCache.set(poolId, cacheEntry);
             }
@@ -453,9 +479,15 @@ export async function fetchAllExchangeRates(currentEpoch: number, requiredPoolId
                         }
                     }`;
 
-                    const exchangeRateVariables = { exchangeRatesTableId: validator.exchangeRatesTable?.address, cursor: exchangeRateCursor };
+                    const exchangeRateVariables = {
+                        exchangeRatesTableId: validator.exchangeRatesTable?.address,
+                        cursor: exchangeRateCursor,
+                    };
                     // @ts-ignore
-                    const exchangeRateResult = await gqlClient.query({ query: exchangeRateQuery, variables: exchangeRateVariables });
+                    const exchangeRateResult = await gqlClient.query({
+                        query: exchangeRateQuery,
+                        variables: exchangeRateVariables,
+                    });
                     // @ts-ignore
                     const dynamicFields = exchangeRateResult.data?.owner?.dynamicFields;
 
@@ -485,14 +517,22 @@ export async function fetchAllExchangeRates(currentEpoch: number, requiredPoolId
     allExchangeRatesFetched = true;
 
     const totalPools = exchangeRateCache.size;
-    const totalEpochs = Array.from(exchangeRateCache.values()).reduce((sum, entry) =>
-        sum + Object.keys(entry.epochData).length, 0
+    const totalEpochs = Array.from(exchangeRateCache.values()).reduce(
+        (sum, entry) => sum + Object.keys(entry.epochData).length,
+        0,
     );
 
-    console.log(`Fetched and cached exchange rates for ${totalPools} pools with ${totalEpochs} total epoch entries`);
+    console.log(
+        `Fetched and cached exchange rates for ${totalPools} pools with ${totalEpochs} total epoch entries`,
+    );
 }
 
-export async function fetchPoolExchangeRates(exchangeRatesId: string, epoch: number, poolId?: string, createOneToOneCache = false) {
+export async function fetchPoolExchangeRates(
+    exchangeRatesId: string,
+    epoch: number,
+    poolId?: string,
+    createOneToOneCache = false,
+) {
     epoch += 1; // + 1 because stake data is computed at the end of an epoch and then inserted with next epoch index
 
     // Check cache first
@@ -504,7 +544,7 @@ export async function fetchPoolExchangeRates(exchangeRatesId: string, epoch: num
             const cachedData = cached.epochData[epoch];
             return {
                 iota_amount: cachedData.iota,
-                pool_token_amount: cachedData.pool
+                pool_token_amount: cachedData.pool,
             };
         }
     }
@@ -515,10 +555,12 @@ export async function fetchPoolExchangeRates(exchangeRatesId: string, epoch: num
 
     // For pre-staking epochs we want to cache the 1:1 ratio if no data is found
     if (createOneToOneCache && poolId) {
-        console.log(`No exchange rate data found for pool ${poolId}, epoch ${epoch}. Using 1:1 ratio.`);
+        console.log(
+            `No exchange rate data found for pool ${poolId}, epoch ${epoch}. Using 1:1 ratio.`,
+        );
         const data = {
             iota_amount: '1',
-            pool_token_amount: '1'
+            pool_token_amount: '1',
         };
 
         // Cache the 1:1 ratio
@@ -527,13 +569,13 @@ export async function fetchPoolExchangeRates(exchangeRatesId: string, epoch: num
             cacheEntry = {
                 poolId,
                 exchangeRateId: exchangeRatesId,
-                epochData: {}
+                epochData: {},
             };
             exchangeRateCache.set(poolId, cacheEntry);
         }
         cacheEntry.epochData[epoch] = {
             iota: data.iota_amount,
-            pool: data.pool_token_amount
+            pool: data.pool_token_amount,
         };
 
         return data;
@@ -562,7 +604,7 @@ export function setInitialExchangeRateCache(cacheData: ExchangeRateCacheEntry[])
         return;
     }
 
-    cacheData.forEach(entry => {
+    cacheData.forEach((entry) => {
         // Additional safety check for each entry
         if (entry && entry.poolId && entry.epochData) {
             exchangeRateCache.set(entry.poolId, entry);
@@ -579,7 +621,9 @@ export function setInitialExchangeRateCache(cacheData: ExchangeRateCacheEntry[])
         return sum;
     }, 0);
 
-    console.log(`Loaded ${cacheData.length} pools with ${totalEpochs} total epoch entries into cache`);
+    console.log(
+        `Loaded ${cacheData.length} pools with ${totalEpochs} total epoch entries into cache`,
+    );
 }
 
 /**
@@ -601,13 +645,13 @@ export function getExchangeRateCacheStats() {
         totalEntries: exchangeRateCache.size,
         poolIds: new Set<string>(),
         epochs: new Set<number>(),
-        exchangeRateIds: new Set<string>()
+        exchangeRateIds: new Set<string>(),
     };
 
-    exchangeRateCache.forEach(entry => {
+    exchangeRateCache.forEach((entry) => {
         stats.poolIds.add(entry.poolId);
         stats.exchangeRateIds.add(entry.exchangeRateId);
-        Object.keys(entry.epochData).forEach(epochStr => {
+        Object.keys(entry.epochData).forEach((epochStr) => {
             stats.epochs.add(parseInt(epochStr));
         });
     });
@@ -617,10 +661,13 @@ export function getExchangeRateCacheStats() {
         uniquePoolIds: stats.poolIds.size,
         uniqueEpochs: stats.epochs.size,
         uniqueExchangeRateIds: stats.exchangeRateIds.size,
-        epochRange: stats.epochs.size > 0 ? {
-            min: Math.min(...stats.epochs),
-            max: Math.max(...stats.epochs)
-        } : null
+        epochRange:
+            stats.epochs.size > 0
+                ? {
+                      min: Math.min(...stats.epochs),
+                      max: Math.max(...stats.epochs),
+                  }
+                : null,
     };
 }
 

@@ -1,6 +1,6 @@
 /**
  * Example of how to use the binary exchange rate cache format
- * 
+ *
  * This file demonstrates loading cache data from binary format
  * and provides backward compatibility with JSON format.
  */
@@ -9,11 +9,11 @@
 // import exchangeRateCacheBinary from '../lib/exchange-rate-cache.bin?raw';
 
 import {
-    setInitialExchangeRateCache,
-    setInitialExchangeRateCacheFromBinary,
     exportExchangeRateCacheToBinary,
     getExchangeRateCacheCompressionStats,
-    type ExchangeRateCacheEntry
+    setInitialExchangeRateCache,
+    setInitialExchangeRateCacheFromBinary,
+    type ExchangeRateCacheEntry,
 } from './index';
 
 /**
@@ -28,9 +28,10 @@ export function loadExchangeRateCache(data: string | ExchangeRateCacheEntry[]) {
                 console.log('Loaded exchange rate cache from binary format');
                 return;
             } catch (binaryError) {
-                const errorMsg = binaryError instanceof Error ? binaryError.message : 'Unknown error';
+                const errorMsg =
+                    binaryError instanceof Error ? binaryError.message : 'Unknown error';
                 console.log('Binary format failed, trying JSON...', errorMsg);
-                
+
                 // Fallback to JSON format
                 try {
                     const jsonData = JSON.parse(data);
@@ -38,8 +39,11 @@ export function loadExchangeRateCache(data: string | ExchangeRateCacheEntry[]) {
                     console.log('Loaded exchange rate cache from JSON format');
                     return;
                 } catch (jsonError) {
-                    const jsonErrorMsg = jsonError instanceof Error ? jsonError.message : 'Unknown error';
-                    throw new Error(`Failed to load cache in both binary and JSON formats: ${jsonErrorMsg}`);
+                    const jsonErrorMsg =
+                        jsonError instanceof Error ? jsonError.message : 'Unknown error';
+                    throw new Error(
+                        `Failed to load cache in both binary and JSON formats: ${jsonErrorMsg}`,
+                    );
                 }
             }
         } else if (Array.isArray(data)) {

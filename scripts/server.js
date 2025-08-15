@@ -1,8 +1,8 @@
 // Run the production build locally
 // pnpm production
-import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import express from 'express';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();

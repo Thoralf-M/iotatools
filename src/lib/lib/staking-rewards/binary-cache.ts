@@ -1,20 +1,20 @@
 /**
  * Binary Exchange Rate Cache Format
- * 
+ *
  * This module provides efficient binary serialization/deserialization for exchange rate cache data.
  * The binary format significantly reduces storage size compared to JSON.
- * 
+ *
  * Binary Format Layout:
- * 
+ *
  * Header (8 bytes):
  * - Magic number (4 bytes): 0x49455243 ("IERC" - Iota Exchange Rate Cache)
  * - Version (1 byte): Format version (currently 1)
  * - Pool count (3 bytes): Number of pools (24-bit unsigned integer, max 16.7M pools)
- * 
+ *
  * String Table:
  * - String table size (4 bytes): Total size of string table in bytes
  * - String entries: Null-terminated UTF-8 strings for poolIds and exchangeRateIds
- * 
+ *
  * For each pool:
  * - Pool ID index (2 bytes): Index into string table for poolId
  * - Exchange Rate ID index (2 bytes): Index into string table for exchangeRateId
@@ -23,7 +23,7 @@
  *   - Epoch number (2 bytes): Epoch as 16-bit unsigned integer
  *   - IOTA amount length (1 byte): Length of IOTA amount string
  *   - IOTA amount (variable): UTF-8 string of IOTA amount
- *   - Pool amount length (1 byte): Length of pool amount string  
+ *   - Pool amount length (1 byte): Length of pool amount string
  *   - Pool amount (variable): UTF-8 string of pool amount
  */
 
@@ -51,7 +51,7 @@ export function serializeExchangeRateCache(cacheData: ExchangeRateCacheEntry[]):
     // Build string table to deduplicate strings
     const stringMap = new Map<string, number>();
     const strings: string[] = [];
-    
+
     function addString(str: string): number {
         if (stringMap.has(str)) {
             return stringMap.get(str)!;
@@ -82,7 +82,7 @@ export function serializeExchangeRateCache(cacheData: ExchangeRateCacheEntry[]):
     let totalSize = 8; // Header
     totalSize += 4; // String table size
     totalSize += stringTableSize; // String table
-    
+
     for (const entry of cacheData) {
         totalSize += 6; // Pool ID index + Exchange Rate ID index + Epoch count
         for (const [epoch, data] of Object.entries(entry.epochData)) {
@@ -102,14 +102,14 @@ export function serializeExchangeRateCache(cacheData: ExchangeRateCacheEntry[]):
     offset += 4;
     view.setUint8(offset, FORMAT_VERSION);
     offset += 1;
-    
+
     // Write pool count (24-bit value)
-    if (cacheData.length > 0xFFFFFF) {
+    if (cacheData.length > 0xffffff) {
         throw new Error('Too many pools (max 16,777,215)');
     }
-    view.setUint8(offset, (cacheData.length >> 16) & 0xFF);
-    view.setUint8(offset + 1, (cacheData.length >> 8) & 0xFF);
-    view.setUint8(offset + 2, cacheData.length & 0xFF);
+    view.setUint8(offset, (cacheData.length >> 16) & 0xff);
+    view.setUint8(offset + 1, (cacheData.length >> 8) & 0xff);
+    view.setUint8(offset + 2, cacheData.length & 0xff);
     offset += 3;
 
     // Write string table size
@@ -131,10 +131,10 @@ export function serializeExchangeRateCache(cacheData: ExchangeRateCacheEntry[]):
         const exchangeRateIdIndex = stringMap.get(entry.exchangeRateId)!;
         const epochCount = Object.keys(entry.epochData).length;
 
-        if (poolIdIndex > 0xFFFF || exchangeRateIdIndex > 0xFFFF) {
+        if (poolIdIndex > 0xffff || exchangeRateIdIndex > 0xffff) {
             throw new Error('String table too large (max 65535 strings)');
         }
-        if (epochCount > 0xFFFF) {
+        if (epochCount > 0xffff) {
             throw new Error('Too many epochs for a pool (max 65535)');
         }
 
@@ -148,7 +148,7 @@ export function serializeExchangeRateCache(cacheData: ExchangeRateCacheEntry[]):
         // Write epoch data
         for (const [epochStr, data] of Object.entries(entry.epochData)) {
             const epoch = parseInt(epochStr);
-            if (epoch > 0xFFFF) {
+            if (epoch > 0xffff) {
                 throw new Error(`Epoch number too large: ${epoch} (max 65535)`);
             }
 
@@ -205,7 +205,10 @@ export function deserializeExchangeRateCache(binaryData: Uint8Array): ExchangeRa
     }
 
     // Read pool count (24-bit)
-    const poolCount = (view.getUint8(offset) << 16) | (view.getUint8(offset + 1) << 8) | view.getUint8(offset + 2);
+    const poolCount =
+        (view.getUint8(offset) << 16) |
+        (view.getUint8(offset + 1) << 8) |
+        view.getUint8(offset + 2);
     offset += 3;
 
     if (poolCount === 0) {
@@ -226,7 +229,7 @@ export function deserializeExchangeRateCache(binaryData: Uint8Array): ExchangeRa
         while (stringEnd < stringTableEnd && binaryData[stringEnd] !== 0) {
             stringEnd++;
         }
-        
+
         if (stringEnd >= stringTableEnd) {
             throw new Error('Invalid string table: missing null terminator');
         }
@@ -235,7 +238,7 @@ export function deserializeExchangeRateCache(binaryData: Uint8Array): ExchangeRa
         const stringBytes = binaryData.slice(offset, stringEnd);
         const str = decoder.decode(stringBytes);
         strings.push(str);
-        
+
         offset = stringEnd + 1; // Skip null terminator
     }
 
@@ -301,14 +304,14 @@ export function deserializeExchangeRateCache(binaryData: Uint8Array): ExchangeRa
 
             epochData[epoch] = {
                 iota: iotaAmount,
-                pool: poolAmount
+                pool: poolAmount,
             };
         }
 
         result.push({
             poolId,
             exchangeRateId,
-            epochData
+            epochData,
         });
     }
 
@@ -365,17 +368,17 @@ export function getCompressionStats(cacheData: ExchangeRateCacheEntry[]): {
 } {
     const originalJson = JSON.stringify(cacheData);
     const originalSize = new TextEncoder().encode(originalJson).length;
-    
+
     const compressed = compressExchangeRateCache(cacheData);
     const compressedSize = new TextEncoder().encode(compressed).length;
-    
+
     const compressionRatio = originalSize / compressedSize;
     const savings = (((originalSize - compressedSize) / originalSize) * 100).toFixed(1);
-    
+
     return {
         originalSize,
         compressedSize,
         compressionRatio,
-        savings: `${savings}%`
+        savings: `${savings}%`,
     };
 }
