@@ -1,19 +1,18 @@
 <script lang="ts">
-    import { decode as msgpackDecode } from '@msgpack/msgpack';
-    import { inflate } from 'pako';
-
     import JsonToggleView from '../components/JsonToggleView.svelte';
     import StakingRewardsTable from '../components/StakingRewardsTable.svelte';
-    import TestData2 from '../components/TestData2.json';
     import { EpochPTBAnalyzer } from '../epoch-ptb-analyzer';
-    import exchangeRateCacheRaw from '../lib/exchange-rate-cache.json';
+    // @ts-ignore
+    import exchangeRateCacheBinary from '../lib/exchange-rate-cache.bin?raw';
     import { activeAddress } from '../lib/signer-data';
+    import { fetchEpochStartTimestamp } from '../lib/staking-rewards/graphql-requests';
     import {
         fetchReceivedStakeTransactions,
         fetchStakeTransactions,
         processStakeTransactionsWithExchangeRates,
-        setInitialExchangeRateCache,
+        setInitialExchangeRateCacheFromBinary,
         type StakeObject,
+        type ValidatorInfo,
     } from '../lib/staking-rewards/index';
 
     let address = '0x1ee12dca0e798966a82f74c010c109e1bd0674f4f47517db6843f223bad5eb7c';
@@ -22,31 +21,30 @@
     let error = '';
     let transactions: any[] = [];
     let stakeObjects: StakeObject[] = [];
+    let validatorInfo: Record<string, ValidatorInfo> = {};
     let loadingTxs = false;
-
-    // Helper to decode and decompress base64-encoded MessagePack cache
-    function loadExchangeRateCache(base64: string): any {
-        const compressed = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
-        const binary = inflate(compressed);
-        return msgpackDecode(binary);
-    }
+    let loadingStep: string | null = null;
+    let endTimestamp: number | null = null;
 
     // Initialize exchange rate cache on component load
-    const exchangeRateCacheData = loadExchangeRateCache(exchangeRateCacheRaw.data);
-    setInitialExchangeRateCache(exchangeRateCacheData);
+    setInitialExchangeRateCacheFromBinary(exchangeRateCacheBinary);
 
-    async function getCurrentEpoch() {
+    async function getCurrentEpochAndEndTimestamp() {
         try {
             error = '';
             epochLoading = true;
             const currentEpochId = await new EpochPTBAnalyzer().getCurrentEpoch();
             if (currentEpochId) {
                 epoch = parseInt(currentEpochId);
+                const startTimestamp = await fetchEpochStartTimestamp(epoch);
+                endTimestamp = startTimestamp ? startTimestamp + 24 * 60 * 60 : null;
             } else {
                 error = 'Failed to fetch current epoch.';
+                endTimestamp = null;
             }
         } catch (err: any) {
             error = err?.toString() ?? 'Error fetching current epoch.';
+            endTimestamp = null;
         } finally {
             epochLoading = false;
         }
@@ -56,17 +54,30 @@
         error = '';
         transactions = [];
         stakeObjects = [];
+        validatorInfo = {};
         loadingTxs = true;
+        loadingStep = 'Fetching stake txs...';
         try {
+            // Step 1: Fetch sent stake transactions
+            loadingStep = 'Fetching stake txs...';
             const sentTxs = await fetchStakeTransactions(address);
+
+            // Step 2: Fetch received stake transactions
+            loadingStep = 'Fetching received txs...';
             const receivedTxs = await fetchReceivedStakeTransactions(address);
 
-            await getCurrentEpoch();
-            // Use the new refactored function
-            stakeObjects = await processStakeTransactionsWithExchangeRates(
+            // Step 3: Get current epoch and end timestamp
+            loadingStep = 'Fetching epoch info...';
+            await getCurrentEpochAndEndTimestamp();
+
+            // Step 4: Process transactions with exchange rates
+            loadingStep = 'Fetching exchange rates...';
+            const result = await processStakeTransactionsWithExchangeRates(
                 [sentTxs, receivedTxs],
                 epoch as number,
             );
+            stakeObjects = result.stakeObjects;
+            validatorInfo = result.validatorInfo;
             console.log(stakeObjects);
             transactions = [sentTxs, receivedTxs];
 
@@ -75,6 +86,7 @@
             error = err?.toString() ?? 'Error fetching transactions.';
         } finally {
             loadingTxs = false;
+            loadingStep = null;
         }
     }
 </script>
@@ -82,7 +94,7 @@
 <main>
     <div class="input-row">
         <button onclick={fetchTransactions} disabled={loadingTxs}>
-            {loadingTxs ? 'Loading...' : 'Fetch data'}
+            {loadingTxs ? (loadingStep ?? 'Loading...') : 'Fetch data'}
         </button>
         <span>
             address:
@@ -90,21 +102,31 @@
             <button onclick={() => (address = $activeAddress)}> Set to active address </button>
         </span>
     </div>
+    {#if loadingTxs}
+        <div style="text-align: left;">
+            Loading can take over a minute, depending on the number of transactions.
+        </div>
+    {/if}
     {#if error}
         <div class="error-message">{error}</div>
     {/if}
     <div>
         <h3>Staking Rewards:</h3>
-        <StakingRewardsTable currentEpoch={epoch || 1} {stakeObjects} />
+        <StakingRewardsTable
+            currentEpoch={epoch || 1}
+            {stakeObjects}
+            {endTimestamp}
+            {validatorInfo}
+        />
     </div>
-    <div>
-        <h3>Stake objects:</h3>
+    <details>
+        <summary>Stake objects:</summary>
         <JsonToggleView value={stakeObjects} />
-    </div>
-    <div>
-        <h3>Transactions:</h3>
+    </details>
+    <details>
+        <summary>Transactions:</summary>
         <JsonToggleView value={transactions} />
-    </div>
+    </details>
 </main>
 
 <style>

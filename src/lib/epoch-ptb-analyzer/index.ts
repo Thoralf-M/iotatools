@@ -2,7 +2,6 @@ import {
     TransactionDataProcessor,
     type DisplayData,
     type ProcessedTransaction,
-    type PublishedPackage,
 } from './data-processor';
 import { GraphQLDataFetcher, type CheckpointRange } from './graphql-fetcher';
 

@@ -1,4 +1,10 @@
-import { fetchPoolExchangeRates, fetchSystemState, getExchangeRateCacheStats, exchangeRateCache } from "./graphql-requests";
+import {
+    exchangeRateCache,
+    fetchAllExchangeRates,
+    fetchPoolExchangeRates,
+    fetchSystemState,
+    getExchangeRateCacheStats,
+} from './graphql-requests';
 
 export type StakeObject = {
     address: string;
@@ -16,11 +22,28 @@ export type StakeObject = {
     stakeActivationEpoch: number;
 };
 
+export type ValidatorInfo = {
+    name: string;
+    poolId: string;
+};
+
+export type ProcessStakeTransactionsResult = {
+    stakeObjects: StakeObject[];
+    validatorInfo: Record<string, ValidatorInfo>;
+};
+
 // Helper function to calculate IOTA amount from pool tokens using exchange rate
-function getIotaAmount(exchangeRate: { iota_amount: string; pool_token_amount: string } | { iota: string; pool: string }, tokenAmount: bigint): bigint {
+function getIotaAmount(
+    exchangeRate:
+        | { iota_amount: string; pool_token_amount: string }
+        | { iota: string; pool: string },
+    tokenAmount: bigint,
+): bigint {
     // Handle both formats - new cache format and GraphQL response format
-    const iotaAmount = 'iota' in exchangeRate ? BigInt(exchangeRate.iota) : BigInt(exchangeRate.iota_amount);
-    const poolTokenAmount = 'pool' in exchangeRate ? BigInt(exchangeRate.pool) : BigInt(exchangeRate.pool_token_amount);
+    const iotaAmount =
+        'iota' in exchangeRate ? BigInt(exchangeRate.iota) : BigInt(exchangeRate.iota_amount);
+    const poolTokenAmount =
+        'pool' in exchangeRate ? BigInt(exchangeRate.pool) : BigInt(exchangeRate.pool_token_amount);
 
     // When either amount is 0, return the token amount (as per Move implementation)
     if (iotaAmount === 0n || poolTokenAmount === 0n) {
@@ -32,10 +55,17 @@ function getIotaAmount(exchangeRate: { iota_amount: string; pool_token_amount: s
 }
 
 // Helper function to get pool token amount from IOTA amount using exchange rate
-function getTokenAmount(exchangeRate: { iota_amount: string; pool_token_amount: string } | { iota: string; pool: string }, iotaAmount: bigint): bigint {
+function getTokenAmount(
+    exchangeRate:
+        | { iota_amount: string; pool_token_amount: string }
+        | { iota: string; pool: string },
+    iotaAmount: bigint,
+): bigint {
     // Handle both formats - new cache format and GraphQL response format
-    const iotaAmountBig = 'iota' in exchangeRate ? BigInt(exchangeRate.iota) : BigInt(exchangeRate.iota_amount);
-    const poolTokenAmount = 'pool' in exchangeRate ? BigInt(exchangeRate.pool) : BigInt(exchangeRate.pool_token_amount);
+    const iotaAmountBig =
+        'iota' in exchangeRate ? BigInt(exchangeRate.iota) : BigInt(exchangeRate.iota_amount);
+    const poolTokenAmount =
+        'pool' in exchangeRate ? BigInt(exchangeRate.pool) : BigInt(exchangeRate.pool_token_amount);
 
     // When either amount is 0, return the iota amount
     if (iotaAmountBig === 0n || poolTokenAmount === 0n) {
@@ -47,11 +77,16 @@ function getTokenAmount(exchangeRate: { iota_amount: string; pool_token_amount: 
 }
 
 // Compute rewards for a single stake object
-async function computeRewardsForStakeObject(stakeObject: StakeObject, exchangeRateId: string): Promise<void> {
+async function computeRewardsForStakeObject(
+    stakeObject: StakeObject,
+    exchangeRateId: string,
+): Promise<void> {
     const principalAmount = BigInt(Object.values(stakeObject.principalByEpoch)[0] || '0');
 
     // Get all epochs with exchange rates, sorted chronologically
-    const epochs = Object.keys(stakeObject.exchangeRatesByEpoch).map(Number).sort((a, b) => a - b);
+    const epochs = Object.keys(stakeObject.exchangeRatesByEpoch)
+        .map(Number)
+        .sort((a, b) => a - b);
 
     let previousAccumulatedRewards = 0n;
 
@@ -68,7 +103,12 @@ async function computeRewardsForStakeObject(stakeObject: StakeObject, exchangeRa
             if (!preStakingEpochExchangeRate) {
                 // Try to fetch the exchange rate for the staking epoch
                 try {
-                    const fetchedRate = await fetchPoolExchangeRates(exchangeRateId, preStakingEpoch, stakeObject.poolId, true);
+                    const fetchedRate = await fetchPoolExchangeRates(
+                        exchangeRateId,
+                        preStakingEpoch,
+                        stakeObject.poolId,
+                        true,
+                    );
                     if (fetchedRate) {
                         preStakingEpochExchangeRate = fetchedRate;
                         stakeObject.exchangeRatesByEpoch[preStakingEpoch] = fetchedRate;
@@ -76,33 +116,40 @@ async function computeRewardsForStakeObject(stakeObject: StakeObject, exchangeRa
                         // Fallback to 1:1 ratio
                         preStakingEpochExchangeRate = {
                             iota_amount: '1',
-                            pool_token_amount: '1'
+                            pool_token_amount: '1',
                         };
                     }
                 } catch (err) {
-                    console.warn(`Failed to fetch exchange rate for pre staking epoch ${preStakingEpoch}, using 1:1 ratio`);
+                    console.warn(
+                        `Failed to fetch exchange rate for pre staking epoch ${preStakingEpoch}, using 1:1 ratio`,
+                    );
                     preStakingEpochExchangeRate = {
                         iota_amount: '1',
-                        pool_token_amount: '1'
+                        pool_token_amount: '1',
                     };
                 }
             }
 
             // Step 1: Calculate pool token withdraw amount using exchange rate at pre staking epoch
-            const poolTokenWithdrawAmount = getTokenAmount(preStakingEpochExchangeRate, principalAmount);
+            const poolTokenWithdrawAmount = getTokenAmount(
+                preStakingEpochExchangeRate,
+                principalAmount,
+            );
 
             // Step 2: Calculate total IOTA withdraw amount using current epoch exchange rate
             const totalIotaWithdrawAmount = getIotaAmount(exchangeRate, poolTokenWithdrawAmount);
 
             // Step 3: Calculate total accumulated rewards (total - principal, but not less than 0)
-            const currentAccumulatedRewards = totalIotaWithdrawAmount > principalAmount
-                ? totalIotaWithdrawAmount - principalAmount
-                : 0n;
+            const currentAccumulatedRewards =
+                totalIotaWithdrawAmount > principalAmount
+                    ? totalIotaWithdrawAmount - principalAmount
+                    : 0n;
 
             // Step 4: Calculate new rewards for this epoch (difference from previous accumulated)
-            const newEpochRewards = currentAccumulatedRewards > previousAccumulatedRewards
-                ? currentAccumulatedRewards - previousAccumulatedRewards
-                : 0n;
+            const newEpochRewards =
+                currentAccumulatedRewards > previousAccumulatedRewards
+                    ? currentAccumulatedRewards - previousAccumulatedRewards
+                    : 0n;
             // if (epoch == stakeObject.stakeActivationEpoch || epoch == stakeObject.stakeActivationEpoch + 1 || epoch == stakeObject.stakeActivationEpoch + 2) {
             //     console.log(`epoch: ${epoch}`)
             //     console.log("preStakingEpochExchangeRate", preStakingEpochExchangeRate);
@@ -120,7 +167,6 @@ async function computeRewardsForStakeObject(stakeObject: StakeObject, exchangeRa
 
             // Update previous accumulated rewards for next iteration
             previousAccumulatedRewards = currentAccumulatedRewards;
-
         } catch (err) {
             console.error(`Error computing rewards for epoch ${epoch}:`, err);
             stakeObject.accumulatedRewards[epoch] = previousAccumulatedRewards.toString();
@@ -130,6 +176,7 @@ async function computeRewardsForStakeObject(stakeObject: StakeObject, exchangeRa
 }
 
 function getCurrentActiveValidatorsExchangeRateIds(systemState: any): Record<string, string> {
+    // console.log("systemState", systemState);
     const validatorMap: Record<string, string> = {};
     const activeValidators = systemState?.json?.validators?.active_validators || [];
     for (const validator of activeValidators) {
@@ -142,18 +189,32 @@ function getCurrentActiveValidatorsExchangeRateIds(systemState: any): Record<str
     return validatorMap;
 }
 
+function getValidatorInfo(systemState: any): Record<string, { name: string; poolId: string }> {
+    const validatorInfo: Record<string, { name: string; poolId: string }> = {};
+    const activeValidators = systemState?.json?.validators?.active_validators || [];
+    for (const validator of activeValidators) {
+        const poolId = validator?.staking_pool?.id;
+        const name = validator?.metadata?.name || 'Unknown Validator';
+        if (poolId) {
+            validatorInfo[poolId] = { name, poolId };
+        }
+    }
+    return validatorInfo;
+}
+
 export async function processStakeTransactionsWithExchangeRates(
     transactions: Array<Array<any>>,
-    currentEpoch: number
-): Promise<StakeObject[]> {
-    // First, get system state to map pool IDs to exchange rate IDs
+    currentEpoch: number,
+): Promise<ProcessStakeTransactionsResult> {
+    // Get system state to map pool IDs to exchange rate IDs
     const systemState = (await fetchSystemState())[0];
     // TODO: handle inactive validators
     const validatorMap = getCurrentActiveValidatorsExchangeRateIds(systemState);
+    const validatorInfo = getValidatorInfo(systemState);
 
     const stakeObjects = new Map<string, StakeObject>();
 
-    // Process transactions to build stake objects
+    // Process transactions to build stake objects first
     transactions.forEach((transactionSet) => {
         if (!Array.isArray(transactionSet)) return;
         transactionSet.forEach((transaction) => {
@@ -219,7 +280,18 @@ export async function processStakeTransactionsWithExchangeRates(
         });
     });
 
-    // Now fetch exchange rates for all active epochs and fill in missing principal entries
+    // Extract the required pool IDs from stake objects
+    const requiredPoolIds = new Set<string>();
+    stakeObjects.forEach((stakeObject) => {
+        requiredPoolIds.add(stakeObject.poolId);
+    });
+
+    console.log(
+        `Found ${stakeObjects.size} stake objects requiring exchange rates for ${requiredPoolIds.size} pools`,
+    );
+
+    // Now fetch exchange rates for the required pools only
+    await fetchAllExchangeRates(currentEpoch, requiredPoolIds); // Now fetch exchange rates for all active epochs and fill in missing principal entries
     const stakeObjectsArray = Array.from(stakeObjects.values());
 
     for (const stakeObject of stakeObjectsArray) {
@@ -232,14 +304,20 @@ export async function processStakeTransactionsWithExchangeRates(
         // Generate all epochs where this stake object was active
         // Include the stake activation epoch itself, as that's where the principal is established
         const activeEpochs: number[] = [];
-        for (let epoch = stakeObject.stakeActivationEpoch; epoch <= stakeObject.lastEpoch; epoch++) {
+        for (
+            let epoch = stakeObject.stakeActivationEpoch;
+            epoch <= stakeObject.lastEpoch;
+            epoch++
+        ) {
             activeEpochs.push(epoch);
         }
 
         // Fill in missing principal entries by carrying forward the previous epoch's value
         // First, find the initial principal amount from any existing epoch
         let lastKnownPrincipal: string | undefined;
-        const existingEpochs = Object.keys(stakeObject.principalByEpoch).map(Number).sort((a, b) => a - b);
+        const existingEpochs = Object.keys(stakeObject.principalByEpoch)
+            .map(Number)
+            .sort((a, b) => a - b);
         if (existingEpochs.length > 0) {
             lastKnownPrincipal = stakeObject.principalByEpoch[existingEpochs[0]];
         }
@@ -258,13 +336,19 @@ export async function processStakeTransactionsWithExchangeRates(
         }
 
         // Fetch exchange rates for epochs where rewards are earned (stakeActivationEpoch onwards)
-        const rewardEpochs = activeEpochs.filter(epoch => epoch >= stakeObject.stakeActivationEpoch);
+        const rewardEpochs = activeEpochs.filter(
+            (epoch) => epoch >= stakeObject.stakeActivationEpoch,
+        );
         for (const epoch of rewardEpochs) {
             if (epoch == currentEpoch) {
                 continue; // Skip current epoch as we don't have exchange rates for it yet
             }
             try {
-                const exchangeRates = await fetchPoolExchangeRates(exchangeRateId, epoch, stakeObject.poolId);
+                const exchangeRates = await fetchPoolExchangeRates(
+                    exchangeRateId,
+                    epoch,
+                    stakeObject.poolId,
+                );
                 if (exchangeRates) {
                     stakeObject.exchangeRatesByEpoch[epoch] = exchangeRates;
                 }
@@ -290,12 +374,17 @@ export async function processStakeTransactionsWithExchangeRates(
     console.log(JSON.stringify(cacheArray, null, 2));
     console.log('=== END CACHE DATA ===');
 
-    return stakeObjectsArray;
+    return {
+        stakeObjects: stakeObjectsArray,
+        validatorInfo,
+    };
 }
 
 // Helper function to get total accumulated rewards for a stake object (latest accumulated value)
 export function getTotalAccumulatedRewards(stakeObject: StakeObject): string {
-    const epochs = Object.keys(stakeObject.accumulatedRewards).map(Number).sort((a, b) => b - a);
+    const epochs = Object.keys(stakeObject.accumulatedRewards)
+        .map(Number)
+        .sort((a, b) => b - a);
     if (epochs.length === 0) return '0';
     return stakeObject.accumulatedRewards[epochs[0]] || '0';
 }
@@ -311,16 +400,18 @@ export function calculateTotalRewards(stakeObject: StakeObject): string {
 
 // Helper function to get the latest epoch-specific rewards for a stake object
 export function getLatestEpochRewards(stakeObject: StakeObject): string {
-    const epochs = Object.keys(stakeObject.rewardsByEpoch).map(Number).sort((a, b) => b - a);
+    const epochs = Object.keys(stakeObject.rewardsByEpoch)
+        .map(Number)
+        .sort((a, b) => b - a);
     if (epochs.length === 0) return '0';
     return stakeObject.rewardsByEpoch[epochs[0]] || '0';
 }
 
 // Helper function to get the latest accumulated rewards for a stake object (from the most recent epoch)
 export function getLatestAccumulatedRewards(stakeObject: StakeObject): string {
-    const epochs = Object.keys(stakeObject.accumulatedRewards).map(Number).sort((a, b) => b - a);
+    const epochs = Object.keys(stakeObject.accumulatedRewards)
+        .map(Number)
+        .sort((a, b) => b - a);
     if (epochs.length === 0) return '0';
     return stakeObject.accumulatedRewards[epochs[0]] || '0';
 }
-
-

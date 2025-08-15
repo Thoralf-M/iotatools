@@ -1,3 +1,13 @@
 # IOTA utils
 
-`pnpm i && pnpm run dev`
+Dev build:
+
+```bash
+pnpm i && pnpm run dev
+```
+
+Production build:
+
+```bash
+pnpm build && pnpm production
+```
