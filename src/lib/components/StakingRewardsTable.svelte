@@ -2,8 +2,9 @@
     import { List } from 'svelte-virtual';
 
     import type { StakeObject, ValidatorInfo } from '../lib/staking-rewards/';
+    import pricesCache from './iota-prices-coingecko.json';
 
-    export let currentEpoch: number = 91;
+    export let currentEpoch: number = 0;
     export let stakeObjects: StakeObject[] = [];
     export let endTimestamp: number | null = null;
     export let validatorInfo: Record<string, ValidatorInfo> = {};
@@ -234,6 +235,110 @@
             });
         }
     }
+
+    // Price fetch state
+    let selectedCurrency: 'usd' | 'eur' = 'usd';
+    let previousCurrency: 'usd' | 'eur' = selectedCurrency;
+    function reloadPricesFromCache() {
+        let cache: Record<string, { usd: number; eur: number }> = { ...loadedCache };
+        let newEpochPrices: Record<number, number> = {};
+        for (let i = 0; i < epochs.length; i++) {
+            const epoch = epochs[i];
+            const dateStr = epochEndDates[i];
+            if (!dateStr) continue;
+            const formattedDate = formatDateForCoinGecko(dateStr);
+            if (cache[formattedDate]) {
+                const cached = cache[formattedDate];
+                if (selectedCurrency === 'usd' && typeof cached.usd === 'number') {
+                    newEpochPrices[epoch] = cached.usd;
+                } else if (selectedCurrency === 'eur' && typeof cached.eur === 'number') {
+                    newEpochPrices[epoch] = cached.eur;
+                }
+            }
+        }
+        epochPrices = newEpochPrices;
+    }
+
+    $: if (!isFetchingPrice && selectedCurrency !== previousCurrency) {
+        previousCurrency = selectedCurrency;
+        reloadPricesFromCache();
+    }
+    let isFetchingPrice = false;
+    let priceError: string = '';
+    let epochPrices: Record<number, number> = {};
+    let loadedCache: Record<string, { usd: number; eur: number }> = pricesCache;
+
+    // Helper to format date for CoinGecko API (DD-MM-YYYY)
+    function formatDateForCoinGecko(dateStr: string): string {
+        const [date] = dateStr.split(' ');
+        const [yyyy, mm, dd] = date.split('-');
+        return `${dd}-${mm}-${yyyy}`;
+    }
+
+    async function fetchAllPrices() {
+        isFetchingPrice = true;
+        priceError = '';
+        epochPrices = {};
+        let cache: Record<string, { usd: number; eur: number }> = { ...loadedCache };
+        const now = new Date();
+        for (let i = 0; i < epochs.length; i++) {
+            const epoch = epochs[i];
+            const dateStr = epochEndDates[i];
+            if (!dateStr) continue;
+            // Skip if the epoch end date is in the future (current epoch or later)
+            const epochEndDate = new Date(dateStr);
+            if (epochEndDate > now) continue;
+            const formattedDate = formatDateForCoinGecko(dateStr);
+            // Use cached price if available
+            if (cache[formattedDate]) {
+                const cached = cache[formattedDate];
+                if (selectedCurrency === 'usd' && typeof cached.usd === 'number') {
+                    epochPrices[epoch] = cached.usd;
+                } else if (selectedCurrency === 'eur' && typeof cached.eur === 'number') {
+                    epochPrices[epoch] = cached.eur;
+                }
+                continue;
+            }
+            // Otherwise, fetch from API with retry logic
+            let success = false;
+            let attempt = 0;
+            while (!success && attempt < 5) {
+                try {
+                    const url = `https://api.coingecko.com/api/v3/coins/iota/history?date=${formattedDate}`;
+                    const res = await fetch(url);
+                    if (!res.ok) throw new Error('API error for epoch ' + epoch);
+                    const data = await res.json();
+                    const usd = data?.market_data?.current_price?.['usd'];
+                    const eur = data?.market_data?.current_price?.['eur'];
+                    if (typeof usd !== 'number' && typeof eur !== 'number')
+                        throw new Error('No price data for epoch ' + epoch);
+                    if (typeof usd === 'number') {
+                        if (selectedCurrency === 'usd') epochPrices[epoch] = usd;
+                    }
+                    if (typeof eur === 'number') {
+                        if (selectedCurrency === 'eur') epochPrices[epoch] = eur;
+                    }
+                    cache[formattedDate] = { usd, eur };
+                    console.log('Copy this to iota-prices-coingecko.json:');
+                    console.log(JSON.stringify(cache, null, 2));
+                    success = true;
+                } catch (e) {
+                    attempt++;
+                    priceError =
+                        typeof e === 'object' && e && 'message' in e
+                            ? (e as any).message
+                            : 'Failed to fetch prices';
+                    // Wait extra 10s before retrying
+                    await new Promise((r) => setTimeout(r, attempt * 10000));
+                }
+            }
+            // To avoid rate limits, add a small delay except for the last round
+            if (i < epochs.length - 1) {
+                await new Promise((r) => setTimeout(r, 5000));
+            }
+        }
+        isFetchingPrice = false;
+    }
 </script>
 
 {#if selectedStakeObject}
@@ -283,6 +388,17 @@
                 ).length}
             </div>
             <div>
+                {#if Object.keys(epochPrices).length > 0}
+                    <div class="header-cell rewards-header">
+                        Price ({selectedCurrency.toUpperCase()})
+                    </div>
+                    <div class="header-cell rewards-header">
+                        Rewards in {selectedCurrency.toUpperCase()}
+                    </div>
+                    <div class="header-cell rewards-header">
+                        Accumulated in {selectedCurrency.toUpperCase()}
+                    </div>
+                {/if}
                 Total principal staked: {selectedValidator
                     ? getValidatorTotalPrincipal(selectedValidator.poolId)
                     : '0'}
@@ -297,6 +413,27 @@
     Transfer history is currently not taken into account, values are computed like the objects were always
     owned by the provided address.
 </div>
+
+<!-- Price fetch UI -->
+<div style="margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+    <label>
+        Currency:
+        <select bind:value={selectedCurrency} on:change={reloadPricesFromCache}>
+            <option value="usd">USD</option>
+            <option value="eur">EUR</option>
+        </select>
+    </label>
+    <button on:click={fetchAllPrices} disabled={isFetchingPrice}>
+        {isFetchingPrice ? 'Fetching... (rate limited)' : 'Fetch prices from coingecko'}
+    </button>
+    {#if priceError}
+        <span style="color: red;">{priceError}</span>
+    {/if}
+    {#if Object.keys(epochPrices).length > 0}
+        <span style="color: green;">Prices loaded for {Object.keys(epochPrices).length} epochs</span
+        >
+    {/if}
+</div>
 <div class="table-container">
     <div class="virtual-table">
         <!-- Fixed header that scrolls horizontally -->
@@ -306,6 +443,17 @@
                 <div class="header-cell end-date-header">End Date</div>
                 <div class="header-cell rewards-header">Rewards</div>
                 <div class="header-cell rewards-header">Accumulated</div>
+                {#if Object.keys(epochPrices).length > 0}
+                    <div class="header-cell rewards-header">
+                        Price ({selectedCurrency.toUpperCase()})
+                    </div>
+                    <div class="header-cell rewards-header">
+                        Rewards in {selectedCurrency.toUpperCase()}
+                    </div>
+                    <div class="header-cell rewards-header">
+                        Accumulated in {selectedCurrency.toUpperCase()}
+                    </div>
+                {/if}
                 {#each uniqueValidators as validator}
                     <div class="header-cell validator-header-cell">
                         <div class="validator-header">
@@ -388,6 +536,42 @@
                                 ? 'pending'
                                 : getTotalAccumulatedRewardsForEpoch(epochs[index])}
                         </div>
+                        {#if Object.keys(epochPrices).length > 0}
+                            <div class="table-cell rewards-cell">
+                                {epochs[index] === currentEpoch
+                                    ? 'pending'
+                                    : epochPrices[epochs[index]]
+                                      ? epochPrices[epochs[index]].toFixed(6)
+                                      : 'no price'}
+                            </div>
+                            <div class="table-cell rewards-cell">
+                                {epochs[index] === currentEpoch
+                                    ? 'pending'
+                                    : epochPrices[epochs[index]]
+                                      ? `${(
+                                            Number(
+                                                getTotalRewardsForEpoch(epochs[index]).replace(
+                                                    ' IOTA',
+                                                    '',
+                                                ),
+                                            ) * epochPrices[epochs[index]]
+                                        ).toFixed(2)} ${selectedCurrency.toUpperCase()}`
+                                      : 'no price'}
+                            </div>
+                            <div class="table-cell rewards-cell">
+                                {epochs[index] === currentEpoch
+                                    ? 'pending'
+                                    : epochPrices[epochs[index]]
+                                      ? `${(
+                                            Number(
+                                                getTotalAccumulatedRewardsForEpoch(
+                                                    epochs[index],
+                                                ).replace(' IOTA', ''),
+                                            ) * epochPrices[epochs[index]]
+                                        ).toFixed(2)} ${selectedCurrency.toUpperCase()}`
+                                      : 'no price'}
+                            </div>
+                        {/if}
                         {#each uniqueValidators as validator}
                             <div class="table-cell validator-cell">
                                 <div class="validator-popup-container">
