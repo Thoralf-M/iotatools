@@ -5,6 +5,7 @@
     // @ts-ignore
     import exchangeRateCacheBinary from '../lib/exchange-rate-cache.bin?raw';
     import { activeAddress } from '../lib/signer-data';
+    import { fetchEpochStartTimestamp } from '../lib/staking-rewards/graphql-requests';
     import {
         fetchReceivedStakeTransactions,
         fetchStakeTransactions,
@@ -20,22 +21,27 @@
     let transactions: any[] = [];
     let stakeObjects: StakeObject[] = [];
     let loadingTxs = false;
+    let endTimestamp: number | null = null;
 
     // Initialize exchange rate cache on component load
     setInitialExchangeRateCacheFromBinary(exchangeRateCacheBinary);
 
-    async function getCurrentEpoch() {
+    async function getCurrentEpochAndEndTimestamp() {
         try {
             error = '';
             epochLoading = true;
             const currentEpochId = await new EpochPTBAnalyzer().getCurrentEpoch();
             if (currentEpochId) {
                 epoch = parseInt(currentEpochId);
+                const startTimestamp = await fetchEpochStartTimestamp(epoch);
+                endTimestamp = startTimestamp ? startTimestamp + 24 * 60 * 60 : null;
             } else {
                 error = 'Failed to fetch current epoch.';
+                endTimestamp = null;
             }
         } catch (err: any) {
             error = err?.toString() ?? 'Error fetching current epoch.';
+            endTimestamp = null;
         } finally {
             epochLoading = false;
         }
@@ -50,8 +56,7 @@
             const sentTxs = await fetchStakeTransactions(address);
             const receivedTxs = await fetchReceivedStakeTransactions(address);
 
-            await getCurrentEpoch();
-            // Use the new refactored function
+            await getCurrentEpochAndEndTimestamp();
             stakeObjects = await processStakeTransactionsWithExchangeRates(
                 [sentTxs, receivedTxs],
                 epoch as number,
@@ -84,7 +89,7 @@
     {/if}
     <div>
         <h3>Staking Rewards:</h3>
-        <StakingRewardsTable currentEpoch={epoch || 1} {stakeObjects} />
+        <StakingRewardsTable currentEpoch={epoch || 1} {stakeObjects} {endTimestamp} />
     </div>
     <div>
         <h3>Stake objects:</h3>

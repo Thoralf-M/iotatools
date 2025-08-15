@@ -5,6 +5,7 @@
 
     export let currentEpoch: number = 91;
     export let stakeObjects: StakeObject[] = [];
+    export let endTimestamp: number | null = null;
 
     function copyToClipboard(text: string) {
         navigator.clipboard.writeText(text);
@@ -139,6 +140,30 @@
     }
 
     let selectedStakeObject: StakeObject | null = null;
+
+    let epochEndDates: string[] = [];
+
+    function formatDate(date: Date): string {
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        const hh = String(date.getHours()).padStart(2, '0');
+        const min = String(date.getMinutes()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+    }
+
+    $: {
+        if (!endTimestamp || !epochs.length) {
+            epochEndDates = Array.from({ length: epochs.length }, () => '');
+        } else {
+            const endDateCurrent = new Date(endTimestamp * 1000);
+            epochEndDates = epochs.map((epochNum) => {
+                const offset = epochs[epochs.length - 1] - epochNum;
+                const date = new Date(endDateCurrent.getTime() - offset * 24 * 60 * 60 * 1000);
+                return formatDate(date);
+            });
+        }
+    }
 </script>
 
 {#if selectedStakeObject}
@@ -170,6 +195,7 @@
         <div class="table-header" bind:this={headerElement} on:scroll={syncHeaderScroll}>
             <div class="header-row">
                 <div class="header-cell epoch-header">Epoch</div>
+                <div class="header-cell end-date-header">End Date</div>
                 <div class="header-cell rewards-header">Rewards</div>
                 <div class="header-cell rewards-header">Accumulated</div>
                 {#each stakeObjects as stakeObject}
@@ -216,6 +242,7 @@
                 <div slot="item" let:index let:style {style} class="table-row">
                     <div class="data-row">
                         <div class="table-cell epoch-cell">{epochs[index]}</div>
+                        <div class="table-cell end-date-cell">{epochEndDates[index] || '-'}</div>
                         <div class="table-cell rewards-cell">
                             {epochs[index] === currentEpoch
                                 ? 'pending'
@@ -373,6 +400,12 @@
         background-color: #131d2b;
         box-shadow: 2px 0 4px -2px #0002;
         width: 70px;
+        flex-shrink: 0;
+        font-size: 1em !important;
+    }
+    .end-date-header,
+    .end-date-cell {
+        width: 150px;
         flex-shrink: 0;
         font-size: 1em !important;
     }

@@ -1,10 +1,10 @@
 import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
 import { getSelectedNetworkConfig } from '../client';
 import { bcs, toB64 } from '@iota/bcs';
-import { 
-    decompressExchangeRateCache, 
-    compressExchangeRateCache, 
-    getCompressionStats 
+import {
+    decompressExchangeRateCache,
+    compressExchangeRateCache,
+    getCompressionStats
 } from './binary-cache';
 
 async function fetchStakeTransactionsByRole(address: string, role: 'signAddress' | 'recvAddress') {
@@ -652,6 +652,27 @@ export function getExchangeRateCacheCompressionStats() {
  */
 export function exportExchangeRateCacheAsJson(): ExchangeRateCacheEntry[] {
     return Array.from(exchangeRateCache.values());
+}
+
+/**
+ * Fetches the start timestamp for a given epoch.
+ * Returns the UNIX timestamp (seconds) or null if not found.
+ */
+export async function fetchEpochStartTimestamp(epochId: number): Promise<number | null> {
+    const gqlClient = new IotaGraphQLClient({
+        url: getSelectedNetworkConfig().graphql,
+    });
+    const query = `query ($epochId: Int!) { epoch(id: $epochId) { startTimestamp } }`;
+    const variables = { epochId };
+    // @ts-ignore
+    const result = await gqlClient.query({ query, variables });
+    // @ts-ignore
+    const startTimestamp = result.data?.epoch?.startTimestamp;
+    if (typeof startTimestamp === 'string') {
+        // Parse ISO string to Date and return seconds since epoch
+        return Math.floor(new Date(startTimestamp).getTime() / 1000);
+    }
+    return null;
 }
 
 export { exchangeRateCache };
