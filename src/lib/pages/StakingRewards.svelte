@@ -119,14 +119,14 @@
             {validatorInfo}
         />
     </div>
-    <div>
-        <h3>Stake objects:</h3>
+    <details>
+        <summary>Stake objects:</summary>
         <JsonToggleView value={stakeObjects} />
-    </div>
-    <div>
-        <h3>Transactions:</h3>
+    </details>
+    <details>
+        <summary>Transactions:</summary>
         <JsonToggleView value={transactions} />
-    </div>
+    </details>
 </main>
 
 <style>
