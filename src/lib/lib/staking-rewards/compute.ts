@@ -16,6 +16,16 @@ export type StakeObject = {
     stakeActivationEpoch: number;
 };
 
+export type ValidatorInfo = {
+    name: string;
+    poolId: string;
+};
+
+export type ProcessStakeTransactionsResult = {
+    stakeObjects: StakeObject[];
+    validatorInfo: Record<string, ValidatorInfo>;
+};
+
 // Helper function to calculate IOTA amount from pool tokens using exchange rate
 function getIotaAmount(exchangeRate: { iota_amount: string; pool_token_amount: string } | { iota: string; pool: string }, tokenAmount: bigint): bigint {
     // Handle both formats - new cache format and GraphQL response format
@@ -130,6 +140,7 @@ async function computeRewardsForStakeObject(stakeObject: StakeObject, exchangeRa
 }
 
 function getCurrentActiveValidatorsExchangeRateIds(systemState: any): Record<string, string> {
+    // console.log("systemState", systemState);
     const validatorMap: Record<string, string> = {};
     const activeValidators = systemState?.json?.validators?.active_validators || [];
     for (const validator of activeValidators) {
@@ -142,14 +153,28 @@ function getCurrentActiveValidatorsExchangeRateIds(systemState: any): Record<str
     return validatorMap;
 }
 
+function getValidatorInfo(systemState: any): Record<string, { name: string; poolId: string }> {
+    const validatorInfo: Record<string, { name: string; poolId: string }> = {};
+    const activeValidators = systemState?.json?.validators?.active_validators || [];
+    for (const validator of activeValidators) {
+        const poolId = validator?.staking_pool?.id;
+        const name = validator?.metadata?.name || 'Unknown Validator';
+        if (poolId) {
+            validatorInfo[poolId] = { name, poolId };
+        }
+    }
+    return validatorInfo;
+}
+
 export async function processStakeTransactionsWithExchangeRates(
     transactions: Array<Array<any>>,
     currentEpoch: number
-): Promise<StakeObject[]> {
+): Promise<ProcessStakeTransactionsResult> {
     // Get system state to map pool IDs to exchange rate IDs
     const systemState = (await fetchSystemState())[0];
     // TODO: handle inactive validators
     const validatorMap = getCurrentActiveValidatorsExchangeRateIds(systemState);
+    const validatorInfo = getValidatorInfo(systemState);
 
     const stakeObjects = new Map<string, StakeObject>();
 
@@ -299,7 +324,10 @@ export async function processStakeTransactionsWithExchangeRates(
     console.log(JSON.stringify(cacheArray, null, 2));
     console.log('=== END CACHE DATA ===');
 
-    return stakeObjectsArray;
+    return {
+        stakeObjects: stakeObjectsArray,
+        validatorInfo
+    };
 }
 
 // Helper function to get total accumulated rewards for a stake object (latest accumulated value)

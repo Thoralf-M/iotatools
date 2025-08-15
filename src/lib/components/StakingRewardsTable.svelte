@@ -1,11 +1,12 @@
 <script lang="ts">
     import { List } from 'svelte-virtual';
 
-    import type { StakeObject } from '../lib/staking-rewards/';
+    import type { StakeObject, ValidatorInfo } from '../lib/staking-rewards/';
 
     export let currentEpoch: number = 91;
     export let stakeObjects: StakeObject[] = [];
     export let endTimestamp: number | null = null;
+    export let validatorInfo: Record<string, ValidatorInfo> = {};
 
     function copyToClipboard(text: string) {
         navigator.clipboard.writeText(text);
@@ -65,7 +66,75 @@
         });
         return total === 0n ? '0' : (Number(total) / 1_000_000_000).toFixed(2) + ' IOTA';
     }
-    // Format principal value for display
+
+    // Get unique validators from stake objects
+    let uniqueValidators: ValidatorInfo[] = [];
+    $: uniqueValidators = (() => {
+        const poolIds = new Set<string>();
+        stakeObjects.forEach((stakeObject) => {
+            poolIds.add(stakeObject.poolId);
+        });
+        return Array.from(poolIds).map(
+            (poolId) =>
+                validatorInfo[poolId] || { name: `Unknown (${poolId.slice(0, 6)}...)`, poolId },
+        );
+    })();
+
+    // Calculate total rewards for a specific validator in a given epoch
+    function getValidatorRewardsForEpoch(validatorPoolId: string, epoch: number): string {
+        let total = 0n;
+        stakeObjects.forEach((stakeObject) => {
+            if (stakeObject.poolId === validatorPoolId) {
+                const rewards = stakeObject.rewardsByEpoch[epoch];
+                if (rewards && rewards !== '0') {
+                    try {
+                        total += BigInt(rewards);
+                    } catch (e) {
+                        // Ignore invalid values
+                    }
+                }
+            }
+        });
+        return total === 0n ? '0' : (Number(total) / 1_000_000_000).toFixed(2) + ' IOTA';
+    }
+
+    // Calculate total accumulated rewards for a specific validator in a given epoch
+    function getValidatorAccumulatedRewardsForEpoch(
+        validatorPoolId: string,
+        epoch: number,
+    ): string {
+        let total = 0n;
+        stakeObjects.forEach((stakeObject) => {
+            if (stakeObject.poolId === validatorPoolId) {
+                const rewards = stakeObject.accumulatedRewards[epoch];
+                if (rewards && rewards !== '0') {
+                    try {
+                        total += BigInt(rewards);
+                    } catch (e) {
+                        // Ignore invalid values
+                    }
+                }
+            }
+        });
+        return total === 0n ? '0' : (Number(total) / 1_000_000_000).toFixed(2) + ' IOTA';
+    }
+    // Calculate total principal for a validator
+    function getValidatorTotalPrincipal(validatorPoolId: string): string {
+        let total = 0n;
+        stakeObjects.forEach((stakeObject) => {
+            if (stakeObject.poolId === validatorPoolId) {
+                const firstPrincipal = getFirstPrincipal(stakeObject);
+                if (firstPrincipal && firstPrincipal !== '0') {
+                    try {
+                        total += BigInt(firstPrincipal);
+                    } catch (e) {
+                        // Ignore invalid values
+                    }
+                }
+            }
+        });
+        return total === 0n ? '0' : (Number(total) / 1_000_000_000).toFixed(2) + ' IOTA';
+    }
     function formatPrincipal(principal: string): string {
         if (!principal || principal === '0') return 'N/A';
         try {
@@ -140,6 +209,7 @@
     }
 
     let selectedStakeObject: StakeObject | null = null;
+    let selectedValidator: ValidatorInfo | null = null;
 
     let epochEndDates: string[] = [];
 
@@ -183,6 +253,44 @@
     </div>
 {/if}
 
+{#if selectedValidator}
+    <div class="validator-hover-inline">
+        <button
+            class="close-hover"
+            aria-label="Close validator info"
+            on:click={() => (selectedValidator = null)}>×</button
+        >
+        <div class="validator-display-name">{selectedValidator.name}</div>
+        <div class="validator-display-pool-id">
+            Pool ID: {selectedValidator.poolId}
+            <button
+                class="copy-btn validator-copy-btn"
+                title="Copy pool ID"
+                on:click={(e) => {
+                    e.stopPropagation();
+                    if (selectedValidator?.poolId) {
+                        copyToClipboard(selectedValidator.poolId);
+                    }
+                }}
+            >
+                📋
+            </button>
+        </div>
+        <div class="validator-stats">
+            <div>
+                Total stake objects: {stakeObjects.filter(
+                    (obj) => obj.poolId === selectedValidator?.poolId,
+                ).length}
+            </div>
+            <div>
+                Total principal staked: {selectedValidator
+                    ? getValidatorTotalPrincipal(selectedValidator.poolId)
+                    : '0'}
+            </div>
+        </div>
+    </div>
+{/if}
+
 <div style="margin-bottom: 8px; text-align: left;">
     Data might be incomplete. Values are estimates due to rounding. Epochs before the first
     transaction are hidden.<br />
@@ -198,6 +306,33 @@
                 <div class="header-cell end-date-header">End Date</div>
                 <div class="header-cell rewards-header">Rewards</div>
                 <div class="header-cell rewards-header">Accumulated</div>
+                {#each uniqueValidators as validator}
+                    <div class="header-cell validator-header-cell">
+                        <div class="validator-header">
+                            <div
+                                class="validator-name clickable-validator"
+                                role="button"
+                                tabindex="0"
+                                on:click={() => {
+                                    selectedValidator =
+                                        selectedValidator?.poolId === validator.poolId
+                                            ? null
+                                            : validator;
+                                }}
+                                on:keydown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        selectedValidator =
+                                            selectedValidator?.poolId === validator.poolId
+                                                ? null
+                                                : validator;
+                                    }
+                                }}
+                            >
+                                {validator.name}
+                            </div>
+                        </div>
+                    </div>
+                {/each}
                 {#each stakeObjects as stakeObject}
                     <div class="header-cell stake-header-cell">
                         <div class="stake-header">
@@ -253,6 +388,42 @@
                                 ? 'pending'
                                 : getTotalAccumulatedRewardsForEpoch(epochs[index])}
                         </div>
+                        {#each uniqueValidators as validator}
+                            <div class="table-cell validator-cell">
+                                <div class="validator-popup-container">
+                                    {#if epochs[index] === currentEpoch}
+                                        pending
+                                    {:else}
+                                        <span class="validator-reward-value">
+                                            {getValidatorRewardsForEpoch(
+                                                validator.poolId,
+                                                epochs[index],
+                                            )}
+                                        </span>
+                                        <div class="validator-popup">
+                                            <div>
+                                                Validator: {validator.name}
+                                            </div>
+                                            <div>
+                                                Pool ID: {validator.poolId}
+                                            </div>
+                                            <div>
+                                                Rewards this epoch: {getValidatorRewardsForEpoch(
+                                                    validator.poolId,
+                                                    epochs[index],
+                                                )}
+                                            </div>
+                                            <div>
+                                                Accumulated rewards: {getValidatorAccumulatedRewardsForEpoch(
+                                                    validator.poolId,
+                                                    epochs[index],
+                                                )}
+                                            </div>
+                                        </div>
+                                    {/if}
+                                </div>
+                            </div>
+                        {/each}
                         {#each stakeObjects as stakeObject}
                             <div class="table-cell stake-cell">
                                 <div class="stake-popup-container">
@@ -415,10 +586,40 @@
         flex-shrink: 0;
         font-size: 1em !important;
     }
+    .validator-header-cell,
+    .validator-cell {
+        width: 150px;
+        flex-shrink: 0;
+        font-size: 1em !important;
+    }
     .stake-header-cell,
     .stake-cell {
         width: 140px;
         flex-shrink: 0;
+    }
+
+    .validator-header {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        font-size: 0.85em;
+    }
+
+    .validator-name {
+        font-weight: bold;
+        color: #ffffff;
+        word-break: break-word;
+    }
+
+    .clickable-validator {
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 3px;
+        transition: background-color 0.2s;
+    }
+
+    .clickable-validator:hover {
+        background-color: rgba(186, 204, 230, 0.1);
     }
 
     .stake-header {
@@ -438,6 +639,10 @@
         font-weight: bold;
         color: #ffffff;
         word-break: break-all;
+    }
+
+    .address:hover {
+        background-color: rgba(186, 204, 230, 0.1);
     }
 
     .close-hover {
@@ -481,6 +686,13 @@
 
     .rewards-cell {
         font-size: 0.75em;
+    }
+
+    .validator-cell {
+        font-size: 0.75em;
+        padding: 4px;
+        color: #38a169;
+        font-weight: bold;
     }
 
     .stake-cell {
@@ -529,6 +741,58 @@
         flex-direction: column;
     }
 
+    .validator-hover-inline {
+        position: relative;
+        margin: 0 auto 16px auto;
+        background: #2a3441;
+        color: #fff;
+        border: 1px solid #38a169;
+        border-radius: 6px;
+        padding: 16px 16px 16px 16px;
+        min-width: 260px;
+        max-width: 600px;
+        box-shadow: 0 2px 8px #0002;
+        font-size: 0.95em;
+        white-space: pre-line;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .validator-display-name {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #38a169;
+        margin-bottom: 8px;
+    }
+
+    .validator-display-pool-id {
+        font-family: monospace;
+        color: #a5bbe1;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .validator-copy-btn {
+        background-color: rgba(56, 161, 105, 0.2);
+        border: 1px solid #38a169;
+        color: #38a169;
+    }
+
+    .validator-copy-btn:hover {
+        background-color: rgba(56, 161, 105, 0.3);
+    }
+
+    .validator-stats {
+        color: #bacce6;
+        font-size: 0.9em;
+        margin-top: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
     /* Add CSS for popup */
     .stake-popup-container {
         position: relative;
@@ -553,6 +817,37 @@
     }
     .stake-cell-content:hover .stake-popup {
         display: block;
+    }
+
+    /* Validator popup styles */
+    .validator-popup-container {
+        position: relative;
+        display: inline-block;
+    }
+    .validator-popup-container .validator-popup {
+        display: none;
+        position: absolute;
+        left: 50%;
+        bottom: 100%;
+        transform: translateX(-50%) translateY(-8px);
+        background: #232b3a;
+        color: #fff;
+        border: 1px solid #bacce6;
+        border-radius: 6px;
+        padding: 8px 12px;
+        min-width: 200px;
+        box-shadow: 0 2px 8px #0002;
+        font-size: 0.95em;
+        white-space: pre-line;
+        z-index: 9999;
+    }
+    .validator-popup-container:hover .validator-popup {
+        display: block;
+    }
+    .validator-reward-value {
+        cursor: pointer;
+        font-weight: bold;
+        color: #38a169;
     }
     .stake-value {
         cursor: pointer;

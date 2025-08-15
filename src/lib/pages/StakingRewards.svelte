@@ -12,6 +12,7 @@
         processStakeTransactionsWithExchangeRates,
         setInitialExchangeRateCacheFromBinary,
         type StakeObject,
+        type ValidatorInfo,
     } from '../lib/staking-rewards/index';
 
     let address = '0x1ee12dca0e798966a82f74c010c109e1bd0674f4f47517db6843f223bad5eb7c';
@@ -20,6 +21,7 @@
     let error = '';
     let transactions: any[] = [];
     let stakeObjects: StakeObject[] = [];
+    let validatorInfo: Record<string, ValidatorInfo> = {};
     let loadingTxs = false;
     let endTimestamp: number | null = null;
 
@@ -51,16 +53,19 @@
         error = '';
         transactions = [];
         stakeObjects = [];
+        validatorInfo = {};
         loadingTxs = true;
         try {
             const sentTxs = await fetchStakeTransactions(address);
             const receivedTxs = await fetchReceivedStakeTransactions(address);
 
             await getCurrentEpochAndEndTimestamp();
-            stakeObjects = await processStakeTransactionsWithExchangeRates(
+            const result = await processStakeTransactionsWithExchangeRates(
                 [sentTxs, receivedTxs],
                 epoch as number,
             );
+            stakeObjects = result.stakeObjects;
+            validatorInfo = result.validatorInfo;
             console.log(stakeObjects);
             transactions = [sentTxs, receivedTxs];
 
@@ -89,7 +94,12 @@
     {/if}
     <div>
         <h3>Staking Rewards:</h3>
-        <StakingRewardsTable currentEpoch={epoch || 1} {stakeObjects} {endTimestamp} />
+        <StakingRewardsTable
+            currentEpoch={epoch || 1}
+            {stakeObjects}
+            {endTimestamp}
+            {validatorInfo}
+        />
     </div>
     <div>
         <h3>Stake objects:</h3>
