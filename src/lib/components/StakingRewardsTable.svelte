@@ -158,16 +158,12 @@
     </div>
 {/if}
 
-<div style="float: left">
+<div style="margin-bottom: 8px; text-align: left;">
     Data might be incomplete. Values are estimates due to rounding. Epochs before the first
-    transaction are hidden.
+    transaction are hidden.<br />
+    Transfer history is currently not taken into account, values are computed like the objects were always
+    owned by the provided address.
 </div>
-<br />
-<div style="float: left">
-    Transfer history is currently not taken into account, values are computed like the objects were
-    always owned by the provided address.
-</div>
-<br />
 <div class="table-container">
     <div class="virtual-table">
         <!-- Fixed header that scrolls horizontally -->
