@@ -98,24 +98,57 @@
                         } catch {}
                     }
                     epochData[epoch].stakeRewards[stakeObject.address] = rewards || '0';
-                    // Accumulated
-                    const accRewards = stakeObject.accumulatedRewards[epoch];
-                    if (accRewards && accRewards !== '0') {
-                        try {
-                            epochData[epoch].totalAccumulated += BigInt(accRewards);
-                            if (!epochData[epoch].validatorAccumulated[stakeObject.poolId]) {
-                                epochData[epoch].validatorAccumulated[stakeObject.poolId] = 0n;
-                            }
-                            epochData[epoch].validatorAccumulated[stakeObject.poolId] +=
-                                BigInt(accRewards);
-                        } catch {}
-                    }
-                    epochData[epoch].stakeAccumulated[stakeObject.address] = accRewards || '0';
                     // Pre-active/active
                     epochData[epoch].preActive[stakeObject.address] =
                         epoch >= stakeObject.firstEpoch && epoch < stakeObject.stakeActivationEpoch;
                     epochData[epoch].active[stakeObject.address] =
                         epoch >= stakeObject.firstEpoch && epoch <= stakeObject.lastEpoch;
+                });
+            });
+
+            // Compute accumulated rewards for each epoch (totalAccumulated)
+            for (let i = 0; i < epochRange.length; i++) {
+                const epoch = epochRange[i];
+                const prevEpoch = epochRange[i - 1];
+                epochData[epoch].totalAccumulated =
+                    epochData[epoch].totalRewards +
+                    (prevEpoch !== undefined ? epochData[prevEpoch].totalAccumulated : 0n);
+            }
+
+            // Compute validatorAccumulated and stakeAccumulated for each epoch
+            stakeObjects.forEach((stakeObject) => {
+                epochRange.forEach((epoch, i) => {
+                    // Validator accumulated
+                    if (!epochData[epoch].validatorAccumulated[stakeObject.poolId]) {
+                        epochData[epoch].validatorAccumulated[stakeObject.poolId] = 0n;
+                    }
+                    const rewards = stakeObject.rewardsByEpoch[epoch];
+                    if (rewards && rewards !== '0') {
+                        epochData[epoch].validatorAccumulated[stakeObject.poolId] +=
+                            BigInt(rewards);
+                    }
+                    if (i > 0) {
+                        const prevEpoch = epochRange[i - 1];
+                        epochData[epoch].validatorAccumulated[stakeObject.poolId] +=
+                            epochData[prevEpoch].validatorAccumulated[stakeObject.poolId] || 0n;
+                    }
+                    // Stake accumulated
+                    if (!epochData[epoch].stakeAccumulated[stakeObject.address]) {
+                        epochData[epoch].stakeAccumulated[stakeObject.address] = '0';
+                    }
+                    const stakeRewards = stakeObject.rewardsByEpoch[epoch];
+                    let prevAccum =
+                        i > 0
+                            ? BigInt(
+                                  epochData[epochRange[i - 1]].stakeAccumulated[
+                                      stakeObject.address
+                                  ] || '0',
+                              )
+                            : 0n;
+                    let currAccum =
+                        (stakeRewards && stakeRewards !== '0' ? BigInt(stakeRewards) : 0n) +
+                        prevAccum;
+                    epochData[epoch].stakeAccumulated[stakeObject.address] = currAccum.toString();
                 });
             });
         }
@@ -721,11 +754,9 @@
                         {#each stakeObjects as stakeObject}
                             <div class="table-cell stake-cell">
                                 <div class="stake-popup-container">
-                                    {#if epochs[index] === currentEpoch}
-                                        pending
-                                    {:else if isPreActivationInEpoch(stakeObject, epochs[index])}
+                                    {#if isPreActivationInEpoch(stakeObject, epochs[index])}
                                         <div class="pre-active-indicator">pre-active</div>
-                                    {:else if isActiveInEpoch(stakeObject, epochs[index]) && epochs[index] >= stakeObject.firstEpoch}
+                                    {:else if isActiveInEpoch(stakeObject, epochs[index]) && epochs[index] >= stakeObject.firstEpoch && epochs[index] !== currentEpoch && (!stakeObject.actionByEpoch || (stakeObject.actionByEpoch && stakeObject.actionByEpoch[epochs[index]]?.action !== 'Unstaked'))}
                                         <div class="stake-cell-content">
                                             <span class="stake-value">
                                                 {stakeObject.rewardsByEpoch[epochs[index]] === '0'
@@ -781,8 +812,15 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    {:else}
+                                    {:else if isActiveInEpoch(stakeObject, epochs[index - 1]) && epochs[index] === currentEpoch && (!stakeObject.actionByEpoch || (stakeObject.actionByEpoch && !stakeObject.actionByEpoch[epochs[index]]))}
+                                        pending
+                                    {:else if !stakeObject.actionByEpoch || !stakeObject.actionByEpoch[epochs[index]]}
                                         <div class="inactive-indicator">-</div>
+                                    {/if}
+                                    {#if stakeObject.actionByEpoch && stakeObject.actionByEpoch[epochs[index]]}
+                                        <span class="action-indicator" style="margin-left:6px;"
+                                            >{stakeObject.actionByEpoch[epochs[index]].action}</span
+                                        >
                                     {/if}
                                 </div>
                             </div>

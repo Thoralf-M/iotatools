@@ -17,6 +17,8 @@ export type StakeObject = {
     rewardsByEpoch: Record<number, string>;
     // Map of epoch -> total accumulated rewards since staking started
     accumulatedRewards: Record<number, string>;
+    // Map of epoch -> action string ("Stake", "Unstake", "Transfer", "Transition")
+    actionByEpoch?: Record<number, { action: string; digest?: string }>;
     firstEpoch: number;
     lastEpoch: number;
     stakeActivationEpoch: number;
@@ -162,8 +164,14 @@ async function computeRewardsForStakeObject(
             //     console.log(`newEpochRewards: ${newEpochRewards}`)
             // }
             // Store both accumulated and epoch-specific rewards
-            stakeObject.accumulatedRewards[epoch] = currentAccumulatedRewards.toString();
-            stakeObject.rewardsByEpoch[epoch] = newEpochRewards.toString();
+            // If action for this epoch is 'Unstaked', set rewards to '0'
+            if (stakeObject.actionByEpoch && stakeObject.actionByEpoch[epoch]?.action === 'Unstaked') {
+                stakeObject.accumulatedRewards[epoch] = '0';
+                stakeObject.rewardsByEpoch[epoch] = '0';
+            } else {
+                stakeObject.accumulatedRewards[epoch] = currentAccumulatedRewards.toString();
+                stakeObject.rewardsByEpoch[epoch] = newEpochRewards.toString();
+            }
 
             // Update previous accumulated rewards for next iteration
             previousAccumulatedRewards = currentAccumulatedRewards;
@@ -219,6 +227,7 @@ export async function processStakeTransactionsWithExchangeRates(
         if (!Array.isArray(transactionSet)) return;
         transactionSet.forEach((transaction) => {
             const epochId = transaction.effects.epoch.epochId;
+            const digest = transaction.digest;
             transaction.effects.objectChanges.nodes.forEach((node: any) => {
                 const address = node.address;
                 const outputState = node.outputState?.asMoveObject?.contents;
@@ -227,6 +236,7 @@ export async function processStakeTransactionsWithExchangeRates(
                 let principal: string | undefined = undefined;
                 let stakeActivationEpoch: string | undefined = undefined;
 
+                // Track poolId, principal, stakeActivationEpoch for stake object creation
                 if (outputState?.type?.repr?.includes('timelocked_staking::TimelockedStakedIota')) {
                     const stakedIota = outputState.json?.staked_iota;
                     poolId = stakedIota?.pool_id ?? '';
@@ -247,6 +257,7 @@ export async function processStakeTransactionsWithExchangeRates(
                             exchangeRatesByEpoch: {},
                             rewardsByEpoch: {},
                             accumulatedRewards: {},
+                            actionByEpoch: {},
                             firstEpoch: epochId,
                             lastEpoch: currentEpoch,
                             stakeActivationEpoch: parseInt(stakeActivationEpoch),
@@ -261,19 +272,45 @@ export async function processStakeTransactionsWithExchangeRates(
                 // Handle deletion/transfer
                 let inputPoolId: string = '';
                 let inputPrincipal: string = '';
+                let inputOwner: string | undefined = undefined;
+                let outputOwner: string | undefined = undefined;
+                let inputAction: string | undefined = undefined;
                 if (inputState?.type?.repr?.includes('timelocked_staking::TimelockedStakedIota')) {
                     const stakedIota = inputState.json?.staked_iota;
                     inputPoolId = stakedIota?.pool_id ?? '';
                     inputPrincipal = stakedIota?.principal?.value ?? '';
+                    inputOwner = node.inputState.asMoveObject?.owner?.owner?.address ?? undefined;
                 } else if (inputState?.type?.repr?.includes('staking_pool::StakedIota')) {
                     inputPoolId = inputState.json?.pool_id ?? '';
                     inputPrincipal = inputState.json?.principal?.value ?? '';
+                    inputOwner = node.inputState.asMoveObject?.owner?.owner?.address ?? undefined;
+                }
+                if (outputState) {
+                    outputOwner = node.outputState.asMoveObject?.owner?.owner?.address ?? undefined;
                 }
 
-                if (inputPoolId && inputPrincipal && !node.outputState) {
+                // Action detection using idCreated, idDeleted, and owner comparison
+                const idCreated = node.idCreated === true;
+                const idDeleted = node.idDeleted === true;
+
+                if (inputPoolId && inputPrincipal) {
                     const existing = stakeObjects.get(address);
                     if (existing) {
                         existing.lastEpoch = epochId;
+                        if (idCreated) {
+                            inputAction = 'Staked';
+                        } else if (idDeleted) {
+                            inputAction = 'Unstaked';
+                        } else if (!idCreated && !idDeleted) {
+
+                            if (inputOwner && outputOwner && inputOwner !== outputOwner) {
+                                inputAction = 'Transfer';
+                            } else {
+                                inputAction = 'Transition';
+                            }
+                        }
+                        existing.actionByEpoch = existing.actionByEpoch || {};
+                        existing.actionByEpoch[epochId] = { action: inputAction ?? 'Unknown', digest };
                     }
                 }
             });
