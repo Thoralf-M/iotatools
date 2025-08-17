@@ -214,99 +214,114 @@ function parseExchangeRateData(structData: any): { iota: string; pool: string } 
 let allExchangeRatesFetched = false;
 
 // Function to determine what epochs are missing from cache
-function getMissingEpochs(currentEpoch: number): {
-    missingEpochs: Set<number>;
+/**
+ * Returns a map of poolId -> Set of missing epochs for each pool.
+ * Also returns maxCachedEpoch (across all pools) and shouldUseDynamicFieldFetch flag.
+ */
+function getMissingEpochs(
+    currentEpoch: number,
+    requiredPoolIds?: Set<string>,
+): {
+    missingEpochsPerPool: Map<string, Set<number>>;
     maxCachedEpoch: number;
     shouldUseDynamicFieldFetch: boolean;
 } {
-    if (exchangeRateCache.size === 0) {
-        return { missingEpochs: new Set(), maxCachedEpoch: 0, shouldUseDynamicFieldFetch: false };
-    }
-
-    // Find the maximum epoch we have cached across all pools
+    const missingEpochsPerPool = new Map<string, Set<number>>();
     let maxCachedEpoch = 0;
-    const allCachedEpochs = new Set<number>();
+    let totalMissingEpochs = 0;
 
-    exchangeRateCache.forEach((entry) => {
-        Object.keys(entry.epochData).forEach((epochStr) => {
-            const epoch = parseInt(epochStr);
-            allCachedEpochs.add(epoch);
-            if (epoch > maxCachedEpoch) {
-                maxCachedEpoch = epoch;
+    // Only check required pools if provided, else all in cache
+    const poolIds = requiredPoolIds
+        ? Array.from(requiredPoolIds)
+        : Array.from(exchangeRateCache.keys());
+
+    for (const poolId of poolIds) {
+        let entry = exchangeRateCache.get(poolId);
+        // If not in cache, treat all epochs as missing
+        let cachedEpochs: Set<number>;
+        if (!entry) {
+            cachedEpochs = new Set();
+        } else {
+            cachedEpochs = new Set<number>(Object.keys(entry.epochData).map(Number));
+            if (cachedEpochs.size > 0) {
+                const maxEpoch = Math.max(...cachedEpochs);
+                if (maxEpoch > maxCachedEpoch) maxCachedEpoch = maxEpoch;
             }
-        });
-    });
-
-    // Check what epochs are missing from maxCachedEpoch to currentEpoch - 1
-    // (currentEpoch doesn't have data available yet)
-    const missingEpochs = new Set<number>();
-    for (let epoch = maxCachedEpoch + 1; epoch <= currentEpoch; epoch++) {
-        missingEpochs.add(epoch);
+        }
+        // Find missing epochs for this pool from 0 to currentEpoch-1
+        const missing = new Set<number>();
+        for (let epoch = 0; epoch < currentEpoch + 1; epoch++) {
+            if (!cachedEpochs.has(epoch)) {
+                missing.add(epoch);
+                totalMissingEpochs++;
+            }
+        }
+        if (missing.size > 0) {
+            missingEpochsPerPool.set(poolId, missing);
+        }
     }
 
-    // If we have cached data and only missing ≤20 recent epochs, use dynamic field fetch
-    const shouldUseDynamicFieldFetch = maxCachedEpoch > 0 && missingEpochs.size <= 20;
+    // If only missing ≤20 recent epochs per pool, use dynamic field fetch
+    const shouldUseDynamicFieldFetch = maxCachedEpoch > 0 && totalMissingEpochs <= 20;
 
-    return { missingEpochs, maxCachedEpoch, shouldUseDynamicFieldFetch };
+    return { missingEpochsPerPool, maxCachedEpoch, shouldUseDynamicFieldFetch };
 }
 
 // Function to fetch missing epochs using the old dynamic field approach
+/**
+ * Fetches missing epochs for each pool using dynamic fields, only for epochs not present in cache.
+ * @param missingEpochsPerPool Map of poolId -> Set of missing epochs
+ */
 async function fetchMissingEpochsWithDynamicFields(
-    missingEpochs: Set<number>,
-    requiredPoolIds: Set<string>,
+    missingEpochsPerPool: Map<string, Set<number>>,
 ): Promise<void> {
-    console.log(
-        `Fetching ${missingEpochs.size} missing epochs for ${requiredPoolIds.size} required pools using dynamic field approach`,
-    );
-
-    const gqlClient = new IotaGraphQLClient({
-        url: getSelectedNetworkConfig().graphql,
-    });
-
-    // Only fetch for the required pools
-    for (const poolId of requiredPoolIds) {
-        const cacheEntry = exchangeRateCache.get(poolId);
+    let totalFetches = 0;
+    for (const [poolId, missingEpochs] of missingEpochsPerPool.entries()) {
+        let cacheEntry = exchangeRateCache.get(poolId);
+        // If not in cache, create a new entry with empty epochData
         if (!cacheEntry) {
-            console.warn(`No cache entry found for required pool ${poolId}`);
-            continue;
+            cacheEntry = {
+                poolId,
+                exchangeRateId: poolId, // fallback, should be set properly by caller if possible
+                epochData: {},
+            };
+            exchangeRateCache.set(poolId, cacheEntry);
         }
-
         const exchangeRateId = cacheEntry.exchangeRateId;
         if (!exchangeRateId) {
             console.warn(`No exchange rate ID found for pool ${poolId}`);
             continue;
         }
-
         for (const epoch of missingEpochs) {
-            // Skip if we already have this epoch for this pool
+            // Always check cache before fetching
             if (cacheEntry.epochData[epoch]) continue;
-
             try {
                 const epochBcs = toB64(bcs.u64().serialize(epoch).toBytes());
                 const query = `query getDynamicFieldObject($parentId: IotaAddress!, $epochBcs: Base64!) {
-                  owner(address: $parentId) {
-                    address
-                    dynamicField(name: {type: \"u64\", bcs: $epochBcs}) {
-                      value {
-                        ... on MoveValue {
-                          json
-                        }
-                      }
-                    }
-                  }
-                }`;
-
+                                        owner(address: $parentId) {
+                                            address
+                                            dynamicField(name: {type: "u64", bcs: $epochBcs}) {
+                                                value {
+                                                    ... on MoveValue {
+                                                        json
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }`;
                 const variables = { parentId: exchangeRateId, epochBcs };
                 // @ts-ignore
-                const result = await gqlClient.query({ query, variables });
+                const result = await new IotaGraphQLClient({
+                    url: getSelectedNetworkConfig().graphql,
+                }).query({ query, variables });
                 // @ts-ignore
                 const data = result.data?.owner?.dynamicField?.value?.json;
-
                 if (data) {
                     cacheEntry.epochData[epoch] = {
                         iota: data.iota_amount,
                         pool: data.pool_token_amount,
                     };
+                    totalFetches++;
                     console.log(`Cached exchange rates for pool ${poolId}, epoch ${epoch}`);
                 }
             } catch (err) {
@@ -317,6 +332,7 @@ async function fetchMissingEpochsWithDynamicFields(
             }
         }
     }
+    console.log(`Fetched ${totalFetches} missing epochs using dynamic field approach.`);
 }
 
 // Function to fetch all exchange rates for all validators and all epochs in one go
@@ -324,22 +340,24 @@ export async function fetchAllExchangeRates(
     currentEpoch: number,
     requiredPoolIds?: Set<string>,
 ): Promise<void> {
-    // Check what we're missing from cache
-    const { missingEpochs, maxCachedEpoch, shouldUseDynamicFieldFetch } =
-        getMissingEpochs(currentEpoch);
+    // Check what we're missing from cache (per pool)
+    const { missingEpochsPerPool, maxCachedEpoch, shouldUseDynamicFieldFetch } = getMissingEpochs(
+        currentEpoch,
+        requiredPoolIds,
+    );
 
-    // If we already have all data up to currentEpoch (since currentEpoch data isn't available yet), skip
-    if (missingEpochs.size === 0 && maxCachedEpoch >= currentEpoch) {
-        console.log('All exchange rates already cached, skipping fetch');
+    // If we already have all data up to currentEpoch for all pools, skip
+    if (missingEpochsPerPool.size === 0 && maxCachedEpoch >= currentEpoch) {
+        console.log('All exchange rates already cached for all pools, skipping fetch');
         return;
     }
 
     // If we have cached data and only need a few recent epochs, use dynamic field approach
     if (shouldUseDynamicFieldFetch && requiredPoolIds) {
         console.log(
-            `Using dynamic field approach to fetch ${missingEpochs.size} missing recent epochs for ${requiredPoolIds.size} required pools`,
+            `Using dynamic field approach to fetch missing recent epochs for required pools`,
         );
-        await fetchMissingEpochsWithDynamicFields(missingEpochs, requiredPoolIds);
+        await fetchMissingEpochsWithDynamicFields(missingEpochsPerPool);
         return;
     }
 
