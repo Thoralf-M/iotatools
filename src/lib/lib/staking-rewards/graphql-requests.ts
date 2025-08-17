@@ -218,7 +218,10 @@ let allExchangeRatesFetched = false;
  * Returns a map of poolId -> Set of missing epochs for each pool.
  * Also returns maxCachedEpoch (across all pools) and shouldUseDynamicFieldFetch flag.
  */
-function getMissingEpochs(currentEpoch: number, requiredPoolIds?: Set<string>): {
+function getMissingEpochs(
+    currentEpoch: number,
+    requiredPoolIds?: Set<string>,
+): {
     missingEpochsPerPool: Map<string, Set<number>>;
     maxCachedEpoch: number;
     shouldUseDynamicFieldFetch: boolean;
@@ -228,7 +231,9 @@ function getMissingEpochs(currentEpoch: number, requiredPoolIds?: Set<string>): 
     let totalMissingEpochs = 0;
 
     // Only check required pools if provided, else all in cache
-    const poolIds = requiredPoolIds ? Array.from(requiredPoolIds) : Array.from(exchangeRateCache.keys());
+    const poolIds = requiredPoolIds
+        ? Array.from(requiredPoolIds)
+        : Array.from(exchangeRateCache.keys());
 
     for (const poolId of poolIds) {
         let entry = exchangeRateCache.get(poolId);
@@ -306,7 +311,9 @@ async function fetchMissingEpochsWithDynamicFields(
                                     }`;
                 const variables = { parentId: exchangeRateId, epochBcs };
                 // @ts-ignore
-                const result = await (new IotaGraphQLClient({ url: getSelectedNetworkConfig().graphql })).query({ query, variables });
+                const result = await new IotaGraphQLClient({
+                    url: getSelectedNetworkConfig().graphql,
+                }).query({ query, variables });
                 // @ts-ignore
                 const data = result.data?.owner?.dynamicField?.value?.json;
                 if (data) {
@@ -318,7 +325,10 @@ async function fetchMissingEpochsWithDynamicFields(
                     console.log(`Cached exchange rates for pool ${poolId}, epoch ${epoch}`);
                 }
             } catch (err) {
-                console.warn(`Failed to fetch exchange rate for pool ${poolId}, epoch ${epoch}:`, err);
+                console.warn(
+                    `Failed to fetch exchange rate for pool ${poolId}, epoch ${epoch}:`,
+                    err,
+                );
             }
         }
     }
@@ -331,8 +341,10 @@ export async function fetchAllExchangeRates(
     requiredPoolIds?: Set<string>,
 ): Promise<void> {
     // Check what we're missing from cache (per pool)
-    const { missingEpochsPerPool, maxCachedEpoch, shouldUseDynamicFieldFetch } =
-        getMissingEpochs(currentEpoch, requiredPoolIds);
+    const { missingEpochsPerPool, maxCachedEpoch, shouldUseDynamicFieldFetch } = getMissingEpochs(
+        currentEpoch,
+        requiredPoolIds,
+    );
 
     // If we already have all data up to currentEpoch for all pools, skip
     if (missingEpochsPerPool.size === 0 && maxCachedEpoch >= currentEpoch) {
@@ -670,9 +682,9 @@ export function getExchangeRateCacheStats() {
         epochRange:
             stats.epochs.size > 0
                 ? {
-                    min: Math.min(...stats.epochs),
-                    max: Math.max(...stats.epochs),
-                }
+                      min: Math.min(...stats.epochs),
+                      max: Math.max(...stats.epochs),
+                  }
                 : null,
     };
 }

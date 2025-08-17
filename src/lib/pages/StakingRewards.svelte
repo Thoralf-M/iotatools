@@ -61,25 +61,35 @@
             // Step 1: Fetch sent stake transactions
             loadingStep = 'Fetching stake txs...';
             const sentTxs = await fetchStakeTransactions(address);
+            console.log('sentTxs:', sentTxs);
 
             // Step 2: Fetch received stake transactions
             loadingStep = 'Fetching received txs...';
             const receivedTxs = await fetchReceivedStakeTransactions(address);
+            console.log('receivedTxs:', receivedTxs);
 
             // Step 3: Get current epoch and end timestamp
             loadingStep = 'Fetching epoch info...';
             await getCurrentEpochAndEndTimestamp();
 
+            // A tx can be in both sent and received lists
+            let uniqueTxs = [sentTxs, receivedTxs].flat().reduce((acc: any, tx: any) => {
+                if (!acc.some((t: any) => t.digest === tx.digest)) {
+                    acc.push(tx);
+                }
+                return acc;
+            }, []);
+
             // Step 4: Process transactions with exchange rates
             loadingStep = 'Fetching exchange rates...';
             const result = await processStakeTransactionsWithExchangeRates(
-                [sentTxs, receivedTxs],
+                uniqueTxs,
                 epoch as number,
             );
             stakeObjects = result.stakeObjects;
             validatorInfo = result.validatorInfo;
             console.log(stakeObjects);
-            transactions = [sentTxs, receivedTxs];
+            transactions = uniqueTxs;
 
             console.log('fetching txs complete');
         } catch (err: any) {
