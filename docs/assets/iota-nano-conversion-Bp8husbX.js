@@ -1,4 +1,4 @@
-import { aK as IOTA_DECIMALS } from "/iota-utils/assets/index-4fd-VrqG.js";
+import { aK as IOTA_DECIMALS } from "/iota-utils/assets/index-c15_P6cg.js";
 function iotaToNano(iota) {
   const [intPart, decPart = ""] = iota.replace(/_/g, "").split(".");
   if (decPart.length > 9) {
