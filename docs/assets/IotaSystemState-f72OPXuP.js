@@ -1,7 +1,7 @@
-import { p as push, i as init, f as from_html, s as sibling, c as child, t as template_effect, g as get, m as mutable_source, a as invalidate_inner_signals, b as if_block, d as set_text, e as event, h as bind_select_value, j as set, k as append, l as pop, n as getClient, o as mutate } from "/iota-utils/assets/index-DCz9zvTe.js";
-import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-BIu5FcFI.js";
-import { f as formatNumbersWithUnderscores } from "/iota-utils/assets/iota-nano-conversion-DyT0voG1.js";
-import "/iota-utils/assets/transaction-view-DX7hjqvT.js";
+import { p as push, i as init, f as from_html, s as sibling, c as child, t as template_effect, g as get, m as mutable_source, a as invalidate_inner_signals, b as if_block, d as set_text, e as event, h as bind_select_value, j as set, k as append, l as pop, n as getClient, o as mutate } from "/iota-utils/assets/index-4fd-VrqG.js";
+import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-DMQ9YS-W.js";
+import { f as formatNumbersWithUnderscores } from "/iota-utils/assets/iota-nano-conversion-KXxdnLTT.js";
+import "/iota-utils/assets/transaction-view-DFglSWHH.js";
 var root_1 = from_html(`<div> </div>`);
 var root = from_html(`<main><button class="svelte-8fa537">get latest IOTA system state</button> <button class="svelte-8fa537">candidate validators</button> <button class="svelte-8fa537">pending validators</button> show full data (set before requesting): <select><option></option><option></option></select> <!> <!> <pre class="value" style="text-align: left"> </pre></main>`);
 function IotaSystemState($$anchor, $$props) {
@@ -32,7 +32,6 @@ function IotaSystemState($$anchor, $$props) {
   };
   let showAllValidatorData = mutable_source(false);
   const getCandidateValidators = async () => {
-    var _a, _b;
     try {
       let client = getClient();
       set(apiVersion, await client.getRpcApiVersion() || "");
@@ -53,7 +52,7 @@ function IotaSystemState($$anchor, $$props) {
           const validatorV1 = await client.getDynamicFields({
             parentId: (
               // @ts-ignore
-              (_a = validatorWrapper.data) == null ? void 0 : _a.content.fields.value.fields.inner.fields.id.id
+              validatorWrapper.data?.content.fields.value.fields.inner.fields.id.id
             )
           });
           const validatorObject = await client.getObject({
@@ -62,7 +61,7 @@ function IotaSystemState($$anchor, $$props) {
           });
           const validator = (
             // @ts-ignore
-            (_b = validatorObject.data) == null ? void 0 : _b.content.fields.value.fields
+            validatorObject.data?.content.fields.value.fields
           );
           mutate(stakeInfo, get(stakeInfo).candidateValidatorsStake += parseInt(validator.staking_pool.fields.iota_balance));
           if (!get(showAllValidatorData)) {
@@ -86,7 +85,6 @@ function IotaSystemState($$anchor, $$props) {
     }
   };
   const getPendingValidators = async () => {
-    var _a;
     try {
       let client = getClient();
       set(apiVersion, await client.getRpcApiVersion() || "");
@@ -106,7 +104,7 @@ function IotaSystemState($$anchor, $$props) {
           });
           const validator = (
             // @ts-ignore
-            (_a = validatorObject.data) == null ? void 0 : _a.content.fields.value.fields
+            validatorObject.data?.content.fields.value.fields
           );
           mutate(stakeInfo, get(stakeInfo).pendingValidatorsStake += parseInt(validator.staking_pool.fields.iota_balance));
           if (!get(showAllValidatorData)) {

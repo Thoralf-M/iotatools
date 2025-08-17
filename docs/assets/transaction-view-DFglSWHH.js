@@ -1,7 +1,6 @@
-import { aL as getContext, aM as setContext, p as push, r as prop, i as init, K as comment, G as first_child, b as if_block, W as store_get, k as append, l as pop, V as setup_stores, f as from_html, c as child, t as template_effect, L as set_class, e as event, aN as store_set, X as writable, u as onMount, w as legacy_pre_effect, j as set, m as mutable_source, x as deep_read_state, y as legacy_pre_effect_reset, s as sibling, z as each, A as index, g as get, C as untrack, $ as derived_safe_equal, d as set_text, a7 as clsx, am as to_array, aO as component, aP as spread_props, aQ as readable, M as iotaBcs, O as fromB64, ar as TransactionDataBuilder } from "/iota-utils/assets/index-DCz9zvTe.js";
+import { aL as getContext, aM as setContext, p as push, r as prop, i as init, K as comment, G as first_child, b as if_block, W as store_get, k as append, l as pop, V as setup_stores, f as from_html, c as child, t as template_effect, L as set_class, e as event, aN as store_set, X as writable, u as onMount, w as legacy_pre_effect, j as set, m as mutable_source, x as deep_read_state, y as legacy_pre_effect_reset, s as sibling, z as each, A as index, g as get, C as untrack, $ as derived_safe_equal, d as set_text, a7 as clsx, am as to_array, aO as component, aP as spread_props, aQ as readable, M as iotaBcs, O as fromB64, ar as TransactionDataBuilder } from "/iota-utils/assets/index-4fd-VrqG.js";
 function slot(anchor, $$props, name, slot_props, fallback_fn) {
-  var _a;
-  var slot_fn = (_a = $$props.$$slots) == null ? void 0 : _a[name];
+  var slot_fn = $$props.$$slots?.[name];
   var is_interop = false;
   if (slot_fn === true) {
     slot_fn = $$props[name === "default" ? "children" : name];
@@ -30,7 +29,7 @@ function stopPropagation(fn) {
       args[0]
     );
     event2.stopPropagation();
-    return fn == null ? void 0 : fn.apply(this, args);
+    return fn?.apply(this, args);
   };
 }
 const STATE = {};
@@ -38,7 +37,7 @@ function useState(newState, opts) {
   const currentState = getContext(STATE);
   const _newState = typeof newState === "function" ? newState(currentState) : newState;
   const nextState = { ...currentState, ..._newState };
-  if (opts == null ? void 0 : opts.expandable)
+  if (opts?.expandable)
     nextState.isParentExpanded = nextState.expanded;
   setContext(STATE, nextState);
   return currentState;
@@ -904,8 +903,8 @@ function ErrorStack($$anchor, $$props) {
       var fragment = comment();
       var node_1 = first_child(fragment);
       each(node_1, 1, stack, index, ($$anchor3, line, index2) => {
-        var fragment_1 = root_2$4();
         const appendNewLine = derived_safe_equal(() => (deep_read_state(stack()), untrack(() => index2 < stack().length - 1)));
+        var fragment_1 = root_2$4();
         var span_1 = first_child(fragment_1);
         set_class(span_1, 1, "svelte-1u08yw6", null, {}, { indent: index2 > 0 });
         var node_2 = child(span_1);
@@ -1077,13 +1076,13 @@ function JSONFunctionNode($$anchor, $$props) {
   let value = prop($$props, "value", 8);
   function parseFunction(str2) {
     const match = str2.match(/^(?:(async)\s+)?(?:function)?(\*)?\s*([^(]+)?(\([^)]*\))\s*(=>)?/);
-    const isAsync = match == null ? void 0 : match[1];
-    const isGenerator = match == null ? void 0 : match[2];
-    const fnName = match == null ? void 0 : match[3];
-    const args = match == null ? void 0 : match[4];
-    const isArrow = match == null ? void 0 : match[5];
+    const isAsync = match?.[1];
+    const isGenerator = match?.[2];
+    const fnName = match?.[3];
+    const args = match?.[4];
+    const isArrow = match?.[5];
     const classMatch = str2.match(/^class\s+([^\s]+)/);
-    const isClass = classMatch == null ? void 0 : classMatch[1];
+    const isClass = classMatch?.[1];
     return { args, isAsync, isGenerator, fnName, isArrow, isClass };
   }
   function getPreview1({ isGenerator, isAsync, isClass }) {
@@ -1815,7 +1814,6 @@ function normalizeOwner(owner) {
 }
 function convertGraphQLObjectChanges(graphqlObjectChanges) {
   return graphqlObjectChanges.map((change) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
     let type = "mutated";
     if (change.idCreated) {
       type = "created";
@@ -1824,9 +1822,9 @@ function convertGraphQLObjectChanges(graphqlObjectChanges) {
     }
     const objectId = change.idCreated || change.address || change.idDeleted;
     let objectType = "";
-    if ((_d = (_c = (_b = (_a = change.outputState) == null ? void 0 : _a.asMoveObject) == null ? void 0 : _b.contents) == null ? void 0 : _c.json) == null ? void 0 : _d.type) {
+    if (change.outputState?.asMoveObject?.contents?.json?.type) {
       objectType = change.outputState.asMoveObject.contents.json.type;
-    } else if ((_h = (_g = (_f = (_e = change.inputState) == null ? void 0 : _e.asMoveObject) == null ? void 0 : _f.contents) == null ? void 0 : _g.json) == null ? void 0 : _h.type) {
+    } else if (change.inputState?.asMoveObject?.contents?.json?.type) {
       objectType = change.inputState.asMoveObject.contents.json.type;
     }
     let fixedInputState = change.inputState;
@@ -1875,13 +1873,12 @@ function isTransactionData(data) {
   return false;
 }
 function getTransactionData(data) {
-  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L, _M, _N, _O, _P, _Q, _R, _S;
   if (data && data.digest && data.sender && data.effects && data.effects.objectChanges && data.effects.objectChanges.nodes) {
     const objectChanges = convertGraphQLObjectChanges(data.effects.objectChanges.nodes);
-    const balanceChanges = ((_a = data.effects.balanceChanges) == null ? void 0 : _a.nodes) || [];
-    const events = ((_b = data.effects.events) == null ? void 0 : _b.nodes) || [];
+    const balanceChanges = data.effects.balanceChanges?.nodes || [];
+    const events = data.effects.events?.nodes || [];
     let decodedBCS = null;
-    if ((_c = data.effects.transactionBlock) == null ? void 0 : _c.bcs) {
+    if (data.effects.transactionBlock?.bcs) {
       try {
         decodedBCS = iotaBcs.SenderSignedData.parse(
           fromB64(data.effects.transactionBlock.bcs)
@@ -1892,19 +1889,19 @@ function getTransactionData(data) {
     }
     const normalized = {
       digest: data.digest,
-      sender: ((_d = data.sender) == null ? void 0 : _d.address) || data.sender,
-      timestamp: (_e = data.effects.checkpoint) == null ? void 0 : _e.timestamp,
+      sender: data.sender?.address || data.sender,
+      timestamp: data.effects.checkpoint?.timestamp,
       effects: {
         transactionDigest: data.digest,
         status: { status: data.effects.status },
-        executedEpoch: (_f = data.effects.checkpoint) == null ? void 0 : _f.sequenceNumber,
-        gasUsed: (_g = data.effects.gasEffects) == null ? void 0 : _g.gasSummary,
+        executedEpoch: data.effects.checkpoint?.sequenceNumber,
+        gasUsed: data.effects.gasEffects?.gasSummary,
         checkpoint: {
-          sequenceNumber: (_h = data.effects.checkpoint) == null ? void 0 : _h.sequenceNumber,
-          timestamp: (_i = data.effects.checkpoint) == null ? void 0 : _i.timestamp
+          sequenceNumber: data.effects.checkpoint?.sequenceNumber,
+          timestamp: data.effects.checkpoint?.timestamp
         },
         gasEffects: {
-          gasSummary: (_j = data.effects.gasEffects) == null ? void 0 : _j.gasSummary
+          gasSummary: data.effects.gasEffects?.gasSummary
         },
         balanceChanges: {
           nodes: balanceChanges
@@ -2042,28 +2039,22 @@ function getTransactionData(data) {
       }));
     } else if (result.effects && (result.effects.created || result.effects.mutated)) {
       objectChanges = [
-        ...(result.effects.created || []).map((obj) => {
-          var _a2, _b2, _c2;
-          return {
-            type: "created",
-            objectId: (_a2 = obj.reference) == null ? void 0 : _a2.objectId,
-            version: (_b2 = obj.reference) == null ? void 0 : _b2.version,
-            digest: (_c2 = obj.reference) == null ? void 0 : _c2.digest,
-            owner: normalizeOwner(obj.owner),
-            objectType: ""
-          };
-        }),
-        ...(result.effects.mutated || []).map((obj) => {
-          var _a2, _b2, _c2;
-          return {
-            type: "mutated",
-            objectId: (_a2 = obj.reference) == null ? void 0 : _a2.objectId,
-            version: (_b2 = obj.reference) == null ? void 0 : _b2.version,
-            digest: (_c2 = obj.reference) == null ? void 0 : _c2.digest,
-            owner: normalizeOwner(obj.owner),
-            objectType: ""
-          };
-        })
+        ...(result.effects.created || []).map((obj) => ({
+          type: "created",
+          objectId: obj.reference?.objectId,
+          version: obj.reference?.version,
+          digest: obj.reference?.digest,
+          owner: normalizeOwner(obj.owner),
+          objectType: ""
+        })),
+        ...(result.effects.mutated || []).map((obj) => ({
+          type: "mutated",
+          objectId: obj.reference?.objectId,
+          version: obj.reference?.version,
+          digest: obj.reference?.digest,
+          owner: normalizeOwner(obj.owner),
+          objectType: ""
+        }))
       ];
     } else {
       objectChanges = [];
@@ -2071,26 +2062,26 @@ function getTransactionData(data) {
     if (result.effects && result.results) {
       const normalized2 = {
         // Map the fields to match what TransactionEffects expects
-        digest: (_k = result.effects) == null ? void 0 : _k.transactionDigest,
+        digest: result.effects?.transactionDigest,
         sender: null,
         // Dev inspect doesn't have sender info
         timestamp: null,
         effects: {
           // Selectively include effects properties, excluding created/mutated to avoid conflicts
-          transactionDigest: (_l = result.effects) == null ? void 0 : _l.transactionDigest,
-          status: (_m = result.effects) == null ? void 0 : _m.status,
-          executedEpoch: (_n = result.effects) == null ? void 0 : _n.executedEpoch,
-          gasUsed: (_o = result.effects) == null ? void 0 : _o.gasUsed,
-          modifiedAtVersions: (_p = result.effects) == null ? void 0 : _p.modifiedAtVersions,
-          sharedObjects: (_q = result.effects) == null ? void 0 : _q.sharedObjects,
-          dependencies: (_r = result.effects) == null ? void 0 : _r.dependencies,
+          transactionDigest: result.effects?.transactionDigest,
+          status: result.effects?.status,
+          executedEpoch: result.effects?.executedEpoch,
+          gasUsed: result.effects?.gasUsed,
+          modifiedAtVersions: result.effects?.modifiedAtVersions,
+          sharedObjects: result.effects?.sharedObjects,
+          dependencies: result.effects?.dependencies,
           checkpoint: {
-            sequenceNumber: (_s = result.effects) == null ? void 0 : _s.executedEpoch,
+            sequenceNumber: result.effects?.executedEpoch,
             timestamp: null
           },
           // Map gas structure
           gasEffects: {
-            gasSummary: (_t = result.effects) == null ? void 0 : _t.gasUsed
+            gasSummary: result.effects?.gasUsed
           },
           // Map the arrays to the expected structure
           balanceChanges: {
@@ -2118,26 +2109,26 @@ function getTransactionData(data) {
     }
     const normalized = {
       // Map the fields to match what TransactionEffects expects
-      digest: (_u = result.effects) == null ? void 0 : _u.transactionDigest,
-      sender: (_v = result.input) == null ? void 0 : _v.sender,
+      digest: result.effects?.transactionDigest,
+      sender: result.input?.sender,
       timestamp: null,
       // JSON-RPC format doesn't include timestamp
       effects: {
         // Selectively include effects properties, excluding created/mutated to avoid conflicts
-        transactionDigest: (_w = result.effects) == null ? void 0 : _w.transactionDigest,
-        status: (_x = result.effects) == null ? void 0 : _x.status,
-        executedEpoch: (_y = result.effects) == null ? void 0 : _y.executedEpoch,
-        gasUsed: (_z = result.effects) == null ? void 0 : _z.gasUsed,
-        modifiedAtVersions: (_A = result.effects) == null ? void 0 : _A.modifiedAtVersions,
-        sharedObjects: (_B = result.effects) == null ? void 0 : _B.sharedObjects,
-        dependencies: (_C = result.effects) == null ? void 0 : _C.dependencies,
+        transactionDigest: result.effects?.transactionDigest,
+        status: result.effects?.status,
+        executedEpoch: result.effects?.executedEpoch,
+        gasUsed: result.effects?.gasUsed,
+        modifiedAtVersions: result.effects?.modifiedAtVersions,
+        sharedObjects: result.effects?.sharedObjects,
+        dependencies: result.effects?.dependencies,
         checkpoint: {
-          sequenceNumber: (_D = result.effects) == null ? void 0 : _D.executedEpoch,
+          sequenceNumber: result.effects?.executedEpoch,
           timestamp: null
         },
         // Map gas structure
         gasEffects: {
-          gasSummary: (_E = result.effects) == null ? void 0 : _E.gasUsed
+          gasSummary: result.effects?.gasUsed
         },
         // Map the arrays to the expected structure
         balanceChanges: {
@@ -2170,55 +2161,49 @@ function getTransactionData(data) {
       }));
     } else if (data.effects && (data.effects.created || data.effects.mutated)) {
       objectChanges = [
-        ...(data.effects.created || []).map((obj) => {
-          var _a2, _b2, _c2;
-          return {
-            type: "created",
-            objectId: (_a2 = obj.reference) == null ? void 0 : _a2.objectId,
-            version: (_b2 = obj.reference) == null ? void 0 : _b2.version,
-            digest: (_c2 = obj.reference) == null ? void 0 : _c2.digest,
-            owner: normalizeOwner(obj.owner),
-            objectType: ""
-          };
-        }),
-        ...(data.effects.mutated || []).map((obj) => {
-          var _a2, _b2, _c2;
-          return {
-            type: "mutated",
-            objectId: (_a2 = obj.reference) == null ? void 0 : _a2.objectId,
-            version: (_b2 = obj.reference) == null ? void 0 : _b2.version,
-            digest: (_c2 = obj.reference) == null ? void 0 : _c2.digest,
-            owner: normalizeOwner(obj.owner),
-            objectType: ""
-          };
-        })
+        ...(data.effects.created || []).map((obj) => ({
+          type: "created",
+          objectId: obj.reference?.objectId,
+          version: obj.reference?.version,
+          digest: obj.reference?.digest,
+          owner: normalizeOwner(obj.owner),
+          objectType: ""
+        })),
+        ...(data.effects.mutated || []).map((obj) => ({
+          type: "mutated",
+          objectId: obj.reference?.objectId,
+          version: obj.reference?.version,
+          digest: obj.reference?.digest,
+          owner: normalizeOwner(obj.owner),
+          objectType: ""
+        }))
       ];
     } else {
       objectChanges = [];
     }
     const normalized = {
       ...data,
-      digest: data.digest || ((_F = data.effects) == null ? void 0 : _F.transactionDigest),
-      sender: data.sender || ((_G = data.input) == null ? void 0 : _G.sender),
+      digest: data.digest || data.effects?.transactionDigest,
+      sender: data.sender || data.input?.sender,
       objectChanges,
       effects: {
         // Selectively include effects properties, excluding created/mutated to avoid conflicts
-        transactionDigest: (_H = data.effects) == null ? void 0 : _H.transactionDigest,
-        status: (_I = data.effects) == null ? void 0 : _I.status,
-        executedEpoch: (_J = data.effects) == null ? void 0 : _J.executedEpoch,
-        gasUsed: (_K = data.effects) == null ? void 0 : _K.gasUsed,
-        modifiedAtVersions: (_L = data.effects) == null ? void 0 : _L.modifiedAtVersions,
-        sharedObjects: (_M = data.effects) == null ? void 0 : _M.sharedObjects,
-        dependencies: (_N = data.effects) == null ? void 0 : _N.dependencies,
-        messageVersion: (_O = data.effects) == null ? void 0 : _O.messageVersion,
-        gasObject: (_P = data.effects) == null ? void 0 : _P.gasObject,
-        eventsDigest: (_Q = data.effects) == null ? void 0 : _Q.eventsDigest,
+        transactionDigest: data.effects?.transactionDigest,
+        status: data.effects?.status,
+        executedEpoch: data.effects?.executedEpoch,
+        gasUsed: data.effects?.gasUsed,
+        modifiedAtVersions: data.effects?.modifiedAtVersions,
+        sharedObjects: data.effects?.sharedObjects,
+        dependencies: data.effects?.dependencies,
+        messageVersion: data.effects?.messageVersion,
+        gasObject: data.effects?.gasObject,
+        eventsDigest: data.effects?.eventsDigest,
         checkpoint: data.effects.checkpoint || {
-          sequenceNumber: (_R = data.effects) == null ? void 0 : _R.executedEpoch,
+          sequenceNumber: data.effects?.executedEpoch,
           timestamp: null
         },
         gasEffects: data.effects.gasEffects || {
-          gasSummary: (_S = data.effects) == null ? void 0 : _S.gasUsed
+          gasSummary: data.effects?.gasUsed
         },
         objectChanges: {
           nodes: objectChanges

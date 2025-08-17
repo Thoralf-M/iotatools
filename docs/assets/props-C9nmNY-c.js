@@ -1,4 +1,4 @@
-import { ah as get_descriptor, ai as teardown } from "/iota-utils/assets/index-DCz9zvTe.js";
+import { ah as get_descriptor, ai as teardown } from "/iota-utils/assets/index-4fd-VrqG.js";
 function bind_prop(props, prop, value) {
   var desc = get_descriptor(props, prop);
   if (desc && desc.set) {

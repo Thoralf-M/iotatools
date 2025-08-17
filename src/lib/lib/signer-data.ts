@@ -65,7 +65,10 @@ export function updateSelectedSignerAccounts(foreignAddress?: string) {
         setSigningWithPrivateKeyAccounts();
     }
     if (get(sharedSignerType) == SignerType.WebWallet) {
-        connectWallet();
+        iota_wallets.set([]);
+        activeAddress.set('');
+        iota_accounts.set([]);
+        connectWallet(true);
     }
     if (get(sharedSignerType) == SignerType.ForeignAddress) {
         setSigningWithForeignAddress(foreignAddress!);
