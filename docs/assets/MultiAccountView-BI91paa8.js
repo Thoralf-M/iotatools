@@ -1,7 +1,7 @@
-import { p as push, T as state, R as proxy, f as from_html, s as sibling, c as child, W as store_get, b as if_block, g as get, z as each, t as template_effect, d as set_text, E as bind_value, k as append, l as pop, V as setup_stores, a3 as iota_accounts, a4 as iota_wallets, n as getClient, j as set, a5 as Transaction, a6 as isValidIotaAddress, Z as delegate, a0 as action, I as set_style, L as set_class, a7 as clsx, e as event, G as first_child, H as text, K as comment } from "/iota-utils/assets/index-DCz9zvTe.js";
-import { T as TransactionView } from "/iota-utils/assets/TransactionView-txdXO-_1.js";
-import { n as nanoToIota } from "/iota-utils/assets/iota-nano-conversion-DyT0voG1.js";
-import "/iota-utils/assets/transaction-view-DX7hjqvT.js";
+import { p as push, T as state, R as proxy, f as from_html, s as sibling, c as child, W as store_get, b as if_block, g as get, z as each, t as template_effect, d as set_text, E as bind_value, k as append, l as pop, V as setup_stores, a3 as iota_accounts, a4 as iota_wallets, n as getClient, j as set, a5 as Transaction, a6 as isValidIotaAddress, Z as delegate, a0 as action, I as set_style, L as set_class, a7 as clsx, e as event, G as first_child, H as text, K as comment } from "/iota-utils/assets/index-4fd-VrqG.js";
+import { T as TransactionView } from "/iota-utils/assets/TransactionView-CXX8m-PF.js";
+import { n as nanoToIota } from "/iota-utils/assets/iota-nano-conversion-KXxdnLTT.js";
+import "/iota-utils/assets/transaction-view-DFglSWHH.js";
 function ownKeys(object, enumerableOnly) {
   var keys = Object.keys(object);
   if (Object.getOwnPropertySymbols) {
@@ -1975,9 +1975,9 @@ function validateOptions(options) {
   }
 }
 function isInt(value) {
-  return !isNaN(value) && function(x) {
+  return !isNaN(value) && (function(x) {
     return (x | 0) === x;
-  }(parseFloat(value));
+  })(parseFloat(value));
 }
 function createStore(initialValue) {
   var _val = initialValue;
@@ -2108,11 +2108,10 @@ const syncReset = async (_, extendedAccounts, $iota_accounts, getObjects, allAcc
     for (let account of get(extendedAccounts)) {
       set(allAccountsTotalBalance, get(allAccountsTotalBalance) + account.objects.reduce(
         (acc, obj) => {
-          var _a, _b;
           let amountToAdd = 0;
-          if ((_a = obj.data.content.fields) == null ? void 0 : _a.balance) {
+          if (obj.data.content.fields?.balance) {
             amountToAdd = Number(nanoToIota(obj.data.content.fields.balance));
-          } else if ((_b = obj.data.content.fields) == null ? void 0 : _b.principal) {
+          } else if (obj.data.content.fields?.principal) {
             amountToAdd = Number(nanoToIota(obj.data.content.fields.principal));
           }
           return acc + amountToAdd;
@@ -2121,11 +2120,10 @@ const syncReset = async (_, extendedAccounts, $iota_accounts, getObjects, allAcc
       ));
       set(allAccountsTotalBalance, get(allAccountsTotalBalance) + account.timelockedObjects.reduce(
         (acc, obj) => {
-          var _a, _b, _c, _d, _e;
           let amountToAdd = 0;
-          if ((_a = obj.data.content.fields) == null ? void 0 : _a.locked) {
-            amountToAdd = Number(nanoToIota((_b = obj.data.content.fields) == null ? void 0 : _b.locked));
-          } else if ((_e = (_d = (_c = obj.data.content.fields) == null ? void 0 : _c.staked_iota) == null ? void 0 : _d.fields) == null ? void 0 : _e.principal) {
+          if (obj.data.content.fields?.locked) {
+            amountToAdd = Number(nanoToIota(obj.data.content.fields?.locked));
+          } else if (obj.data.content.fields?.staked_iota?.fields?.principal) {
             amountToAdd = Number(nanoToIota(obj.data.content.fields.staked_iota.fields.principal));
           }
           return acc + amountToAdd;
@@ -2267,8 +2265,7 @@ function MultiAccountView($$anchor, $$props) {
           options: { showContent: true, showType: true }
         });
         const objects = result.data.map((obj, idx) => {
-          var _a;
-          let label = (_a = obj.data.content) == null ? void 0 : _a.type;
+          let label = obj.data.content?.type;
           if (typeof label === "string") {
             label = label.split("::").slice(2).join("::");
           }
@@ -2315,14 +2312,13 @@ function MultiAccountView($$anchor, $$props) {
     return movements;
   }
   async function prepareTxs() {
-    var _a;
     let preparedTxs = [];
     let movements = getMovements();
     for (const movement of movements) {
       const senderAddress = movement[0];
       const tx = new Transaction();
       for (let [to, objects] of movement[1]) {
-        if (((_a = get(extendedAccounts).find((acc) => acc.address == senderAddress)) == null ? void 0 : _a.objects.filter((obj) => obj.data.content.type === "0x2::coin::Coin<0x2::iota::IOTA>").length) == 0) {
+        if (get(extendedAccounts).find((acc) => acc.address == senderAddress)?.objects.filter((obj) => obj.data.content.type === "0x2::coin::Coin<0x2::iota::IOTA>").length == 0) {
           let gasCoin = objects.filter((obj) => obj.data.content.type === "0x2::coin::Coin<0x2::iota::IOTA>").sort((a, b) => Number(BigInt(b.data.content.fields.balance) - BigInt(a.data.content.fields.balance)))[0];
           if (!gasCoin) {
             throw new Error(`No gas coin found for sender ${senderAddress}. Please ensure the account has IOTA coins.`);
@@ -2436,10 +2432,7 @@ function MultiAccountView($$anchor, $$props) {
       {
         var consequent_2 = ($$anchor4) => {
           var text_4 = text();
-          template_effect(($0) => set_text(text_4, `${get(item).label ?? ""}: ${$0 ?? ""} IOTA`), [() => {
-            var _a, _b;
-            return nanoToIota((_b = (_a = get(item).data) == null ? void 0 : _a.content.fields) == null ? void 0 : _b.balance);
-          }]);
+          template_effect(($0) => set_text(text_4, `${get(item).label ?? ""}: ${$0 ?? ""} IOTA`), [() => nanoToIota(get(item).data?.content.fields?.balance)]);
           append($$anchor4, text_4);
         };
         var alternate_2 = ($$anchor4) => {
@@ -2452,10 +2445,7 @@ function MultiAccountView($$anchor, $$props) {
                 ($0) => set_text(text_5, `${get(item).label ?? ""}: ${$0 ?? ""}
                                         IOTA`),
                 [
-                  () => {
-                    var _a, _b;
-                    return nanoToIota((_b = (_a = get(item).data) == null ? void 0 : _a.content.fields) == null ? void 0 : _b.principal);
-                  }
+                  () => nanoToIota(get(item).data?.content.fields?.principal)
                 ]
               );
               append($$anchor5, text_5);
@@ -2517,7 +2507,7 @@ function MultiAccountView($$anchor, $$props) {
           if (get(account).address !== get(item).currentOwner) $$render(consequent_5);
         });
       }
-      action(div_8, ($$node) => dragHandle == null ? void 0 : dragHandle($$node));
+      action(div_8, ($$node) => dragHandle?.($$node));
       var div_10 = sibling(div_8, 2);
       var details = child(div_10);
       var pre = sibling(child(details), 2);
@@ -2556,10 +2546,7 @@ function MultiAccountView($$anchor, $$props) {
           {
             var consequent_7 = ($$anchor5) => {
               var text_10 = text();
-              template_effect(($0) => set_text(text_10, `${get(item).label ?? ""}: ${$0 ?? ""} IOTA`), [() => {
-                var _a, _b;
-                return nanoToIota((_b = (_a = get(item).data) == null ? void 0 : _a.content.fields) == null ? void 0 : _b.balance);
-              }]);
+              template_effect(($0) => set_text(text_10, `${get(item).label ?? ""}: ${$0 ?? ""} IOTA`), [() => nanoToIota(get(item).data?.content.fields?.balance)]);
               append($$anchor5, text_10);
             };
             var alternate_5 = ($$anchor5) => {
@@ -2572,10 +2559,7 @@ function MultiAccountView($$anchor, $$props) {
                     ($0) => set_text(text_11, `${get(item).label ?? ""}: ${$0 ?? ""}
                                             IOTA`),
                     [
-                      () => {
-                        var _a, _b;
-                        return nanoToIota((_b = (_a = get(item).data) == null ? void 0 : _a.content.fields) == null ? void 0 : _b.principal);
-                      }
+                      () => nanoToIota(get(item).data?.content.fields?.principal)
                     ]
                   );
                   append($$anchor6, text_11);
@@ -2655,7 +2639,7 @@ function MultiAccountView($$anchor, $$props) {
         if (get(account).timelockedObjects.length != 0) $$render(consequent_11);
       });
     }
-    action(div_6, ($$node, $$action_arg) => dragHandleZone == null ? void 0 : dragHandleZone($$node, $$action_arg), () => ({ items: get(account).objects, flipDurationMs: 200 }));
+    action(div_6, ($$node, $$action_arg) => dragHandleZone?.($$node, $$action_arg), () => ({ items: get(account).objects, flipDurationMs: 200 }));
     template_effect(
       ($0, $1) => {
         set_text(text_2, `${$0 ?? ""}: ${$1 ?? ""}`);
@@ -2666,11 +2650,10 @@ function MultiAccountView($$anchor, $$props) {
         () => get(account).label || get(account).address.slice(0, 6) + "..." + get(account).address.slice(-4),
         () => get(account).objects.reduce(
           (acc, obj) => {
-            var _a, _b;
             let amountToAdd = 0;
-            if ((_a = obj.data.content.fields) == null ? void 0 : _a.balance) {
+            if (obj.data.content.fields?.balance) {
               amountToAdd = Number(nanoToIota(obj.data.content.fields.balance));
-            } else if ((_b = obj.data.content.fields) == null ? void 0 : _b.principal) {
+            } else if (obj.data.content.fields?.principal) {
               amountToAdd = Number(nanoToIota(obj.data.content.fields.principal));
             }
             return acc + amountToAdd;
@@ -2678,11 +2661,10 @@ function MultiAccountView($$anchor, $$props) {
           0
         ) + get(account).timelockedObjects.reduce(
           (acc, obj) => {
-            var _a, _b, _c, _d, _e;
             let amountToAdd = 0;
-            if ((_a = obj.data.content.fields) == null ? void 0 : _a.locked) {
-              amountToAdd = Number(nanoToIota((_b = obj.data.content.fields) == null ? void 0 : _b.locked));
-            } else if ((_e = (_d = (_c = obj.data.content.fields) == null ? void 0 : _c.staked_iota) == null ? void 0 : _d.fields) == null ? void 0 : _e.principal) {
+            if (obj.data.content.fields?.locked) {
+              amountToAdd = Number(nanoToIota(obj.data.content.fields?.locked));
+            } else if (obj.data.content.fields?.staked_iota?.fields?.principal) {
               amountToAdd = Number(nanoToIota(obj.data.content.fields.staked_iota.fields.principal));
             }
             return acc + amountToAdd;

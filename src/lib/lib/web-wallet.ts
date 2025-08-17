@@ -13,58 +13,60 @@ const features = {
 
 function get_wallets() {
     try {
-        iota_wallets.set(
-            getWallets()
-                .get()
-                .filter((wallet) => {
-                    const raw_features = Object.values(features);
-                    // console.log(wallet);
-                    let isWalletWithRequired = isWalletWithRequiredFeatureSet(wallet, raw_features);
-                    // console.log(
-                    //     "isWalletWithRequiredFeatureSet",
-                    //     isWalletWithRequired,
-                    // );
-                    return isWalletWithRequired;
-                })
-                .map(
-                    ({
+        let iotaWallets = getWallets()
+            .get()
+            .filter((wallet) => {
+                const raw_features = Object.values(features);
+                // console.log(wallet);
+                let isWalletWithRequired = isWalletWithRequiredFeatureSet(wallet, raw_features);
+                // console.log(
+                //     "isWalletWithRequiredFeatureSet",
+                //     isWalletWithRequired,
+                // );
+                return isWalletWithRequired;
+            })
+            .map(
+                ({
+                    accounts,
+                    chains,
+                    features: {
+                        // @ts-ignore
+                        [features.CONNECT]: { connect },
+                        // @ts-ignore
+                        [features.EVENTS]: { on },
+                        // @ts-ignore
+                        [features.SIGN_AND_EXECUTE_TRANSACTION]: { signAndExecuteTransaction },
+                        // @ts-ignore
+                        [features.SIGN_PERSONAL_MESSAGE]: { signPersonalMessage },
+                        // @ts-ignore
+                        [features.SIGN_TRANSACTION]: {
+                            // @ts-ignore
+                            signTransaction,
+                        },
+                    },
+                    icon,
+                    name,
+                    version,
+                }) => {
+                    return {
                         accounts,
                         chains,
-                        features: {
-                            // @ts-ignore
-                            [features.CONNECT]: { connect },
-                            // @ts-ignore
-                            [features.EVENTS]: { on },
-                            // @ts-ignore
-                            [features.SIGN_AND_EXECUTE_TRANSACTION]: { signAndExecuteTransaction },
-                            // @ts-ignore
-                            [features.SIGN_PERSONAL_MESSAGE]: { signPersonalMessage },
-                            // @ts-ignore
-                            [features.SIGN_TRANSACTION]: {
-                                // @ts-ignore
-                                signTransaction,
-                            },
-                        },
                         icon,
                         name,
                         version,
-                    }) => {
-                        return {
-                            accounts,
-                            chains,
-                            icon,
-                            name,
-                            version,
-                            connect,
-                            on,
-                            signAndExecuteTransaction,
-                            signPersonalMessage,
-                            signTransaction,
-                            features,
-                        };
-                    },
-                ),
-        );
+                        connect,
+                        on,
+                        signAndExecuteTransaction,
+                        signPersonalMessage,
+                        signTransaction,
+                        features,
+                    };
+                },
+            );
+        // iotaWallets[0].on('*', (event: any, second: any) => {
+        //     console.log('Wallet event:', event, second);
+        // });
+        iota_wallets.set(iotaWallets);
 
         // @ts-ignore
         if (iota_wallets.length == 0) {
@@ -79,11 +81,25 @@ export const getActiveWallet = () => {
     return get(iota_wallets)[0];
 };
 
-export const connectWallet = async () => {
+// If silent is true, it will only try to connect without prompting the user
+export const connectWallet = async (silent: boolean) => {
     get_wallets();
-    // @ts-ignore
-    let connectResult = await get(iota_wallets)[0].connect();
-    console.log('web wallet connectResult', connectResult);
+    if (get(iota_wallets).length == 0) {
+        // wait a bit for the extension to load and try again
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        get_wallets();
+    }
+
+    let connectResult = await get(iota_wallets)[0].connect({ silent: true });
+
+    if (silent && connectResult.accounts && connectResult.accounts.length == 0) {
+        return;
+    }
+
+    if (connectResult.accounts && connectResult.accounts.length == 0) {
+        connectResult = await get(iota_wallets)[0].connect({ silent: false });
+    }
+    console.log('Web wallet accounts:', connectResult);
     iota_accounts.set(connectResult.accounts);
     activeAddress.set(connectResult.accounts[0].address);
 };

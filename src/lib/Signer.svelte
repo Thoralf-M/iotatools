@@ -39,9 +39,8 @@
                                 <option value={signer}>{signer}</option>
                             {/each}
                         </select>
-
-                        {#if $sharedSignerType == SignerType.WebWallet && $iota_wallets.length == 0}
-                            <button onclick={() => connectWallet()} class="connect-btn">
+                        {#if $sharedSignerType == SignerType.WebWallet && $iota_accounts.length == 0}
+                            <button onclick={() => connectWallet(false)} class="connect-btn">
                                 Connect
                             </button>
                         {/if}

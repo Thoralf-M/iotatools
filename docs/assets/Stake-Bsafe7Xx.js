@@ -1,8 +1,8 @@
-import { p as push, i as init, f as from_html, s as sibling, c as child, b as if_block, g as get, m as mutable_source, t as template_effect, ao as set_value, e as event, E as bind_value, k as append, l as pop, V as setup_stores, d as set_text, j as set, n as getClient, W as store_get, a6 as isValidIotaAddress, a5 as Transaction, ap as IOTA_SYSTEM_STATE_OBJECT_ID, a1 as bcs, a2 as activeAddress } from "/iota-utils/assets/index-DCz9zvTe.js";
-import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-BIu5FcFI.js";
-import { f as formatNumbersWithUnderscores, a as formatNumberWithUnderscores } from "/iota-utils/assets/iota-nano-conversion-DyT0voG1.js";
-import { e as executeTransaction } from "/iota-utils/assets/transaction-execution-Z8EEOhMz.js";
-import "/iota-utils/assets/transaction-view-DX7hjqvT.js";
+import { p as push, i as init, f as from_html, s as sibling, c as child, b as if_block, g as get, m as mutable_source, t as template_effect, ao as set_value, e as event, E as bind_value, k as append, l as pop, V as setup_stores, d as set_text, j as set, n as getClient, W as store_get, a6 as isValidIotaAddress, a5 as Transaction, ap as IOTA_SYSTEM_STATE_OBJECT_ID, a1 as bcs, a2 as activeAddress } from "/iota-utils/assets/index-4fd-VrqG.js";
+import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-DMQ9YS-W.js";
+import { f as formatNumbersWithUnderscores, a as formatNumberWithUnderscores } from "/iota-utils/assets/iota-nano-conversion-KXxdnLTT.js";
+import { e as executeTransaction } from "/iota-utils/assets/transaction-execution-8e6rXmvw.js";
+import "/iota-utils/assets/transaction-view-DFglSWHH.js";
 var root_1 = from_html(`<div style="text-align: center;"><pre style="display: inline-block; text-align: left; margin: 0rem;"> </pre></div>`);
 var root = from_html(`<main><button class="svelte-8fa537">list staked IOTA</button> <br/> <span>staked object id: <input placeholder="staked IOTA object id 0x..." size="67"/></span> <button class="svelte-8fa537">compute real rewards</button> <!> <hr/> It's only possible to stake to a candidate or active/committee validator, pending is not possible. <br/> <span>validator address: <input placeholder="validator address 0x..." size="67"/></span> <br/> <span>amount (min 1 IOTA, to unstake with rewards even more): <input type="number" placeholder="amount in NANO" min="1000000000" style="width: 14rem;"/> <input type="number" placeholder="amount in IOTA" min="1" style="width: 14rem;"/></span> <br/> <button class="svelte-8fa537">stake</button> <button class="svelte-8fa537">unstake single object</button> <button class="svelte-8fa537">unstake all</button> <button class="svelte-8fa537">simulate unstake specific amount</button> <button class="svelte-8fa537">unstake specific amount (exact is usually not possible)</button> <hr/> <button class="svelte-8fa537">list timelocked objects</button> <button class="svelte-8fa537">stake all timelocked objects</button> <!></main>`);
 function Stake($$anchor, $$props) {
@@ -41,7 +41,6 @@ function Stake($$anchor, $$props) {
     }
   };
   async function unstakeSingle() {
-    var _a, _b, _c, _d;
     try {
       const client = getClient();
       let obj = await client.getObject({
@@ -49,10 +48,10 @@ function Stake($$anchor, $$props) {
         options: { showContent: true }
       });
       let target;
-      if (((_b = (_a = obj.data) == null ? void 0 : _a.content) == null ? void 0 : _b.type) === "0x3::staking_pool::StakedIota") {
+      if (obj.data?.content?.type === "0x3::staking_pool::StakedIota") {
         target = "0x3::iota_system::request_withdraw_stake";
       }
-      if (((_d = (_c = obj.data) == null ? void 0 : _c.content) == null ? void 0 : _d.type) === "0x3::timelocked_staking::TimelockedStakedIota") {
+      if (obj.data?.content?.type === "0x3::timelocked_staking::TimelockedStakedIota") {
         target = "0x3::timelocked_staking::request_withdraw_stake";
       }
       if (!target) {
@@ -172,14 +171,13 @@ function Stake($$anchor, $$props) {
     return tx;
   }
   async function computeRequiredUnstakeAmount(stakedIotaObjectId2) {
-    var _a, _b, _c, _d;
     let stakeData = await devInspectStakedObject(stakedIotaObjectId2);
     let obj = await getClient().getObject({ id: stakedIotaObjectId2, options: { showContent: true } });
     let timelocked = false;
-    if (((_b = (_a = obj.data) == null ? void 0 : _a.content) == null ? void 0 : _b.type) === "0x3::timelocked_staking::TimelockedStakedIota") {
+    if (obj.data?.content?.type === "0x3::timelocked_staking::TimelockedStakedIota") {
       timelocked = true;
     }
-    if (!timelocked && ((_d = (_c = obj.data) == null ? void 0 : _c.content) == null ? void 0 : _d.type) != "0x3::staking_pool::StakedIota") {
+    if (!timelocked && obj.data?.content?.type != "0x3::staking_pool::StakedIota") {
       throw new Error("No staked IOTA object: " + stakedIotaObjectId2);
     }
     let initialStaked = BigInt(stakeData.initialStakedAmount);
@@ -204,15 +202,14 @@ function Stake($$anchor, $$props) {
     }
   }
   async function devInspectStakedObject(stakedIotaObjectId2) {
-    var _a, _b, _c, _d;
     const client = getClient();
     let obj = await client.getObject({ id: stakedIotaObjectId2, options: { showContent: true } });
     let target;
     let timelocked = false;
-    if (((_b = (_a = obj.data) == null ? void 0 : _a.content) == null ? void 0 : _b.type) === "0x3::staking_pool::StakedIota") {
+    if (obj.data?.content?.type === "0x3::staking_pool::StakedIota") {
       target = "0x3::iota_system::request_withdraw_stake_non_entry";
     }
-    if (((_d = (_c = obj.data) == null ? void 0 : _c.content) == null ? void 0 : _d.type) === "0x3::timelocked_staking::TimelockedStakedIota") {
+    if (obj.data?.content?.type === "0x3::timelocked_staking::TimelockedStakedIota") {
       target = "0x3::timelocked_staking::request_withdraw_stake_non_entry";
       timelocked = true;
     }
