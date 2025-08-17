@@ -13,6 +13,9 @@
         navigator.clipboard.writeText(text);
     }
 
+    // Toggle state for columns
+    let showPriceColumns = true;
+    let showValidatorColumns = true;
     // Efficient computation: single pass over stakeObjects
     let minEpoch = 0;
     let uniqueValidators: ValidatorInfo[] = [];
@@ -429,6 +432,7 @@
     }
 
     async function fetchAllPrices() {
+        showPriceColumns = true;
         isFetchingPrice = true;
         priceError = '';
         epochPrices = {};
@@ -576,6 +580,13 @@
         <span style="color: green;">Prices loaded for {Object.keys(epochPrices).length} epochs</span
         >
     {/if}
+    <!-- Toggle buttons for columns -->
+    <button on:click={() => (showPriceColumns = !showPriceColumns)}>
+        {showPriceColumns ? 'Hide' : 'Show'} Price Columns
+    </button>
+    <button on:click={() => (showValidatorColumns = !showValidatorColumns)}>
+        {showValidatorColumns ? 'Hide' : 'Show'} Validator Columns
+    </button>
 </div>
 <div class="table-container">
     <div class="virtual-table">
@@ -586,7 +597,7 @@
                 <div class="header-cell end-date-header">End Date</div>
                 <div class="header-cell rewards-header">Rewards</div>
                 <div class="header-cell rewards-header">Accumulated</div>
-                {#if Object.keys(epochPrices).length > 0}
+                {#if showPriceColumns && Object.keys(epochPrices).length > 0}
                     <div class="header-cell rewards-header">
                         Price ({selectedCurrency.toUpperCase()})
                     </div>
@@ -597,33 +608,35 @@
                         Accumulated in {selectedCurrency.toUpperCase()}
                     </div>
                 {/if}
-                {#each uniqueValidators as validator}
-                    <div class="header-cell validator-header-cell">
-                        <div class="validator-header">
-                            <div
-                                class="validator-name clickable-validator"
-                                role="button"
-                                tabindex="0"
-                                on:click={() => {
-                                    selectedValidator =
-                                        selectedValidator?.poolId === validator.poolId
-                                            ? null
-                                            : validator;
-                                }}
-                                on:keydown={(e) => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
+                {#if showValidatorColumns}
+                    {#each uniqueValidators as validator}
+                        <div class="header-cell validator-header-cell">
+                            <div class="validator-header">
+                                <div
+                                    class="validator-name clickable-validator"
+                                    role="button"
+                                    tabindex="0"
+                                    on:click={() => {
                                         selectedValidator =
                                             selectedValidator?.poolId === validator.poolId
                                                 ? null
                                                 : validator;
-                                    }
-                                }}
-                            >
-                                {validator.name}
+                                    }}
+                                    on:keydown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            selectedValidator =
+                                                selectedValidator?.poolId === validator.poolId
+                                                    ? null
+                                                    : validator;
+                                        }
+                                    }}
+                                >
+                                    {validator.name}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                {/each}
+                    {/each}
+                {/if}
                 {#each stakeObjects as stakeObject}
                     <div class="header-cell stake-header-cell">
                         <div class="stake-header">
@@ -680,76 +693,82 @@
                                 : getTotalAccumulatedRewardsForEpoch(epochs[index])}
                         </div>
                         {#if Object.keys(epochPrices).length > 0}
-                            <div class="table-cell rewards-cell">
-                                {epochs[index] === currentEpoch
-                                    ? 'pending'
-                                    : epochPrices[epochs[index]]
-                                      ? epochPrices[epochs[index]].toFixed(6)
-                                      : 'no price'}
-                            </div>
-                            <div class="table-cell rewards-cell">
-                                {epochs[index] === currentEpoch
-                                    ? 'pending'
-                                    : epochPrices[epochs[index]]
-                                      ? `${(
-                                            Number(
-                                                getTotalRewardsForEpoch(epochs[index]).replace(
-                                                    ' IOTA',
-                                                    '',
-                                                ),
-                                            ) * epochPrices[epochs[index]]
-                                        ).toFixed(2)} ${selectedCurrency.toUpperCase()}`
-                                      : 'no price'}
-                            </div>
-                            <div class="table-cell rewards-cell">
-                                {epochs[index] === currentEpoch
-                                    ? 'pending'
-                                    : epochPrices[epochs[index]]
-                                      ? `${(
-                                            Number(
-                                                getTotalAccumulatedRewardsForEpoch(
-                                                    epochs[index],
-                                                ).replace(' IOTA', ''),
-                                            ) * epochPrices[epochs[index]]
-                                        ).toFixed(2)} ${selectedCurrency.toUpperCase()}`
-                                      : 'no price'}
-                            </div>
+                            {#if showPriceColumns && Object.keys(epochPrices).length > 0}
+                                <div class="table-cell rewards-cell">
+                                    {epochs[index] === currentEpoch
+                                        ? 'pending'
+                                        : epochPrices[epochs[index]]
+                                          ? epochPrices[epochs[index]].toFixed(6)
+                                          : 'no price'}
+                                </div>
+                                <div class="table-cell rewards-cell">
+                                    {epochs[index] === currentEpoch
+                                        ? 'pending'
+                                        : epochPrices[epochs[index]]
+                                          ? `${(
+                                                Number(
+                                                    getTotalRewardsForEpoch(epochs[index]).replace(
+                                                        ' IOTA',
+                                                        '',
+                                                    ),
+                                                ) * epochPrices[epochs[index]]
+                                            ).toFixed(2)} ${selectedCurrency.toUpperCase()}`
+                                          : 'no price'}
+                                </div>
+                                <div class="table-cell rewards-cell">
+                                    {epochs[index] === currentEpoch
+                                        ? 'pending'
+                                        : epochPrices[epochs[index]]
+                                          ? `${(
+                                                Number(
+                                                    getTotalAccumulatedRewardsForEpoch(
+                                                        epochs[index],
+                                                    ).replace(' IOTA', ''),
+                                                ) * epochPrices[epochs[index]]
+                                            ).toFixed(2)} ${selectedCurrency.toUpperCase()}`
+                                          : 'no price'}
+                                </div>
+                            {/if}
                         {/if}
                         {#each uniqueValidators as validator}
-                            <div class="table-cell validator-cell">
-                                <div class="validator-popup-container">
-                                    {#if epochs[index] === currentEpoch}
-                                        pending
-                                    {:else}
-                                        <span class="validator-reward-value">
-                                            {getValidatorRewardsForEpoch(
-                                                validator.poolId,
-                                                epochs[index],
-                                            )}
-                                        </span>
-                                        <div class="validator-popup">
-                                            <div>
-                                                Validator: {validator.name}
-                                            </div>
-                                            <div>
-                                                Pool ID: {validator.poolId}
-                                            </div>
-                                            <div>
-                                                Rewards this epoch: {getValidatorRewardsForEpoch(
-                                                    validator.poolId,
-                                                    epochs[index],
-                                                )}
-                                            </div>
-                                            <div>
-                                                Accumulated rewards: {getValidatorAccumulatedRewardsForEpoch(
-                                                    validator.poolId,
-                                                    epochs[index],
-                                                )}
-                                            </div>
+                            {#if showValidatorColumns}
+                                {#each uniqueValidators as validator}
+                                    <div class="table-cell validator-cell">
+                                        <div class="validator-popup-container">
+                                            {#if epochs[index] === currentEpoch}
+                                                pending
+                                            {:else}
+                                                <span class="validator-reward-value">
+                                                    {getValidatorRewardsForEpoch(
+                                                        validator.poolId,
+                                                        epochs[index],
+                                                    )}
+                                                </span>
+                                                <div class="validator-popup">
+                                                    <div>
+                                                        Validator: {validator.name}
+                                                    </div>
+                                                    <div>
+                                                        Pool ID: {validator.poolId}
+                                                    </div>
+                                                    <div>
+                                                        Rewards this epoch: {getValidatorRewardsForEpoch(
+                                                            validator.poolId,
+                                                            epochs[index],
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        Accumulated rewards: {getValidatorAccumulatedRewardsForEpoch(
+                                                            validator.poolId,
+                                                            epochs[index],
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            {/if}
                                         </div>
-                                    {/if}
-                                </div>
-                            </div>
+                                    </div>
+                                {/each}
+                            {/if}
                         {/each}
                         {#each stakeObjects as stakeObject}
                             <div class="table-cell stake-cell">
