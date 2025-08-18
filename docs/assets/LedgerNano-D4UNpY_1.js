@@ -1,7 +1,10 @@
-import { q as getDefaultExportFromCjs, aj as getAugmentedNamespace, p as push, T as state, R as proxy, f as from_html, c as child, s as sibling, g as get, z as each, A as index, E as bind_value, h as bind_select_value, j as set, k as append, l as pop, a8 as toHEX, ak as update, n as getClient, a6 as isValidIotaAddress, a5 as Transaction, ag as messageWithIntent, al as toSerializedSignature, af as Ed25519PublicKey, Z as delegate, G as first_child, b as if_block, t as template_effect, d as set_text, Y as user_derived, am as to_array } from "/iota-utils/assets/index-c15_P6cg.js";
-import { b as bufferExports } from "/iota-utils/assets/index-rSD_0cGr.js";
-import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-DOtLwPuE.js";
-import "/iota-utils/assets/transaction-view-DMvVzL7-.js";
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+import { q as getDefaultExportFromCjs, aj as getAugmentedNamespace, p as push, T as state, R as proxy, f as from_html, c as child, s as sibling, g as get, z as each, A as index, E as bind_value, h as bind_select_value, j as set, k as append, l as pop, a8 as toHEX, ak as update, n as getClient, a6 as isValidIotaAddress, a5 as Transaction, ag as messageWithIntent, al as toSerializedSignature, af as Ed25519PublicKey, Z as delegate, G as first_child, b as if_block, t as template_effect, d as set_text, Y as user_derived, am as to_array } from "/iota-utils/assets/index-CMiBu1ib.js";
+import { b as bufferExports } from "/iota-utils/assets/index-DDJ5SC1F.js";
+import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-Bbi3Ax_Q.js";
+import "/iota-utils/assets/transaction-view-gcIY95EC.js";
 var browser = { exports: {} };
 var hasRequiredBrowser;
 function requireBrowser() {
@@ -303,7 +306,7 @@ function requireSha256() {
       }
       var Hash = (
         /** @class */
-        (function() {
+        function() {
           function Hash2() {
             this.digestLength = exports.digestLength;
             this.blockSize = exports.blockSize;
@@ -416,12 +419,12 @@ function requireSha256() {
             this.bufferLength = 0;
           };
           return Hash2;
-        })()
+        }()
       );
       exports.Hash = Hash;
       var HMAC = (
         /** @class */
-        (function() {
+        function() {
           function HMAC2(key) {
             this.inner = new Hash();
             this.outer = new Hash();
@@ -482,7 +485,7 @@ function requireSha256() {
             return out;
           };
           return HMAC2;
-        })()
+        }()
       );
       exports.HMAC = HMAC;
       function hash(data) {
@@ -598,7 +601,7 @@ var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read fr
 var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
 var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), member.set(obj, value), value);
 var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
-var _verbose, _Iota_instances, internalGetVersion_fn, sendChunks_fn, handleBlocksProtocol_fn, log_fn;
+var _verbose, _Iota_instances, sendChunks_fn, handleBlocksProtocol_fn, log_fn;
 var LedgerToHost = /* @__PURE__ */ ((LedgerToHost2) => {
   LedgerToHost2[LedgerToHost2["RESULT_ACCUMULATING"] = 0] = "RESULT_ACCUMULATING";
   LedgerToHost2[LedgerToHost2["RESULT_FINAL"] = 1] = "RESULT_FINAL";
@@ -648,59 +651,40 @@ class Iota {
   /**
    * Sign a transaction with the key at a BIP32 path.
    *
-   * @param txn - The transaction bytes to sign.
-   * @param path - The path to use when signing the transaction.
-   * @param options - Additional options used for clear signing purposes.
+   * @param txn - The transaction; this can be any of a node Buffer, Uint8Array, or a hexadecimal string, encoding the form of the transaction appropriate for hashing and signing.
+   * @param path - the path to use when signing the transaction.
    */
-  async signTransaction(path, txn, options) {
+  async signTransaction(path, txn) {
     const cla = 0;
     const ins = 3;
     const p1 = 0;
     const p2 = 0;
     if (__privateGet(this, _verbose)) __privateMethod(this, _Iota_instances, log_fn).call(this, txn);
-    const rawTxn = bufferExports.Buffer.from(txn);
+    const rawTxn = typeof txn == "string" ? bufferExports.Buffer.from(txn, "hex") : bufferExports.Buffer.from(txn);
     const hashSize = bufferExports.Buffer.alloc(4);
     hashSize.writeUInt32LE(rawTxn.length, 0);
-    const payloadTxn = bufferExports.Buffer.concat([hashSize, rawTxn]);
-    __privateMethod(this, _Iota_instances, log_fn).call(this, "Payload Txn", payloadTxn);
     const bip32KeyPayload = buildBip32KeyPayload(path);
-    const payloads = [payloadTxn, bip32KeyPayload];
-    const { major } = await __privateMethod(this, _Iota_instances, internalGetVersion_fn).call(this);
-    const bcsObjects = options?.bcsObjects ?? [];
-    __privateMethod(this, _Iota_instances, log_fn).call(this, "Objects list length", bcsObjects.length);
-    __privateMethod(this, _Iota_instances, log_fn).call(this, "App version", major);
-    if (major > 0 && bcsObjects.length > 0) {
-      const numItems = bufferExports.Buffer.alloc(4);
-      numItems.writeUInt32LE(bcsObjects.length, 0);
-      let listData = bufferExports.Buffer.from(numItems);
-      for (const item of bcsObjects) {
-        const rawItem = bufferExports.Buffer.from(item);
-        const itemLen = bufferExports.Buffer.alloc(4);
-        itemLen.writeUInt32LE(rawItem.length, 0);
-        listData = bufferExports.Buffer.concat([listData, itemLen, rawItem]);
-      }
-      payloads.push(listData);
-    }
-    const signature = await __privateMethod(this, _Iota_instances, sendChunks_fn).call(this, cla, ins, p1, p2, payloads);
-    return { signature };
+    const payload_txn = bufferExports.Buffer.concat([hashSize, rawTxn]);
+    __privateMethod(this, _Iota_instances, log_fn).call(this, "Payload Txn", payload_txn);
+    const signature = await __privateMethod(this, _Iota_instances, sendChunks_fn).call(this, cla, ins, p1, p2, [payload_txn, bip32KeyPayload]);
+    return {
+      signature
+    };
   }
   /**
    * Retrieve the app version on the attached Ledger device.
    */
   async getVersion() {
-    return await __privateMethod(this, _Iota_instances, internalGetVersion_fn).call(this);
+    const [major, minor, patch] = await __privateMethod(this, _Iota_instances, sendChunks_fn).call(this, 0, 0, 0, 0, bufferExports.Buffer.alloc(1));
+    return {
+      major,
+      minor,
+      patch
+    };
   }
 }
 _verbose = /* @__PURE__ */ new WeakMap();
 _Iota_instances = /* @__PURE__ */ new WeakSet();
-internalGetVersion_fn = async function() {
-  const [major, minor, patch] = await __privateMethod(this, _Iota_instances, sendChunks_fn).call(this, 0, 0, 0, 0, bufferExports.Buffer.alloc(1));
-  return {
-    major,
-    minor,
-    patch
-  };
-};
 sendChunks_fn = async function(cla, ins, p1, p2, payload, extraData = /* @__PURE__ */ new Map()) {
   const chunkSize = 180;
   if (!(payload instanceof Array)) {
@@ -728,14 +712,10 @@ sendChunks_fn = async function(cla, ins, p1, p2, payload, extraData = /* @__PURE
     lastHash = bufferExports.Buffer.alloc(32);
   }
   __privateMethod(this, _Iota_instances, log_fn).call(this, data);
-  return await __privateMethod(this, _Iota_instances, handleBlocksProtocol_fn).call(this, cla, ins, p1, p2, bufferExports.Buffer.concat(
-    [bufferExports.Buffer.from([
-      0
-      /* START */
-    ])].concat(
-      parameterList
-    )
-  ), data);
+  return await __privateMethod(this, _Iota_instances, handleBlocksProtocol_fn).call(this, cla, ins, p1, p2, bufferExports.Buffer.concat([bufferExports.Buffer.from([
+    0
+    /* START */
+  ])].concat(parameterList)), data);
 };
 handleBlocksProtocol_fn = async function(cla, ins, p1, p2, initialPayload, data) {
   let payload = initialPayload;
@@ -779,10 +759,7 @@ handleBlocksProtocol_fn = async function(cla, ins, p1, p2, initialPayload, data)
         }
         break;
       case 3:
-        data.set(
-          bufferExports.Buffer.from(sha256(rv_payload)).toString("hex"),
-          rv_payload
-        );
+        data.set(bufferExports.Buffer.from(sha256(rv_payload)).toString("hex"), rv_payload);
         payload = bufferExports.Buffer.from([
           3
           /* PUT_CHUNK_RESPONSE */
@@ -1195,9 +1172,9 @@ const addCustomErrorDeserializer = (name, deserializer) => {
 };
 const createCustomErrorClass = (name) => {
   class CustomErrorClass extends Error {
-    cause;
     constructor(message, fields, options) {
       super(message || name, options);
+      __publicField(this, "cause");
       Object.setPrototypeOf(this, CustomErrorClass.prototype);
       this.name = name;
       if (fields) {
@@ -1231,10 +1208,10 @@ var HwTransportErrorType;
   HwTransportErrorType2["BluetoothScanStartFailed"] = "BluetoothScanStartFailed";
 })(HwTransportErrorType || (HwTransportErrorType = {}));
 class TransportError extends Error {
-  id;
   constructor(message, id2) {
     const name = "TransportError";
     super(message || name);
+    __publicField(this, "id");
     this.name = name;
     this.message = message;
     this.stack = new Error(message).stack;
@@ -1320,8 +1297,6 @@ function getAltStatusMessage(code) {
   }
 }
 class TransportStatusError extends Error {
-  statusCode;
-  statusText;
   /**
    * @param statusCode The error status code coming from a Transport implementation
    * @param options containing:
@@ -1334,6 +1309,8 @@ class TransportStatusError extends Error {
     const statusCodeStr = statusCode.toString(16);
     const message = `Ledger device: ${smsg} (0x${statusCodeStr})`;
     super(message);
+    __publicField(this, "statusCode");
+    __publicField(this, "statusText");
     this.name = "TransportStatusError";
     this.statusCode = statusCode;
     this.statusText = statusText;
@@ -1381,9 +1358,9 @@ const trace = ({ type, message, data, context }) => {
   dispatch(obj);
 };
 class LocalTracer {
-  type;
-  context;
   constructor(type, context) {
+    __publicField(this, "type");
+    __publicField(this, "context");
     this.type = type;
     this.context = context;
   }
@@ -1465,57 +1442,50 @@ if (typeof window !== "undefined") {
 }
 const DEFAULT_LOG_TYPE = "transport";
 class Transport {
-  exchangeTimeout = 3e4;
-  unresponsiveTimeout = 15e3;
-  deviceModel = null;
-  tracer;
   constructor({ context, logType } = {}) {
+    __publicField(this, "exchangeTimeout", 3e4);
+    __publicField(this, "unresponsiveTimeout", 15e3);
+    __publicField(this, "deviceModel", null);
+    __publicField(this, "tracer");
+    __publicField(this, "_events", new EventEmitter());
+    /**
+     * Send data to the device using the higher level API.
+     *
+     * @param {number} cla - The instruction class for the command.
+     * @param {number} ins - The instruction code for the command.
+     * @param {number} p1 - The first parameter for the instruction.
+     * @param {number} p2 - The second parameter for the instruction.
+     * @param {Buffer} data - The data to be sent. Defaults to an empty buffer.
+     * @param {Array<number>} statusList - A list of acceptable status codes for the response. Defaults to [StatusCodes.OK].
+     * @param {Object} options - Contains optional options for the exchange function
+     *  - abortTimeoutMs: stop the send after a given timeout. Another timeout exists
+     *    to detect unresponsive device (see `unresponsiveTimeout`). This timeout aborts the exchange.
+     * @returns {Promise<Buffer>} A promise that resolves with the response data from the device.
+     */
+    __publicField(this, "send", async (cla, ins, p1, p2, data = bufferExports.Buffer.alloc(0), statusList = [StatusCodes.OK], { abortTimeoutMs } = {}) => {
+      const tracer = this.tracer.withUpdatedContext({ function: "send" });
+      if (data.length >= 256) {
+        tracer.trace("data.length exceeded 256 bytes limit", { dataLength: data.length });
+        throw new TransportError("data.length exceed 256 bytes limit. Got: " + data.length, "DataLengthTooBig");
+      }
+      tracer.trace("Starting an exchange", { abortTimeoutMs });
+      const response = await this.exchange(
+        // The size of the data is added in 1 byte just before `data`
+        bufferExports.Buffer.concat([bufferExports.Buffer.from([cla, ins, p1, p2]), bufferExports.Buffer.from([data.length]), data]),
+        { abortTimeoutMs }
+      );
+      tracer.trace("Received response from exchange");
+      const sw = response.readUInt16BE(response.length - 2);
+      if (!statusList.some((s) => s === sw)) {
+        throw new TransportStatusError(sw);
+      }
+      return response;
+    });
+    // Blocks other exchange to happen concurrently
+    __publicField(this, "exchangeBusyPromise");
+    __publicField(this, "_appAPIlock", null);
     this.tracer = new LocalTracer(logType ?? DEFAULT_LOG_TYPE, context);
   }
-  /**
-   * Check if the transport is supported on the current platform/browser.
-   * @returns {Promise<boolean>} A promise that resolves with a boolean indicating support.
-   */
-  static isSupported;
-  /**
-   * List all available descriptors for the transport.
-   * For a better granularity, checkout `listen()`.
-   *
-   * @returns {Promise<Array<any>>} A promise that resolves with an array of descriptors.
-   * @example
-   * TransportFoo.list().then(descriptors => ...)
-   */
-  static list;
-  /**
-   * Listen for device events for the transport. The method takes an observer of DescriptorEvent and returns a Subscription.
-   * A DescriptorEvent is an object containing a "descriptor" and a "type" field. The "type" field can be "add" or "remove", and the "descriptor" field can be passed to the "open" method.
-   * The "listen" method will first emit all currently connected devices and then will emit events as they occur, such as when a USB device is plugged in or a Bluetooth device becomes discoverable.
-   * @param {Observer<DescriptorEvent<any>>} observer - An object with "next", "error", and "complete" functions, following the observer pattern.
-   * @returns {Subscription} A Subscription object on which you can call ".unsubscribe()" to stop listening to descriptors.
-   * @example
-  const sub = TransportFoo.listen({
-  next: e => {
-    if (e.type==="add") {
-      sub.unsubscribe();
-      const transport = await TransportFoo.open(e.descriptor);
-      ...
-    }
-  },
-  error: error => {},
-  complete: () => {}
-  })
-   */
-  static listen;
-  /**
-   * Attempt to create a Transport instance with a specific descriptor.
-   * @param {any} descriptor - The descriptor to open the transport with.
-   * @param {number} timeout - An optional timeout for the transport connection.
-   * @param {TraceContext} context Optional tracing/log context
-   * @returns {Promise<Transport>} A promise that resolves with a Transport instance.
-   * @example
-  TransportFoo.open(descriptor).then(transport => ...)
-   */
-  static open;
   /**
    * Send data to the device using a low level API.
    * It's recommended to use the "send" method for a higher level API.
@@ -1579,7 +1549,6 @@ class Transport {
   close() {
     return Promise.resolve();
   }
-  _events = new EventEmitter();
   /**
    * Listen for an event on the transport instance.
    * Transport implementations may have specific events. Common events include:
@@ -1618,39 +1587,6 @@ class Transport {
     this.unresponsiveTimeout = unresponsiveTimeout;
   }
   /**
-   * Send data to the device using the higher level API.
-   *
-   * @param {number} cla - The instruction class for the command.
-   * @param {number} ins - The instruction code for the command.
-   * @param {number} p1 - The first parameter for the instruction.
-   * @param {number} p2 - The second parameter for the instruction.
-   * @param {Buffer} data - The data to be sent. Defaults to an empty buffer.
-   * @param {Array<number>} statusList - A list of acceptable status codes for the response. Defaults to [StatusCodes.OK].
-   * @param {Object} options - Contains optional options for the exchange function
-   *  - abortTimeoutMs: stop the send after a given timeout. Another timeout exists
-   *    to detect unresponsive device (see `unresponsiveTimeout`). This timeout aborts the exchange.
-   * @returns {Promise<Buffer>} A promise that resolves with the response data from the device.
-   */
-  send = async (cla, ins, p1, p2, data = bufferExports.Buffer.alloc(0), statusList = [StatusCodes.OK], { abortTimeoutMs } = {}) => {
-    const tracer = this.tracer.withUpdatedContext({ function: "send" });
-    if (data.length >= 256) {
-      tracer.trace("data.length exceeded 256 bytes limit", { dataLength: data.length });
-      throw new TransportError("data.length exceed 256 bytes limit. Got: " + data.length, "DataLengthTooBig");
-    }
-    tracer.trace("Starting an exchange", { abortTimeoutMs });
-    const response = await this.exchange(
-      // The size of the data is added in 1 byte just before `data`
-      bufferExports.Buffer.concat([bufferExports.Buffer.from([cla, ins, p1, p2]), bufferExports.Buffer.from([data.length]), data]),
-      { abortTimeoutMs }
-    );
-    tracer.trace("Received response from exchange");
-    const sw = response.readUInt16BE(response.length - 2);
-    if (!statusList.some((s) => s === sw)) {
-      throw new TransportStatusError(sw);
-    }
-    return response;
-  };
-  /**
    * create() allows to open the first descriptor available or
    * throw if there is none or if timeout is reached.
    * This is a light helper, alternative to using listen() and open() (that you may need for any more advanced usecase)
@@ -1688,8 +1624,6 @@ class Transport {
       }, listenTimeout) : null;
     });
   }
-  // Blocks other exchange to happen concurrently
-  exchangeBusyPromise;
   /**
    * Wrapper to make an exchange "atomic" (blocking any other exchange)
    *
@@ -1740,7 +1674,6 @@ class Transport {
       self[methodName] = this.decorateAppAPIMethod(methodName, self[methodName], self, scrambleKey);
     }
   }
-  _appAPIlock = null;
   decorateAppAPIMethod(methodName, f, ctx, scrambleKey) {
     return async (...args) => {
       const { _appAPIlock } = this;
@@ -1783,9 +1716,53 @@ class Transport {
   getTraceContext() {
     return this.tracer.getContext();
   }
-  static ErrorMessage_ListenTimeout = "No Ledger device found (timeout)";
-  static ErrorMessage_NoDeviceFound = "No Ledger device found";
 }
+/**
+ * Check if the transport is supported on the current platform/browser.
+ * @returns {Promise<boolean>} A promise that resolves with a boolean indicating support.
+ */
+__publicField(Transport, "isSupported");
+/**
+ * List all available descriptors for the transport.
+ * For a better granularity, checkout `listen()`.
+ *
+ * @returns {Promise<Array<any>>} A promise that resolves with an array of descriptors.
+ * @example
+ * TransportFoo.list().then(descriptors => ...)
+ */
+__publicField(Transport, "list");
+/**
+ * Listen for device events for the transport. The method takes an observer of DescriptorEvent and returns a Subscription.
+ * A DescriptorEvent is an object containing a "descriptor" and a "type" field. The "type" field can be "add" or "remove", and the "descriptor" field can be passed to the "open" method.
+ * The "listen" method will first emit all currently connected devices and then will emit events as they occur, such as when a USB device is plugged in or a Bluetooth device becomes discoverable.
+ * @param {Observer<DescriptorEvent<any>>} observer - An object with "next", "error", and "complete" functions, following the observer pattern.
+ * @returns {Subscription} A Subscription object on which you can call ".unsubscribe()" to stop listening to descriptors.
+ * @example
+const sub = TransportFoo.listen({
+next: e => {
+  if (e.type==="add") {
+    sub.unsubscribe();
+    const transport = await TransportFoo.open(e.descriptor);
+    ...
+  }
+},
+error: error => {},
+complete: () => {}
+})
+ */
+__publicField(Transport, "listen");
+/**
+ * Attempt to create a Transport instance with a specific descriptor.
+ * @param {any} descriptor - The descriptor to open the transport with.
+ * @param {number} timeout - An optional timeout for the transport connection.
+ * @param {TraceContext} context Optional tracing/log context
+ * @returns {Promise<Transport>} A promise that resolves with a Transport instance.
+ * @example
+TransportFoo.open(descriptor).then(transport => ...)
+ */
+__publicField(Transport, "open");
+__publicField(Transport, "ErrorMessage_ListenTimeout", "No Ledger device found (timeout)");
+__publicField(Transport, "ErrorMessage_NoDeviceFound", "No Ledger device found");
 const Tag = 5;
 function asUInt16BE(value) {
   const b = bufferExports.Buffer.alloc(2);
@@ -3938,80 +3915,87 @@ async function getFirstLedgerDevice() {
   const devices2 = await requestLedgerDevices();
   return devices2[0];
 }
-class TransportWebHID extends Transport {
-  device;
-  deviceModel;
-  channel = Math.floor(Math.random() * 65535);
-  packetSize = 64;
+const _TransportWebHID = class _TransportWebHID extends Transport {
   constructor(device) {
     super();
+    __publicField(this, "device");
+    __publicField(this, "deviceModel");
+    __publicField(this, "channel", Math.floor(Math.random() * 65535));
+    __publicField(this, "packetSize", 64);
+    __publicField(this, "inputs", []);
+    __publicField(this, "inputCallback");
+    __publicField(this, "read", () => {
+      if (this.inputs.length) {
+        return Promise.resolve(this.inputs.shift());
+      }
+      return new Promise((success) => {
+        this.inputCallback = success;
+      });
+    });
+    __publicField(this, "onInputReport", (e) => {
+      const buffer = bufferExports.Buffer.from(e.data.buffer);
+      if (this.inputCallback) {
+        this.inputCallback(buffer);
+        this.inputCallback = null;
+      } else {
+        this.inputs.push(buffer);
+      }
+    });
+    __publicField(this, "_disconnectEmitted", false);
+    __publicField(this, "_emitDisconnect", (e) => {
+      if (this._disconnectEmitted)
+        return;
+      this._disconnectEmitted = true;
+      this.emit("disconnect", e);
+    });
+    /**
+     * Exchange with the device using APDU protocol.
+     * @param apdu
+     * @returns a promise of apdu response
+     */
+    __publicField(this, "exchange", async (apdu) => {
+      const b = await this.exchangeAtomicImpl(async () => {
+        const { channel, packetSize } = this;
+        log("apdu", "=> " + apdu.toString("hex"));
+        const framing = createHIDframing(channel, packetSize);
+        const blocks = framing.makeBlocks(apdu);
+        for (let i = 0; i < blocks.length; i++) {
+          await this.device.sendReport(0, blocks[i]);
+        }
+        let result;
+        let acc;
+        while (!(result = framing.getReducedResult(acc))) {
+          try {
+            const buffer = await this.read();
+            acc = framing.reduceResponse(acc, buffer);
+          } catch (e) {
+            if (e instanceof TransportError && e.id === "InvalidChannel") {
+              continue;
+            }
+            throw e;
+          }
+        }
+        log("apdu", "<= " + result.toString("hex"));
+        return result;
+      }).catch((e) => {
+        if (e && e.message && e.message.includes("write")) {
+          this._emitDisconnect(e);
+          throw new DisconnectedDeviceDuringOperation(e.message);
+        }
+        throw e;
+      });
+      return b;
+    });
     this.device = device;
     this.deviceModel = typeof device.productId === "number" ? identifyUSBProductId(device.productId) : void 0;
     device.addEventListener("inputreport", this.onInputReport);
   }
-  inputs = [];
-  inputCallback;
-  read = () => {
-    if (this.inputs.length) {
-      return Promise.resolve(this.inputs.shift());
-    }
-    return new Promise((success) => {
-      this.inputCallback = success;
-    });
-  };
-  onInputReport = (e) => {
-    const buffer = bufferExports.Buffer.from(e.data.buffer);
-    if (this.inputCallback) {
-      this.inputCallback(buffer);
-      this.inputCallback = null;
-    } else {
-      this.inputs.push(buffer);
-    }
-  };
-  /**
-   * Check if WebUSB transport is supported.
-   */
-  static isSupported = isSupported;
-  /**
-   * List the WebUSB devices that was previously authorized by the user.
-   */
-  static list = getLedgerDevices;
-  /**
-   * Actively listen to WebUSB devices and emit ONE device
-   * that was either accepted before, if not it will trigger the native permission UI.
-   *
-   * Important: it must be called in the context of a UI click!
-   */
-  static listen = (observer) => {
-    let unsubscribed = false;
-    getFirstLedgerDevice().then((device) => {
-      if (!device) {
-        observer.error(new TransportOpenUserCancelled("Access denied to use Ledger device"));
-      } else if (!unsubscribed) {
-        const deviceModel = typeof device.productId === "number" ? identifyUSBProductId(device.productId) : void 0;
-        observer.next({
-          type: "add",
-          descriptor: device,
-          deviceModel
-        });
-        observer.complete();
-      }
-    }, (error) => {
-      observer.error(new TransportOpenUserCancelled(error.message));
-    });
-    function unsubscribe() {
-      unsubscribed = true;
-    }
-    return {
-      unsubscribe
-    };
-  };
   /**
    * Similar to create() except it will always display the device permission (even if some devices are already accepted).
    */
   static async request() {
     const [device] = await requestLedgerDevices();
-    return TransportWebHID.open(device);
+    return _TransportWebHID.open(device);
   }
   /**
    * Similar to create() except it will never display the device permission (it returns a Promise<?Transport>, null if it fails to find a device).
@@ -4020,14 +4004,14 @@ class TransportWebHID extends Transport {
     const devices2 = await getLedgerDevices();
     if (devices2.length === 0)
       return null;
-    return TransportWebHID.open(devices2[0]);
+    return _TransportWebHID.open(devices2[0]);
   }
   /**
    * Create a Ledger transport with a HIDDevice
    */
   static async open(device) {
     await device.open();
-    const transport = new TransportWebHID(device);
+    const transport = new _TransportWebHID(device);
     const onDisconnect = (e) => {
       if (device === e.device) {
         getHID().removeEventListener("disconnect", onDisconnect);
@@ -4037,13 +4021,6 @@ class TransportWebHID extends Transport {
     getHID().addEventListener("disconnect", onDisconnect);
     return transport;
   }
-  _disconnectEmitted = false;
-  _emitDisconnect = (e) => {
-    if (this._disconnectEmitted)
-      return;
-    this._disconnectEmitted = true;
-    this.emit("disconnect", e);
-  };
   /**
    * Release the transport device
    */
@@ -4052,47 +4029,48 @@ class TransportWebHID extends Transport {
     this.device.removeEventListener("inputreport", this.onInputReport);
     await this.device.close();
   }
-  /**
-   * Exchange with the device using APDU protocol.
-   * @param apdu
-   * @returns a promise of apdu response
-   */
-  exchange = async (apdu) => {
-    const b = await this.exchangeAtomicImpl(async () => {
-      const { channel, packetSize } = this;
-      log("apdu", "=> " + apdu.toString("hex"));
-      const framing = createHIDframing(channel, packetSize);
-      const blocks = framing.makeBlocks(apdu);
-      for (let i = 0; i < blocks.length; i++) {
-        await this.device.sendReport(0, blocks[i]);
-      }
-      let result;
-      let acc;
-      while (!(result = framing.getReducedResult(acc))) {
-        try {
-          const buffer = await this.read();
-          acc = framing.reduceResponse(acc, buffer);
-        } catch (e) {
-          if (e instanceof TransportError && e.id === "InvalidChannel") {
-            continue;
-          }
-          throw e;
-        }
-      }
-      log("apdu", "<= " + result.toString("hex"));
-      return result;
-    }).catch((e) => {
-      if (e && e.message && e.message.includes("write")) {
-        this._emitDisconnect(e);
-        throw new DisconnectedDeviceDuringOperation(e.message);
-      }
-      throw e;
-    });
-    return b;
-  };
   setScrambleKey() {
   }
-}
+};
+/**
+ * Check if WebUSB transport is supported.
+ */
+__publicField(_TransportWebHID, "isSupported", isSupported);
+/**
+ * List the WebUSB devices that was previously authorized by the user.
+ */
+__publicField(_TransportWebHID, "list", getLedgerDevices);
+/**
+ * Actively listen to WebUSB devices and emit ONE device
+ * that was either accepted before, if not it will trigger the native permission UI.
+ *
+ * Important: it must be called in the context of a UI click!
+ */
+__publicField(_TransportWebHID, "listen", (observer) => {
+  let unsubscribed = false;
+  getFirstLedgerDevice().then((device) => {
+    if (!device) {
+      observer.error(new TransportOpenUserCancelled("Access denied to use Ledger device"));
+    } else if (!unsubscribed) {
+      const deviceModel = typeof device.productId === "number" ? identifyUSBProductId(device.productId) : void 0;
+      observer.next({
+        type: "add",
+        descriptor: device,
+        deviceModel
+      });
+      observer.complete();
+    }
+  }, (error) => {
+    observer.error(new TransportOpenUserCancelled(error.message));
+  });
+  function unsubscribe() {
+    unsubscribed = true;
+  }
+  return {
+    unsubscribe
+  };
+});
+let TransportWebHID = _TransportWebHID;
 var on_click = (_, connect) => connect();
 var on_click_1 = (__1, generateAddress) => generateAddress();
 var on_click_2 = (__2, generateMultipleAddresses) => generateMultipleAddresses();
@@ -4262,7 +4240,7 @@ function LedgerNano($$anchor, $$props) {
         throw new Error("invalid recipient address");
       }
       let address = get(accountEntries).find((addr) => addr.address == get(senderAddress));
-      let bip44Path = address?.bip44Path;
+      let bip44Path = address == null ? void 0 : address.bip44Path;
       if (!bip44Path) {
         bip44Path = `m/44'/${get(coinType)}'/${get(accountIndex)}'/${get(change)}'/${get(addressIndex)}'`;
       }
@@ -4273,7 +4251,8 @@ function LedgerNano($$anchor, $$props) {
         throw new Error("No objects found");
       }
       const gasCoinIndex = page.data.findIndex((o) => {
-        return o.data?.type === `0x2::coin::Coin<0x2::iota::IOTA>`;
+        var _a;
+        return ((_a = o.data) == null ? void 0 : _a.type) === `0x2::coin::Coin<0x2::iota::IOTA>`;
       });
       let gasCoin = null;
       if (gasCoinIndex !== -1) {
@@ -4282,7 +4261,10 @@ function LedgerNano($$anchor, $$props) {
       if (!gasCoin) {
         throw new Error("No gas coin found");
       }
-      let objectsToTransfer = page.data.map((o) => o.data?.objectId);
+      let objectsToTransfer = page.data.map((o) => {
+        var _a;
+        return (_a = o.data) == null ? void 0 : _a.objectId;
+      });
       objectsToTransfer.push(tx.gas);
       tx.transferObjects(objectsToTransfer, tx.pure.address(get(recipientAddress)));
       await finishTransaction(tx, bip44Path, client);
@@ -4300,7 +4282,7 @@ function LedgerNano($$anchor, $$props) {
         throw new Error("invalid recipient address");
       }
       let address = get(accountEntries).find((addr) => addr.address == get(senderAddress));
-      let bip44Path = address?.bip44Path;
+      let bip44Path = address == null ? void 0 : address.bip44Path;
       if (!bip44Path) {
         bip44Path = `m/44'/${get(coinType)}'/${get(accountIndex)}'/${get(change)}'/${get(addressIndex)}'`;
       }

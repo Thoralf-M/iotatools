@@ -1,10 +1,13 @@
-import { q as getDefaultExportFromCjs, p as push, r as prop, u as onMount, g as get, m as mutable_source, v as onDestroy, w as legacy_pre_effect, j as set$1, x as deep_read_state, y as legacy_pre_effect_reset, i as init, f as from_html, s as sibling, c as child, z as each$1, A as index$1, B as init_select, b as if_block, C as untrack, t as template_effect, D as select_option, e as event, k as append, l as pop, o as mutate, d as set_text, E as bind_value, F as bind_group, G as first_child, H as text, I as set_style, J as set_attribute, K as comment, L as set_class } from "/iota-utils/assets/index-c15_P6cg.js";
-import { b as bind_this } from "/iota-utils/assets/this-D5oa0JbG.js";
-import { T as TransactionView } from "/iota-utils/assets/TransactionView-CYEOPiud.js";
-import { E as EpochPTBAnalyzer } from "/iota-utils/assets/index-B_CSQK84.js";
-import "/iota-utils/assets/transaction-view-DMvVzL7-.js";
-import "/iota-utils/assets/iota-nano-conversion-Bp8husbX.js";
-import "/iota-utils/assets/index-BUk6joPt.js";
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+import { q as getDefaultExportFromCjs, p as push, r as prop, u as onMount, g as get, m as mutable_source, v as onDestroy, w as legacy_pre_effect, j as set$1, x as deep_read_state, y as legacy_pre_effect_reset, i as init, f as from_html, s as sibling, c as child, z as each$1, A as index$1, B as init_select, b as if_block, C as untrack, t as template_effect, D as select_option, e as event, k as append, l as pop, o as mutate, d as set_text, E as bind_value, F as bind_group, G as first_child, H as text, I as set_style, J as set_attribute, K as comment, L as set_class } from "/iota-utils/assets/index-CMiBu1ib.js";
+import { b as bind_this } from "/iota-utils/assets/this-DEuQhPCH.js";
+import { T as TransactionView } from "/iota-utils/assets/TransactionView-CBaSEL_v.js";
+import { E as EpochPTBAnalyzer } from "/iota-utils/assets/index-CZpT3lew.js";
+import "/iota-utils/assets/transaction-view-gcIY95EC.js";
+import "/iota-utils/assets/iota-nano-conversion-xJ_sof4-.js";
+import "/iota-utils/assets/index-DqCMW0_q.js";
 /*!
  * @kurkle/color v0.3.4
  * https://github.com/kurkle/color#readme
@@ -987,14 +990,14 @@ function _arrayUnique(items) {
   }
   return Array.from(set2);
 }
-const requestAnimFrame = (function() {
+const requestAnimFrame = function() {
   if (typeof window === "undefined") {
     return function(callback2) {
       return callback2();
     };
   }
   return window.requestAnimationFrame;
-})();
+}();
 function throttled(fn, thisArg) {
   let argsToUse = [];
   let ticking = false;
@@ -2539,7 +2542,7 @@ function retinaScale(chart, forceRatio, forceStyle) {
   }
   return false;
 }
-const supportsEventListenerOptions = (function() {
+const supportsEventListenerOptions = function() {
   let passiveSupported = false;
   try {
     const options = {
@@ -2555,7 +2558,7 @@ const supportsEventListenerOptions = (function() {
   } catch (e) {
   }
   return passiveSupported;
-})();
+}();
 function readUsedSize(element, property) {
   const value = getStyle(element, property);
   const matches = value && value.match(/^(\d+)(\.\d+)?px$/);
@@ -3535,9 +3538,6 @@ const createStack = (canStack, meta, chart) => canStack && !meta.hidden && meta.
   values: null
 };
 class DatasetController {
-  static defaults = {};
-  static datasetElementType = null;
-  static dataElementType = null;
   constructor(chart, datasetIndex) {
     this.chart = chart;
     this._ctx = chart.ctx;
@@ -4130,6 +4130,9 @@ class DatasetController {
     ]);
   }
 }
+__publicField(DatasetController, "defaults", {});
+__publicField(DatasetController, "datasetElementType", null);
+__publicField(DatasetController, "dataElementType", null);
 function getAllScaleValues(scale, type) {
   if (!scale._cache.$bar) {
     const visibleMetas = scale.getMatchingVisibleMetas(type);
@@ -4331,41 +4334,6 @@ function setInflateAmount(properties, { inflateAmount }, ratio) {
   properties.inflateAmount = inflateAmount === "auto" ? ratio === 1 ? 0.33 : 0 : inflateAmount;
 }
 class BarController extends DatasetController {
-  static id = "bar";
-  static defaults = {
-    datasetElementType: false,
-    dataElementType: "bar",
-    categoryPercentage: 0.8,
-    barPercentage: 0.9,
-    grouped: true,
-    animations: {
-      numbers: {
-        type: "number",
-        properties: [
-          "x",
-          "y",
-          "base",
-          "width",
-          "height"
-        ]
-      }
-    }
-  };
-  static overrides = {
-    scales: {
-      _index_: {
-        type: "category",
-        offset: true,
-        grid: {
-          offset: true
-        }
-      },
-      _value_: {
-        type: "linear",
-        beginAtZero: true
-      }
-    }
-  };
   parsePrimitiveData(meta, data, start, count) {
     return parseArrayOrPrimitive(meta, data, start, count);
   }
@@ -4624,33 +4592,42 @@ class BarController extends DatasetController {
     }
   }
 }
+__publicField(BarController, "id", "bar");
+__publicField(BarController, "defaults", {
+  datasetElementType: false,
+  dataElementType: "bar",
+  categoryPercentage: 0.8,
+  barPercentage: 0.9,
+  grouped: true,
+  animations: {
+    numbers: {
+      type: "number",
+      properties: [
+        "x",
+        "y",
+        "base",
+        "width",
+        "height"
+      ]
+    }
+  }
+});
+__publicField(BarController, "overrides", {
+  scales: {
+    _index_: {
+      type: "category",
+      offset: true,
+      grid: {
+        offset: true
+      }
+    },
+    _value_: {
+      type: "linear",
+      beginAtZero: true
+    }
+  }
+});
 class BubbleController extends DatasetController {
-  static id = "bubble";
-  static defaults = {
-    datasetElementType: false,
-    dataElementType: "point",
-    animations: {
-      numbers: {
-        type: "number",
-        properties: [
-          "x",
-          "y",
-          "borderWidth",
-          "radius"
-        ]
-      }
-    }
-  };
-  static overrides = {
-    scales: {
-      x: {
-        type: "linear"
-      },
-      y: {
-        type: "linear"
-      }
-    }
-  };
   initialize() {
     this.enableOptionSharing = true;
     super.initialize();
@@ -4741,6 +4718,32 @@ class BubbleController extends DatasetController {
     return values;
   }
 }
+__publicField(BubbleController, "id", "bubble");
+__publicField(BubbleController, "defaults", {
+  datasetElementType: false,
+  dataElementType: "point",
+  animations: {
+    numbers: {
+      type: "number",
+      properties: [
+        "x",
+        "y",
+        "borderWidth",
+        "radius"
+      ]
+    }
+  }
+});
+__publicField(BubbleController, "overrides", {
+  scales: {
+    x: {
+      type: "linear"
+    },
+    y: {
+      type: "linear"
+    }
+  }
+});
 function getRatioAndOffset(rotation, circumference, cutout) {
   let ratioX = 1;
   let ratioY = 1;
@@ -4772,76 +4775,6 @@ function getRatioAndOffset(rotation, circumference, cutout) {
   };
 }
 class DoughnutController extends DatasetController {
-  static id = "doughnut";
-  static defaults = {
-    datasetElementType: false,
-    dataElementType: "arc",
-    animation: {
-      animateRotate: true,
-      animateScale: false
-    },
-    animations: {
-      numbers: {
-        type: "number",
-        properties: [
-          "circumference",
-          "endAngle",
-          "innerRadius",
-          "outerRadius",
-          "startAngle",
-          "x",
-          "y",
-          "offset",
-          "borderWidth",
-          "spacing"
-        ]
-      }
-    },
-    cutout: "50%",
-    rotation: 0,
-    circumference: 360,
-    radius: "100%",
-    spacing: 0,
-    indexAxis: "r"
-  };
-  static descriptors = {
-    _scriptable: (name) => name !== "spacing",
-    _indexable: (name) => name !== "spacing" && !name.startsWith("borderDash") && !name.startsWith("hoverBorderDash")
-  };
-  static overrides = {
-    aspectRatio: 1,
-    plugins: {
-      legend: {
-        labels: {
-          generateLabels(chart) {
-            const data = chart.data;
-            if (data.labels.length && data.datasets.length) {
-              const { labels: { pointStyle, color: color2 } } = chart.legend.options;
-              return data.labels.map((label, i) => {
-                const meta = chart.getDatasetMeta(0);
-                const style = meta.controller.getStyle(i);
-                return {
-                  text: label,
-                  fillStyle: style.backgroundColor,
-                  strokeStyle: style.borderColor,
-                  fontColor: color2,
-                  lineWidth: style.borderWidth,
-                  pointStyle,
-                  hidden: !chart.getDataVisibility(i),
-                  index: i
-                };
-              });
-            }
-            return [];
-          }
-        },
-        onClick(e, legendItem, legend) {
-          legend.chart.toggleDataVisibility(legendItem.index);
-          legend.chart.update();
-        }
-      }
-    }
-  };
   constructor(chart, datasetIndex) {
     super(chart, datasetIndex);
     this.enableOptionSharing = true;
@@ -5040,24 +4973,77 @@ class DoughnutController extends DatasetController {
     return this._getRingWeightOffset(this.chart.data.datasets.length) || 1;
   }
 }
-class LineController extends DatasetController {
-  static id = "line";
-  static defaults = {
-    datasetElementType: "line",
-    dataElementType: "point",
-    showLine: true,
-    spanGaps: false
-  };
-  static overrides = {
-    scales: {
-      _index_: {
-        type: "category"
+__publicField(DoughnutController, "id", "doughnut");
+__publicField(DoughnutController, "defaults", {
+  datasetElementType: false,
+  dataElementType: "arc",
+  animation: {
+    animateRotate: true,
+    animateScale: false
+  },
+  animations: {
+    numbers: {
+      type: "number",
+      properties: [
+        "circumference",
+        "endAngle",
+        "innerRadius",
+        "outerRadius",
+        "startAngle",
+        "x",
+        "y",
+        "offset",
+        "borderWidth",
+        "spacing"
+      ]
+    }
+  },
+  cutout: "50%",
+  rotation: 0,
+  circumference: 360,
+  radius: "100%",
+  spacing: 0,
+  indexAxis: "r"
+});
+__publicField(DoughnutController, "descriptors", {
+  _scriptable: (name) => name !== "spacing",
+  _indexable: (name) => name !== "spacing" && !name.startsWith("borderDash") && !name.startsWith("hoverBorderDash")
+});
+__publicField(DoughnutController, "overrides", {
+  aspectRatio: 1,
+  plugins: {
+    legend: {
+      labels: {
+        generateLabels(chart) {
+          const data = chart.data;
+          if (data.labels.length && data.datasets.length) {
+            const { labels: { pointStyle, color: color2 } } = chart.legend.options;
+            return data.labels.map((label, i) => {
+              const meta = chart.getDatasetMeta(0);
+              const style = meta.controller.getStyle(i);
+              return {
+                text: label,
+                fillStyle: style.backgroundColor,
+                strokeStyle: style.borderColor,
+                fontColor: color2,
+                lineWidth: style.borderWidth,
+                pointStyle,
+                hidden: !chart.getDataVisibility(i),
+                index: i
+              };
+            });
+          }
+          return [];
+        }
       },
-      _value_: {
-        type: "linear"
+      onClick(e, legendItem, legend) {
+        legend.chart.toggleDataVisibility(legendItem.index);
+        legend.chart.update();
       }
     }
-  };
+  }
+});
+class LineController extends DatasetController {
   initialize() {
     this.enableOptionSharing = true;
     this.supportsDecimation = true;
@@ -5145,80 +5131,24 @@ class LineController extends DatasetController {
     super.draw();
   }
 }
-class PolarAreaController extends DatasetController {
-  static id = "polarArea";
-  static defaults = {
-    dataElementType: "arc",
-    animation: {
-      animateRotate: true,
-      animateScale: true
+__publicField(LineController, "id", "line");
+__publicField(LineController, "defaults", {
+  datasetElementType: "line",
+  dataElementType: "point",
+  showLine: true,
+  spanGaps: false
+});
+__publicField(LineController, "overrides", {
+  scales: {
+    _index_: {
+      type: "category"
     },
-    animations: {
-      numbers: {
-        type: "number",
-        properties: [
-          "x",
-          "y",
-          "startAngle",
-          "endAngle",
-          "innerRadius",
-          "outerRadius"
-        ]
-      }
-    },
-    indexAxis: "r",
-    startAngle: 0
-  };
-  static overrides = {
-    aspectRatio: 1,
-    plugins: {
-      legend: {
-        labels: {
-          generateLabels(chart) {
-            const data = chart.data;
-            if (data.labels.length && data.datasets.length) {
-              const { labels: { pointStyle, color: color2 } } = chart.legend.options;
-              return data.labels.map((label, i) => {
-                const meta = chart.getDatasetMeta(0);
-                const style = meta.controller.getStyle(i);
-                return {
-                  text: label,
-                  fillStyle: style.backgroundColor,
-                  strokeStyle: style.borderColor,
-                  fontColor: color2,
-                  lineWidth: style.borderWidth,
-                  pointStyle,
-                  hidden: !chart.getDataVisibility(i),
-                  index: i
-                };
-              });
-            }
-            return [];
-          }
-        },
-        onClick(e, legendItem, legend) {
-          legend.chart.toggleDataVisibility(legendItem.index);
-          legend.chart.update();
-        }
-      }
-    },
-    scales: {
-      r: {
-        type: "radialLinear",
-        angleLines: {
-          display: false
-        },
-        beginAtZero: true,
-        grid: {
-          circular: true
-        },
-        pointLabels: {
-          display: false
-        },
-        startAngle: 0
-      }
+    _value_: {
+      type: "linear"
     }
-  };
+  }
+});
+class PolarAreaController extends DatasetController {
   constructor(chart, datasetIndex) {
     super(chart, datasetIndex);
     this.innerRadius = void 0;
@@ -5327,36 +5257,89 @@ class PolarAreaController extends DatasetController {
     return this.chart.getDataVisibility(index2) ? toRadians(this.resolveDataElementOptions(index2, mode).angle || defaultAngle) : 0;
   }
 }
+__publicField(PolarAreaController, "id", "polarArea");
+__publicField(PolarAreaController, "defaults", {
+  dataElementType: "arc",
+  animation: {
+    animateRotate: true,
+    animateScale: true
+  },
+  animations: {
+    numbers: {
+      type: "number",
+      properties: [
+        "x",
+        "y",
+        "startAngle",
+        "endAngle",
+        "innerRadius",
+        "outerRadius"
+      ]
+    }
+  },
+  indexAxis: "r",
+  startAngle: 0
+});
+__publicField(PolarAreaController, "overrides", {
+  aspectRatio: 1,
+  plugins: {
+    legend: {
+      labels: {
+        generateLabels(chart) {
+          const data = chart.data;
+          if (data.labels.length && data.datasets.length) {
+            const { labels: { pointStyle, color: color2 } } = chart.legend.options;
+            return data.labels.map((label, i) => {
+              const meta = chart.getDatasetMeta(0);
+              const style = meta.controller.getStyle(i);
+              return {
+                text: label,
+                fillStyle: style.backgroundColor,
+                strokeStyle: style.borderColor,
+                fontColor: color2,
+                lineWidth: style.borderWidth,
+                pointStyle,
+                hidden: !chart.getDataVisibility(i),
+                index: i
+              };
+            });
+          }
+          return [];
+        }
+      },
+      onClick(e, legendItem, legend) {
+        legend.chart.toggleDataVisibility(legendItem.index);
+        legend.chart.update();
+      }
+    }
+  },
+  scales: {
+    r: {
+      type: "radialLinear",
+      angleLines: {
+        display: false
+      },
+      beginAtZero: true,
+      grid: {
+        circular: true
+      },
+      pointLabels: {
+        display: false
+      },
+      startAngle: 0
+    }
+  }
+});
 class PieController extends DoughnutController {
-  static id = "pie";
-  static defaults = {
-    cutout: 0,
-    rotation: 0,
-    circumference: 360,
-    radius: "100%"
-  };
 }
+__publicField(PieController, "id", "pie");
+__publicField(PieController, "defaults", {
+  cutout: 0,
+  rotation: 0,
+  circumference: 360,
+  radius: "100%"
+});
 class RadarController extends DatasetController {
-  static id = "radar";
-  static defaults = {
-    datasetElementType: "line",
-    dataElementType: "point",
-    indexAxis: "r",
-    showLine: true,
-    elements: {
-      line: {
-        fill: "start"
-      }
-    }
-  };
-  static overrides = {
-    aspectRatio: 1,
-    scales: {
-      r: {
-        type: "radialLinear"
-      }
-    }
-  };
   getLabelAndValue(index2) {
     const vScale = this._cachedMeta.vScale;
     const parsed = this.getParsed(index2);
@@ -5408,27 +5391,27 @@ class RadarController extends DatasetController {
     }
   }
 }
-class ScatterController extends DatasetController {
-  static id = "scatter";
-  static defaults = {
-    datasetElementType: false,
-    dataElementType: "point",
-    showLine: false,
-    fill: false
-  };
-  static overrides = {
-    interaction: {
-      mode: "point"
-    },
-    scales: {
-      x: {
-        type: "linear"
-      },
-      y: {
-        type: "linear"
-      }
+__publicField(RadarController, "id", "radar");
+__publicField(RadarController, "defaults", {
+  datasetElementType: "line",
+  dataElementType: "point",
+  indexAxis: "r",
+  showLine: true,
+  elements: {
+    line: {
+      fill: "start"
     }
-  };
+  }
+});
+__publicField(RadarController, "overrides", {
+  aspectRatio: 1,
+  scales: {
+    r: {
+      type: "radialLinear"
+    }
+  }
+});
+class ScatterController extends DatasetController {
   getLabelAndValue(index2) {
     const meta = this._cachedMeta;
     const labels = this.chart.data.labels || [];
@@ -5535,6 +5518,26 @@ class ScatterController extends DatasetController {
     return Math.max(border, firstPoint, lastPoint) / 2;
   }
 }
+__publicField(ScatterController, "id", "scatter");
+__publicField(ScatterController, "defaults", {
+  datasetElementType: false,
+  dataElementType: "point",
+  showLine: false,
+  fill: false
+});
+__publicField(ScatterController, "overrides", {
+  interaction: {
+    mode: "point"
+  },
+  scales: {
+    x: {
+      type: "linear"
+    },
+    y: {
+      type: "linear"
+    }
+  }
+});
 var controllers = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   BarController,
@@ -5550,6 +5553,10 @@ function abstract() {
   throw new Error("This method is not implemented: Check that a complete date adapter is provided.");
 }
 class DateAdapterBase {
+  constructor(options) {
+    __publicField(this, "options");
+    this.options = options || {};
+  }
   /**
   * Override default date adapter methods.
   * Accepts type parameter to define options type.
@@ -5562,10 +5569,6 @@ class DateAdapterBase {
   */
   static override(members) {
     Object.assign(DateAdapterBase.prototype, members);
-  }
-  options;
-  constructor(options) {
-    this.options = options || {};
   }
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   init() {
@@ -6448,13 +6451,13 @@ function _detectPlatform(canvas) {
   return DomPlatform;
 }
 class Element {
-  static defaults = {};
-  static defaultRoutes = void 0;
-  x;
-  y;
-  active = false;
-  options;
-  $animations;
+  constructor() {
+    __publicField(this, "x");
+    __publicField(this, "y");
+    __publicField(this, "active", false);
+    __publicField(this, "options");
+    __publicField(this, "$animations");
+  }
   tooltipPosition(useFinalPosition) {
     const { x, y } = this.getProps([
       "x",
@@ -6480,6 +6483,8 @@ class Element {
     return ret;
   }
 }
+__publicField(Element, "defaults", {});
+__publicField(Element, "defaultRoutes");
 function autoSkip(scale, ticks) {
   const tickOpts = scale.options.ticks;
   const determinedMaxTicks = determineMaxTicks(scale);
@@ -8559,12 +8564,6 @@ function determineLastEvent(e, lastEvent, inChartArea, isClick) {
   return e;
 }
 class Chart {
-  static defaults = defaults;
-  static instances = instances;
-  static overrides = overrides;
-  static registry = registry;
-  static version = version$1;
-  static getChart = getChart;
   static register(...items) {
     registry.add(...items);
     invalidatePlugins();
@@ -9378,6 +9377,12 @@ class Chart {
     return this.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions, useFinalPosition);
   }
 }
+__publicField(Chart, "defaults", defaults);
+__publicField(Chart, "instances", instances);
+__publicField(Chart, "overrides", overrides);
+__publicField(Chart, "registry", registry);
+__publicField(Chart, "version", version$1);
+__publicField(Chart, "getChart", getChart);
 function invalidatePlugins() {
   return each(Chart.instances, (chart) => chart._plugins.invalidate());
 }
@@ -9571,37 +9576,15 @@ function drawBorder(ctx, element, offset, spacing, circular) {
   }
 }
 class ArcElement extends Element {
-  static id = "arc";
-  static defaults = {
-    borderAlign: "center",
-    borderColor: "#fff",
-    borderDash: [],
-    borderDashOffset: 0,
-    borderJoinStyle: void 0,
-    borderRadius: 0,
-    borderWidth: 2,
-    offset: 0,
-    spacing: 0,
-    angle: void 0,
-    circular: true,
-    selfJoin: false
-  };
-  static defaultRoutes = {
-    backgroundColor: "backgroundColor"
-  };
-  static descriptors = {
-    _scriptable: true,
-    _indexable: (name) => name !== "borderDash"
-  };
-  circumference;
-  endAngle;
-  fullCircles;
-  innerRadius;
-  outerRadius;
-  pixelMargin;
-  startAngle;
   constructor(cfg) {
     super();
+    __publicField(this, "circumference");
+    __publicField(this, "endAngle");
+    __publicField(this, "fullCircles");
+    __publicField(this, "innerRadius");
+    __publicField(this, "outerRadius");
+    __publicField(this, "pixelMargin");
+    __publicField(this, "startAngle");
     this.options = void 0;
     this.circumference = void 0;
     this.startAngle = void 0;
@@ -9679,6 +9662,28 @@ class ArcElement extends Element {
     ctx.restore();
   }
 }
+__publicField(ArcElement, "id", "arc");
+__publicField(ArcElement, "defaults", {
+  borderAlign: "center",
+  borderColor: "#fff",
+  borderDash: [],
+  borderDashOffset: 0,
+  borderJoinStyle: void 0,
+  borderRadius: 0,
+  borderWidth: 2,
+  offset: 0,
+  spacing: 0,
+  angle: void 0,
+  circular: true,
+  selfJoin: false
+});
+__publicField(ArcElement, "defaultRoutes", {
+  backgroundColor: "backgroundColor"
+});
+__publicField(ArcElement, "descriptors", {
+  _scriptable: true,
+  _indexable: (name) => name !== "borderDash"
+});
 function setStyle(ctx, options, style = options) {
   ctx.lineCap = valueOrDefault(style.borderCapStyle, options.borderCapStyle);
   ctx.setLineDash(valueOrDefault(style.borderDash, options.borderDash));
@@ -9832,28 +9837,6 @@ function draw$1(ctx, line, start, count) {
   }
 }
 class LineElement extends Element {
-  static id = "line";
-  static defaults = {
-    borderCapStyle: "butt",
-    borderDash: [],
-    borderDashOffset: 0,
-    borderJoinStyle: "miter",
-    borderWidth: 3,
-    capBezierPoints: true,
-    cubicInterpolationMode: "default",
-    fill: false,
-    spanGaps: false,
-    stepped: false,
-    tension: 0
-  };
-  static defaultRoutes = {
-    backgroundColor: "backgroundColor",
-    borderColor: "borderColor"
-  };
-  static descriptors = {
-    _scriptable: true,
-    _indexable: (name) => name !== "borderDash" && name !== "fill"
-  };
   constructor(cfg) {
     super();
     this.animated = true;
@@ -9964,6 +9947,28 @@ class LineElement extends Element {
     }
   }
 }
+__publicField(LineElement, "id", "line");
+__publicField(LineElement, "defaults", {
+  borderCapStyle: "butt",
+  borderDash: [],
+  borderDashOffset: 0,
+  borderJoinStyle: "miter",
+  borderWidth: 3,
+  capBezierPoints: true,
+  cubicInterpolationMode: "default",
+  fill: false,
+  spanGaps: false,
+  stepped: false,
+  tension: 0
+});
+__publicField(LineElement, "defaultRoutes", {
+  backgroundColor: "backgroundColor",
+  borderColor: "borderColor"
+});
+__publicField(LineElement, "descriptors", {
+  _scriptable: true,
+  _indexable: (name) => name !== "borderDash" && name !== "fill"
+});
 function inRange$1(el, pos, axis, useFinalPosition) {
   const options = el.options;
   const { [axis]: value } = el.getProps([
@@ -9972,31 +9977,11 @@ function inRange$1(el, pos, axis, useFinalPosition) {
   return Math.abs(pos - value) < options.radius + options.hitRadius;
 }
 class PointElement extends Element {
-  static id = "point";
-  parsed;
-  skip;
-  stop;
-  /**
-  * @type {any}
-  */
-  static defaults = {
-    borderWidth: 1,
-    hitRadius: 1,
-    hoverBorderWidth: 1,
-    hoverRadius: 4,
-    pointStyle: "circle",
-    radius: 3,
-    rotation: 0
-  };
-  /**
-  * @type {any}
-  */
-  static defaultRoutes = {
-    backgroundColor: "backgroundColor",
-    borderColor: "borderColor"
-  };
   constructor(cfg) {
     super();
+    __publicField(this, "parsed");
+    __publicField(this, "skip");
+    __publicField(this, "stop");
     this.options = void 0;
     this.parsed = void 0;
     this.skip = void 0;
@@ -10051,6 +10036,26 @@ class PointElement extends Element {
     return options.radius + options.hitRadius;
   }
 }
+__publicField(PointElement, "id", "point");
+/**
+* @type {any}
+*/
+__publicField(PointElement, "defaults", {
+  borderWidth: 1,
+  hitRadius: 1,
+  hoverBorderWidth: 1,
+  hoverRadius: 4,
+  pointStyle: "circle",
+  radius: 3,
+  rotation: 0
+});
+/**
+* @type {any}
+*/
+__publicField(PointElement, "defaultRoutes", {
+  backgroundColor: "backgroundColor",
+  borderColor: "borderColor"
+});
 function getBarBounds(bar, useFinalPosition) {
   const { x, y, base, width, height } = bar.getProps([
     "x",
@@ -10165,18 +10170,6 @@ function inflateRect(rect, amount, refRect = {}) {
   };
 }
 class BarElement extends Element {
-  static id = "bar";
-  static defaults = {
-    borderSkipped: "start",
-    borderWidth: 0,
-    borderRadius: 0,
-    inflateAmount: "auto",
-    pointStyle: void 0
-  };
-  static defaultRoutes = {
-    backgroundColor: "backgroundColor",
-    borderColor: "borderColor"
-  };
   constructor(cfg) {
     super();
     this.options = void 0;
@@ -10233,6 +10226,18 @@ class BarElement extends Element {
     return axis === "x" ? this.width / 2 : this.height / 2;
   }
 }
+__publicField(BarElement, "id", "bar");
+__publicField(BarElement, "defaults", {
+  borderSkipped: "start",
+  borderWidth: 0,
+  borderRadius: 0,
+  inflateAmount: "auto",
+  pointStyle: void 0
+});
+__publicField(BarElement, "defaultRoutes", {
+  backgroundColor: "backgroundColor",
+  borderColor: "borderColor"
+});
 var elements = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   ArcElement,
@@ -12207,7 +12212,6 @@ function invokeCallbackWithFallback(callbacks, name, ctx, arg) {
   return result;
 }
 class Tooltip extends Element {
-  static positioners = positioners;
   constructor(config) {
     super();
     this.opacity = 0;
@@ -12747,6 +12751,7 @@ class Tooltip extends Element {
     return position !== false && (caretX !== position.x || caretY !== position.y);
   }
 }
+__publicField(Tooltip, "positioners", positioners);
 var plugin_tooltip = {
   id: "tooltip",
   _element: Tooltip,
@@ -12912,12 +12917,6 @@ function _getLabelForValue(value) {
   return value;
 }
 class CategoryScale extends Scale {
-  static id = "category";
-  static defaults = {
-    ticks: {
-      callback: _getLabelForValue
-    }
-  };
   constructor(cfg) {
     super(cfg);
     this._startValue = void 0;
@@ -13004,6 +13003,12 @@ class CategoryScale extends Scale {
     return this.bottom;
   }
 }
+__publicField(CategoryScale, "id", "category");
+__publicField(CategoryScale, "defaults", {
+  ticks: {
+    callback: _getLabelForValue
+  }
+});
 function generateTicks$1(generationOptions, dataRange) {
   const ticks = [];
   const MIN_SPACING = 1e-14;
@@ -13227,12 +13232,6 @@ class LinearScaleBase extends Scale {
   }
 }
 class LinearScale extends LinearScaleBase {
-  static id = "linear";
-  static defaults = {
-    ticks: {
-      callback: Ticks.formatters.numeric
-    }
-  };
   determineDataLimits() {
     const { min, max } = this.getMinMax(true);
     this.min = isNumberFinite(min) ? min : 0;
@@ -13254,6 +13253,12 @@ class LinearScale extends LinearScaleBase {
     return this._startValue + this.getDecimalForPixel(pixel) * this._valueRange;
   }
 }
+__publicField(LinearScale, "id", "linear");
+__publicField(LinearScale, "defaults", {
+  ticks: {
+    callback: Ticks.formatters.numeric
+  }
+});
 const log10Floor = (v) => Math.floor(log10(v));
 const changeExponent = (v, m) => Math.pow(10, log10Floor(v) + m);
 function isMajor(tickVal) {
@@ -13316,15 +13321,6 @@ function generateTicks(generationOptions, { min, max }) {
   return ticks;
 }
 class LogarithmicScale extends Scale {
-  static id = "logarithmic";
-  static defaults = {
-    ticks: {
-      callback: Ticks.formatters.logarithmic,
-      major: {
-        enabled: true
-      }
-    }
-  };
   constructor(cfg) {
     super(cfg);
     this.start = void 0;
@@ -13422,6 +13418,15 @@ class LogarithmicScale extends Scale {
     return Math.pow(10, this._startValue + decimal * this._valueRange);
   }
 }
+__publicField(LogarithmicScale, "id", "logarithmic");
+__publicField(LogarithmicScale, "defaults", {
+  ticks: {
+    callback: Ticks.formatters.logarithmic,
+    major: {
+      enabled: true
+    }
+  }
+});
 function getTickBackdropHeight(opts) {
   const tickOpts = opts.ticks;
   if (tickOpts.display && opts.display) {
@@ -13675,49 +13680,6 @@ function createPointLabelContext(parent, index2, label) {
   });
 }
 class RadialLinearScale extends LinearScaleBase {
-  static id = "radialLinear";
-  static defaults = {
-    display: true,
-    animate: true,
-    position: "chartArea",
-    angleLines: {
-      display: true,
-      lineWidth: 1,
-      borderDash: [],
-      borderDashOffset: 0
-    },
-    grid: {
-      circular: false
-    },
-    startAngle: 0,
-    ticks: {
-      showLabelBackdrop: true,
-      callback: Ticks.formatters.numeric
-    },
-    pointLabels: {
-      backdropColor: void 0,
-      backdropPadding: 2,
-      display: true,
-      font: {
-        size: 10
-      },
-      callback(label) {
-        return label;
-      },
-      padding: 5,
-      centerPointLabels: false
-    }
-  };
-  static defaultRoutes = {
-    "angleLines.color": "borderColor",
-    "pointLabels.color": "color",
-    "ticks.color": "color"
-  };
-  static descriptors = {
-    angleLines: {
-      _fallback: "grid"
-    }
-  };
   constructor(cfg) {
     super(cfg);
     this.xCenter = void 0;
@@ -13914,6 +13876,49 @@ class RadialLinearScale extends LinearScaleBase {
   drawTitle() {
   }
 }
+__publicField(RadialLinearScale, "id", "radialLinear");
+__publicField(RadialLinearScale, "defaults", {
+  display: true,
+  animate: true,
+  position: "chartArea",
+  angleLines: {
+    display: true,
+    lineWidth: 1,
+    borderDash: [],
+    borderDashOffset: 0
+  },
+  grid: {
+    circular: false
+  },
+  startAngle: 0,
+  ticks: {
+    showLabelBackdrop: true,
+    callback: Ticks.formatters.numeric
+  },
+  pointLabels: {
+    backdropColor: void 0,
+    backdropPadding: 2,
+    display: true,
+    font: {
+      size: 10
+    },
+    callback(label) {
+      return label;
+    },
+    padding: 5,
+    centerPointLabels: false
+  }
+});
+__publicField(RadialLinearScale, "defaultRoutes", {
+  "angleLines.color": "borderColor",
+  "pointLabels.color": "color",
+  "ticks.color": "color"
+});
+__publicField(RadialLinearScale, "descriptors", {
+  angleLines: {
+    _fallback: "grid"
+  }
+});
 const INTERVALS = {
   millisecond: {
     common: true,
@@ -14050,26 +14055,6 @@ function ticksFromTimestamps(scale, values, majorUnit) {
   return ilen === 0 || !majorUnit ? ticks : setMajorTicks(scale, ticks, map2, majorUnit);
 }
 class TimeScale extends Scale {
-  static id = "time";
-  static defaults = {
-    bounds: "data",
-    adapters: {},
-    time: {
-      parser: false,
-      unit: false,
-      round: false,
-      isoWeekday: false,
-      minUnit: "millisecond",
-      displayFormats: {}
-    },
-    ticks: {
-      source: "auto",
-      callback: false,
-      major: {
-        enabled: false
-      }
-    }
-  };
   constructor(props) {
     super(props);
     this._cache = {
@@ -14336,6 +14321,26 @@ class TimeScale extends Scale {
     return _arrayUnique(values.sort(sorter));
   }
 }
+__publicField(TimeScale, "id", "time");
+__publicField(TimeScale, "defaults", {
+  bounds: "data",
+  adapters: {},
+  time: {
+    parser: false,
+    unit: false,
+    round: false,
+    isoWeekday: false,
+    minUnit: "millisecond",
+    displayFormats: {}
+  },
+  ticks: {
+    source: "auto",
+    callback: false,
+    major: {
+      enabled: false
+    }
+  }
+});
 function interpolate(table, val, reverse) {
   let lo = 0;
   let hi = table.length - 1;
@@ -14357,8 +14362,6 @@ function interpolate(table, val, reverse) {
   return span ? prevTarget + (nextTarget - prevTarget) * (val - prevSource) / span : prevTarget;
 }
 class TimeSeriesScale extends TimeScale {
-  static id = "timeseries";
-  static defaults = TimeScale.defaults;
   constructor(props) {
     super(props);
     this._table = [];
@@ -14444,6 +14447,8 @@ class TimeSeriesScale extends TimeScale {
     return interpolate(this._table, decimal * this._tableRange + this._minPos, true);
   }
 }
+__publicField(TimeSeriesScale, "id", "timeseries");
+__publicField(TimeSeriesScale, "defaults", TimeScale.defaults);
 var scales = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   CategoryScale,
@@ -16618,12 +16623,13 @@ function zoomRect(chart, p0, p1, transition = "none", trigger = "api") {
   callback(zoomOptions.onZoom, [{ chart, trigger }]);
 }
 function zoomScale(chart, scaleId, range, transition = "none", trigger = "api") {
+  var _a;
   const state = getState(chart);
   storeOriginalScaleLimits(chart, state);
   const scale = chart.scales[scaleId];
   updateRange(scale, range, void 0, true);
   chart.update(transition);
-  callback(state.options.zoom?.onZoom, [{ chart, trigger }]);
+  callback((_a = state.options.zoom) == null ? void 0 : _a.onZoom, [{ chart, trigger }]);
 }
 function resetZoom(chart, transition = "default") {
   const state = getState(chart);
@@ -17084,15 +17090,16 @@ function stopHammer(chart) {
   }
 }
 function hammerOptionsChanged(oldOptions, newOptions) {
+  var _a, _b, _c, _d;
   const { pan: oldPan, zoom: oldZoom } = oldOptions;
   const { pan: newPan, zoom: newZoom } = newOptions;
-  if (oldZoom?.zoom?.pinch?.enabled !== newZoom?.zoom?.pinch?.enabled) {
+  if (((_b = (_a = oldZoom == null ? void 0 : oldZoom.zoom) == null ? void 0 : _a.pinch) == null ? void 0 : _b.enabled) !== ((_d = (_c = newZoom == null ? void 0 : newZoom.zoom) == null ? void 0 : _c.pinch) == null ? void 0 : _d.enabled)) {
     return true;
   }
-  if (oldPan?.enabled !== newPan?.enabled) {
+  if ((oldPan == null ? void 0 : oldPan.enabled) !== (newPan == null ? void 0 : newPan.enabled)) {
     return true;
   }
-  if (oldPan?.threshold !== newPan?.threshold) {
+  if ((oldPan == null ? void 0 : oldPan.threshold) !== (newPan == null ? void 0 : newPan.threshold)) {
     return true;
   }
   return false;
@@ -17229,14 +17236,14 @@ function toDate(argument, context) {
   return constructFrom(context || argument, argument);
 }
 function addDays(date, amount, options) {
-  const _date = toDate(date, options?.in);
-  if (isNaN(amount)) return constructFrom(options?.in || date, NaN);
+  const _date = toDate(date, options == null ? void 0 : options.in);
+  if (isNaN(amount)) return constructFrom((options == null ? void 0 : options.in) || date, NaN);
   if (!amount) return _date;
   _date.setDate(_date.getDate() + amount);
   return _date;
 }
 function addMonths(date, amount, options) {
-  const _date = toDate(date, options?.in);
+  const _date = toDate(date, options == null ? void 0 : options.in);
   if (isNaN(amount)) return constructFrom(date, NaN);
   if (!amount) {
     return _date;
@@ -17267,9 +17274,10 @@ function getDefaultOptions$1() {
   return defaultOptions;
 }
 function startOfWeek(date, options) {
+  var _a, _b, _c, _d;
   const defaultOptions2 = getDefaultOptions$1();
-  const weekStartsOn = options?.weekStartsOn ?? options?.locale?.options?.weekStartsOn ?? defaultOptions2.weekStartsOn ?? defaultOptions2.locale?.options?.weekStartsOn ?? 0;
-  const _date = toDate(date, options?.in);
+  const weekStartsOn = (options == null ? void 0 : options.weekStartsOn) ?? ((_b = (_a = options == null ? void 0 : options.locale) == null ? void 0 : _a.options) == null ? void 0 : _b.weekStartsOn) ?? defaultOptions2.weekStartsOn ?? ((_d = (_c = defaultOptions2.locale) == null ? void 0 : _c.options) == null ? void 0 : _d.weekStartsOn) ?? 0;
+  const _date = toDate(date, options == null ? void 0 : options.in);
   const day = _date.getDay();
   const diff = (day < weekStartsOn ? 7 : 0) + day - weekStartsOn;
   _date.setDate(_date.getDate() - diff);
@@ -17280,7 +17288,7 @@ function startOfISOWeek(date, options) {
   return startOfWeek(date, { ...options, weekStartsOn: 1 });
 }
 function getISOWeekYear(date, options) {
-  const _date = toDate(date, options?.in);
+  const _date = toDate(date, options == null ? void 0 : options.in);
   const year = _date.getFullYear();
   const fourthOfJanuaryOfNextYear = constructFrom(_date, 0);
   fourthOfJanuaryOfNextYear.setFullYear(year + 1, 0, 4);
@@ -17322,13 +17330,13 @@ function normalizeDates(context, ...dates) {
   return dates.map(normalize);
 }
 function startOfDay(date, options) {
-  const _date = toDate(date, options?.in);
+  const _date = toDate(date, options == null ? void 0 : options.in);
   _date.setHours(0, 0, 0, 0);
   return _date;
 }
 function differenceInCalendarDays(laterDate, earlierDate, options) {
   const [laterDate_, earlierDate_] = normalizeDates(
-    options?.in,
+    options == null ? void 0 : options.in,
     laterDate,
     earlierDate
   );
@@ -17346,7 +17354,7 @@ function startOfISOWeekYear(date, options) {
   return startOfISOWeek(fourthOfJanuary);
 }
 function addMinutes(date, amount, options) {
-  const _date = toDate(date, options?.in);
+  const _date = toDate(date, options == null ? void 0 : options.in);
   _date.setTime(_date.getTime() + amount * millisecondsInMinute);
   return _date;
 }
@@ -17376,7 +17384,7 @@ function isValid(date) {
 }
 function differenceInCalendarMonths(laterDate, earlierDate, options) {
   const [laterDate_, earlierDate_] = normalizeDates(
-    options?.in,
+    options == null ? void 0 : options.in,
     laterDate,
     earlierDate
   );
@@ -17386,7 +17394,7 @@ function differenceInCalendarMonths(laterDate, earlierDate, options) {
 }
 function differenceInCalendarYears(laterDate, earlierDate, options) {
   const [laterDate_, earlierDate_] = normalizeDates(
-    options?.in,
+    options == null ? void 0 : options.in,
     laterDate,
     earlierDate
   );
@@ -17394,7 +17402,7 @@ function differenceInCalendarYears(laterDate, earlierDate, options) {
 }
 function differenceInDays(laterDate, earlierDate, options) {
   const [laterDate_, earlierDate_] = normalizeDates(
-    options?.in,
+    options == null ? void 0 : options.in,
     laterDate,
     earlierDate
   );
@@ -17424,39 +17432,39 @@ function getRoundingMethod(method) {
 }
 function differenceInHours(laterDate, earlierDate, options) {
   const [laterDate_, earlierDate_] = normalizeDates(
-    options?.in,
+    options == null ? void 0 : options.in,
     laterDate,
     earlierDate
   );
   const diff = (+laterDate_ - +earlierDate_) / millisecondsInHour;
-  return getRoundingMethod(options?.roundingMethod)(diff);
+  return getRoundingMethod(options == null ? void 0 : options.roundingMethod)(diff);
 }
 function differenceInMilliseconds(laterDate, earlierDate) {
   return +toDate(laterDate) - +toDate(earlierDate);
 }
 function differenceInMinutes(dateLeft, dateRight, options) {
   const diff = differenceInMilliseconds(dateLeft, dateRight) / millisecondsInMinute;
-  return getRoundingMethod(options?.roundingMethod)(diff);
+  return getRoundingMethod(options == null ? void 0 : options.roundingMethod)(diff);
 }
 function endOfDay(date, options) {
-  const _date = toDate(date, options?.in);
+  const _date = toDate(date, options == null ? void 0 : options.in);
   _date.setHours(23, 59, 59, 999);
   return _date;
 }
 function endOfMonth(date, options) {
-  const _date = toDate(date, options?.in);
+  const _date = toDate(date, options == null ? void 0 : options.in);
   const month = _date.getMonth();
   _date.setFullYear(_date.getFullYear(), month + 1, 0);
   _date.setHours(23, 59, 59, 999);
   return _date;
 }
 function isLastDayOfMonth(date, options) {
-  const _date = toDate(date, options?.in);
+  const _date = toDate(date, options == null ? void 0 : options.in);
   return +endOfDay(_date, options) === +endOfMonth(_date, options);
 }
 function differenceInMonths(laterDate, earlierDate, options) {
   const [laterDate_, workingLaterDate, earlierDate_] = normalizeDates(
-    options?.in,
+    options == null ? void 0 : options.in,
     laterDate,
     laterDate,
     earlierDate
@@ -17478,19 +17486,19 @@ function differenceInMonths(laterDate, earlierDate, options) {
 }
 function differenceInQuarters(laterDate, earlierDate, options) {
   const diff = differenceInMonths(laterDate, earlierDate, options) / 3;
-  return getRoundingMethod(options?.roundingMethod)(diff);
+  return getRoundingMethod(options == null ? void 0 : options.roundingMethod)(diff);
 }
 function differenceInSeconds(laterDate, earlierDate, options) {
   const diff = differenceInMilliseconds(laterDate, earlierDate) / 1e3;
-  return getRoundingMethod(options?.roundingMethod)(diff);
+  return getRoundingMethod(options == null ? void 0 : options.roundingMethod)(diff);
 }
 function differenceInWeeks(laterDate, earlierDate, options) {
   const diff = differenceInDays(laterDate, earlierDate, options) / 7;
-  return getRoundingMethod(options?.roundingMethod)(diff);
+  return getRoundingMethod(options == null ? void 0 : options.roundingMethod)(diff);
 }
 function differenceInYears(laterDate, earlierDate, options) {
   const [laterDate_, earlierDate_] = normalizeDates(
-    options?.in,
+    options == null ? void 0 : options.in,
     laterDate,
     earlierDate
   );
@@ -17503,7 +17511,7 @@ function differenceInYears(laterDate, earlierDate, options) {
   return result === 0 ? 0 : result;
 }
 function startOfQuarter(date, options) {
-  const _date = toDate(date, options?.in);
+  const _date = toDate(date, options == null ? void 0 : options.in);
   const currentMonth = _date.getMonth();
   const month = currentMonth - currentMonth % 3;
   _date.setMonth(month, 1);
@@ -17511,33 +17519,34 @@ function startOfQuarter(date, options) {
   return _date;
 }
 function startOfMonth(date, options) {
-  const _date = toDate(date, options?.in);
+  const _date = toDate(date, options == null ? void 0 : options.in);
   _date.setDate(1);
   _date.setHours(0, 0, 0, 0);
   return _date;
 }
 function endOfYear(date, options) {
-  const _date = toDate(date, options?.in);
+  const _date = toDate(date, options == null ? void 0 : options.in);
   const year = _date.getFullYear();
   _date.setFullYear(year + 1, 0, 0);
   _date.setHours(23, 59, 59, 999);
   return _date;
 }
 function startOfYear(date, options) {
-  const date_ = toDate(date, options?.in);
+  const date_ = toDate(date, options == null ? void 0 : options.in);
   date_.setFullYear(date_.getFullYear(), 0, 1);
   date_.setHours(0, 0, 0, 0);
   return date_;
 }
 function endOfHour(date, options) {
-  const _date = toDate(date, options?.in);
+  const _date = toDate(date, options == null ? void 0 : options.in);
   _date.setMinutes(59, 59, 999);
   return _date;
 }
 function endOfWeek(date, options) {
+  var _a, _b;
   const defaultOptions2 = getDefaultOptions$1();
-  const weekStartsOn = defaultOptions2.weekStartsOn ?? defaultOptions2.locale?.options?.weekStartsOn ?? 0;
-  const _date = toDate(date, options?.in);
+  const weekStartsOn = defaultOptions2.weekStartsOn ?? ((_b = (_a = defaultOptions2.locale) == null ? void 0 : _a.options) == null ? void 0 : _b.weekStartsOn) ?? 0;
+  const _date = toDate(date, options == null ? void 0 : options.in);
   const day = _date.getDay();
   const diff = (day < weekStartsOn ? -7 : 0) + 6 - (day - weekStartsOn);
   _date.setDate(_date.getDate() + diff);
@@ -17545,12 +17554,12 @@ function endOfWeek(date, options) {
   return _date;
 }
 function endOfMinute(date, options) {
-  const _date = toDate(date, options?.in);
+  const _date = toDate(date, options == null ? void 0 : options.in);
   _date.setSeconds(59, 999);
   return _date;
 }
 function endOfQuarter(date, options) {
-  const _date = toDate(date, options?.in);
+  const _date = toDate(date, options == null ? void 0 : options.in);
   const currentMonth = _date.getMonth();
   const month = currentMonth - currentMonth % 3 + 3;
   _date.setMonth(month, 0);
@@ -17558,7 +17567,7 @@ function endOfQuarter(date, options) {
   return _date;
 }
 function endOfSecond(date, options) {
-  const _date = toDate(date, options?.in);
+  const _date = toDate(date, options == null ? void 0 : options.in);
   _date.setMilliseconds(999);
   return _date;
 }
@@ -17635,7 +17644,7 @@ const formatDistance = (token, count, options) => {
   } else {
     result = tokenValue.other.replace("{{count}}", count.toString());
   }
-  if (options?.addSuffix) {
+  if (options == null ? void 0 : options.addSuffix) {
     if (options.comparison && options.comparison > 0) {
       return "in " + result;
     } else {
@@ -17694,15 +17703,15 @@ const formatRelativeLocale = {
 const formatRelative = (token, _date, _baseDate, _options) => formatRelativeLocale[token];
 function buildLocalizeFn(args) {
   return (value, options) => {
-    const context = options?.context ? String(options.context) : "standalone";
+    const context = (options == null ? void 0 : options.context) ? String(options.context) : "standalone";
     let valuesArray;
     if (context === "formatting" && args.formattingValues) {
       const defaultWidth = args.defaultFormattingWidth || args.defaultWidth;
-      const width = options?.width ? String(options.width) : defaultWidth;
+      const width = (options == null ? void 0 : options.width) ? String(options.width) : defaultWidth;
       valuesArray = args.formattingValues[width] || args.formattingValues[defaultWidth];
     } else {
       const defaultWidth = args.defaultWidth;
-      const width = options?.width ? String(options.width) : args.defaultWidth;
+      const width = (options == null ? void 0 : options.width) ? String(options.width) : args.defaultWidth;
       valuesArray = args.values[width] || args.values[defaultWidth];
     }
     const index2 = args.argumentCallback ? args.argumentCallback(value) : value;
@@ -18052,26 +18061,27 @@ const enUS = {
   }
 };
 function getDayOfYear(date, options) {
-  const _date = toDate(date, options?.in);
+  const _date = toDate(date, options == null ? void 0 : options.in);
   const diff = differenceInCalendarDays(_date, startOfYear(_date));
   const dayOfYear = diff + 1;
   return dayOfYear;
 }
 function getISOWeek(date, options) {
-  const _date = toDate(date, options?.in);
+  const _date = toDate(date, options == null ? void 0 : options.in);
   const diff = +startOfISOWeek(_date) - +startOfISOWeekYear(_date);
   return Math.round(diff / millisecondsInWeek) + 1;
 }
 function getWeekYear(date, options) {
-  const _date = toDate(date, options?.in);
+  var _a, _b, _c, _d;
+  const _date = toDate(date, options == null ? void 0 : options.in);
   const year = _date.getFullYear();
   const defaultOptions2 = getDefaultOptions$1();
-  const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions2.firstWeekContainsDate ?? defaultOptions2.locale?.options?.firstWeekContainsDate ?? 1;
-  const firstWeekOfNextYear = constructFrom(options?.in || date, 0);
+  const firstWeekContainsDate = (options == null ? void 0 : options.firstWeekContainsDate) ?? ((_b = (_a = options == null ? void 0 : options.locale) == null ? void 0 : _a.options) == null ? void 0 : _b.firstWeekContainsDate) ?? defaultOptions2.firstWeekContainsDate ?? ((_d = (_c = defaultOptions2.locale) == null ? void 0 : _c.options) == null ? void 0 : _d.firstWeekContainsDate) ?? 1;
+  const firstWeekOfNextYear = constructFrom((options == null ? void 0 : options.in) || date, 0);
   firstWeekOfNextYear.setFullYear(year + 1, 0, firstWeekContainsDate);
   firstWeekOfNextYear.setHours(0, 0, 0, 0);
   const startOfNextYear = startOfWeek(firstWeekOfNextYear, options);
-  const firstWeekOfThisYear = constructFrom(options?.in || date, 0);
+  const firstWeekOfThisYear = constructFrom((options == null ? void 0 : options.in) || date, 0);
   firstWeekOfThisYear.setFullYear(year, 0, firstWeekContainsDate);
   firstWeekOfThisYear.setHours(0, 0, 0, 0);
   const startOfThisYear = startOfWeek(firstWeekOfThisYear, options);
@@ -18084,17 +18094,18 @@ function getWeekYear(date, options) {
   }
 }
 function startOfWeekYear(date, options) {
+  var _a, _b, _c, _d;
   const defaultOptions2 = getDefaultOptions$1();
-  const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions2.firstWeekContainsDate ?? defaultOptions2.locale?.options?.firstWeekContainsDate ?? 1;
+  const firstWeekContainsDate = (options == null ? void 0 : options.firstWeekContainsDate) ?? ((_b = (_a = options == null ? void 0 : options.locale) == null ? void 0 : _a.options) == null ? void 0 : _b.firstWeekContainsDate) ?? defaultOptions2.firstWeekContainsDate ?? ((_d = (_c = defaultOptions2.locale) == null ? void 0 : _c.options) == null ? void 0 : _d.firstWeekContainsDate) ?? 1;
   const year = getWeekYear(date, options);
-  const firstWeek = constructFrom(options?.in || date, 0);
+  const firstWeek = constructFrom((options == null ? void 0 : options.in) || date, 0);
   firstWeek.setFullYear(year, 0, firstWeekContainsDate);
   firstWeek.setHours(0, 0, 0, 0);
   const _date = startOfWeek(firstWeek, options);
   return _date;
 }
 function getWeek(date, options) {
-  const _date = toDate(date, options?.in);
+  const _date = toDate(date, options == null ? void 0 : options.in);
   const diff = +startOfWeek(_date, options) - +startOfWeekYear(_date, options);
   return Math.round(diff / millisecondsInWeek) + 1;
 }
@@ -18882,11 +18893,12 @@ const escapedStringRegExp$1 = /^'([^]*?)'?$/;
 const doubleQuoteRegExp$1 = /''/g;
 const unescapedLatinCharacterRegExp$1 = /[a-zA-Z]/;
 function format(date, formatStr, options) {
+  var _a, _b, _c, _d, _e, _f, _g, _h;
   const defaultOptions2 = getDefaultOptions$1();
-  const locale = options?.locale ?? defaultOptions2.locale ?? enUS;
-  const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions2.firstWeekContainsDate ?? defaultOptions2.locale?.options?.firstWeekContainsDate ?? 1;
-  const weekStartsOn = options?.weekStartsOn ?? options?.locale?.options?.weekStartsOn ?? defaultOptions2.weekStartsOn ?? defaultOptions2.locale?.options?.weekStartsOn ?? 0;
-  const originalDate = toDate(date, options?.in);
+  const locale = (options == null ? void 0 : options.locale) ?? defaultOptions2.locale ?? enUS;
+  const firstWeekContainsDate = (options == null ? void 0 : options.firstWeekContainsDate) ?? ((_b = (_a = options == null ? void 0 : options.locale) == null ? void 0 : _a.options) == null ? void 0 : _b.firstWeekContainsDate) ?? defaultOptions2.firstWeekContainsDate ?? ((_d = (_c = defaultOptions2.locale) == null ? void 0 : _c.options) == null ? void 0 : _d.firstWeekContainsDate) ?? 1;
+  const weekStartsOn = (options == null ? void 0 : options.weekStartsOn) ?? ((_f = (_e = options == null ? void 0 : options.locale) == null ? void 0 : _e.options) == null ? void 0 : _f.weekStartsOn) ?? defaultOptions2.weekStartsOn ?? ((_h = (_g = defaultOptions2.locale) == null ? void 0 : _g.options) == null ? void 0 : _h.weekStartsOn) ?? 0;
+  const originalDate = toDate(date, options == null ? void 0 : options.in);
   if (!isValid(originalDate)) {
     throw new RangeError("Invalid time value");
   }
@@ -18926,7 +18938,7 @@ function format(date, formatStr, options) {
   return parts.map((part) => {
     if (!part.isToken) return part.value;
     const token = part.value;
-    if (!options?.useAdditionalWeekYearTokens && isProtectedWeekYearToken(token) || !options?.useAdditionalDayOfYearTokens && isProtectedDayOfYearToken(token)) {
+    if (!(options == null ? void 0 : options.useAdditionalWeekYearTokens) && isProtectedWeekYearToken(token) || !(options == null ? void 0 : options.useAdditionalDayOfYearTokens) && isProtectedDayOfYearToken(token)) {
       warnOrThrowProtectedError(token, formatStr, String(date));
     }
     const formatter = formatters[token[0]];
@@ -18944,7 +18956,7 @@ function getDefaultOptions() {
   return Object.assign({}, getDefaultOptions$1());
 }
 function getISODay(date, options) {
-  const day = toDate(date, options?.in).getDay();
+  const day = toDate(date, options == null ? void 0 : options.in).getDay();
   return day === 0 ? 7 : day;
 }
 function transpose(date, constructor) {
@@ -18959,11 +18971,14 @@ function transpose(date, constructor) {
   return date_;
 }
 function isConstructor(constructor) {
-  return typeof constructor === "function" && constructor.prototype?.constructor === constructor;
+  var _a;
+  return typeof constructor === "function" && ((_a = constructor.prototype) == null ? void 0 : _a.constructor) === constructor;
 }
 const TIMEZONE_UNIT_PRIORITY = 10;
 class Setter {
-  subPriority = 0;
+  constructor() {
+    __publicField(this, "subPriority", 0);
+  }
   validate(_utcDate, _options) {
     return true;
   }
@@ -18987,10 +19002,10 @@ class ValueSetter extends Setter {
   }
 }
 class DateTimezoneSetter extends Setter {
-  priority = TIMEZONE_UNIT_PRIORITY;
-  subPriority = -1;
   constructor(context, reference) {
     super();
+    __publicField(this, "priority", TIMEZONE_UNIT_PRIORITY);
+    __publicField(this, "subPriority", -1);
     this.context = context || ((date) => constructFrom(reference, date));
   }
   set(date, flags) {
@@ -19020,7 +19035,11 @@ class Parser {
   }
 }
 class EraParser extends Parser {
-  priority = 140;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 140);
+    __publicField(this, "incompatibleTokens", ["R", "u", "t", "T"]);
+  }
   parse(dateString, token, match2) {
     switch (token) {
       // AD, BC
@@ -19043,7 +19062,6 @@ class EraParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
-  incompatibleTokens = ["R", "u", "t", "T"];
 }
 const numericPatterns = {
   month: /^(1[0-2]|0?\d)/,
@@ -19196,8 +19214,11 @@ function isLeapYearIndex$1(year) {
   return year % 400 === 0 || year % 4 === 0 && year % 100 !== 0;
 }
 class YearParser extends Parser {
-  priority = 130;
-  incompatibleTokens = ["Y", "R", "u", "w", "I", "i", "e", "c", "t", "T"];
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 130);
+    __publicField(this, "incompatibleTokens", ["Y", "R", "u", "w", "I", "i", "e", "c", "t", "T"]);
+  }
   parse(dateString, token, match2) {
     const valueCallback = (year) => ({
       year,
@@ -19238,7 +19259,25 @@ class YearParser extends Parser {
   }
 }
 class LocalWeekYearParser extends Parser {
-  priority = 130;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 130);
+    __publicField(this, "incompatibleTokens", [
+      "y",
+      "R",
+      "u",
+      "Q",
+      "q",
+      "M",
+      "L",
+      "I",
+      "d",
+      "D",
+      "i",
+      "t",
+      "T"
+    ]);
+  }
   parse(dateString, token, match2) {
     const valueCallback = (year) => ({
       year,
@@ -19281,24 +19320,29 @@ class LocalWeekYearParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return startOfWeek(date, options);
   }
-  incompatibleTokens = [
-    "y",
-    "R",
-    "u",
-    "Q",
-    "q",
-    "M",
-    "L",
-    "I",
-    "d",
-    "D",
-    "i",
-    "t",
-    "T"
-  ];
 }
 class ISOWeekYearParser extends Parser {
-  priority = 130;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 130);
+    __publicField(this, "incompatibleTokens", [
+      "G",
+      "y",
+      "Y",
+      "u",
+      "Q",
+      "q",
+      "M",
+      "L",
+      "w",
+      "d",
+      "D",
+      "e",
+      "c",
+      "t",
+      "T"
+    ]);
+  }
   parse(dateString, token) {
     if (token === "R") {
       return parseNDigitsSigned(4, dateString);
@@ -19311,26 +19355,13 @@ class ISOWeekYearParser extends Parser {
     firstWeekOfYear.setHours(0, 0, 0, 0);
     return startOfISOWeek(firstWeekOfYear);
   }
-  incompatibleTokens = [
-    "G",
-    "y",
-    "Y",
-    "u",
-    "Q",
-    "q",
-    "M",
-    "L",
-    "w",
-    "d",
-    "D",
-    "e",
-    "c",
-    "t",
-    "T"
-  ];
 }
 class ExtendedYearParser extends Parser {
-  priority = 130;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 130);
+    __publicField(this, "incompatibleTokens", ["G", "y", "Y", "R", "w", "I", "i", "e", "c", "t", "T"]);
+  }
   parse(dateString, token) {
     if (token === "u") {
       return parseNDigitsSigned(4, dateString);
@@ -19342,10 +19373,28 @@ class ExtendedYearParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
-  incompatibleTokens = ["G", "y", "Y", "R", "w", "I", "i", "e", "c", "t", "T"];
 }
 class QuarterParser extends Parser {
-  priority = 120;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 120);
+    __publicField(this, "incompatibleTokens", [
+      "Y",
+      "R",
+      "q",
+      "M",
+      "L",
+      "w",
+      "I",
+      "d",
+      "D",
+      "i",
+      "e",
+      "c",
+      "t",
+      "T"
+    ]);
+  }
   parse(dateString, token, match2) {
     switch (token) {
       // 1, 2, 3, 4
@@ -19393,25 +19442,28 @@ class QuarterParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
-  incompatibleTokens = [
-    "Y",
-    "R",
-    "q",
-    "M",
-    "L",
-    "w",
-    "I",
-    "d",
-    "D",
-    "i",
-    "e",
-    "c",
-    "t",
-    "T"
-  ];
 }
 class StandAloneQuarterParser extends Parser {
-  priority = 120;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 120);
+    __publicField(this, "incompatibleTokens", [
+      "Y",
+      "R",
+      "Q",
+      "M",
+      "L",
+      "w",
+      "I",
+      "d",
+      "D",
+      "i",
+      "e",
+      "c",
+      "t",
+      "T"
+    ]);
+  }
   parse(dateString, token, match2) {
     switch (token) {
       // 1, 2, 3, 4
@@ -19459,40 +19511,27 @@ class StandAloneQuarterParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
-  incompatibleTokens = [
-    "Y",
-    "R",
-    "Q",
-    "M",
-    "L",
-    "w",
-    "I",
-    "d",
-    "D",
-    "i",
-    "e",
-    "c",
-    "t",
-    "T"
-  ];
 }
 class MonthParser extends Parser {
-  incompatibleTokens = [
-    "Y",
-    "R",
-    "q",
-    "Q",
-    "L",
-    "w",
-    "I",
-    "D",
-    "i",
-    "e",
-    "c",
-    "t",
-    "T"
-  ];
-  priority = 110;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "incompatibleTokens", [
+      "Y",
+      "R",
+      "q",
+      "Q",
+      "L",
+      "w",
+      "I",
+      "D",
+      "i",
+      "e",
+      "c",
+      "t",
+      "T"
+    ]);
+    __publicField(this, "priority", 110);
+  }
   parse(dateString, token, match2) {
     const valueCallback = (value) => value - 1;
     switch (token) {
@@ -19544,7 +19583,25 @@ class MonthParser extends Parser {
   }
 }
 class StandAloneMonthParser extends Parser {
-  priority = 110;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 110);
+    __publicField(this, "incompatibleTokens", [
+      "Y",
+      "R",
+      "q",
+      "Q",
+      "M",
+      "w",
+      "I",
+      "D",
+      "i",
+      "e",
+      "c",
+      "t",
+      "T"
+    ]);
+  }
   parse(dateString, token, match2) {
     const valueCallback = (value) => value - 1;
     switch (token) {
@@ -19594,30 +19651,33 @@ class StandAloneMonthParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
-  incompatibleTokens = [
-    "Y",
-    "R",
-    "q",
-    "Q",
-    "M",
-    "w",
-    "I",
-    "D",
-    "i",
-    "e",
-    "c",
-    "t",
-    "T"
-  ];
 }
 function setWeek(date, week, options) {
-  const date_ = toDate(date, options?.in);
+  const date_ = toDate(date, options == null ? void 0 : options.in);
   const diff = getWeek(date_, options) - week;
   date_.setDate(date_.getDate() - diff * 7);
-  return toDate(date_, options?.in);
+  return toDate(date_, options == null ? void 0 : options.in);
 }
 class LocalWeekParser extends Parser {
-  priority = 100;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 100);
+    __publicField(this, "incompatibleTokens", [
+      "y",
+      "R",
+      "u",
+      "q",
+      "Q",
+      "M",
+      "L",
+      "I",
+      "d",
+      "D",
+      "i",
+      "t",
+      "T"
+    ]);
+  }
   parse(dateString, token, match2) {
     switch (token) {
       case "w":
@@ -19634,30 +19694,34 @@ class LocalWeekParser extends Parser {
   set(date, _flags, value, options) {
     return startOfWeek(setWeek(date, value, options), options);
   }
-  incompatibleTokens = [
-    "y",
-    "R",
-    "u",
-    "q",
-    "Q",
-    "M",
-    "L",
-    "I",
-    "d",
-    "D",
-    "i",
-    "t",
-    "T"
-  ];
 }
 function setISOWeek(date, week, options) {
-  const _date = toDate(date, options?.in);
+  const _date = toDate(date, options == null ? void 0 : options.in);
   const diff = getISOWeek(_date, options) - week;
   _date.setDate(_date.getDate() - diff * 7);
   return _date;
 }
 class ISOWeekParser extends Parser {
-  priority = 100;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 100);
+    __publicField(this, "incompatibleTokens", [
+      "y",
+      "Y",
+      "u",
+      "q",
+      "Q",
+      "M",
+      "L",
+      "w",
+      "d",
+      "D",
+      "e",
+      "c",
+      "t",
+      "T"
+    ]);
+  }
   parse(dateString, token, match2) {
     switch (token) {
       case "I":
@@ -19674,22 +19738,6 @@ class ISOWeekParser extends Parser {
   set(date, _flags, value) {
     return startOfISOWeek(setISOWeek(date, value));
   }
-  incompatibleTokens = [
-    "y",
-    "Y",
-    "u",
-    "q",
-    "Q",
-    "M",
-    "L",
-    "w",
-    "d",
-    "D",
-    "e",
-    "c",
-    "t",
-    "T"
-  ];
 }
 const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 const DAYS_IN_MONTH_LEAP_YEAR = [
@@ -19707,8 +19755,25 @@ const DAYS_IN_MONTH_LEAP_YEAR = [
   31
 ];
 class DateParser extends Parser {
-  priority = 90;
-  subPriority = 1;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 90);
+    __publicField(this, "subPriority", 1);
+    __publicField(this, "incompatibleTokens", [
+      "Y",
+      "R",
+      "q",
+      "Q",
+      "w",
+      "I",
+      "D",
+      "i",
+      "e",
+      "c",
+      "t",
+      "T"
+    ]);
+  }
   parse(dateString, token, match2) {
     switch (token) {
       case "d":
@@ -19734,24 +19799,30 @@ class DateParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
-  incompatibleTokens = [
-    "Y",
-    "R",
-    "q",
-    "Q",
-    "w",
-    "I",
-    "D",
-    "i",
-    "e",
-    "c",
-    "t",
-    "T"
-  ];
 }
 class DayOfYearParser extends Parser {
-  priority = 90;
-  subpriority = 1;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 90);
+    __publicField(this, "subpriority", 1);
+    __publicField(this, "incompatibleTokens", [
+      "Y",
+      "R",
+      "q",
+      "Q",
+      "M",
+      "L",
+      "w",
+      "I",
+      "d",
+      "E",
+      "i",
+      "e",
+      "c",
+      "t",
+      "T"
+    ]);
+  }
   parse(dateString, token, match2) {
     switch (token) {
       case "D":
@@ -19777,28 +19848,12 @@ class DayOfYearParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
-  incompatibleTokens = [
-    "Y",
-    "R",
-    "q",
-    "Q",
-    "M",
-    "L",
-    "w",
-    "I",
-    "d",
-    "E",
-    "i",
-    "e",
-    "c",
-    "t",
-    "T"
-  ];
 }
 function setDay(date, day, options) {
+  var _a, _b, _c, _d;
   const defaultOptions2 = getDefaultOptions$1();
-  const weekStartsOn = options?.weekStartsOn ?? options?.locale?.options?.weekStartsOn ?? defaultOptions2.weekStartsOn ?? defaultOptions2.locale?.options?.weekStartsOn ?? 0;
-  const date_ = toDate(date, options?.in);
+  const weekStartsOn = (options == null ? void 0 : options.weekStartsOn) ?? ((_b = (_a = options == null ? void 0 : options.locale) == null ? void 0 : _a.options) == null ? void 0 : _b.weekStartsOn) ?? defaultOptions2.weekStartsOn ?? ((_d = (_c = defaultOptions2.locale) == null ? void 0 : _c.options) == null ? void 0 : _d.weekStartsOn) ?? 0;
+  const date_ = toDate(date, options == null ? void 0 : options.in);
   const currentDay = date_.getDay();
   const remainder = day % 7;
   const dayIndex = (remainder + 7) % 7;
@@ -19807,7 +19862,11 @@ function setDay(date, day, options) {
   return addDays(date_, diff, options);
 }
 class DayParser extends Parser {
-  priority = 90;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 90);
+    __publicField(this, "incompatibleTokens", ["D", "i", "e", "c", "t", "T"]);
+  }
   parse(dateString, token, match2) {
     switch (token) {
       // Tue
@@ -19844,10 +19903,29 @@ class DayParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
-  incompatibleTokens = ["D", "i", "e", "c", "t", "T"];
 }
 class LocalDayParser extends Parser {
-  priority = 90;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 90);
+    __publicField(this, "incompatibleTokens", [
+      "y",
+      "R",
+      "u",
+      "q",
+      "Q",
+      "M",
+      "L",
+      "I",
+      "d",
+      "D",
+      "E",
+      "i",
+      "c",
+      "t",
+      "T"
+    ]);
+  }
   parse(dateString, token, match2, options) {
     const valueCallback = (value) => {
       const wholeWeekDays = Math.floor((value - 1) / 7) * 7;
@@ -19898,26 +19976,29 @@ class LocalDayParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
-  incompatibleTokens = [
-    "y",
-    "R",
-    "u",
-    "q",
-    "Q",
-    "M",
-    "L",
-    "I",
-    "d",
-    "D",
-    "E",
-    "i",
-    "c",
-    "t",
-    "T"
-  ];
 }
 class StandAloneLocalDayParser extends Parser {
-  priority = 90;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 90);
+    __publicField(this, "incompatibleTokens", [
+      "y",
+      "R",
+      "u",
+      "q",
+      "Q",
+      "M",
+      "L",
+      "I",
+      "d",
+      "D",
+      "E",
+      "i",
+      "e",
+      "t",
+      "T"
+    ]);
+  }
   parse(dateString, token, match2, options) {
     const valueCallback = (value) => {
       const wholeWeekDays = Math.floor((value - 1) / 7) * 7;
@@ -19968,32 +20049,35 @@ class StandAloneLocalDayParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
-  incompatibleTokens = [
-    "y",
-    "R",
-    "u",
-    "q",
-    "Q",
-    "M",
-    "L",
-    "I",
-    "d",
-    "D",
-    "E",
-    "i",
-    "e",
-    "t",
-    "T"
-  ];
 }
 function setISODay(date, day, options) {
-  const date_ = toDate(date, options?.in);
+  const date_ = toDate(date, options == null ? void 0 : options.in);
   const currentDay = getISODay(date_, options);
   const diff = day - currentDay;
   return addDays(date_, diff, options);
 }
 class ISODayParser extends Parser {
-  priority = 90;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 90);
+    __publicField(this, "incompatibleTokens", [
+      "y",
+      "Y",
+      "u",
+      "q",
+      "Q",
+      "M",
+      "L",
+      "w",
+      "d",
+      "D",
+      "E",
+      "e",
+      "c",
+      "t",
+      "T"
+    ]);
+  }
   parse(dateString, token, match2) {
     const valueCallback = (value) => {
       if (value === 0) {
@@ -20074,26 +20158,13 @@ class ISODayParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
-  incompatibleTokens = [
-    "y",
-    "Y",
-    "u",
-    "q",
-    "Q",
-    "M",
-    "L",
-    "w",
-    "d",
-    "D",
-    "E",
-    "e",
-    "c",
-    "t",
-    "T"
-  ];
 }
 class AMPMParser extends Parser {
-  priority = 80;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 80);
+    __publicField(this, "incompatibleTokens", ["b", "B", "H", "k", "t", "T"]);
+  }
   parse(dateString, token, match2) {
     switch (token) {
       case "a":
@@ -20129,10 +20200,13 @@ class AMPMParser extends Parser {
     date.setHours(dayPeriodEnumToHours(value), 0, 0, 0);
     return date;
   }
-  incompatibleTokens = ["b", "B", "H", "k", "t", "T"];
 }
 class AMPMMidnightParser extends Parser {
-  priority = 80;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 80);
+    __publicField(this, "incompatibleTokens", ["a", "B", "H", "k", "t", "T"]);
+  }
   parse(dateString, token, match2) {
     switch (token) {
       case "b":
@@ -20168,10 +20242,13 @@ class AMPMMidnightParser extends Parser {
     date.setHours(dayPeriodEnumToHours(value), 0, 0, 0);
     return date;
   }
-  incompatibleTokens = ["a", "B", "H", "k", "t", "T"];
 }
 class DayPeriodParser extends Parser {
-  priority = 80;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 80);
+    __publicField(this, "incompatibleTokens", ["a", "b", "t", "T"]);
+  }
   parse(dateString, token, match2) {
     switch (token) {
       case "B":
@@ -20207,10 +20284,13 @@ class DayPeriodParser extends Parser {
     date.setHours(dayPeriodEnumToHours(value), 0, 0, 0);
     return date;
   }
-  incompatibleTokens = ["a", "b", "t", "T"];
 }
 class Hour1to12Parser extends Parser {
-  priority = 70;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 70);
+    __publicField(this, "incompatibleTokens", ["H", "K", "k", "t", "T"]);
+  }
   parse(dateString, token, match2) {
     switch (token) {
       case "h":
@@ -20235,10 +20315,13 @@ class Hour1to12Parser extends Parser {
     }
     return date;
   }
-  incompatibleTokens = ["H", "K", "k", "t", "T"];
 }
 class Hour0to23Parser extends Parser {
-  priority = 70;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 70);
+    __publicField(this, "incompatibleTokens", ["a", "b", "h", "K", "k", "t", "T"]);
+  }
   parse(dateString, token, match2) {
     switch (token) {
       case "H":
@@ -20256,10 +20339,13 @@ class Hour0to23Parser extends Parser {
     date.setHours(value, 0, 0, 0);
     return date;
   }
-  incompatibleTokens = ["a", "b", "h", "K", "k", "t", "T"];
 }
 class Hour0To11Parser extends Parser {
-  priority = 70;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 70);
+    __publicField(this, "incompatibleTokens", ["h", "H", "k", "t", "T"]);
+  }
   parse(dateString, token, match2) {
     switch (token) {
       case "K":
@@ -20282,10 +20368,13 @@ class Hour0To11Parser extends Parser {
     }
     return date;
   }
-  incompatibleTokens = ["h", "H", "k", "t", "T"];
 }
 class Hour1To24Parser extends Parser {
-  priority = 70;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 70);
+    __publicField(this, "incompatibleTokens", ["a", "b", "h", "H", "K", "t", "T"]);
+  }
   parse(dateString, token, match2) {
     switch (token) {
       case "k":
@@ -20304,10 +20393,13 @@ class Hour1To24Parser extends Parser {
     date.setHours(hours, 0, 0, 0);
     return date;
   }
-  incompatibleTokens = ["a", "b", "h", "H", "K", "t", "T"];
 }
 class MinuteParser extends Parser {
-  priority = 60;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 60);
+    __publicField(this, "incompatibleTokens", ["t", "T"]);
+  }
   parse(dateString, token, match2) {
     switch (token) {
       case "m":
@@ -20325,10 +20417,13 @@ class MinuteParser extends Parser {
     date.setMinutes(value, 0, 0);
     return date;
   }
-  incompatibleTokens = ["t", "T"];
 }
 class SecondParser extends Parser {
-  priority = 50;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 50);
+    __publicField(this, "incompatibleTokens", ["t", "T"]);
+  }
   parse(dateString, token, match2) {
     switch (token) {
       case "s":
@@ -20346,10 +20441,13 @@ class SecondParser extends Parser {
     date.setSeconds(value, 0);
     return date;
   }
-  incompatibleTokens = ["t", "T"];
 }
 class FractionOfSecondParser extends Parser {
-  priority = 30;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 30);
+    __publicField(this, "incompatibleTokens", ["t", "T"]);
+  }
   parse(dateString, token) {
     const valueCallback = (value) => Math.trunc(value * Math.pow(10, -token.length + 3));
     return mapValue(parseNDigits(token.length, dateString), valueCallback);
@@ -20358,10 +20456,13 @@ class FractionOfSecondParser extends Parser {
     date.setMilliseconds(value);
     return date;
   }
-  incompatibleTokens = ["t", "T"];
 }
 class ISOTimezoneWithZParser extends Parser {
-  priority = 10;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 10);
+    __publicField(this, "incompatibleTokens", ["t", "T", "x"]);
+  }
   parse(dateString, token) {
     switch (token) {
       case "X":
@@ -20393,10 +20494,13 @@ class ISOTimezoneWithZParser extends Parser {
       date.getTime() - getTimezoneOffsetInMilliseconds(date) - value
     );
   }
-  incompatibleTokens = ["t", "T", "x"];
 }
 class ISOTimezoneParser extends Parser {
-  priority = 10;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 10);
+    __publicField(this, "incompatibleTokens", ["t", "T", "X"]);
+  }
   parse(dateString, token) {
     switch (token) {
       case "x":
@@ -20428,27 +20532,32 @@ class ISOTimezoneParser extends Parser {
       date.getTime() - getTimezoneOffsetInMilliseconds(date) - value
     );
   }
-  incompatibleTokens = ["t", "T", "X"];
 }
 class TimestampSecondsParser extends Parser {
-  priority = 40;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 40);
+    __publicField(this, "incompatibleTokens", "*");
+  }
   parse(dateString) {
     return parseAnyDigitsSigned(dateString);
   }
   set(date, _flags, value) {
     return [constructFrom(date, value * 1e3), { timestampIsSet: true }];
   }
-  incompatibleTokens = "*";
 }
 class TimestampMillisecondsParser extends Parser {
-  priority = 20;
+  constructor() {
+    super(...arguments);
+    __publicField(this, "priority", 20);
+    __publicField(this, "incompatibleTokens", "*");
+  }
   parse(dateString) {
     return parseAnyDigitsSigned(dateString);
   }
   set(date, _flags, value) {
     return [constructFrom(date, value), { timestampIsSet: true }];
   }
-  incompatibleTokens = "*";
 }
 const parsers = {
   G: new EraParser(),
@@ -20490,19 +20599,20 @@ const doubleQuoteRegExp = /''/g;
 const notWhitespaceRegExp = /\S/;
 const unescapedLatinCharacterRegExp = /[a-zA-Z]/;
 function parse(dateStr, formatStr, referenceDate, options) {
-  const invalidDate = () => constructFrom(options?.in || referenceDate, NaN);
+  var _a, _b, _c, _d, _e, _f, _g, _h;
+  const invalidDate = () => constructFrom((options == null ? void 0 : options.in) || referenceDate, NaN);
   const defaultOptions2 = getDefaultOptions();
-  const locale = options?.locale ?? defaultOptions2.locale ?? enUS;
-  const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions2.firstWeekContainsDate ?? defaultOptions2.locale?.options?.firstWeekContainsDate ?? 1;
-  const weekStartsOn = options?.weekStartsOn ?? options?.locale?.options?.weekStartsOn ?? defaultOptions2.weekStartsOn ?? defaultOptions2.locale?.options?.weekStartsOn ?? 0;
+  const locale = (options == null ? void 0 : options.locale) ?? defaultOptions2.locale ?? enUS;
+  const firstWeekContainsDate = (options == null ? void 0 : options.firstWeekContainsDate) ?? ((_b = (_a = options == null ? void 0 : options.locale) == null ? void 0 : _a.options) == null ? void 0 : _b.firstWeekContainsDate) ?? defaultOptions2.firstWeekContainsDate ?? ((_d = (_c = defaultOptions2.locale) == null ? void 0 : _c.options) == null ? void 0 : _d.firstWeekContainsDate) ?? 1;
+  const weekStartsOn = (options == null ? void 0 : options.weekStartsOn) ?? ((_f = (_e = options == null ? void 0 : options.locale) == null ? void 0 : _e.options) == null ? void 0 : _f.weekStartsOn) ?? defaultOptions2.weekStartsOn ?? ((_h = (_g = defaultOptions2.locale) == null ? void 0 : _g.options) == null ? void 0 : _h.weekStartsOn) ?? 0;
   if (!formatStr)
-    return dateStr ? invalidDate() : toDate(referenceDate, options?.in);
+    return dateStr ? invalidDate() : toDate(referenceDate, options == null ? void 0 : options.in);
   const subFnOptions = {
     firstWeekContainsDate,
     weekStartsOn,
     locale
   };
-  const setters = [new DateTimezoneSetter(options?.in, referenceDate)];
+  const setters = [new DateTimezoneSetter(options == null ? void 0 : options.in, referenceDate)];
   const tokens = formatStr.match(longFormattingTokensRegExp).map((substring) => {
     const firstCharacter = substring[0];
     if (firstCharacter in longFormatters) {
@@ -20513,10 +20623,10 @@ function parse(dateStr, formatStr, referenceDate, options) {
   }).join("").match(formattingTokensRegExp);
   const usedTokens = [];
   for (let token of tokens) {
-    if (!options?.useAdditionalWeekYearTokens && isProtectedWeekYearToken(token)) {
+    if (!(options == null ? void 0 : options.useAdditionalWeekYearTokens) && isProtectedWeekYearToken(token)) {
       warnOrThrowProtectedError(token, formatStr, dateStr);
     }
-    if (!options?.useAdditionalDayOfYearTokens && isProtectedDayOfYearToken(token)) {
+    if (!(options == null ? void 0 : options.useAdditionalDayOfYearTokens) && isProtectedDayOfYearToken(token)) {
       warnOrThrowProtectedError(token, formatStr, dateStr);
     }
     const firstCharacter = token[0];
@@ -20573,7 +20683,7 @@ function parse(dateStr, formatStr, referenceDate, options) {
   const uniquePrioritySetters = setters.map((setter) => setter.priority).sort((a, b) => b - a).filter((priority, index2, array) => array.indexOf(priority) === index2).map(
     (priority) => setters.filter((setter) => setter.priority === priority).sort((a, b) => b.subPriority - a.subPriority)
   ).map((setterArray) => setterArray[0]);
-  let date = toDate(referenceDate, options?.in);
+  let date = toDate(referenceDate, options == null ? void 0 : options.in);
   if (isNaN(+date)) return invalidDate();
   const flags = {};
   for (const setter of uniquePrioritySetters) {
@@ -20594,23 +20704,23 @@ function cleanEscapedString(input) {
   return input.match(escapedStringRegExp)[1].replace(doubleQuoteRegExp, "'");
 }
 function startOfHour(date, options) {
-  const _date = toDate(date, options?.in);
+  const _date = toDate(date, options == null ? void 0 : options.in);
   _date.setMinutes(0, 0, 0);
   return _date;
 }
 function startOfMinute(date, options) {
-  const date_ = toDate(date, options?.in);
+  const date_ = toDate(date, options == null ? void 0 : options.in);
   date_.setSeconds(0, 0);
   return date_;
 }
 function startOfSecond(date, options) {
-  const date_ = toDate(date, options?.in);
+  const date_ = toDate(date, options == null ? void 0 : options.in);
   date_.setMilliseconds(0);
   return date_;
 }
 function parseISO(argument, options) {
-  const invalidDate = () => constructFrom(options?.in, NaN);
-  const additionalDigits = options?.additionalDigits ?? 2;
+  const invalidDate = () => constructFrom(options == null ? void 0 : options.in, NaN);
+  const additionalDigits = (options == null ? void 0 : options.additionalDigits) ?? 2;
   const dateStrings = splitDateString(argument);
   let date;
   if (dateStrings.date) {
@@ -20630,7 +20740,7 @@ function parseISO(argument, options) {
     if (isNaN(offset)) return invalidDate();
   } else {
     const tmpDate = new Date(timestamp + time);
-    const result = toDate(0, options?.in);
+    const result = toDate(0, options == null ? void 0 : options.in);
     result.setFullYear(
       tmpDate.getUTCFullYear(),
       tmpDate.getUTCMonth(),
@@ -20644,7 +20754,7 @@ function parseISO(argument, options) {
     );
     return result;
   }
-  return toDate(timestamp + time + offset, options?.in);
+  return toDate(timestamp + time + offset, options == null ? void 0 : options.in);
 }
 const patterns = {
   dateTimeDelimiter: /[T ]/,
@@ -21865,7 +21975,7 @@ function PTBs($$anchor, $$props) {
   function toggleTransactionIds(event2) {
     const detailsElement = event2.target;
     const functionItem = detailsElement.closest(".function-item");
-    const transactionSection = functionItem?.querySelector(".transaction-ids-section");
+    const transactionSection = functionItem == null ? void 0 : functionItem.querySelector(".transaction-ids-section");
     if (transactionSection) {
       if (detailsElement.open) {
         transactionSection.classList.add("show");

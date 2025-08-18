@@ -1,28 +1,48 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["iota-utils/assets/IotaSystemState-BFO-B-aE.js","iota-utils/assets/JsonToggleView-DOtLwPuE.js","iota-utils/assets/transaction-view-DMvVzL7-.js","iota-utils/assets/transaction-view-BucjpHvO.css","iota-utils/assets/JsonToggleView-FheaJgbA.css","iota-utils/assets/iota-nano-conversion-Bp8husbX.js","iota-utils/assets/IotaSystemState-DJm4xoge.css","iota-utils/assets/PTBs-Chs1sdXf.js","iota-utils/assets/this-D5oa0JbG.js","iota-utils/assets/TransactionView-CYEOPiud.js","iota-utils/assets/TransactionView-BYIzDu-1.css","iota-utils/assets/index-B_CSQK84.js","iota-utils/assets/index-BUk6joPt.js","iota-utils/assets/PTBs-BlFTUzXd.css","iota-utils/assets/DynamicFields-Own8MJD4.js","iota-utils/assets/StakingRewards-DwHCMX81.js","iota-utils/assets/props-C8CLyeUW.js","iota-utils/assets/StakingRewards-B30SK_pc.css","iota-utils/assets/MultiAccountView-CfPcY79l.js","iota-utils/assets/MultiAccountView-D61lEXHE.css","iota-utils/assets/AccountsList-BbDIRq2p.js","iota-utils/assets/AccountsList-e96FKZJa.css","iota-utils/assets/Keystone-CwoTaTD4.js","iota-utils/assets/index-rSD_0cGr.js","iota-utils/assets/Keystone-CLSPZRvC.css","iota-utils/assets/LedgerNano-ChfmHGx_.js","iota-utils/assets/LedgerNano-QxKjjy9Y.css","iota-utils/assets/PublishData-DdzSvrkC.js","iota-utils/assets/transaction-execution-CSM3USGR.js","iota-utils/assets/SplitMergeCoins-C2dKIt6U.js","iota-utils/assets/BulkTransfer-BUD04hfp.js","iota-utils/assets/BulkTransfer-z2jcn1zs.css","iota-utils/assets/Stake-D1tMFHZV.js","iota-utils/assets/Faucet-C04NPji_.js","iota-utils/assets/Converter-CLCFumjy.js","iota-utils/assets/Converter-BB97tH9s.css","iota-utils/assets/TextAnalyzer-DBhCDSD1.js","iota-utils/assets/TextAnalyzer-BeSUleA5.css","iota-utils/assets/Ed25519AddressGeneration-CpWXq7Kw.js","iota-utils/assets/Ed25519AddressGeneration-Bk9cmk1E.css","iota-utils/assets/IotaNames-njWugiTs.js","iota-utils/assets/Settings-o5qtWb91.js","iota-utils/assets/Settings-CK220tqd.css"])))=>i.map(i=>d[i]);
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["iota-utils/assets/IotaSystemState-BDsfdAo4.js","iota-utils/assets/JsonToggleView-Bbi3Ax_Q.js","iota-utils/assets/transaction-view-gcIY95EC.js","iota-utils/assets/transaction-view-BucjpHvO.css","iota-utils/assets/JsonToggleView-FheaJgbA.css","iota-utils/assets/iota-nano-conversion-xJ_sof4-.js","iota-utils/assets/IotaSystemState-DJm4xoge.css","iota-utils/assets/PTBs-CD0V08j3.js","iota-utils/assets/this-DEuQhPCH.js","iota-utils/assets/TransactionView-CBaSEL_v.js","iota-utils/assets/TransactionView-BYIzDu-1.css","iota-utils/assets/index-CZpT3lew.js","iota-utils/assets/index-DqCMW0_q.js","iota-utils/assets/PTBs-BlFTUzXd.css","iota-utils/assets/DynamicFields-RLnlU-Ur.js","iota-utils/assets/StakingRewards-BJMGsVNf.js","iota-utils/assets/props-BxqDVfOI.js","iota-utils/assets/StakingRewards-B30SK_pc.css","iota-utils/assets/MultiAccountView-Bkkh03bm.js","iota-utils/assets/MultiAccountView-D61lEXHE.css","iota-utils/assets/AccountsList-DoSjUJu-.js","iota-utils/assets/AccountsList-e96FKZJa.css","iota-utils/assets/Keystone-1iyHUcZv.js","iota-utils/assets/index-DDJ5SC1F.js","iota-utils/assets/Keystone-CLSPZRvC.css","iota-utils/assets/LedgerNano-D4UNpY_1.js","iota-utils/assets/LedgerNano-QxKjjy9Y.css","iota-utils/assets/PublishData-CCA2s9u0.js","iota-utils/assets/transaction-execution-CAZkCFfJ.js","iota-utils/assets/SplitMergeCoins-D7AqSPhK.js","iota-utils/assets/BulkTransfer-DV3KZ8Jo.js","iota-utils/assets/BulkTransfer-z2jcn1zs.css","iota-utils/assets/Stake-QfdGM22L.js","iota-utils/assets/Faucet-BPlTxnQ1.js","iota-utils/assets/Converter-BfT4iSfz.js","iota-utils/assets/Converter-BB97tH9s.css","iota-utils/assets/TextAnalyzer-CsUrlsw8.js","iota-utils/assets/TextAnalyzer-BeSUleA5.css","iota-utils/assets/Ed25519AddressGeneration-Cs8mXNrG.js","iota-utils/assets/Ed25519AddressGeneration-Bk9cmk1E.css","iota-utils/assets/IotaNames-CENZz8ey.js","iota-utils/assets/Settings-Blv9JWZ4.js","iota-utils/assets/Settings-CK220tqd.css"])))=>i.map(i=>d[i]);
+var __defProp = Object.defineProperty;
+var __typeError = (msg) => {
+  throw TypeError(msg);
+};
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
+var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
+var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
+var _previous, _callbacks, _pending, _deferred, _neutered, _async_effects, _boundary_async_effects, _render_effects, _effects, _block_effects, _dirty_effects, _maybe_dirty_effects, _Batch_instances, traverse_effect_tree_fn, defer_effects_fn, commit_fn, _a;
 (function polyfill() {
   const relList = document.createElement("link").relList;
-  if (relList && relList.supports && relList.supports("modulepreload")) return;
-  for (const link2 of document.querySelectorAll('link[rel="modulepreload"]')) processPreload(link2);
+  if (relList && relList.supports && relList.supports("modulepreload")) {
+    return;
+  }
+  for (const link2 of document.querySelectorAll('link[rel="modulepreload"]')) {
+    processPreload(link2);
+  }
   new MutationObserver((mutations) => {
     for (const mutation of mutations) {
-      if (mutation.type !== "childList") continue;
-      for (const node of mutation.addedNodes) if (node.tagName === "LINK" && node.rel === "modulepreload") processPreload(node);
+      if (mutation.type !== "childList") {
+        continue;
+      }
+      for (const node of mutation.addedNodes) {
+        if (node.tagName === "LINK" && node.rel === "modulepreload")
+          processPreload(node);
+      }
     }
-  }).observe(document, {
-    childList: true,
-    subtree: true
-  });
+  }).observe(document, { childList: true, subtree: true });
   function getFetchOpts(link2) {
     const fetchOpts = {};
     if (link2.integrity) fetchOpts.integrity = link2.integrity;
     if (link2.referrerPolicy) fetchOpts.referrerPolicy = link2.referrerPolicy;
-    if (link2.crossOrigin === "use-credentials") fetchOpts.credentials = "include";
+    if (link2.crossOrigin === "use-credentials")
+      fetchOpts.credentials = "include";
     else if (link2.crossOrigin === "anonymous") fetchOpts.credentials = "omit";
     else fetchOpts.credentials = "same-origin";
     return fetchOpts;
   }
   function processPreload(link2) {
-    if (link2.ep) return;
+    if (link2.ep)
+      return;
     link2.ep = true;
     const fetchOpts = getFetchOpts(link2);
     fetch(link2.href, fetchOpts);
@@ -102,8 +122,11 @@ const STATE_SYMBOL = Symbol("$state");
 const LEGACY_PROPS = Symbol("legacy props");
 const LOADING_ATTR_SYMBOL = Symbol("");
 const STALE_REACTION = new class StaleReactionError extends Error {
-  name = "StaleReactionError";
-  message = "The reaction that called `getAbortSignal()` was re-run or destroyed";
+  constructor() {
+    super(...arguments);
+    __publicField(this, "name", "StaleReactionError");
+    __publicField(this, "message", "The reaction that called `getAbortSignal()` was re-run or destroyed");
+  }
 }();
 function await_outside_boundary() {
   {
@@ -247,7 +270,7 @@ function get_or_init_context_map(name) {
   if (component_context === null) {
     lifecycle_outside_component();
   }
-  return component_context.c ??= new Map(get_parent_context(component_context) || void 0);
+  return component_context.c ?? (component_context.c = new Map(get_parent_context(component_context) || void 0));
 }
 function get_parent_context(component_context2) {
   let parent = component_context2.p;
@@ -408,7 +431,7 @@ function async_derived(fn, location2) {
       p = Promise.reject(error);
     }
     var r2 = () => p;
-    promise = prev?.then(r2, r2) ?? Promise.resolve(p);
+    promise = (prev == null ? void 0 : prev.then(r2, r2)) ?? Promise.resolve(p);
     prev = promise;
     var batch = (
       /** @type {Batch} */
@@ -541,7 +564,7 @@ function flatten(sync, async, fn) {
   var restore = capture();
   var boundary = get_pending_boundary();
   Promise.all(async.map((expression) => /* @__PURE__ */ async_derived(expression))).then((result) => {
-    batch?.activate();
+    batch == null ? void 0 : batch.activate();
     restore();
     try {
       fn([...sync.map(d), ...result]);
@@ -550,7 +573,7 @@ function flatten(sync, async, fn) {
         invoke_error_boundary(error, parent);
       }
     }
-    batch?.deactivate();
+    batch == null ? void 0 : batch.deactivate();
     unset_context();
   }).catch((error) => {
     boundary.error(error);
@@ -591,91 +614,95 @@ let queued_root_effects = [];
 let last_scheduled_effect = null;
 let is_flushing = false;
 let is_flushing_sync = false;
-class Batch {
-  /**
-   * The current values of any sources that are updated in this batch
-   * They keys of this map are identical to `this.#previous`
-   * @type {Map<Source, any>}
-   */
-  current = /* @__PURE__ */ new Map();
-  /**
-   * The values of any sources that are updated in this batch _before_ those updates took place.
-   * They keys of this map are identical to `this.#current`
-   * @type {Map<Source, any>}
-   */
-  #previous = /* @__PURE__ */ new Map();
-  /**
-   * When the batch is committed (and the DOM is updated), we need to remove old branches
-   * and append new ones by calling the functions added inside (if/each/key/etc) blocks
-   * @type {Set<() => void>}
-   */
-  #callbacks = /* @__PURE__ */ new Set();
-  /**
-   * The number of async effects that are currently in flight
-   */
-  #pending = 0;
-  /**
-   * A deferred that resolves when the batch is committed, used with `settled()`
-   * TODO replace with Promise.withResolvers once supported widely enough
-   * @type {{ promise: Promise<void>, resolve: (value?: any) => void, reject: (reason: unknown) => void } | null}
-   */
-  #deferred = null;
-  /**
-   * True if an async effect inside this batch resolved and
-   * its parent branch was already deleted
-   */
-  #neutered = false;
-  /**
-   * Async effects (created inside `async_derived`) encountered during processing.
-   * These run after the rest of the batch has updated, since they should
-   * always have the latest values
-   * @type {Effect[]}
-   */
-  #async_effects = [];
-  /**
-   * The same as `#async_effects`, but for effects inside a newly-created
-   * `<svelte:boundary>` — these do not prevent the batch from committing
-   * @type {Effect[]}
-   */
-  #boundary_async_effects = [];
-  /**
-   * Template effects and `$effect.pre` effects, which run when
-   * a batch is committed
-   * @type {Effect[]}
-   */
-  #render_effects = [];
-  /**
-   * The same as `#render_effects`, but for `$effect` (which runs after)
-   * @type {Effect[]}
-   */
-  #effects = [];
-  /**
-   * Block effects, which may need to re-run on subsequent flushes
-   * in order to update internal sources (e.g. each block items)
-   * @type {Effect[]}
-   */
-  #block_effects = [];
-  /**
-   * Deferred effects (which run after async work has completed) that are DIRTY
-   * @type {Effect[]}
-   */
-  #dirty_effects = [];
-  /**
-   * Deferred effects that are MAYBE_DIRTY
-   * @type {Effect[]}
-   */
-  #maybe_dirty_effects = [];
-  /**
-   * A set of branches that still exist, but will be destroyed when this batch
-   * is committed — we skip over these during `process`
-   * @type {Set<Effect>}
-   */
-  skipped_effects = /* @__PURE__ */ new Set();
+const _Batch = class _Batch {
+  constructor() {
+    __privateAdd(this, _Batch_instances);
+    /**
+     * The current values of any sources that are updated in this batch
+     * They keys of this map are identical to `this.#previous`
+     * @type {Map<Source, any>}
+     */
+    __publicField(this, "current", /* @__PURE__ */ new Map());
+    /**
+     * The values of any sources that are updated in this batch _before_ those updates took place.
+     * They keys of this map are identical to `this.#current`
+     * @type {Map<Source, any>}
+     */
+    __privateAdd(this, _previous, /* @__PURE__ */ new Map());
+    /**
+     * When the batch is committed (and the DOM is updated), we need to remove old branches
+     * and append new ones by calling the functions added inside (if/each/key/etc) blocks
+     * @type {Set<() => void>}
+     */
+    __privateAdd(this, _callbacks, /* @__PURE__ */ new Set());
+    /**
+     * The number of async effects that are currently in flight
+     */
+    __privateAdd(this, _pending, 0);
+    /**
+     * A deferred that resolves when the batch is committed, used with `settled()`
+     * TODO replace with Promise.withResolvers once supported widely enough
+     * @type {{ promise: Promise<void>, resolve: (value?: any) => void, reject: (reason: unknown) => void } | null}
+     */
+    __privateAdd(this, _deferred, null);
+    /**
+     * True if an async effect inside this batch resolved and
+     * its parent branch was already deleted
+     */
+    __privateAdd(this, _neutered, false);
+    /**
+     * Async effects (created inside `async_derived`) encountered during processing.
+     * These run after the rest of the batch has updated, since they should
+     * always have the latest values
+     * @type {Effect[]}
+     */
+    __privateAdd(this, _async_effects, []);
+    /**
+     * The same as `#async_effects`, but for effects inside a newly-created
+     * `<svelte:boundary>` — these do not prevent the batch from committing
+     * @type {Effect[]}
+     */
+    __privateAdd(this, _boundary_async_effects, []);
+    /**
+     * Template effects and `$effect.pre` effects, which run when
+     * a batch is committed
+     * @type {Effect[]}
+     */
+    __privateAdd(this, _render_effects, []);
+    /**
+     * The same as `#render_effects`, but for `$effect` (which runs after)
+     * @type {Effect[]}
+     */
+    __privateAdd(this, _effects, []);
+    /**
+     * Block effects, which may need to re-run on subsequent flushes
+     * in order to update internal sources (e.g. each block items)
+     * @type {Effect[]}
+     */
+    __privateAdd(this, _block_effects, []);
+    /**
+     * Deferred effects (which run after async work has completed) that are DIRTY
+     * @type {Effect[]}
+     */
+    __privateAdd(this, _dirty_effects, []);
+    /**
+     * Deferred effects that are MAYBE_DIRTY
+     * @type {Effect[]}
+     */
+    __privateAdd(this, _maybe_dirty_effects, []);
+    /**
+     * A set of branches that still exist, but will be destroyed when this batch
+     * is committed — we skip over these during `process`
+     * @type {Set<Effect>}
+     */
+    __publicField(this, "skipped_effects", /* @__PURE__ */ new Set());
+  }
   /**
    *
    * @param {Effect[]} root_effects
    */
   process(root_effects) {
+    var _a2;
     queued_root_effects = [];
     previous_batch = null;
     var current_values = null;
@@ -688,7 +715,7 @@ class Batch {
       }
       for (const batch of batches) {
         if (batch === this) continue;
-        for (const [source2, previous] of batch.#previous) {
+        for (const [source2, previous] of __privateGet(batch, _previous)) {
           if (!current_values.has(source2)) {
             current_values.set(source2, { v: source2.v, wv: source2.wv });
             source2.v = previous;
@@ -697,15 +724,15 @@ class Batch {
       }
     }
     for (const root2 of root_effects) {
-      this.#traverse_effect_tree(root2);
+      __privateMethod(this, _Batch_instances, traverse_effect_tree_fn).call(this, root2);
     }
-    if (this.#async_effects.length === 0 && this.#pending === 0) {
-      this.#commit();
-      var render_effects = this.#render_effects;
-      var effects = this.#effects;
-      this.#render_effects = [];
-      this.#effects = [];
-      this.#block_effects = [];
+    if (__privateGet(this, _async_effects).length === 0 && __privateGet(this, _pending) === 0) {
+      __privateMethod(this, _Batch_instances, commit_fn).call(this);
+      var render_effects = __privateGet(this, _render_effects);
+      var effects = __privateGet(this, _effects);
+      __privateSet(this, _render_effects, []);
+      __privateSet(this, _effects, []);
+      __privateSet(this, _block_effects, []);
       previous_batch = current_batch;
       current_batch = null;
       flush_queued_effects(render_effects);
@@ -715,11 +742,11 @@ class Batch {
       } else {
         batches.delete(this);
       }
-      this.#deferred?.resolve();
+      (_a2 = __privateGet(this, _deferred)) == null ? void 0 : _a2.resolve();
     } else {
-      this.#defer_effects(this.#render_effects);
-      this.#defer_effects(this.#effects);
-      this.#defer_effects(this.#block_effects);
+      __privateMethod(this, _Batch_instances, defer_effects_fn).call(this, __privateGet(this, _render_effects));
+      __privateMethod(this, _Batch_instances, defer_effects_fn).call(this, __privateGet(this, _effects));
+      __privateMethod(this, _Batch_instances, defer_effects_fn).call(this, __privateGet(this, _block_effects));
     }
     if (current_values) {
       for (const [source2, { v, wv }] of current_values) {
@@ -729,66 +756,14 @@ class Batch {
       }
       batch_deriveds = null;
     }
-    for (const effect2 of this.#async_effects) {
+    for (const effect2 of __privateGet(this, _async_effects)) {
       update_effect(effect2);
     }
-    for (const effect2 of this.#boundary_async_effects) {
+    for (const effect2 of __privateGet(this, _boundary_async_effects)) {
       update_effect(effect2);
     }
-    this.#async_effects = [];
-    this.#boundary_async_effects = [];
-  }
-  /**
-   * Traverse the effect tree, executing effects or stashing
-   * them for later execution as appropriate
-   * @param {Effect} root
-   */
-  #traverse_effect_tree(root2) {
-    root2.f ^= CLEAN;
-    var effect2 = root2.first;
-    while (effect2 !== null) {
-      var flags = effect2.f;
-      var is_branch = (flags & (BRANCH_EFFECT | ROOT_EFFECT)) !== 0;
-      var is_skippable_branch = is_branch && (flags & CLEAN) !== 0;
-      var skip = is_skippable_branch || (flags & INERT) !== 0 || this.skipped_effects.has(effect2);
-      if (!skip && effect2.fn !== null) {
-        if (is_branch) {
-          effect2.f ^= CLEAN;
-        } else if ((flags & CLEAN) === 0) {
-          if ((flags & EFFECT) !== 0) {
-            this.#effects.push(effect2);
-          } else if ((flags & ASYNC) !== 0) {
-            var effects = effect2.b?.pending ? this.#boundary_async_effects : this.#async_effects;
-            effects.push(effect2);
-          } else if (is_dirty(effect2)) {
-            if ((effect2.f & BLOCK_EFFECT) !== 0) this.#block_effects.push(effect2);
-            update_effect(effect2);
-          }
-        }
-        var child2 = effect2.first;
-        if (child2 !== null) {
-          effect2 = child2;
-          continue;
-        }
-      }
-      var parent = effect2.parent;
-      effect2 = effect2.next;
-      while (effect2 === null && parent !== null) {
-        effect2 = parent.next;
-        parent = parent.parent;
-      }
-    }
-  }
-  /**
-   * @param {Effect[]} effects
-   */
-  #defer_effects(effects) {
-    for (const e of effects) {
-      const target2 = (e.f & DIRTY) !== 0 ? this.#dirty_effects : this.#maybe_dirty_effects;
-      target2.push(e);
-      set_signal_status(e, CLEAN);
-    }
-    effects.length = 0;
+    __privateSet(this, _async_effects, []);
+    __privateSet(this, _boundary_async_effects, []);
   }
   /**
    * Associate a change to a given source with the current
@@ -797,8 +772,8 @@ class Batch {
    * @param {any} value
    */
   capture(source2, value) {
-    if (!this.#previous.has(source2)) {
-      this.#previous.set(source2, value);
+    if (!__privateGet(this, _previous).has(source2)) {
+      __privateGet(this, _previous).set(source2, value);
     }
     this.current.set(source2, source2.v);
   }
@@ -817,49 +792,38 @@ class Batch {
     }
   }
   neuter() {
-    this.#neutered = true;
+    __privateSet(this, _neutered, true);
   }
   flush() {
     if (queued_root_effects.length > 0) {
       flush_effects();
     } else {
-      this.#commit();
+      __privateMethod(this, _Batch_instances, commit_fn).call(this);
     }
     if (current_batch !== this) {
       return;
     }
-    if (this.#pending === 0) {
+    if (__privateGet(this, _pending) === 0) {
       batches.delete(this);
     }
     this.deactivate();
   }
-  /**
-   * Append and remove branches to/from the DOM
-   */
-  #commit() {
-    if (!this.#neutered) {
-      for (const fn of this.#callbacks) {
-        fn();
-      }
-    }
-    this.#callbacks.clear();
-  }
   increment() {
-    this.#pending += 1;
+    __privateSet(this, _pending, __privateGet(this, _pending) + 1);
   }
   decrement() {
-    this.#pending -= 1;
-    if (this.#pending === 0) {
-      for (const e of this.#dirty_effects) {
+    __privateSet(this, _pending, __privateGet(this, _pending) - 1);
+    if (__privateGet(this, _pending) === 0) {
+      for (const e of __privateGet(this, _dirty_effects)) {
         set_signal_status(e, DIRTY);
         schedule_effect(e);
       }
-      for (const e of this.#maybe_dirty_effects) {
+      for (const e of __privateGet(this, _maybe_dirty_effects)) {
         set_signal_status(e, MAYBE_DIRTY);
         schedule_effect(e);
       }
-      this.#render_effects = [];
-      this.#effects = [];
+      __privateSet(this, _render_effects, []);
+      __privateSet(this, _effects, []);
       this.flush();
     } else {
       this.deactivate();
@@ -867,17 +831,17 @@ class Batch {
   }
   /** @param {() => void} fn */
   add_callback(fn) {
-    this.#callbacks.add(fn);
+    __privateGet(this, _callbacks).add(fn);
   }
   settled() {
-    return (this.#deferred ??= deferred()).promise;
+    return (__privateGet(this, _deferred) ?? __privateSet(this, _deferred, deferred())).promise;
   }
   static ensure() {
     if (current_batch === null) {
-      const batch = current_batch = new Batch();
+      const batch = current_batch = new _Batch();
       batches.add(current_batch);
       if (!is_flushing_sync) {
-        Batch.enqueue(() => {
+        _Batch.enqueue(() => {
           if (current_batch !== batch) {
             return;
           }
@@ -894,7 +858,85 @@ class Batch {
     }
     tasks.unshift(task);
   }
-}
+};
+_previous = new WeakMap();
+_callbacks = new WeakMap();
+_pending = new WeakMap();
+_deferred = new WeakMap();
+_neutered = new WeakMap();
+_async_effects = new WeakMap();
+_boundary_async_effects = new WeakMap();
+_render_effects = new WeakMap();
+_effects = new WeakMap();
+_block_effects = new WeakMap();
+_dirty_effects = new WeakMap();
+_maybe_dirty_effects = new WeakMap();
+_Batch_instances = new WeakSet();
+/**
+ * Traverse the effect tree, executing effects or stashing
+ * them for later execution as appropriate
+ * @param {Effect} root
+ */
+traverse_effect_tree_fn = function(root2) {
+  var _a2;
+  root2.f ^= CLEAN;
+  var effect2 = root2.first;
+  while (effect2 !== null) {
+    var flags = effect2.f;
+    var is_branch = (flags & (BRANCH_EFFECT | ROOT_EFFECT)) !== 0;
+    var is_skippable_branch = is_branch && (flags & CLEAN) !== 0;
+    var skip = is_skippable_branch || (flags & INERT) !== 0 || this.skipped_effects.has(effect2);
+    if (!skip && effect2.fn !== null) {
+      if (is_branch) {
+        effect2.f ^= CLEAN;
+      } else if ((flags & CLEAN) === 0) {
+        if ((flags & EFFECT) !== 0) {
+          __privateGet(this, _effects).push(effect2);
+        } else if ((flags & ASYNC) !== 0) {
+          var effects = ((_a2 = effect2.b) == null ? void 0 : _a2.pending) ? __privateGet(this, _boundary_async_effects) : __privateGet(this, _async_effects);
+          effects.push(effect2);
+        } else if (is_dirty(effect2)) {
+          if ((effect2.f & BLOCK_EFFECT) !== 0) __privateGet(this, _block_effects).push(effect2);
+          update_effect(effect2);
+        }
+      }
+      var child2 = effect2.first;
+      if (child2 !== null) {
+        effect2 = child2;
+        continue;
+      }
+    }
+    var parent = effect2.parent;
+    effect2 = effect2.next;
+    while (effect2 === null && parent !== null) {
+      effect2 = parent.next;
+      parent = parent.parent;
+    }
+  }
+};
+/**
+ * @param {Effect[]} effects
+ */
+defer_effects_fn = function(effects) {
+  for (const e of effects) {
+    const target2 = (e.f & DIRTY) !== 0 ? __privateGet(this, _dirty_effects) : __privateGet(this, _maybe_dirty_effects);
+    target2.push(e);
+    set_signal_status(e, CLEAN);
+  }
+  effects.length = 0;
+};
+/**
+ * Append and remove branches to/from the DOM
+ */
+commit_fn = function() {
+  if (!__privateGet(this, _neutered)) {
+    for (const fn of __privateGet(this, _callbacks)) {
+      fn();
+    }
+  }
+  __privateGet(this, _callbacks).clear();
+};
+let Batch = _Batch;
 function flushSync(fn) {
   var was_flushing_sync = is_flushing_sync;
   is_flushing_sync = true;
@@ -904,7 +946,7 @@ function flushSync(fn) {
     while (true) {
       flush_tasks();
       if (queued_root_effects.length === 0) {
-        current_batch?.flush();
+        current_batch == null ? void 0 : current_batch.flush();
         if (queued_root_effects.length === 0) {
           last_scheduled_effect = null;
           return (
@@ -1009,12 +1051,13 @@ function state(v, stack) {
 }
 // @__NO_SIDE_EFFECTS__
 function mutable_source(initial_value, immutable = false, trackable = true) {
+  var _a2;
   const s = source(initial_value);
   if (!immutable) {
     s.equals = safe_equals;
   }
   if (legacy_mode_flag && trackable && component_context !== null && component_context.l !== null) {
-    (component_context.l.s ??= []).push(s);
+    ((_a2 = component_context.l).s ?? (_a2.s = [])).push(s);
   }
   return s;
 }
@@ -1028,7 +1071,7 @@ function mutate(source2, value) {
 function set(source2, value, should_proxy = false) {
   if (active_reaction !== null && // since we are untracking the function inside `$inspect.with` we need to add this check
   // to ensure we error if state is set inside an inspect effect
-  (!untracking || (active_reaction.f & INSPECT_EFFECT) !== 0) && is_runes() && (active_reaction.f & (DERIVED | BLOCK_EFFECT | ASYNC | INSPECT_EFFECT)) !== 0 && !current_sources?.includes(source2)) {
+  (!untracking || (active_reaction.f & INSPECT_EFFECT) !== 0) && is_runes() && (active_reaction.f & (DERIVED | BLOCK_EFFECT | ASYNC | INSPECT_EFFECT)) !== 0 && !(current_sources == null ? void 0 : current_sources.includes(source2))) {
     state_unsafe_mutation();
   }
   let new_value = should_proxy ? proxy(value) : value;
@@ -1168,12 +1211,13 @@ function proxy(value) {
         return true;
       },
       get(target2, prop2, receiver) {
+        var _a2;
         if (prop2 === STATE_SYMBOL) {
           return value;
         }
         var s = sources.get(prop2);
         var exists = prop2 in target2;
-        if (s === void 0 && (!exists || get_descriptor(target2, prop2)?.writable)) {
+        if (s === void 0 && (!exists || ((_a2 = get_descriptor(target2, prop2)) == null ? void 0 : _a2.writable))) {
           s = with_parent(() => {
             var p = proxy(exists ? target2[prop2] : UNINITIALIZED);
             var s2 = /* @__PURE__ */ state(p);
@@ -1194,7 +1238,7 @@ function proxy(value) {
           if (s) descriptor.value = get$2(s);
         } else if (descriptor === void 0) {
           var source2 = sources.get(prop2);
-          var value2 = source2?.v;
+          var value2 = source2 == null ? void 0 : source2.v;
           if (source2 !== void 0 && value2 !== UNINITIALIZED) {
             return {
               enumerable: true,
@@ -1207,12 +1251,13 @@ function proxy(value) {
         return descriptor;
       },
       has(target2, prop2) {
+        var _a2;
         if (prop2 === STATE_SYMBOL) {
           return true;
         }
         var s = sources.get(prop2);
         var has = s !== void 0 && s.v !== UNINITIALIZED || Reflect.has(target2, prop2);
-        if (s !== void 0 || active_effect !== null && (!has || get_descriptor(target2, prop2)?.writable)) {
+        if (s !== void 0 || active_effect !== null && (!has || ((_a2 = get_descriptor(target2, prop2)) == null ? void 0 : _a2.writable))) {
           if (s === void 0) {
             s = with_parent(() => {
               var p = has ? proxy(target2[prop2]) : UNINITIALIZED;
@@ -1229,6 +1274,7 @@ function proxy(value) {
         return has;
       },
       set(target2, prop2, value2, receiver) {
+        var _a2;
         var s = sources.get(prop2);
         var has = prop2 in target2;
         if (is_proxied_array && prop2 === "length") {
@@ -1244,7 +1290,7 @@ function proxy(value) {
           }
         }
         if (s === void 0) {
-          if (!has || get_descriptor(target2, prop2)?.writable) {
+          if (!has || ((_a2 = get_descriptor(target2, prop2)) == null ? void 0 : _a2.writable)) {
             s = with_parent(() => /* @__PURE__ */ state(void 0));
             set(s, proxy(value2));
             sources.set(prop2, s);
@@ -1255,7 +1301,7 @@ function proxy(value) {
           set(s, p);
         }
         var descriptor = Reflect.getOwnPropertyDescriptor(target2, prop2);
-        if (descriptor?.set) {
+        if (descriptor == null ? void 0 : descriptor.set) {
           descriptor.set.call(receiver, value2);
         }
         if (!has) {
@@ -1375,55 +1421,6 @@ function clear_text_content(node) {
 function should_defer_append() {
   return false;
 }
-let listening_to_form_reset = false;
-function add_form_reset_listener() {
-  if (!listening_to_form_reset) {
-    listening_to_form_reset = true;
-    document.addEventListener(
-      "reset",
-      (evt) => {
-        Promise.resolve().then(() => {
-          if (!evt.defaultPrevented) {
-            for (
-              const e of
-              /**@type {HTMLFormElement} */
-              evt.target.elements
-            ) {
-              e.__on_r?.();
-            }
-          }
-        });
-      },
-      // In the capture phase to guarantee we get noticed of it (no possiblity of stopPropagation)
-      { capture: true }
-    );
-  }
-}
-function without_reactive_context(fn) {
-  var previous_reaction = active_reaction;
-  var previous_effect = active_effect;
-  set_active_reaction(null);
-  set_active_effect(null);
-  try {
-    return fn();
-  } finally {
-    set_active_reaction(previous_reaction);
-    set_active_effect(previous_effect);
-  }
-}
-function listen_to_event_and_reset_event(element, event2, handler, on_reset = handler) {
-  element.addEventListener(event2, () => without_reactive_context(handler));
-  const prev = element.__on_r;
-  if (prev) {
-    element.__on_r = () => {
-      prev();
-      on_reset(true);
-    };
-  } else {
-    element.__on_r = () => on_reset(true);
-  }
-  add_form_reset_listener();
-}
 function validate_effect(rune) {
   if (active_effect === null && active_reaction === null) {
     effect_orphan();
@@ -1489,7 +1486,7 @@ function create_effect(type, fn, sync, push2 = true) {
         /** @type {Derived} */
         active_reaction
       );
-      (derived2.effects ??= []).push(effect2);
+      (derived2.effects ?? (derived2.effects = [])).push(effect2);
     }
   }
   return effect2;
@@ -1512,7 +1509,7 @@ function user_effect(fn) {
       /** @type {ComponentContext} */
       component_context
     );
-    (context.e ??= []).push(fn);
+    (context.e ?? (context.e = [])).push(fn);
   } else {
     return create_user_effect(fn);
   }
@@ -1611,15 +1608,11 @@ function execute_effect_teardown(effect2) {
   }
 }
 function destroy_effect_children(signal, remove_dom = false) {
+  var _a2;
   var effect2 = signal.first;
   signal.first = signal.last = null;
   while (effect2 !== null) {
-    const controller = effect2.ac;
-    if (controller !== null) {
-      without_reactive_context(() => {
-        controller.abort(STALE_REACTION);
-      });
-    }
+    (_a2 = effect2.ac) == null ? void 0 : _a2.abort(STALE_REACTION);
     var next = effect2.next;
     if ((effect2.f & ROOT_EFFECT) !== 0) {
       effect2.parent = null;
@@ -1813,6 +1806,7 @@ function increment_write_version() {
   return ++write_version;
 }
 function is_dirty(reaction) {
+  var _a2;
   var flags = reaction.f;
   if ((flags & DIRTY) !== 0) {
     return true;
@@ -1834,8 +1828,8 @@ function is_dirty(reaction) {
         var parent = derived2.parent;
         for (i = 0; i < length; i++) {
           dependency = dependencies[i];
-          if (is_disconnected || !dependency?.reactions?.includes(derived2)) {
-            (dependency.reactions ??= []).push(derived2);
+          if (is_disconnected || !((_a2 = dependency == null ? void 0 : dependency.reactions) == null ? void 0 : _a2.includes(derived2))) {
+            (dependency.reactions ?? (dependency.reactions = [])).push(derived2);
           }
         }
         if (is_disconnected) {
@@ -1870,7 +1864,7 @@ function is_dirty(reaction) {
 function schedule_possible_effect_self_invalidation(signal, effect2, root2 = true) {
   var reactions = signal.reactions;
   if (reactions === null) return;
-  if (current_sources?.includes(signal)) {
+  if (current_sources == null ? void 0 : current_sources.includes(signal)) {
     return;
   }
   for (var i = 0; i < reactions.length; i++) {
@@ -1896,6 +1890,7 @@ function schedule_possible_effect_self_invalidation(signal, effect2, root2 = tru
   }
 }
 function update_reaction(reaction) {
+  var _a2;
   var previous_deps = new_deps;
   var previous_skipped_deps = skipped_deps;
   var previous_untracked_writes = untracked_writes;
@@ -1917,18 +1912,15 @@ function update_reaction(reaction) {
   untracking = false;
   update_version = ++read_version;
   if (reaction.ac !== null) {
-    without_reactive_context(() => {
-      reaction.ac.abort(STALE_REACTION);
-    });
+    reaction.ac.abort(STALE_REACTION);
     reaction.ac = null;
   }
   try {
     reaction.f |= REACTION_IS_UPDATING;
-    var fn = (
+    var result = (
       /** @type {Function} */
-      reaction.fn
+      (0, reaction.fn)()
     );
-    var result = fn();
     var deps = reaction.deps;
     if (new_deps !== null) {
       var i;
@@ -1945,7 +1937,7 @@ function update_reaction(reaction) {
       (flags & DERIVED) !== 0 && /** @type {import('#client').Derived} */
       reaction.reactions !== null) {
         for (i = skipped_deps; i < deps.length; i++) {
-          (deps[i].reactions ??= []).push(reaction);
+          ((_a2 = deps[i]).reactions ?? (_a2.reactions = [])).push(reaction);
         }
       }
     } else if (deps !== null && skipped_deps < deps.length) {
@@ -2066,10 +2058,10 @@ async function tick() {
 function get$2(signal) {
   var flags = signal.f;
   var is_derived = (flags & DERIVED) !== 0;
-  captured_signals?.add(signal);
+  captured_signals == null ? void 0 : captured_signals.add(signal);
   if (active_reaction !== null && !untracking) {
     var destroyed = active_effect !== null && (active_effect.f & DESTROYED) !== 0;
-    if (!destroyed && !current_sources?.includes(signal)) {
+    if (!destroyed && !(current_sources == null ? void 0 : current_sources.includes(signal))) {
       var deps = active_reaction.deps;
       if ((active_reaction.f & REACTION_IS_UPDATING) !== 0) {
         if (signal.rv < read_version) {
@@ -2083,7 +2075,7 @@ function get$2(signal) {
           }
         }
       } else {
-        (active_reaction.deps ??= []).push(signal);
+        (active_reaction.deps ?? (active_reaction.deps = [])).push(signal);
         var reactions = signal.reactions;
         if (reactions === null) {
           signal.reactions = [active_reaction];
@@ -2121,7 +2113,7 @@ function get$2(signal) {
   } else if (is_derived) {
     derived2 = /** @type {Derived} */
     signal;
-    if (batch_deriveds?.has(derived2)) {
+    if (batch_deriveds == null ? void 0 : batch_deriveds.has(derived2)) {
       return batch_deriveds.get(derived2);
     }
     if (is_dirty(derived2)) {
@@ -2209,6 +2201,56 @@ const PASSIVE_EVENTS = ["touchstart", "touchmove"];
 function is_passive_event(name) {
   return PASSIVE_EVENTS.includes(name);
 }
+let listening_to_form_reset = false;
+function add_form_reset_listener() {
+  if (!listening_to_form_reset) {
+    listening_to_form_reset = true;
+    document.addEventListener(
+      "reset",
+      (evt) => {
+        Promise.resolve().then(() => {
+          var _a2;
+          if (!evt.defaultPrevented) {
+            for (
+              const e of
+              /**@type {HTMLFormElement} */
+              evt.target.elements
+            ) {
+              (_a2 = e.__on_r) == null ? void 0 : _a2.call(e);
+            }
+          }
+        });
+      },
+      // In the capture phase to guarantee we get noticed of it (no possiblity of stopPropagation)
+      { capture: true }
+    );
+  }
+}
+function without_reactive_context(fn) {
+  var previous_reaction = active_reaction;
+  var previous_effect = active_effect;
+  set_active_reaction(null);
+  set_active_effect(null);
+  try {
+    return fn();
+  } finally {
+    set_active_reaction(previous_reaction);
+    set_active_effect(previous_effect);
+  }
+}
+function listen_to_event_and_reset_event(element, event2, handler, on_reset = handler) {
+  element.addEventListener(event2, () => without_reactive_context(handler));
+  const prev = element.__on_r;
+  if (prev) {
+    element.__on_r = () => {
+      prev();
+      on_reset(true);
+    };
+  } else {
+    element.__on_r = () => on_reset(true);
+  }
+  add_form_reset_listener();
+}
 const all_registered_events = /* @__PURE__ */ new Set();
 const root_event_handles = /* @__PURE__ */ new Set();
 function create_event(event_name, dom, handler, options = {}) {
@@ -2218,7 +2260,7 @@ function create_event(event_name, dom, handler, options = {}) {
     }
     if (!event2.cancelBubble) {
       return without_reactive_context(() => {
-        return handler?.call(this, event2);
+        return handler == null ? void 0 : handler.call(this, event2);
       });
     }
   }
@@ -2253,13 +2295,14 @@ function delegate(events) {
 }
 let last_propagated_event = null;
 function handle_event_propagation(event2) {
+  var _a2;
   var handler_element = this;
   var owner_document = (
     /** @type {Node} */
     handler_element.ownerDocument
   );
   var event_name = event2.type;
-  var path = event2.composedPath?.() || [];
+  var path = ((_a2 = event2.composedPath) == null ? void 0 : _a2.call(event2)) || [];
   var current_target = (
     /** @type {null | Element} */
     path[0] || event2.target
@@ -2414,7 +2457,7 @@ function append(anchor, dom) {
 }
 function set_text(text2, value) {
   var str = value == null ? "" : typeof value === "object" ? value + "" : value;
-  if (str !== (text2.__t ??= text2.nodeValue)) {
+  if (str !== (text2.__t ?? (text2.__t = text2.nodeValue))) {
     text2.__t = str;
     text2.nodeValue = str + "";
   }
@@ -2465,6 +2508,7 @@ function _mount(Component, { target: target2, anchor, props = {}, events, contex
       }
     });
     return () => {
+      var _a2;
       for (var event_name of registered_events) {
         target2.removeEventListener(event_name, handle_event_propagation);
         var n = (
@@ -2480,7 +2524,7 @@ function _mount(Component, { target: target2, anchor, props = {}, events, contex
       }
       root_event_handles.delete(event_handle);
       if (anchor_node !== anchor) {
-        anchor_node.parentNode?.removeChild(anchor_node);
+        (_a2 = anchor_node.parentNode) == null ? void 0 : _a2.removeChild(anchor_node);
       }
     };
   });
@@ -2530,9 +2574,9 @@ function if_block(node, fn, elseif = false) {
       offscreen_fragment.append(target2 = create_text());
     }
     if (condition) {
-      consequent_effect ??= fn2 && branch(() => fn2(target2));
+      consequent_effect ?? (consequent_effect = fn2 && branch(() => fn2(target2)));
     } else {
-      alternate_effect ??= fn2 && branch(() => fn2(target2));
+      alternate_effect ?? (alternate_effect = fn2 && branch(() => fn2(target2)));
     }
     if (defer) {
       var batch = (
@@ -2639,10 +2683,9 @@ function each(node, flags, get_collection, get_key, render_fn, fallback_fn = nul
     }
   }
   block$1(() => {
-    each_effect ??= /** @type {Effect} */
-    active_effect;
-    array2 = /** @type {V[]} */
-    get$2(each_array);
+    each_effect ?? (each_effect = /** @type {Effect} */
+    active_effect);
+    array2 = get$2(each_array);
     var length = array2.length;
     if (was_empty && length === 0) {
       return;
@@ -2696,6 +2739,7 @@ function each(node, flags, get_collection, get_key, render_fn, fallback_fn = nul
   });
 }
 function reconcile(each_effect, array2, state2, offscreen_items, anchor, render_fn, flags, get_key, get_collection) {
+  var _a2, _b, _c, _d;
   var is_animated = (flags & EACH_IS_ANIMATED) !== 0;
   var should_update = (flags & (EACH_ITEM_REACTIVE | EACH_INDEX_REACTIVE)) !== 0;
   var length = array2.length;
@@ -2717,8 +2761,8 @@ function reconcile(each_effect, array2, state2, offscreen_items, anchor, render_
       key = get_key(value, i);
       item = items.get(key);
       if (item !== void 0) {
-        item.a?.measure();
-        (to_animate ??= /* @__PURE__ */ new Set()).add(item);
+        (_a2 = item.a) == null ? void 0 : _a2.measure();
+        (to_animate ?? (to_animate = /* @__PURE__ */ new Set())).add(item);
       }
     }
   }
@@ -2766,8 +2810,8 @@ function reconcile(each_effect, array2, state2, offscreen_items, anchor, render_
     if ((item.e.f & INERT) !== 0) {
       resume_effect(item.e);
       if (is_animated) {
-        item.a?.unfix();
-        (to_animate ??= /* @__PURE__ */ new Set()).delete(item);
+        (_b = item.a) == null ? void 0 : _b.unfix();
+        (to_animate ?? (to_animate = /* @__PURE__ */ new Set())).delete(item);
       }
     }
     if (item !== current) {
@@ -2806,7 +2850,7 @@ function reconcile(each_effect, array2, state2, offscreen_items, anchor, render_
       stashed = [];
       while (current !== null && current.k !== key) {
         if ((current.e.f & INERT) === 0) {
-          (seen2 ??= /* @__PURE__ */ new Set()).add(current);
+          (seen2 ?? (seen2 = /* @__PURE__ */ new Set())).add(current);
         }
         stashed.push(current);
         current = current.next;
@@ -2833,10 +2877,10 @@ function reconcile(each_effect, array2, state2, offscreen_items, anchor, render_
       var controlled_anchor = (flags & EACH_IS_CONTROLLED) !== 0 && length === 0 ? anchor : null;
       if (is_animated) {
         for (i = 0; i < destroy_length; i += 1) {
-          to_destroy[i].a?.measure();
+          (_c = to_destroy[i].a) == null ? void 0 : _c.measure();
         }
         for (i = 0; i < destroy_length; i += 1) {
-          to_destroy[i].a?.fix();
+          (_d = to_destroy[i].a) == null ? void 0 : _d.fix();
         }
       }
       pause_effects(state2, to_destroy, controlled_anchor);
@@ -2844,9 +2888,10 @@ function reconcile(each_effect, array2, state2, offscreen_items, anchor, render_
   }
   if (is_animated) {
     queue_micro_task(() => {
+      var _a3;
       if (to_animate === void 0) return;
       for (item of to_animate) {
-        item.a?.apply();
+        (_a3 = item.a) == null ? void 0 : _a3.apply();
       }
     });
   }
@@ -2977,9 +3022,6 @@ function component(node, get_component, render_fn) {
       if (defer) {
         offscreen_fragment = document.createDocumentFragment();
         offscreen_fragment.append(target2 = create_text());
-        if (effect2) {
-          current_batch.skipped_effects.add(effect2);
-        }
       }
       pending_effect = branch(() => render_fn(target2, component2));
     }
@@ -2992,8 +3034,8 @@ function component(node, get_component, render_fn) {
 }
 function action(dom, action2, get_value) {
   effect(() => {
-    var payload = untrack(() => action2(dom, get_value?.()) || {});
-    if (get_value && payload?.update) {
+    var payload = untrack(() => action2(dom, get_value == null ? void 0 : get_value()) || {});
+    if (get_value && (payload == null ? void 0 : payload.update)) {
       var inited = false;
       var prev = (
         /** @type {any} */
@@ -3009,7 +3051,7 @@ function action(dom, action2, get_value) {
       });
       inited = true;
     }
-    if (payload?.destroy) {
+    if (payload == null ? void 0 : payload.destroy) {
       return () => (
         /** @type {Function} */
         payload.destroy()
@@ -3221,10 +3263,10 @@ function get_attributes(element) {
   return (
     /** @type {Record<string | symbol, unknown>} **/
     // @ts-expect-error
-    element.__attributes ??= {
+    element.__attributes ?? (element.__attributes = {
       [IS_CUSTOM_ELEMENT]: element.nodeName.includes("-"),
       [IS_HTML]: element.namespaceURI === NAMESPACE_HTML
-    }
+    })
   );
 }
 var setters_cache = /* @__PURE__ */ new Map();
@@ -3306,7 +3348,7 @@ function bind_group(inputs, group_index, input, get2, set2 = get2) {
   var binding_group = inputs;
   if (group_index !== null) {
     for (var index2 of group_index) {
-      binding_group = binding_group[index2] ??= [];
+      binding_group = binding_group[index2] ?? (binding_group[index2] = []);
     }
   }
   binding_group.push(input);
@@ -3548,11 +3590,11 @@ function get$1(store5) {
 let is_store_binding = false;
 let IS_UNMOUNTED = Symbol();
 function store_get(store5, store_name, stores) {
-  const entry = stores[store_name] ??= {
+  const entry = stores[store_name] ?? (stores[store_name] = {
     store: null,
     source: /* @__PURE__ */ mutable_source(void 0),
     unsubscribe: noop
-  };
+  });
   if (entry.store !== store5 && !(IS_UNMOUNTED in stores)) {
     entry.unsubscribe();
     entry.store = store5 ?? null;
@@ -3672,6 +3714,7 @@ function spread_props(...props) {
   return new Proxy({ props }, spread_props_handler);
 }
 function prop(props, key, flags, fallback) {
+  var _a2;
   var runes = !legacy_mode_flag || (flags & PROPS_IS_RUNES) !== 0;
   var bindable = (flags & PROPS_IS_BINDABLE) !== 0;
   var lazy2 = (flags & PROPS_IS_LAZY_INITIAL) !== 0;
@@ -3696,7 +3739,7 @@ function prop(props, key, flags, fallback) {
   var setter;
   if (bindable) {
     var is_entry_props = STATE_SYMBOL in props || LEGACY_PROPS in props;
-    setter = get_descriptor(props, key)?.set ?? (is_entry_props && key in props ? (v) => props[key] = v : void 0);
+    setter = ((_a2 = get_descriptor(props, key)) == null ? void 0 : _a2.set) ?? (is_entry_props && key in props ? (v) => props[key] = v : void 0);
   }
   var initial_value;
   var is_store_sub = false;
@@ -3745,18 +3788,15 @@ function prop(props, key, flags, fallback) {
   }
   if (setter) {
     var legacy_parent = props.$$legacy;
-    return (
-      /** @type {() => V} */
-      (function(value, mutation) {
-        if (arguments.length > 0) {
-          if (!runes || !mutation || legacy_parent || is_store_sub) {
-            setter(mutation ? getter() : value);
-          }
-          return value;
+    return function(value, mutation) {
+      if (arguments.length > 0) {
+        if (!runes || !mutation || legacy_parent || is_store_sub) {
+          setter(mutation ? getter() : value);
         }
-        return getter();
-      })
-    );
+        return value;
+      }
+      return getter();
+    };
   }
   var overridden = false;
   var d = ((flags & PROPS_IS_IMMUTABLE) !== 0 ? derived$1 : derived_safe_equal)(() => {
@@ -3768,24 +3808,21 @@ function prop(props, key, flags, fallback) {
     /** @type {Effect} */
     active_effect
   );
-  return (
-    /** @type {() => V} */
-    (function(value, mutation) {
-      if (arguments.length > 0) {
-        const new_value = mutation ? get$2(d) : runes && bindable ? proxy(value) : value;
-        set(d, new_value);
-        overridden = true;
-        if (fallback_value !== void 0) {
-          fallback_value = new_value;
-        }
-        return value;
+  return function(value, mutation) {
+    if (arguments.length > 0) {
+      const new_value = mutation ? get$2(d) : runes && bindable ? proxy(value) : value;
+      set(d, new_value);
+      overridden = true;
+      if (fallback_value !== void 0) {
+        fallback_value = new_value;
       }
-      if (is_destroying_effect && overridden || (parent_effect.f & DESTROYED) !== 0) {
-        return d.v;
-      }
-      return get$2(d);
-    })
-  );
+      return value;
+    }
+    if (is_destroying_effect && overridden || (parent_effect.f & DESTROYED) !== 0) {
+      return d.v;
+    }
+    return get$2(d);
+  };
 }
 function onMount(fn) {
   if (component_context === null) {
@@ -3818,10 +3855,11 @@ function createEventDispatcher() {
     lifecycle_outside_component();
   }
   return (type, detail, options) => {
+    var _a2;
     const events = (
       /** @type {Record<string, Function | Function[]>} */
-      active_component_context.s.$$events?.[
-        /** @type {string} */
+      (_a2 = active_component_context.s.$$events) == null ? void 0 : _a2[
+        /** @type {any} */
         type
       ]
     );
@@ -3846,7 +3884,7 @@ function init_update_callbacks(context) {
     /** @type {ComponentContextLegacy} */
     context.l
   );
-  return l.u ??= { a: [], b: [], m: [] };
+  return l.u ?? (l.u = { a: [], b: [], m: [] });
 }
 const scriptRel = "modulepreload";
 const assetsURL = function(dep) {
@@ -3856,43 +3894,63 @@ const seen = {};
 const __vitePreload = function preload(baseModule, deps, importerUrl) {
   let promise = Promise.resolve();
   if (deps && deps.length > 0) {
-    let allSettled = function(promises$2) {
-      return Promise.all(promises$2.map((p$1) => Promise.resolve(p$1).then((value$1) => ({
-        status: "fulfilled",
-        value: value$1
-      }), (reason) => ({
-        status: "rejected",
-        reason
-      }))));
+    let allSettled2 = function(promises) {
+      return Promise.all(
+        promises.map(
+          (p) => Promise.resolve(p).then(
+            (value) => ({ status: "fulfilled", value }),
+            (reason) => ({ status: "rejected", reason })
+          )
+        )
+      );
     };
     document.getElementsByTagName("link");
-    const cspNonceMeta = document.querySelector("meta[property=csp-nonce]");
-    const cspNonce = cspNonceMeta?.nonce || cspNonceMeta?.getAttribute("nonce");
-    promise = allSettled(deps.map((dep) => {
-      dep = assetsURL(dep);
-      if (dep in seen) return;
-      seen[dep] = true;
-      const isCss = dep.endsWith(".css");
-      const cssSelector = isCss ? '[rel="stylesheet"]' : "";
-      if (document.querySelector(`link[href="${dep}"]${cssSelector}`)) return;
-      const link2 = document.createElement("link");
-      link2.rel = isCss ? "stylesheet" : scriptRel;
-      if (!isCss) link2.as = "script";
-      link2.crossOrigin = "";
-      link2.href = dep;
-      if (cspNonce) link2.setAttribute("nonce", cspNonce);
-      document.head.appendChild(link2);
-      if (isCss) return new Promise((res, rej) => {
-        link2.addEventListener("load", res);
-        link2.addEventListener("error", () => rej(/* @__PURE__ */ new Error(`Unable to preload CSS for ${dep}`)));
-      });
-    }));
+    const cspNonceMeta = document.querySelector(
+      "meta[property=csp-nonce]"
+    );
+    const cspNonce = (cspNonceMeta == null ? void 0 : cspNonceMeta.nonce) || (cspNonceMeta == null ? void 0 : cspNonceMeta.getAttribute("nonce"));
+    promise = allSettled2(
+      deps.map((dep) => {
+        dep = assetsURL(dep);
+        if (dep in seen) return;
+        seen[dep] = true;
+        const isCss = dep.endsWith(".css");
+        const cssSelector = isCss ? '[rel="stylesheet"]' : "";
+        if (document.querySelector(`link[href="${dep}"]${cssSelector}`)) {
+          return;
+        }
+        const link2 = document.createElement("link");
+        link2.rel = isCss ? "stylesheet" : scriptRel;
+        if (!isCss) {
+          link2.as = "script";
+        }
+        link2.crossOrigin = "";
+        link2.href = dep;
+        if (cspNonce) {
+          link2.setAttribute("nonce", cspNonce);
+        }
+        document.head.appendChild(link2);
+        if (isCss) {
+          return new Promise((res, rej) => {
+            link2.addEventListener("load", res);
+            link2.addEventListener(
+              "error",
+              () => rej(new Error(`Unable to preload CSS for ${dep}`))
+            );
+          });
+        }
+      })
+    );
   }
-  function handlePreloadError(err$2) {
-    const e$1 = new Event("vite:preloadError", { cancelable: true });
-    e$1.payload = err$2;
-    window.dispatchEvent(e$1);
-    if (!e$1.defaultPrevented) throw err$2;
+  function handlePreloadError(err) {
+    const e = new Event("vite:preloadError", {
+      cancelable: true
+    });
+    e.payload = err;
+    window.dispatchEvent(e);
+    if (!e.defaultPrevented) {
+      throw err;
+    }
   }
   return promise.then((res) => {
     for (const item of res || []) {
@@ -3904,7 +3962,7 @@ const __vitePreload = function preload(baseModule, deps, importerUrl) {
 };
 const PUBLIC_VERSION = "5";
 if (typeof window !== "undefined") {
-  ((window.__svelte ??= {}).v ??= /* @__PURE__ */ new Set()).add(PUBLIC_VERSION);
+  ((_a = window.__svelte ?? (window.__svelte = {})).v ?? (_a.v = /* @__PURE__ */ new Set())).add(PUBLIC_VERSION);
 }
 enable_legacy_mode_flag();
 function getLocation() {
@@ -4203,39 +4261,34 @@ function base(ALPHABET2) {
 }
 var ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 const base58$1 = base(ALPHABET);
-const toBase58 = (buffer) => base58$1.encode(buffer);
-const fromBase58 = (str) => base58$1.decode(str);
-const toB58 = toBase58;
-const fromB58 = fromBase58;
-function fromBase64(base64String2) {
+const toB58$1 = (buffer) => base58$1.encode(buffer);
+const fromB58$1 = (str) => base58$1.decode(str);
+function fromB64$1(base64String2) {
   return Uint8Array.from(atob(base64String2), (char) => char.charCodeAt(0));
 }
-const CHUNK_SIZE = 8192;
-function toBase64(bytes) {
-  if (bytes.length < CHUNK_SIZE) {
+const CHUNK_SIZE$1 = 8192;
+function toB64$1(bytes) {
+  if (bytes.length < CHUNK_SIZE$1) {
     return btoa(String.fromCharCode(...bytes));
   }
   let output = "";
-  for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
-    const chunk2 = bytes.slice(i, i + CHUNK_SIZE);
+  for (let i = 0; i < bytes.length; i += CHUNK_SIZE$1) {
+    const chunk2 = bytes.slice(i, i + CHUNK_SIZE$1);
     output += String.fromCharCode(...chunk2);
   }
   return btoa(output);
 }
-const toB64 = toBase64;
-const fromB64 = fromBase64;
-function fromHex(hexStr) {
+function fromHEX$1(hexStr) {
+  var _a2;
   const normalized = hexStr.startsWith("0x") ? hexStr.slice(2) : hexStr;
   const padded = normalized.length % 2 === 0 ? normalized : `0${normalized}}`;
-  const intArr = padded.match(/.{2}/g)?.map((byte) => parseInt(byte, 16)) ?? [];
+  const intArr = ((_a2 = padded.match(/.{2}/g)) == null ? void 0 : _a2.map((byte) => parseInt(byte, 16))) ?? [];
   return Uint8Array.from(intArr);
 }
-function toHex(bytes) {
+function toHEX$1(bytes) {
   return bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, "0"), "");
 }
-const toHEX = toHex;
-const fromHEX = fromHex;
-function ulebEncode(num) {
+function ulebEncode$1(num) {
   const arr = [];
   let len = 0;
   if (num === 0) {
@@ -4250,7 +4303,7 @@ function ulebEncode(num) {
   }
   return arr;
 }
-function ulebDecode(arr) {
+function ulebDecode$1(arr) {
   let total = 0;
   let shift = 0;
   let len = 0;
@@ -4268,7 +4321,7 @@ function ulebDecode(arr) {
     length: len
   };
 }
-class BcsReader {
+let BcsReader$1 = class BcsReader {
   /**
    * @param {Uint8Array} data Data to use as a buffer.
    */
@@ -4360,7 +4413,7 @@ class BcsReader {
   readULEB() {
     const start2 = this.bytePosition + this.dataView.byteOffset;
     const buffer = new Uint8Array(this.dataView.buffer, start2);
-    const { value, length } = ulebDecode(buffer);
+    const { value, length } = ulebDecode$1(buffer);
     this.shift(length);
     return value;
   }
@@ -4378,20 +4431,20 @@ class BcsReader {
     }
     return result;
   }
-}
-function encodeStr(data, encoding) {
+};
+function encodeStr$1(data, encoding) {
   switch (encoding) {
     case "base58":
-      return toBase58(data);
+      return toB58$1(data);
     case "base64":
-      return toBase64(data);
+      return toB64$1(data);
     case "hex":
-      return toHex(data);
+      return toHEX$1(data);
     default:
       throw new Error("Unsupported encoding, supported values are: base64, hex");
   }
 }
-function splitGenericParameters(str, genericSeparators = ["<", ">"]) {
+function splitGenericParameters$1(str, genericSeparators = ["<", ">"]) {
   const [left, right] = genericSeparators;
   const tok = [];
   let word = "";
@@ -4414,7 +4467,7 @@ function splitGenericParameters(str, genericSeparators = ["<", ">"]) {
   tok.push(word.trim());
   return tok;
 }
-class BcsWriter {
+let BcsWriter$1 = class BcsWriter {
   constructor({
     initialSize = 1024,
     maxSize = Infinity,
@@ -4487,7 +4540,7 @@ class BcsWriter {
    * @returns {this}
    */
   write64(value) {
-    toLittleEndian(BigInt(value), 8).forEach((el) => this.write8(el));
+    toLittleEndian$1(BigInt(value), 8).forEach((el) => this.write8(el));
     return this;
   }
   /**
@@ -4497,7 +4550,7 @@ class BcsWriter {
    * @returns {this}
    */
   write128(value) {
-    toLittleEndian(BigInt(value), 16).forEach((el) => this.write8(el));
+    toLittleEndian$1(BigInt(value), 16).forEach((el) => this.write8(el));
     return this;
   }
   /**
@@ -4507,7 +4560,7 @@ class BcsWriter {
    * @returns {this}
    */
   write256(value) {
-    toLittleEndian(BigInt(value), 32).forEach((el) => this.write8(el));
+    toLittleEndian$1(BigInt(value), 32).forEach((el) => this.write8(el));
     return this;
   }
   /**
@@ -4517,7 +4570,7 @@ class BcsWriter {
    * @returns {this}
    */
   writeULEB(value) {
-    ulebEncode(value).forEach((el) => this.write8(el));
+    ulebEncode$1(value).forEach((el) => this.write8(el));
     return this;
   }
   /**
@@ -4555,10 +4608,10 @@ class BcsWriter {
    * @param encoding Encoding to use: 'base64' or 'hex'
    */
   toString(encoding) {
-    return encodeStr(this.toBytes(), encoding);
+    return encodeStr$1(this.toBytes(), encoding);
   }
-}
-function toLittleEndian(bigint2, size) {
+};
+function toLittleEndian$1(bigint2, size) {
   const result = new Uint8Array(size);
   let i = 0;
   while (bigint2 > 0) {
@@ -4568,28 +4621,28 @@ function toLittleEndian(bigint2, size) {
   }
   return result;
 }
-var __typeError$4 = (msg) => {
+var __typeError$8 = (msg) => {
   throw TypeError(msg);
 };
-var __accessCheck$4 = (obj, member, msg) => member.has(obj) || __typeError$4("Cannot " + msg);
-var __privateGet$4 = (obj, member, getter) => (__accessCheck$4(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
-var __privateAdd$4 = (obj, member, value) => member.has(obj) ? __typeError$4("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
-var __privateSet$4 = (obj, member, value, setter) => (__accessCheck$4(obj, member, "write to private field"), member.set(obj, value), value);
-var _write, _serialize, _schema, _bytes;
-const _BcsType = class _BcsType2 {
+var __accessCheck$8 = (obj, member, msg) => member.has(obj) || __typeError$8("Cannot " + msg);
+var __privateGet$8 = (obj, member, getter) => (__accessCheck$8(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+var __privateAdd$8 = (obj, member, value) => member.has(obj) ? __typeError$8("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+var __privateSet$8 = (obj, member, value, setter) => (__accessCheck$8(obj, member, "write to private field"), member.set(obj, value), value);
+var _write$1, _serialize$1, _schema$1, _bytes$1;
+const _BcsType$1 = class _BcsType {
   constructor(options) {
-    __privateAdd$4(this, _write);
-    __privateAdd$4(this, _serialize);
+    __privateAdd$8(this, _write$1);
+    __privateAdd$8(this, _serialize$1);
     this.name = options.name;
     this.read = options.read;
     this.serializedSize = options.serializedSize ?? (() => null);
-    __privateSet$4(this, _write, options.write);
-    __privateSet$4(this, _serialize, options.serialize ?? ((value, options2) => {
-      const writer = new BcsWriter({
+    __privateSet$8(this, _write$1, options.write);
+    __privateSet$8(this, _serialize$1, options.serialize ?? ((value, options2) => {
+      const writer = new BcsWriter$1({
         initialSize: this.serializedSize(value) ?? void 0,
         ...options2
       });
-      __privateGet$4(this, _write).call(this, value, writer);
+      __privateGet$8(this, _write$1).call(this, value, writer);
       return writer.toBytes();
     }));
     this.validate = options.validate ?? (() => {
@@ -4597,24 +4650,24 @@ const _BcsType = class _BcsType2 {
   }
   write(value, writer) {
     this.validate(value);
-    __privateGet$4(this, _write).call(this, value, writer);
+    __privateGet$8(this, _write$1).call(this, value, writer);
   }
   serialize(value, options) {
     this.validate(value);
-    return new SerializedBcs(this, __privateGet$4(this, _serialize).call(this, value, options));
+    return new SerializedBcs$1(this, __privateGet$8(this, _serialize$1).call(this, value, options));
   }
   parse(bytes) {
-    const reader = new BcsReader(bytes);
+    const reader = new BcsReader$1(bytes);
     return this.read(reader);
   }
   fromHex(hex) {
-    return this.parse(fromHex(hex));
+    return this.parse(fromHEX$1(hex));
   }
   fromBase58(b64) {
-    return this.parse(fromBase58(b64));
+    return this.parse(fromB58$1(b64));
   }
   fromBase64(b64) {
-    return this.parse(fromBase64(b64));
+    return this.parse(fromB64$1(b64));
   }
   transform({
     name,
@@ -4622,109 +4675,111 @@ const _BcsType = class _BcsType2 {
     output,
     validate: validate2
   }) {
-    return new _BcsType2({
+    return new _BcsType({
       name: name ?? this.name,
       read: (reader) => output ? output(this.read(reader)) : this.read(reader),
-      write: (value, writer) => __privateGet$4(this, _write).call(this, input ? input(value) : value, writer),
+      write: (value, writer) => __privateGet$8(this, _write$1).call(this, input ? input(value) : value, writer),
       serializedSize: (value) => this.serializedSize(input ? input(value) : value),
-      serialize: (value, options) => __privateGet$4(this, _serialize).call(this, input ? input(value) : value, options),
+      serialize: (value, options) => __privateGet$8(this, _serialize$1).call(this, input ? input(value) : value, options),
       validate: (value) => {
-        validate2?.(value);
+        validate2 == null ? void 0 : validate2(value);
         this.validate(input ? input(value) : value);
       }
     });
   }
 };
-_write = /* @__PURE__ */ new WeakMap();
-_serialize = /* @__PURE__ */ new WeakMap();
-let BcsType = _BcsType;
-const SERIALIZED_BCS_BRAND = Symbol.for("@iota/serialized-bcs");
-function isSerializedBcs(obj) {
-  return !!obj && typeof obj === "object" && obj[SERIALIZED_BCS_BRAND] === true;
+_write$1 = /* @__PURE__ */ new WeakMap();
+_serialize$1 = /* @__PURE__ */ new WeakMap();
+let BcsType$1 = _BcsType$1;
+const SERIALIZED_BCS_BRAND$1 = Symbol.for("@iota/serialized-bcs");
+function isSerializedBcs$1(obj) {
+  return !!obj && typeof obj === "object" && obj[SERIALIZED_BCS_BRAND$1] === true;
 }
-class SerializedBcs {
+let SerializedBcs$1 = class SerializedBcs {
   constructor(type, schema) {
-    __privateAdd$4(this, _schema);
-    __privateAdd$4(this, _bytes);
-    __privateSet$4(this, _schema, type);
-    __privateSet$4(this, _bytes, schema);
+    __privateAdd$8(this, _schema$1);
+    __privateAdd$8(this, _bytes$1);
+    __privateSet$8(this, _schema$1, type);
+    __privateSet$8(this, _bytes$1, schema);
   }
   // Used to brand SerializedBcs so that they can be identified, even between multiple copies
   // of the @iota/bcs package are installed
-  get [SERIALIZED_BCS_BRAND]() {
+  get [SERIALIZED_BCS_BRAND$1]() {
     return true;
   }
   toBytes() {
-    return __privateGet$4(this, _bytes);
+    return __privateGet$8(this, _bytes$1);
   }
   toHex() {
-    return toHex(__privateGet$4(this, _bytes));
+    return toHEX$1(__privateGet$8(this, _bytes$1));
   }
   toBase64() {
-    return toBase64(__privateGet$4(this, _bytes));
+    return toB64$1(__privateGet$8(this, _bytes$1));
   }
   toBase58() {
-    return toBase58(__privateGet$4(this, _bytes));
+    return toB58$1(__privateGet$8(this, _bytes$1));
   }
   parse() {
-    return __privateGet$4(this, _schema).parse(__privateGet$4(this, _bytes));
+    return __privateGet$8(this, _schema$1).parse(__privateGet$8(this, _bytes$1));
   }
-}
-_schema = /* @__PURE__ */ new WeakMap();
-_bytes = /* @__PURE__ */ new WeakMap();
-function fixedSizeBcsType({
+};
+_schema$1 = /* @__PURE__ */ new WeakMap();
+_bytes$1 = /* @__PURE__ */ new WeakMap();
+function fixedSizeBcsType$1({
   size,
   ...options
 }) {
-  return new BcsType({
+  return new BcsType$1({
     ...options,
     serializedSize: () => size
   });
 }
-function uIntBcsType({
+function uIntBcsType$1({
   readMethod,
   writeMethod,
   ...options
 }) {
-  return fixedSizeBcsType({
+  return fixedSizeBcsType$1({
     ...options,
     read: (reader) => reader[readMethod](),
     write: (value, writer) => writer[writeMethod](value),
     validate: (value) => {
+      var _a2;
       if (value < 0 || value > options.maxValue) {
         throw new TypeError(
           `Invalid ${options.name} value: ${value}. Expected value in range 0-${options.maxValue}`
         );
       }
-      options.validate?.(value);
+      (_a2 = options.validate) == null ? void 0 : _a2.call(options, value);
     }
   });
 }
-function bigUIntBcsType({
+function bigUIntBcsType$1({
   readMethod,
   writeMethod,
   ...options
 }) {
-  return fixedSizeBcsType({
+  return fixedSizeBcsType$1({
     ...options,
     read: (reader) => reader[readMethod](),
     write: (value, writer) => writer[writeMethod](BigInt(value)),
     validate: (val) => {
+      var _a2;
       const value = BigInt(val);
       if (value < 0 || value > options.maxValue) {
         throw new TypeError(
           `Invalid ${options.name} value: ${value}. Expected value in range 0-${options.maxValue}`
         );
       }
-      options.validate?.(value);
+      (_a2 = options.validate) == null ? void 0 : _a2.call(options, value);
     }
   });
 }
-function dynamicSizeBcsType({
+function dynamicSizeBcsType$1({
   serialize,
   ...options
 }) {
-  const type = new BcsType({
+  const type = new BcsType$1({
     ...options,
     serialize,
     write: (value, writer) => {
@@ -4735,12 +4790,12 @@ function dynamicSizeBcsType({
   });
   return type;
 }
-function stringLikeBcsType({
+function stringLikeBcsType$1({
   toBytes: toBytes2,
   fromBytes,
   ...options
 }) {
-  return new BcsType({
+  return new BcsType$1({
     ...options,
     read: (reader) => {
       const length = reader.readULEB();
@@ -4756,21 +4811,22 @@ function stringLikeBcsType({
     },
     serialize: (value) => {
       const bytes = toBytes2(value);
-      const size = ulebEncode(bytes.length);
+      const size = ulebEncode$1(bytes.length);
       const result = new Uint8Array(size.length + bytes.length);
       result.set(size, 0);
       result.set(bytes, size.length);
       return result;
     },
     validate: (value) => {
+      var _a2;
       if (typeof value !== "string") {
         throw new TypeError(`Invalid ${options.name} value: ${value}. Expected string`);
       }
-      options.validate?.(value);
+      (_a2 = options.validate) == null ? void 0 : _a2.call(options, value);
     }
   });
 }
-function lazyBcsType(cb) {
+function lazyBcsType$1(cb) {
   let lazyType = null;
   function getType() {
     if (!lazyType) {
@@ -4778,7 +4834,7 @@ function lazyBcsType(cb) {
     }
     return lazyType;
   }
-  return new BcsType({
+  return new BcsType$1({
     name: "lazy",
     read: (data) => getType().read(data),
     serializedSize: (value) => getType().serializedSize(value),
@@ -4786,14 +4842,14 @@ function lazyBcsType(cb) {
     serialize: (value, options) => getType().serialize(value, options).toBytes()
   });
 }
-const bcs = {
+const bcs$1 = {
   /**
    * Creates a BcsType that can be used to read and write an 8-bit unsigned integer.
    * @example
    * bcs.u8().serialize(255).toBytes() // Uint8Array [ 255 ]
    */
   u8(options) {
-    return uIntBcsType({
+    return uIntBcsType$1({
       name: "u8",
       readMethod: "read8",
       writeMethod: "write8",
@@ -4808,7 +4864,7 @@ const bcs = {
    * bcs.u16().serialize(65535).toBytes() // Uint8Array [ 255, 255 ]
    */
   u16(options) {
-    return uIntBcsType({
+    return uIntBcsType$1({
       name: "u16",
       readMethod: "read16",
       writeMethod: "write16",
@@ -4823,7 +4879,7 @@ const bcs = {
    * bcs.u32().serialize(4294967295).toBytes() // Uint8Array [ 255, 255, 255, 255 ]
    */
   u32(options) {
-    return uIntBcsType({
+    return uIntBcsType$1({
       name: "u32",
       readMethod: "read32",
       writeMethod: "write32",
@@ -4838,7 +4894,7 @@ const bcs = {
    * bcs.u64().serialize(1).toBytes() // Uint8Array [ 1, 0, 0, 0, 0, 0, 0, 0 ]
    */
   u64(options) {
-    return bigUIntBcsType({
+    return bigUIntBcsType$1({
       name: "u64",
       readMethod: "read64",
       writeMethod: "write64",
@@ -4853,7 +4909,7 @@ const bcs = {
    * bcs.u128().serialize(1).toBytes() // Uint8Array [ 1, ..., 0 ]
    */
   u128(options) {
-    return bigUIntBcsType({
+    return bigUIntBcsType$1({
       name: "u128",
       readMethod: "read128",
       writeMethod: "write128",
@@ -4868,7 +4924,7 @@ const bcs = {
    * bcs.u256().serialize(1).toBytes() // Uint8Array [ 1, ..., 0 ]
    */
   u256(options) {
-    return bigUIntBcsType({
+    return bigUIntBcsType$1({
       name: "u256",
       readMethod: "read256",
       writeMethod: "write256",
@@ -4883,14 +4939,15 @@ const bcs = {
    * bcs.bool().serialize(true).toBytes() // Uint8Array [ 1 ]
    */
   bool(options) {
-    return fixedSizeBcsType({
+    return fixedSizeBcsType$1({
       name: "bool",
       size: 1,
       read: (reader) => reader.read8() === 1,
       write: (value, writer) => writer.write8(value ? 1 : 0),
       ...options,
       validate: (value) => {
-        options?.validate?.(value);
+        var _a2;
+        (_a2 = options == null ? void 0 : options.validate) == null ? void 0 : _a2.call(options, value);
         if (typeof value !== "boolean") {
           throw new TypeError(`Expected boolean, found ${typeof value}`);
         }
@@ -4903,11 +4960,11 @@ const bcs = {
    *
    */
   uleb128(options) {
-    return dynamicSizeBcsType({
+    return dynamicSizeBcsType$1({
       name: "uleb128",
       read: (reader) => reader.readULEB(),
       serialize: (value) => {
-        return Uint8Array.from(ulebEncode(value));
+        return Uint8Array.from(ulebEncode$1(value));
       },
       ...options
     });
@@ -4919,7 +4976,7 @@ const bcs = {
    * bcs.bytes(3).serialize(new Uint8Array([1, 2, 3])).toBytes() // Uint8Array [1, 2, 3]
    */
   bytes(size, options) {
-    return fixedSizeBcsType({
+    return fixedSizeBcsType$1({
       name: `bytes[${size}]`,
       size,
       read: (reader) => reader.readBytes(size),
@@ -4930,7 +4987,8 @@ const bcs = {
       },
       ...options,
       validate: (value) => {
-        options?.validate?.(value);
+        var _a2;
+        (_a2 = options == null ? void 0 : options.validate) == null ? void 0 : _a2.call(options, value);
         if (!value || typeof value !== "object" || !("length" in value)) {
           throw new TypeError(`Expected array, found ${typeof value}`);
         }
@@ -4947,7 +5005,7 @@ const bcs = {
    * bcs.byteVector().serialize([1, 2, 3]).toBytes() // Uint8Array [3, 1, 2, 3]
    */
   byteVector(options) {
-    return new BcsType({
+    return new BcsType$1({
       name: `bytesVector`,
       read: (reader) => {
         const length = reader.readULEB();
@@ -4963,10 +5021,11 @@ const bcs = {
       ...options,
       serializedSize: (value) => {
         const length = "length" in value ? value.length : null;
-        return length == null ? null : ulebEncode(length).length + length;
+        return length == null ? null : ulebEncode$1(length).length + length;
       },
       validate: (value) => {
-        options?.validate?.(value);
+        var _a2;
+        (_a2 = options == null ? void 0 : options.validate) == null ? void 0 : _a2.call(options, value);
         if (!value || typeof value !== "object" || !("length" in value)) {
           throw new TypeError(`Expected array, found ${typeof value}`);
         }
@@ -4979,7 +5038,7 @@ const bcs = {
    * bcs.string().serialize('a').toBytes() // Uint8Array [ 1, 97 ]
    */
   string(options) {
-    return stringLikeBcsType({
+    return stringLikeBcsType$1({
       name: "string",
       toBytes: (value) => new TextEncoder().encode(value),
       fromBytes: (bytes) => new TextDecoder().decode(bytes),
@@ -4994,7 +5053,7 @@ const bcs = {
    * bcs.fixedArray(3, bcs.u8()).serialize([1, 2, 3]).toBytes() // Uint8Array [ 1, 2, 3 ]
    */
   fixedArray(size, type, options) {
-    return new BcsType({
+    return new BcsType$1({
       name: `${type.name}[${size}]`,
       read: (reader) => {
         const result = new Array(size);
@@ -5010,7 +5069,8 @@ const bcs = {
       },
       ...options,
       validate: (value) => {
-        options?.validate?.(value);
+        var _a2;
+        (_a2 = options == null ? void 0 : options.validate) == null ? void 0 : _a2.call(options, value);
         if (!value || typeof value !== "object" || !("length" in value)) {
           throw new TypeError(`Expected array, found ${typeof value}`);
         }
@@ -5028,7 +5088,7 @@ const bcs = {
    * bcs.option(bcs.u8()).serialize(1).toBytes() // Uint8Array [ 1, 1 ]
    */
   option(type) {
-    return bcs.enum(`Option<${type.name}>`, {
+    return bcs$1.enum(`Option<${type.name}>`, {
       None: null,
       Some: type
     }).transform({
@@ -5054,7 +5114,7 @@ const bcs = {
    * bcs.vector(bcs.u8()).toBytes([1, 2, 3]) // Uint8Array [ 3, 1, 2, 3 ]
    */
   vector(type, options) {
-    return new BcsType({
+    return new BcsType$1({
       name: `vector<${type.name}>`,
       read: (reader) => {
         const length = reader.readULEB();
@@ -5072,7 +5132,8 @@ const bcs = {
       },
       ...options,
       validate: (value) => {
-        options?.validate?.(value);
+        var _a2;
+        (_a2 = options == null ? void 0 : options.validate) == null ? void 0 : _a2.call(options, value);
         if (!value || typeof value !== "object" || !("length" in value)) {
           throw new TypeError(`Expected array, found ${typeof value}`);
         }
@@ -5088,7 +5149,7 @@ const bcs = {
    * tuple.serialize([1, 'a', true]).toBytes() // Uint8Array [ 1, 1, 97, 1 ]
    */
   tuple(types, options) {
-    return new BcsType({
+    return new BcsType$1({
       name: `(${types.map((t) => t.name).join(", ")})`,
       serializedSize: (values) => {
         let total = 0;
@@ -5115,7 +5176,8 @@ const bcs = {
       },
       ...options,
       validate: (value) => {
-        options?.validate?.(value);
+        var _a2;
+        (_a2 = options == null ? void 0 : options.validate) == null ? void 0 : _a2.call(options, value);
         if (!Array.isArray(value)) {
           throw new TypeError(`Expected array, found ${typeof value}`);
         }
@@ -5141,7 +5203,7 @@ const bcs = {
    */
   struct(name, fields, options) {
     const canonicalOrder = Object.entries(fields);
-    return new BcsType({
+    return new BcsType$1({
       name,
       serializedSize: (values) => {
         let total = 0;
@@ -5168,7 +5230,8 @@ const bcs = {
       },
       ...options,
       validate: (value) => {
-        options?.validate?.(value);
+        var _a2;
+        (_a2 = options == null ? void 0 : options.validate) == null ? void 0 : _a2.call(options, value);
         if (typeof value !== "object" || value == null) {
           throw new TypeError(`Expected object, found ${typeof value}`);
         }
@@ -5193,7 +5256,7 @@ const bcs = {
    */
   enum(name, values, options) {
     const canonicalOrder = Object.entries(values);
-    return new BcsType({
+    return new BcsType$1({
       name,
       read: (reader) => {
         const index2 = reader.readULEB();
@@ -5203,7 +5266,7 @@ const bcs = {
         }
         const [kind, type] = enumEntry;
         return {
-          [kind]: type?.read(reader) ?? true,
+          [kind]: (type == null ? void 0 : type.read(reader)) ?? true,
           $kind: kind
         };
       },
@@ -5215,14 +5278,15 @@ const bcs = {
           const [optionName, optionType] = canonicalOrder[i];
           if (optionName === name2) {
             writer.writeULEB(i);
-            optionType?.write(val, writer);
+            optionType == null ? void 0 : optionType.write(val, writer);
             return;
           }
         }
       },
       ...options,
       validate: (value) => {
-        options?.validate?.(value);
+        var _a2;
+        (_a2 = options == null ? void 0 : options.validate) == null ? void 0 : _a2.call(options, value);
         if (typeof value !== "object" || value == null) {
           throw new TypeError(`Expected object, found ${typeof value}`);
         }
@@ -5250,7 +5314,7 @@ const bcs = {
    * map.serialize(new Map([[2, 'a']])).toBytes() // Uint8Array [ 1, 2, 1, 97 ]
    */
   map(keyType, valueType) {
-    return bcs.vector(bcs.tuple([keyType, valueType])).transform({
+    return bcs$1.vector(bcs$1.tuple([keyType, valueType])).transform({
       name: `Map<${keyType.name}, ${valueType.name}>`,
       input: (value) => {
         return [...value.entries()];
@@ -5269,74 +5333,49 @@ const bcs = {
    * @param cb A callback that returns the BcsType
    */
   lazy(cb) {
-    return lazyBcsType(cb);
+    return lazyBcsType$1(cb);
   }
 };
 const TX_DIGEST_LENGTH = 32;
 function isValidTransactionDigest(value) {
   try {
-    const buffer = fromB58(value);
+    const buffer = fromB58$1(value);
     return buffer.length === TX_DIGEST_LENGTH;
   } catch (e) {
     return false;
   }
 }
-const IOTA_ADDRESS_LENGTH = 32;
-function isValidIotaAddress(value) {
-  return isHex(value) && getHexByteLength(value) === IOTA_ADDRESS_LENGTH;
+const IOTA_ADDRESS_LENGTH$1 = 32;
+function isValidIotaAddress$1(value) {
+  return isHex$1(value) && getHexByteLength$1(value) === IOTA_ADDRESS_LENGTH$1;
 }
 function isValidIotaObjectId(value) {
-  return isValidIotaAddress(value);
+  return isValidIotaAddress$1(value);
 }
-function parseTypeTag(type) {
-  if (!type.includes("::")) return type;
-  return parseStructTag(type);
-}
-function parseStructTag(type) {
-  const [address, module] = type.split("::");
-  const rest = type.slice(address.length + module.length + 4);
-  const name = rest.includes("<") ? rest.slice(0, rest.indexOf("<")) : rest;
-  const typeParams = rest.includes("<") ? splitGenericParameters(rest.slice(rest.indexOf("<") + 1, rest.lastIndexOf(">"))).map(
-    (typeParam) => parseTypeTag(typeParam.trim())
-  ) : [];
-  return {
-    address: normalizeIotaAddress(address),
-    module,
-    name,
-    typeParams
-  };
-}
-function normalizeStructTag(type) {
-  const { address, module, name, typeParams } = typeof type === "string" ? parseStructTag(type) : type;
-  const formattedTypeParams = typeParams?.length > 0 ? `<${typeParams.map(
-    (typeParam) => typeof typeParam === "string" ? typeParam : normalizeStructTag(typeParam)
-  ).join(",")}>` : "";
-  return `${address}::${module}::${name}${formattedTypeParams}`;
-}
-function normalizeIotaAddress(value, forceAdd0x = false, validate2 = false) {
+function normalizeIotaAddress$1(value, forceAdd0x = false, validate2 = false) {
   let address = value.toLowerCase().replace(/ /g, "");
   if (!forceAdd0x && address.startsWith("0x")) {
     address = address.slice(2);
   }
-  address = `0x${address.padStart(IOTA_ADDRESS_LENGTH * 2, "0")}`;
-  if (validate2 && !isValidIotaAddress(address)) {
+  address = `0x${address.padStart(IOTA_ADDRESS_LENGTH$1 * 2, "0")}`;
+  if (validate2 && !isValidIotaAddress$1(address)) {
     throw new Error(`Invalid IOTA address: ${value}`);
   } else {
     return address;
   }
 }
-function normalizeIotaObjectId(value, forceAdd0x = false, validate2 = false) {
-  return normalizeIotaAddress(value, forceAdd0x, validate2);
+function normalizeIotaObjectId$1(value, forceAdd0x = false, validate2 = false) {
+  return normalizeIotaAddress$1(value, forceAdd0x, validate2);
 }
-function isHex(value) {
+function isHex$1(value) {
   return /^(0x|0X)?[a-fA-F0-9]+$/.test(value) && value.length % 2 === 0;
 }
-function getHexByteLength(value) {
+function getHexByteLength$1(value) {
   return /^(0x|0X)/.test(value) ? (value.length - 2) / 2 : value.length / 2;
 }
-const VECTOR_REGEX = /^vector<(.+)>$/;
-const STRUCT_REGEX = /^([^:]+)::([^:]+)::([^<]+)(<(.+)>)?/;
-class TypeTagSerializer {
+const VECTOR_REGEX$1 = /^vector<(.+)>$/;
+const STRUCT_REGEX$1 = /^([^:]+)::([^:]+)::([^<]+)(<(.+)>)?/;
+let TypeTagSerializer$1 = class TypeTagSerializer {
   static parseFromStr(str, normalizeAddress = false) {
     if (str === "address") {
       return { address: null };
@@ -5357,15 +5396,15 @@ class TypeTagSerializer {
     } else if (str === "signer") {
       return { signer: null };
     }
-    const vectorMatch = str.match(VECTOR_REGEX);
+    const vectorMatch = str.match(VECTOR_REGEX$1);
     if (vectorMatch) {
       return {
         vector: TypeTagSerializer.parseFromStr(vectorMatch[1], normalizeAddress)
       };
     }
-    const structMatch = str.match(STRUCT_REGEX);
+    const structMatch = str.match(STRUCT_REGEX$1);
     if (structMatch) {
-      const address = normalizeAddress ? normalizeIotaAddress(structMatch[1]) : structMatch[1];
+      const address = normalizeAddress ? normalizeIotaAddress$1(structMatch[1]) : structMatch[1];
       return {
         struct: {
           address,
@@ -5381,7 +5420,7 @@ class TypeTagSerializer {
     throw new Error(`Encountered unexpected token when parsing type args for ${str}`);
   }
   static parseStructTypeArgs(str, normalizeAddress = false) {
-    return splitGenericParameters(str).map(
+    return splitGenericParameters$1(str).map(
       (tok) => TypeTagSerializer.parseFromStr(tok, normalizeAddress)
     );
   }
@@ -5423,9 +5462,9 @@ class TypeTagSerializer {
     }
     throw new Error("Invalid TypeTag");
   }
-}
-function unsafe_u64(options) {
-  return bcs.u64({
+};
+function unsafe_u64$1(options) {
+  return bcs$1.u64({
     name: "unsafe_u64",
     ...options
   }).transform({
@@ -5433,141 +5472,141 @@ function unsafe_u64(options) {
     output: (val) => Number(val)
   });
 }
-function optionEnum(type) {
-  return bcs.enum("Option", {
+function optionEnum$1(type) {
+  return bcs$1.enum("Option", {
     None: null,
     Some: type
   });
 }
-const Address = bcs.bytes(IOTA_ADDRESS_LENGTH).transform({
+const Address$1 = bcs$1.bytes(IOTA_ADDRESS_LENGTH$1).transform({
   validate: (val) => {
-    const address = typeof val === "string" ? val : toHex(val);
-    if (!address || !isValidIotaAddress(normalizeIotaAddress(address))) {
+    const address = typeof val === "string" ? val : toHEX$1(val);
+    if (!address || !isValidIotaAddress$1(normalizeIotaAddress$1(address))) {
       throw new Error(`Invalid IOTA address ${address}`);
     }
   },
-  input: (val) => typeof val === "string" ? fromHex(normalizeIotaAddress(val)) : val,
-  output: (val) => normalizeIotaAddress(toHex(val))
+  input: (val) => typeof val === "string" ? fromHEX$1(normalizeIotaAddress$1(val)) : val,
+  output: (val) => normalizeIotaAddress$1(toHEX$1(val))
 });
-const ObjectDigest = bcs.vector(bcs.u8()).transform({
+const ObjectDigest$1 = bcs$1.vector(bcs$1.u8()).transform({
   name: "ObjectDigest",
-  input: (value) => fromBase58(value),
-  output: (value) => toBase58(new Uint8Array(value)),
+  input: (value) => fromB58$1(value),
+  output: (value) => toB58$1(new Uint8Array(value)),
   validate: (value) => {
-    if (fromBase58(value).length !== 32) {
+    if (fromB58$1(value).length !== 32) {
       throw new Error("ObjectDigest must be 32 bytes");
     }
   }
 });
-const IotaObjectRef = bcs.struct("IotaObjectRef", {
-  objectId: Address,
-  version: bcs.u64(),
-  digest: ObjectDigest
+const IotaObjectRef$1 = bcs$1.struct("IotaObjectRef", {
+  objectId: Address$1,
+  version: bcs$1.u64(),
+  digest: ObjectDigest$1
 });
-const SharedObjectRef = bcs.struct("SharedObjectRef", {
-  objectId: Address,
-  initialSharedVersion: bcs.u64(),
-  mutable: bcs.bool()
+const SharedObjectRef$1 = bcs$1.struct("SharedObjectRef", {
+  objectId: Address$1,
+  initialSharedVersion: bcs$1.u64(),
+  mutable: bcs$1.bool()
 });
-const ObjectArg$3 = bcs.enum("ObjectArg", {
-  ImmOrOwnedObject: IotaObjectRef,
-  SharedObject: SharedObjectRef,
-  Receiving: IotaObjectRef
+const ObjectArg$7 = bcs$1.enum("ObjectArg", {
+  ImmOrOwnedObject: IotaObjectRef$1,
+  SharedObject: SharedObjectRef$1,
+  Receiving: IotaObjectRef$1
 });
-const Owner = bcs.enum("Owner", {
-  AddressOwner: Address,
-  ObjectOwner: Address,
-  Shared: bcs.struct("Shared", {
-    initialSharedVersion: bcs.u64()
+const Owner$1 = bcs$1.enum("Owner", {
+  AddressOwner: Address$1,
+  ObjectOwner: Address$1,
+  Shared: bcs$1.struct("Shared", {
+    initialSharedVersion: bcs$1.u64()
   }),
   Immutable: null
 });
-const CallArg$2 = bcs.enum("CallArg", {
-  Pure: bcs.struct("Pure", {
-    bytes: bcs.vector(bcs.u8()).transform({
-      input: (val) => typeof val === "string" ? fromBase64(val) : val,
-      output: (val) => toBase64(new Uint8Array(val))
+const CallArg$5 = bcs$1.enum("CallArg", {
+  Pure: bcs$1.struct("Pure", {
+    bytes: bcs$1.vector(bcs$1.u8()).transform({
+      input: (val) => typeof val === "string" ? fromB64$1(val) : val,
+      output: (val) => toB64$1(new Uint8Array(val))
     })
   }),
-  Object: ObjectArg$3
+  Object: ObjectArg$7
 });
-const InnerTypeTag = bcs.enum("TypeTag", {
+const InnerTypeTag$1 = bcs$1.enum("TypeTag", {
   bool: null,
   u8: null,
   u64: null,
   u128: null,
   address: null,
   signer: null,
-  vector: bcs.lazy(() => InnerTypeTag),
-  struct: bcs.lazy(() => StructTag$1),
+  vector: bcs$1.lazy(() => InnerTypeTag$1),
+  struct: bcs$1.lazy(() => StructTag$3),
   u16: null,
   u32: null,
   u256: null
 });
-const TypeTag$1 = InnerTypeTag.transform({
-  input: (typeTag) => typeof typeTag === "string" ? TypeTagSerializer.parseFromStr(typeTag, true) : typeTag,
-  output: (typeTag) => TypeTagSerializer.tagToString(typeTag)
+const TypeTag$3 = InnerTypeTag$1.transform({
+  input: (typeTag) => typeof typeTag === "string" ? TypeTagSerializer$1.parseFromStr(typeTag, true) : typeTag,
+  output: (typeTag) => TypeTagSerializer$1.tagToString(typeTag)
 });
-const Argument$2 = bcs.enum("Argument", {
+const Argument$5 = bcs$1.enum("Argument", {
   GasCoin: null,
-  Input: bcs.u16(),
-  Result: bcs.u16(),
-  NestedResult: bcs.tuple([bcs.u16(), bcs.u16()])
+  Input: bcs$1.u16(),
+  Result: bcs$1.u16(),
+  NestedResult: bcs$1.tuple([bcs$1.u16(), bcs$1.u16()])
 });
-const ProgrammableMoveCall$2 = bcs.struct("ProgrammableMoveCall", {
-  package: Address,
-  module: bcs.string(),
-  function: bcs.string(),
-  typeArguments: bcs.vector(TypeTag$1),
-  arguments: bcs.vector(Argument$2)
+const ProgrammableMoveCall$5 = bcs$1.struct("ProgrammableMoveCall", {
+  package: Address$1,
+  module: bcs$1.string(),
+  function: bcs$1.string(),
+  typeArguments: bcs$1.vector(TypeTag$3),
+  arguments: bcs$1.vector(Argument$5)
 });
-const Command$2 = bcs.enum("Command", {
+const Command$5 = bcs$1.enum("Command", {
   /**
    * A Move Call - any public Move function can be called via
    * this transaction. The results can be used that instant to pass
    * into the next transaction.
    */
-  MoveCall: ProgrammableMoveCall$2,
+  MoveCall: ProgrammableMoveCall$5,
   /**
    * Transfer vector of objects to a receiver.
    */
-  TransferObjects: bcs.struct("TransferObjects", {
-    objects: bcs.vector(Argument$2),
-    address: Argument$2
+  TransferObjects: bcs$1.struct("TransferObjects", {
+    objects: bcs$1.vector(Argument$5),
+    address: Argument$5
   }),
   // /**
   //  * Split `amount` from a `coin`.
   //  */
-  SplitCoins: bcs.struct("SplitCoins", {
-    coin: Argument$2,
-    amounts: bcs.vector(Argument$2)
+  SplitCoins: bcs$1.struct("SplitCoins", {
+    coin: Argument$5,
+    amounts: bcs$1.vector(Argument$5)
   }),
   // /**
   //  * Merge Vector of Coins (`sources`) into a `destination`.
   //  */
-  MergeCoins: bcs.struct("MergeCoins", {
-    destination: Argument$2,
-    sources: bcs.vector(Argument$2)
+  MergeCoins: bcs$1.struct("MergeCoins", {
+    destination: Argument$5,
+    sources: bcs$1.vector(Argument$5)
   }),
   // /**
   //  * Publish a Move module.
   //  */
-  Publish: bcs.struct("Publish", {
-    modules: bcs.vector(
-      bcs.vector(bcs.u8()).transform({
-        input: (val) => typeof val === "string" ? fromBase64(val) : val,
-        output: (val) => toBase64(new Uint8Array(val))
+  Publish: bcs$1.struct("Publish", {
+    modules: bcs$1.vector(
+      bcs$1.vector(bcs$1.u8()).transform({
+        input: (val) => typeof val === "string" ? fromB64$1(val) : val,
+        output: (val) => toB64$1(new Uint8Array(val))
       })
     ),
-    dependencies: bcs.vector(Address)
+    dependencies: bcs$1.vector(Address$1)
   }),
   // /**
   //  * Build a vector of objects using the input arguments.
   //  * It is impossible to export construct a `vector<T: key>` otherwise,
   //  * so this call serves a utility function.
   //  */
-  MakeMoveVec: bcs.struct("MakeMoveVec", {
-    type: optionEnum(TypeTag$1).transform({
+  MakeMoveVec: bcs$1.struct("MakeMoveVec", {
+    type: optionEnum$1(TypeTag$3).transform({
       input: (val) => val === null ? {
         None: true
       } : {
@@ -5575,325 +5614,313 @@ const Command$2 = bcs.enum("Command", {
       },
       output: (val) => val.Some ?? null
     }),
-    elements: bcs.vector(Argument$2)
+    elements: bcs$1.vector(Argument$5)
   }),
-  Upgrade: bcs.struct("Upgrade", {
-    modules: bcs.vector(
-      bcs.vector(bcs.u8()).transform({
-        input: (val) => typeof val === "string" ? fromBase64(val) : val,
-        output: (val) => toBase64(new Uint8Array(val))
+  Upgrade: bcs$1.struct("Upgrade", {
+    modules: bcs$1.vector(
+      bcs$1.vector(bcs$1.u8()).transform({
+        input: (val) => typeof val === "string" ? fromB64$1(val) : val,
+        output: (val) => toB64$1(new Uint8Array(val))
       })
     ),
-    dependencies: bcs.vector(Address),
-    package: Address,
-    ticket: Argument$2
+    dependencies: bcs$1.vector(Address$1),
+    package: Address$1,
+    ticket: Argument$5
   })
 });
-const ProgrammableTransaction = bcs.struct("ProgrammableTransaction", {
-  inputs: bcs.vector(CallArg$2),
-  commands: bcs.vector(Command$2)
+const ProgrammableTransaction$1 = bcs$1.struct("ProgrammableTransaction", {
+  inputs: bcs$1.vector(CallArg$5),
+  commands: bcs$1.vector(Command$5)
 });
-const TransactionKind = bcs.enum("TransactionKind", {
-  ProgrammableTransaction,
+const TransactionKind$1 = bcs$1.enum("TransactionKind", {
+  ProgrammableTransaction: ProgrammableTransaction$1,
   ChangeEpoch: null,
   Genesis: null,
   ConsensusCommitPrologue: null
 });
-const TransactionExpiration$3 = bcs.enum("TransactionExpiration", {
+const TransactionExpiration$7 = bcs$1.enum("TransactionExpiration", {
   None: null,
-  Epoch: unsafe_u64()
+  Epoch: unsafe_u64$1()
 });
-const StructTag$1 = bcs.struct("StructTag", {
-  address: Address,
-  module: bcs.string(),
-  name: bcs.string(),
-  typeParams: bcs.vector(InnerTypeTag)
+const StructTag$3 = bcs$1.struct("StructTag", {
+  address: Address$1,
+  module: bcs$1.string(),
+  name: bcs$1.string(),
+  typeParams: bcs$1.vector(InnerTypeTag$1)
 });
-const GasData$2 = bcs.struct("GasData", {
-  payment: bcs.vector(IotaObjectRef),
-  owner: Address,
-  price: bcs.u64(),
-  budget: bcs.u64()
+const GasData$5 = bcs$1.struct("GasData", {
+  payment: bcs$1.vector(IotaObjectRef$1),
+  owner: Address$1,
+  price: bcs$1.u64(),
+  budget: bcs$1.u64()
 });
-const TransactionDataV1 = bcs.struct("TransactionDataV1", {
-  kind: TransactionKind,
-  sender: Address,
-  gasData: GasData$2,
-  expiration: TransactionExpiration$3
+const TransactionDataV1$1 = bcs$1.struct("TransactionDataV1", {
+  kind: TransactionKind$1,
+  sender: Address$1,
+  gasData: GasData$5,
+  expiration: TransactionExpiration$7
 });
-const TransactionData$1 = bcs.enum("TransactionData", {
-  V1: TransactionDataV1
+const TransactionData$3 = bcs$1.enum("TransactionData", {
+  V1: TransactionDataV1$1
 });
-const IntentScope = bcs.enum("IntentScope", {
+const IntentScope$1 = bcs$1.enum("IntentScope", {
   TransactionData: null,
   TransactionEffects: null,
   CheckpointSummary: null,
   PersonalMessage: null
 });
-const IntentVersion = bcs.enum("IntentVersion", {
+const IntentVersion$1 = bcs$1.enum("IntentVersion", {
   V0: null
 });
-const AppId = bcs.enum("AppId", {
+const AppId$1 = bcs$1.enum("AppId", {
   Iota: null
 });
-const Intent = bcs.struct("Intent", {
-  scope: IntentScope,
-  version: IntentVersion,
-  appId: AppId
+const Intent$1 = bcs$1.struct("Intent", {
+  scope: IntentScope$1,
+  version: IntentVersion$1,
+  appId: AppId$1
 });
-function IntentMessage(T) {
-  return bcs.struct(`IntentMessage<${T.name}>`, {
-    intent: Intent,
+function IntentMessage$1(T) {
+  return bcs$1.struct(`IntentMessage<${T.name}>`, {
+    intent: Intent$1,
     value: T
   });
 }
-const CompressedSignature = bcs.enum("CompressedSignature", {
-  ED25519: bcs.fixedArray(64, bcs.u8()),
-  Secp256k1: bcs.fixedArray(64, bcs.u8()),
-  Secp256r1: bcs.fixedArray(64, bcs.u8())
+const CompressedSignature$1 = bcs$1.enum("CompressedSignature", {
+  ED25519: bcs$1.fixedArray(64, bcs$1.u8()),
+  Secp256k1: bcs$1.fixedArray(64, bcs$1.u8()),
+  Secp256r1: bcs$1.fixedArray(64, bcs$1.u8())
 });
-const PublicKey$1 = bcs.enum("PublicKey", {
-  ED25519: bcs.fixedArray(32, bcs.u8()),
-  Secp256k1: bcs.fixedArray(33, bcs.u8()),
-  Secp256r1: bcs.fixedArray(33, bcs.u8())
+const PublicKey$2 = bcs$1.enum("PublicKey", {
+  ED25519: bcs$1.fixedArray(32, bcs$1.u8()),
+  Secp256k1: bcs$1.fixedArray(33, bcs$1.u8()),
+  Secp256r1: bcs$1.fixedArray(33, bcs$1.u8())
 });
-const MultiSigPkMap = bcs.struct("MultiSigPkMap", {
-  pubKey: PublicKey$1,
-  weight: bcs.u8()
+const MultiSigPkMap$1 = bcs$1.struct("MultiSigPkMap", {
+  pubKey: PublicKey$2,
+  weight: bcs$1.u8()
 });
-const MultiSigPublicKey = bcs.struct("MultiSigPublicKey", {
-  pk_map: bcs.vector(MultiSigPkMap),
-  threshold: bcs.u16()
+const MultiSigPublicKey$1 = bcs$1.struct("MultiSigPublicKey", {
+  pk_map: bcs$1.vector(MultiSigPkMap$1),
+  threshold: bcs$1.u16()
 });
-const MultiSig = bcs.struct("MultiSig", {
-  sigs: bcs.vector(CompressedSignature),
-  bitmap: bcs.u16(),
-  multisig_pk: MultiSigPublicKey
+const MultiSig$1 = bcs$1.struct("MultiSig", {
+  sigs: bcs$1.vector(CompressedSignature$1),
+  bitmap: bcs$1.u16(),
+  multisig_pk: MultiSigPublicKey$1
 });
-const base64String = bcs.vector(bcs.u8()).transform({
-  input: (val) => typeof val === "string" ? fromBase64(val) : val,
-  output: (val) => toBase64(new Uint8Array(val))
+const base64String$1 = bcs$1.vector(bcs$1.u8()).transform({
+  input: (val) => typeof val === "string" ? fromB64$1(val) : val,
+  output: (val) => toB64$1(new Uint8Array(val))
 });
-const SenderSignedTransaction = bcs.struct("SenderSignedTransaction", {
-  intentMessage: IntentMessage(TransactionData$1),
-  txSignatures: bcs.vector(base64String)
+const SenderSignedTransaction$1 = bcs$1.struct("SenderSignedTransaction", {
+  intentMessage: IntentMessage$1(TransactionData$3),
+  txSignatures: bcs$1.vector(base64String$1)
 });
-const SenderSignedData = bcs.vector(SenderSignedTransaction, {
+const SenderSignedData$1 = bcs$1.vector(SenderSignedTransaction$1, {
   name: "SenderSignedData"
 });
-const PasskeyAuthenticator = bcs.struct("PasskeyAuthenticator", {
-  authenticatorData: bcs.vector(bcs.u8()),
-  clientDataJson: bcs.string(),
-  userSignature: bcs.vector(bcs.u8())
+const PasskeyAuthenticator = bcs$1.struct("PasskeyAuthenticator", {
+  authenticatorData: bcs$1.vector(bcs$1.u8()),
+  clientDataJson: bcs$1.string(),
+  userSignature: bcs$1.vector(bcs$1.u8())
 });
-const PackageUpgradeError = bcs.enum("PackageUpgradeError", {
-  UnableToFetchPackage: bcs.struct("UnableToFetchPackage", { packageId: Address }),
-  NotAPackage: bcs.struct("NotAPackage", { objectId: Address }),
+const PackageUpgradeError$1 = bcs$1.enum("PackageUpgradeError", {
+  UnableToFetchPackage: bcs$1.struct("UnableToFetchPackage", { packageId: Address$1 }),
+  NotAPackage: bcs$1.struct("NotAPackage", { objectId: Address$1 }),
   IncompatibleUpgrade: null,
-  DigestDoesNotMatch: bcs.struct("DigestDoesNotMatch", { digest: bcs.vector(bcs.u8()) }),
-  UnknownUpgradePolicy: bcs.struct("UnknownUpgradePolicy", { policy: bcs.u8() }),
-  PackageIDDoesNotMatch: bcs.struct("PackageIDDoesNotMatch", {
-    packageId: Address,
-    ticketId: Address
+  DigestDoesNotMatch: bcs$1.struct("DigestDoesNotMatch", { digest: bcs$1.vector(bcs$1.u8()) }),
+  UnknownUpgradePolicy: bcs$1.struct("UnknownUpgradePolicy", { policy: bcs$1.u8() }),
+  PackageIDDoesNotMatch: bcs$1.struct("PackageIDDoesNotMatch", {
+    packageId: Address$1,
+    ticketId: Address$1
   })
 });
-const ModuleId = bcs.struct("ModuleId", {
-  address: Address,
-  name: bcs.string()
+const ModuleId$1 = bcs$1.struct("ModuleId", {
+  address: Address$1,
+  name: bcs$1.string()
 });
-const MoveLocation = bcs.struct("MoveLocation", {
-  module: ModuleId,
-  function: bcs.u16(),
-  instruction: bcs.u16(),
-  functionName: bcs.option(bcs.string())
+const MoveLocation$1 = bcs$1.struct("MoveLocation", {
+  module: ModuleId$1,
+  function: bcs$1.u16(),
+  instruction: bcs$1.u16(),
+  functionName: bcs$1.option(bcs$1.string())
 });
-const CommandArgumentError = bcs.enum("CommandArgumentError", {
+const CommandArgumentError$1 = bcs$1.enum("CommandArgumentError", {
   TypeMismatch: null,
   InvalidBCSBytes: null,
   InvalidUsageOfPureArg: null,
   InvalidArgumentToPrivateEntryFunction: null,
-  IndexOutOfBounds: bcs.struct("IndexOutOfBounds", { idx: bcs.u16() }),
-  SecondaryIndexOutOfBounds: bcs.struct("SecondaryIndexOutOfBounds", {
-    resultIdx: bcs.u16(),
-    secondaryIdx: bcs.u16()
+  IndexOutOfBounds: bcs$1.struct("IndexOutOfBounds", { idx: bcs$1.u16() }),
+  SecondaryIndexOutOfBounds: bcs$1.struct("SecondaryIndexOutOfBounds", {
+    resultIdx: bcs$1.u16(),
+    secondaryIdx: bcs$1.u16()
   }),
-  InvalidResultArity: bcs.struct("InvalidResultArity", { resultIdx: bcs.u16() }),
+  InvalidResultArity: bcs$1.struct("InvalidResultArity", { resultIdx: bcs$1.u16() }),
   InvalidGasCoinUsage: null,
   InvalidValueUsage: null,
   InvalidObjectByValue: null,
   InvalidObjectByMutRef: null,
   SharedObjectOperationNotAllowed: null
 });
-const TypeArgumentError = bcs.enum("TypeArgumentError", {
+const TypeArgumentError$1 = bcs$1.enum("TypeArgumentError", {
   TypeNotFound: null,
   ConstraintNotSatisfied: null
 });
-const ExecutionFailureStatus = bcs.enum("ExecutionFailureStatus", {
+const ExecutionFailureStatus$1 = bcs$1.enum("ExecutionFailureStatus", {
   InsufficientGas: null,
   InvalidGasObject: null,
   InvariantViolation: null,
   FeatureNotYetSupported: null,
-  MoveObjectTooBig: bcs.struct("MoveObjectTooBig", {
-    objectSize: bcs.u64(),
-    maxObjectSize: bcs.u64()
+  MoveObjectTooBig: bcs$1.struct("MoveObjectTooBig", {
+    objectSize: bcs$1.u64(),
+    maxObjectSize: bcs$1.u64()
   }),
-  MovePackageTooBig: bcs.struct("MovePackageTooBig", {
-    objectSize: bcs.u64(),
-    maxObjectSize: bcs.u64()
+  MovePackageTooBig: bcs$1.struct("MovePackageTooBig", {
+    objectSize: bcs$1.u64(),
+    maxObjectSize: bcs$1.u64()
   }),
-  CircularObjectOwnership: bcs.struct("CircularObjectOwnership", { object: Address }),
+  CircularObjectOwnership: bcs$1.struct("CircularObjectOwnership", { object: Address$1 }),
   InsufficientCoinBalance: null,
   CoinBalanceOverflow: null,
   PublishErrorNonZeroAddress: null,
   IotaMoveVerificationError: null,
-  MovePrimitiveRuntimeError: bcs.option(MoveLocation),
-  MoveAbort: bcs.tuple([MoveLocation, bcs.u64()]),
+  MovePrimitiveRuntimeError: bcs$1.option(MoveLocation$1),
+  MoveAbort: bcs$1.tuple([MoveLocation$1, bcs$1.u64()]),
   VMVerificationOrDeserializationError: null,
   VMInvariantViolation: null,
   FunctionNotFound: null,
   ArityMismatch: null,
   TypeArityMismatch: null,
   NonEntryFunctionInvoked: null,
-  CommandArgumentError: bcs.struct("CommandArgumentError", {
-    argIdx: bcs.u16(),
-    kind: CommandArgumentError
+  CommandArgumentError: bcs$1.struct("CommandArgumentError", {
+    argIdx: bcs$1.u16(),
+    kind: CommandArgumentError$1
   }),
-  TypeArgumentError: bcs.struct("TypeArgumentError", {
-    argumentIdx: bcs.u16(),
-    kind: TypeArgumentError
+  TypeArgumentError: bcs$1.struct("TypeArgumentError", {
+    argumentIdx: bcs$1.u16(),
+    kind: TypeArgumentError$1
   }),
-  UnusedValueWithoutDrop: bcs.struct("UnusedValueWithoutDrop", {
-    resultIdx: bcs.u16(),
-    secondaryIdx: bcs.u16()
+  UnusedValueWithoutDrop: bcs$1.struct("UnusedValueWithoutDrop", {
+    resultIdx: bcs$1.u16(),
+    secondaryIdx: bcs$1.u16()
   }),
-  InvalidPublicFunctionReturnType: bcs.struct("InvalidPublicFunctionReturnType", {
-    idx: bcs.u16()
+  InvalidPublicFunctionReturnType: bcs$1.struct("InvalidPublicFunctionReturnType", {
+    idx: bcs$1.u16()
   }),
   InvalidTransferObject: null,
-  EffectsTooLarge: bcs.struct("EffectsTooLarge", { currentSize: bcs.u64(), maxSize: bcs.u64() }),
+  EffectsTooLarge: bcs$1.struct("EffectsTooLarge", { currentSize: bcs$1.u64(), maxSize: bcs$1.u64() }),
   PublishUpgradeMissingDependency: null,
   PublishUpgradeDependencyDowngrade: null,
-  PackageUpgradeError: bcs.struct("PackageUpgradeError", { upgradeError: PackageUpgradeError }),
-  WrittenObjectsTooLarge: bcs.struct("WrittenObjectsTooLarge", {
-    currentSize: bcs.u64(),
-    maxSize: bcs.u64()
+  PackageUpgradeError: bcs$1.struct("PackageUpgradeError", { upgradeError: PackageUpgradeError$1 }),
+  WrittenObjectsTooLarge: bcs$1.struct("WrittenObjectsTooLarge", {
+    currentSize: bcs$1.u64(),
+    maxSize: bcs$1.u64()
   }),
   CertificateDenied: null,
   IotaMoveVerificationTimedout: null,
   SharedObjectOperationNotAllowed: null,
-  InputObjectDeleted: null,
-  ExecutionCancelledDueToSharedObjectCongestion: bcs.struct(
-    "ExecutionCancelledDueToSharedObjectCongestion",
-    {
-      congestedObjects: bcs.vector(Address)
-    }
-  ),
-  AddressDeniedForCoin: bcs.struct("AddressDeniedForCoin", {
-    address: Address,
-    coinType: bcs.string()
-  }),
-  CoinTypeGlobalPause: bcs.struct("CoinTypeGlobalPause", { coinType: bcs.string() }),
-  ExecutionCancelledDueToRandomnessUnavailable: null
+  InputObjectDeleted: null
 });
-const ExecutionStatus = bcs.enum("ExecutionStatus", {
+const ExecutionStatus$1 = bcs$1.enum("ExecutionStatus", {
   Success: null,
-  Failed: bcs.struct("ExecutionFailed", {
-    error: ExecutionFailureStatus,
-    command: bcs.option(bcs.u64())
+  Failed: bcs$1.struct("ExecutionFailed", {
+    error: ExecutionFailureStatus$1,
+    command: bcs$1.option(bcs$1.u64())
   })
 });
-const GasCostSummary = bcs.struct("GasCostSummary", {
-  computationCost: bcs.u64(),
-  computationCostBurned: bcs.u64(),
-  storageCost: bcs.u64(),
-  storageRebate: bcs.u64(),
-  nonRefundableStorageFee: bcs.u64()
+const GasCostSummary$1 = bcs$1.struct("GasCostSummary", {
+  computationCost: bcs$1.u64(),
+  computationCostBurned: bcs$1.u64(),
+  storageCost: bcs$1.u64(),
+  storageRebate: bcs$1.u64(),
+  nonRefundableStorageFee: bcs$1.u64()
 });
-const VersionDigest = bcs.tuple([bcs.u64(), ObjectDigest]);
-const ObjectIn = bcs.enum("ObjectIn", {
+const VersionDigest$1 = bcs$1.tuple([bcs$1.u64(), ObjectDigest$1]);
+const ObjectIn$1 = bcs$1.enum("ObjectIn", {
   NotExist: null,
-  Exist: bcs.tuple([VersionDigest, Owner])
+  Exist: bcs$1.tuple([VersionDigest$1, Owner$1])
 });
-const ObjectOut = bcs.enum("ObjectOut", {
+const ObjectOut$1 = bcs$1.enum("ObjectOut", {
   NotExist: null,
-  ObjectWrite: bcs.tuple([ObjectDigest, Owner]),
-  PackageWrite: VersionDigest
+  ObjectWrite: bcs$1.tuple([ObjectDigest$1, Owner$1]),
+  PackageWrite: VersionDigest$1
 });
-const IDOperation = bcs.enum("IDOperation", {
+const IDOperation$1 = bcs$1.enum("IDOperation", {
   None: null,
   Created: null,
   Deleted: null
 });
-const EffectsObjectChange = bcs.struct("EffectsObjectChange", {
-  inputState: ObjectIn,
-  outputState: ObjectOut,
-  idOperation: IDOperation
+const EffectsObjectChange$1 = bcs$1.struct("EffectsObjectChange", {
+  inputState: ObjectIn$1,
+  outputState: ObjectOut$1,
+  idOperation: IDOperation$1
 });
-const UnchangedSharedKind = bcs.enum("UnchangedSharedKind", {
-  ReadOnlyRoot: VersionDigest,
-  MutateDeleted: bcs.u64(),
-  ReadDeleted: bcs.u64(),
-  Cancelled: bcs.u64(),
+const UnchangedSharedKind$1 = bcs$1.enum("UnchangedSharedKind", {
+  ReadOnlyRoot: VersionDigest$1,
+  MutateDeleted: bcs$1.u64(),
+  ReadDeleted: bcs$1.u64(),
+  Cancelled: bcs$1.u64(),
   PerEpochConfig: null
 });
-const TransactionEffectsV1 = bcs.struct("TransactionEffectsV1", {
-  status: ExecutionStatus,
-  executedEpoch: bcs.u64(),
-  gasUsed: GasCostSummary,
-  transactionDigest: ObjectDigest,
-  gasObjectIndex: bcs.option(bcs.u32()),
-  eventsDigest: bcs.option(ObjectDigest),
-  dependencies: bcs.vector(ObjectDigest),
-  lamportVersion: bcs.u64(),
-  changedObjects: bcs.vector(bcs.tuple([Address, EffectsObjectChange])),
-  unchangedSharedObjects: bcs.vector(bcs.tuple([Address, UnchangedSharedKind])),
-  auxDataDigest: bcs.option(ObjectDigest)
+const TransactionEffectsV1$1 = bcs$1.struct("TransactionEffectsV1", {
+  status: ExecutionStatus$1,
+  executedEpoch: bcs$1.u64(),
+  gasUsed: GasCostSummary$1,
+  transactionDigest: ObjectDigest$1,
+  gasObjectIndex: bcs$1.option(bcs$1.u32()),
+  eventsDigest: bcs$1.option(ObjectDigest$1),
+  dependencies: bcs$1.vector(ObjectDigest$1),
+  lamportVersion: bcs$1.u64(),
+  changedObjects: bcs$1.vector(bcs$1.tuple([Address$1, EffectsObjectChange$1])),
+  unchangedSharedObjects: bcs$1.vector(bcs$1.tuple([Address$1, UnchangedSharedKind$1])),
+  auxDataDigest: bcs$1.option(ObjectDigest$1)
 });
-const TransactionEffects = bcs.enum("TransactionEffects", {
-  V1: TransactionEffectsV1
+const TransactionEffects$1 = bcs$1.enum("TransactionEffects", {
+  V1: TransactionEffectsV1$1
 });
-const iotaBcs = {
-  ...bcs,
-  U8: bcs.u8(),
-  U16: bcs.u16(),
-  U32: bcs.u32(),
-  U64: bcs.u64(),
-  U128: bcs.u128(),
-  U256: bcs.u256(),
-  ULEB128: bcs.uleb128(),
-  Bool: bcs.bool(),
-  String: bcs.string(),
-  Address,
-  AppId,
-  Argument: Argument$2,
-  CallArg: CallArg$2,
-  CompressedSignature,
-  GasData: GasData$2,
-  Intent,
-  IntentMessage,
-  IntentScope,
-  IntentVersion,
-  MultiSig,
-  MultiSigPkMap,
-  MultiSigPublicKey,
-  ObjectArg: ObjectArg$3,
-  ObjectDigest,
-  Owner,
-  ProgrammableMoveCall: ProgrammableMoveCall$2,
-  ProgrammableTransaction,
-  PublicKey: PublicKey$1,
-  SenderSignedData,
-  SenderSignedTransaction,
-  SharedObjectRef,
-  StructTag: StructTag$1,
-  IotaObjectRef,
-  Command: Command$2,
-  TransactionData: TransactionData$1,
-  TransactionDataV1,
-  TransactionExpiration: TransactionExpiration$3,
-  TransactionKind,
-  TypeTag: TypeTag$1,
-  TransactionEffects,
+const iotaBcs$1 = {
+  ...bcs$1,
+  U8: bcs$1.u8(),
+  U16: bcs$1.u16(),
+  U32: bcs$1.u32(),
+  U64: bcs$1.u64(),
+  U128: bcs$1.u128(),
+  U256: bcs$1.u256(),
+  ULEB128: bcs$1.uleb128(),
+  Bool: bcs$1.bool(),
+  String: bcs$1.string(),
+  Address: Address$1,
+  AppId: AppId$1,
+  Argument: Argument$5,
+  CallArg: CallArg$5,
+  CompressedSignature: CompressedSignature$1,
+  GasData: GasData$5,
+  Intent: Intent$1,
+  IntentMessage: IntentMessage$1,
+  IntentScope: IntentScope$1,
+  IntentVersion: IntentVersion$1,
+  MultiSig: MultiSig$1,
+  MultiSigPkMap: MultiSigPkMap$1,
+  MultiSigPublicKey: MultiSigPublicKey$1,
+  ObjectArg: ObjectArg$7,
+  ObjectDigest: ObjectDigest$1,
+  Owner: Owner$1,
+  ProgrammableMoveCall: ProgrammableMoveCall$5,
+  ProgrammableTransaction: ProgrammableTransaction$1,
+  PublicKey: PublicKey$2,
+  SenderSignedData: SenderSignedData$1,
+  SenderSignedTransaction: SenderSignedTransaction$1,
+  SharedObjectRef: SharedObjectRef$1,
+  StructTag: StructTag$3,
+  IotaObjectRef: IotaObjectRef$1,
+  Command: Command$5,
+  TransactionData: TransactionData$3,
+  TransactionDataV1: TransactionDataV1$1,
+  TransactionExpiration: TransactionExpiration$7,
+  TransactionKind: TransactionKind$1,
+  TypeTag: TypeTag$3,
+  TransactionEffects: TransactionEffects$1,
   PasskeyAuthenticator
 };
 const SIGNATURE_SCHEME_TO_FLAG = {
@@ -6101,7 +6128,7 @@ function _abool2(value, title = "") {
 }
 function _abytes2(value, length, title = "") {
   const bytes = isBytes$1(value);
-  const len = value?.length;
+  const len = value == null ? void 0 : value.length;
   const needsLen = length !== void 0;
   if (!bytes || needsLen && len !== length) {
     const prefix = title && `"${title}" `;
@@ -9058,7 +9085,7 @@ class BLAKE2b extends BLAKE2 {
 const blake2b$1 = /* @__PURE__ */ createOptHasher((opts) => new BLAKE2b(opts));
 const blake2b = blake2b$1;
 function messageWithIntent(scope, message) {
-  return iotaBcs.IntentMessage(iotaBcs.fixedArray(message.length, iotaBcs.u8())).serialize({
+  return iotaBcs$1.IntentMessage(iotaBcs$1.fixedArray(message.length, iotaBcs$1.u8())).serialize({
     intent: {
       scope: { [scope]: true },
       version: { V0: true },
@@ -9079,7 +9106,7 @@ function bytesEqual(a, b) {
   }
   return true;
 }
-class PublicKey {
+let PublicKey$1 = class PublicKey {
   /**
    * Checks if two public keys are equal
    */
@@ -9090,7 +9117,7 @@ class PublicKey {
    * Return the base-64 representation of the public key
    */
   toBase64() {
-    return toBase64(this.toRawBytes());
+    return toB64$1(this.toRawBytes());
   }
   toString() {
     throw new Error(
@@ -9104,7 +9131,7 @@ class PublicKey {
    */
   toIotaPublicKey() {
     const bytes = this.toIotaBytes();
-    return toBase64(bytes);
+    return toB64$1(bytes);
   }
   verifyWithIntent(bytes, signature, intent) {
     const intentMessage = messageWithIntent(intent, bytes);
@@ -9116,7 +9143,7 @@ class PublicKey {
    */
   verifyPersonalMessage(message, signature) {
     return this.verifyWithIntent(
-      iotaBcs.vector(iotaBcs.u8()).serialize(message).toBytes(),
+      iotaBcs$1.vector(iotaBcs$1.u8()).serialize(message).toBytes(),
       signature,
       "PersonalMessage"
     );
@@ -9158,17 +9185,17 @@ class PublicKey {
    * Return the IOTA address associated with this Ed25519 public key
    */
   toIotaAddress() {
-    return normalizeIotaAddress(
+    return normalizeIotaAddress$1(
       bytesToHex(blake2b(this.toIotaBytesForAddress(), { dkLen: 32 })).slice(
         0,
-        IOTA_ADDRESS_LENGTH * 2
+        IOTA_ADDRESS_LENGTH$1 * 2
       )
     );
   }
-}
+};
 const PASSKEY_PUBLIC_KEY_SIZE = 33;
 const PASSKEY_SIGNATURE_SIZE = 64;
-class PasskeyPublicKey extends PublicKey {
+class PasskeyPublicKey extends PublicKey$1 {
   /**
    * Create a new PasskeyPublicKey object
    * @param value passkey public key as buffer or base-64 encoded string
@@ -9176,7 +9203,7 @@ class PasskeyPublicKey extends PublicKey {
   constructor(value) {
     super();
     if (typeof value === "string") {
-      this.data = fromB64(value);
+      this.data = fromB64$1(value);
     } else if (value instanceof Uint8Array) {
       this.data = value;
     } else {
@@ -9215,7 +9242,7 @@ class PasskeyPublicKey extends PublicKey {
     if (clientDataJSON.type !== "webauthn.get") {
       return false;
     }
-    const parsedChallenge = fromB64(
+    const parsedChallenge = fromB64$1(
       clientDataJSON.challenge.replace(/-/g, "+").replace(/_/g, "/")
     );
     if (!bytesEqual(message, parsedChallenge)) {
@@ -9235,14 +9262,14 @@ class PasskeyPublicKey extends PublicKey {
 }
 PasskeyPublicKey.SIZE = PASSKEY_PUBLIC_KEY_SIZE;
 function parseSerializedPasskeySignature(signature) {
-  const bytes = typeof signature === "string" ? fromB64(signature) : signature;
+  const bytes = typeof signature === "string" ? fromB64$1(signature) : signature;
   if (bytes[0] !== SIGNATURE_SCHEME_TO_FLAG.Passkey) {
     throw new Error("Invalid signature scheme");
   }
   const dec = PasskeyAuthenticator.parse(bytes.slice(1));
   return {
     signatureScheme: "Passkey",
-    serializedSignature: toB64(bytes),
+    serializedSignature: toB64$1(bytes),
     signature: bytes,
     authenticatorData: dec.authenticatorData,
     clientDataJson: dec.clientDataJson,
@@ -9263,16 +9290,16 @@ function toSerializedSignature({
   serializedSignature.set([SIGNATURE_SCHEME_TO_FLAG[signatureScheme]]);
   serializedSignature.set(signature, 1);
   serializedSignature.set(pubKeyBytes, 1 + signature.length);
-  return toBase64(serializedSignature);
+  return toB64$1(serializedSignature);
 }
 function parseSerializedSignature(serializedSignature) {
-  const bytes = fromBase64(serializedSignature);
+  const bytes = fromB64$1(serializedSignature);
   const signatureScheme = SIGNATURE_FLAG_TO_SCHEME[bytes[0]];
   switch (signatureScheme) {
     case "Passkey":
       return parseSerializedPasskeySignature(serializedSignature);
     case "MultiSig":
-      const multisig = iotaBcs.MultiSig.parse(bytes.slice(1));
+      const multisig = iotaBcs$1.MultiSig.parse(bytes.slice(1));
       return {
         serializedSignature,
         signatureScheme,
@@ -9691,7 +9718,7 @@ function mnemonicToSeed(mnemonics) {
   return mnemonicToSeedSync(mnemonics, "");
 }
 function mnemonicToSeedHex(mnemonics) {
-  return toHex(mnemonicToSeed(mnemonics));
+  return toHEX$1(mnemonicToSeed(mnemonics));
 }
 function getDefaultExportFromCjs(x) {
   return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
@@ -9701,12 +9728,7 @@ function getAugmentedNamespace(n) {
   var f = n.default;
   if (typeof f == "function") {
     var a = function a2() {
-      var isInstance = false;
-      try {
-        isInstance = this instanceof a2;
-      } catch {
-      }
-      if (isInstance) {
+      if (this instanceof a2) {
         return Reflect.construct(f, arguments, this.constructor);
       }
       return f.apply(this, arguments);
@@ -9909,7 +9931,7 @@ let Signer$1 = class Signer {
     });
     return {
       signature,
-      bytes: toBase64(bytes)
+      bytes: toB64$1(bytes)
     };
   }
   /**
@@ -9923,11 +9945,11 @@ let Signer$1 = class Signer {
    */
   async signPersonalMessage(bytes) {
     const { signature } = await this.signWithIntent(
-      bcs.vector(bcs.u8()).serialize(bytes).toBytes(),
+      bcs$1.vector(bcs$1.u8()).serialize(bytes).toBytes(),
       "PersonalMessage"
     );
     return {
-      bytes: toBase64(bytes),
+      bytes: toB64$1(bytes),
       signature
     };
   }
@@ -12204,7 +12226,7 @@ const pathRegex = new RegExp("^m(\\/[0-9]+')+$");
 const replaceDerive = (val) => val.replace("'", "");
 const getMasterKeyFromSeed = (seed) => {
   const h = hmac.create(sha512, ED25519_CURVE);
-  const I = h.update(fromHex(seed)).digest();
+  const I = h.update(fromHEX$1(seed)).digest();
   const IL = I.slice(0, 32);
   const IR = I.slice(32);
   return {
@@ -12249,7 +12271,7 @@ const derivePath = (path, seed, offset = HARDENED_OFFSET$1) => {
   });
 };
 const PUBLIC_KEY_SIZE = 32;
-class Ed25519PublicKey extends PublicKey {
+class Ed25519PublicKey extends PublicKey$1 {
   /**
    * Create a new Ed25519PublicKey object
    * @param value ed25519 public key as buffer or base-64 encoded string
@@ -12257,7 +12279,7 @@ class Ed25519PublicKey extends PublicKey {
   constructor(value) {
     super();
     if (typeof value === "string") {
-      this.data = fromBase64(value);
+      this.data = fromB64$1(value);
     } else if (value instanceof Uint8Array) {
       this.data = value;
     } else {
@@ -12343,17 +12365,10 @@ class Ed25519Keypair extends Keypair {
    *
    * @throws error if the provided secret key is invalid and validation is not skipped.
    *
-   * @param secretKey secret key as a byte array or Bech32 secret key string
+   * @param secretKey secret key byte array
    * @param options: skip secret key validation
    */
   static fromSecretKey(secretKey, options) {
-    if (typeof secretKey === "string") {
-      const decoded = decodeIotaPrivateKey(secretKey);
-      if (decoded.schema !== "ED25519") {
-        throw new Error(`Expected a ED25519 keypair, got ${decoded.schema}`);
-      }
-      return this.fromSecretKey(decoded.secretKey, options);
-    }
     const secretKeyLength = secretKey.length;
     if (secretKeyLength !== PRIVATE_KEY_SIZE) {
       throw new Error(
@@ -12829,7 +12844,7 @@ class HDKey {
   }
 }
 const SECP256K1_PUBLIC_KEY_SIZE = 33;
-class Secp256k1PublicKey extends PublicKey {
+class Secp256k1PublicKey extends PublicKey$1 {
   /**
    * Create a new Secp256k1PublicKey object
    * @param value secp256k1 public key as buffer or base-64 encoded string
@@ -12837,7 +12852,7 @@ class Secp256k1PublicKey extends PublicKey {
   constructor(value) {
     super();
     if (typeof value === "string") {
-      this.data = fromBase64(value);
+      this.data = fromB64$1(value);
     } else if (value instanceof Uint8Array) {
       this.data = value;
     } else {
@@ -12931,17 +12946,10 @@ class Secp256k1Keypair extends Keypair {
    *
    * @throws error if the provided secret key is invalid and validation is not skipped.
    *
-   * @param secretKey secret key byte array  or Bech32 secret key string
+   * @param secretKey secret key byte array
    * @param options: skip secret key validation
    */
   static fromSecretKey(secretKey, options) {
-    if (typeof secretKey === "string") {
-      const decoded = decodeIotaPrivateKey(secretKey);
-      if (decoded.schema !== "Secp256k1") {
-        throw new Error(`Expected a Secp256k1 keypair, got ${decoded.schema}`);
-      }
-      return this.fromSecretKey(decoded.secretKey, options);
-    }
     const publicKey = secp256k1.getPublicKey(secretKey, true);
     if (!options || !options.skipValidation) {
       const encoder = new TextEncoder();
@@ -13010,7 +13018,7 @@ class Secp256k1Keypair extends Keypair {
   }
 }
 const SECP256R1_PUBLIC_KEY_SIZE = 33;
-class Secp256r1PublicKey extends PublicKey {
+class Secp256r1PublicKey extends PublicKey$1 {
   /**
    * Create a new Secp256r1PublicKey object
    * @param value secp256r1 public key as buffer or base-64 encoded string
@@ -13018,7 +13026,7 @@ class Secp256r1PublicKey extends PublicKey {
   constructor(value) {
     super();
     if (typeof value === "string") {
-      this.data = fromBase64(value);
+      this.data = fromB64$1(value);
     } else if (value instanceof Uint8Array) {
       this.data = value;
     } else {
@@ -13112,17 +13120,10 @@ class Secp256r1Keypair extends Keypair {
    *
    * @throws error if the provided secret key is invalid and validation is not skipped.
    *
-   * @param secretKey secret key byte array or Bech32 secret key string* @param secretKey secret key byte array
+   * @param secretKey secret key byte array
    * @param options: skip secret key validation
    */
   static fromSecretKey(secretKey, options) {
-    if (typeof secretKey === "string") {
-      const decoded = decodeIotaPrivateKey(secretKey);
-      if (decoded.schema !== "Secp256r1") {
-        throw new Error(`Expected a Secp256r1 keypair, got ${decoded.schema}`);
-      }
-      return this.fromSecretKey(decoded.secretKey, options);
-    }
     const publicKey = secp256r1.getPublicKey(secretKey, true);
     if (!options || !options.skipValidation) {
       const encoder = new TextEncoder();
@@ -13184,9 +13185,9 @@ class Secp256r1Keypair extends Keypair {
     return Secp256r1Keypair.fromSecretKey(privateKey);
   }
 }
-const PACKAGE_VERSION = "1.5.0";
-const TARGETED_RPC_VERSION = "1.5.0-alpha";
-const CODE_TO_ERROR_TYPE = {
+const PACKAGE_VERSION$1 = "1.2.0";
+const TARGETED_RPC_VERSION$1 = "1.3.0-alpha";
+const CODE_TO_ERROR_TYPE$1 = {
   "-32700": "ParseError",
   "-32701": "OversizedRequest",
   "-32702": "OversizedResponse",
@@ -13204,124 +13205,125 @@ const CODE_TO_ERROR_TYPE = {
   "-32050": "TransientError",
   "-32002": "TransactionExecutionClientError"
 };
-class IotaHTTPTransportError extends Error {
-}
-class JsonRpcError extends IotaHTTPTransportError {
+let IotaHTTPTransportError$1 = class IotaHTTPTransportError extends Error {
+};
+let JsonRpcError$1 = class JsonRpcError extends IotaHTTPTransportError$1 {
   constructor(message, code) {
     super(message);
     this.code = code;
-    this.type = CODE_TO_ERROR_TYPE[code] ?? "ServerError";
+    this.type = CODE_TO_ERROR_TYPE$1[code] ?? "ServerError";
   }
-}
-class IotaHTTPStatusError extends IotaHTTPTransportError {
+};
+let IotaHTTPStatusError$1 = class IotaHTTPStatusError extends IotaHTTPTransportError$1 {
   constructor(message, status, statusText) {
     super(message);
     this.status = status;
     this.statusText = statusText;
   }
-}
-var __typeError$3 = (msg) => {
+};
+var __typeError$7 = (msg) => {
   throw TypeError(msg);
 };
-var __accessCheck$3 = (obj, member, msg) => member.has(obj) || __typeError$3("Cannot " + msg);
-var __privateGet$3 = (obj, member, getter) => (__accessCheck$3(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
-var __privateAdd$3 = (obj, member, value) => member.has(obj) ? __typeError$3("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
-var __privateSet$3 = (obj, member, value, setter) => (__accessCheck$3(obj, member, "write to private field"), member.set(obj, value), value);
-var __privateMethod$3 = (obj, member, method) => (__accessCheck$3(obj, member, "access private method"), method);
-var __privateWrapper = (obj, member, setter, getter) => ({
+var __accessCheck$7 = (obj, member, msg) => member.has(obj) || __typeError$7("Cannot " + msg);
+var __privateGet$7 = (obj, member, getter) => (__accessCheck$7(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+var __privateAdd$7 = (obj, member, value) => member.has(obj) ? __typeError$7("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+var __privateSet$7 = (obj, member, value, setter) => (__accessCheck$7(obj, member, "write to private field"), member.set(obj, value), value);
+var __privateMethod$6 = (obj, member, method) => (__accessCheck$7(obj, member, "access private method"), method);
+var __privateWrapper$1 = (obj, member, setter, getter) => ({
   set _(value) {
-    __privateSet$3(obj, member, value);
+    __privateSet$7(obj, member, value);
   },
   get _() {
-    return __privateGet$3(obj, member, getter);
+    return __privateGet$7(obj, member, getter);
   }
 });
-var _requestId$1, _disconnects, _webSocket, _connectionPromise, _subscriptions, _pendingRequests, _WebsocketClient_instances, setupWebSocket_fn, reconnect_fn;
-function getWebsocketUrl(httpUrl) {
+var _requestId$3, _disconnects$1, _webSocket$1, _connectionPromise$1, _subscriptions$1, _pendingRequests$1, _WebsocketClient_instances$1, setupWebSocket_fn$1, reconnect_fn$1;
+function getWebsocketUrl$1(httpUrl) {
   const url = new URL(httpUrl);
   url.protocol = url.protocol.replace("http", "ws");
   return url.toString();
 }
-const DEFAULT_CLIENT_OPTIONS = {
+const DEFAULT_CLIENT_OPTIONS$1 = {
   // We fudge the typing because we also check for undefined in the constructor:
   WebSocketConstructor: typeof WebSocket !== "undefined" ? WebSocket : void 0,
   callTimeout: 3e4,
   reconnectTimeout: 3e3,
   maxReconnects: 5
 };
-class WebsocketClient {
+let WebsocketClient$1 = class WebsocketClient {
   constructor(endpoint, options = {}) {
-    __privateAdd$3(this, _WebsocketClient_instances);
-    __privateAdd$3(this, _requestId$1, 0);
-    __privateAdd$3(this, _disconnects, 0);
-    __privateAdd$3(this, _webSocket, null);
-    __privateAdd$3(this, _connectionPromise, null);
-    __privateAdd$3(this, _subscriptions, /* @__PURE__ */ new Set());
-    __privateAdd$3(this, _pendingRequests, /* @__PURE__ */ new Map());
+    __privateAdd$7(this, _WebsocketClient_instances$1);
+    __privateAdd$7(this, _requestId$3, 0);
+    __privateAdd$7(this, _disconnects$1, 0);
+    __privateAdd$7(this, _webSocket$1, null);
+    __privateAdd$7(this, _connectionPromise$1, null);
+    __privateAdd$7(this, _subscriptions$1, /* @__PURE__ */ new Set());
+    __privateAdd$7(this, _pendingRequests$1, /* @__PURE__ */ new Map());
     this.endpoint = endpoint;
-    this.options = { ...DEFAULT_CLIENT_OPTIONS, ...options };
+    this.options = { ...DEFAULT_CLIENT_OPTIONS$1, ...options };
     if (!this.options.WebSocketConstructor) {
       throw new Error("Missing WebSocket constructor");
     }
     if (this.endpoint.startsWith("http")) {
-      this.endpoint = getWebsocketUrl(this.endpoint);
+      this.endpoint = getWebsocketUrl$1(this.endpoint);
     }
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async makeRequest(method, params) {
-    const webSocket = await __privateMethod$3(this, _WebsocketClient_instances, setupWebSocket_fn).call(this);
+    const webSocket = await __privateMethod$6(this, _WebsocketClient_instances$1, setupWebSocket_fn$1).call(this);
     return new Promise((resolve, reject) => {
-      __privateSet$3(this, _requestId$1, __privateGet$3(this, _requestId$1) + 1);
-      __privateGet$3(this, _pendingRequests).set(__privateGet$3(this, _requestId$1), {
+      __privateSet$7(this, _requestId$3, __privateGet$7(this, _requestId$3) + 1);
+      __privateGet$7(this, _pendingRequests$1).set(__privateGet$7(this, _requestId$3), {
         resolve,
         reject,
         timeout: setTimeout(() => {
-          __privateGet$3(this, _pendingRequests).delete(__privateGet$3(this, _requestId$1));
+          __privateGet$7(this, _pendingRequests$1).delete(__privateGet$7(this, _requestId$3));
           reject(new Error(`Request timeout: ${method}`));
         }, this.options.callTimeout)
       });
-      webSocket.send(JSON.stringify({ jsonrpc: "2.0", id: __privateGet$3(this, _requestId$1), method, params }));
+      webSocket.send(JSON.stringify({ jsonrpc: "2.0", id: __privateGet$7(this, _requestId$3), method, params }));
     }).then(({ error, result }) => {
       if (error) {
-        throw new JsonRpcError(error.message, error.code);
+        throw new JsonRpcError$1(error.message, error.code);
       }
       return result;
     });
   }
   async subscribe(input) {
-    const subscription = new RpcSubscription(input);
-    __privateGet$3(this, _subscriptions).add(subscription);
+    const subscription = new RpcSubscription$1(input);
+    __privateGet$7(this, _subscriptions$1).add(subscription);
     await subscription.subscribe(this);
     return () => subscription.unsubscribe(this);
   }
-}
-_requestId$1 = /* @__PURE__ */ new WeakMap();
-_disconnects = /* @__PURE__ */ new WeakMap();
-_webSocket = /* @__PURE__ */ new WeakMap();
-_connectionPromise = /* @__PURE__ */ new WeakMap();
-_subscriptions = /* @__PURE__ */ new WeakMap();
-_pendingRequests = /* @__PURE__ */ new WeakMap();
-_WebsocketClient_instances = /* @__PURE__ */ new WeakSet();
-setupWebSocket_fn = function() {
-  if (__privateGet$3(this, _connectionPromise)) {
-    return __privateGet$3(this, _connectionPromise);
+};
+_requestId$3 = /* @__PURE__ */ new WeakMap();
+_disconnects$1 = /* @__PURE__ */ new WeakMap();
+_webSocket$1 = /* @__PURE__ */ new WeakMap();
+_connectionPromise$1 = /* @__PURE__ */ new WeakMap();
+_subscriptions$1 = /* @__PURE__ */ new WeakMap();
+_pendingRequests$1 = /* @__PURE__ */ new WeakMap();
+_WebsocketClient_instances$1 = /* @__PURE__ */ new WeakSet();
+setupWebSocket_fn$1 = function() {
+  if (__privateGet$7(this, _connectionPromise$1)) {
+    return __privateGet$7(this, _connectionPromise$1);
   }
-  __privateSet$3(this, _connectionPromise, new Promise((resolve) => {
-    __privateGet$3(this, _webSocket)?.close();
-    __privateSet$3(this, _webSocket, new this.options.WebSocketConstructor(this.endpoint));
-    __privateGet$3(this, _webSocket).addEventListener("open", () => {
-      __privateSet$3(this, _disconnects, 0);
-      resolve(__privateGet$3(this, _webSocket));
+  __privateSet$7(this, _connectionPromise$1, new Promise((resolve) => {
+    var _a2;
+    (_a2 = __privateGet$7(this, _webSocket$1)) == null ? void 0 : _a2.close();
+    __privateSet$7(this, _webSocket$1, new this.options.WebSocketConstructor(this.endpoint));
+    __privateGet$7(this, _webSocket$1).addEventListener("open", () => {
+      __privateSet$7(this, _disconnects$1, 0);
+      resolve(__privateGet$7(this, _webSocket$1));
     });
-    __privateGet$3(this, _webSocket).addEventListener("close", () => {
-      __privateWrapper(this, _disconnects)._++;
-      if (__privateGet$3(this, _disconnects) <= this.options.maxReconnects) {
+    __privateGet$7(this, _webSocket$1).addEventListener("close", () => {
+      __privateWrapper$1(this, _disconnects$1)._++;
+      if (__privateGet$7(this, _disconnects$1) <= this.options.maxReconnects) {
         setTimeout(() => {
-          __privateMethod$3(this, _WebsocketClient_instances, reconnect_fn).call(this);
+          __privateMethod$6(this, _WebsocketClient_instances$1, reconnect_fn$1).call(this);
         }, this.options.reconnectTimeout);
       }
     });
-    __privateGet$3(this, _webSocket).addEventListener("message", ({ data }) => {
+    __privateGet$7(this, _webSocket$1).addEventListener("message", ({ data }) => {
       let json;
       try {
         json = JSON.parse(data);
@@ -13331,13 +13333,13 @@ setupWebSocket_fn = function() {
         );
         return;
       }
-      if ("id" in json && json.id != null && __privateGet$3(this, _pendingRequests).has(json.id)) {
-        const { resolve: resolve2, timeout } = __privateGet$3(this, _pendingRequests).get(json.id);
+      if ("id" in json && json.id != null && __privateGet$7(this, _pendingRequests$1).has(json.id)) {
+        const { resolve: resolve2, timeout } = __privateGet$7(this, _pendingRequests$1).get(json.id);
         clearTimeout(timeout);
         resolve2(json);
       } else if ("params" in json) {
         const { params } = json;
-        __privateGet$3(this, _subscriptions).forEach((subscription) => {
+        __privateGet$7(this, _subscriptions$1).forEach((subscription) => {
           if (subscription.subscriptionId === params.subscription) {
             if (params.subscription === subscription.subscriptionId) {
               subscription.onMessage(params.result);
@@ -13347,16 +13349,17 @@ setupWebSocket_fn = function() {
       }
     });
   }));
-  return __privateGet$3(this, _connectionPromise);
+  return __privateGet$7(this, _connectionPromise$1);
 };
-reconnect_fn = async function() {
-  __privateGet$3(this, _webSocket)?.close();
-  __privateSet$3(this, _connectionPromise, null);
+reconnect_fn$1 = async function() {
+  var _a2;
+  (_a2 = __privateGet$7(this, _webSocket$1)) == null ? void 0 : _a2.close();
+  __privateSet$7(this, _connectionPromise$1, null);
   return Promise.allSettled(
-    [...__privateGet$3(this, _subscriptions)].map((subscription) => subscription.subscribe(this))
+    [...__privateGet$7(this, _subscriptions$1)].map((subscription) => subscription.subscribe(this))
   );
 };
-class RpcSubscription {
+let RpcSubscription$1 = class RpcSubscription {
   constructor(input) {
     this.subscriptionId = null;
     this.subscribed = false;
@@ -13385,26 +13388,26 @@ class RpcSubscription {
       this.subscriptionId = newSubscriptionId;
     }
   }
-}
-var __typeError$2 = (msg) => {
+};
+var __typeError$6 = (msg) => {
   throw TypeError(msg);
 };
-var __accessCheck$2 = (obj, member, msg) => member.has(obj) || __typeError$2("Cannot " + msg);
-var __privateGet$2 = (obj, member, getter) => (__accessCheck$2(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
-var __privateAdd$2 = (obj, member, value) => member.has(obj) ? __typeError$2("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
-var __privateSet$2 = (obj, member, value, setter) => (__accessCheck$2(obj, member, "write to private field"), member.set(obj, value), value);
-var __privateMethod$2 = (obj, member, method) => (__accessCheck$2(obj, member, "access private method"), method);
-var _requestId, _options$1, _websocketClient, _IotaHTTPTransport_instances, getWebsocketClient_fn;
-class IotaHTTPTransport {
+var __accessCheck$6 = (obj, member, msg) => member.has(obj) || __typeError$6("Cannot " + msg);
+var __privateGet$6 = (obj, member, getter) => (__accessCheck$6(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+var __privateAdd$6 = (obj, member, value) => member.has(obj) ? __typeError$6("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+var __privateSet$6 = (obj, member, value, setter) => (__accessCheck$6(obj, member, "write to private field"), member.set(obj, value), value);
+var __privateMethod$5 = (obj, member, method) => (__accessCheck$6(obj, member, "access private method"), method);
+var _requestId$2, _options$2, _websocketClient$1, _IotaHTTPTransport_instances$1, getWebsocketClient_fn$1;
+let IotaHTTPTransport$1 = class IotaHTTPTransport {
   constructor(options) {
-    __privateAdd$2(this, _IotaHTTPTransport_instances);
-    __privateAdd$2(this, _requestId, 0);
-    __privateAdd$2(this, _options$1);
-    __privateAdd$2(this, _websocketClient);
-    __privateSet$2(this, _options$1, options);
+    __privateAdd$6(this, _IotaHTTPTransport_instances$1);
+    __privateAdd$6(this, _requestId$2, 0);
+    __privateAdd$6(this, _options$2);
+    __privateAdd$6(this, _websocketClient$1);
+    __privateSet$6(this, _options$2, options);
   }
   fetch(input, init2) {
-    const fetchFn = __privateGet$2(this, _options$1).fetch ?? fetch;
+    const fetchFn = __privateGet$6(this, _options$2).fetch ?? fetch;
     if (!fetchFn) {
       throw new Error(
         "The current environment does not support fetch, you can provide a fetch implementation in the options for IotaHTTPTransport."
@@ -13413,25 +13416,26 @@ class IotaHTTPTransport {
     return fetchFn(input, init2);
   }
   async request(input) {
-    __privateSet$2(this, _requestId, __privateGet$2(this, _requestId) + 1);
-    const res = await this.fetch(__privateGet$2(this, _options$1).rpc?.url ?? __privateGet$2(this, _options$1).url, {
+    var _a2, _b;
+    __privateSet$6(this, _requestId$2, __privateGet$6(this, _requestId$2) + 1);
+    const res = await this.fetch(((_a2 = __privateGet$6(this, _options$2).rpc) == null ? void 0 : _a2.url) ?? __privateGet$6(this, _options$2).url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Client-Sdk-Type": "typescript",
-        "Client-Sdk-Version": PACKAGE_VERSION,
-        "Client-Target-Api-Version": TARGETED_RPC_VERSION,
-        ...__privateGet$2(this, _options$1).rpc?.headers
+        "Client-Sdk-Version": PACKAGE_VERSION$1,
+        "Client-Target-Api-Version": TARGETED_RPC_VERSION$1,
+        ...(_b = __privateGet$6(this, _options$2).rpc) == null ? void 0 : _b.headers
       },
       body: JSON.stringify({
         jsonrpc: "2.0",
-        id: __privateGet$2(this, _requestId),
+        id: __privateGet$6(this, _requestId$2),
         method: input.method,
         params: input.params
       })
     });
     if (!res.ok) {
-      throw new IotaHTTPStatusError(
+      throw new IotaHTTPStatusError$1(
         `Unexpected status code: ${res.status}`,
         res.status,
         res.statusText
@@ -13439,57 +13443,1691 @@ class IotaHTTPTransport {
     }
     const data = await res.json();
     if ("error" in data && data.error != null) {
-      throw new JsonRpcError(data.error.message, data.error.code);
+      throw new JsonRpcError$1(data.error.message, data.error.code);
     }
     return data.result;
   }
   async subscribe(input) {
-    const unsubscribe = await __privateMethod$2(this, _IotaHTTPTransport_instances, getWebsocketClient_fn).call(this).subscribe(input);
+    const unsubscribe = await __privateMethod$5(this, _IotaHTTPTransport_instances$1, getWebsocketClient_fn$1).call(this).subscribe(input);
     return async () => !!await unsubscribe();
   }
-}
-_requestId = /* @__PURE__ */ new WeakMap();
-_options$1 = /* @__PURE__ */ new WeakMap();
-_websocketClient = /* @__PURE__ */ new WeakMap();
-_IotaHTTPTransport_instances = /* @__PURE__ */ new WeakSet();
-getWebsocketClient_fn = function() {
-  if (!__privateGet$2(this, _websocketClient)) {
-    const WebSocketConstructor = __privateGet$2(this, _options$1).WebSocketConstructor ?? WebSocket;
+};
+_requestId$2 = /* @__PURE__ */ new WeakMap();
+_options$2 = /* @__PURE__ */ new WeakMap();
+_websocketClient$1 = /* @__PURE__ */ new WeakMap();
+_IotaHTTPTransport_instances$1 = /* @__PURE__ */ new WeakSet();
+getWebsocketClient_fn$1 = function() {
+  var _a2;
+  if (!__privateGet$6(this, _websocketClient$1)) {
+    const WebSocketConstructor = __privateGet$6(this, _options$2).WebSocketConstructor ?? WebSocket;
     if (!WebSocketConstructor) {
       throw new Error(
         "The current environment does not support WebSocket, you can provide a WebSocketConstructor in the options for IotaHTTPTransport."
       );
     }
-    __privateSet$2(this, _websocketClient, new WebsocketClient(
-      __privateGet$2(this, _options$1).websocket?.url ?? __privateGet$2(this, _options$1).url,
+    __privateSet$6(this, _websocketClient$1, new WebsocketClient$1(
+      ((_a2 = __privateGet$6(this, _options$2).websocket) == null ? void 0 : _a2.url) ?? __privateGet$6(this, _options$2).url,
       {
         WebSocketConstructor,
-        ...__privateGet$2(this, _options$1).websocket
+        ...__privateGet$6(this, _options$2).websocket
       }
     ));
   }
-  return __privateGet$2(this, _websocketClient);
+  return __privateGet$6(this, _websocketClient$1);
 };
-const IOTA_DECIMALS = 9;
+const toB58 = (buffer) => base58$1.encode(buffer);
+const fromB58 = (str) => base58$1.decode(str);
+function fromB64(base64String2) {
+  return Uint8Array.from(atob(base64String2), (char) => char.charCodeAt(0));
+}
+const CHUNK_SIZE = 8192;
+function toB64(bytes) {
+  if (bytes.length < CHUNK_SIZE) {
+    return btoa(String.fromCharCode(...bytes));
+  }
+  let output = "";
+  for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
+    const chunk2 = bytes.slice(i, i + CHUNK_SIZE);
+    output += String.fromCharCode(...chunk2);
+  }
+  return btoa(output);
+}
+function fromHEX(hexStr) {
+  var _a2;
+  const normalized = hexStr.startsWith("0x") ? hexStr.slice(2) : hexStr;
+  const padded = normalized.length % 2 === 0 ? normalized : `0${normalized}}`;
+  const intArr = ((_a2 = padded.match(/.{2}/g)) == null ? void 0 : _a2.map((byte) => parseInt(byte, 16))) ?? [];
+  return Uint8Array.from(intArr);
+}
+function toHEX(bytes) {
+  return bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, "0"), "");
+}
+function ulebEncode(num) {
+  const arr = [];
+  let len = 0;
+  if (num === 0) {
+    return [0];
+  }
+  while (num > 0) {
+    arr[len] = num & 127;
+    if (num >>= 7) {
+      arr[len] |= 128;
+    }
+    len += 1;
+  }
+  return arr;
+}
+function ulebDecode(arr) {
+  let total = 0;
+  let shift = 0;
+  let len = 0;
+  while (true) {
+    const byte = arr[len];
+    len += 1;
+    total |= (byte & 127) << shift;
+    if ((byte & 128) === 0) {
+      break;
+    }
+    shift += 7;
+  }
+  return {
+    value: total,
+    length: len
+  };
+}
+class BcsReader2 {
+  /**
+   * @param {Uint8Array} data Data to use as a buffer.
+   */
+  constructor(data) {
+    this.bytePosition = 0;
+    this.dataView = new DataView(data.buffer);
+  }
+  /**
+   * Shift current cursor position by `bytes`.
+   *
+   * @param {Number} bytes Number of bytes to
+   * @returns {this} Self for possible chaining.
+   */
+  shift(bytes) {
+    this.bytePosition += bytes;
+    return this;
+  }
+  /**
+   * Read U8 value from the buffer and shift cursor by 1.
+   * @returns
+   */
+  read8() {
+    const value = this.dataView.getUint8(this.bytePosition);
+    this.shift(1);
+    return value;
+  }
+  /**
+   * Read U16 value from the buffer and shift cursor by 2.
+   * @returns
+   */
+  read16() {
+    const value = this.dataView.getUint16(this.bytePosition, true);
+    this.shift(2);
+    return value;
+  }
+  /**
+   * Read U32 value from the buffer and shift cursor by 4.
+   * @returns
+   */
+  read32() {
+    const value = this.dataView.getUint32(this.bytePosition, true);
+    this.shift(4);
+    return value;
+  }
+  /**
+   * Read U64 value from the buffer and shift cursor by 8.
+   * @returns
+   */
+  read64() {
+    const value1 = this.read32();
+    const value2 = this.read32();
+    const result = value2.toString(16) + value1.toString(16).padStart(8, "0");
+    return BigInt("0x" + result).toString(10);
+  }
+  /**
+   * Read U128 value from the buffer and shift cursor by 16.
+   */
+  read128() {
+    const value1 = BigInt(this.read64());
+    const value2 = BigInt(this.read64());
+    const result = value2.toString(16) + value1.toString(16).padStart(16, "0");
+    return BigInt("0x" + result).toString(10);
+  }
+  /**
+   * Read U128 value from the buffer and shift cursor by 32.
+   * @returns
+   */
+  read256() {
+    const value1 = BigInt(this.read128());
+    const value2 = BigInt(this.read128());
+    const result = value2.toString(16) + value1.toString(16).padStart(32, "0");
+    return BigInt("0x" + result).toString(10);
+  }
+  /**
+   * Read `num` number of bytes from the buffer and shift cursor by `num`.
+   * @param num Number of bytes to read.
+   */
+  readBytes(num) {
+    const start2 = this.bytePosition + this.dataView.byteOffset;
+    const value = new Uint8Array(this.dataView.buffer, start2, num);
+    this.shift(num);
+    return value;
+  }
+  /**
+   * Read ULEB value - an integer of varying size. Used for enum indexes and
+   * vector lengths.
+   * @returns {Number} The ULEB value.
+   */
+  readULEB() {
+    const start2 = this.bytePosition + this.dataView.byteOffset;
+    const buffer = new Uint8Array(this.dataView.buffer, start2);
+    const { value, length } = ulebDecode(buffer);
+    this.shift(length);
+    return value;
+  }
+  /**
+   * Read a BCS vector: read a length and then apply function `cb` X times
+   * where X is the length of the vector, defined as ULEB in BCS bytes.
+   * @param cb Callback to process elements of vector.
+   * @returns {Array<Any>} Array of the resulting values, returned by callback.
+   */
+  readVec(cb) {
+    const length = this.readULEB();
+    const result = [];
+    for (let i = 0; i < length; i++) {
+      result.push(cb(this, i, length));
+    }
+    return result;
+  }
+}
+function encodeStr(data, encoding) {
+  switch (encoding) {
+    case "base58":
+      return toB58(data);
+    case "base64":
+      return toB64(data);
+    case "hex":
+      return toHEX(data);
+    default:
+      throw new Error("Unsupported encoding, supported values are: base64, hex");
+  }
+}
+function splitGenericParameters(str, genericSeparators = ["<", ">"]) {
+  const [left, right] = genericSeparators;
+  const tok = [];
+  let word = "";
+  let nestedAngleBrackets = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str[i];
+    if (char === left) {
+      nestedAngleBrackets++;
+    }
+    if (char === right) {
+      nestedAngleBrackets--;
+    }
+    if (nestedAngleBrackets === 0 && char === ",") {
+      tok.push(word.trim());
+      word = "";
+      continue;
+    }
+    word += char;
+  }
+  tok.push(word.trim());
+  return tok;
+}
+class BcsWriter2 {
+  constructor({
+    initialSize = 1024,
+    maxSize = Infinity,
+    allocateSize = 1024
+  } = {}) {
+    this.bytePosition = 0;
+    this.size = initialSize;
+    this.maxSize = maxSize;
+    this.allocateSize = allocateSize;
+    this.dataView = new DataView(new ArrayBuffer(initialSize));
+  }
+  ensureSizeOrGrow(bytes) {
+    const requiredSize = this.bytePosition + bytes;
+    if (requiredSize > this.size) {
+      const nextSize = Math.min(this.maxSize, this.size + this.allocateSize);
+      if (requiredSize > nextSize) {
+        throw new Error(
+          `SizeLimitExceeded: Attempting to serialize to BCS, but buffer does not have enough size. Allocated size: ${this.size}, Max size: ${this.maxSize}, Required size: ${requiredSize}`
+        );
+      }
+      this.size = nextSize;
+      const nextBuffer = new ArrayBuffer(this.size);
+      new Uint8Array(nextBuffer).set(new Uint8Array(this.dataView.buffer));
+      this.dataView = new DataView(nextBuffer);
+    }
+  }
+  /**
+   * Shift current cursor position by `bytes`.
+   *
+   * @param {Number} bytes Number of bytes to
+   * @returns {this} Self for possible chaining.
+   */
+  shift(bytes) {
+    this.bytePosition += bytes;
+    return this;
+  }
+  /**
+   * Write a U8 value into a buffer and shift cursor position by 1.
+   * @param {Number} value Value to write.
+   * @returns {this}
+   */
+  write8(value) {
+    this.ensureSizeOrGrow(1);
+    this.dataView.setUint8(this.bytePosition, Number(value));
+    return this.shift(1);
+  }
+  /**
+   * Write a U16 value into a buffer and shift cursor position by 2.
+   * @param {Number} value Value to write.
+   * @returns {this}
+   */
+  write16(value) {
+    this.ensureSizeOrGrow(2);
+    this.dataView.setUint16(this.bytePosition, Number(value), true);
+    return this.shift(2);
+  }
+  /**
+   * Write a U32 value into a buffer and shift cursor position by 4.
+   * @param {Number} value Value to write.
+   * @returns {this}
+   */
+  write32(value) {
+    this.ensureSizeOrGrow(4);
+    this.dataView.setUint32(this.bytePosition, Number(value), true);
+    return this.shift(4);
+  }
+  /**
+   * Write a U64 value into a buffer and shift cursor position by 8.
+   * @param {bigint} value Value to write.
+   * @returns {this}
+   */
+  write64(value) {
+    toLittleEndian(BigInt(value), 8).forEach((el) => this.write8(el));
+    return this;
+  }
+  /**
+   * Write a U128 value into a buffer and shift cursor position by 16.
+   *
+   * @param {bigint} value Value to write.
+   * @returns {this}
+   */
+  write128(value) {
+    toLittleEndian(BigInt(value), 16).forEach((el) => this.write8(el));
+    return this;
+  }
+  /**
+   * Write a U256 value into a buffer and shift cursor position by 16.
+   *
+   * @param {bigint} value Value to write.
+   * @returns {this}
+   */
+  write256(value) {
+    toLittleEndian(BigInt(value), 32).forEach((el) => this.write8(el));
+    return this;
+  }
+  /**
+   * Write a ULEB value into a buffer and shift cursor position by number of bytes
+   * written.
+   * @param {Number} value Value to write.
+   * @returns {this}
+   */
+  writeULEB(value) {
+    ulebEncode(value).forEach((el) => this.write8(el));
+    return this;
+  }
+  /**
+   * Write a vector into a buffer by first writing the vector length and then calling
+   * a callback on each passed value.
+   *
+   * @param {Array<Any>} vector Array of elements to write.
+   * @param {WriteVecCb} cb Callback to call on each element of the vector.
+   * @returns {this}
+   */
+  writeVec(vector, cb) {
+    this.writeULEB(vector.length);
+    Array.from(vector).forEach((el, i) => cb(this, el, i, vector.length));
+    return this;
+  }
+  /**
+   * Adds support for iterations over the object.
+   * @returns {Uint8Array}
+   */
+  *[Symbol.iterator]() {
+    for (let i = 0; i < this.bytePosition; i++) {
+      yield this.dataView.getUint8(i);
+    }
+    return this.toBytes();
+  }
+  /**
+   * Get underlying buffer taking only value bytes (in case initial buffer size was bigger).
+   * @returns {Uint8Array} Resulting bcs.
+   */
+  toBytes() {
+    return new Uint8Array(this.dataView.buffer.slice(0, this.bytePosition));
+  }
+  /**
+   * Represent data as 'hex' or 'base64'
+   * @param encoding Encoding to use: 'base64' or 'hex'
+   */
+  toString(encoding) {
+    return encodeStr(this.toBytes(), encoding);
+  }
+}
+function toLittleEndian(bigint2, size) {
+  const result = new Uint8Array(size);
+  let i = 0;
+  while (bigint2 > 0) {
+    result[i] = Number(bigint2 % BigInt(256));
+    bigint2 = bigint2 / BigInt(256);
+    i += 1;
+  }
+  return result;
+}
+var __typeError$5 = (msg) => {
+  throw TypeError(msg);
+};
+var __accessCheck$5 = (obj, member, msg) => member.has(obj) || __typeError$5("Cannot " + msg);
+var __privateGet$5 = (obj, member, getter) => (__accessCheck$5(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+var __privateAdd$5 = (obj, member, value) => member.has(obj) ? __typeError$5("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+var __privateSet$5 = (obj, member, value, setter) => (__accessCheck$5(obj, member, "write to private field"), member.set(obj, value), value);
+var _write, _serialize, _schema, _bytes;
+const _BcsType2 = class _BcsType3 {
+  constructor(options) {
+    __privateAdd$5(this, _write);
+    __privateAdd$5(this, _serialize);
+    this.name = options.name;
+    this.read = options.read;
+    this.serializedSize = options.serializedSize ?? (() => null);
+    __privateSet$5(this, _write, options.write);
+    __privateSet$5(this, _serialize, options.serialize ?? ((value, options2) => {
+      const writer = new BcsWriter2({
+        initialSize: this.serializedSize(value) ?? void 0,
+        ...options2
+      });
+      __privateGet$5(this, _write).call(this, value, writer);
+      return writer.toBytes();
+    }));
+    this.validate = options.validate ?? (() => {
+    });
+  }
+  write(value, writer) {
+    this.validate(value);
+    __privateGet$5(this, _write).call(this, value, writer);
+  }
+  serialize(value, options) {
+    this.validate(value);
+    return new SerializedBcs2(this, __privateGet$5(this, _serialize).call(this, value, options));
+  }
+  parse(bytes) {
+    const reader = new BcsReader2(bytes);
+    return this.read(reader);
+  }
+  fromHex(hex) {
+    return this.parse(fromHEX(hex));
+  }
+  fromBase58(b64) {
+    return this.parse(fromB58(b64));
+  }
+  fromBase64(b64) {
+    return this.parse(fromB64(b64));
+  }
+  transform({
+    name,
+    input,
+    output,
+    validate: validate2
+  }) {
+    return new _BcsType3({
+      name: name ?? this.name,
+      read: (reader) => output(this.read(reader)),
+      write: (value, writer) => __privateGet$5(this, _write).call(this, input(value), writer),
+      serializedSize: (value) => this.serializedSize(input(value)),
+      serialize: (value, options) => __privateGet$5(this, _serialize).call(this, input(value), options),
+      validate: (value) => {
+        validate2 == null ? void 0 : validate2(value);
+        this.validate(input(value));
+      }
+    });
+  }
+};
+_write = /* @__PURE__ */ new WeakMap();
+_serialize = /* @__PURE__ */ new WeakMap();
+let BcsType = _BcsType2;
+const SERIALIZED_BCS_BRAND = Symbol.for("@iota/serialized-bcs");
+function isSerializedBcs(obj) {
+  return !!obj && typeof obj === "object" && obj[SERIALIZED_BCS_BRAND] === true;
+}
+class SerializedBcs2 {
+  constructor(type, schema) {
+    __privateAdd$5(this, _schema);
+    __privateAdd$5(this, _bytes);
+    __privateSet$5(this, _schema, type);
+    __privateSet$5(this, _bytes, schema);
+  }
+  // Used to brand SerializedBcs so that they can be identified, even between multiple copies
+  // of the @iota/bcs package are installed
+  get [SERIALIZED_BCS_BRAND]() {
+    return true;
+  }
+  toBytes() {
+    return __privateGet$5(this, _bytes);
+  }
+  toHex() {
+    return toHEX(__privateGet$5(this, _bytes));
+  }
+  toBase64() {
+    return toB64(__privateGet$5(this, _bytes));
+  }
+  toBase58() {
+    return toB58(__privateGet$5(this, _bytes));
+  }
+  parse() {
+    return __privateGet$5(this, _schema).parse(__privateGet$5(this, _bytes));
+  }
+}
+_schema = /* @__PURE__ */ new WeakMap();
+_bytes = /* @__PURE__ */ new WeakMap();
+function fixedSizeBcsType({
+  size,
+  ...options
+}) {
+  return new BcsType({
+    ...options,
+    serializedSize: () => size
+  });
+}
+function uIntBcsType({
+  readMethod,
+  writeMethod,
+  ...options
+}) {
+  return fixedSizeBcsType({
+    ...options,
+    read: (reader) => reader[readMethod](),
+    write: (value, writer) => writer[writeMethod](value),
+    validate: (value) => {
+      var _a2;
+      if (value < 0 || value > options.maxValue) {
+        throw new TypeError(
+          `Invalid ${options.name} value: ${value}. Expected value in range 0-${options.maxValue}`
+        );
+      }
+      (_a2 = options.validate) == null ? void 0 : _a2.call(options, value);
+    }
+  });
+}
+function bigUIntBcsType({
+  readMethod,
+  writeMethod,
+  ...options
+}) {
+  return fixedSizeBcsType({
+    ...options,
+    read: (reader) => reader[readMethod](),
+    write: (value, writer) => writer[writeMethod](BigInt(value)),
+    validate: (val) => {
+      var _a2;
+      const value = BigInt(val);
+      if (value < 0 || value > options.maxValue) {
+        throw new TypeError(
+          `Invalid ${options.name} value: ${value}. Expected value in range 0-${options.maxValue}`
+        );
+      }
+      (_a2 = options.validate) == null ? void 0 : _a2.call(options, value);
+    }
+  });
+}
+function dynamicSizeBcsType({
+  serialize,
+  ...options
+}) {
+  const type = new BcsType({
+    ...options,
+    serialize,
+    write: (value, writer) => {
+      for (const byte of type.serialize(value).toBytes()) {
+        writer.write8(byte);
+      }
+    }
+  });
+  return type;
+}
+function stringLikeBcsType({
+  toBytes: toBytes2,
+  fromBytes,
+  ...options
+}) {
+  return new BcsType({
+    ...options,
+    read: (reader) => {
+      const length = reader.readULEB();
+      const bytes = reader.readBytes(length);
+      return fromBytes(bytes);
+    },
+    write: (hex, writer) => {
+      const bytes = toBytes2(hex);
+      writer.writeULEB(bytes.length);
+      for (let i = 0; i < bytes.length; i++) {
+        writer.write8(bytes[i]);
+      }
+    },
+    serialize: (value) => {
+      const bytes = toBytes2(value);
+      const size = ulebEncode(bytes.length);
+      const result = new Uint8Array(size.length + bytes.length);
+      result.set(size, 0);
+      result.set(bytes, size.length);
+      return result;
+    },
+    validate: (value) => {
+      var _a2;
+      if (typeof value !== "string") {
+        throw new TypeError(`Invalid ${options.name} value: ${value}. Expected string`);
+      }
+      (_a2 = options.validate) == null ? void 0 : _a2.call(options, value);
+    }
+  });
+}
+function lazyBcsType(cb) {
+  let lazyType = null;
+  function getType() {
+    if (!lazyType) {
+      lazyType = cb();
+    }
+    return lazyType;
+  }
+  return new BcsType({
+    name: "lazy",
+    read: (data) => getType().read(data),
+    serializedSize: (value) => getType().serializedSize(value),
+    write: (value, writer) => getType().write(value, writer),
+    serialize: (value, options) => getType().serialize(value, options).toBytes()
+  });
+}
+const bcs = {
+  /**
+   * Creates a BcsType that can be used to read and write an 8-bit unsigned integer.
+   * @example
+   * bcs.u8().serialize(255).toBytes() // Uint8Array [ 255 ]
+   */
+  u8(options) {
+    return uIntBcsType({
+      name: "u8",
+      readMethod: "read8",
+      writeMethod: "write8",
+      size: 1,
+      maxValue: 2 ** 8 - 1,
+      ...options
+    });
+  },
+  /**
+   * Creates a BcsType that can be used to read and write a 16-bit unsigned integer.
+   * @example
+   * bcs.u16().serialize(65535).toBytes() // Uint8Array [ 255, 255 ]
+   */
+  u16(options) {
+    return uIntBcsType({
+      name: "u16",
+      readMethod: "read16",
+      writeMethod: "write16",
+      size: 2,
+      maxValue: 2 ** 16 - 1,
+      ...options
+    });
+  },
+  /**
+   * Creates a BcsType that can be used to read and write a 32-bit unsigned integer.
+   * @example
+   * bcs.u32().serialize(4294967295).toBytes() // Uint8Array [ 255, 255, 255, 255 ]
+   */
+  u32(options) {
+    return uIntBcsType({
+      name: "u32",
+      readMethod: "read32",
+      writeMethod: "write32",
+      size: 4,
+      maxValue: 2 ** 32 - 1,
+      ...options
+    });
+  },
+  /**
+   * Creates a BcsType that can be used to read and write a 64-bit unsigned integer.
+   * @example
+   * bcs.u64().serialize(1).toBytes() // Uint8Array [ 1, 0, 0, 0, 0, 0, 0, 0 ]
+   */
+  u64(options) {
+    return bigUIntBcsType({
+      name: "u64",
+      readMethod: "read64",
+      writeMethod: "write64",
+      size: 8,
+      maxValue: 2n ** 64n - 1n,
+      ...options
+    });
+  },
+  /**
+   * Creates a BcsType that can be used to read and write a 128-bit unsigned integer.
+   * @example
+   * bcs.u128().serialize(1).toBytes() // Uint8Array [ 1, ..., 0 ]
+   */
+  u128(options) {
+    return bigUIntBcsType({
+      name: "u128",
+      readMethod: "read128",
+      writeMethod: "write128",
+      size: 16,
+      maxValue: 2n ** 128n - 1n,
+      ...options
+    });
+  },
+  /**
+   * Creates a BcsType that can be used to read and write a 256-bit unsigned integer.
+   * @example
+   * bcs.u256().serialize(1).toBytes() // Uint8Array [ 1, ..., 0 ]
+   */
+  u256(options) {
+    return bigUIntBcsType({
+      name: "u256",
+      readMethod: "read256",
+      writeMethod: "write256",
+      size: 32,
+      maxValue: 2n ** 256n - 1n,
+      ...options
+    });
+  },
+  /**
+   * Creates a BcsType that can be used to read and write boolean values.
+   * @example
+   * bcs.bool().serialize(true).toBytes() // Uint8Array [ 1 ]
+   */
+  bool(options) {
+    return fixedSizeBcsType({
+      name: "bool",
+      size: 1,
+      read: (reader) => reader.read8() === 1,
+      write: (value, writer) => writer.write8(value ? 1 : 0),
+      ...options,
+      validate: (value) => {
+        var _a2;
+        (_a2 = options == null ? void 0 : options.validate) == null ? void 0 : _a2.call(options, value);
+        if (typeof value !== "boolean") {
+          throw new TypeError(`Expected boolean, found ${typeof value}`);
+        }
+      }
+    });
+  },
+  /**
+   * Creates a BcsType that can be used to read and write unsigned LEB encoded integers
+   * @example
+   *
+   */
+  uleb128(options) {
+    return dynamicSizeBcsType({
+      name: "uleb128",
+      read: (reader) => reader.readULEB(),
+      serialize: (value) => {
+        return Uint8Array.from(ulebEncode(value));
+      },
+      ...options
+    });
+  },
+  /**
+   * Creates a BcsType representing a fixed length byte array
+   * @param size The number of bytes this types represents
+   * @example
+   * bcs.bytes(3).serialize(new Uint8Array([1, 2, 3])).toBytes() // Uint8Array [1, 2, 3]
+   */
+  bytes(size, options) {
+    return fixedSizeBcsType({
+      name: `bytes[${size}]`,
+      size,
+      read: (reader) => reader.readBytes(size),
+      write: (value, writer) => {
+        for (let i = 0; i < size; i++) {
+          writer.write8(value[i] ?? 0);
+        }
+      },
+      ...options,
+      validate: (value) => {
+        var _a2;
+        (_a2 = options == null ? void 0 : options.validate) == null ? void 0 : _a2.call(options, value);
+        if (!value || typeof value !== "object" || !("length" in value)) {
+          throw new TypeError(`Expected array, found ${typeof value}`);
+        }
+        if (value.length !== size) {
+          throw new TypeError(`Expected array of length ${size}, found ${value.length}`);
+        }
+      }
+    });
+  },
+  /**
+   * Creates a BcsType that can ser/de string values.  Strings will be UTF-8 encoded
+   * @example
+   * bcs.string().serialize('a').toBytes() // Uint8Array [ 1, 97 ]
+   */
+  string(options) {
+    return stringLikeBcsType({
+      name: "string",
+      toBytes: (value) => new TextEncoder().encode(value),
+      fromBytes: (bytes) => new TextDecoder().decode(bytes),
+      ...options
+    });
+  },
+  /**
+   * Creates a BcsType that represents a fixed length array of a given type
+   * @param size The number of elements in the array
+   * @param type The BcsType of each element in the array
+   * @example
+   * bcs.fixedArray(3, bcs.u8()).serialize([1, 2, 3]).toBytes() // Uint8Array [ 1, 2, 3 ]
+   */
+  fixedArray(size, type, options) {
+    return new BcsType({
+      name: `${type.name}[${size}]`,
+      read: (reader) => {
+        const result = new Array(size);
+        for (let i = 0; i < size; i++) {
+          result[i] = type.read(reader);
+        }
+        return result;
+      },
+      write: (value, writer) => {
+        for (const item of value) {
+          type.write(item, writer);
+        }
+      },
+      ...options,
+      validate: (value) => {
+        var _a2;
+        (_a2 = options == null ? void 0 : options.validate) == null ? void 0 : _a2.call(options, value);
+        if (!value || typeof value !== "object" || !("length" in value)) {
+          throw new TypeError(`Expected array, found ${typeof value}`);
+        }
+        if (value.length !== size) {
+          throw new TypeError(`Expected array of length ${size}, found ${value.length}`);
+        }
+      }
+    });
+  },
+  /**
+   * Creates a BcsType representing an optional value
+   * @param type The BcsType of the optional value
+   * @example
+   * bcs.option(bcs.u8()).serialize(null).toBytes() // Uint8Array [ 0 ]
+   * bcs.option(bcs.u8()).serialize(1).toBytes() // Uint8Array [ 1, 1 ]
+   */
+  option(type) {
+    return bcs.enum(`Option<${type.name}>`, {
+      None: null,
+      Some: type
+    }).transform({
+      input: (value) => {
+        if (value == null) {
+          return { None: true };
+        }
+        return { Some: value };
+      },
+      output: (value) => {
+        if (value.$kind === "Some") {
+          return value.Some;
+        }
+        return null;
+      }
+    });
+  },
+  /**
+   * Creates a BcsType representing a variable length vector of a given type
+   * @param type The BcsType of each element in the vector
+   *
+   * @example
+   * bcs.vector(bcs.u8()).toBytes([1, 2, 3]) // Uint8Array [ 3, 1, 2, 3 ]
+   */
+  vector(type, options) {
+    return new BcsType({
+      name: `vector<${type.name}>`,
+      read: (reader) => {
+        const length = reader.readULEB();
+        const result = new Array(length);
+        for (let i = 0; i < length; i++) {
+          result[i] = type.read(reader);
+        }
+        return result;
+      },
+      write: (value, writer) => {
+        writer.writeULEB(value.length);
+        for (const item of value) {
+          type.write(item, writer);
+        }
+      },
+      ...options,
+      validate: (value) => {
+        var _a2;
+        (_a2 = options == null ? void 0 : options.validate) == null ? void 0 : _a2.call(options, value);
+        if (!value || typeof value !== "object" || !("length" in value)) {
+          throw new TypeError(`Expected array, found ${typeof value}`);
+        }
+      }
+    });
+  },
+  /**
+   * Creates a BcsType representing a tuple of a given set of types
+   * @param types The BcsTypes for each element in the tuple
+   *
+   * @example
+   * const tuple = bcs.tuple([bcs.u8(), bcs.string(), bcs.bool()])
+   * tuple.serialize([1, 'a', true]).toBytes() // Uint8Array [ 1, 1, 97, 1 ]
+   */
+  tuple(types, options) {
+    return new BcsType({
+      name: `(${types.map((t) => t.name).join(", ")})`,
+      serializedSize: (values) => {
+        let total = 0;
+        for (let i = 0; i < types.length; i++) {
+          const size = types[i].serializedSize(values[i]);
+          if (size == null) {
+            return null;
+          }
+          total += size;
+        }
+        return total;
+      },
+      read: (reader) => {
+        const result = [];
+        for (const type of types) {
+          result.push(type.read(reader));
+        }
+        return result;
+      },
+      write: (value, writer) => {
+        for (let i = 0; i < types.length; i++) {
+          types[i].write(value[i], writer);
+        }
+      },
+      ...options,
+      validate: (value) => {
+        var _a2;
+        (_a2 = options == null ? void 0 : options.validate) == null ? void 0 : _a2.call(options, value);
+        if (!Array.isArray(value)) {
+          throw new TypeError(`Expected array, found ${typeof value}`);
+        }
+        if (value.length !== types.length) {
+          throw new TypeError(
+            `Expected array of length ${types.length}, found ${value.length}`
+          );
+        }
+      }
+    });
+  },
+  /**
+   * Creates a BcsType representing a struct of a given set of fields
+   * @param name The name of the struct
+   * @param fields The fields of the struct. The order of the fields affects how data is serialized and deserialized
+   *
+   * @example
+   * const struct = bcs.struct('MyStruct', {
+   *  a: bcs.u8(),
+   *  b: bcs.string(),
+   * })
+   * struct.serialize({ a: 1, b: 'a' }).toBytes() // Uint8Array [ 1, 1, 97 ]
+   */
+  struct(name, fields, options) {
+    const canonicalOrder = Object.entries(fields);
+    return new BcsType({
+      name,
+      serializedSize: (values) => {
+        let total = 0;
+        for (const [field, type] of canonicalOrder) {
+          const size = type.serializedSize(values[field]);
+          if (size == null) {
+            return null;
+          }
+          total += size;
+        }
+        return total;
+      },
+      read: (reader) => {
+        const result = {};
+        for (const [field, type] of canonicalOrder) {
+          result[field] = type.read(reader);
+        }
+        return result;
+      },
+      write: (value, writer) => {
+        for (const [field, type] of canonicalOrder) {
+          type.write(value[field], writer);
+        }
+      },
+      ...options,
+      validate: (value) => {
+        var _a2;
+        (_a2 = options == null ? void 0 : options.validate) == null ? void 0 : _a2.call(options, value);
+        if (typeof value !== "object" || value == null) {
+          throw new TypeError(`Expected object, found ${typeof value}`);
+        }
+      }
+    });
+  },
+  /**
+   * Creates a BcsType representing an enum of a given set of options
+   * @param name The name of the enum
+   * @param values The values of the enum. The order of the values affects how data is serialized and deserialized.
+   * null can be used to represent a variant with no data.
+   *
+   * @example
+   * const enum = bcs.enum('MyEnum', {
+   *   A: bcs.u8(),
+   *   B: bcs.string(),
+   *   C: null,
+   * })
+   * enum.serialize({ A: 1 }).toBytes() // Uint8Array [ 0, 1 ]
+   * enum.serialize({ B: 'a' }).toBytes() // Uint8Array [ 1, 1, 97 ]
+   * enum.serialize({ C: true }).toBytes() // Uint8Array [ 2 ]
+   */
+  enum(name, values, options) {
+    const canonicalOrder = Object.entries(values);
+    return new BcsType({
+      name,
+      read: (reader) => {
+        const index2 = reader.readULEB();
+        const enumEntry = canonicalOrder[index2];
+        if (!enumEntry) {
+          throw new TypeError(`Unknown value ${index2} for enum ${name}`);
+        }
+        const [kind, type] = enumEntry;
+        return {
+          [kind]: (type == null ? void 0 : type.read(reader)) ?? true,
+          $kind: kind
+        };
+      },
+      write: (value, writer) => {
+        const [name2, val] = Object.entries(value).filter(
+          ([name3]) => Object.hasOwn(values, name3)
+        )[0];
+        for (let i = 0; i < canonicalOrder.length; i++) {
+          const [optionName, optionType] = canonicalOrder[i];
+          if (optionName === name2) {
+            writer.writeULEB(i);
+            optionType == null ? void 0 : optionType.write(val, writer);
+            return;
+          }
+        }
+      },
+      ...options,
+      validate: (value) => {
+        var _a2;
+        (_a2 = options == null ? void 0 : options.validate) == null ? void 0 : _a2.call(options, value);
+        if (typeof value !== "object" || value == null) {
+          throw new TypeError(`Expected object, found ${typeof value}`);
+        }
+        const keys = Object.keys(value).filter(
+          (k) => value[k] !== void 0 && Object.hasOwn(values, k)
+        );
+        if (keys.length !== 1) {
+          throw new TypeError(
+            `Expected object with one key, but found ${keys.length} for type ${name}}`
+          );
+        }
+        const [variant] = keys;
+        if (!Object.hasOwn(values, variant)) {
+          throw new TypeError(`Invalid enum variant ${variant}`);
+        }
+      }
+    });
+  },
+  /**
+   * Creates a BcsType representing a map of a given key and value type
+   * @param keyType The BcsType of the key
+   * @param valueType The BcsType of the value
+   * @example
+   * const map = bcs.map(bcs.u8(), bcs.string())
+   * map.serialize(new Map([[2, 'a']])).toBytes() // Uint8Array [ 1, 2, 1, 97 ]
+   */
+  map(keyType, valueType) {
+    return bcs.vector(bcs.tuple([keyType, valueType])).transform({
+      name: `Map<${keyType.name}, ${valueType.name}>`,
+      input: (value) => {
+        return [...value.entries()];
+      },
+      output: (value) => {
+        const result = /* @__PURE__ */ new Map();
+        for (const [key, val] of value) {
+          result.set(key, val);
+        }
+        return result;
+      }
+    });
+  },
+  /**
+   * Creates a BcsType that wraps another BcsType which is lazily evaluated. This is useful for creating recursive types.
+   * @param cb A callback that returns the BcsType
+   */
+  lazy(cb) {
+    return lazyBcsType(cb);
+  }
+};
+const IOTA_ADDRESS_LENGTH = 32;
+function isValidIotaAddress(value) {
+  return isHex(value) && getHexByteLength(value) === IOTA_ADDRESS_LENGTH;
+}
+function parseTypeTag(type) {
+  if (!type.includes("::")) return type;
+  return parseStructTag(type);
+}
+function parseStructTag(type) {
+  const [address, module] = type.split("::");
+  const rest = type.slice(address.length + module.length + 4);
+  const name = rest.includes("<") ? rest.slice(0, rest.indexOf("<")) : rest;
+  const typeParams = rest.includes("<") ? splitGenericParameters(rest.slice(rest.indexOf("<") + 1, rest.lastIndexOf(">"))).map(
+    (typeParam) => parseTypeTag(typeParam.trim())
+  ) : [];
+  return {
+    address: normalizeIotaAddress(address),
+    module,
+    name,
+    typeParams
+  };
+}
+function normalizeStructTag(type) {
+  const { address, module, name, typeParams } = typeof type === "string" ? parseStructTag(type) : type;
+  const formattedTypeParams = (typeParams == null ? void 0 : typeParams.length) > 0 ? `<${typeParams.map(
+    (typeParam) => typeof typeParam === "string" ? typeParam : normalizeStructTag(typeParam)
+  ).join(",")}>` : "";
+  return `${address}::${module}::${name}${formattedTypeParams}`;
+}
+function normalizeIotaAddress(value, forceAdd0x = false, validate2 = false) {
+  let address = value.toLowerCase().replace(/ /g, "");
+  if (!forceAdd0x && address.startsWith("0x")) {
+    address = address.slice(2);
+  }
+  address = `0x${address.padStart(IOTA_ADDRESS_LENGTH * 2, "0")}`;
+  if (validate2 && !isValidIotaAddress(address)) {
+    throw new Error(`Invalid IOTA address: ${value}`);
+  } else {
+    return address;
+  }
+}
+function normalizeIotaObjectId(value, forceAdd0x = false, validate2 = false) {
+  return normalizeIotaAddress(value, forceAdd0x, validate2);
+}
+function isHex(value) {
+  return /^(0x|0X)?[a-fA-F0-9]+$/.test(value) && value.length % 2 === 0;
+}
+function getHexByteLength(value) {
+  return /^(0x|0X)/.test(value) ? (value.length - 2) / 2 : value.length / 2;
+}
+const VECTOR_REGEX = /^vector<(.+)>$/;
+const STRUCT_REGEX = /^([^:]+)::([^:]+)::([^<]+)(<(.+)>)?/;
+class TypeTagSerializer2 {
+  static parseFromStr(str, normalizeAddress = false) {
+    if (str === "address") {
+      return { address: null };
+    } else if (str === "bool") {
+      return { bool: null };
+    } else if (str === "u8") {
+      return { u8: null };
+    } else if (str === "u16") {
+      return { u16: null };
+    } else if (str === "u32") {
+      return { u32: null };
+    } else if (str === "u64") {
+      return { u64: null };
+    } else if (str === "u128") {
+      return { u128: null };
+    } else if (str === "u256") {
+      return { u256: null };
+    } else if (str === "signer") {
+      return { signer: null };
+    }
+    const vectorMatch = str.match(VECTOR_REGEX);
+    if (vectorMatch) {
+      return {
+        vector: TypeTagSerializer2.parseFromStr(vectorMatch[1], normalizeAddress)
+      };
+    }
+    const structMatch = str.match(STRUCT_REGEX);
+    if (structMatch) {
+      const address = normalizeAddress ? normalizeIotaAddress(structMatch[1]) : structMatch[1];
+      return {
+        struct: {
+          address,
+          module: structMatch[2],
+          name: structMatch[3],
+          typeParams: structMatch[5] === void 0 ? [] : TypeTagSerializer2.parseStructTypeArgs(
+            structMatch[5],
+            normalizeAddress
+          )
+        }
+      };
+    }
+    throw new Error(`Encountered unexpected token when parsing type args for ${str}`);
+  }
+  static parseStructTypeArgs(str, normalizeAddress = false) {
+    return splitGenericParameters(str).map(
+      (tok) => TypeTagSerializer2.parseFromStr(tok, normalizeAddress)
+    );
+  }
+  static tagToString(tag) {
+    if ("bool" in tag) {
+      return "bool";
+    }
+    if ("u8" in tag) {
+      return "u8";
+    }
+    if ("u16" in tag) {
+      return "u16";
+    }
+    if ("u32" in tag) {
+      return "u32";
+    }
+    if ("u64" in tag) {
+      return "u64";
+    }
+    if ("u128" in tag) {
+      return "u128";
+    }
+    if ("u256" in tag) {
+      return "u256";
+    }
+    if ("address" in tag) {
+      return "address";
+    }
+    if ("signer" in tag) {
+      return "signer";
+    }
+    if ("vector" in tag) {
+      return `vector<${TypeTagSerializer2.tagToString(tag.vector)}>`;
+    }
+    if ("struct" in tag) {
+      const struct = tag.struct;
+      const typeParams = struct.typeParams.map(TypeTagSerializer2.tagToString).join(", ");
+      return `${struct.address}::${struct.module}::${struct.name}${typeParams ? `<${typeParams}>` : ""}`;
+    }
+    throw new Error("Invalid TypeTag");
+  }
+}
+function unsafe_u64(options) {
+  return bcs.u64({
+    name: "unsafe_u64",
+    ...options
+  }).transform({
+    input: (val) => val,
+    output: (val) => Number(val)
+  });
+}
+function optionEnum(type) {
+  return bcs.enum("Option", {
+    None: null,
+    Some: type
+  });
+}
+const Address = bcs.bytes(IOTA_ADDRESS_LENGTH).transform({
+  validate: (val) => {
+    const address = typeof val === "string" ? val : toHEX(val);
+    if (!address || !isValidIotaAddress(normalizeIotaAddress(address))) {
+      throw new Error(`Invalid IOTA address ${address}`);
+    }
+  },
+  input: (val) => typeof val === "string" ? fromHEX(normalizeIotaAddress(val)) : val,
+  output: (val) => normalizeIotaAddress(toHEX(val))
+});
+const ObjectDigest = bcs.vector(bcs.u8()).transform({
+  name: "ObjectDigest",
+  input: (value) => fromB58(value),
+  output: (value) => toB58(new Uint8Array(value)),
+  validate: (value) => {
+    if (fromB58(value).length !== 32) {
+      throw new Error("ObjectDigest must be 32 bytes");
+    }
+  }
+});
+const IotaObjectRef = bcs.struct("IotaObjectRef", {
+  objectId: Address,
+  version: bcs.u64(),
+  digest: ObjectDigest
+});
+const SharedObjectRef = bcs.struct("SharedObjectRef", {
+  objectId: Address,
+  initialSharedVersion: bcs.u64(),
+  mutable: bcs.bool()
+});
+const ObjectArg$6 = bcs.enum("ObjectArg", {
+  ImmOrOwnedObject: IotaObjectRef,
+  SharedObject: SharedObjectRef,
+  Receiving: IotaObjectRef
+});
+const CallArg$4 = bcs.enum("CallArg", {
+  Pure: bcs.struct("Pure", {
+    bytes: bcs.vector(bcs.u8()).transform({
+      input: (val) => typeof val === "string" ? fromB64(val) : val,
+      output: (val) => toB64(new Uint8Array(val))
+    })
+  }),
+  Object: ObjectArg$6
+});
+const InnerTypeTag = bcs.enum("TypeTag", {
+  bool: null,
+  u8: null,
+  u64: null,
+  u128: null,
+  address: null,
+  signer: null,
+  vector: bcs.lazy(() => InnerTypeTag),
+  struct: bcs.lazy(() => StructTag$2),
+  u16: null,
+  u32: null,
+  u256: null
+});
+const TypeTag$2 = InnerTypeTag.transform({
+  input: (typeTag) => typeof typeTag === "string" ? TypeTagSerializer2.parseFromStr(typeTag, true) : typeTag,
+  output: (typeTag) => TypeTagSerializer2.tagToString(typeTag)
+});
+const Argument$4 = bcs.enum("Argument", {
+  GasCoin: null,
+  Input: bcs.u16(),
+  Result: bcs.u16(),
+  NestedResult: bcs.tuple([bcs.u16(), bcs.u16()])
+});
+const ProgrammableMoveCall$4 = bcs.struct("ProgrammableMoveCall", {
+  package: Address,
+  module: bcs.string(),
+  function: bcs.string(),
+  typeArguments: bcs.vector(TypeTag$2),
+  arguments: bcs.vector(Argument$4)
+});
+const Command$4 = bcs.enum("Command", {
+  /**
+   * A Move Call - any public Move function can be called via
+   * this transaction. The results can be used that instant to pass
+   * into the next transaction.
+   */
+  MoveCall: ProgrammableMoveCall$4,
+  /**
+   * Transfer vector of objects to a receiver.
+   */
+  TransferObjects: bcs.struct("TransferObjects", {
+    objects: bcs.vector(Argument$4),
+    address: Argument$4
+  }),
+  // /**
+  //  * Split `amount` from a `coin`.
+  //  */
+  SplitCoins: bcs.struct("SplitCoins", {
+    coin: Argument$4,
+    amounts: bcs.vector(Argument$4)
+  }),
+  // /**
+  //  * Merge Vector of Coins (`sources`) into a `destination`.
+  //  */
+  MergeCoins: bcs.struct("MergeCoins", {
+    destination: Argument$4,
+    sources: bcs.vector(Argument$4)
+  }),
+  // /**
+  //  * Publish a Move module.
+  //  */
+  Publish: bcs.struct("Publish", {
+    modules: bcs.vector(
+      bcs.vector(bcs.u8()).transform({
+        input: (val) => typeof val === "string" ? fromB64(val) : val,
+        output: (val) => toB64(new Uint8Array(val))
+      })
+    ),
+    dependencies: bcs.vector(Address)
+  }),
+  // /**
+  //  * Build a vector of objects using the input arguments.
+  //  * It is impossible to export construct a `vector<T: key>` otherwise,
+  //  * so this call serves a utility function.
+  //  */
+  MakeMoveVec: bcs.struct("MakeMoveVec", {
+    type: optionEnum(TypeTag$2).transform({
+      input: (val) => val === null ? {
+        None: true
+      } : {
+        Some: val
+      },
+      output: (val) => val.Some ?? null
+    }),
+    elements: bcs.vector(Argument$4)
+  }),
+  Upgrade: bcs.struct("Upgrade", {
+    modules: bcs.vector(
+      bcs.vector(bcs.u8()).transform({
+        input: (val) => typeof val === "string" ? fromB64(val) : val,
+        output: (val) => toB64(new Uint8Array(val))
+      })
+    ),
+    dependencies: bcs.vector(Address),
+    package: Address,
+    ticket: Argument$4
+  })
+});
+const ProgrammableTransaction = bcs.struct("ProgrammableTransaction", {
+  inputs: bcs.vector(CallArg$4),
+  commands: bcs.vector(Command$4)
+});
+const TransactionKind = bcs.enum("TransactionKind", {
+  ProgrammableTransaction,
+  ChangeEpoch: null,
+  Genesis: null,
+  ConsensusCommitPrologue: null
+});
+const TransactionExpiration$6 = bcs.enum("TransactionExpiration", {
+  None: null,
+  Epoch: unsafe_u64()
+});
+const StructTag$2 = bcs.struct("StructTag", {
+  address: Address,
+  module: bcs.string(),
+  name: bcs.string(),
+  typeParams: bcs.vector(InnerTypeTag)
+});
+const GasData$4 = bcs.struct("GasData", {
+  payment: bcs.vector(IotaObjectRef),
+  owner: Address,
+  price: bcs.u64(),
+  budget: bcs.u64()
+});
+const TransactionDataV1 = bcs.struct("TransactionDataV1", {
+  kind: TransactionKind,
+  sender: Address,
+  gasData: GasData$4,
+  expiration: TransactionExpiration$6
+});
+const TransactionData$2 = bcs.enum("TransactionData", {
+  V1: TransactionDataV1
+});
+const IntentScope = bcs.enum("IntentScope", {
+  TransactionData: null,
+  TransactionEffects: null,
+  CheckpointSummary: null,
+  PersonalMessage: null
+});
+const IntentVersion = bcs.enum("IntentVersion", {
+  V0: null
+});
+const AppId = bcs.enum("AppId", {
+  Iota: null
+});
+const Intent = bcs.struct("Intent", {
+  scope: IntentScope,
+  version: IntentVersion,
+  appId: AppId
+});
+function IntentMessage(T) {
+  return bcs.struct(`IntentMessage<${T.name}>`, {
+    intent: Intent,
+    value: T
+  });
+}
+const CompressedSignature = bcs.enum("CompressedSignature", {
+  ED25519: bcs.fixedArray(64, bcs.u8()),
+  Secp256k1: bcs.fixedArray(64, bcs.u8()),
+  Secp256r1: bcs.fixedArray(64, bcs.u8())
+});
+const PublicKey2 = bcs.enum("PublicKey", {
+  ED25519: bcs.fixedArray(32, bcs.u8()),
+  Secp256k1: bcs.fixedArray(33, bcs.u8()),
+  Secp256r1: bcs.fixedArray(33, bcs.u8())
+});
+const MultiSigPkMap = bcs.struct("MultiSigPkMap", {
+  pubKey: PublicKey2,
+  weight: bcs.u8()
+});
+const MultiSigPublicKey = bcs.struct("MultiSigPublicKey", {
+  pk_map: bcs.vector(MultiSigPkMap),
+  threshold: bcs.u16()
+});
+const MultiSig = bcs.struct("MultiSig", {
+  sigs: bcs.vector(CompressedSignature),
+  bitmap: bcs.u16(),
+  multisig_pk: MultiSigPublicKey
+});
+const base64String = bcs.vector(bcs.u8()).transform({
+  input: (val) => typeof val === "string" ? fromB64(val) : val,
+  output: (val) => toB64(new Uint8Array(val))
+});
+const SenderSignedTransaction = bcs.struct("SenderSignedTransaction", {
+  intentMessage: IntentMessage(TransactionData$2),
+  txSignatures: bcs.vector(base64String)
+});
+const SenderSignedData = bcs.vector(SenderSignedTransaction, {
+  name: "SenderSignedData"
+});
+const PackageUpgradeError = bcs.enum("PackageUpgradeError", {
+  UnableToFetchPackage: bcs.struct("UnableToFetchPackage", { packageId: Address }),
+  NotAPackage: bcs.struct("NotAPackage", { objectId: Address }),
+  IncompatibleUpgrade: null,
+  DigestDoesNotMatch: bcs.struct("DigestDoesNotMatch", { digest: bcs.vector(bcs.u8()) }),
+  UnknownUpgradePolicy: bcs.struct("UnknownUpgradePolicy", { policy: bcs.u8() }),
+  PackageIDDoesNotMatch: bcs.struct("PackageIDDoesNotMatch", {
+    packageId: Address,
+    ticketId: Address
+  })
+});
+const ModuleId = bcs.struct("ModuleId", {
+  address: Address,
+  name: bcs.string()
+});
+const MoveLocation = bcs.struct("MoveLocation", {
+  module: ModuleId,
+  function: bcs.u16(),
+  instruction: bcs.u16(),
+  functionName: bcs.option(bcs.string())
+});
+const CommandArgumentError = bcs.enum("CommandArgumentError", {
+  TypeMismatch: null,
+  InvalidBCSBytes: null,
+  InvalidUsageOfPureArg: null,
+  InvalidArgumentToPrivateEntryFunction: null,
+  IndexOutOfBounds: bcs.struct("IndexOutOfBounds", { idx: bcs.u16() }),
+  SecondaryIndexOutOfBounds: bcs.struct("SecondaryIndexOutOfBounds", {
+    resultIdx: bcs.u16(),
+    secondaryIdx: bcs.u16()
+  }),
+  InvalidResultArity: bcs.struct("InvalidResultArity", { resultIdx: bcs.u16() }),
+  InvalidGasCoinUsage: null,
+  InvalidValueUsage: null,
+  InvalidObjectByValue: null,
+  InvalidObjectByMutRef: null,
+  SharedObjectOperationNotAllowed: null
+});
+const TypeArgumentError = bcs.enum("TypeArgumentError", {
+  TypeNotFound: null,
+  ConstraintNotSatisfied: null
+});
+const ExecutionFailureStatus = bcs.enum("ExecutionFailureStatus", {
+  InsufficientGas: null,
+  InvalidGasObject: null,
+  InvariantViolation: null,
+  FeatureNotYetSupported: null,
+  MoveObjectTooBig: bcs.struct("MoveObjectTooBig", {
+    objectSize: bcs.u64(),
+    maxObjectSize: bcs.u64()
+  }),
+  MovePackageTooBig: bcs.struct("MovePackageTooBig", {
+    objectSize: bcs.u64(),
+    maxObjectSize: bcs.u64()
+  }),
+  CircularObjectOwnership: bcs.struct("CircularObjectOwnership", { object: Address }),
+  InsufficientCoinBalance: null,
+  CoinBalanceOverflow: null,
+  PublishErrorNonZeroAddress: null,
+  IotaMoveVerificationError: null,
+  MovePrimitiveRuntimeError: bcs.option(MoveLocation),
+  MoveAbort: bcs.tuple([MoveLocation, bcs.u64()]),
+  VMVerificationOrDeserializationError: null,
+  VMInvariantViolation: null,
+  FunctionNotFound: null,
+  ArityMismatch: null,
+  TypeArityMismatch: null,
+  NonEntryFunctionInvoked: null,
+  CommandArgumentError: bcs.struct("CommandArgumentError", {
+    argIdx: bcs.u16(),
+    kind: CommandArgumentError
+  }),
+  TypeArgumentError: bcs.struct("TypeArgumentError", {
+    argumentIdx: bcs.u16(),
+    kind: TypeArgumentError
+  }),
+  UnusedValueWithoutDrop: bcs.struct("UnusedValueWithoutDrop", {
+    resultIdx: bcs.u16(),
+    secondaryIdx: bcs.u16()
+  }),
+  InvalidPublicFunctionReturnType: bcs.struct("InvalidPublicFunctionReturnType", {
+    idx: bcs.u16()
+  }),
+  InvalidTransferObject: null,
+  EffectsTooLarge: bcs.struct("EffectsTooLarge", { currentSize: bcs.u64(), maxSize: bcs.u64() }),
+  PublishUpgradeMissingDependency: null,
+  PublishUpgradeDependencyDowngrade: null,
+  PackageUpgradeError: bcs.struct("PackageUpgradeError", { upgradeError: PackageUpgradeError }),
+  WrittenObjectsTooLarge: bcs.struct("WrittenObjectsTooLarge", {
+    currentSize: bcs.u64(),
+    maxSize: bcs.u64()
+  }),
+  CertificateDenied: null,
+  IotaMoveVerificationTimedout: null,
+  SharedObjectOperationNotAllowed: null,
+  InputObjectDeleted: null
+});
+const ExecutionStatus = bcs.enum("ExecutionStatus", {
+  Success: null,
+  Failed: bcs.struct("ExecutionFailed", {
+    error: ExecutionFailureStatus,
+    command: bcs.option(bcs.u64())
+  })
+});
+const GasCostSummary = bcs.struct("GasCostSummary", {
+  computationCost: bcs.u64(),
+  computationCostBurned: bcs.u64(),
+  storageCost: bcs.u64(),
+  storageRebate: bcs.u64(),
+  nonRefundableStorageFee: bcs.u64()
+});
+const Owner = bcs.enum("Owner", {
+  AddressOwner: Address,
+  ObjectOwner: Address,
+  Shared: bcs.struct("Shared", {
+    initialSharedVersion: bcs.u64()
+  }),
+  Immutable: null
+});
+const VersionDigest = bcs.tuple([bcs.u64(), ObjectDigest]);
+const ObjectIn = bcs.enum("ObjectIn", {
+  NotExist: null,
+  Exist: bcs.tuple([VersionDigest, Owner])
+});
+const ObjectOut = bcs.enum("ObjectOut", {
+  NotExist: null,
+  ObjectWrite: bcs.tuple([ObjectDigest, Owner]),
+  PackageWrite: VersionDigest
+});
+const IDOperation = bcs.enum("IDOperation", {
+  None: null,
+  Created: null,
+  Deleted: null
+});
+const EffectsObjectChange = bcs.struct("EffectsObjectChange", {
+  inputState: ObjectIn,
+  outputState: ObjectOut,
+  idOperation: IDOperation
+});
+const UnchangedSharedKind = bcs.enum("UnchangedSharedKind", {
+  ReadOnlyRoot: VersionDigest,
+  MutateDeleted: bcs.u64(),
+  ReadDeleted: bcs.u64(),
+  Cancelled: bcs.u64(),
+  PerEpochConfig: null
+});
+const TransactionEffectsV1 = bcs.struct("TransactionEffectsV1", {
+  status: ExecutionStatus,
+  executedEpoch: bcs.u64(),
+  gasUsed: GasCostSummary,
+  transactionDigest: ObjectDigest,
+  gasObjectIndex: bcs.option(bcs.u32()),
+  eventsDigest: bcs.option(ObjectDigest),
+  dependencies: bcs.vector(ObjectDigest),
+  lamportVersion: bcs.u64(),
+  changedObjects: bcs.vector(bcs.tuple([Address, EffectsObjectChange])),
+  unchangedSharedObjects: bcs.vector(bcs.tuple([Address, UnchangedSharedKind])),
+  auxDataDigest: bcs.option(ObjectDigest)
+});
+const TransactionEffects = bcs.enum("TransactionEffects", {
+  V1: TransactionEffectsV1
+});
+const iotaBcs = {
+  ...bcs,
+  U8: bcs.u8(),
+  U16: bcs.u16(),
+  U32: bcs.u32(),
+  U64: bcs.u64(),
+  U128: bcs.u128(),
+  U256: bcs.u256(),
+  ULEB128: bcs.uleb128(),
+  Bool: bcs.bool(),
+  String: bcs.string(),
+  Address,
+  AppId,
+  Argument: Argument$4,
+  CallArg: CallArg$4,
+  CompressedSignature,
+  GasData: GasData$4,
+  Intent,
+  IntentMessage,
+  IntentScope,
+  IntentVersion,
+  MultiSig,
+  MultiSigPkMap,
+  MultiSigPublicKey,
+  ObjectArg: ObjectArg$6,
+  ObjectDigest,
+  ProgrammableMoveCall: ProgrammableMoveCall$4,
+  ProgrammableTransaction,
+  PublicKey: PublicKey2,
+  SenderSignedData,
+  SenderSignedTransaction,
+  SharedObjectRef,
+  StructTag: StructTag$2,
+  IotaObjectRef,
+  Command: Command$4,
+  TransactionData: TransactionData$2,
+  TransactionDataV1,
+  TransactionExpiration: TransactionExpiration$6,
+  TransactionKind,
+  TypeTag: TypeTag$2,
+  TransactionEffects
+};
 BigInt(1e9);
-const MOVE_STDLIB_ADDRESS = "0x1";
-const IOTA_FRAMEWORK_ADDRESS = "0x2";
-const IOTA_CLOCK_OBJECT_ID = normalizeIotaObjectId("0x6");
-const IOTA_TYPE_ARG = `${IOTA_FRAMEWORK_ADDRESS}::iota::IOTA`;
-const IOTA_SYSTEM_STATE_OBJECT_ID = normalizeIotaObjectId("0x5");
-const OBJECT_MODULE_NAME = "object";
-const ID_STRUCT_NAME = "ID";
-const STD_ASCII_MODULE_NAME = "ascii";
-const STD_ASCII_STRUCT_NAME = "String";
-const STD_UTF8_MODULE_NAME = "string";
-const STD_UTF8_STRUCT_NAME = "String";
-const STD_OPTION_MODULE_NAME = "option";
-const STD_OPTION_STRUCT_NAME = "Option";
-function isTxContext(param) {
+const MOVE_STDLIB_ADDRESS$1 = "0x1";
+const IOTA_FRAMEWORK_ADDRESS$1 = "0x2";
+normalizeIotaObjectId("0x6");
+const IOTA_TYPE_ARG$1 = `${IOTA_FRAMEWORK_ADDRESS$1}::iota::IOTA`;
+normalizeIotaObjectId("0x5");
+const OBJECT_MODULE_NAME$1 = "object";
+const ID_STRUCT_NAME$1 = "ID";
+const STD_ASCII_MODULE_NAME$1 = "ascii";
+const STD_ASCII_STRUCT_NAME$1 = "String";
+const STD_UTF8_MODULE_NAME$1 = "string";
+const STD_UTF8_STRUCT_NAME$1 = "String";
+const STD_OPTION_MODULE_NAME$1 = "option";
+const STD_OPTION_STRUCT_NAME$1 = "Option";
+function isTxContext$1(param) {
   const struct = typeof param.body === "object" && "datatype" in param.body ? param.body.datatype : null;
   return !!struct && normalizeIotaAddress(struct.package) === normalizeIotaAddress("0x2") && struct.module === "tx_context" && struct.type === "TxContext";
 }
-function getPureBcsSchema(typeSignature) {
+function getPureBcsSchema$1(typeSignature) {
   if (typeof typeSignature === "string") {
     switch (typeSignature) {
       case "address":
@@ -13519,48 +15157,48 @@ function getPureBcsSchema(typeSignature) {
         output: (val) => val
       });
     }
-    const type = getPureBcsSchema(typeSignature.vector);
+    const type = getPureBcsSchema$1(typeSignature.vector);
     return type ? iotaBcs.vector(type) : null;
   }
   if ("datatype" in typeSignature) {
     const pkg = normalizeIotaAddress(typeSignature.datatype.package);
-    if (pkg === normalizeIotaAddress(MOVE_STDLIB_ADDRESS)) {
-      if (typeSignature.datatype.module === STD_ASCII_MODULE_NAME && typeSignature.datatype.type === STD_ASCII_STRUCT_NAME) {
+    if (pkg === normalizeIotaAddress(MOVE_STDLIB_ADDRESS$1)) {
+      if (typeSignature.datatype.module === STD_ASCII_MODULE_NAME$1 && typeSignature.datatype.type === STD_ASCII_STRUCT_NAME$1) {
         return iotaBcs.String;
       }
-      if (typeSignature.datatype.module === STD_UTF8_MODULE_NAME && typeSignature.datatype.type === STD_UTF8_STRUCT_NAME) {
+      if (typeSignature.datatype.module === STD_UTF8_MODULE_NAME$1 && typeSignature.datatype.type === STD_UTF8_STRUCT_NAME$1) {
         return iotaBcs.String;
       }
-      if (typeSignature.datatype.module === STD_OPTION_MODULE_NAME && typeSignature.datatype.type === STD_OPTION_STRUCT_NAME) {
-        const type = getPureBcsSchema(typeSignature.datatype.typeParameters[0]);
+      if (typeSignature.datatype.module === STD_OPTION_MODULE_NAME$1 && typeSignature.datatype.type === STD_OPTION_STRUCT_NAME$1) {
+        const type = getPureBcsSchema$1(typeSignature.datatype.typeParameters[0]);
         return type ? iotaBcs.vector(type) : null;
       }
     }
-    if (pkg === normalizeIotaAddress(IOTA_FRAMEWORK_ADDRESS) && typeSignature.datatype.module === OBJECT_MODULE_NAME && typeSignature.datatype.type === ID_STRUCT_NAME) {
+    if (pkg === normalizeIotaAddress(IOTA_FRAMEWORK_ADDRESS$1) && typeSignature.datatype.module === OBJECT_MODULE_NAME$1 && typeSignature.datatype.type === ID_STRUCT_NAME$1) {
       return iotaBcs.Address;
     }
   }
   return null;
 }
-function normalizedTypeToMoveTypeSignature(type) {
+function normalizedTypeToMoveTypeSignature$1(type) {
   if (typeof type === "object" && "Reference" in type) {
     return {
       ref: "&",
-      body: normalizedTypeToMoveTypeSignatureBody(type.Reference)
+      body: normalizedTypeToMoveTypeSignatureBody$1(type.Reference)
     };
   }
   if (typeof type === "object" && "MutableReference" in type) {
     return {
       ref: "&mut",
-      body: normalizedTypeToMoveTypeSignatureBody(type.MutableReference)
+      body: normalizedTypeToMoveTypeSignatureBody$1(type.MutableReference)
     };
   }
   return {
     ref: null,
-    body: normalizedTypeToMoveTypeSignatureBody(type)
+    body: normalizedTypeToMoveTypeSignatureBody$1(type)
   };
 }
-function normalizedTypeToMoveTypeSignatureBody(type) {
+function normalizedTypeToMoveTypeSignatureBody$1(type) {
   if (typeof type === "string") {
     switch (type) {
       case "Address":
@@ -13584,7 +15222,7 @@ function normalizedTypeToMoveTypeSignatureBody(type) {
     }
   }
   if ("Vector" in type) {
-    return { vector: normalizedTypeToMoveTypeSignatureBody(type.Vector) };
+    return { vector: normalizedTypeToMoveTypeSignatureBody$1(type.Vector) };
   }
   if ("Struct" in type) {
     return {
@@ -13593,7 +15231,7 @@ function normalizedTypeToMoveTypeSignatureBody(type) {
         module: type.Struct.module,
         type: type.Struct.name,
         typeParameters: type.Struct.typeArguments.map(
-          normalizedTypeToMoveTypeSignatureBody
+          normalizedTypeToMoveTypeSignatureBody$1
         )
       }
     };
@@ -13603,16 +15241,16 @@ function normalizedTypeToMoveTypeSignatureBody(type) {
   }
   throw new Error(`Unexpected type ${JSON.stringify(type)}`);
 }
-function Pure(data) {
+function Pure$1(data) {
   return {
     $kind: "Pure",
     Pure: {
-      bytes: data instanceof Uint8Array ? toBase64(data) : data.toBase64()
+      bytes: data instanceof Uint8Array ? toB64(data) : data.toBase64()
     }
   };
 }
-const Inputs = {
-  Pure,
+const Inputs$1 = {
+  Pure: Pure$1,
   ObjectRef({ objectId, digest, version }) {
     return {
       $kind: "Object",
@@ -13660,25 +15298,27 @@ const Inputs = {
 var store;
 function getGlobalConfig(config2) {
   return {
-    lang: config2?.lang ?? store?.lang,
-    message: config2?.message,
-    abortEarly: config2?.abortEarly ?? store?.abortEarly,
-    abortPipeEarly: config2?.abortPipeEarly ?? store?.abortPipeEarly
+    lang: (config2 == null ? void 0 : config2.lang) ?? (store == null ? void 0 : store.lang),
+    message: config2 == null ? void 0 : config2.message,
+    abortEarly: (config2 == null ? void 0 : config2.abortEarly) ?? (store == null ? void 0 : store.abortEarly),
+    abortPipeEarly: (config2 == null ? void 0 : config2.abortPipeEarly) ?? (store == null ? void 0 : store.abortPipeEarly)
   };
 }
 var store2;
 function getGlobalMessage(lang) {
-  return store2?.get(lang);
+  return store2 == null ? void 0 : store2.get(lang);
 }
 var store3;
 function getSchemaMessage(lang) {
-  return store3?.get(lang);
+  return store3 == null ? void 0 : store3.get(lang);
 }
 var store4;
 function getSpecificMessage(reference, lang) {
-  return store4?.get(reference)?.get(lang);
+  var _a2;
+  return (_a2 = store4 == null ? void 0 : store4.get(reference)) == null ? void 0 : _a2.get(lang);
 }
 function _stringify(input) {
+  var _a2, _b;
   const type = typeof input;
   if (type === "string") {
     return `"${input}"`;
@@ -13687,14 +15327,14 @@ function _stringify(input) {
     return `${input}`;
   }
   if (type === "object" || type === "function") {
-    return (input && Object.getPrototypeOf(input)?.constructor?.name) ?? "null";
+    return (input && ((_b = (_a2 = Object.getPrototypeOf(input)) == null ? void 0 : _a2.constructor) == null ? void 0 : _b.name)) ?? "null";
   }
   return type;
 }
 function _addIssue(context, label, dataset, config2, other) {
   const input = other && "input" in other ? other.input : dataset.value;
-  const expected = other?.expected ?? context.expects ?? null;
-  const received = other?.received ?? _stringify(input);
+  const expected = (other == null ? void 0 : other.expected) ?? context.expects ?? null;
+  const received = (other == null ? void 0 : other.received) ?? _stringify(input);
   const issue = {
     kind: context.kind,
     type: context.type,
@@ -13704,14 +15344,14 @@ function _addIssue(context, label, dataset, config2, other) {
     message: `Invalid ${label}: ${expected ? `Expected ${expected} but r` : "R"}eceived ${received}`,
     // @ts-expect-error
     requirement: context.requirement,
-    path: other?.path,
-    issues: other?.issues,
+    path: other == null ? void 0 : other.path,
+    issues: other == null ? void 0 : other.issues,
     lang: config2.lang,
     abortEarly: config2.abortEarly,
     abortPipeEarly: config2.abortPipeEarly
   };
   const isSchema = context.kind === "schema";
-  const message = other?.message ?? // @ts-expect-error
+  const message = (other == null ? void 0 : other.message) ?? // @ts-expect-error
   context.message ?? getSpecificMessage(context.reference, issue.lang) ?? (isSchema ? getSchemaMessage(issue.lang) : null) ?? config2.message ?? getGlobalMessage(issue.lang);
   if (message) {
     issue.message = typeof message === "function" ? message(issue) : message;
@@ -13730,16 +15370,16 @@ function _isValidObjectKey(object2, key) {
 }
 var ValiError = class extends Error {
   /**
-   * The error issues.
-   */
-  issues;
-  /**
    * Creates a Valibot error with useful information.
    *
    * @param issues The error issues.
    */
   constructor(issues) {
     super(issues[0].message);
+    /**
+     * The error issues.
+     */
+    __publicField(this, "issues");
     this.name = "ValiError";
     this.issues = issues;
   }
@@ -13813,6 +15453,7 @@ function array(item, message) {
     item,
     message,
     _run(dataset, config2) {
+      var _a2;
       const input = dataset.value;
       if (Array.isArray(input)) {
         dataset.typed = true;
@@ -13834,7 +15475,7 @@ function array(item, message) {
               } else {
                 issue.path = [pathItem];
               }
-              dataset.issues?.push(issue);
+              (_a2 = dataset.issues) == null ? void 0 : _a2.push(issue);
             }
             if (!dataset.issues) {
               dataset.issues = itemDataset.issues;
@@ -14012,6 +15653,7 @@ function object(entries, message) {
     entries,
     message,
     _run(dataset, config2) {
+      var _a2;
       const input = dataset.value;
       if (input && typeof input === "object") {
         dataset.typed = true;
@@ -14036,7 +15678,7 @@ function object(entries, message) {
               } else {
                 issue.path = [pathItem];
               }
-              dataset.issues?.push(issue);
+              (_a2 = dataset.issues) == null ? void 0 : _a2.push(issue);
             }
             if (!dataset.issues) {
               dataset.issues = valueDataset.issues;
@@ -14101,6 +15743,7 @@ function record(key, value2, message) {
     value: value2,
     message,
     _run(dataset, config2) {
+      var _a2, _b;
       const input = dataset.value;
       if (input && typeof input === "object") {
         dataset.typed = true;
@@ -14122,7 +15765,7 @@ function record(key, value2, message) {
               };
               for (const issue of keyDataset.issues) {
                 issue.path = [pathItem];
-                dataset.issues?.push(issue);
+                (_a2 = dataset.issues) == null ? void 0 : _a2.push(issue);
               }
               if (!dataset.issues) {
                 dataset.issues = keyDataset.issues;
@@ -14150,7 +15793,7 @@ function record(key, value2, message) {
                 } else {
                   issue.path = [pathItem];
                 }
-                dataset.issues?.push(issue);
+                (_b = dataset.issues) == null ? void 0 : _b.push(issue);
               }
               if (!dataset.issues) {
                 dataset.issues = valueDataset.issues;
@@ -14203,6 +15846,7 @@ function tuple(items, message) {
     items,
     message,
     _run(dataset, config2) {
+      var _a2;
       const input = dataset.value;
       if (Array.isArray(input)) {
         dataset.typed = true;
@@ -14227,7 +15871,7 @@ function tuple(items, message) {
               } else {
                 issue.path = [pathItem];
               }
-              dataset.issues?.push(issue);
+              (_a2 = dataset.issues) == null ? void 0 : _a2.push(issue);
             }
             if (!dataset.issues) {
               dataset.issues = itemDataset.issues;
@@ -14310,7 +15954,7 @@ function union(options, message) {
           issues: _subIssues(typedDatasets)
         });
         dataset.typed = true;
-      } else if (untypedDatasets?.length === 1) {
+      } else if ((untypedDatasets == null ? void 0 : untypedDatasets.length) === 1) {
         return untypedDatasets[0];
       } else {
         _addIssue(this, "type", dataset, config2, {
@@ -14362,7 +16006,7 @@ function pipe(...pipe2) {
     }
   };
 }
-function safeEnum(options) {
+function safeEnum$1(options) {
   const unionOptions = Object.entries(options).map(([key, value]) => object({ [key]: value }));
   return pipe(
     union(unionOptions),
@@ -14372,14 +16016,14 @@ function safeEnum(options) {
     }))
   );
 }
-const IotaAddress = pipe(
+const IotaAddress$1 = pipe(
   string(),
   transform((value) => normalizeIotaAddress(value)),
   check(isValidIotaAddress)
 );
-const ObjectID = IotaAddress;
-const BCSBytes = string();
-const JsonU64 = pipe(
+const ObjectID$1 = IotaAddress$1;
+const BCSBytes$1 = string();
+const JsonU64$1 = pipe(
   union([string(), pipe(number(), integer())]),
   check((val) => {
     try {
@@ -14390,12 +16034,12 @@ const JsonU64 = pipe(
     }
   }, "Invalid u64")
 );
-const ObjectRef$1 = object({
-  objectId: IotaAddress,
-  version: JsonU64,
+const ObjectRef$3 = object({
+  objectId: IotaAddress$1,
+  version: JsonU64$1,
   digest: string()
 });
-const Argument$1 = pipe(
+const Argument$3 = pipe(
   union([
     object({ GasCoin: literal(true) }),
     object({ Input: pipe(number(), integer()), type: optional(literal("pure")) }),
@@ -14409,13 +16053,13 @@ const Argument$1 = pipe(
   }))
   // Defined manually to add `type?: 'pure' | 'object'` to Input
 );
-const GasData$1 = object({
-  budget: nullable(JsonU64),
-  price: nullable(JsonU64),
-  owner: nullable(IotaAddress),
-  payment: nullable(array(ObjectRef$1))
+const GasData$3 = object({
+  budget: nullable(JsonU64$1),
+  price: nullable(JsonU64$1),
+  owner: nullable(IotaAddress$1),
+  payment: nullable(array(ObjectRef$3))
 });
-const OpenMoveTypeSignatureBody = union([
+const OpenMoveTypeSignatureBody$1 = union([
   literal("address"),
   literal("bool"),
   literal("u8"),
@@ -14424,109 +16068,109 @@ const OpenMoveTypeSignatureBody = union([
   literal("u64"),
   literal("u128"),
   literal("u256"),
-  object({ vector: lazy(() => OpenMoveTypeSignatureBody) }),
+  object({ vector: lazy(() => OpenMoveTypeSignatureBody$1) }),
   object({
     datatype: object({
       package: string(),
       module: string(),
       type: string(),
-      typeParameters: array(lazy(() => OpenMoveTypeSignatureBody))
+      typeParameters: array(lazy(() => OpenMoveTypeSignatureBody$1))
     })
   }),
   object({ typeParameter: pipe(number(), integer()) })
 ]);
-const OpenMoveTypeSignature = object({
+const OpenMoveTypeSignature$1 = object({
   ref: nullable(union([literal("&"), literal("&mut")])),
-  body: OpenMoveTypeSignatureBody
+  body: OpenMoveTypeSignatureBody$1
 });
-const ProgrammableMoveCall$1 = object({
-  package: ObjectID,
+const ProgrammableMoveCall$3 = object({
+  package: ObjectID$1,
   module: string(),
   function: string(),
   // snake case in rust
   typeArguments: array(string()),
-  arguments: array(Argument$1),
-  _argumentTypes: optional(nullable(array(OpenMoveTypeSignature)))
+  arguments: array(Argument$3),
+  _argumentTypes: optional(nullable(array(OpenMoveTypeSignature$1)))
 });
-const $Intent$1 = object({
+const $Intent$3 = object({
   name: string(),
-  inputs: record(string(), union([Argument$1, array(Argument$1)])),
+  inputs: record(string(), union([Argument$3, array(Argument$3)])),
   data: record(string(), unknown())
 });
-const Command$1 = safeEnum({
-  MoveCall: ProgrammableMoveCall$1,
+const Command$3 = safeEnum$1({
+  MoveCall: ProgrammableMoveCall$3,
   TransferObjects: object({
-    objects: array(Argument$1),
-    address: Argument$1
+    objects: array(Argument$3),
+    address: Argument$3
   }),
   SplitCoins: object({
-    coin: Argument$1,
-    amounts: array(Argument$1)
+    coin: Argument$3,
+    amounts: array(Argument$3)
   }),
   MergeCoins: object({
-    destination: Argument$1,
-    sources: array(Argument$1)
+    destination: Argument$3,
+    sources: array(Argument$3)
   }),
   Publish: object({
-    modules: array(BCSBytes),
-    dependencies: array(ObjectID)
+    modules: array(BCSBytes$1),
+    dependencies: array(ObjectID$1)
   }),
   MakeMoveVec: object({
     type: nullable(string()),
-    elements: array(Argument$1)
+    elements: array(Argument$3)
   }),
   Upgrade: object({
-    modules: array(BCSBytes),
-    dependencies: array(ObjectID),
-    package: ObjectID,
-    ticket: Argument$1
+    modules: array(BCSBytes$1),
+    dependencies: array(ObjectID$1),
+    package: ObjectID$1,
+    ticket: Argument$3
   }),
-  $Intent: $Intent$1
+  $Intent: $Intent$3
 });
-const ObjectArg$2 = safeEnum({
-  ImmOrOwnedObject: ObjectRef$1,
+const ObjectArg$5 = safeEnum$1({
+  ImmOrOwnedObject: ObjectRef$3,
   SharedObject: object({
-    objectId: ObjectID,
+    objectId: ObjectID$1,
     // snake case in rust
-    initialSharedVersion: JsonU64,
+    initialSharedVersion: JsonU64$1,
     mutable: boolean()
   }),
-  Receiving: ObjectRef$1
+  Receiving: ObjectRef$3
 });
-const CallArg$1 = safeEnum({
-  Object: ObjectArg$2,
+const CallArg$3 = safeEnum$1({
+  Object: ObjectArg$5,
   Pure: object({
-    bytes: BCSBytes
+    bytes: BCSBytes$1
   }),
   UnresolvedPure: object({
     value: unknown()
   }),
   UnresolvedObject: object({
-    objectId: ObjectID,
-    version: optional(nullable(JsonU64)),
+    objectId: ObjectID$1,
+    version: optional(nullable(JsonU64$1)),
     digest: optional(nullable(string())),
-    initialSharedVersion: optional(nullable(JsonU64))
+    initialSharedVersion: optional(nullable(JsonU64$1))
   })
 });
-const NormalizedCallArg$1 = safeEnum({
-  Object: ObjectArg$2,
+const NormalizedCallArg$3 = safeEnum$1({
+  Object: ObjectArg$5,
   Pure: object({
-    bytes: BCSBytes
+    bytes: BCSBytes$1
   })
 });
-const TransactionExpiration$2 = safeEnum({
+const TransactionExpiration$5 = safeEnum$1({
   None: literal(true),
-  Epoch: JsonU64
+  Epoch: JsonU64$1
 });
-const TransactionData = object({
+const TransactionData$1 = object({
   version: literal(2),
-  sender: nullish(IotaAddress),
-  expiration: nullish(TransactionExpiration$2),
-  gasData: GasData$1,
-  inputs: array(CallArg$1),
-  commands: array(Command$1)
+  sender: nullish(IotaAddress$1),
+  expiration: nullish(TransactionExpiration$5),
+  gasData: GasData$3,
+  inputs: array(CallArg$3),
+  commands: array(Command$3)
 });
-const Commands = {
+const Commands$1 = {
   MoveCall(input) {
     const [pkg, mod2 = "", fn = ""] = "target" in input ? input.target.split("::") : [input.package, input.module, input.function];
     return {
@@ -14544,8 +16188,8 @@ const Commands = {
     return {
       $kind: "TransferObjects",
       TransferObjects: {
-        objects: objects.map((o) => parse(Argument$1, o)),
-        address: parse(Argument$1, address)
+        objects: objects.map((o) => parse(Argument$3, o)),
+        address: parse(Argument$3, address)
       }
     };
   },
@@ -14553,8 +16197,8 @@ const Commands = {
     return {
       $kind: "SplitCoins",
       SplitCoins: {
-        coin: parse(Argument$1, coin),
-        amounts: amounts.map((o) => parse(Argument$1, o))
+        coin: parse(Argument$3, coin),
+        amounts: amounts.map((o) => parse(Argument$3, o))
       }
     };
   },
@@ -14562,8 +16206,8 @@ const Commands = {
     return {
       $kind: "MergeCoins",
       MergeCoins: {
-        destination: parse(Argument$1, destination),
-        sources: sources.map((o) => parse(Argument$1, o))
+        destination: parse(Argument$3, destination),
+        sources: sources.map((o) => parse(Argument$3, o))
       }
     };
   },
@@ -14575,7 +16219,7 @@ const Commands = {
       $kind: "Publish",
       Publish: {
         modules: modules.map(
-          (module) => typeof module === "string" ? module : toBase64(new Uint8Array(module))
+          (module) => typeof module === "string" ? module : toB64(new Uint8Array(module))
         ),
         dependencies: dependencies.map((dep) => normalizeIotaObjectId(dep))
       }
@@ -14591,11 +16235,11 @@ const Commands = {
       $kind: "Upgrade",
       Upgrade: {
         modules: modules.map(
-          (module) => typeof module === "string" ? module : toBase64(new Uint8Array(module))
+          (module) => typeof module === "string" ? module : toB64(new Uint8Array(module))
         ),
         dependencies: dependencies.map((dep) => normalizeIotaObjectId(dep)),
         package: packageId,
-        ticket: parse(Argument$1, ticket)
+        ticket: parse(Argument$3, ticket)
       }
     };
   },
@@ -14607,7 +16251,7 @@ const Commands = {
       $kind: "MakeMoveVec",
       MakeMoveVec: {
         type: type ?? null,
-        elements: elements.map((o) => parse(Argument$1, o))
+        elements: elements.map((o) => parse(Argument$3, o))
       }
     };
   },
@@ -14623,7 +16267,7 @@ const Commands = {
         inputs: Object.fromEntries(
           Object.entries(inputs).map(([key, value]) => [
             key,
-            Array.isArray(value) ? value.map((o) => parse(Argument$1, o)) : parse(Argument$1, value)
+            Array.isArray(value) ? value.map((o) => parse(Argument$3, o)) : parse(Argument$3, value)
           ])
         ),
         data
@@ -14631,25 +16275,25 @@ const Commands = {
     };
   }
 };
-const ObjectRef = object({
+const ObjectRef$2 = object({
   digest: string(),
   objectId: string(),
   version: union([pipe(number(), integer()), string(), bigint()])
 });
-const ObjectArg$1 = safeEnum({
-  ImmOrOwned: ObjectRef,
+const ObjectArg$4 = safeEnum$1({
+  ImmOrOwned: ObjectRef$2,
   Shared: object({
-    objectId: ObjectID,
-    initialSharedVersion: JsonU64,
+    objectId: ObjectID$1,
+    initialSharedVersion: JsonU64$1,
     mutable: boolean()
   }),
-  Receiving: ObjectRef
+  Receiving: ObjectRef$2
 });
-const NormalizedCallArg = safeEnum({
-  Object: ObjectArg$1,
+const NormalizedCallArg$2 = safeEnum$1({
+  Object: ObjectArg$4,
   Pure: array(pipe(number(), integer()))
 });
-const TransactionInput = union([
+const TransactionInput$1 = union([
   object({
     kind: literal("Input"),
     index: pipe(number(), integer()),
@@ -14663,11 +16307,11 @@ const TransactionInput = union([
     type: literal("pure")
   })
 ]);
-const TransactionExpiration$1 = union([
+const TransactionExpiration$4 = union([
   object({ Epoch: pipe(number(), integer()) }),
   object({ None: nullable(literal(true)) })
 ]);
-const StringEncodedBigint = pipe(
+const StringEncodedBigint$1 = pipe(
   union([number(), string(), bigint()]),
   check((val) => {
     if (!["string", "number", "bigint"].includes(typeof val)) return false;
@@ -14679,33 +16323,33 @@ const StringEncodedBigint = pipe(
     }
   })
 );
-const TypeTag = union([
+const TypeTag$1 = union([
   object({ bool: nullable(literal(true)) }),
   object({ u8: nullable(literal(true)) }),
   object({ u64: nullable(literal(true)) }),
   object({ u128: nullable(literal(true)) }),
   object({ address: nullable(literal(true)) }),
   object({ signer: nullable(literal(true)) }),
-  object({ vector: lazy(() => TypeTag) }),
-  object({ struct: lazy(() => StructTag) }),
+  object({ vector: lazy(() => TypeTag$1) }),
+  object({ struct: lazy(() => StructTag$1) }),
   object({ u16: nullable(literal(true)) }),
   object({ u32: nullable(literal(true)) }),
   object({ u256: nullable(literal(true)) })
 ]);
-const StructTag = object({
+const StructTag$1 = object({
   address: string(),
   module: string(),
   name: string(),
-  typeParams: array(TypeTag)
+  typeParams: array(TypeTag$1)
 });
-const GasConfig = object({
-  budget: optional(StringEncodedBigint),
-  price: optional(StringEncodedBigint),
-  payment: optional(array(ObjectRef)),
+const GasConfig$1 = object({
+  budget: optional(StringEncodedBigint$1),
+  price: optional(StringEncodedBigint$1),
+  payment: optional(array(ObjectRef$2)),
   owner: optional(string())
 });
-const TransactionArgumentTypes = [
-  TransactionInput,
+const TransactionArgumentTypes$1 = [
+  TransactionInput$1,
   object({ kind: literal("GasCoin") }),
   object({ kind: literal("Result"), index: pipe(number(), integer()) }),
   object({
@@ -14714,67 +16358,68 @@ const TransactionArgumentTypes = [
     resultIndex: pipe(number(), integer())
   })
 ];
-const TransactionArgument = union([...TransactionArgumentTypes]);
-const MoveCallTransaction = object({
+const TransactionArgument$1 = union([...TransactionArgumentTypes$1]);
+const MoveCallTransaction$1 = object({
   kind: literal("MoveCall"),
   target: pipe(
     string(),
     check((target2) => target2.split("::").length === 3)
   ),
   typeArguments: array(string()),
-  arguments: array(TransactionArgument)
+  arguments: array(TransactionArgument$1)
 });
-const TransferObjectsTransaction = object({
+const TransferObjectsTransaction$1 = object({
   kind: literal("TransferObjects"),
-  objects: array(TransactionArgument),
-  address: TransactionArgument
+  objects: array(TransactionArgument$1),
+  address: TransactionArgument$1
 });
-const SplitCoinsTransaction = object({
+const SplitCoinsTransaction$1 = object({
   kind: literal("SplitCoins"),
-  coin: TransactionArgument,
-  amounts: array(TransactionArgument)
+  coin: TransactionArgument$1,
+  amounts: array(TransactionArgument$1)
 });
-const MergeCoinsTransaction = object({
+const MergeCoinsTransaction$1 = object({
   kind: literal("MergeCoins"),
-  destination: TransactionArgument,
-  sources: array(TransactionArgument)
+  destination: TransactionArgument$1,
+  sources: array(TransactionArgument$1)
 });
-const MakeMoveVecTransaction = object({
+const MakeMoveVecTransaction$1 = object({
   kind: literal("MakeMoveVec"),
-  type: union([object({ Some: TypeTag }), object({ None: nullable(literal(true)) })]),
-  objects: array(TransactionArgument)
+  type: union([object({ Some: TypeTag$1 }), object({ None: nullable(literal(true)) })]),
+  objects: array(TransactionArgument$1)
 });
-const PublishTransaction = object({
+const PublishTransaction$1 = object({
   kind: literal("Publish"),
   modules: array(array(pipe(number(), integer()))),
   dependencies: array(string())
 });
-const UpgradeTransaction = object({
+const UpgradeTransaction$1 = object({
   kind: literal("Upgrade"),
   modules: array(array(pipe(number(), integer()))),
   dependencies: array(string()),
   packageId: string(),
-  ticket: TransactionArgument
+  ticket: TransactionArgument$1
 });
-const TransactionTypes = [
-  MoveCallTransaction,
-  TransferObjectsTransaction,
-  SplitCoinsTransaction,
-  MergeCoinsTransaction,
-  PublishTransaction,
-  UpgradeTransaction,
-  MakeMoveVecTransaction
+const TransactionTypes$1 = [
+  MoveCallTransaction$1,
+  TransferObjectsTransaction$1,
+  SplitCoinsTransaction$1,
+  MergeCoinsTransaction$1,
+  PublishTransaction$1,
+  UpgradeTransaction$1,
+  MakeMoveVecTransaction$1
 ];
-const TransactionType = union([...TransactionTypes]);
+const TransactionType$1 = union([...TransactionTypes$1]);
 object({
   version: literal(1),
   sender: optional(string()),
-  expiration: nullish(TransactionExpiration$1),
-  gasConfig: GasConfig,
-  inputs: array(TransactionInput),
-  transactions: array(TransactionType)
+  expiration: nullish(TransactionExpiration$4),
+  gasConfig: GasConfig$1,
+  inputs: array(TransactionInput$1),
+  transactions: array(TransactionType$1)
 });
-function serializeV1TransactionData(transactionData) {
+function serializeV1TransactionData$1(transactionData) {
+  var _a2;
   const inputs = transactionData.inputs.map(
     (input, index2) => {
       if (input.Object) {
@@ -14806,7 +16451,7 @@ function serializeV1TransactionData(transactionData) {
           kind: "Input",
           index: index2,
           value: {
-            Pure: Array.from(fromBase64(input.Pure.bytes))
+            Pure: Array.from(fromB64(input.Pure.bytes))
           },
           type: "pure"
         };
@@ -14833,7 +16478,7 @@ function serializeV1TransactionData(transactionData) {
   return {
     version: 1,
     sender: transactionData.sender ?? void 0,
-    expiration: transactionData.expiration?.$kind === "Epoch" ? { Epoch: Number(transactionData.expiration.Epoch) } : transactionData.expiration ? { None: true } : null,
+    expiration: ((_a2 = transactionData.expiration) == null ? void 0 : _a2.$kind) === "Epoch" ? { Epoch: Number(transactionData.expiration.Epoch) } : transactionData.expiration ? { None: true } : null,
     gasConfig: {
       owner: transactionData.gasData.owner ?? void 0,
       budget: transactionData.gasData.budget ?? void 0,
@@ -14847,24 +16492,24 @@ function serializeV1TransactionData(transactionData) {
           return {
             kind: "MakeMoveVec",
             type: command.MakeMoveVec.type === null ? { None: true } : {
-              Some: TypeTagSerializer.parseFromStr(
+              Some: TypeTagSerializer2.parseFromStr(
                 command.MakeMoveVec.type
               )
             },
             objects: command.MakeMoveVec.elements.map(
-              (arg) => convertTransactionArgument(arg, inputs)
+              (arg) => convertTransactionArgument$1(arg, inputs)
             )
           };
         }
         if (command.MergeCoins) {
           return {
             kind: "MergeCoins",
-            destination: convertTransactionArgument(
+            destination: convertTransactionArgument$1(
               command.MergeCoins.destination,
               inputs
             ),
             sources: command.MergeCoins.sources.map(
-              (arg) => convertTransactionArgument(arg, inputs)
+              (arg) => convertTransactionArgument$1(arg, inputs)
             )
           };
         }
@@ -14874,23 +16519,23 @@ function serializeV1TransactionData(transactionData) {
             target: `${command.MoveCall.package}::${command.MoveCall.module}::${command.MoveCall.function}`,
             typeArguments: command.MoveCall.typeArguments,
             arguments: command.MoveCall.arguments.map(
-              (arg) => convertTransactionArgument(arg, inputs)
+              (arg) => convertTransactionArgument$1(arg, inputs)
             )
           };
         }
         if (command.Publish) {
           return {
             kind: "Publish",
-            modules: command.Publish.modules.map((mod2) => Array.from(fromBase64(mod2))),
+            modules: command.Publish.modules.map((mod2) => Array.from(fromB64(mod2))),
             dependencies: command.Publish.dependencies
           };
         }
         if (command.SplitCoins) {
           return {
             kind: "SplitCoins",
-            coin: convertTransactionArgument(command.SplitCoins.coin, inputs),
+            coin: convertTransactionArgument$1(command.SplitCoins.coin, inputs),
             amounts: command.SplitCoins.amounts.map(
-              (arg) => convertTransactionArgument(arg, inputs)
+              (arg) => convertTransactionArgument$1(arg, inputs)
             )
           };
         }
@@ -14898,9 +16543,9 @@ function serializeV1TransactionData(transactionData) {
           return {
             kind: "TransferObjects",
             objects: command.TransferObjects.objects.map(
-              (arg) => convertTransactionArgument(arg, inputs)
+              (arg) => convertTransactionArgument$1(arg, inputs)
             ),
-            address: convertTransactionArgument(
+            address: convertTransactionArgument$1(
               command.TransferObjects.address,
               inputs
             )
@@ -14909,10 +16554,10 @@ function serializeV1TransactionData(transactionData) {
         if (command.Upgrade) {
           return {
             kind: "Upgrade",
-            modules: command.Upgrade.modules.map((mod2) => Array.from(fromBase64(mod2))),
+            modules: command.Upgrade.modules.map((mod2) => Array.from(fromB64(mod2))),
             dependencies: command.Upgrade.dependencies,
             packageId: command.Upgrade.package,
-            ticket: convertTransactionArgument(command.Upgrade.ticket, inputs)
+            ticket: convertTransactionArgument$1(command.Upgrade.ticket, inputs)
           };
         }
         throw new Error(`Unknown transaction ${Object.keys(command)}`);
@@ -14920,7 +16565,7 @@ function serializeV1TransactionData(transactionData) {
     )
   };
 }
-function convertTransactionArgument(arg, inputs) {
+function convertTransactionArgument$1(arg, inputs) {
   if (arg.$kind === "GasCoin") {
     return { kind: "GasCoin" };
   }
@@ -14939,25 +16584,26 @@ function convertTransactionArgument(arg, inputs) {
   }
   throw new Error(`Invalid argument ${Object.keys(arg)}`);
 }
-function transactionDataFromV1(data) {
-  return parse(TransactionData, {
+function transactionDataFromV1$1(data) {
+  var _a2, _b, _c;
+  return parse(TransactionData$1, {
     version: 2,
     sender: data.sender ?? null,
     expiration: data.expiration ? "Epoch" in data.expiration ? { Epoch: data.expiration.Epoch } : { None: true } : null,
     gasData: {
       owner: data.gasConfig.owner ?? null,
-      budget: data.gasConfig.budget?.toString() ?? null,
-      price: data.gasConfig.price?.toString() ?? null,
-      payment: data.gasConfig.payment?.map((ref) => ({
+      budget: ((_a2 = data.gasConfig.budget) == null ? void 0 : _a2.toString()) ?? null,
+      price: ((_b = data.gasConfig.price) == null ? void 0 : _b.toString()) ?? null,
+      payment: ((_c = data.gasConfig.payment) == null ? void 0 : _c.map((ref) => ({
         digest: ref.digest,
         objectId: ref.objectId,
         version: ref.version.toString()
-      })) ?? null
+      }))) ?? null
     },
     inputs: data.inputs.map((input) => {
       if (input.kind === "Input") {
-        if (is(NormalizedCallArg, input.value)) {
-          const value = parse(NormalizedCallArg, input.value);
+        if (is(NormalizedCallArg$2, input.value)) {
+          const value = parse(NormalizedCallArg$2, input.value);
           if (value.Object) {
             if (value.Object.ImmOrOwned) {
               return {
@@ -14996,7 +16642,7 @@ function transactionDataFromV1(data) {
           }
           return {
             Pure: {
-              bytes: toBase64(new Uint8Array(value.Pure))
+              bytes: toB64(new Uint8Array(value.Pure))
             }
           };
         }
@@ -15020,18 +16666,18 @@ function transactionDataFromV1(data) {
         case "MakeMoveVec":
           return {
             MakeMoveVec: {
-              type: "Some" in transaction.type ? TypeTagSerializer.tagToString(transaction.type.Some) : null,
+              type: "Some" in transaction.type ? TypeTagSerializer2.tagToString(transaction.type.Some) : null,
               elements: transaction.objects.map(
-                (arg) => parseV1TransactionArgument(arg)
+                (arg) => parseV1TransactionArgument$1(arg)
               )
             }
           };
         case "MergeCoins": {
           return {
             MergeCoins: {
-              destination: parseV1TransactionArgument(transaction.destination),
+              destination: parseV1TransactionArgument$1(transaction.destination),
               sources: transaction.sources.map(
-                (arg) => parseV1TransactionArgument(arg)
+                (arg) => parseV1TransactionArgument$1(arg)
               )
             }
           };
@@ -15045,7 +16691,7 @@ function transactionDataFromV1(data) {
               function: fn,
               typeArguments: transaction.typeArguments,
               arguments: transaction.arguments.map(
-                (arg) => parseV1TransactionArgument(arg)
+                (arg) => parseV1TransactionArgument$1(arg)
               )
             }
           };
@@ -15053,9 +16699,7 @@ function transactionDataFromV1(data) {
         case "Publish": {
           return {
             Publish: {
-              modules: transaction.modules.map(
-                (mod2) => toBase64(Uint8Array.from(mod2))
-              ),
+              modules: transaction.modules.map((mod2) => toB64(Uint8Array.from(mod2))),
               dependencies: transaction.dependencies
             }
           };
@@ -15063,9 +16707,9 @@ function transactionDataFromV1(data) {
         case "SplitCoins": {
           return {
             SplitCoins: {
-              coin: parseV1TransactionArgument(transaction.coin),
+              coin: parseV1TransactionArgument$1(transaction.coin),
               amounts: transaction.amounts.map(
-                (arg) => parseV1TransactionArgument(arg)
+                (arg) => parseV1TransactionArgument$1(arg)
               )
             }
           };
@@ -15074,21 +16718,19 @@ function transactionDataFromV1(data) {
           return {
             TransferObjects: {
               objects: transaction.objects.map(
-                (arg) => parseV1TransactionArgument(arg)
+                (arg) => parseV1TransactionArgument$1(arg)
               ),
-              address: parseV1TransactionArgument(transaction.address)
+              address: parseV1TransactionArgument$1(transaction.address)
             }
           };
         }
         case "Upgrade": {
           return {
             Upgrade: {
-              modules: transaction.modules.map(
-                (mod2) => toBase64(Uint8Array.from(mod2))
-              ),
+              modules: transaction.modules.map((mod2) => toB64(Uint8Array.from(mod2))),
               dependencies: transaction.dependencies,
               package: transaction.packageId,
-              ticket: parseV1TransactionArgument(transaction.ticket)
+              ticket: parseV1TransactionArgument$1(transaction.ticket)
             }
           };
         }
@@ -15097,7 +16739,7 @@ function transactionDataFromV1(data) {
     })
   });
 }
-function parseV1TransactionArgument(arg) {
+function parseV1TransactionArgument$1(arg) {
   switch (arg.kind) {
     case "GasCoin": {
       return { GasCoin: true };
@@ -15112,131 +16754,131 @@ function parseV1TransactionArgument(arg) {
     }
   }
 }
-function enumUnion(options) {
+function enumUnion$1(options) {
   return union(
     Object.entries(options).map(([key, value]) => object({ [key]: value }))
   );
 }
-const Argument = enumUnion({
+const Argument$2 = enumUnion$1({
   GasCoin: literal(true),
   Input: pipe(number(), integer()),
   Result: pipe(number(), integer()),
   NestedResult: tuple([pipe(number(), integer()), pipe(number(), integer())])
 });
-const GasData = object({
-  budget: nullable(JsonU64),
-  price: nullable(JsonU64),
-  owner: nullable(IotaAddress),
-  payment: nullable(array(ObjectRef$1))
+const GasData$2 = object({
+  budget: nullable(JsonU64$1),
+  price: nullable(JsonU64$1),
+  owner: nullable(IotaAddress$1),
+  payment: nullable(array(ObjectRef$3))
 });
-const ProgrammableMoveCall = object({
-  package: ObjectID,
+const ProgrammableMoveCall$2 = object({
+  package: ObjectID$1,
   module: string(),
   function: string(),
   // snake case in rust
   typeArguments: array(string()),
-  arguments: array(Argument)
+  arguments: array(Argument$2)
 });
-const $Intent = object({
+const $Intent$2 = object({
   name: string(),
-  inputs: record(string(), union([Argument, array(Argument)])),
+  inputs: record(string(), union([Argument$2, array(Argument$2)])),
   data: record(string(), unknown())
 });
-const Command = enumUnion({
-  MoveCall: ProgrammableMoveCall,
+const Command$2 = enumUnion$1({
+  MoveCall: ProgrammableMoveCall$2,
   TransferObjects: object({
-    objects: array(Argument),
-    address: Argument
+    objects: array(Argument$2),
+    address: Argument$2
   }),
   SplitCoins: object({
-    coin: Argument,
-    amounts: array(Argument)
+    coin: Argument$2,
+    amounts: array(Argument$2)
   }),
   MergeCoins: object({
-    destination: Argument,
-    sources: array(Argument)
+    destination: Argument$2,
+    sources: array(Argument$2)
   }),
   Publish: object({
-    modules: array(BCSBytes),
-    dependencies: array(ObjectID)
+    modules: array(BCSBytes$1),
+    dependencies: array(ObjectID$1)
   }),
   MakeMoveVec: object({
     type: nullable(string()),
-    elements: array(Argument)
+    elements: array(Argument$2)
   }),
   Upgrade: object({
-    modules: array(BCSBytes),
-    dependencies: array(ObjectID),
-    package: ObjectID,
-    ticket: Argument
+    modules: array(BCSBytes$1),
+    dependencies: array(ObjectID$1),
+    package: ObjectID$1,
+    ticket: Argument$2
   }),
-  $Intent
+  $Intent: $Intent$2
 });
-const ObjectArg = enumUnion({
-  ImmOrOwnedObject: ObjectRef$1,
+const ObjectArg$3 = enumUnion$1({
+  ImmOrOwnedObject: ObjectRef$3,
   SharedObject: object({
-    objectId: ObjectID,
+    objectId: ObjectID$1,
     // snake case in rust
-    initialSharedVersion: JsonU64,
+    initialSharedVersion: JsonU64$1,
     mutable: boolean()
   }),
-  Receiving: ObjectRef$1
+  Receiving: ObjectRef$3
 });
-const CallArg = enumUnion({
-  Object: ObjectArg,
+const CallArg$2 = enumUnion$1({
+  Object: ObjectArg$3,
   Pure: object({
-    bytes: BCSBytes
+    bytes: BCSBytes$1
   }),
   UnresolvedPure: object({
     value: unknown()
   }),
   UnresolvedObject: object({
-    objectId: ObjectID,
-    version: optional(nullable(JsonU64)),
+    objectId: ObjectID$1,
+    version: optional(nullable(JsonU64$1)),
     digest: optional(nullable(string())),
-    initialSharedVersion: optional(nullable(JsonU64))
+    initialSharedVersion: optional(nullable(JsonU64$1))
   })
 });
-const TransactionExpiration = enumUnion({
+const TransactionExpiration$3 = enumUnion$1({
   None: literal(true),
-  Epoch: JsonU64
+  Epoch: JsonU64$1
 });
-const SerializedTransactionDataV2 = object({
+const SerializedTransactionDataV2$1 = object({
   version: literal(2),
-  sender: nullish(IotaAddress),
-  expiration: nullish(TransactionExpiration),
-  gasData: GasData,
-  inputs: array(CallArg),
-  commands: array(Command)
+  sender: nullish(IotaAddress$1),
+  expiration: nullish(TransactionExpiration$3),
+  gasData: GasData$2,
+  inputs: array(CallArg$2),
+  commands: array(Command$2)
 });
-const MAX_OBJECTS_PER_FETCH = 50;
-const GAS_SAFE_OVERHEAD = 1000n;
-const MAX_GAS = 5e10;
-async function resolveTransactionData(transactionData, options, next) {
-  await normalizeInputs(transactionData, options);
-  await resolveObjectReferences(transactionData, options);
+const MAX_OBJECTS_PER_FETCH$1 = 50;
+const GAS_SAFE_OVERHEAD$1 = 1000n;
+const MAX_GAS$1 = 5e10;
+async function resolveTransactionData$1(transactionData, options, next) {
+  await normalizeInputs$1(transactionData, options);
+  await resolveObjectReferences$1(transactionData, options);
   if (!options.onlyTransactionKind) {
-    await setGasPrice(transactionData, options);
-    await setGasBudget(transactionData, options);
-    await setGasPayment(transactionData, options);
+    await setGasPrice$1(transactionData, options);
+    await setGasBudget$1(transactionData, options);
+    await setGasPayment$1(transactionData, options);
   }
-  await validate(transactionData);
+  await validate$1(transactionData);
   return await next();
 }
-async function setGasPrice(transactionData, options) {
+async function setGasPrice$1(transactionData, options) {
   if (!transactionData.gasConfig.price) {
-    transactionData.gasConfig.price = String(await getClient$1(options).getReferenceGasPrice());
+    transactionData.gasConfig.price = String(await getClient$2(options).getReferenceGasPrice());
   }
 }
-async function setGasBudget(transactionData, options) {
+async function setGasBudget$1(transactionData, options) {
   if (transactionData.gasConfig.budget) {
     return;
   }
-  const dryRunResult = await getClient$1(options).dryRunTransactionBlock({
+  const dryRunResult = await getClient$2(options).dryRunTransactionBlock({
     transactionBlock: transactionData.build({
       overrides: {
         gasData: {
-          budget: String(MAX_GAS),
+          budget: String(MAX_GAS$1),
           payment: []
         }
       }
@@ -15248,22 +16890,23 @@ async function setGasBudget(transactionData, options) {
       { cause: dryRunResult }
     );
   }
-  const safeOverhead = GAS_SAFE_OVERHEAD * BigInt(transactionData.gasConfig.price || 1n);
+  const safeOverhead = GAS_SAFE_OVERHEAD$1 * BigInt(transactionData.gasConfig.price || 1n);
   const baseComputationCostWithOverhead = BigInt(dryRunResult.effects.gasUsed.computationCost) + safeOverhead;
   const gasBudget = baseComputationCostWithOverhead + BigInt(dryRunResult.effects.gasUsed.storageCost) - BigInt(dryRunResult.effects.gasUsed.storageRebate);
   transactionData.gasConfig.budget = String(
     gasBudget > baseComputationCostWithOverhead ? gasBudget : baseComputationCostWithOverhead
   );
 }
-async function setGasPayment(transactionData, options) {
+async function setGasPayment$1(transactionData, options) {
   if (!transactionData.gasConfig.payment) {
-    const coins = await getClient$1(options).getCoins({
+    const coins = await getClient$2(options).getCoins({
       owner: transactionData.gasConfig.owner || transactionData.sender,
-      coinType: IOTA_TYPE_ARG
+      coinType: IOTA_TYPE_ARG$1
     });
     const paymentCoins = coins.data.filter((coin) => {
       const matchingInput = transactionData.inputs.find((input) => {
-        if (input.Object?.ImmOrOwnedObject) {
+        var _a2;
+        if ((_a2 = input.Object) == null ? void 0 : _a2.ImmOrOwnedObject) {
           return coin.coinObjectId === input.Object.ImmOrOwnedObject.objectId;
         }
         return false;
@@ -15278,82 +16921,86 @@ async function setGasPayment(transactionData, options) {
       throw new Error("No valid gas coins found for the transaction.");
     }
     transactionData.gasConfig.payment = paymentCoins.map(
-      (payment) => parse(ObjectRef$1, payment)
+      (payment) => parse(ObjectRef$3, payment)
     );
   }
 }
-async function resolveObjectReferences(transactionData, options) {
+async function resolveObjectReferences$1(transactionData, options) {
   const objectsToResolve = transactionData.inputs.filter((input) => {
-    return input.UnresolvedObject && !(input.UnresolvedObject.version || input.UnresolvedObject?.initialSharedVersion);
+    var _a2;
+    return input.UnresolvedObject && !(input.UnresolvedObject.version || ((_a2 = input.UnresolvedObject) == null ? void 0 : _a2.initialSharedVersion));
   });
   const dedupedIds = [
     ...new Set(
       objectsToResolve.map((input) => normalizeIotaObjectId(input.UnresolvedObject.objectId))
     )
   ];
-  const objectChunks = dedupedIds.length ? chunk(dedupedIds, MAX_OBJECTS_PER_FETCH) : [];
-  const resolvedObjects = /* @__PURE__ */ new Map();
-  const erroredObjects = /* @__PURE__ */ new Map();
-  await Promise.all(
-    objectChunks.map(async (chunk2) => {
-      const chunkObjects = await getClient$1(options).multiGetObjects({
+  const objectChunks = dedupedIds.length ? chunk$1(dedupedIds, MAX_OBJECTS_PER_FETCH$1) : [];
+  const resolved = (await Promise.all(
+    objectChunks.map(
+      (chunk2) => getClient$2(options).multiGetObjects({
         ids: chunk2,
         options: { showOwner: true }
-      });
-      for (const object2 of chunkObjects) {
-        const objectId = object2.data?.objectId;
-        if (objectId) {
-          if (object2.error || !object2.data) {
-            erroredObjects.set(objectId, object2.error);
-            return;
-          }
-          const owner = object2.data.owner;
-          const initialSharedVersion = owner && typeof owner === "object" && "Shared" in owner ? owner.Shared.initial_shared_version : null;
-          resolvedObjects.set(objectId, {
-            objectId,
-            digest: object2.data.digest,
-            version: object2.data.version,
-            initialSharedVersion
-          });
-        }
-      }
+      })
+    )
+  )).flat();
+  const responsesById = new Map(
+    dedupedIds.map((id, index2) => {
+      return [id, resolved[index2]];
     })
   );
-  if (erroredObjects.size > 0) {
-    throw new Error(
-      `The following input objects are invalid: ${Array.from(erroredObjects).join(", ")}`
-    );
+  const invalidObjects = Array.from(responsesById).filter(([_, obj]) => obj.error).map(([_, obj]) => JSON.stringify(obj.error));
+  if (invalidObjects.length) {
+    throw new Error(`The following input objects are invalid: ${invalidObjects.join(", ")}`);
   }
+  const objects = resolved.map((object2) => {
+    if (object2.error || !object2.data) {
+      throw new Error(`Failed to fetch object: ${object2.error}`);
+    }
+    const owner = object2.data.owner;
+    const initialSharedVersion = owner && typeof owner === "object" && "Shared" in owner ? owner.Shared.initial_shared_version : null;
+    return {
+      objectId: object2.data.objectId,
+      digest: object2.data.digest,
+      version: object2.data.version,
+      initialSharedVersion
+    };
+  });
+  const objectsById = new Map(
+    dedupedIds.map((id, index2) => {
+      return [id, objects[index2]];
+    })
+  );
   for (const [index2, input] of transactionData.inputs.entries()) {
     if (!input.UnresolvedObject) {
       continue;
     }
     let updated;
     const id = normalizeIotaAddress(input.UnresolvedObject.objectId);
-    const object2 = resolvedObjects.get(id);
-    if (input.UnresolvedObject.initialSharedVersion ?? object2?.initialSharedVersion) {
-      updated = Inputs.SharedObjectRef({
+    const object2 = objectsById.get(id);
+    if (input.UnresolvedObject.initialSharedVersion ?? (object2 == null ? void 0 : object2.initialSharedVersion)) {
+      updated = Inputs$1.SharedObjectRef({
         objectId: id,
-        initialSharedVersion: input.UnresolvedObject.initialSharedVersion || object2?.initialSharedVersion,
-        mutable: isUsedAsMutable(transactionData, index2)
+        initialSharedVersion: input.UnresolvedObject.initialSharedVersion || (object2 == null ? void 0 : object2.initialSharedVersion),
+        mutable: isUsedAsMutable$1(transactionData, index2)
       });
-    } else if (isUsedAsReceiving(transactionData, index2)) {
-      updated = Inputs.ReceivingRef(
+    } else if (isUsedAsReceiving$1(transactionData, index2)) {
+      updated = Inputs$1.ReceivingRef(
         {
           objectId: id,
-          digest: input.UnresolvedObject.digest ?? object2?.digest,
-          version: input.UnresolvedObject.version ?? object2?.version
+          digest: input.UnresolvedObject.digest ?? (object2 == null ? void 0 : object2.digest),
+          version: input.UnresolvedObject.version ?? (object2 == null ? void 0 : object2.version)
         }
       );
     }
-    transactionData.inputs[transactionData.inputs.indexOf(input)] = updated ?? Inputs.ObjectRef({
+    transactionData.inputs[transactionData.inputs.indexOf(input)] = updated ?? Inputs$1.ObjectRef({
       objectId: id,
-      digest: input.UnresolvedObject.digest ?? object2?.digest,
-      version: input.UnresolvedObject.version ?? object2?.version
+      digest: input.UnresolvedObject.digest ?? (object2 == null ? void 0 : object2.digest),
+      version: input.UnresolvedObject.version ?? (object2 == null ? void 0 : object2.version)
     });
   }
 }
-async function normalizeInputs(transactionData, options) {
+async function normalizeInputs$1(transactionData, options) {
   const { inputs, commands } = transactionData;
   const moveCallsToResolve = [];
   const moveFunctionsToResolve = /* @__PURE__ */ new Set();
@@ -15369,7 +17016,7 @@ async function normalizeInputs(transactionData, options) {
         return null;
       });
       const needsResolution = inputs2.some(
-        (input) => input?.UnresolvedPure || input?.UnresolvedObject
+        (input) => (input == null ? void 0 : input.UnresolvedPure) || (input == null ? void 0 : input.UnresolvedObject)
       );
       if (needsResolution) {
         const functionName = `${command.MoveCall.package}::${command.MoveCall.module}::${command.MoveCall.function}`;
@@ -15380,17 +17027,17 @@ async function normalizeInputs(transactionData, options) {
     switch (command.$kind) {
       case "SplitCoins":
         command.SplitCoins.amounts.forEach((amount) => {
-          normalizeRawArgument(amount, iotaBcs.U64, transactionData);
+          normalizeRawArgument$1(amount, iotaBcs.U64, transactionData);
         });
         break;
       case "TransferObjects":
-        normalizeRawArgument(command.TransferObjects.address, iotaBcs.Address, transactionData);
+        normalizeRawArgument$1(command.TransferObjects.address, iotaBcs.Address, transactionData);
         break;
     }
   });
   const moveFunctionParameters = /* @__PURE__ */ new Map();
   if (moveFunctionsToResolve.size > 0) {
-    const client2 = getClient$1(options);
+    const client2 = getClient$2(options);
     await Promise.all(
       [...moveFunctionsToResolve].map(async (functionName) => {
         const [packageId, moduleId, functionId] = functionName.split("::");
@@ -15401,7 +17048,7 @@ async function normalizeInputs(transactionData, options) {
         });
         moveFunctionParameters.set(
           functionName,
-          def.parameters.map((param) => normalizedTypeToMoveTypeSignature(param))
+          def.parameters.map((param) => normalizedTypeToMoveTypeSignature$1(param))
         );
       })
     );
@@ -15415,7 +17062,7 @@ async function normalizeInputs(transactionData, options) {
         if (!parameters) {
           return;
         }
-        const hasTxContext = parameters.length > 0 && isTxContext(parameters.at(-1));
+        const hasTxContext = parameters.length > 0 && isTxContext$1(parameters.at(-1));
         const params = hasTxContext ? parameters.slice(0, parameters.length - 1) : parameters;
         moveCall._argumentTypes = params;
       })
@@ -15435,18 +17082,18 @@ async function normalizeInputs(transactionData, options) {
       throw new Error(`Incorrect number of arguments for ${fnName}`);
     }
     params.forEach((param, i) => {
+      var _a2, _b;
       const arg = moveCall.arguments[i];
       if (arg.$kind !== "Input") return;
       const input = inputs[arg.Input];
       if (!input.UnresolvedPure && !input.UnresolvedObject) {
         return;
       }
-      const inputValue = input.UnresolvedPure?.value ?? input.UnresolvedObject?.objectId;
-      const inputIndex = inputs.indexOf(input);
-      const schema = getPureBcsSchema(param.body);
+      const inputValue = ((_a2 = input.UnresolvedPure) == null ? void 0 : _a2.value) ?? ((_b = input.UnresolvedObject) == null ? void 0 : _b.objectId);
+      const schema = getPureBcsSchema$1(param.body);
       if (schema) {
         arg.type = "pure";
-        inputs[inputIndex] = Inputs.Pure(schema.serialize(inputValue));
+        inputs[inputs.indexOf(input)] = Inputs$1.Pure(schema.serialize(inputValue));
         return;
       }
       if (typeof inputValue !== "string") {
@@ -15465,11 +17112,11 @@ async function normalizeInputs(transactionData, options) {
           objectId: inputValue
         }
       } : input;
-      inputs[inputIndex] = unresolvedObject;
+      inputs[arg.Input] = unresolvedObject;
     });
   });
 }
-function validate(transactionData) {
+function validate$1(transactionData) {
   transactionData.inputs.forEach((input, index2) => {
     if (input.$kind !== "Object" && input.$kind !== "Pure") {
       throw new Error(
@@ -15480,7 +17127,7 @@ function validate(transactionData) {
     }
   });
 }
-function normalizeRawArgument(arg, schema, transactionData) {
+function normalizeRawArgument$1(arg, schema, transactionData) {
   if (arg.$kind !== "Input") {
     return;
   }
@@ -15488,9 +17135,9 @@ function normalizeRawArgument(arg, schema, transactionData) {
   if (input.$kind !== "UnresolvedPure") {
     return;
   }
-  transactionData.inputs[arg.Input] = Inputs.Pure(schema.serialize(input.UnresolvedPure.value));
+  transactionData.inputs[arg.Input] = Inputs$1.Pure(schema.serialize(input.UnresolvedPure.value));
 }
-function isUsedAsMutable(transactionData, index2) {
+function isUsedAsMutable$1(transactionData, index2) {
   let usedAsMutable = false;
   transactionData.getInputUses(index2, (arg, tx) => {
     if (tx.MoveCall && tx.MoveCall._argumentTypes) {
@@ -15503,37 +17150,37 @@ function isUsedAsMutable(transactionData, index2) {
   });
   return usedAsMutable;
 }
-function isUsedAsReceiving(transactionData, index2) {
+function isUsedAsReceiving$1(transactionData, index2) {
   let usedAsReceiving = false;
   transactionData.getInputUses(index2, (arg, tx) => {
     if (tx.MoveCall && tx.MoveCall._argumentTypes) {
       const argIndex = tx.MoveCall.arguments.indexOf(arg);
-      usedAsReceiving = isReceivingType(tx.MoveCall._argumentTypes[argIndex]) || usedAsReceiving;
+      usedAsReceiving = isReceivingType$1(tx.MoveCall._argumentTypes[argIndex]) || usedAsReceiving;
     }
   });
   return usedAsReceiving;
 }
-function isReceivingType(type) {
+function isReceivingType$1(type) {
   if (typeof type.body !== "object" || !("datatype" in type.body)) {
     return false;
   }
   return type.body.datatype.package === "0x2" && type.body.datatype.module === "transfer" && type.body.datatype.type === "Receiving";
 }
-function getClient$1(options) {
+function getClient$2(options) {
   if (!options.client) {
     throw new Error(
-      `No iota client passed to Transaction#build, but transaction data was not sufficient to build offline.`
+      `No provider passed to Transaction#build, but transaction data was not sufficient to build offline.`
     );
   }
   return options.client;
 }
-function chunk(arr, size) {
+function chunk$1(arr, size) {
   return Array.from(
     { length: Math.ceil(arr.length / size) },
     (_, i) => arr.slice(i * size, i * size + size)
   );
 }
-function createObjectMethods(makeObject) {
+function createObjectMethods$1(makeObject) {
   function object2(value) {
     return makeObject(value);
   }
@@ -15541,17 +17188,12 @@ function createObjectMethods(makeObject) {
   object2.clock = () => object2("0x6");
   object2.random = () => object2("0x8");
   object2.denyList = () => object2("0x403");
-  object2.option = ({ type, value }) => (tx) => tx.moveCall({
-    typeArguments: [type],
-    target: `0x1::option::${value === null ? "none" : "some"}`,
-    arguments: value === null ? [] : [tx.object(value)]
-  });
   return object2;
 }
-function createPure(makePure) {
+function createPure$1(makePure) {
   function pure(typeOrSerializedValue, value) {
     if (typeof typeOrSerializedValue === "string") {
-      return makePure(schemaFromName(typeOrSerializedValue).serialize(value));
+      return makePure(schemaFromName$1(typeOrSerializedValue).serialize(value));
     }
     if (typeOrSerializedValue instanceof Uint8Array || isSerializedBcs(typeOrSerializedValue)) {
       return makePure(typeOrSerializedValue);
@@ -15569,14 +17211,14 @@ function createPure(makePure) {
   pure.address = (value) => makePure(iotaBcs.Address.serialize(value));
   pure.id = pure.address;
   pure.vector = (type, value) => {
-    return makePure(iotaBcs.vector(schemaFromName(type)).serialize(value));
+    return makePure(iotaBcs.vector(schemaFromName$1(type)).serialize(value));
   };
   pure.option = (type, value) => {
-    return makePure(iotaBcs.option(schemaFromName(type)).serialize(value));
+    return makePure(iotaBcs.option(schemaFromName$1(type)).serialize(value));
   };
   return pure;
 }
-function schemaFromName(name) {
+function schemaFromName$1(name) {
   switch (name) {
     case "u8":
       return iotaBcs.u8();
@@ -15602,31 +17244,31 @@ function schemaFromName(name) {
   if (generic) {
     const [kind, inner] = generic.slice(1);
     if (kind === "vector") {
-      return iotaBcs.vector(schemaFromName(inner));
+      return iotaBcs.vector(schemaFromName$1(inner));
     } else {
-      return iotaBcs.option(schemaFromName(inner));
+      return iotaBcs.option(schemaFromName$1(inner));
     }
   }
   throw new Error(`Invalid Pure type name: ${name}`);
 }
-function hashTypedData(typeTag, data) {
+function hashTypedData$1(typeTag, data) {
   const typeTagBytes = Array.from(`${typeTag}::`).map((e) => e.charCodeAt(0));
   const dataWithTag = new Uint8Array(typeTagBytes.length + data.length);
   dataWithTag.set(typeTagBytes);
   dataWithTag.set(data, typeTagBytes.length);
   return blake2b(dataWithTag, { dkLen: 32 });
 }
-function prepareIotaAddress(address) {
+function prepareIotaAddress$1(address) {
   return normalizeIotaAddress(address).replace("0x", "");
 }
-class TransactionDataBuilder {
+let TransactionDataBuilder$1 = class TransactionDataBuilder {
   constructor(clone) {
     this.version = 2;
-    this.sender = clone?.sender ?? null;
-    this.expiration = clone?.expiration ?? null;
-    this.inputs = clone?.inputs ?? [];
-    this.commands = clone?.commands ?? [];
-    this.gasData = clone?.gasData ?? {
+    this.sender = (clone == null ? void 0 : clone.sender) ?? null;
+    this.expiration = (clone == null ? void 0 : clone.expiration) ?? null;
+    this.inputs = (clone == null ? void 0 : clone.inputs) ?? [];
+    this.commands = (clone == null ? void 0 : clone.commands) ?? [];
+    this.gasData = (clone == null ? void 0 : clone.gasData) ?? {
       budget: null,
       price: null,
       owner: null,
@@ -15655,7 +17297,7 @@ class TransactionDataBuilder {
   }
   static fromBytes(bytes) {
     const rawData = iotaBcs.TransactionData.parse(bytes);
-    const data = rawData?.V1;
+    const data = rawData == null ? void 0 : rawData.V1;
     const programmableTx = data.kind.ProgrammableTransaction;
     if (!data || !programmableTx) {
       throw new Error("Unable to deserialize from bytes.");
@@ -15671,9 +17313,9 @@ class TransactionDataBuilder {
   }
   static restore(data) {
     if (data.version === 2) {
-      return new TransactionDataBuilder(parse(TransactionData, data));
+      return new TransactionDataBuilder(parse(TransactionData$1, data));
     } else {
-      return new TransactionDataBuilder(parse(TransactionData, transactionDataFromV1(data)));
+      return new TransactionDataBuilder(parse(TransactionData$1, transactionDataFromV1$1(data)));
     }
   }
   /**
@@ -15683,8 +17325,8 @@ class TransactionDataBuilder {
    * @returns transaction digest.
    */
   static getDigestFromBytes(bytes) {
-    const hash = hashTypedData("TransactionData", bytes);
-    return toBase58(hash);
+    const hash = hashTypedData$1("TransactionData", bytes);
+    return toB58(hash);
   }
   // @deprecated use gasData instead
   get gasConfig() {
@@ -15710,9 +17352,9 @@ class TransactionDataBuilder {
     if (onlyTransactionKind) {
       return iotaBcs.TransactionKind.serialize(kind, { maxSize: maxSizeBytes }).toBytes();
     }
-    const expiration = overrides?.expiration ?? this.expiration;
-    const sender = overrides?.sender ?? this.sender;
-    const gasData = { ...this.gasData, ...overrides?.gasConfig, ...overrides?.gasData };
+    const expiration = (overrides == null ? void 0 : overrides.expiration) ?? this.expiration;
+    const sender = (overrides == null ? void 0 : overrides.sender) ?? this.sender;
+    const gasData = { ...this.gasData, ...overrides == null ? void 0 : overrides.gasConfig, ...overrides == null ? void 0 : overrides.gasData };
     if (!sender) {
       throw new Error("Missing transaction sender");
     }
@@ -15726,11 +17368,11 @@ class TransactionDataBuilder {
       throw new Error("Missing gas price");
     }
     const transactionData = {
-      sender: prepareIotaAddress(sender),
+      sender: prepareIotaAddress$1(sender),
       expiration: expiration ? expiration : { None: true },
       gasData: {
         payment: gasData.payment,
-        owner: prepareIotaAddress(this.gasData.owner ?? sender),
+        owner: prepareIotaAddress$1(this.gasData.owner ?? sender),
         price: BigInt(gasData.price),
         budget: BigInt(gasData.budget)
       },
@@ -15839,10 +17481,10 @@ class TransactionDataBuilder {
     return TransactionDataBuilder.getDigestFromBytes(bytes);
   }
   snapshot() {
-    return parse(TransactionData, this);
+    return parse(TransactionData$1, this);
   }
-}
-function getIdFromCallArg(arg) {
+};
+function getIdFromCallArg$1(arg) {
   if (typeof arg === "string") {
     return normalizeIotaAddress(arg);
   }
@@ -15860,16 +17502,16 @@ function getIdFromCallArg(arg) {
   }
   return void 0;
 }
-var __typeError$1 = (msg) => {
+var __typeError$4 = (msg) => {
   throw TypeError(msg);
 };
-var __accessCheck$1 = (obj, member, msg) => member.has(obj) || __typeError$1("Cannot " + msg);
-var __privateGet$1 = (obj, member, getter) => (__accessCheck$1(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
-var __privateAdd$1 = (obj, member, value) => member.has(obj) ? __typeError$1("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
-var __privateSet$1 = (obj, member, value, setter) => (__accessCheck$1(obj, member, "write to private field"), member.set(obj, value), value);
-var __privateMethod$1 = (obj, member, method) => (__accessCheck$1(obj, member, "access private method"), method);
-var _serializationPlugins, _buildPlugins, _intentResolvers, _data, _Transaction_instances, normalizeTransactionArgument_fn, resolveArgument_fn, prepareBuild_fn, runPlugins_fn;
-function createTransactionResult(index2) {
+var __accessCheck$4 = (obj, member, msg) => member.has(obj) || __typeError$4("Cannot " + msg);
+var __privateGet$4 = (obj, member, getter) => (__accessCheck$4(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+var __privateAdd$4 = (obj, member, value) => member.has(obj) ? __typeError$4("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+var __privateSet$4 = (obj, member, value, setter) => (__accessCheck$4(obj, member, "write to private field"), member.set(obj, value), value);
+var __privateMethod$4 = (obj, member, method) => (__accessCheck$4(obj, member, "access private method"), method);
+var _serializationPlugins$1, _buildPlugins$1, _intentResolvers$1, _data$1, _Transaction_instances$1, normalizeTransactionArgument_fn$1, resolveArgument_fn$1, prepareBuild_fn$1, runPlugins_fn$1;
+function createTransactionResult$1(index2) {
   const baseResult = { $kind: "Result", Result: index2 };
   const nestedResults = [];
   const nestedResultFor = (resultIndex) => nestedResults[resultIndex] ?? (nestedResults[resultIndex] = {
@@ -15905,47 +17547,48 @@ function createTransactionResult(index2) {
     }
   });
 }
-const TRANSACTION_BRAND = Symbol.for("@iota/transaction");
-function isTransaction(obj) {
-  return !!obj && typeof obj === "object" && obj[TRANSACTION_BRAND] === true;
+const TRANSACTION_BRAND$1 = Symbol.for("@iota/transaction");
+function isTransaction$1(obj) {
+  return !!obj && typeof obj === "object" && obj[TRANSACTION_BRAND$1] === true;
 }
-const modulePluginRegistry = {
-  buildPlugins: /* @__PURE__ */ new Map(),
-  serializationPlugins: /* @__PURE__ */ new Map()
+const modulePluginRegistry$1 = {
+  buildPlugins: [],
+  serializationPlugins: []
 };
-const TRANSACTION_REGISTRY_KEY = Symbol.for("@iota/transaction/registry");
-function getGlobalPluginRegistry() {
+const TRANSACTION_REGISTRY_KEY$1 = Symbol.for("@iota/transaction/registry");
+function getGlobalPluginRegistry$1() {
   try {
     const target2 = globalThis;
-    if (!target2[TRANSACTION_REGISTRY_KEY]) {
-      target2[TRANSACTION_REGISTRY_KEY] = modulePluginRegistry;
+    if (!target2[TRANSACTION_REGISTRY_KEY$1]) {
+      target2[TRANSACTION_REGISTRY_KEY$1] = modulePluginRegistry$1;
     }
-    return target2[TRANSACTION_REGISTRY_KEY];
+    return target2[TRANSACTION_REGISTRY_KEY$1];
   } catch (e) {
-    return modulePluginRegistry;
+    return modulePluginRegistry$1;
   }
 }
-const _Transaction = class _Transaction2 {
+const _Transaction$1 = class _Transaction2 {
   constructor() {
-    __privateAdd$1(this, _Transaction_instances);
-    __privateAdd$1(this, _serializationPlugins);
-    __privateAdd$1(this, _buildPlugins);
-    __privateAdd$1(this, _intentResolvers, /* @__PURE__ */ new Map());
-    __privateAdd$1(this, _data);
-    this.object = createObjectMethods(
+    __privateAdd$4(this, _Transaction_instances$1);
+    __privateAdd$4(this, _serializationPlugins$1);
+    __privateAdd$4(this, _buildPlugins$1);
+    __privateAdd$4(this, _intentResolvers$1, /* @__PURE__ */ new Map());
+    __privateAdd$4(this, _data$1);
+    this.object = createObjectMethods$1(
       (value) => {
+        var _a2, _b;
         if (typeof value === "function") {
           return this.object(value(this));
         }
-        if (typeof value === "object" && is(Argument$1, value)) {
+        if (typeof value === "object" && is(Argument$3, value)) {
           return value;
         }
-        const id = getIdFromCallArg(value);
-        const inserted = __privateGet$1(this, _data).inputs.find((i) => id === getIdFromCallArg(i));
-        if (inserted?.Object?.SharedObject && typeof value === "object" && value.Object?.SharedObject) {
+        const id = getIdFromCallArg$1(value);
+        const inserted = __privateGet$4(this, _data$1).inputs.find((i) => id === getIdFromCallArg$1(i));
+        if (((_a2 = inserted == null ? void 0 : inserted.Object) == null ? void 0 : _a2.SharedObject) && typeof value === "object" && ((_b = value.Object) == null ? void 0 : _b.SharedObject)) {
           inserted.Object.SharedObject.mutable = inserted.Object.SharedObject.mutable || value.Object.SharedObject.mutable;
         }
-        return inserted ? { $kind: "Input", Input: __privateGet$1(this, _data).inputs.indexOf(inserted), type: "object" } : __privateGet$1(this, _data).addInput(
+        return inserted ? { $kind: "Input", Input: __privateGet$4(this, _data$1).inputs.indexOf(inserted), type: "object" } : __privateGet$4(this, _data$1).addInput(
           "object",
           typeof value === "string" ? {
             $kind: "UnresolvedObject",
@@ -15954,10 +17597,10 @@ const _Transaction = class _Transaction2 {
         );
       }
     );
-    const globalPlugins = getGlobalPluginRegistry();
-    __privateSet$1(this, _data, new TransactionDataBuilder());
-    __privateSet$1(this, _buildPlugins, [...globalPlugins.buildPlugins.values()]);
-    __privateSet$1(this, _serializationPlugins, [...globalPlugins.serializationPlugins.values()]);
+    const globalPlugins = getGlobalPluginRegistry$1();
+    __privateSet$4(this, _data$1, new TransactionDataBuilder$1());
+    __privateSet$4(this, _buildPlugins$1, [...globalPlugins.buildPlugins]);
+    __privateSet$4(this, _serializationPlugins$1, [...globalPlugins.serializationPlugins]);
   }
   /**
    * Converts from a serialize transaction kind (built with `build({ onlyTransactionKind: true })`) to a `Transaction` class.
@@ -15965,8 +17608,8 @@ const _Transaction = class _Transaction2 {
    */
   static fromKind(serialized) {
     const tx = new _Transaction2();
-    __privateSet$1(tx, _data, TransactionDataBuilder.fromKindBytes(
-      typeof serialized === "string" ? fromBase64(serialized) : serialized
+    __privateSet$4(tx, _data$1, TransactionDataBuilder$1.fromKindBytes(
+      typeof serialized === "string" ? fromB64(serialized) : serialized
     ));
     return tx;
   }
@@ -15978,108 +17621,96 @@ const _Transaction = class _Transaction2 {
    */
   static from(transaction) {
     const newTransaction = new _Transaction2();
-    if (isTransaction(transaction)) {
-      __privateSet$1(newTransaction, _data, new TransactionDataBuilder(transaction.getData()));
+    if (isTransaction$1(transaction)) {
+      __privateSet$4(newTransaction, _data$1, new TransactionDataBuilder$1(transaction.getData()));
     } else if (typeof transaction !== "string" || !transaction.startsWith("{")) {
-      __privateSet$1(newTransaction, _data, TransactionDataBuilder.fromBytes(
-        typeof transaction === "string" ? fromBase64(transaction) : transaction
+      __privateSet$4(newTransaction, _data$1, TransactionDataBuilder$1.fromBytes(
+        typeof transaction === "string" ? fromB64(transaction) : transaction
       ));
     } else {
-      __privateSet$1(newTransaction, _data, TransactionDataBuilder.restore(JSON.parse(transaction)));
+      __privateSet$4(newTransaction, _data$1, TransactionDataBuilder$1.restore(JSON.parse(transaction)));
     }
     return newTransaction;
   }
-  static registerGlobalSerializationPlugin(stepOrStep, step) {
-    getGlobalPluginRegistry().serializationPlugins.set(
-      stepOrStep,
-      step ?? stepOrStep
-    );
+  static registerGlobalSerializationPlugin(step) {
+    getGlobalPluginRegistry$1().serializationPlugins.push(step);
   }
-  static unregisterGlobalSerializationPlugin(name) {
-    getGlobalPluginRegistry().serializationPlugins.delete(name);
-  }
-  static registerGlobalBuildPlugin(stepOrStep, step) {
-    getGlobalPluginRegistry().buildPlugins.set(
-      stepOrStep,
-      step ?? stepOrStep
-    );
-  }
-  static unregisterGlobalBuildPlugin(name) {
-    getGlobalPluginRegistry().buildPlugins.delete(name);
+  static registerGlobalBuildPlugin(step) {
+    getGlobalPluginRegistry$1().buildPlugins.push(step);
   }
   addSerializationPlugin(step) {
-    __privateGet$1(this, _serializationPlugins).push(step);
+    __privateGet$4(this, _serializationPlugins$1).push(step);
   }
   addBuildPlugin(step) {
-    __privateGet$1(this, _buildPlugins).push(step);
+    __privateGet$4(this, _buildPlugins$1).push(step);
   }
   addIntentResolver(intent, resolver) {
-    if (__privateGet$1(this, _intentResolvers).has(intent) && __privateGet$1(this, _intentResolvers).get(intent) !== resolver) {
+    if (__privateGet$4(this, _intentResolvers$1).has(intent) && __privateGet$4(this, _intentResolvers$1).get(intent) !== resolver) {
       throw new Error(`Intent resolver for ${intent} already exists`);
     }
-    __privateGet$1(this, _intentResolvers).set(intent, resolver);
+    __privateGet$4(this, _intentResolvers$1).set(intent, resolver);
   }
   setSender(sender) {
-    __privateGet$1(this, _data).sender = sender;
+    __privateGet$4(this, _data$1).sender = sender;
   }
   /**
    * Sets the sender only if it has not already been set.
    * This is useful for sponsored transaction flows where the sender may not be the same as the signer address.
    */
   setSenderIfNotSet(sender) {
-    if (!__privateGet$1(this, _data).sender) {
-      __privateGet$1(this, _data).sender = sender;
+    if (!__privateGet$4(this, _data$1).sender) {
+      __privateGet$4(this, _data$1).sender = sender;
     }
   }
   setExpiration(expiration) {
-    __privateGet$1(this, _data).expiration = expiration ? parse(TransactionExpiration$2, expiration) : null;
+    __privateGet$4(this, _data$1).expiration = expiration ? parse(TransactionExpiration$5, expiration) : null;
   }
   setGasPrice(price) {
-    __privateGet$1(this, _data).gasConfig.price = String(price);
+    __privateGet$4(this, _data$1).gasConfig.price = String(price);
   }
   setGasBudget(budget) {
-    __privateGet$1(this, _data).gasConfig.budget = String(budget);
+    __privateGet$4(this, _data$1).gasConfig.budget = String(budget);
   }
   setGasBudgetIfNotSet(budget) {
-    if (__privateGet$1(this, _data).gasData.budget == null) {
-      __privateGet$1(this, _data).gasConfig.budget = String(budget);
+    if (__privateGet$4(this, _data$1).gasData.budget == null) {
+      __privateGet$4(this, _data$1).gasConfig.budget = String(budget);
     }
   }
   setGasOwner(owner) {
-    __privateGet$1(this, _data).gasConfig.owner = owner;
+    __privateGet$4(this, _data$1).gasConfig.owner = owner;
   }
   setGasPayment(payments) {
-    __privateGet$1(this, _data).gasConfig.payment = payments.map((payment) => parse(ObjectRef$1, payment));
+    __privateGet$4(this, _data$1).gasConfig.payment = payments.map((payment) => parse(ObjectRef$3, payment));
   }
   /** @deprecated Use `getData()` instead. */
   get blockData() {
-    return serializeV1TransactionData(__privateGet$1(this, _data).snapshot());
+    return serializeV1TransactionData$1(__privateGet$4(this, _data$1).snapshot());
   }
   /** Get a snapshot of the transaction data, in JSON form: */
   getData() {
-    return __privateGet$1(this, _data).snapshot();
+    return __privateGet$4(this, _data$1).snapshot();
   }
   // Used to brand transaction classes so that they can be identified, even between multiple copies
   // of the builder.
-  get [TRANSACTION_BRAND]() {
+  get [TRANSACTION_BRAND$1]() {
     return true;
   }
   // Temporary workaround for the wallet interface accidentally serializing transactions via postMessage
   get pure() {
     Object.defineProperty(this, "pure", {
       enumerable: false,
-      value: createPure((value) => {
+      value: createPure$1((value) => {
         if (isSerializedBcs(value)) {
-          return __privateGet$1(this, _data).addInput("pure", {
+          return __privateGet$4(this, _data$1).addInput("pure", {
             $kind: "Pure",
             Pure: {
               bytes: value.toBase64()
             }
           });
         }
-        return __privateGet$1(this, _data).addInput(
+        return __privateGet$4(this, _data$1).addInput(
           "pure",
-          is(NormalizedCallArg$1, value) ? parse(NormalizedCallArg$1, value) : value instanceof Uint8Array ? Inputs.Pure(value) : { $kind: "UnresolvedPure", UnresolvedPure: { value } }
+          is(NormalizedCallArg$3, value) ? parse(NormalizedCallArg$3, value) : value instanceof Uint8Array ? Inputs$1.Pure(value) : { $kind: "UnresolvedPure", UnresolvedPure: { value } }
         );
       })
     });
@@ -16094,44 +17725,44 @@ const _Transaction = class _Transaction2 {
    * If you only have an object ID, use `builder.object(id)` instead.
    */
   objectRef(...args) {
-    return this.object(Inputs.ObjectRef(...args));
+    return this.object(Inputs$1.ObjectRef(...args));
   }
   /**
    * Add a new receiving input to the transaction using the fully-resolved object reference.
    * If you only have an object ID, use `builder.object(id)` instead.
    */
   receivingRef(...args) {
-    return this.object(Inputs.ReceivingRef(...args));
+    return this.object(Inputs$1.ReceivingRef(...args));
   }
   /**
    * Add a new shared object input to the transaction using the fully-resolved shared object reference.
    * If you only have an object ID, use `builder.object(id)` instead.
    */
   sharedObjectRef(...args) {
-    return this.object(Inputs.SharedObjectRef(...args));
+    return this.object(Inputs$1.SharedObjectRef(...args));
   }
   /** Add a transaction to the transaction */
   add(command) {
     if (typeof command === "function") {
       return command(this);
     }
-    const index2 = __privateGet$1(this, _data).commands.push(command);
-    return createTransactionResult(index2 - 1);
+    const index2 = __privateGet$4(this, _data$1).commands.push(command);
+    return createTransactionResult$1(index2 - 1);
   }
   // Method shorthands:
   splitCoins(coin, amounts) {
     return this.add(
-      Commands.SplitCoins(
-        typeof coin === "string" ? this.object(coin) : __privateMethod$1(this, _Transaction_instances, resolveArgument_fn).call(this, coin),
+      Commands$1.SplitCoins(
+        typeof coin === "string" ? this.object(coin) : __privateMethod$4(this, _Transaction_instances$1, resolveArgument_fn$1).call(this, coin),
         amounts.map(
-          (amount) => typeof amount === "number" || typeof amount === "bigint" || typeof amount === "string" ? this.pure.u64(amount) : __privateMethod$1(this, _Transaction_instances, normalizeTransactionArgument_fn).call(this, amount)
+          (amount) => typeof amount === "number" || typeof amount === "bigint" || typeof amount === "string" ? this.pure.u64(amount) : __privateMethod$4(this, _Transaction_instances$1, normalizeTransactionArgument_fn$1).call(this, amount)
         )
       )
     );
   }
   mergeCoins(destination, sources) {
     return this.add(
-      Commands.MergeCoins(
+      Commands$1.MergeCoins(
         this.object(destination),
         sources.map((src) => this.object(src))
       )
@@ -16139,7 +17770,7 @@ const _Transaction = class _Transaction2 {
   }
   publish({ modules, dependencies }) {
     return this.add(
-      Commands.Publish({
+      Commands$1.Publish({
         modules,
         dependencies
       })
@@ -16152,7 +17783,7 @@ const _Transaction = class _Transaction2 {
     ticket
   }) {
     return this.add(
-      Commands.Upgrade({
+      Commands$1.Upgrade({
         modules,
         dependencies,
         package: packageId,
@@ -16166,17 +17797,17 @@ const _Transaction = class _Transaction2 {
     ...input
   }) {
     return this.add(
-      Commands.MoveCall({
+      Commands$1.MoveCall({
         ...input,
-        arguments: args?.map((arg) => __privateMethod$1(this, _Transaction_instances, normalizeTransactionArgument_fn).call(this, arg))
+        arguments: args == null ? void 0 : args.map((arg) => __privateMethod$4(this, _Transaction_instances$1, normalizeTransactionArgument_fn$1).call(this, arg))
       })
     );
   }
   transferObjects(objects, address) {
     return this.add(
-      Commands.TransferObjects(
+      Commands$1.TransferObjects(
         objects.map((obj) => this.object(obj)),
-        typeof address === "string" ? this.pure.address(address) : __privateMethod$1(this, _Transaction_instances, normalizeTransactionArgument_fn).call(this, address)
+        typeof address === "string" ? this.pure.address(address) : __privateMethod$4(this, _Transaction_instances$1, normalizeTransactionArgument_fn$1).call(this, address)
       )
     );
   }
@@ -16185,7 +17816,7 @@ const _Transaction = class _Transaction2 {
     elements
   }) {
     return this.add(
-      Commands.MakeMoveVec({
+      Commands$1.MakeMoveVec({
         type,
         elements: elements.map((obj) => this.object(obj))
       })
@@ -16196,12 +17827,12 @@ const _Transaction = class _Transaction2 {
    * For synchronous serialization, you can use `getData()`
    * */
   serialize() {
-    return JSON.stringify(serializeV1TransactionData(__privateGet$1(this, _data).snapshot()));
+    return JSON.stringify(serializeV1TransactionData$1(__privateGet$4(this, _data$1).snapshot()));
   }
   async toJSON(options = {}) {
     await this.prepareForSerialization(options);
     return JSON.stringify(
-      parse(SerializedTransactionDataV2, __privateGet$1(this, _data).snapshot()),
+      parse(SerializedTransactionDataV2$1, __privateGet$4(this, _data$1).snapshot()),
       (_key, value) => typeof value === "bigint" ? value.toString() : value,
       2
     );
@@ -16215,61 +17846,62 @@ const _Transaction = class _Transaction2 {
   /** Build the transaction to BCS bytes. */
   async build(options = {}) {
     await this.prepareForSerialization(options);
-    await __privateMethod$1(this, _Transaction_instances, prepareBuild_fn).call(this, options);
-    return __privateGet$1(this, _data).build({
+    await __privateMethod$4(this, _Transaction_instances$1, prepareBuild_fn$1).call(this, options);
+    return __privateGet$4(this, _data$1).build({
       maxSizeBytes: options.maxSizeBytes,
       onlyTransactionKind: options.onlyTransactionKind
     });
   }
   /** Derive transaction digest */
   async getDigest(options = {}) {
-    await __privateMethod$1(this, _Transaction_instances, prepareBuild_fn).call(this, options);
-    return __privateGet$1(this, _data).getDigest();
+    await __privateMethod$4(this, _Transaction_instances$1, prepareBuild_fn$1).call(this, options);
+    return __privateGet$4(this, _data$1).getDigest();
   }
   async prepareForSerialization(options) {
+    var _a2;
     const intents = /* @__PURE__ */ new Set();
-    for (const command of __privateGet$1(this, _data).commands) {
+    for (const command of __privateGet$4(this, _data$1).commands) {
       if (command.$Intent) {
         intents.add(command.$Intent.name);
       }
     }
-    const steps = [...__privateGet$1(this, _serializationPlugins)];
+    const steps = [...__privateGet$4(this, _serializationPlugins$1)];
     for (const intent of intents) {
-      if (options.supportedIntents?.includes(intent)) {
+      if ((_a2 = options.supportedIntents) == null ? void 0 : _a2.includes(intent)) {
         continue;
       }
-      if (!__privateGet$1(this, _intentResolvers).has(intent)) {
+      if (!__privateGet$4(this, _intentResolvers$1).has(intent)) {
         throw new Error(`Missing intent resolver for ${intent}`);
       }
-      steps.push(__privateGet$1(this, _intentResolvers).get(intent));
+      steps.push(__privateGet$4(this, _intentResolvers$1).get(intent));
     }
-    await __privateMethod$1(this, _Transaction_instances, runPlugins_fn).call(this, steps, options);
+    await __privateMethod$4(this, _Transaction_instances$1, runPlugins_fn$1).call(this, steps, options);
   }
 };
-_serializationPlugins = /* @__PURE__ */ new WeakMap();
-_buildPlugins = /* @__PURE__ */ new WeakMap();
-_intentResolvers = /* @__PURE__ */ new WeakMap();
-_data = /* @__PURE__ */ new WeakMap();
-_Transaction_instances = /* @__PURE__ */ new WeakSet();
-normalizeTransactionArgument_fn = function(arg) {
+_serializationPlugins$1 = /* @__PURE__ */ new WeakMap();
+_buildPlugins$1 = /* @__PURE__ */ new WeakMap();
+_intentResolvers$1 = /* @__PURE__ */ new WeakMap();
+_data$1 = /* @__PURE__ */ new WeakMap();
+_Transaction_instances$1 = /* @__PURE__ */ new WeakSet();
+normalizeTransactionArgument_fn$1 = function(arg) {
   if (isSerializedBcs(arg)) {
     return this.pure(arg);
   }
-  return __privateMethod$1(this, _Transaction_instances, resolveArgument_fn).call(this, arg);
+  return __privateMethod$4(this, _Transaction_instances$1, resolveArgument_fn$1).call(this, arg);
 };
-resolveArgument_fn = function(arg) {
+resolveArgument_fn$1 = function(arg) {
   if (typeof arg === "function") {
-    return parse(Argument$1, arg(this));
+    return parse(Argument$3, arg(this));
   }
-  return parse(Argument$1, arg);
+  return parse(Argument$3, arg);
 };
-prepareBuild_fn = async function(options) {
-  if (!options.onlyTransactionKind && !__privateGet$1(this, _data).sender) {
+prepareBuild_fn$1 = async function(options) {
+  if (!options.onlyTransactionKind && !__privateGet$4(this, _data$1).sender) {
     throw new Error("Missing transaction sender");
   }
-  await __privateMethod$1(this, _Transaction_instances, runPlugins_fn).call(this, [...__privateGet$1(this, _buildPlugins), resolveTransactionData], options);
+  await __privateMethod$4(this, _Transaction_instances$1, runPlugins_fn$1).call(this, [...__privateGet$4(this, _buildPlugins$1), resolveTransactionData$1], options);
 };
-runPlugins_fn = async function(plugins, options) {
+runPlugins_fn$1 = async function(plugins, options) {
   const createNext = (i) => {
     if (i >= plugins.length) {
       return () => {
@@ -16280,7 +17912,7 @@ runPlugins_fn = async function(plugins, options) {
       const next = createNext(i + 1);
       let calledNext = false;
       let nextResolved = false;
-      await plugin(__privateGet$1(this, _data), options, async () => {
+      await plugin(__privateGet$4(this, _data$1), options, async () => {
         if (calledNext) {
           throw new Error(`next() was call multiple times in TransactionPlugin ${i}`);
         }
@@ -16298,691 +17930,7 @@ runPlugins_fn = async function(plugins, options) {
   };
   await createNext(0)();
 };
-let Transaction = _Transaction;
-const IOTA_CLIENT_BRAND = Symbol.for("@iota/IotaClient");
-class IotaClient {
-  get [IOTA_CLIENT_BRAND]() {
-    return true;
-  }
-  /**
-   * Establish a connection to an IOTA RPC endpoint
-   *
-   * @param options configuration options for the API Client
-   */
-  constructor(options) {
-    this.transport = options.transport ?? new IotaHTTPTransport({ url: options.url });
-  }
-  async getRpcApiVersion() {
-    const resp = await this.transport.request({
-      method: "rpc.discover",
-      params: []
-    });
-    return resp.info.version;
-  }
-  /**
-   * Get all Coin<`coin_type`> objects owned by an address.
-   */
-  async getCoins(input) {
-    if (!input.owner || !isValidIotaAddress(normalizeIotaAddress(input.owner))) {
-      throw new Error("Invalid IOTA address");
-    }
-    return await this.transport.request({
-      method: "iotax_getCoins",
-      params: [input.owner, input.coinType, input.cursor, input.limit]
-    });
-  }
-  /**
-   * Get all Coin objects owned by an address.
-   */
-  async getAllCoins(input) {
-    if (!input.owner || !isValidIotaAddress(normalizeIotaAddress(input.owner))) {
-      throw new Error("Invalid IOTA address");
-    }
-    return await this.transport.request({
-      method: "iotax_getAllCoins",
-      params: [input.owner, input.cursor, input.limit]
-    });
-  }
-  /**
-   * Get the total coin balance for one coin type, owned by the address owner.
-   */
-  async getBalance(input) {
-    if (!input.owner || !isValidIotaAddress(normalizeIotaAddress(input.owner))) {
-      throw new Error("Invalid IOTA address");
-    }
-    return await this.transport.request({
-      method: "iotax_getBalance",
-      params: [input.owner, input.coinType]
-    });
-  }
-  /**
-   * Get the total coin balance for all coin types, owned by the address owner.
-   */
-  async getAllBalances(input) {
-    if (!input.owner || !isValidIotaAddress(normalizeIotaAddress(input.owner))) {
-      throw new Error("Invalid IOTA address");
-    }
-    return await this.transport.request({
-      method: "iotax_getAllBalances",
-      params: [input.owner]
-    });
-  }
-  /**
-   * Fetch CoinMetadata for a given coin type
-   */
-  async getCoinMetadata(input) {
-    return await this.transport.request({
-      method: "iotax_getCoinMetadata",
-      params: [input.coinType]
-    });
-  }
-  /**
-   *  Fetch total supply for a coin
-   */
-  async getTotalSupply(input) {
-    return await this.transport.request({
-      method: "iotax_getTotalSupply",
-      params: [input.coinType]
-    });
-  }
-  /**
-   *  Fetch circulating supply for a coin
-   */
-  async getCirculatingSupply() {
-    return await this.transport.request({
-      method: "iotax_getCirculatingSupply",
-      params: []
-    });
-  }
-  /**
-   * Invoke any RPC method
-   * @param method the method to be invoked
-   * @param args the arguments to be passed to the RPC request
-   */
-  async call(method, params) {
-    return await this.transport.request({ method, params });
-  }
-  /**
-   * Get Move function argument types like read, write and full access
-   */
-  async getMoveFunctionArgTypes(input) {
-    return await this.transport.request({
-      method: "iota_getMoveFunctionArgTypes",
-      params: [input.package, input.module, input.function]
-    });
-  }
-  /**
-   * Get a map from module name to
-   * structured representations of Move modules
-   */
-  async getNormalizedMoveModulesByPackage(input) {
-    return await this.transport.request({
-      method: "iota_getNormalizedMoveModulesByPackage",
-      params: [input.package]
-    });
-  }
-  /**
-   * Get a structured representation of Move module
-   */
-  async getNormalizedMoveModule(input) {
-    return await this.transport.request({
-      method: "iota_getNormalizedMoveModule",
-      params: [input.package, input.module]
-    });
-  }
-  /**
-   * Get a structured representation of Move function
-   */
-  async getNormalizedMoveFunction(input) {
-    return await this.transport.request({
-      method: "iota_getNormalizedMoveFunction",
-      params: [input.package, input.module, input.function]
-    });
-  }
-  /**
-   * Get a structured representation of Move struct
-   */
-  async getNormalizedMoveStruct(input) {
-    return await this.transport.request({
-      method: "iota_getNormalizedMoveStruct",
-      params: [input.package, input.module, input.struct]
-    });
-  }
-  /**
-   * Get all objects owned by an address
-   */
-  async getOwnedObjects(input) {
-    if (!input.owner || !isValidIotaAddress(normalizeIotaAddress(input.owner))) {
-      throw new Error("Invalid IOTA address");
-    }
-    return await this.transport.request({
-      method: "iotax_getOwnedObjects",
-      params: [
-        input.owner,
-        {
-          filter: input.filter,
-          options: input.options
-        },
-        input.cursor,
-        input.limit
-      ]
-    });
-  }
-  /**
-   * Get details about an object
-   */
-  async getObject(input) {
-    if (!input.id || !isValidIotaObjectId(normalizeIotaObjectId(input.id))) {
-      throw new Error("Invalid IOTA Object id");
-    }
-    return await this.transport.request({
-      method: "iota_getObject",
-      params: [input.id, input.options]
-    });
-  }
-  async tryGetPastObject(input) {
-    return await this.transport.request({
-      method: "iota_tryGetPastObject",
-      params: [input.id, input.version, input.options]
-    });
-  }
-  /**
-   * Batch get details about a list of objects. If any of the object ids are duplicates the call will fail
-   */
-  async multiGetObjects(input) {
-    input.ids.forEach((id) => {
-      if (!id || !isValidIotaObjectId(normalizeIotaObjectId(id))) {
-        throw new Error(`Invalid IOTA Object id ${id}`);
-      }
-    });
-    const hasDuplicates = input.ids.length !== new Set(input.ids).size;
-    if (hasDuplicates) {
-      throw new Error(`Duplicate object ids in batch call ${input.ids}`);
-    }
-    return await this.transport.request({
-      method: "iota_multiGetObjects",
-      params: [input.ids, input.options]
-    });
-  }
-  /**
-   * Get transaction blocks for a given query criteria
-   */
-  async queryTransactionBlocks(input) {
-    return await this.transport.request({
-      method: "iotax_queryTransactionBlocks",
-      params: [
-        {
-          filter: input.filter,
-          options: input.options
-        },
-        input.cursor,
-        input.limit,
-        (input.order || "descending") === "descending"
-      ]
-    });
-  }
-  async getTransactionBlock(input) {
-    if (!isValidTransactionDigest(input.digest)) {
-      throw new Error("Invalid Transaction digest");
-    }
-    return await this.transport.request({
-      method: "iota_getTransactionBlock",
-      params: [input.digest, input.options]
-    });
-  }
-  async multiGetTransactionBlocks(input) {
-    input.digests.forEach((d) => {
-      if (!isValidTransactionDigest(d)) {
-        throw new Error(`Invalid Transaction digest ${d}`);
-      }
-    });
-    const hasDuplicates = input.digests.length !== new Set(input.digests).size;
-    if (hasDuplicates) {
-      throw new Error(`Duplicate digests in batch call ${input.digests}`);
-    }
-    return await this.transport.request({
-      method: "iota_multiGetTransactionBlocks",
-      params: [input.digests, input.options]
-    });
-  }
-  async executeTransactionBlock({
-    transactionBlock,
-    signature,
-    options
-  }) {
-    const result = await this.transport.request({
-      method: "iota_executeTransactionBlock",
-      params: [
-        typeof transactionBlock === "string" ? transactionBlock : toBase64(transactionBlock),
-        Array.isArray(signature) ? signature : [signature],
-        options
-      ]
-    });
-    return result;
-  }
-  async signAndExecuteTransaction({
-    transaction,
-    signer,
-    ...input
-  }) {
-    let transactionBytes;
-    if (transaction instanceof Uint8Array) {
-      transactionBytes = transaction;
-    } else {
-      transaction.setSenderIfNotSet(signer.toIotaAddress());
-      transactionBytes = await transaction.build({ client: this });
-    }
-    const { signature, bytes } = await signer.signTransaction(transactionBytes);
-    return this.executeTransactionBlock({
-      transactionBlock: bytes,
-      signature,
-      ...input
-    });
-  }
-  /**
-   * Get total number of transactions
-   */
-  async getTotalTransactionBlocks() {
-    const resp = await this.transport.request({
-      method: "iota_getTotalTransactionBlocks",
-      params: []
-    });
-    return BigInt(resp);
-  }
-  /**
-   * Getting the reference gas price for the network
-   */
-  async getReferenceGasPrice() {
-    const resp = await this.transport.request({
-      method: "iotax_getReferenceGasPrice",
-      params: []
-    });
-    return BigInt(resp);
-  }
-  /**
-   * Return the delegated stakes for an address
-   */
-  async getStakes(input) {
-    if (!input.owner || !isValidIotaAddress(normalizeIotaAddress(input.owner))) {
-      throw new Error("Invalid IOTA address");
-    }
-    return await this.transport.request({ method: "iotax_getStakes", params: [input.owner] });
-  }
-  /**
-   * Return the timelocked delegated stakes for an address
-   */
-  async getTimelockedStakes(input) {
-    if (!input.owner || !isValidIotaAddress(normalizeIotaAddress(input.owner))) {
-      throw new Error("Invalid IOTA address");
-    }
-    return await this.transport.request({
-      method: "iotax_getTimelockedStakes",
-      params: [input.owner]
-    });
-  }
-  /**
-   * Return the delegated stakes queried by id.
-   */
-  async getStakesByIds(input) {
-    input.stakedIotaIds.forEach((id) => {
-      if (!id || !isValidIotaObjectId(normalizeIotaObjectId(id))) {
-        throw new Error(`Invalid IOTA Stake id ${id}`);
-      }
-    });
-    return await this.transport.request({
-      method: "iotax_getStakesByIds",
-      params: [input.stakedIotaIds]
-    });
-  }
-  /**
-   * Return the timelocked delegated stakes queried by id.
-   */
-  async getTimelockedStakesByIds(input) {
-    input.timelockedStakedIotaIds.forEach((id) => {
-      if (!id || !isValidIotaObjectId(normalizeIotaObjectId(id))) {
-        throw new Error(`Invalid IOTA Timelocked Stake id ${id}`);
-      }
-    });
-    return await this.transport.request({
-      method: "iotax_getTimelockedStakesByIds",
-      params: [input.timelockedStakedIotaIds]
-    });
-  }
-  /**
-   * Return the latest IOTA system state object on networks supporting protocol version `< 5`.
-   * These are networks with node software release version `< 0.11`.
-   * @deprecated Use `getLatestIotaSystemState` instead.
-   */
-  async getLatestIotaSystemStateV1() {
-    return await this.transport.request({
-      method: "iotax_getLatestIotaSystemState",
-      params: []
-    });
-  }
-  /**
-   * Return the latest IOTA system state object on networks supporting protocol version `>= 5`.
-   * These are networks with node software release version `>= 0.11`.
-   *
-   * You probably want to use `getLatestIotaSystemState` instead to prevent issues with future deprecations
-   * or in case the node does not support protocol version `>= 5`.
-   */
-  async getLatestIotaSystemStateV2() {
-    return await this.transport.request({
-      method: "iotax_getLatestIotaSystemStateV2",
-      params: []
-    });
-  }
-  /**
-   * Return the latest supported IOTA system state object.
-   *
-   * This returns a backwards-compatible system state object that dynamically uses the V1 or V2
-   * depending on the protocol version supported by the node. This method will continue to be supported
-   * as more protocol versions are released with changes to the system state.
-   *
-   * This is quite useful in case your app does not know in advance what node is it going to be using,
-   * this way you as developer dont need to handle each possible system state variant,
-   * this is already handled by this method.
-   */
-  async getLatestIotaSystemState() {
-    const protocolConfig = await this.getProtocolConfig();
-    const isV2Supported = Number(protocolConfig.maxSupportedProtocolVersion) >= 5;
-    const iotaSystemStateSummary = isV2Supported ? await this.getLatestIotaSystemStateV2() : {
-      V1: await this.getLatestIotaSystemStateV1()
-    };
-    return "V2" in iotaSystemStateSummary ? {
-      ...iotaSystemStateSummary.V2,
-      committeeMembers: iotaSystemStateSummary.V2.committeeMembers.map(
-        (committeeMemberIndex) => iotaSystemStateSummary.V2.activeValidators[Number(committeeMemberIndex)]
-      )
-    } : {
-      ...iotaSystemStateSummary.V1,
-      committeeMembers: iotaSystemStateSummary.V1.activeValidators,
-      safeModeComputationCharges: iotaSystemStateSummary.V1.safeModeComputationRewards,
-      safeModeComputationChargesBurned: iotaSystemStateSummary.V1.safeModeComputationRewards
-    };
-  }
-  /**
-   * Get events for a given query criteria
-   */
-  async queryEvents(input) {
-    return await this.transport.request({
-      method: "iotax_queryEvents",
-      params: [
-        input.query,
-        input.cursor,
-        input.limit,
-        (input.order || "descending") === "descending"
-      ]
-    });
-  }
-  /**
-   * Subscribe to get notifications whenever an event matching the filter occurs
-   *
-   * @deprecated
-   */
-  async subscribeEvent(input) {
-    return this.transport.subscribe({
-      method: "iotax_subscribeEvent",
-      unsubscribe: "iotax_unsubscribeEvent",
-      params: [input.filter],
-      onMessage: input.onMessage
-    });
-  }
-  /**
-   * @deprecated
-   */
-  async subscribeTransaction(input) {
-    return this.transport.subscribe({
-      method: "iotax_subscribeTransaction",
-      unsubscribe: "iotax_unsubscribeTransaction",
-      params: [input.filter],
-      onMessage: input.onMessage
-    });
-  }
-  /**
-   * Runs the transaction block in dev-inspect mode. Which allows for nearly any
-   * transaction (or Move call) with any arguments. Detailed results are
-   * provided, including both the transaction effects and any return values.
-   */
-  async devInspectTransactionBlock(input) {
-    let devInspectTxBytes;
-    if (isTransaction(input.transactionBlock)) {
-      input.transactionBlock.setSenderIfNotSet(input.sender);
-      devInspectTxBytes = toBase64(
-        await input.transactionBlock.build({
-          client: this,
-          onlyTransactionKind: true
-        })
-      );
-    } else if (typeof input.transactionBlock === "string") {
-      devInspectTxBytes = input.transactionBlock;
-    } else if (input.transactionBlock instanceof Uint8Array) {
-      devInspectTxBytes = toBase64(input.transactionBlock);
-    } else {
-      throw new Error("Unknown transaction block format.");
-    }
-    return await this.transport.request({
-      method: "iota_devInspectTransactionBlock",
-      params: [input.sender, devInspectTxBytes, input.gasPrice?.toString(), input.epoch]
-    });
-  }
-  /**
-   * Dry run a transaction block and return the result.
-   */
-  async dryRunTransactionBlock(input) {
-    return await this.transport.request({
-      method: "iota_dryRunTransactionBlock",
-      params: [
-        typeof input.transactionBlock === "string" ? input.transactionBlock : toBase64(input.transactionBlock)
-      ]
-    });
-  }
-  /**
-   * Return the list of dynamic field objects owned by an object
-   */
-  async getDynamicFields(input) {
-    if (!input.parentId || !isValidIotaObjectId(normalizeIotaObjectId(input.parentId))) {
-      throw new Error("Invalid IOTA Object id");
-    }
-    return await this.transport.request({
-      method: "iotax_getDynamicFields",
-      params: [input.parentId, input.cursor, input.limit]
-    });
-  }
-  /**
-   * Return the dynamic field object information for a specified object
-   */
-  async getDynamicFieldObject(input) {
-    return await this.transport.request({
-      method: "iotax_getDynamicFieldObject",
-      params: [input.parentId, input.name]
-    });
-  }
-  /**
-   * Return the dynamic field object information for a specified object with content options.
-   */
-  async getDynamicFieldObjectV2(input) {
-    return await this.transport.request({
-      method: "iotax_getDynamicFieldObjectV2",
-      params: [input.parentObjectId, input.name]
-    });
-  }
-  /**
-   * Get the sequence number of the latest checkpoint that has been executed
-   */
-  async getLatestCheckpointSequenceNumber() {
-    const resp = await this.transport.request({
-      method: "iota_getLatestCheckpointSequenceNumber",
-      params: []
-    });
-    return String(resp);
-  }
-  /**
-   * Returns information about a given checkpoint
-   */
-  async getCheckpoint(input) {
-    return await this.transport.request({ method: "iota_getCheckpoint", params: [input.id] });
-  }
-  /**
-   * Returns historical checkpoints paginated
-   */
-  async getCheckpoints(input) {
-    return await this.transport.request({
-      method: "iota_getCheckpoints",
-      params: [input.cursor, input?.limit, input.descendingOrder]
-    });
-  }
-  /**
-   * Return the committee information for the asked epoch
-   */
-  async getCommitteeInfo(input) {
-    return await this.transport.request({
-      method: "iotax_getCommitteeInfo",
-      params: [input?.epoch]
-    });
-  }
-  async getNetworkMetrics() {
-    return await this.transport.request({ method: "iotax_getNetworkMetrics", params: [] });
-  }
-  async getAddressMetrics() {
-    return await this.transport.request({
-      method: "iotax_getLatestAddressMetrics",
-      params: []
-    });
-  }
-  async getEpochMetrics(input) {
-    return await this.transport.request({
-      method: "iotax_getEpochMetrics",
-      params: [input?.cursor, input?.limit, input?.descendingOrder]
-    });
-  }
-  async getAllEpochAddressMetrics(input) {
-    return await this.transport.request({
-      method: "iotax_getAllEpochAddressMetrics",
-      params: [input?.descendingOrder]
-    });
-  }
-  async getCheckpointAddressMetrics(input) {
-    return await this.transport.request({
-      method: "iotax_getCheckpointAddressMetrics",
-      params: [input?.checkpoint]
-    });
-  }
-  /**
-   * Return the committee information for the asked epoch
-   */
-  async getEpochs(input) {
-    return await this.transport.request({
-      method: "iotax_getEpochs",
-      params: [input?.cursor, input?.limit, input?.descendingOrder]
-    });
-  }
-  /**
-   * Returns list of top move calls by usage
-   */
-  async getMoveCallMetrics() {
-    return await this.transport.request({ method: "iotax_getMoveCallMetrics", params: [] });
-  }
-  /**
-   * Return the committee information for the asked epoch
-   */
-  async getCurrentEpoch() {
-    return await this.transport.request({ method: "iotax_getCurrentEpoch", params: [] });
-  }
-  async getTotalTransactions() {
-    const resp = await this.transport.request({
-      method: "iotax_getTotalTransactions",
-      params: []
-    });
-    return String(resp);
-  }
-  /**
-   * Return the Validators APYs
-   */
-  async getValidatorsApy() {
-    return await this.transport.request({ method: "iotax_getValidatorsApy", params: [] });
-  }
-  async getChainIdentifier() {
-    return await this.transport.request({
-      method: "iota_getChainIdentifier",
-      params: []
-    });
-  }
-  async getProtocolConfig(input) {
-    return await this.transport.request({
-      method: "iota_getProtocolConfig",
-      params: [input?.version]
-    });
-  }
-  /**
-   * Returns the participation metrics (total unique addresses with delegated stake in the current epoch).
-   */
-  async getParticipationMetrics() {
-    return await this.transport.request({
-      method: "iotax_getParticipationMetrics",
-      params: []
-    });
-  }
-  /**
-   * Wait for a transaction block result to be available over the API.
-   * This can be used in conjunction with `executeTransactionBlock` to wait for the transaction to
-   * be available via the API.
-   * This currently polls the `getTransactionBlock` API to check for the transaction.
-   */
-  async waitForTransaction({
-    signal,
-    timeout = 60 * 1e3,
-    pollInterval = 2 * 1e3,
-    ...input
-  }) {
-    const timeoutSignal = AbortSignal.timeout(timeout);
-    const timeoutPromise = new Promise((_, reject) => {
-      timeoutSignal.addEventListener("abort", () => reject(timeoutSignal.reason));
-    });
-    timeoutPromise.catch(() => {
-    });
-    while (!timeoutSignal.aborted) {
-      signal?.throwIfAborted();
-      try {
-        return await this.getTransactionBlock(input);
-      } catch (e) {
-        await Promise.race([
-          new Promise((resolve) => setTimeout(resolve, pollInterval)),
-          timeoutPromise
-        ]);
-      }
-    }
-    timeoutSignal.throwIfAborted();
-    throw new Error("Unexpected error while waiting for transaction block.");
-  }
-  /**
-   * Return the resolved record for the given name.
-   */
-  async iotaNamesLookup(input) {
-    return await this.transport.request({
-      method: "iotax_iotaNamesLookup",
-      params: [input.name]
-    });
-  }
-  /**
-   * Return the resolved name for the given address.
-   */
-  async iotaNamesReverseLookup(input) {
-    return await this.transport.request({
-      method: "iotax_iotaNamesReverseLookup",
-      params: [input.address]
-    });
-  }
-  /**
-   * Find all registration NFTs for the given address.
-   */
-  async iotaNamesFindAllRegistrationNFTs(input) {
-    return await this.transport.request({
-      method: "iotax_iotaNamesFindAllRegistrationNFTs",
-      params: [input.address, input.cursor, input.limit, input.options]
-    });
-  }
-}
+let Transaction$1 = _Transaction$1;
 function devAssert(condition, message) {
   const booleanCondition = Boolean(condition);
   if (!booleanCondition) {
@@ -19770,8 +20718,8 @@ const GetValidatorsApyDocument = new TypedDocumentString(`
 }
     `);
 new TypedDocumentString(`
-    query resolveNameServiceAddress($name: String!) {
-  resolveIotaNamesAddress(name: $name) {
+    query resolveNameServiceAddress($domain: String!) {
+  resolveIotaNamesAddress(domain: $domain) {
     address
   }
 }
@@ -19785,7 +20733,7 @@ new TypedDocumentString(`
         endCursor
       }
       nodes {
-        name
+        domain
       }
     }
   }
@@ -20621,7 +21569,7 @@ fragment PAGINATE_TRANSACTION_LISTS on TransactionBlock {
   }
 }`);
 function toShortTypeString(type) {
-  return type?.replace(/0x0{31,}(\d)/g, "0x$1").replace(/,\b/g, ", ");
+  return type == null ? void 0 : type.replace(/0x0{31,}(\d)/g, "0x$1").replace(/,\b/g, ", ");
 }
 function isNumericString(value) {
   return /^-?\d+$/.test(value);
@@ -20667,20 +21615,24 @@ function layoutToBcs(layout) {
 }
 function mapJsonToBcs(json, layout) {
   const schema = layoutToBcs(layout);
-  return toBase64(schema.serialize(json).toBytes());
+  return toB64(schema.serialize(json).toBytes());
 }
 function mapGraphQLCheckpointToRpcCheckpoint(checkpoint) {
+  var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m;
   const endOfEpochTx = checkpoint.endOfEpoch.nodes[0];
   let endOfEpochData;
-  if (endOfEpochTx?.kind?.__typename === "EndOfEpochTransaction" && endOfEpochTx.kind?.transactions.nodes[0].__typename === "ChangeEpochTransactionV2") {
+  if (((_a2 = endOfEpochTx == null ? void 0 : endOfEpochTx.kind) == null ? void 0 : _a2.__typename) === "EndOfEpochTransaction" && ((_b = endOfEpochTx.kind) == null ? void 0 : _b.transactions.nodes[0].__typename) === "ChangeEpochTransactionV2") {
     endOfEpochData = {
       epochCommitments: [],
       // TODO
-      nextEpochCommittee: endOfEpochTx.kind.transactions.nodes[0].epoch?.validatorSet?.committeeMembers?.nodes.map(
-        (val) => [val.credentials?.authorityPubKey, val.votingPower?.toString()]
-      ) ?? [],
+      nextEpochCommittee: ((_e = (_d = (_c = endOfEpochTx.kind.transactions.nodes[0].epoch) == null ? void 0 : _c.validatorSet) == null ? void 0 : _d.committeeMembers) == null ? void 0 : _e.nodes.map(
+        (val) => {
+          var _a3, _b2;
+          return [(_a3 = val.credentials) == null ? void 0 : _a3.authorityPubKey, (_b2 = val.votingPower) == null ? void 0 : _b2.toString()];
+        }
+      )) ?? [],
       nextEpochProtocolVersion: String(
-        endOfEpochTx.kind.transactions.nodes[0].epoch?.protocolConfigs.protocolVersion
+        (_f = endOfEpochTx.kind.transactions.nodes[0].epoch) == null ? void 0 : _f.protocolConfigs.protocolVersion
       ),
       epochSupplyChange: 0
       // TODO: https://github.com/iotaledger/iota/issues/1738
@@ -20691,21 +21643,21 @@ function mapGraphQLCheckpointToRpcCheckpoint(checkpoint) {
     // TODO
     digest: checkpoint.digest,
     endOfEpochData,
-    epoch: String(checkpoint.epoch?.epochId),
+    epoch: String((_g = checkpoint.epoch) == null ? void 0 : _g.epochId),
     epochRollingGasCostSummary: {
-      computationCost: checkpoint.rollingGasSummary?.computationCost,
-      computationCostBurned: checkpoint.rollingGasSummary?.computationCostBurned,
-      nonRefundableStorageFee: checkpoint.rollingGasSummary?.nonRefundableStorageFee,
-      storageCost: checkpoint.rollingGasSummary?.storageCost,
-      storageRebate: checkpoint.rollingGasSummary?.storageRebate
+      computationCost: (_h = checkpoint.rollingGasSummary) == null ? void 0 : _h.computationCost,
+      computationCostBurned: (_i = checkpoint.rollingGasSummary) == null ? void 0 : _i.computationCostBurned,
+      nonRefundableStorageFee: (_j = checkpoint.rollingGasSummary) == null ? void 0 : _j.nonRefundableStorageFee,
+      storageCost: (_k = checkpoint.rollingGasSummary) == null ? void 0 : _k.storageCost,
+      storageRebate: (_l = checkpoint.rollingGasSummary) == null ? void 0 : _l.storageRebate
     },
     networkTotalTransactions: String(checkpoint.networkTotalTransactions),
     ...checkpoint.previousCheckpointDigest ? { previousDigest: checkpoint.previousCheckpointDigest } : {},
     sequenceNumber: String(checkpoint.sequenceNumber),
     timestampMs: new Date(checkpoint.timestamp).getTime().toString(),
-    transactions: checkpoint.transactionBlocks?.nodes.map(
+    transactions: ((_m = checkpoint.transactionBlocks) == null ? void 0 : _m.nodes.map(
       (transactionBlock) => transactionBlock.digest
-    ) ?? [],
+    )) ?? [],
     validatorSignature: checkpoint.validatorSignatures
   };
 }
@@ -20724,6 +21676,7 @@ function mapOpenMoveType(type) {
   return body;
 }
 function mapNormalizedType(type) {
+  var _a2;
   switch (type) {
     case "address":
       return "Address";
@@ -20758,65 +21711,77 @@ function mapNormalizedType(type) {
         address: toShortTypeString(type.datatype.package),
         module: type.datatype.module,
         name: type.datatype.type,
-        typeArguments: type.datatype.typeParameters?.map(mapNormalizedType) ?? []
+        typeArguments: ((_a2 = type.datatype.typeParameters) == null ? void 0 : _a2.map(mapNormalizedType)) ?? []
       }
     };
   }
   throw new Error("Invalid type");
 }
 function mapNormalizedMoveFunction(fn) {
+  var _a2, _b, _c, _d, _e;
   return {
-    visibility: `${fn.visibility?.[0]}${fn.visibility?.slice(1).toLowerCase()}`,
+    visibility: `${(_a2 = fn.visibility) == null ? void 0 : _a2[0]}${(_b = fn.visibility) == null ? void 0 : _b.slice(1).toLowerCase()}`,
     isEntry: fn.isEntry,
-    typeParameters: fn.typeParameters?.map((param) => ({
-      abilities: param.constraints?.map(
-        (constraint) => `${constraint[0]}${constraint.slice(1).toLowerCase()}`
-      ) ?? []
+    typeParameters: ((_c = fn.typeParameters) == null ? void 0 : _c.map((param) => {
+      var _a3;
+      return {
+        abilities: ((_a3 = param.constraints) == null ? void 0 : _a3.map(
+          (constraint) => `${constraint[0]}${constraint.slice(1).toLowerCase()}`
+        )) ?? []
+      };
     })) ?? [],
-    return: fn.return?.map((param) => mapOpenMoveType(param.signature)) ?? [],
-    parameters: fn.parameters?.map((param) => mapOpenMoveType(param.signature)) ?? []
+    return: ((_d = fn.return) == null ? void 0 : _d.map((param) => mapOpenMoveType(param.signature))) ?? [],
+    parameters: ((_e = fn.parameters) == null ? void 0 : _e.map((param) => mapOpenMoveType(param.signature))) ?? []
   };
 }
 function mapNormalizedMoveStruct(struct) {
+  var _a2, _b, _c;
   return {
     abilities: {
-      abilities: struct.abilities?.map(
+      abilities: ((_a2 = struct.abilities) == null ? void 0 : _a2.map(
         (ability) => `${ability[0]}${ability.slice(1).toLowerCase()}`
-      ) ?? []
+      )) ?? []
     },
-    fields: struct.fields?.map((field) => ({
-      name: field.name,
-      type: mapOpenMoveType(field.type?.signature)
+    fields: ((_b = struct.fields) == null ? void 0 : _b.map((field) => {
+      var _a3;
+      return {
+        name: field.name,
+        type: mapOpenMoveType((_a3 = field.type) == null ? void 0 : _a3.signature)
+      };
     })) ?? [],
-    typeParameters: struct.typeParameters?.map((param) => ({
-      isPhantom: param.isPhantom,
-      constraints: {
-        abilities: param.constraints?.map(
-          (constraint) => `${constraint[0]}${constraint.slice(1).toLowerCase()}`
-        )
-      }
+    typeParameters: ((_c = struct.typeParameters) == null ? void 0 : _c.map((param) => {
+      var _a3;
+      return {
+        isPhantom: param.isPhantom,
+        constraints: {
+          abilities: (_a3 = param.constraints) == null ? void 0 : _a3.map(
+            (constraint) => `${constraint[0]}${constraint.slice(1).toLowerCase()}`
+          )
+        }
+      };
     })) ?? []
   };
 }
 function mapNormalizedMoveModule(module, address) {
+  var _a2, _b, _c;
   const exposedFunctions = {};
   const structs = {};
-  module.functions?.nodes.filter(
+  (_a2 = module.functions) == null ? void 0 : _a2.nodes.filter(
     (func) => func.visibility === "PUBLIC" || func.isEntry || func.visibility === "FRIEND"
   ).forEach((func) => {
     exposedFunctions[func.name] = mapNormalizedMoveFunction(func);
   });
-  module.structs?.nodes.forEach((struct) => {
+  (_b = module.structs) == null ? void 0 : _b.nodes.forEach((struct) => {
     structs[struct.name] = mapNormalizedMoveStruct(struct);
   });
   return {
     address: toShortTypeString(address),
     name: module.name,
     fileFormatVersion: module.fileFormatVersion,
-    friends: module.friends.nodes?.map((friend) => ({
+    friends: ((_c = module.friends.nodes) == null ? void 0 : _c.map((friend) => ({
       address: toShortTypeString(friend.package.address),
       name: friend.name
-    })) ?? [],
+    }))) ?? [],
     structs,
     exposedFunctions
   };
@@ -20913,16 +21878,17 @@ function formatDisplay(object2) {
   return display;
 }
 function mapGraphQLOwnerToRpcOwner(owner) {
-  switch (owner?.__typename) {
+  var _a2, _b, _c, _d, _e;
+  switch (owner == null ? void 0 : owner.__typename) {
     case "AddressOwner":
-      return owner.owner?.asObject ? {
-        ObjectOwner: owner.owner?.asObject.address
+      return ((_a2 = owner.owner) == null ? void 0 : _a2.asObject) ? {
+        ObjectOwner: (_b = owner.owner) == null ? void 0 : _b.asObject.address
       } : {
-        AddressOwner: owner.owner?.asAddress?.address
+        AddressOwner: (_d = (_c = owner.owner) == null ? void 0 : _c.asAddress) == null ? void 0 : _d.address
       };
     case "Parent":
       return {
-        ObjectOwner: owner.parent?.address
+        ObjectOwner: (_e = owner.parent) == null ? void 0 : _e.address
       };
     case "Shared": {
       return {
@@ -20937,59 +21903,59 @@ function mapGraphQLOwnerToRpcOwner(owner) {
   return null;
 }
 function mapGraphQLObjectToRpcObject(object2, options = {}) {
+  var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k;
   return {
-    bcs: options?.showBcs ? {
+    bcs: (options == null ? void 0 : options.showBcs) ? {
       dataType: "moveObject",
-      bcsBytes: object2.asMoveObject?.contents?.bcs,
+      bcsBytes: (_b = (_a2 = object2.asMoveObject) == null ? void 0 : _a2.contents) == null ? void 0 : _b.bcs,
       version: object2.version,
-      type: toShortTypeString(object2.asMoveObject?.contents?.type.repr)
+      type: toShortTypeString((_d = (_c = object2.asMoveObject) == null ? void 0 : _c.contents) == null ? void 0 : _d.type.repr)
     } : void 0,
-    content: options.showContent ? {
+    content: {
       dataType: "moveObject",
       ...moveDataToRpcContent(
-        object2.asMoveObject?.contents?.data,
-        object2.asMoveObject?.contents?.type.layout
+        (_f = (_e = object2.asMoveObject) == null ? void 0 : _e.contents) == null ? void 0 : _f.data,
+        (_h = (_g = object2.asMoveObject) == null ? void 0 : _g.contents) == null ? void 0 : _h.type.layout
       )
-    } : void 0,
+    },
     digest: object2.digest,
     display: formatDisplay(object2),
     objectId: object2.objectId,
     owner: mapGraphQLOwnerToRpcOwner(object2.owner),
-    previousTransaction: object2.previousTransactionBlock?.digest,
+    previousTransaction: (_i = object2.previousTransactionBlock) == null ? void 0 : _i.digest,
     storageRebate: object2.storageRebate,
-    type: toShortTypeString(object2.asMoveObject?.contents?.type.repr),
+    type: toShortTypeString((_k = (_j = object2.asMoveObject) == null ? void 0 : _j.contents) == null ? void 0 : _k.type.repr),
     version: String(object2.version)
   };
 }
 function mapGraphQLMoveObjectToRpcObject(object2, options = {}) {
+  var _a2, _b, _c, _d, _e, _f;
   return {
-    bcs: options?.showBcs ? {
+    bcs: (options == null ? void 0 : options.showBcs) ? {
       dataType: "moveObject",
-      bcsBytes: object2?.contents?.bcs,
+      bcsBytes: (_a2 = object2 == null ? void 0 : object2.contents) == null ? void 0 : _a2.bcs,
       version: object2.version,
-      type: toShortTypeString(object2?.contents?.type.repr)
+      type: toShortTypeString((_b = object2 == null ? void 0 : object2.contents) == null ? void 0 : _b.type.repr)
     } : void 0,
-    content: options.showContent ? {
+    content: {
       dataType: "moveObject",
-      ...moveDataToRpcContent(
-        object2?.contents?.data,
-        object2?.contents?.type.layout
-      )
-    } : void 0,
+      ...moveDataToRpcContent((_c = object2 == null ? void 0 : object2.contents) == null ? void 0 : _c.data, (_d = object2 == null ? void 0 : object2.contents) == null ? void 0 : _d.type.layout)
+    },
     digest: object2.digest,
     display: formatDisplay(object2),
     objectId: object2.objectId,
     owner: mapGraphQLOwnerToRpcOwner(object2.owner),
-    previousTransaction: object2.previousTransactionBlock?.digest,
+    previousTransaction: (_e = object2.previousTransactionBlock) == null ? void 0 : _e.digest,
     storageRebate: object2.storageRebate,
-    type: toShortTypeString(object2?.contents?.type.repr),
+    type: toShortTypeString((_f = object2 == null ? void 0 : object2.contents) == null ? void 0 : _f.type.repr),
     version: String(object2.version)
   };
 }
 function mapGraphQLStakeToRpcStake(stakes) {
+  var _a2, _b, _c, _d, _e;
   const delegatedStakes = /* @__PURE__ */ new Map();
   for (const stake of stakes) {
-    const pool = stake.contents?.json.pool_id;
+    const pool = (_a2 = stake.contents) == null ? void 0 : _a2.json.pool_id;
     if (!delegatedStakes.has(pool)) {
       delegatedStakes.set(pool, {
         validatorAddress: "",
@@ -21001,92 +21967,100 @@ function mapGraphQLStakeToRpcStake(stakes) {
     const delegatedStake = delegatedStakes.get(pool);
     delegatedStake.stakes.push({
       stakedIotaId: stake.address,
-      stakeRequestEpoch: stake.requestedEpoch?.epochId.toString(),
-      stakeActiveEpoch: stake.activatedEpoch?.epochId.toString(),
-      principal: stake.principal?.value,
+      stakeRequestEpoch: (_b = stake.requestedEpoch) == null ? void 0 : _b.epochId.toString(),
+      stakeActiveEpoch: (_c = stake.activatedEpoch) == null ? void 0 : _c.epochId.toString(),
+      principal: (_d = stake.principal) == null ? void 0 : _d.value,
       status: stake.stakeStatus.slice(0, 1).toUpperCase() + stake.stakeStatus.slice(1).toLowerCase(),
-      estimatedReward: stake.estimatedReward?.value
+      estimatedReward: (_e = stake.estimatedReward) == null ? void 0 : _e.value
     });
   }
   return [...delegatedStakes.values()];
 }
 function mapGraphQLTransactionBlockToRpcTransactionBlock(transactionBlock, options, errors) {
-  const effects = transactionBlock.effects?.bcs ? mapEffects(transactionBlock.effects.bcs) : null;
+  var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k;
+  const effects = ((_a2 = transactionBlock.effects) == null ? void 0 : _a2.bcs) ? mapEffects(transactionBlock.effects.bcs) : null;
   return {
-    balanceChanges: transactionBlock.effects?.balanceChanges?.nodes.map((balanceChange) => ({
-      amount: balanceChange?.amount,
-      coinType: toShortTypeString(balanceChange?.coinType?.repr),
-      owner: balanceChange.owner?.asObject?.address ? {
-        ObjectOwner: balanceChange.owner?.asObject?.address
-      } : {
-        AddressOwner: balanceChange.owner?.asAddress?.address
-      }
-    })),
-    ...typeof transactionBlock.effects?.checkpoint?.sequenceNumber === "number" ? { checkpoint: transactionBlock.effects.checkpoint.sequenceNumber.toString() } : {},
-    ...transactionBlock.effects?.timestamp ? { timestampMs: new Date(transactionBlock.effects?.timestamp).getTime().toString() } : {},
+    balanceChanges: (_c = (_b = transactionBlock.effects) == null ? void 0 : _b.balanceChanges) == null ? void 0 : _c.nodes.map((balanceChange) => {
+      var _a3, _b2, _c2, _d2, _e2, _f2, _g2;
+      return {
+        amount: balanceChange == null ? void 0 : balanceChange.amount,
+        coinType: toShortTypeString((_a3 = balanceChange == null ? void 0 : balanceChange.coinType) == null ? void 0 : _a3.repr),
+        owner: ((_c2 = (_b2 = balanceChange.owner) == null ? void 0 : _b2.asObject) == null ? void 0 : _c2.address) ? {
+          ObjectOwner: (_e2 = (_d2 = balanceChange.owner) == null ? void 0 : _d2.asObject) == null ? void 0 : _e2.address
+        } : {
+          AddressOwner: (_g2 = (_f2 = balanceChange.owner) == null ? void 0 : _f2.asAddress) == null ? void 0 : _g2.address
+        }
+      };
+    }),
+    ...typeof ((_e = (_d = transactionBlock.effects) == null ? void 0 : _d.checkpoint) == null ? void 0 : _e.sequenceNumber) === "number" ? { checkpoint: transactionBlock.effects.checkpoint.sequenceNumber.toString() } : {},
+    ...((_f = transactionBlock.effects) == null ? void 0 : _f.timestamp) ? { timestampMs: new Date((_g = transactionBlock.effects) == null ? void 0 : _g.timestamp).getTime().toString() } : {},
     digest: transactionBlock.digest,
-    ...options?.showRawEffects ? {
-      rawEffects: transactionBlock.effects?.bcs ? Array.from(fromBase64(transactionBlock.effects?.bcs)) : void 0
+    ...(options == null ? void 0 : options.showRawEffects) ? {
+      rawEffects: ((_h = transactionBlock.effects) == null ? void 0 : _h.bcs) ? Array.from(fromB64((_i = transactionBlock.effects) == null ? void 0 : _i.bcs)) : void 0
     } : {},
-    effects: options?.showEffects ? effects : void 0,
+    effects: (options == null ? void 0 : options.showEffects) ? effects : void 0,
     ...errors ? { errors } : {},
-    events: transactionBlock.effects?.events?.nodes.map((event2) => ({
-      bcs: event2.bcs,
-      bcsEncoding: "base64",
-      id: {
-        eventSeq: "",
-        // TODO
-        txDigest: ""
-        // TODO
-      },
-      packageId: event2.sendingModule?.package.address,
-      parsedJson: event2.json,
-      sender: event2.sender?.address,
-      timestampMs: new Date(event2.timestamp).getTime().toString(),
-      transactionModule: `${event2.sendingModule?.package.address}::${event2.sendingModule?.name}`,
-      type: toShortTypeString(event2.type?.repr)
+    events: ((_k = (_j = transactionBlock.effects) == null ? void 0 : _j.events) == null ? void 0 : _k.nodes.map((event2) => {
+      var _a3, _b2, _c2, _d2, _e2;
+      return {
+        bcs: event2.bcs,
+        bcsEncoding: "base64",
+        id: {
+          eventSeq: "",
+          // TODO
+          txDigest: ""
+          // TODO
+        },
+        packageId: (_a3 = event2.sendingModule) == null ? void 0 : _a3.package.address,
+        parsedJson: event2.json ? JSON.parse(event2.json) : void 0,
+        sender: (_b2 = event2.sender) == null ? void 0 : _b2.address,
+        timestampMs: new Date(event2.timestamp).getTime().toString(),
+        transactionModule: `${(_c2 = event2.sendingModule) == null ? void 0 : _c2.package.address}::${(_d2 = event2.sendingModule) == null ? void 0 : _d2.name}`,
+        type: toShortTypeString((_e2 = event2.type) == null ? void 0 : _e2.repr)
+      };
     })) ?? [],
-    rawTransaction: options?.showRawInput ? transactionBlock.rawTransaction : void 0,
-    ...options?.showInput ? {
+    rawTransaction: (options == null ? void 0 : options.showRawInput) ? transactionBlock.rawTransaction : void 0,
+    ...(options == null ? void 0 : options.showInput) ? {
       transaction: transactionBlock.rawTransaction && mapTransactionBlockToInput(
-        iotaBcs.SenderSignedData.parse(
-          fromBase64(transactionBlock.rawTransaction)
-        )[0]
+        iotaBcs.SenderSignedData.parse(fromB64(transactionBlock.rawTransaction))[0]
       )
     } : {},
-    objectChanges: options?.showObjectChanges ? mapObjectChanges(transactionBlock, effects) : void 0
+    objectChanges: (options == null ? void 0 : options.showObjectChanges) ? mapObjectChanges(transactionBlock, effects) : void 0
   };
 }
 function mapObjectChanges(transactionBlock, effects) {
+  var _a2, _b, _c, _d;
   const changes = [];
-  effects?.mutated?.forEach((mutated) => {
-    const objectChange = transactionBlock.effects?.objectChanges?.nodes.find(
+  (_a2 = effects == null ? void 0 : effects.mutated) == null ? void 0 : _a2.forEach((mutated) => {
+    var _a3, _b2, _c2, _d2, _e, _f, _g, _h;
+    const objectChange = (_b2 = (_a3 = transactionBlock.effects) == null ? void 0 : _a3.objectChanges) == null ? void 0 : _b2.nodes.find(
       (change) => change.address === mutated.reference.objectId
     );
     changes.push({
       type: "mutated",
       digest: mutated.reference.digest,
-      previousVersion: String(objectChange?.inputState?.version),
+      previousVersion: String((_c2 = objectChange == null ? void 0 : objectChange.inputState) == null ? void 0 : _c2.version),
       objectId: mutated.reference.objectId,
       owner: mutated.owner,
       objectType: toShortTypeString(
-        objectChange?.outputState?.asMoveObject?.contents?.type.repr
+        (_f = (_e = (_d2 = objectChange == null ? void 0 : objectChange.outputState) == null ? void 0 : _d2.asMoveObject) == null ? void 0 : _e.contents) == null ? void 0 : _f.type.repr
       ),
-      sender: transactionBlock.sender?.address,
-      version: mutated.reference.version?.toString()
+      sender: (_g = transactionBlock.sender) == null ? void 0 : _g.address,
+      version: (_h = mutated.reference.version) == null ? void 0 : _h.toString()
     });
   });
-  effects?.created?.forEach((created) => {
-    const objectChange = transactionBlock.effects?.objectChanges?.nodes.find(
+  (_b = effects == null ? void 0 : effects.created) == null ? void 0 : _b.forEach((created) => {
+    var _a3, _b2, _c2, _d2, _e, _f, _g, _h, _i, _j, _k, _l, _m;
+    const objectChange = (_b2 = (_a3 = transactionBlock.effects) == null ? void 0 : _a3.objectChanges) == null ? void 0 : _b2.nodes.find(
       (change) => change.address === created.reference.objectId
     );
-    if (objectChange?.outputState?.asMovePackage) {
+    if ((_c2 = objectChange == null ? void 0 : objectChange.outputState) == null ? void 0 : _c2.asMovePackage) {
       changes.push({
         type: "published",
         digest: created.reference.digest,
-        version: created.reference.version?.toString(),
+        version: (_d2 = created.reference.version) == null ? void 0 : _d2.toString(),
         packageId: objectChange.address,
-        modules: objectChange.outputState.asMovePackage.modules?.nodes.map(
+        modules: (_e = objectChange.outputState.asMovePackage.modules) == null ? void 0 : _e.nodes.map(
           (module) => module.name
         )
       });
@@ -21097,39 +22071,41 @@ function mapObjectChanges(transactionBlock, effects) {
         objectId: created.reference.objectId,
         owner: created.owner,
         objectType: toShortTypeString(
-          transactionBlock.effects?.objectChanges?.nodes.find(
+          (_k = (_j = (_i = (_h = (_g = (_f = transactionBlock.effects) == null ? void 0 : _f.objectChanges) == null ? void 0 : _g.nodes.find(
             (change) => change.address === created.reference.objectId
-          )?.outputState?.asMoveObject?.contents?.type.repr
+          )) == null ? void 0 : _h.outputState) == null ? void 0 : _i.asMoveObject) == null ? void 0 : _j.contents) == null ? void 0 : _k.type.repr
         ),
-        sender: transactionBlock.sender?.address,
-        version: created.reference.version?.toString()
+        sender: (_l = transactionBlock.sender) == null ? void 0 : _l.address,
+        version: (_m = created.reference.version) == null ? void 0 : _m.toString()
       });
     }
   });
-  effects?.deleted?.forEach((deleted) => {
+  (_c = effects == null ? void 0 : effects.deleted) == null ? void 0 : _c.forEach((deleted) => {
+    var _a3, _b2, _c2, _d2, _e, _f, _g, _h;
     changes.push({
       type: "deleted",
       objectId: deleted.objectId,
       objectType: toShortTypeString(
-        transactionBlock.effects?.objectChanges?.nodes.find(
+        (_f = (_e = (_d2 = (_c2 = (_b2 = (_a3 = transactionBlock.effects) == null ? void 0 : _a3.objectChanges) == null ? void 0 : _b2.nodes.find(
           (change) => change.address === deleted.objectId
-        )?.inputState?.asMoveObject?.contents?.type.repr
+        )) == null ? void 0 : _c2.inputState) == null ? void 0 : _d2.asMoveObject) == null ? void 0 : _e.contents) == null ? void 0 : _f.type.repr
       ),
-      sender: transactionBlock.sender?.address,
-      version: deleted.version?.toString()
+      sender: (_g = transactionBlock.sender) == null ? void 0 : _g.address,
+      version: (_h = deleted.version) == null ? void 0 : _h.toString()
     });
   });
-  effects?.unwrapped?.forEach((unwrapped) => {
+  (_d = effects == null ? void 0 : effects.unwrapped) == null ? void 0 : _d.forEach((unwrapped) => {
+    var _a3, _b2, _c2, _d2, _e, _f, _g, _h;
     changes.push({
       type: "wrapped",
       objectId: unwrapped.reference.objectId,
       objectType: toShortTypeString(
-        transactionBlock.effects?.objectChanges?.nodes.find(
+        (_f = (_e = (_d2 = (_c2 = (_b2 = (_a3 = transactionBlock.effects) == null ? void 0 : _a3.objectChanges) == null ? void 0 : _b2.nodes.find(
           (change) => change.address === unwrapped.reference.objectId
-        )?.outputState?.asMoveObject?.contents?.type.repr
+        )) == null ? void 0 : _c2.outputState) == null ? void 0 : _d2.asMoveObject) == null ? void 0 : _e.contents) == null ? void 0 : _f.type.repr
       ),
-      sender: transactionBlock.sender?.address,
-      version: unwrapped.reference.version?.toString()
+      sender: (_g = transactionBlock.sender) == null ? void 0 : _g.address,
+      version: (_h = unwrapped.reference.version) == null ? void 0 : _h.toString()
     });
   });
   return changes;
@@ -21170,7 +22146,7 @@ function mapTransactionInput(input) {
   if (input.Pure) {
     return {
       type: "pure",
-      value: iotaBcs.string().parse(fromBase64(input.Pure.bytes))
+      value: fromB64(input.Pure.bytes)
     };
   }
   if (input.Object.ImmOrOwnedObject) {
@@ -21287,12 +22263,12 @@ function mapTransactionArgument(arg) {
   }
   throw new Error(`Unknown argument type ${arg}`);
 }
-const OBJECT_DIGEST_DELETED = toBase58(Uint8Array.from({ length: 32 }, () => 99));
-const OBJECT_DIGEST_WRAPPED = toBase58(Uint8Array.from({ length: 32 }, () => 88));
-const OBJECT_DIGEST_ZERO = toBase58(Uint8Array.from({ length: 32 }, () => 0));
+const OBJECT_DIGEST_DELETED = toB58(Uint8Array.from({ length: 32 }, () => 99));
+const OBJECT_DIGEST_WRAPPED = toB58(Uint8Array.from({ length: 32 }, () => 88));
+const OBJECT_DIGEST_ZERO = toB58(Uint8Array.from({ length: 32 }, () => 0));
 const ADDRESS_ZERO = normalizeIotaAddress("0x0");
 function mapEffects(data) {
-  const effects = iotaBcs.TransactionEffects.parse(fromBase64(data));
+  const effects = iotaBcs.TransactionEffects.parse(fromB64(data));
   const sharedObjects = effects.V1.unchangedSharedObjects.map(([id, sharedObject]) => {
     switch (sharedObject.$kind) {
       case "ReadOnlyRoot":
@@ -21317,7 +22293,10 @@ function mapEffects(data) {
         throw new Error(`Unknown shared object type: ${sharedObject}`);
     }
   });
-  effects.V1.changedObjects.filter(([_id, change]) => change.inputState.Exist?.[1].Shared).forEach(([id, change]) => {
+  effects.V1.changedObjects.filter(([_id, change]) => {
+    var _a2;
+    return (_a2 = change.inputState.Exist) == null ? void 0 : _a2[1].Shared;
+  }).forEach(([id, change]) => {
     sharedObjects.push({
       objectId: id,
       version: Number(change.inputState.Exist[0][0]),
@@ -21467,43 +22446,44 @@ function mapEffects(data) {
   }
 }
 function mapGraphQlValidatorToRpcValidator(validator) {
+  var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v;
   return {
-    commissionRate: validator.commissionRate?.toString(),
+    commissionRate: (_a2 = validator.commissionRate) == null ? void 0 : _a2.toString(),
     description: validator.description,
-    exchangeRatesId: validator.exchangeRates?.address,
-    exchangeRatesSize: validator.exchangeRatesSize?.toString(),
+    exchangeRatesId: (_b = validator.exchangeRates) == null ? void 0 : _b.address,
+    exchangeRatesSize: (_c = validator.exchangeRatesSize) == null ? void 0 : _c.toString(),
     gasPrice: validator.gasPrice,
     imageUrl: validator.imageUrl,
     name: validator.name,
-    netAddress: validator.credentials?.netAddress,
-    networkPubkeyBytes: validator.credentials?.networkPubKey,
-    nextEpochCommissionRate: validator.nextEpochCommissionRate?.toString(),
+    netAddress: (_d = validator.credentials) == null ? void 0 : _d.netAddress,
+    networkPubkeyBytes: (_e = validator.credentials) == null ? void 0 : _e.networkPubKey,
+    nextEpochCommissionRate: (_f = validator.nextEpochCommissionRate) == null ? void 0 : _f.toString(),
     nextEpochGasPrice: validator.nextEpochGasPrice,
-    nextEpochNetAddress: validator.nextEpochCredentials?.netAddress,
-    nextEpochNetworkPubkeyBytes: validator.nextEpochCredentials?.networkPubKey,
-    nextEpochP2pAddress: validator.nextEpochCredentials?.p2PAddress,
-    nextEpochPrimaryAddress: validator.nextEpochCredentials?.primaryAddress,
-    nextEpochProofOfPossession: validator.nextEpochCredentials?.proofOfPossession,
-    nextEpochAuthorityPubkeyBytes: validator.nextEpochCredentials?.authorityPubKey,
+    nextEpochNetAddress: (_g = validator.nextEpochCredentials) == null ? void 0 : _g.netAddress,
+    nextEpochNetworkPubkeyBytes: (_h = validator.nextEpochCredentials) == null ? void 0 : _h.networkPubKey,
+    nextEpochP2pAddress: (_i = validator.nextEpochCredentials) == null ? void 0 : _i.p2PAddress,
+    nextEpochPrimaryAddress: (_j = validator.nextEpochCredentials) == null ? void 0 : _j.primaryAddress,
+    nextEpochProofOfPossession: (_k = validator.nextEpochCredentials) == null ? void 0 : _k.proofOfPossession,
+    nextEpochAuthorityPubkeyBytes: (_l = validator.nextEpochCredentials) == null ? void 0 : _l.authorityPubKey,
     nextEpochStake: validator.nextEpochStake,
-    nextEpochProtocolPubkeyBytes: validator.nextEpochCredentials?.protocolPubKey,
-    operationCapId: validator.operationCap?.address,
-    p2pAddress: validator.credentials?.p2PAddress,
+    nextEpochProtocolPubkeyBytes: (_m = validator.nextEpochCredentials) == null ? void 0 : _m.protocolPubKey,
+    operationCapId: (_n = validator.operationCap) == null ? void 0 : _n.address,
+    p2pAddress: (_o = validator.credentials) == null ? void 0 : _o.p2PAddress,
     pendingTotalIotaWithdraw: validator.pendingTotalIotaWithdraw,
     pendingPoolTokenWithdraw: validator.pendingPoolTokenWithdraw,
     poolTokenBalance: validator.poolTokenBalance,
     pendingStake: validator.pendingStake,
-    primaryAddress: validator.credentials?.primaryAddress,
+    primaryAddress: (_p = validator.credentials) == null ? void 0 : _p.primaryAddress,
     projectUrl: validator.projectUrl,
-    proofOfPossessionBytes: validator.credentials?.proofOfPossession,
-    authorityPubkeyBytes: validator.credentials?.authorityPubKey,
-    protocolPubkeyBytes: validator.credentials?.protocolPubKey,
+    proofOfPossessionBytes: (_q = validator.credentials) == null ? void 0 : _q.proofOfPossession,
+    authorityPubkeyBytes: (_r = validator.credentials) == null ? void 0 : _r.authorityPubKey,
+    protocolPubkeyBytes: (_s = validator.credentials) == null ? void 0 : _s.protocolPubKey,
     rewardsPool: validator.rewardsPool,
-    stakingPoolId: validator.stakingPool?.address,
-    stakingPoolActivationEpoch: validator.stakingPoolActivationEpoch?.toString(),
+    stakingPoolId: (_t = validator.stakingPool) == null ? void 0 : _t.address,
+    stakingPoolActivationEpoch: (_u = validator.stakingPoolActivationEpoch) == null ? void 0 : _u.toString(),
     stakingPoolIotaBalance: validator.stakingPoolIotaBalance,
     iotaAddress: validator.address.address,
-    votingPower: validator.votingPower?.toString()
+    votingPower: (_v = validator.votingPower) == null ? void 0 : _v.toString()
   };
 }
 const RPC_METHODS = {
@@ -21532,19 +22512,25 @@ const RPC_METHODS = {
           first: limit
         }
       },
-      (data) => data.address?.coins
+      (data) => {
+        var _a2;
+        return (_a2 = data.address) == null ? void 0 : _a2.coins;
+      }
     );
     return {
-      data: coins.map((coin) => ({
-        balance: coin.coinBalance,
-        coinObjectId: coin.address,
-        coinType: toShortTypeString(
-          normalizeStructTag(parseStructTag(coin.contents?.type.repr).typeParams[0])
-        ),
-        digest: coin.digest,
-        previousTransaction: coin.previousTransactionBlock?.digest,
-        version: String(coin.version)
-      })),
+      data: coins.map((coin) => {
+        var _a2, _b;
+        return {
+          balance: coin.coinBalance,
+          coinObjectId: coin.address,
+          coinType: toShortTypeString(
+            normalizeStructTag(parseStructTag((_a2 = coin.contents) == null ? void 0 : _a2.type.repr).typeParams[0])
+          ),
+          digest: coin.digest,
+          previousTransaction: (_b = coin.previousTransactionBlock) == null ? void 0 : _b.digest,
+          version: String(coin.version)
+        };
+      }),
       nextCursor: pageInfo.endCursor,
       hasNextPage: pageInfo.hasNextPage
     };
@@ -21559,24 +22545,31 @@ const RPC_METHODS = {
           first: inputs[2]
         }
       },
-      (data) => data.address?.coins
+      (data) => {
+        var _a2;
+        return (_a2 = data.address) == null ? void 0 : _a2.coins;
+      }
     );
     return {
-      data: coins.map((coin) => ({
-        balance: coin.coinBalance,
-        coinObjectId: coin.address,
-        coinType: toShortTypeString(
-          normalizeStructTag(parseStructTag(coin.contents?.type.repr).typeParams[0])
-        ),
-        digest: coin.digest,
-        previousTransaction: coin.previousTransactionBlock?.digest,
-        version: String(coin.version)
-      })),
+      data: coins.map((coin) => {
+        var _a2, _b;
+        return {
+          balance: coin.coinBalance,
+          coinObjectId: coin.address,
+          coinType: toShortTypeString(
+            normalizeStructTag(parseStructTag((_a2 = coin.contents) == null ? void 0 : _a2.type.repr).typeParams[0])
+          ),
+          digest: coin.digest,
+          previousTransaction: (_b = coin.previousTransactionBlock) == null ? void 0 : _b.digest,
+          version: String(coin.version)
+        };
+      }),
       nextCursor: pageInfo.endCursor,
       hasNextPage: pageInfo.hasNextPage
     };
   },
   async getBalance(transport, inputs) {
+    var _a2;
     const balance = await transport.graphqlQuery(
       {
         query: GetBalanceDocument,
@@ -21585,10 +22578,13 @@ const RPC_METHODS = {
           type: inputs[1]
         }
       },
-      (data) => data.address?.balance
+      (data) => {
+        var _a3;
+        return (_a3 = data.address) == null ? void 0 : _a3.balance;
+      }
     );
     return {
-      coinType: toShortTypeString(balance.coinType?.repr),
+      coinType: toShortTypeString((_a2 = balance.coinType) == null ? void 0 : _a2.repr),
       coinObjectCount: balance.coinObjectCount,
       totalBalance: balance.totalBalance
     };
@@ -21601,13 +22597,19 @@ const RPC_METHODS = {
           owner: inputs[0]
         }
       },
-      (data) => data.address?.balances?.nodes
+      (data) => {
+        var _a2, _b;
+        return (_b = (_a2 = data.address) == null ? void 0 : _a2.balances) == null ? void 0 : _b.nodes;
+      }
     );
-    return balances.map((balance) => ({
-      coinType: toShortTypeString(balance.coinType?.repr),
-      coinObjectCount: balance.coinObjectCount,
-      totalBalance: balance.totalBalance
-    }));
+    return balances.map((balance) => {
+      var _a2;
+      return {
+        coinType: toShortTypeString((_a2 = balance.coinType) == null ? void 0 : _a2.repr),
+        coinObjectCount: balance.coinObjectCount,
+        totalBalance: balance.totalBalance
+      };
+    });
   },
   async getCoinMetadata(transport, inputs) {
     const metadata = await transport.graphqlQuery(
@@ -21652,7 +22654,10 @@ const RPC_METHODS = {
           function: fn
         }
       },
-      (data) => data.object?.asMovePackage?.module?.function?.parameters
+      (data) => {
+        var _a2, _b, _c, _d;
+        return (_d = (_c = (_b = (_a2 = data.object) == null ? void 0 : _a2.asMovePackage) == null ? void 0 : _b.module) == null ? void 0 : _c.function) == null ? void 0 : _d.parameters;
+      }
     );
     return moveModule.map((parameter) => {
       if (!parameter.signature.body.datatype) {
@@ -21673,11 +22678,15 @@ const RPC_METHODS = {
           function: fn
         }
       },
-      (data) => data.object?.asMovePackage?.module?.function
+      (data) => {
+        var _a2, _b, _c;
+        return (_c = (_b = (_a2 = data.object) == null ? void 0 : _a2.asMovePackage) == null ? void 0 : _b.module) == null ? void 0 : _c.function;
+      }
     );
     return mapNormalizedMoveFunction(moveFunction);
   },
   async getNormalizedMoveModulesByPackage(transport, [pkg]) {
+    var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y;
     const movePackage = await transport.graphqlQuery(
       {
         query: GetNormalizedMoveModulesByPackageDocument,
@@ -21685,10 +22694,13 @@ const RPC_METHODS = {
           packageId: pkg
         }
       },
-      (data) => data.object?.asMovePackage
+      (data) => {
+        var _a3;
+        return (_a3 = data.object) == null ? void 0 : _a3.asMovePackage;
+      }
     );
-    let hasNextPage = movePackage.modules?.pageInfo.hasNextPage ?? false;
-    let cursor = movePackage.modules?.pageInfo.endCursor;
+    let hasNextPage = ((_a2 = movePackage.modules) == null ? void 0 : _a2.pageInfo.hasNextPage) ?? false;
+    let cursor = (_b = movePackage.modules) == null ? void 0 : _b.pageInfo.endCursor;
     while (hasNextPage) {
       const page = await transport.graphqlQuery(
         {
@@ -21698,21 +22710,24 @@ const RPC_METHODS = {
             cursor
           }
         },
-        (data) => data.object?.asMovePackage
+        (data) => {
+          var _a3;
+          return (_a3 = data.object) == null ? void 0 : _a3.asMovePackage;
+        }
       );
-      movePackage.modules?.nodes.push(...page.modules?.nodes ?? []);
-      hasNextPage = page.modules?.pageInfo.hasNextPage ?? false;
-      cursor = page.modules?.pageInfo.endCursor;
+      (_d = movePackage.modules) == null ? void 0 : _d.nodes.push(...((_c = page.modules) == null ? void 0 : _c.nodes) ?? []);
+      hasNextPage = ((_e = page.modules) == null ? void 0 : _e.pageInfo.hasNextPage) ?? false;
+      cursor = (_f = page.modules) == null ? void 0 : _f.pageInfo.endCursor;
     }
     const address = toShortTypeString(movePackage.address);
     const modules = {};
-    for (const moveModule of movePackage.modules?.nodes ?? []) {
-      let hasMoreFriends = moveModule.friends?.pageInfo.hasNextPage ?? false;
-      let hasMoreFunctions = moveModule.functions?.pageInfo.hasNextPage ?? false;
-      let hasMoreStructs = moveModule.structs?.pageInfo.hasNextPage ?? false;
-      let afterFriends = moveModule.friends?.pageInfo.endCursor;
-      let afterFunctions = moveModule.functions?.pageInfo.endCursor;
-      let afterStructs = moveModule.structs?.pageInfo.endCursor;
+    for (const moveModule of ((_g = movePackage.modules) == null ? void 0 : _g.nodes) ?? []) {
+      let hasMoreFriends = ((_h = moveModule.friends) == null ? void 0 : _h.pageInfo.hasNextPage) ?? false;
+      let hasMoreFunctions = ((_i = moveModule.functions) == null ? void 0 : _i.pageInfo.hasNextPage) ?? false;
+      let hasMoreStructs = ((_j = moveModule.structs) == null ? void 0 : _j.pageInfo.hasNextPage) ?? false;
+      let afterFriends = (_k = moveModule.friends) == null ? void 0 : _k.pageInfo.endCursor;
+      let afterFunctions = (_l = moveModule.functions) == null ? void 0 : _l.pageInfo.endCursor;
+      let afterStructs = (_m = moveModule.structs) == null ? void 0 : _m.pageInfo.endCursor;
       while (hasMoreFriends || hasMoreStructs || hasMoreFunctions) {
         const page = await transport.graphqlQuery(
           {
@@ -21728,25 +22743,29 @@ const RPC_METHODS = {
               afterStructs
             }
           },
-          (data) => data.object?.asMovePackage?.module
+          (data) => {
+            var _a3, _b2;
+            return (_b2 = (_a3 = data.object) == null ? void 0 : _a3.asMovePackage) == null ? void 0 : _b2.module;
+          }
         );
-        moveModule.friends.nodes.push(...page.friends?.nodes ?? []);
-        moveModule.functions?.nodes.push(...page.functions?.nodes ?? []);
-        moveModule.structs?.nodes.push(...page.structs?.nodes ?? []);
-        hasMoreFriends = page.friends?.pageInfo.hasNextPage ?? false;
-        hasMoreFunctions = page.functions?.pageInfo.hasNextPage ?? false;
-        hasMoreStructs = page.structs?.pageInfo.hasNextPage ?? false;
-        afterFriends = page.friends?.pageInfo.endCursor;
-        afterFunctions = page.functions?.pageInfo.endCursor;
-        afterStructs = page.structs?.pageInfo.endCursor;
+        moveModule.friends.nodes.push(...((_n = page.friends) == null ? void 0 : _n.nodes) ?? []);
+        (_p = moveModule.functions) == null ? void 0 : _p.nodes.push(...((_o = page.functions) == null ? void 0 : _o.nodes) ?? []);
+        (_r = moveModule.structs) == null ? void 0 : _r.nodes.push(...((_q = page.structs) == null ? void 0 : _q.nodes) ?? []);
+        hasMoreFriends = ((_s = page.friends) == null ? void 0 : _s.pageInfo.hasNextPage) ?? false;
+        hasMoreFunctions = ((_t = page.functions) == null ? void 0 : _t.pageInfo.hasNextPage) ?? false;
+        hasMoreStructs = ((_u = page.structs) == null ? void 0 : _u.pageInfo.hasNextPage) ?? false;
+        afterFriends = (_v = page.friends) == null ? void 0 : _v.pageInfo.endCursor;
+        afterFunctions = (_w = page.functions) == null ? void 0 : _w.pageInfo.endCursor;
+        afterStructs = (_x = page.structs) == null ? void 0 : _x.pageInfo.endCursor;
       }
     }
-    movePackage.modules?.nodes.forEach((module) => {
+    (_y = movePackage.modules) == null ? void 0 : _y.nodes.forEach((module) => {
       modules[module.name] = mapNormalizedMoveModule(module, address);
     });
     return modules;
   },
   async getNormalizedMoveModule(transport, [pkg, module]) {
+    var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q;
     const moveModule = await transport.graphqlQuery(
       {
         query: GetNormalizedMoveModuleDocument,
@@ -21755,14 +22774,17 @@ const RPC_METHODS = {
           packageId: pkg
         }
       },
-      (data) => data.object?.asMovePackage?.module
+      (data) => {
+        var _a3, _b2;
+        return (_b2 = (_a3 = data.object) == null ? void 0 : _a3.asMovePackage) == null ? void 0 : _b2.module;
+      }
     );
-    let hasMoreFriends = moveModule.friends?.pageInfo.hasNextPage ?? false;
-    let hasMoreFunctions = moveModule.functions?.pageInfo.hasNextPage ?? false;
-    let hasMoreStructs = moveModule.structs?.pageInfo.hasNextPage ?? false;
-    let afterFriends = moveModule.friends?.pageInfo.endCursor;
-    let afterFunctions = moveModule.functions?.pageInfo.endCursor;
-    let afterStructs = moveModule.structs?.pageInfo.endCursor;
+    let hasMoreFriends = ((_a2 = moveModule.friends) == null ? void 0 : _a2.pageInfo.hasNextPage) ?? false;
+    let hasMoreFunctions = ((_b = moveModule.functions) == null ? void 0 : _b.pageInfo.hasNextPage) ?? false;
+    let hasMoreStructs = ((_c = moveModule.structs) == null ? void 0 : _c.pageInfo.hasNextPage) ?? false;
+    let afterFriends = (_d = moveModule.friends) == null ? void 0 : _d.pageInfo.endCursor;
+    let afterFunctions = (_e = moveModule.functions) == null ? void 0 : _e.pageInfo.endCursor;
+    let afterStructs = (_f = moveModule.structs) == null ? void 0 : _f.pageInfo.endCursor;
     while (hasMoreFriends || hasMoreStructs || hasMoreFunctions) {
       const page = await transport.graphqlQuery(
         {
@@ -21778,17 +22800,20 @@ const RPC_METHODS = {
             afterStructs
           }
         },
-        (data) => data.object?.asMovePackage?.module
+        (data) => {
+          var _a3, _b2;
+          return (_b2 = (_a3 = data.object) == null ? void 0 : _a3.asMovePackage) == null ? void 0 : _b2.module;
+        }
       );
-      moveModule.friends.nodes.push(...page.friends?.nodes ?? []);
-      moveModule.functions?.nodes.push(...page.functions?.nodes ?? []);
-      moveModule.structs?.nodes.push(...page.structs?.nodes ?? []);
-      hasMoreFriends = page.friends?.pageInfo.hasNextPage ?? false;
-      hasMoreFunctions = page.functions?.pageInfo.hasNextPage ?? false;
-      hasMoreStructs = page.structs?.pageInfo.hasNextPage ?? false;
-      afterFriends = page.friends?.pageInfo.endCursor;
-      afterFunctions = page.functions?.pageInfo.endCursor;
-      afterStructs = page.structs?.pageInfo.endCursor;
+      moveModule.friends.nodes.push(...((_g = page.friends) == null ? void 0 : _g.nodes) ?? []);
+      (_i = moveModule.functions) == null ? void 0 : _i.nodes.push(...((_h = page.functions) == null ? void 0 : _h.nodes) ?? []);
+      (_k = moveModule.structs) == null ? void 0 : _k.nodes.push(...((_j = page.structs) == null ? void 0 : _j.nodes) ?? []);
+      hasMoreFriends = ((_l = page.friends) == null ? void 0 : _l.pageInfo.hasNextPage) ?? false;
+      hasMoreFunctions = ((_m = page.functions) == null ? void 0 : _m.pageInfo.hasNextPage) ?? false;
+      hasMoreStructs = ((_n = page.structs) == null ? void 0 : _n.pageInfo.hasNextPage) ?? false;
+      afterFriends = (_o = page.friends) == null ? void 0 : _o.pageInfo.endCursor;
+      afterFunctions = (_p = page.functions) == null ? void 0 : _p.pageInfo.endCursor;
+      afterStructs = (_q = page.structs) == null ? void 0 : _q.pageInfo.endCursor;
     }
     return mapNormalizedMoveModule(moveModule, normalizeIotaAddress(pkg));
   },
@@ -21802,7 +22827,10 @@ const RPC_METHODS = {
           struct
         }
       },
-      (data) => data.object?.asMovePackage?.module?.struct
+      (data) => {
+        var _a2, _b, _c;
+        return (_c = (_b = (_a2 = data.object) == null ? void 0 : _a2.asMovePackage) == null ? void 0 : _b.module) == null ? void 0 : _c.struct;
+      }
     );
     return mapNormalizedMoveStruct(moveStruct);
   },
@@ -21822,7 +22850,7 @@ const RPC_METHODS = {
         type: typeFilter,
         owner: "ObjectOwner" in inputFilter ? inputFilter.ObjectOwner : "AddressOwner" in inputFilter ? inputFilter.AddressOwner : void 0
       };
-      const unsupportedFilters = [];
+      const unsupportedFilters = ["MatchAll", "MatchAny", "MatchNone", "Version"];
       for (const unsupportedFilter of unsupportedFilters) {
         if (unsupportedFilter in inputFilter) {
           throw new UnsupportedParamError("getOwnedObjects", unsupportedFilter);
@@ -21836,17 +22864,19 @@ const RPC_METHODS = {
           owner,
           limit,
           cursor,
-          showBcs: options?.showBcs,
-          showContent: options?.showContent,
-          showDisplay: options?.showDisplay,
-          showOwner: options?.showOwner,
-          showPreviousTransaction: options?.showPreviousTransaction,
-          showStorageRebate: options?.showStorageRebate,
-          showType: options?.showType,
+          showBcs: options == null ? void 0 : options.showBcs,
+          showContent: options == null ? void 0 : options.showContent,
+          showOwner: options == null ? void 0 : options.showOwner,
+          showPreviousTransaction: options == null ? void 0 : options.showPreviousTransaction,
+          showStorageRebate: options == null ? void 0 : options.showStorageRebate,
+          showType: options == null ? void 0 : options.showType,
           filter
         }
       },
-      (data) => data.address?.objects
+      (data) => {
+        var _a2;
+        return (_a2 = data.address) == null ? void 0 : _a2.objects;
+      }
     );
     return {
       hasNextPage: pageInfo.hasNextPage,
@@ -21862,13 +22892,12 @@ const RPC_METHODS = {
         query: GetObjectDocument,
         variables: {
           id,
-          showBcs: options?.showBcs,
-          showContent: options?.showContent,
-          showDisplay: options?.showDisplay,
-          showOwner: options?.showOwner,
-          showPreviousTransaction: options?.showPreviousTransaction,
-          showStorageRebate: options?.showStorageRebate,
-          showType: options?.showType
+          showBcs: options == null ? void 0 : options.showBcs,
+          showContent: options == null ? void 0 : options.showContent,
+          showOwner: options == null ? void 0 : options.showOwner,
+          showPreviousTransaction: options == null ? void 0 : options.showPreviousTransaction,
+          showStorageRebate: options == null ? void 0 : options.showStorageRebate,
+          showType: options == null ? void 0 : options.showType
         }
       },
       (data) => data.object
@@ -21883,13 +22912,12 @@ const RPC_METHODS = {
       variables: {
         id,
         version,
-        showBcs: options?.showBcs,
-        showContent: options?.showContent,
-        showDisplay: options?.showDisplay,
-        showOwner: options?.showOwner,
-        showPreviousTransaction: options?.showPreviousTransaction,
-        showStorageRebate: options?.showStorageRebate,
-        showType: options?.showType
+        showBcs: options == null ? void 0 : options.showBcs,
+        showContent: options == null ? void 0 : options.showContent,
+        showOwner: options == null ? void 0 : options.showOwner,
+        showPreviousTransaction: options == null ? void 0 : options.showPreviousTransaction,
+        showStorageRebate: options == null ? void 0 : options.showStorageRebate,
+        showType: options == null ? void 0 : options.showType
       }
     });
     if (!data.current) {
@@ -21922,17 +22950,19 @@ const RPC_METHODS = {
         query: MultiGetObjectsDocument,
         variables: {
           ids,
-          showBcs: options?.showBcs,
-          showContent: options?.showContent,
-          showDisplay: options?.showDisplay,
-          showOwner: options?.showOwner,
-          showPreviousTransaction: options?.showPreviousTransaction,
-          showStorageRebate: options?.showStorageRebate,
-          showType: options?.showType,
+          showBcs: options == null ? void 0 : options.showBcs,
+          showContent: options == null ? void 0 : options.showContent,
+          showOwner: options == null ? void 0 : options.showOwner,
+          showPreviousTransaction: options == null ? void 0 : options.showPreviousTransaction,
+          showStorageRebate: options == null ? void 0 : options.showStorageRebate,
+          showType: options == null ? void 0 : options.showType,
           limit: ids.length
         }
       },
-      (data) => data.objects?.nodes
+      (data) => {
+        var _a2;
+        return (_a2 = data.objects) == null ? void 0 : _a2.nodes;
+      }
     );
     return objects.map((object2) => ({
       data: mapGraphQLObjectToRpcObject(object2, options ?? {})
@@ -21985,13 +23015,12 @@ const RPC_METHODS = {
         query: QueryTransactionBlocksDocument,
         variables: {
           ...pagination,
-          showBalanceChanges: options?.showBalanceChanges,
-          showEffects: options?.showEffects,
-          showEvents: options?.showEvents,
-          showInput: options?.showInput,
-          showObjectChanges: options?.showObjectChanges,
-          showRawEffects: options?.showRawEffects,
-          showRawInput: options?.showRawInput,
+          showBalanceChanges: options == null ? void 0 : options.showBalanceChanges,
+          showEffects: options == null ? void 0 : options.showEffects,
+          showRawEffects: options == null ? void 0 : options.showRawEffects,
+          showObjectChanges: options == null ? void 0 : options.showObjectChanges,
+          showRawInput: options == null ? void 0 : options.showRawInput,
+          showInput: options == null ? void 0 : options.showInput,
           filter: filter ? {
             atCheckpoint: "Checkpoint" in filter ? Number.parseInt(filter.Checkpoint) : void 0,
             function: "MoveFunction" in filter ? `${filter.MoveFunction.package}::${filter.MoveFunction.module}::${filter.MoveFunction.function}` : void 0,
@@ -22025,13 +23054,12 @@ const RPC_METHODS = {
         query: GetTransactionBlockDocument,
         variables: {
           digest,
-          showBalanceChanges: options?.showBalanceChanges,
-          showEffects: options?.showEffects,
-          showEvents: options?.showEvents,
-          showInput: options?.showInput,
-          showObjectChanges: options?.showObjectChanges,
-          showRawEffects: options?.showRawEffects,
-          showRawInput: options?.showRawInput
+          showBalanceChanges: options == null ? void 0 : options.showBalanceChanges,
+          showEffects: options == null ? void 0 : options.showEffects,
+          showRawEffects: options == null ? void 0 : options.showRawEffects,
+          showObjectChanges: options == null ? void 0 : options.showObjectChanges,
+          showRawInput: options == null ? void 0 : options.showRawInput,
+          showInput: options == null ? void 0 : options.showInput
         }
       },
       (data) => data.transactionBlock
@@ -22045,17 +23073,19 @@ const RPC_METHODS = {
         query: MultiGetTransactionBlocksDocument,
         variables: {
           digests,
-          showBalanceChanges: options?.showBalanceChanges,
-          showEffects: options?.showEffects,
-          showEvents: options?.showEvents,
-          showInput: options?.showInput,
-          showObjectChanges: options?.showObjectChanges,
-          showRawEffects: options?.showEffects,
-          showRawInput: options?.showRawInput,
+          showBalanceChanges: options == null ? void 0 : options.showBalanceChanges,
+          showEffects: options == null ? void 0 : options.showEffects,
+          showRawEffects: options == null ? void 0 : options.showEffects,
+          showObjectChanges: options == null ? void 0 : options.showObjectChanges,
+          showRawInput: options == null ? void 0 : options.showRawInput,
+          showInput: options == null ? void 0 : options.showInput,
           limit: digests.length
         }
       },
-      (data) => data.transactionBlocks?.nodes
+      (data) => {
+        var _a2;
+        return (_a2 = data.transactionBlocks) == null ? void 0 : _a2.nodes;
+      }
     );
     for (const transactionBlock of transactionBlocks) {
       await paginateTransactionBlockLists(transport, transactionBlock);
@@ -22069,7 +23099,10 @@ const RPC_METHODS = {
       {
         query: GetTotalTransactionBlocksDocument
       },
-      (data) => BigInt(data.checkpoint?.networkTotalTransactions)
+      (data) => {
+        var _a2;
+        return BigInt((_a2 = data.checkpoint) == null ? void 0 : _a2.networkTotalTransactions);
+      }
     );
   },
   async getReferenceGasPrice(transport) {
@@ -22090,7 +23123,10 @@ const RPC_METHODS = {
           owner
         }
       },
-      (data) => data.address?.stakedIotas?.nodes
+      (data) => {
+        var _a2, _b;
+        return (_b = (_a2 = data.address) == null ? void 0 : _a2.stakedIotas) == null ? void 0 : _b.nodes;
+      }
     );
     return mapGraphQLStakeToRpcStake(stakes);
   },
@@ -22102,19 +23138,26 @@ const RPC_METHODS = {
           ids: stakedIotaIds
         }
       },
-      (data) => data.objects?.nodes.map((node) => node?.asMoveObject?.asStakedIota).filter(Boolean)
+      (data) => {
+        var _a2;
+        return (_a2 = data.objects) == null ? void 0 : _a2.nodes.map((node) => {
+          var _a3;
+          return (_a3 = node == null ? void 0 : node.asMoveObject) == null ? void 0 : _a3.asStakedIota;
+        }).filter(Boolean);
+      }
     );
     return mapGraphQLStakeToRpcStake(stakes);
   },
   async getLatestIotaSystemStateV2(transport) {
+    var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L, _M, _N, _O, _P, _Q, _R, _S, _T, _U, _V, _W, _X, _Y, _Z, __, _$, _aa, _ba, _ca, _da, _ea, _fa, _ga, _ha, _ia;
     const systemState = await transport.graphqlQuery(
       {
         query: GetLatestIotaSystemStateDocument
       },
       (data) => data.epoch
     );
-    let hasMoreActiveValidators = systemState.validatorSet?.activeValidators?.pageInfo.hasNextPage ?? false;
-    let afterActiveValidators = systemState.validatorSet?.activeValidators?.pageInfo.endCursor;
+    let hasMoreActiveValidators = ((_b = (_a2 = systemState.validatorSet) == null ? void 0 : _a2.activeValidators) == null ? void 0 : _b.pageInfo.hasNextPage) ?? false;
+    let afterActiveValidators = (_d = (_c = systemState.validatorSet) == null ? void 0 : _c.activeValidators) == null ? void 0 : _d.pageInfo.endCursor;
     while (hasMoreActiveValidators) {
       const page = await transport.graphqlQuery(
         {
@@ -22126,14 +23169,14 @@ const RPC_METHODS = {
         },
         (data) => data.epoch
       );
-      systemState.validatorSet?.activeValidators?.nodes.push(
-        ...page.validatorSet?.activeValidators?.nodes ?? []
+      (_h = (_e = systemState.validatorSet) == null ? void 0 : _e.activeValidators) == null ? void 0 : _h.nodes.push(
+        ...((_g = (_f = page.validatorSet) == null ? void 0 : _f.activeValidators) == null ? void 0 : _g.nodes) ?? []
       );
-      hasMoreActiveValidators = page.validatorSet?.activeValidators?.pageInfo.hasNextPage ?? false;
-      afterActiveValidators = page.validatorSet?.activeValidators?.pageInfo.endCursor;
+      hasMoreActiveValidators = ((_j = (_i = page.validatorSet) == null ? void 0 : _i.activeValidators) == null ? void 0 : _j.pageInfo.hasNextPage) ?? false;
+      afterActiveValidators = (_l = (_k = page.validatorSet) == null ? void 0 : _k.activeValidators) == null ? void 0 : _l.pageInfo.endCursor;
     }
-    let hasMoreCommitteeMembers = systemState.validatorSet?.committeeMembers?.pageInfo.hasNextPage ?? false;
-    let afterCommitteeMembers = systemState.validatorSet?.committeeMembers?.pageInfo.endCursor;
+    let hasMoreCommitteeMembers = ((_n = (_m = systemState.validatorSet) == null ? void 0 : _m.committeeMembers) == null ? void 0 : _n.pageInfo.hasNextPage) ?? false;
+    let afterCommitteeMembers = (_p = (_o = systemState.validatorSet) == null ? void 0 : _o.committeeMembers) == null ? void 0 : _p.pageInfo.endCursor;
     while (hasMoreCommitteeMembers) {
       const page = await transport.graphqlQuery(
         {
@@ -22145,21 +23188,21 @@ const RPC_METHODS = {
         },
         (data) => data.epoch
       );
-      systemState.validatorSet?.committeeMembers?.nodes.push(
-        ...page.validatorSet?.committeeMembers?.nodes ?? []
+      (_t = (_q = systemState.validatorSet) == null ? void 0 : _q.committeeMembers) == null ? void 0 : _t.nodes.push(
+        ...((_s = (_r = page.validatorSet) == null ? void 0 : _r.committeeMembers) == null ? void 0 : _s.nodes) ?? []
       );
-      hasMoreCommitteeMembers = page.validatorSet?.committeeMembers?.pageInfo.hasNextPage ?? false;
-      afterCommitteeMembers = page.validatorSet?.committeeMembers?.pageInfo.endCursor;
+      hasMoreCommitteeMembers = ((_v = (_u = page.validatorSet) == null ? void 0 : _u.committeeMembers) == null ? void 0 : _v.pageInfo.hasNextPage) ?? false;
+      afterCommitteeMembers = (_x = (_w = page.validatorSet) == null ? void 0 : _w.committeeMembers) == null ? void 0 : _x.pageInfo.endCursor;
     }
     return {
       V2: {
-        activeValidators: systemState.validatorSet?.activeValidators?.nodes.map(
+        activeValidators: (_z = (_y = systemState.validatorSet) == null ? void 0 : _y.activeValidators) == null ? void 0 : _z.nodes.map(
           mapGraphQlValidatorToRpcValidator
         ),
-        committeeMembers: systemState.validatorSet?.committeeMembers?.nodes?.map(
+        committeeMembers: (_C = (_B = (_A = systemState.validatorSet) == null ? void 0 : _A.committeeMembers) == null ? void 0 : _B.nodes) == null ? void 0 : _C.map(
           (_, index2) => index2.toString()
         ),
-        atRiskValidators: systemState.validatorSet?.activeValidators.nodes?.filter((validator) => validator.atRisk).map((validator) => [
+        atRiskValidators: (_E = (_D = systemState.validatorSet) == null ? void 0 : _D.activeValidators.nodes) == null ? void 0 : _E.filter((validator) => validator.atRisk).map((validator) => [
           validator.address.address,
           validator.atRisk.toString()
         ]),
@@ -22168,51 +23211,51 @@ const RPC_METHODS = {
           new Date(systemState.endTimestamp).getTime() - new Date(systemState.startTimestamp).getTime()
         ),
         epochStartTimestampMs: String(new Date(systemState.startTimestamp).getTime()),
-        inactivePoolsSize: String(systemState.validatorSet?.inactivePoolsSize),
+        inactivePoolsSize: String((_F = systemState.validatorSet) == null ? void 0 : _F.inactivePoolsSize),
         iotaTotalSupply: String(systemState.iotaTotalSupply),
         iotaTreasuryCapId: String(systemState.iotaTreasuryCapId),
-        maxValidatorCount: String(systemState.systemParameters?.maxValidatorCount),
-        minValidatorCount: String(systemState.systemParameters?.minValidatorCount),
+        maxValidatorCount: String((_G = systemState.systemParameters) == null ? void 0 : _G.maxValidatorCount),
+        minValidatorCount: String((_H = systemState.systemParameters) == null ? void 0 : _H.minValidatorCount),
         minValidatorJoiningStake: String(
-          systemState.systemParameters?.minValidatorJoiningStake
+          (_I = systemState.systemParameters) == null ? void 0 : _I.minValidatorJoiningStake
         ),
         pendingActiveValidatorsSize: String(
-          systemState.validatorSet?.pendingActiveValidatorsSize
+          (_J = systemState.validatorSet) == null ? void 0 : _J.pendingActiveValidatorsSize
         ),
-        pendingRemovals: systemState.validatorSet?.pendingRemovals?.map((idx) => String(idx)) ?? [],
-        protocolVersion: String(systemState.protocolConfigs?.protocolVersion),
+        pendingRemovals: ((_L = (_K = systemState.validatorSet) == null ? void 0 : _K.pendingRemovals) == null ? void 0 : _L.map((idx) => String(idx))) ?? [],
+        protocolVersion: String((_M = systemState.protocolConfigs) == null ? void 0 : _M.protocolVersion),
         referenceGasPrice: String(systemState.referenceGasPrice),
-        safeMode: systemState.safeMode?.enabled,
+        safeMode: (_N = systemState.safeMode) == null ? void 0 : _N.enabled,
         safeModeComputationCharges: String(
-          systemState.safeMode?.gasSummary?.computationCost
+          (_P = (_O = systemState.safeMode) == null ? void 0 : _O.gasSummary) == null ? void 0 : _P.computationCost
         ),
         safeModeComputationChargesBurned: String(
-          systemState.safeMode?.gasSummary?.computationCostBurned
+          (_R = (_Q = systemState.safeMode) == null ? void 0 : _Q.gasSummary) == null ? void 0 : _R.computationCostBurned
         ),
         safeModeNonRefundableStorageFee: String(
-          systemState.safeMode?.gasSummary?.nonRefundableStorageFee
+          (_T = (_S = systemState.safeMode) == null ? void 0 : _S.gasSummary) == null ? void 0 : _T.nonRefundableStorageFee
         ),
-        safeModeStorageRebates: String(systemState.safeMode?.gasSummary?.storageRebate),
-        safeModeStorageCharges: String(systemState.safeMode?.gasSummary?.storageCost),
-        stakingPoolMappingsSize: String(systemState.validatorSet?.stakingPoolMappingsSize),
+        safeModeStorageRebates: String((_V = (_U = systemState.safeMode) == null ? void 0 : _U.gasSummary) == null ? void 0 : _V.storageRebate),
+        safeModeStorageCharges: String((_X = (_W = systemState.safeMode) == null ? void 0 : _W.gasSummary) == null ? void 0 : _X.storageCost),
+        stakingPoolMappingsSize: String((_Y = systemState.validatorSet) == null ? void 0 : _Y.stakingPoolMappingsSize),
         storageFundNonRefundableBalance: String(
-          systemState.storageFund?.nonRefundableBalance
+          (_Z = systemState.storageFund) == null ? void 0 : _Z.nonRefundableBalance
         ),
         storageFundTotalObjectStorageRebates: String(
-          systemState.storageFund?.totalObjectStorageRebates
+          (__ = systemState.storageFund) == null ? void 0 : __.totalObjectStorageRebates
         ),
         systemStateVersion: String(systemState.systemStateVersion),
-        totalStake: systemState.validatorSet?.totalStake,
-        validatorCandidatesSize: systemState.validatorSet?.validatorCandidatesSize?.toString(),
-        validatorLowStakeGracePeriod: systemState.systemParameters?.validatorLowStakeGracePeriod,
-        validatorLowStakeThreshold: systemState.systemParameters?.validatorLowStakeThreshold,
+        totalStake: (_$ = systemState.validatorSet) == null ? void 0 : _$.totalStake,
+        validatorCandidatesSize: (_ba = (_aa = systemState.validatorSet) == null ? void 0 : _aa.validatorCandidatesSize) == null ? void 0 : _ba.toString(),
+        validatorLowStakeGracePeriod: (_ca = systemState.systemParameters) == null ? void 0 : _ca.validatorLowStakeGracePeriod,
+        validatorLowStakeThreshold: (_da = systemState.systemParameters) == null ? void 0 : _da.validatorLowStakeThreshold,
         validatorReportRecords: [],
         // TODO
-        validatorVeryLowStakeThreshold: systemState.systemParameters?.validatorVeryLowStakeThreshold,
-        validatorCandidatesId: systemState.validatorSet?.validatorCandidatesId,
-        inactivePoolsId: systemState.validatorSet?.inactivePoolsId,
-        pendingActiveValidatorsId: systemState.validatorSet?.pendingActiveValidatorsId,
-        stakingPoolMappingsId: systemState.validatorSet?.stakingPoolMappingsId
+        validatorVeryLowStakeThreshold: (_ea = systemState.systemParameters) == null ? void 0 : _ea.validatorVeryLowStakeThreshold,
+        validatorCandidatesId: (_fa = systemState.validatorSet) == null ? void 0 : _fa.validatorCandidatesId,
+        inactivePoolsId: (_ga = systemState.validatorSet) == null ? void 0 : _ga.inactivePoolsId,
+        pendingActiveValidatorsId: (_ha = systemState.validatorSet) == null ? void 0 : _ha.pendingActiveValidatorsId,
+        stakingPoolMappingsId: (_ia = systemState.validatorSet) == null ? void 0 : _ia.stakingPoolMappingsId
       }
     };
   },
@@ -22261,22 +23304,25 @@ const RPC_METHODS = {
     return {
       hasNextPage: pagination.last ? pageInfo.hasPreviousPage : pageInfo.hasNextPage,
       nextCursor: pagination.last ? pageInfo.startCursor : pageInfo.endCursor,
-      data: events.map((event2) => ({
-        bcs: event2.bcs,
-        bcsEncoding: "base64",
-        id: {
-          eventSeq: "",
-          // TODO
-          txDigest: ""
-          // TODO
-        },
-        packageId: event2.sendingModule?.package.address,
-        parsedJson: event2.json,
-        sender: event2.sender?.address,
-        timestampMs: new Date(event2.timestamp).getTime().toString(),
-        transactionModule: `${event2.sendingModule?.package.address}::${event2.sendingModule?.name}`,
-        type: toShortTypeString(event2.type?.repr)
-      }))
+      data: events.map((event2) => {
+        var _a2, _b, _c, _d, _e;
+        return {
+          bcs: event2.bcs,
+          bcsEncoding: "base64",
+          id: {
+            eventSeq: "",
+            // TODO
+            txDigest: ""
+            // TODO
+          },
+          packageId: (_a2 = event2.sendingModule) == null ? void 0 : _a2.package.address,
+          parsedJson: event2.json ? JSON.parse(event2.json) : void 0,
+          sender: (_b = event2.sender) == null ? void 0 : _b.address,
+          timestampMs: new Date(event2.timestamp).getTime().toString(),
+          transactionModule: `${(_c = event2.sendingModule) == null ? void 0 : _c.package.address}::${(_d = event2.sendingModule) == null ? void 0 : _d.name}`,
+          type: toShortTypeString((_e = event2.type) == null ? void 0 : _e.repr)
+        };
+      })
     };
   },
   async devInspectTransactionBlock(transport, [sender, devInspectTxBytes, gasPrice]) {
@@ -22305,25 +23351,28 @@ const RPC_METHODS = {
       error,
       effects: result.effects,
       events: result.events,
-      results: results?.map((result2) => ({
-        mutableReferenceOutputs: result2.mutatedReferences?.map(
-          (ref) => [
-            ref.input.__typename === "GasCoin" ? "GasCoin" : ref.input.__typename === "Input" ? {
-              Input: ref.input.inputIndex
-            } : typeof ref.input.resultIndex === "number" ? {
-              NestedResult: [ref.input.cmd, ref.input.resultIndex]
-            } : {
-              Result: ref.input.cmd
-            },
-            Array.from(fromBase64(ref.bcs)),
-            toShortTypeString(ref.type.repr)
-          ]
-        ),
-        returnValues: result2.returnValues?.map((value) => [
-          Array.from(fromBase64(value.bcs)),
-          toShortTypeString(value.type.repr)
-        ])
-      }))
+      results: results == null ? void 0 : results.map((result2) => {
+        var _a2, _b;
+        return {
+          mutableReferenceOutputs: (_a2 = result2.mutatedReferences) == null ? void 0 : _a2.map(
+            (ref) => [
+              ref.input.__typename === "GasCoin" ? "GasCoin" : ref.input.__typename === "Input" ? {
+                Input: ref.input.inputIndex
+              } : typeof ref.input.resultIndex === "number" ? {
+                NestedResult: [ref.input.cmd, ref.input.resultIndex]
+              } : {
+                Result: ref.input.cmd
+              },
+              Array.from(fromB64(ref.bcs)),
+              toShortTypeString(ref.type.repr)
+            ]
+          ),
+          returnValues: (_b = result2.returnValues) == null ? void 0 : _b.map((value) => [
+            Array.from(fromB64(value.bcs)),
+            toShortTypeString(value.type.repr)
+          ])
+        };
+      })
     };
   },
   async getDynamicFields(transport, [parentId, cursor, limit]) {
@@ -22336,27 +23385,34 @@ const RPC_METHODS = {
           cursor
         }
       },
-      (data) => data.owner?.dynamicFields
+      (data) => {
+        var _a2;
+        return (_a2 = data.owner) == null ? void 0 : _a2.dynamicFields;
+      }
     );
     return {
-      data: fields.map((field) => ({
-        bcsName: field.name?.bcs,
-        bcsEncoding: "base64",
-        digest: field.value?.__typename === "MoveObject" ? field.value.digest : void 0,
-        name: {
-          type: toShortTypeString(field.name?.type.repr),
-          value: field.name?.json
-        },
-        objectId: field.value?.__typename === "MoveObject" ? field.value.address : void 0,
-        objectType: field.value?.__typename === "MoveObject" ? field.value.contents?.type.repr : field.value?.type.repr,
-        type: field.value?.__typename === "MoveObject" ? "DynamicObject" : "DynamicField",
-        version: field.value?.__typename === "MoveObject" ? field.value.version : void 0
-      })),
+      data: fields.map((field) => {
+        var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j;
+        return {
+          bcsName: (_a2 = field.name) == null ? void 0 : _a2.bcs,
+          bcsEncoding: "base64",
+          digest: ((_b = field.value) == null ? void 0 : _b.__typename) === "MoveObject" ? field.value.digest : void 0,
+          name: {
+            type: toShortTypeString((_c = field.name) == null ? void 0 : _c.type.repr),
+            value: (_d = field.name) == null ? void 0 : _d.json
+          },
+          objectId: ((_e = field.value) == null ? void 0 : _e.__typename) === "MoveObject" ? field.value.address : void 0,
+          objectType: ((_f = field.value) == null ? void 0 : _f.__typename) === "MoveObject" ? (_g = field.value.contents) == null ? void 0 : _g.type.repr : (_h = field.value) == null ? void 0 : _h.type.repr,
+          type: ((_i = field.value) == null ? void 0 : _i.__typename) === "MoveObject" ? "DynamicObject" : "DynamicField",
+          version: ((_j = field.value) == null ? void 0 : _j.__typename) === "MoveObject" ? field.value.version : void 0
+        };
+      }),
       nextCursor: pageInfo.endCursor ?? null,
       hasNextPage: pageInfo.hasNextPage
     };
   },
   async getDynamicFieldObject(transport, [parentId, name]) {
+    var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
     const nameLayout = await transport.graphqlQuery(
       {
         query: GetTypeLayoutDocument,
@@ -22379,7 +23435,8 @@ const RPC_METHODS = {
         }
       },
       (data) => {
-        return data.owner?.dynamicObjectField?.value?.__typename === "MoveObject" ? data.owner.dynamicObjectField.value.owner?.__typename === "Parent" ? data.owner.dynamicObjectField.value.owner.parent : void 0 : void 0;
+        var _a3, _b2, _c2, _d2;
+        return ((_c2 = (_b2 = (_a3 = data.owner) == null ? void 0 : _a3.dynamicObjectField) == null ? void 0 : _b2.value) == null ? void 0 : _c2.__typename) === "MoveObject" ? ((_d2 = data.owner.dynamicObjectField.value.owner) == null ? void 0 : _d2.__typename) === "Parent" ? data.owner.dynamicObjectField.value.owner.parent : void 0 : void 0;
       }
     );
     return {
@@ -22387,18 +23444,18 @@ const RPC_METHODS = {
         content: {
           dataType: "moveObject",
           ...moveDataToRpcContent(
-            parent?.asMoveObject?.contents?.data,
-            parent?.asMoveObject?.contents?.type.layout
+            (_b = (_a2 = parent == null ? void 0 : parent.asMoveObject) == null ? void 0 : _a2.contents) == null ? void 0 : _b.data,
+            (_d = (_c = parent == null ? void 0 : parent.asMoveObject) == null ? void 0 : _c.contents) == null ? void 0 : _d.type.layout
           )
         },
-        digest: parent?.digest,
-        objectId: parent?.address,
-        type: toShortTypeString(parent?.asMoveObject?.contents?.type.repr),
-        version: parent?.version.toString(),
+        digest: parent == null ? void 0 : parent.digest,
+        objectId: parent == null ? void 0 : parent.address,
+        type: toShortTypeString((_f = (_e = parent == null ? void 0 : parent.asMoveObject) == null ? void 0 : _e.contents) == null ? void 0 : _f.type.repr),
+        version: parent == null ? void 0 : parent.version.toString(),
         storageRebate: parent.storageRebate,
-        previousTransaction: parent.previousTransactionBlock?.digest,
-        owner: parent.owner?.__typename === "Parent" ? {
-          ObjectOwner: parent.owner.parent?.address
+        previousTransaction: (_g = parent.previousTransactionBlock) == null ? void 0 : _g.digest,
+        owner: ((_h = parent.owner) == null ? void 0 : _h.__typename) === "Parent" ? {
+          ObjectOwner: (_i = parent.owner.parent) == null ? void 0 : _i.address
         } : void 0
       }
     };
@@ -22410,19 +23467,19 @@ const RPC_METHODS = {
         variables: {
           txBytes,
           signatures,
-          showBalanceChanges: options?.showBalanceChanges,
-          showEffects: options?.showEffects,
-          showEvents: options?.showEvents,
-          showInput: options?.showInput,
-          showObjectChanges: options?.showObjectChanges,
-          showRawEffects: options?.showRawEffects,
-          showRawInput: options?.showRawInput
+          showBalanceChanges: options == null ? void 0 : options.showBalanceChanges,
+          showEffects: options == null ? void 0 : options.showEffects,
+          showRawEffects: options == null ? void 0 : options.showRawEffects,
+          showInput: options == null ? void 0 : options.showInput,
+          showEvents: options == null ? void 0 : options.showEvents,
+          showObjectChanges: options == null ? void 0 : options.showObjectChanges,
+          showRawInput: options == null ? void 0 : options.showRawInput
         }
       },
       (data) => data.executeTransactionBlock
     );
-    if (!effects?.transactionBlock) {
-      const tx = Transaction.from(fromBase64(txBytes));
+    if (!(effects == null ? void 0 : effects.transactionBlock)) {
+      const tx = Transaction$1.from(fromB64(txBytes));
       return { errors: errors ?? void 0, digest: await tx.getDigest() };
     }
     await paginateTransactionBlockLists(transport, effects.transactionBlock);
@@ -22433,7 +23490,8 @@ const RPC_METHODS = {
     );
   },
   async dryRunTransactionBlock(transport, [txBytes]) {
-    const tx = Transaction.from(fromBase64(txBytes));
+    var _a2;
+    const tx = Transaction$1.from(fromB64(txBytes));
     const { transaction, error } = await transport.graphqlQuery(
       {
         query: DryRunTransactionBlockDocument,
@@ -22442,8 +23500,8 @@ const RPC_METHODS = {
           showBalanceChanges: true,
           showEffects: true,
           showEvents: true,
-          showInput: true,
-          showObjectChanges: true
+          showObjectChanges: true,
+          showInput: true
         }
       },
       (data) => data.dryRunTransactionBlock
@@ -22455,12 +23513,12 @@ const RPC_METHODS = {
       { ...transaction, digest: await tx.getDigest() },
       {
         showEffects: true,
-        showInput: true,
-        showObjectChanges: true
+        showObjectChanges: true,
+        showInput: true
       }
     );
     return {
-      input: result.transaction?.data,
+      input: (_a2 = result.transaction) == null ? void 0 : _a2.data,
       balanceChanges: result.balanceChanges,
       effects: result.effects,
       events: result.events,
@@ -22472,7 +23530,10 @@ const RPC_METHODS = {
       {
         query: GetLatestCheckpointSequenceNumberDocument
       },
-      (data) => data.checkpoint?.sequenceNumber
+      (data) => {
+        var _a2;
+        return (_a2 = data.checkpoint) == null ? void 0 : _a2.sequenceNumber;
+      }
     );
     return sequenceNumber.toString();
   },
@@ -22517,6 +23578,7 @@ const RPC_METHODS = {
     };
   },
   async getCommitteeInfo(transport, [epoch]) {
+    var _a2, _b, _c;
     const { validatorSet, epochId } = await transport.graphqlQuery(
       {
         query: GetCommitteeInfoDocument,
@@ -22526,8 +23588,8 @@ const RPC_METHODS = {
       },
       (data) => data.epoch
     );
-    let hasNextPage = validatorSet?.committeeMembers?.pageInfo.hasNextPage;
-    let after = validatorSet?.committeeMembers?.pageInfo.endCursor;
+    let hasNextPage = (_a2 = validatorSet == null ? void 0 : validatorSet.committeeMembers) == null ? void 0 : _a2.pageInfo.hasNextPage;
+    let after = (_b = validatorSet == null ? void 0 : validatorSet.committeeMembers) == null ? void 0 : _b.pageInfo.endCursor;
     while (hasNextPage) {
       const page = await transport.graphqlQuery(
         {
@@ -22537,29 +23599,36 @@ const RPC_METHODS = {
             after
           }
         },
-        (data) => data.epoch?.validatorSet?.committeeMembers
+        (data) => {
+          var _a3, _b2;
+          return (_b2 = (_a3 = data.epoch) == null ? void 0 : _a3.validatorSet) == null ? void 0 : _b2.committeeMembers;
+        }
       );
-      validatorSet?.committeeMembers.nodes.push(...page.nodes);
+      validatorSet == null ? void 0 : validatorSet.committeeMembers.nodes.push(...page.nodes);
       hasNextPage = page.pageInfo.hasNextPage;
       after = page.pageInfo.endCursor;
     }
     return {
       epoch: epochId.toString(),
-      validators: validatorSet?.committeeMembers?.nodes.map((val) => [
-        val.credentials?.authorityPubKey,
-        String(val.votingPower)
-      ])
+      validators: (_c = validatorSet == null ? void 0 : validatorSet.committeeMembers) == null ? void 0 : _c.nodes.map((val) => {
+        var _a3;
+        return [
+          (_a3 = val.credentials) == null ? void 0 : _a3.authorityPubKey,
+          String(val.votingPower)
+        ];
+      })
     };
   },
   async getCurrentEpoch(transport) {
+    var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t;
     const epoch = await transport.graphqlQuery(
       {
         query: GetCurrentEpochDocument
       },
       (data) => data.epoch
     );
-    let hasNextPageActiveValidators = epoch.validatorSet?.activeValidators?.pageInfo.hasNextPage;
-    let afterActiveValidators = epoch.validatorSet?.activeValidators?.pageInfo.endCursor;
+    let hasNextPageActiveValidators = (_b = (_a2 = epoch.validatorSet) == null ? void 0 : _a2.activeValidators) == null ? void 0 : _b.pageInfo.hasNextPage;
+    let afterActiveValidators = (_d = (_c = epoch.validatorSet) == null ? void 0 : _c.activeValidators) == null ? void 0 : _d.pageInfo.endCursor;
     while (hasNextPageActiveValidators) {
       const page = await transport.graphqlQuery(
         {
@@ -22569,14 +23638,17 @@ const RPC_METHODS = {
             after: afterActiveValidators
           }
         },
-        (data) => data.epoch?.validatorSet?.activeValidators
+        (data) => {
+          var _a3, _b2;
+          return (_b2 = (_a3 = data.epoch) == null ? void 0 : _a3.validatorSet) == null ? void 0 : _b2.activeValidators;
+        }
       );
-      epoch.validatorSet?.activeValidators?.nodes.push(...page.nodes);
+      (_f = (_e = epoch.validatorSet) == null ? void 0 : _e.activeValidators) == null ? void 0 : _f.nodes.push(...page.nodes);
       hasNextPageActiveValidators = page.pageInfo.hasNextPage;
       afterActiveValidators = page.pageInfo.endCursor;
     }
-    let hasNextPageCommitteeMembers = epoch.validatorSet?.committeeMembers?.pageInfo.hasNextPage;
-    let afterCommitteeMembers = epoch.validatorSet?.committeeMembers?.pageInfo.endCursor;
+    let hasNextPageCommitteeMembers = (_h = (_g = epoch.validatorSet) == null ? void 0 : _g.committeeMembers) == null ? void 0 : _h.pageInfo.hasNextPage;
+    let afterCommitteeMembers = (_j = (_i = epoch.validatorSet) == null ? void 0 : _i.committeeMembers) == null ? void 0 : _j.pageInfo.endCursor;
     while (hasNextPageCommitteeMembers) {
       const page = await transport.graphqlQuery(
         {
@@ -22586,40 +23658,47 @@ const RPC_METHODS = {
             after: afterCommitteeMembers
           }
         },
-        (data) => data.epoch?.validatorSet?.committeeMembers
+        (data) => {
+          var _a3, _b2;
+          return (_b2 = (_a3 = data.epoch) == null ? void 0 : _a3.validatorSet) == null ? void 0 : _b2.committeeMembers;
+        }
       );
-      epoch.validatorSet?.committeeMembers?.nodes.push(...page.nodes);
+      (_l = (_k = epoch.validatorSet) == null ? void 0 : _k.committeeMembers) == null ? void 0 : _l.nodes.push(...page.nodes);
       hasNextPageCommitteeMembers = page.pageInfo.hasNextPage;
       afterCommitteeMembers = page.pageInfo.endCursor;
     }
-    const validatorsAddresses = epoch.validatorSet?.activeValidators?.nodes.map((val) => val.address.address) ?? [];
-    const committeeMembersAddresses = epoch.validatorSet?.committeeMembers?.nodes.map((val) => val.address.address) ?? [];
+    const validatorsAddresses = ((_n = (_m = epoch.validatorSet) == null ? void 0 : _m.activeValidators) == null ? void 0 : _n.nodes.map((val) => val.address.address)) ?? [];
+    const committeeMembersAddresses = ((_p = (_o = epoch.validatorSet) == null ? void 0 : _o.committeeMembers) == null ? void 0 : _p.nodes.map((val) => val.address.address)) ?? [];
     const committeeValidatorsIndexes = committeeMembersAddresses.map(
-      (val) => validatorsAddresses.indexOf(val)?.toString()
+      (val) => {
+        var _a3;
+        return (_a3 = validatorsAddresses.indexOf(val)) == null ? void 0 : _a3.toString();
+      }
     );
     return {
       epoch: String(epoch.epochId),
-      validators: epoch.validatorSet?.activeValidators?.nodes.map(
+      validators: (_r = (_q = epoch.validatorSet) == null ? void 0 : _q.activeValidators) == null ? void 0 : _r.nodes.map(
         mapGraphQlValidatorToRpcValidator
       ),
       committeeMembers: committeeValidatorsIndexes,
       epochTotalTransactions: "0",
       // TODO
-      firstCheckpointId: epoch.firstCheckpoint?.nodes[0]?.sequenceNumber.toString(),
+      firstCheckpointId: (_t = (_s = epoch.firstCheckpoint) == null ? void 0 : _s.nodes[0]) == null ? void 0 : _t.sequenceNumber.toString(),
       endOfEpochInfo: null,
       referenceGasPrice: epoch.referenceGasPrice,
       epochStartTimestamp: new Date(epoch.startTimestamp).getTime().toString()
     };
   },
   async getValidatorsApy(transport) {
+    var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n;
     const epoch = await transport.graphqlQuery(
       {
         query: GetValidatorsApyDocument
       },
       (data) => data.epoch
     );
-    let hasNextPage = epoch.validatorSet?.activeValidators?.pageInfo.hasNextPage;
-    let after = epoch.validatorSet?.activeValidators?.pageInfo.endCursor;
+    let hasNextPage = (_b = (_a2 = epoch.validatorSet) == null ? void 0 : _a2.activeValidators) == null ? void 0 : _b.pageInfo.hasNextPage;
+    let after = (_d = (_c = epoch.validatorSet) == null ? void 0 : _c.activeValidators) == null ? void 0 : _d.pageInfo.endCursor;
     while (hasNextPage) {
       const page = await transport.graphqlQuery(
         {
@@ -22631,15 +23710,15 @@ const RPC_METHODS = {
         },
         (data) => data.epoch
       );
-      epoch.validatorSet?.activeValidators?.nodes.push(
-        ...page.validatorSet?.activeValidators?.nodes ?? []
+      (_h = (_e = epoch.validatorSet) == null ? void 0 : _e.activeValidators) == null ? void 0 : _h.nodes.push(
+        ...((_g = (_f = page.validatorSet) == null ? void 0 : _f.activeValidators) == null ? void 0 : _g.nodes) ?? []
       );
-      hasNextPage = page.validatorSet?.activeValidators?.pageInfo.hasNextPage;
-      after = page.validatorSet?.activeValidators?.pageInfo.endCursor;
+      hasNextPage = (_j = (_i = page.validatorSet) == null ? void 0 : _i.activeValidators) == null ? void 0 : _j.pageInfo.hasNextPage;
+      after = (_l = (_k = page.validatorSet) == null ? void 0 : _k.activeValidators) == null ? void 0 : _l.pageInfo.endCursor;
     }
     return {
       epoch: String(epoch.epochId),
-      apys: epoch.validatorSet?.activeValidators?.nodes.map((validator) => ({
+      apys: (_n = (_m = epoch.validatorSet) == null ? void 0 : _m.activeValidators) == null ? void 0 : _n.nodes.map((validator) => ({
         address: validator.address.address,
         apy: typeof validator.apy === "number" ? validator.apy / 100 : null
       }))
@@ -22655,6 +23734,7 @@ const RPC_METHODS = {
     return identifier;
   },
   async getProtocolConfig(transport, [version]) {
+    var _a2, _b;
     const protocolConfig = await transport.graphqlQuery(
       {
         query: GetProtocolConfigDocument,
@@ -22709,9 +23789,9 @@ const RPC_METHODS = {
       featureFlags[key] = value;
     }
     return {
-      maxSupportedProtocolVersion: protocolConfig.protocolVersion?.toString(),
+      maxSupportedProtocolVersion: (_a2 = protocolConfig.protocolVersion) == null ? void 0 : _a2.toString(),
       minSupportedProtocolVersion: "1",
-      protocolVersion: protocolConfig.protocolVersion?.toString(),
+      protocolVersion: (_b = protocolConfig.protocolVersion) == null ? void 0 : _b.toString(),
       attributes,
       featureFlags
     };
@@ -22728,12 +23808,13 @@ class UnsupportedMethodError extends Error {
   }
 }
 async function paginateTransactionBlockLists(transport, transactionBlock) {
-  let hasMoreEvents = transactionBlock.effects?.events?.pageInfo.hasNextPage ?? false;
-  let hasMoreBalanceChanges = transactionBlock.effects?.balanceChanges?.pageInfo.hasNextPage ?? false;
-  let hasMoreObjectChanges = transactionBlock.effects?.objectChanges?.pageInfo.hasNextPage ?? false;
-  let afterEvents = transactionBlock.effects?.events?.pageInfo.endCursor;
-  let afterBalanceChanges = transactionBlock.effects?.balanceChanges?.pageInfo.endCursor;
-  let afterObjectChanges = transactionBlock.effects?.objectChanges?.pageInfo.endCursor;
+  var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A;
+  let hasMoreEvents = ((_b = (_a2 = transactionBlock.effects) == null ? void 0 : _a2.events) == null ? void 0 : _b.pageInfo.hasNextPage) ?? false;
+  let hasMoreBalanceChanges = ((_d = (_c = transactionBlock.effects) == null ? void 0 : _c.balanceChanges) == null ? void 0 : _d.pageInfo.hasNextPage) ?? false;
+  let hasMoreObjectChanges = ((_f = (_e = transactionBlock.effects) == null ? void 0 : _e.objectChanges) == null ? void 0 : _f.pageInfo.hasNextPage) ?? false;
+  let afterEvents = (_h = (_g = transactionBlock.effects) == null ? void 0 : _g.events) == null ? void 0 : _h.pageInfo.endCursor;
+  let afterBalanceChanges = (_j = (_i = transactionBlock.effects) == null ? void 0 : _i.balanceChanges) == null ? void 0 : _j.pageInfo.endCursor;
+  let afterObjectChanges = (_l = (_k = transactionBlock.effects) == null ? void 0 : _k.objectChanges) == null ? void 0 : _l.pageInfo.endCursor;
   while (hasMoreEvents || hasMoreBalanceChanges || hasMoreObjectChanges) {
     const page = await transport.graphqlQuery(
       {
@@ -22748,20 +23829,24 @@ async function paginateTransactionBlockLists(transport, transactionBlock) {
           hasMoreObjectChanges
         }
       },
-      (data) => data.transactionBlock?.effects
+      (data) => {
+        var _a3;
+        return (_a3 = data.transactionBlock) == null ? void 0 : _a3.effects;
+      }
     );
-    transactionBlock.effects?.events?.nodes.push(...page.events?.nodes ?? []);
-    transactionBlock.effects?.balanceChanges?.nodes.push(...page.balanceChanges?.nodes ?? []);
-    transactionBlock.effects?.objectChanges?.nodes.push(...page.objectChanges?.nodes ?? []);
-    hasMoreEvents = page.events?.pageInfo.hasNextPage ?? false;
-    hasMoreBalanceChanges = page.balanceChanges?.pageInfo.hasNextPage ?? false;
-    hasMoreObjectChanges = page.objectChanges?.pageInfo.hasNextPage ?? false;
-    afterEvents = page.events?.pageInfo.endCursor;
-    afterBalanceChanges = page.balanceChanges?.pageInfo.endCursor;
-    afterObjectChanges = page.objectChanges?.pageInfo.endCursor;
+    (_o = (_m = transactionBlock.effects) == null ? void 0 : _m.events) == null ? void 0 : _o.nodes.push(...((_n = page.events) == null ? void 0 : _n.nodes) ?? []);
+    (_r = (_p = transactionBlock.effects) == null ? void 0 : _p.balanceChanges) == null ? void 0 : _r.nodes.push(...((_q = page.balanceChanges) == null ? void 0 : _q.nodes) ?? []);
+    (_u = (_s = transactionBlock.effects) == null ? void 0 : _s.objectChanges) == null ? void 0 : _u.nodes.push(...((_t = page.objectChanges) == null ? void 0 : _t.nodes) ?? []);
+    hasMoreEvents = ((_v = page.events) == null ? void 0 : _v.pageInfo.hasNextPage) ?? false;
+    hasMoreBalanceChanges = ((_w = page.balanceChanges) == null ? void 0 : _w.pageInfo.hasNextPage) ?? false;
+    hasMoreObjectChanges = ((_x = page.objectChanges) == null ? void 0 : _x.pageInfo.hasNextPage) ?? false;
+    afterEvents = (_y = page.events) == null ? void 0 : _y.pageInfo.endCursor;
+    afterBalanceChanges = (_z = page.balanceChanges) == null ? void 0 : _z.pageInfo.endCursor;
+    afterObjectChanges = (_A = page.objectChanges) == null ? void 0 : _A.pageInfo.endCursor;
   }
 }
 async function paginateCheckpointLists(transport, checkpoint) {
+  var _a2, _b, _c, _d, _e, _f;
   let hasNextPage = checkpoint.transactionBlocks.pageInfo.hasNextPage;
   let after = checkpoint.transactionBlocks.pageInfo.endCursor;
   while (hasNextPage) {
@@ -22773,66 +23858,63 @@ async function paginateCheckpointLists(transport, checkpoint) {
           after
         }
       },
-      (data) => data.checkpoint?.transactionBlocks
+      (data) => {
+        var _a3;
+        return (_a3 = data.checkpoint) == null ? void 0 : _a3.transactionBlocks;
+      }
     );
     checkpoint.transactionBlocks.nodes.push(...page.nodes);
     hasNextPage = page.pageInfo.hasNextPage;
     after = page.pageInfo.endCursor;
   }
   const endOfEpochTx = checkpoint.endOfEpoch.nodes[0];
-  if (endOfEpochTx?.kind?.__typename === "EndOfEpochTransaction" && endOfEpochTx.kind?.transactions.nodes[0].__typename === "ChangeEpochTransactionV2" && endOfEpochTx.kind.transactions.nodes[0].epoch?.epochId) {
+  if (((_a2 = endOfEpochTx == null ? void 0 : endOfEpochTx.kind) == null ? void 0 : _a2.__typename) === "EndOfEpochTransaction" && ((_b = endOfEpochTx.kind) == null ? void 0 : _b.transactions.nodes[0].__typename) === "ChangeEpochTransactionV2" && ((_c = endOfEpochTx.kind.transactions.nodes[0].epoch) == null ? void 0 : _c.epochId)) {
     const validatorSet = endOfEpochTx.kind.transactions.nodes[0].epoch.validatorSet;
-    let hasNextPage2 = validatorSet?.committeeMembers.pageInfo.hasNextPage;
-    let after2 = validatorSet?.committeeMembers.pageInfo.endCursor;
+    let hasNextPage2 = validatorSet == null ? void 0 : validatorSet.committeeMembers.pageInfo.hasNextPage;
+    let after2 = validatorSet == null ? void 0 : validatorSet.committeeMembers.pageInfo.endCursor;
     while (hasNextPage2) {
       const page = await transport.graphqlQuery(
         {
           query: GetCommitteeInfoDocument,
           variables: {
-            epochId: endOfEpochTx.kind.transactions.nodes[0].epoch?.epochId,
+            epochId: (_d = endOfEpochTx.kind.transactions.nodes[0].epoch) == null ? void 0 : _d.epochId,
             after: after2
           }
         },
-        (data) => data.epoch?.validatorSet?.committeeMembers
+        (data) => {
+          var _a3, _b2;
+          return (_b2 = (_a3 = data.epoch) == null ? void 0 : _a3.validatorSet) == null ? void 0 : _b2.committeeMembers;
+        }
       );
-      validatorSet?.committeeMembers.nodes.push(...page.nodes);
-      hasNextPage2 = page.pageInfo?.hasNextPage;
-      after2 = page.pageInfo?.endCursor;
+      validatorSet == null ? void 0 : validatorSet.committeeMembers.nodes.push(...page.nodes);
+      hasNextPage2 = (_e = page.pageInfo) == null ? void 0 : _e.hasNextPage;
+      after2 = (_f = page.pageInfo) == null ? void 0 : _f.endCursor;
     }
   }
 }
-var __typeError = (msg) => {
+var __typeError$3 = (msg) => {
   throw TypeError(msg);
 };
-var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
-var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
-var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
-var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), member.set(obj, value), value);
-var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
-var _options, _fallbackTransport, _fallbackMethods, _unsupportedMethods, _IotaClientGraphQLTransport_instances, tryUseFallback_fn;
+var __accessCheck$3 = (obj, member, msg) => member.has(obj) || __typeError$3("Cannot " + msg);
+var __privateGet$3 = (obj, member, getter) => (__accessCheck$3(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+var __privateAdd$3 = (obj, member, value) => member.has(obj) ? __typeError$3("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+var __privateSet$3 = (obj, member, value, setter) => (__accessCheck$3(obj, member, "write to private field"), member.set(obj, value), value);
+var __privateMethod$3 = (obj, member, method) => (__accessCheck$3(obj, member, "access private method"), method);
+var _options$1, _fallbackTransport, _fallbackMethods, _IotaClientGraphQLTransport_instances, unsupportedMethod_fn;
 class IotaClientGraphQLTransport {
   constructor(options) {
-    __privateAdd(this, _IotaClientGraphQLTransport_instances);
-    __privateAdd(this, _options);
-    __privateAdd(this, _fallbackTransport);
-    __privateAdd(this, _fallbackMethods);
-    __privateAdd(this, _unsupportedMethods);
-    __privateSet(this, _options, options);
-    __privateSet(this, _fallbackMethods, options.fallbackMethods || [
+    __privateAdd$3(this, _IotaClientGraphQLTransport_instances);
+    __privateAdd$3(this, _options$1);
+    __privateAdd$3(this, _fallbackTransport);
+    __privateAdd$3(this, _fallbackMethods);
+    __privateSet$3(this, _options$1, options);
+    __privateSet$3(this, _fallbackMethods, options.fallbackMethods || [
       "executeTransactionBlock",
       "dryRunTransactionBlock",
-      "devInspectTransactionBlock",
-      "getTotalTransactions",
-      "getNetworkMetrics",
-      "getParticipationMetrics",
-      "getMoveCallMetrics",
-      "getAllEpochAddressMetrics",
-      "getEpochs",
-      "getDynamicFieldObjectV2"
+      "devInspectTransactionBlock"
     ]);
-    __privateSet(this, _unsupportedMethods, options.unsupportedMethods || ["getOwnedObjects"]);
     if (options.fallbackTransportUrl) {
-      __privateSet(this, _fallbackTransport, new IotaHTTPTransport({
+      __privateSet$3(this, _fallbackTransport, new IotaHTTPTransport$1({
         url: options.fallbackTransportUrl
       }));
     }
@@ -22851,7 +23933,7 @@ class IotaClientGraphQLTransport {
     return extractedData;
   }
   async graphqlRequest(options) {
-    return fetch(__privateGet(this, _options).url, {
+    return fetch(__privateGet$3(this, _options$1).url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -22876,43 +23958,35 @@ class IotaClientGraphQLTransport {
       default:
         clientMethod = input.method.split("_")[1];
     }
-    const allowFallback = __privateGet(this, _fallbackMethods).includes(clientMethod);
-    const isUnsupported = __privateGet(this, _unsupportedMethods).includes(clientMethod);
     const method = RPC_METHODS[clientMethod];
-    if (isUnsupported) {
-      return __privateMethod(this, _IotaClientGraphQLTransport_instances, tryUseFallback_fn).call(this, input);
-    }
-    if (!method && !allowFallback) {
-      throw new UnsupportedMethodError(input.method);
+    if (!method || __privateGet$3(this, _fallbackMethods).includes(clientMethod)) {
+      return __privateMethod$3(this, _IotaClientGraphQLTransport_instances, unsupportedMethod_fn).call(this, input);
     }
     try {
-      if (!method) throw new Error("Missing method");
       return method(this, input.params);
     } catch (error) {
-      if (allowFallback || error instanceof UnsupportedParamError) {
-        return __privateMethod(this, _IotaClientGraphQLTransport_instances, tryUseFallback_fn).call(this, input);
-      } else {
-        throw error;
+      if (__privateGet$3(this, _fallbackTransport) && error instanceof UnsupportedParamError) {
+        return __privateGet$3(this, _fallbackTransport).request(input);
       }
+      throw error;
     }
   }
   async subscribe(input) {
-    if (!__privateGet(this, _fallbackTransport)) {
+    if (!__privateGet$3(this, _fallbackTransport)) {
       throw new UnsupportedMethodError(input.method);
     }
-    return __privateGet(this, _fallbackTransport).subscribe(input);
+    return __privateGet$3(this, _fallbackTransport).subscribe(input);
   }
 }
-_options = /* @__PURE__ */ new WeakMap();
+_options$1 = /* @__PURE__ */ new WeakMap();
 _fallbackTransport = /* @__PURE__ */ new WeakMap();
 _fallbackMethods = /* @__PURE__ */ new WeakMap();
-_unsupportedMethods = /* @__PURE__ */ new WeakMap();
 _IotaClientGraphQLTransport_instances = /* @__PURE__ */ new WeakSet();
-tryUseFallback_fn = async function(input) {
-  if (!__privateGet(this, _fallbackTransport)) {
+unsupportedMethod_fn = async function(input) {
+  if (!__privateGet$3(this, _fallbackTransport)) {
     throw new UnsupportedMethodError(input.method);
   }
-  return __privateGet(this, _fallbackTransport).request(input);
+  return __privateGet$3(this, _fallbackTransport).request(input);
 };
 function handleGraphQLErrors(errors) {
   if (!errors || errors.length === 0) return;
@@ -22926,6 +24000,3092 @@ class GraphQLResponseError extends Error {
   constructor(error) {
     super(error.message);
     this.locations = error.locations;
+  }
+}
+const PACKAGE_VERSION = "1.4.0";
+const TARGETED_RPC_VERSION = "1.4.0-alpha";
+const CODE_TO_ERROR_TYPE = {
+  "-32700": "ParseError",
+  "-32701": "OversizedRequest",
+  "-32702": "OversizedResponse",
+  "-32600": "InvalidRequest",
+  "-32601": "MethodNotFound",
+  "-32602": "InvalidParams",
+  "-32603": "InternalError",
+  "-32604": "ServerBusy",
+  "-32000": "CallExecutionFailed",
+  "-32001": "UnknownError",
+  "-32003": "SubscriptionClosed",
+  "-32004": "SubscriptionClosedWithError",
+  "-32005": "BatchesNotSupported",
+  "-32006": "TooManySubscriptions",
+  "-32050": "TransientError",
+  "-32002": "TransactionExecutionClientError"
+};
+class IotaHTTPTransportError2 extends Error {
+}
+class JsonRpcError2 extends IotaHTTPTransportError2 {
+  constructor(message, code) {
+    super(message);
+    this.code = code;
+    this.type = CODE_TO_ERROR_TYPE[code] ?? "ServerError";
+  }
+}
+class IotaHTTPStatusError2 extends IotaHTTPTransportError2 {
+  constructor(message, status, statusText) {
+    super(message);
+    this.status = status;
+    this.statusText = statusText;
+  }
+}
+var __typeError$2 = (msg) => {
+  throw TypeError(msg);
+};
+var __accessCheck$2 = (obj, member, msg) => member.has(obj) || __typeError$2("Cannot " + msg);
+var __privateGet$2 = (obj, member, getter) => (__accessCheck$2(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+var __privateAdd$2 = (obj, member, value) => member.has(obj) ? __typeError$2("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+var __privateSet$2 = (obj, member, value, setter) => (__accessCheck$2(obj, member, "write to private field"), member.set(obj, value), value);
+var __privateMethod$2 = (obj, member, method) => (__accessCheck$2(obj, member, "access private method"), method);
+var __privateWrapper = (obj, member, setter, getter) => ({
+  set _(value) {
+    __privateSet$2(obj, member, value);
+  },
+  get _() {
+    return __privateGet$2(obj, member, getter);
+  }
+});
+var _requestId$1, _disconnects, _webSocket, _connectionPromise, _subscriptions, _pendingRequests, _WebsocketClient_instances, setupWebSocket_fn, reconnect_fn;
+function getWebsocketUrl(httpUrl) {
+  const url = new URL(httpUrl);
+  url.protocol = url.protocol.replace("http", "ws");
+  return url.toString();
+}
+const DEFAULT_CLIENT_OPTIONS = {
+  // We fudge the typing because we also check for undefined in the constructor:
+  WebSocketConstructor: typeof WebSocket !== "undefined" ? WebSocket : void 0,
+  callTimeout: 3e4,
+  reconnectTimeout: 3e3,
+  maxReconnects: 5
+};
+class WebsocketClient2 {
+  constructor(endpoint, options = {}) {
+    __privateAdd$2(this, _WebsocketClient_instances);
+    __privateAdd$2(this, _requestId$1, 0);
+    __privateAdd$2(this, _disconnects, 0);
+    __privateAdd$2(this, _webSocket, null);
+    __privateAdd$2(this, _connectionPromise, null);
+    __privateAdd$2(this, _subscriptions, /* @__PURE__ */ new Set());
+    __privateAdd$2(this, _pendingRequests, /* @__PURE__ */ new Map());
+    this.endpoint = endpoint;
+    this.options = { ...DEFAULT_CLIENT_OPTIONS, ...options };
+    if (!this.options.WebSocketConstructor) {
+      throw new Error("Missing WebSocket constructor");
+    }
+    if (this.endpoint.startsWith("http")) {
+      this.endpoint = getWebsocketUrl(this.endpoint);
+    }
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async makeRequest(method, params) {
+    const webSocket = await __privateMethod$2(this, _WebsocketClient_instances, setupWebSocket_fn).call(this);
+    return new Promise((resolve, reject) => {
+      __privateSet$2(this, _requestId$1, __privateGet$2(this, _requestId$1) + 1);
+      __privateGet$2(this, _pendingRequests).set(__privateGet$2(this, _requestId$1), {
+        resolve,
+        reject,
+        timeout: setTimeout(() => {
+          __privateGet$2(this, _pendingRequests).delete(__privateGet$2(this, _requestId$1));
+          reject(new Error(`Request timeout: ${method}`));
+        }, this.options.callTimeout)
+      });
+      webSocket.send(JSON.stringify({ jsonrpc: "2.0", id: __privateGet$2(this, _requestId$1), method, params }));
+    }).then(({ error, result }) => {
+      if (error) {
+        throw new JsonRpcError2(error.message, error.code);
+      }
+      return result;
+    });
+  }
+  async subscribe(input) {
+    const subscription = new RpcSubscription2(input);
+    __privateGet$2(this, _subscriptions).add(subscription);
+    await subscription.subscribe(this);
+    return () => subscription.unsubscribe(this);
+  }
+}
+_requestId$1 = /* @__PURE__ */ new WeakMap();
+_disconnects = /* @__PURE__ */ new WeakMap();
+_webSocket = /* @__PURE__ */ new WeakMap();
+_connectionPromise = /* @__PURE__ */ new WeakMap();
+_subscriptions = /* @__PURE__ */ new WeakMap();
+_pendingRequests = /* @__PURE__ */ new WeakMap();
+_WebsocketClient_instances = /* @__PURE__ */ new WeakSet();
+setupWebSocket_fn = function() {
+  if (__privateGet$2(this, _connectionPromise)) {
+    return __privateGet$2(this, _connectionPromise);
+  }
+  __privateSet$2(this, _connectionPromise, new Promise((resolve) => {
+    var _a2;
+    (_a2 = __privateGet$2(this, _webSocket)) == null ? void 0 : _a2.close();
+    __privateSet$2(this, _webSocket, new this.options.WebSocketConstructor(this.endpoint));
+    __privateGet$2(this, _webSocket).addEventListener("open", () => {
+      __privateSet$2(this, _disconnects, 0);
+      resolve(__privateGet$2(this, _webSocket));
+    });
+    __privateGet$2(this, _webSocket).addEventListener("close", () => {
+      __privateWrapper(this, _disconnects)._++;
+      if (__privateGet$2(this, _disconnects) <= this.options.maxReconnects) {
+        setTimeout(() => {
+          __privateMethod$2(this, _WebsocketClient_instances, reconnect_fn).call(this);
+        }, this.options.reconnectTimeout);
+      }
+    });
+    __privateGet$2(this, _webSocket).addEventListener("message", ({ data }) => {
+      let json;
+      try {
+        json = JSON.parse(data);
+      } catch (error) {
+        console.error(
+          new Error(`Failed to parse RPC message: ${data}`, { cause: error })
+        );
+        return;
+      }
+      if ("id" in json && json.id != null && __privateGet$2(this, _pendingRequests).has(json.id)) {
+        const { resolve: resolve2, timeout } = __privateGet$2(this, _pendingRequests).get(json.id);
+        clearTimeout(timeout);
+        resolve2(json);
+      } else if ("params" in json) {
+        const { params } = json;
+        __privateGet$2(this, _subscriptions).forEach((subscription) => {
+          if (subscription.subscriptionId === params.subscription) {
+            if (params.subscription === subscription.subscriptionId) {
+              subscription.onMessage(params.result);
+            }
+          }
+        });
+      }
+    });
+  }));
+  return __privateGet$2(this, _connectionPromise);
+};
+reconnect_fn = async function() {
+  var _a2;
+  (_a2 = __privateGet$2(this, _webSocket)) == null ? void 0 : _a2.close();
+  __privateSet$2(this, _connectionPromise, null);
+  return Promise.allSettled(
+    [...__privateGet$2(this, _subscriptions)].map((subscription) => subscription.subscribe(this))
+  );
+};
+class RpcSubscription2 {
+  constructor(input) {
+    this.subscriptionId = null;
+    this.subscribed = false;
+    this.input = input;
+  }
+  onMessage(message) {
+    if (this.subscribed) {
+      this.input.onMessage(message);
+    }
+  }
+  async unsubscribe(client2) {
+    const { subscriptionId } = this;
+    this.subscribed = false;
+    if (subscriptionId == null) return false;
+    this.subscriptionId = null;
+    return client2.makeRequest(this.input.unsubscribe, [subscriptionId]);
+  }
+  async subscribe(client2) {
+    this.subscriptionId = null;
+    this.subscribed = true;
+    const newSubscriptionId = await client2.makeRequest(
+      this.input.method,
+      this.input.params
+    );
+    if (this.subscribed) {
+      this.subscriptionId = newSubscriptionId;
+    }
+  }
+}
+var __typeError$1 = (msg) => {
+  throw TypeError(msg);
+};
+var __accessCheck$1 = (obj, member, msg) => member.has(obj) || __typeError$1("Cannot " + msg);
+var __privateGet$1 = (obj, member, getter) => (__accessCheck$1(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+var __privateAdd$1 = (obj, member, value) => member.has(obj) ? __typeError$1("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+var __privateSet$1 = (obj, member, value, setter) => (__accessCheck$1(obj, member, "write to private field"), member.set(obj, value), value);
+var __privateMethod$1 = (obj, member, method) => (__accessCheck$1(obj, member, "access private method"), method);
+var _requestId, _options, _websocketClient, _IotaHTTPTransport_instances, getWebsocketClient_fn;
+class IotaHTTPTransport2 {
+  constructor(options) {
+    __privateAdd$1(this, _IotaHTTPTransport_instances);
+    __privateAdd$1(this, _requestId, 0);
+    __privateAdd$1(this, _options);
+    __privateAdd$1(this, _websocketClient);
+    __privateSet$1(this, _options, options);
+  }
+  fetch(input, init2) {
+    const fetchFn = __privateGet$1(this, _options).fetch ?? fetch;
+    if (!fetchFn) {
+      throw new Error(
+        "The current environment does not support fetch, you can provide a fetch implementation in the options for IotaHTTPTransport."
+      );
+    }
+    return fetchFn(input, init2);
+  }
+  async request(input) {
+    var _a2, _b;
+    __privateSet$1(this, _requestId, __privateGet$1(this, _requestId) + 1);
+    const res = await this.fetch(((_a2 = __privateGet$1(this, _options).rpc) == null ? void 0 : _a2.url) ?? __privateGet$1(this, _options).url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Client-Sdk-Type": "typescript",
+        "Client-Sdk-Version": PACKAGE_VERSION,
+        "Client-Target-Api-Version": TARGETED_RPC_VERSION,
+        ...(_b = __privateGet$1(this, _options).rpc) == null ? void 0 : _b.headers
+      },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: __privateGet$1(this, _requestId),
+        method: input.method,
+        params: input.params
+      })
+    });
+    if (!res.ok) {
+      throw new IotaHTTPStatusError2(
+        `Unexpected status code: ${res.status}`,
+        res.status,
+        res.statusText
+      );
+    }
+    const data = await res.json();
+    if ("error" in data && data.error != null) {
+      throw new JsonRpcError2(data.error.message, data.error.code);
+    }
+    return data.result;
+  }
+  async subscribe(input) {
+    const unsubscribe = await __privateMethod$1(this, _IotaHTTPTransport_instances, getWebsocketClient_fn).call(this).subscribe(input);
+    return async () => !!await unsubscribe();
+  }
+}
+_requestId = /* @__PURE__ */ new WeakMap();
+_options = /* @__PURE__ */ new WeakMap();
+_websocketClient = /* @__PURE__ */ new WeakMap();
+_IotaHTTPTransport_instances = /* @__PURE__ */ new WeakSet();
+getWebsocketClient_fn = function() {
+  var _a2;
+  if (!__privateGet$1(this, _websocketClient)) {
+    const WebSocketConstructor = __privateGet$1(this, _options).WebSocketConstructor ?? WebSocket;
+    if (!WebSocketConstructor) {
+      throw new Error(
+        "The current environment does not support WebSocket, you can provide a WebSocketConstructor in the options for IotaHTTPTransport."
+      );
+    }
+    __privateSet$1(this, _websocketClient, new WebsocketClient2(
+      ((_a2 = __privateGet$1(this, _options).websocket) == null ? void 0 : _a2.url) ?? __privateGet$1(this, _options).url,
+      {
+        WebSocketConstructor,
+        ...__privateGet$1(this, _options).websocket
+      }
+    ));
+  }
+  return __privateGet$1(this, _websocketClient);
+};
+const IOTA_DECIMALS = 9;
+BigInt(1e9);
+const MOVE_STDLIB_ADDRESS = "0x1";
+const IOTA_FRAMEWORK_ADDRESS = "0x2";
+const IOTA_CLOCK_OBJECT_ID = normalizeIotaObjectId$1("0x6");
+const IOTA_TYPE_ARG = `${IOTA_FRAMEWORK_ADDRESS}::iota::IOTA`;
+const IOTA_SYSTEM_STATE_OBJECT_ID = normalizeIotaObjectId$1("0x5");
+const OBJECT_MODULE_NAME = "object";
+const ID_STRUCT_NAME = "ID";
+const STD_ASCII_MODULE_NAME = "ascii";
+const STD_ASCII_STRUCT_NAME = "String";
+const STD_UTF8_MODULE_NAME = "string";
+const STD_UTF8_STRUCT_NAME = "String";
+const STD_OPTION_MODULE_NAME = "option";
+const STD_OPTION_STRUCT_NAME = "Option";
+function isTxContext(param) {
+  const struct = typeof param.body === "object" && "datatype" in param.body ? param.body.datatype : null;
+  return !!struct && normalizeIotaAddress$1(struct.package) === normalizeIotaAddress$1("0x2") && struct.module === "tx_context" && struct.type === "TxContext";
+}
+function getPureBcsSchema(typeSignature) {
+  if (typeof typeSignature === "string") {
+    switch (typeSignature) {
+      case "address":
+        return iotaBcs$1.Address;
+      case "bool":
+        return iotaBcs$1.Bool;
+      case "u8":
+        return iotaBcs$1.U8;
+      case "u16":
+        return iotaBcs$1.U16;
+      case "u32":
+        return iotaBcs$1.U32;
+      case "u64":
+        return iotaBcs$1.U64;
+      case "u128":
+        return iotaBcs$1.U128;
+      case "u256":
+        return iotaBcs$1.U256;
+      default:
+        throw new Error(`Unknown type signature ${typeSignature}`);
+    }
+  }
+  if ("vector" in typeSignature) {
+    if (typeSignature.vector === "u8") {
+      return iotaBcs$1.vector(iotaBcs$1.U8).transform({
+        input: (val) => typeof val === "string" ? new TextEncoder().encode(val) : val,
+        output: (val) => val
+      });
+    }
+    const type = getPureBcsSchema(typeSignature.vector);
+    return type ? iotaBcs$1.vector(type) : null;
+  }
+  if ("datatype" in typeSignature) {
+    const pkg = normalizeIotaAddress$1(typeSignature.datatype.package);
+    if (pkg === normalizeIotaAddress$1(MOVE_STDLIB_ADDRESS)) {
+      if (typeSignature.datatype.module === STD_ASCII_MODULE_NAME && typeSignature.datatype.type === STD_ASCII_STRUCT_NAME) {
+        return iotaBcs$1.String;
+      }
+      if (typeSignature.datatype.module === STD_UTF8_MODULE_NAME && typeSignature.datatype.type === STD_UTF8_STRUCT_NAME) {
+        return iotaBcs$1.String;
+      }
+      if (typeSignature.datatype.module === STD_OPTION_MODULE_NAME && typeSignature.datatype.type === STD_OPTION_STRUCT_NAME) {
+        const type = getPureBcsSchema(typeSignature.datatype.typeParameters[0]);
+        return type ? iotaBcs$1.vector(type) : null;
+      }
+    }
+    if (pkg === normalizeIotaAddress$1(IOTA_FRAMEWORK_ADDRESS) && typeSignature.datatype.module === OBJECT_MODULE_NAME && typeSignature.datatype.type === ID_STRUCT_NAME) {
+      return iotaBcs$1.Address;
+    }
+  }
+  return null;
+}
+function normalizedTypeToMoveTypeSignature(type) {
+  if (typeof type === "object" && "Reference" in type) {
+    return {
+      ref: "&",
+      body: normalizedTypeToMoveTypeSignatureBody(type.Reference)
+    };
+  }
+  if (typeof type === "object" && "MutableReference" in type) {
+    return {
+      ref: "&mut",
+      body: normalizedTypeToMoveTypeSignatureBody(type.MutableReference)
+    };
+  }
+  return {
+    ref: null,
+    body: normalizedTypeToMoveTypeSignatureBody(type)
+  };
+}
+function normalizedTypeToMoveTypeSignatureBody(type) {
+  if (typeof type === "string") {
+    switch (type) {
+      case "Address":
+        return "address";
+      case "Bool":
+        return "bool";
+      case "U8":
+        return "u8";
+      case "U16":
+        return "u16";
+      case "U32":
+        return "u32";
+      case "U64":
+        return "u64";
+      case "U128":
+        return "u128";
+      case "U256":
+        return "u256";
+      default:
+        throw new Error(`Unexpected type ${type}`);
+    }
+  }
+  if ("Vector" in type) {
+    return { vector: normalizedTypeToMoveTypeSignatureBody(type.Vector) };
+  }
+  if ("Struct" in type) {
+    return {
+      datatype: {
+        package: type.Struct.address,
+        module: type.Struct.module,
+        type: type.Struct.name,
+        typeParameters: type.Struct.typeArguments.map(
+          normalizedTypeToMoveTypeSignatureBody
+        )
+      }
+    };
+  }
+  if ("TypeParameter" in type) {
+    return { typeParameter: type.TypeParameter };
+  }
+  throw new Error(`Unexpected type ${JSON.stringify(type)}`);
+}
+function Pure(data) {
+  return {
+    $kind: "Pure",
+    Pure: {
+      bytes: data instanceof Uint8Array ? toB64$1(data) : data.toBase64()
+    }
+  };
+}
+const Inputs = {
+  Pure,
+  ObjectRef({ objectId, digest, version }) {
+    return {
+      $kind: "Object",
+      Object: {
+        $kind: "ImmOrOwnedObject",
+        ImmOrOwnedObject: {
+          digest,
+          version,
+          objectId: normalizeIotaAddress$1(objectId)
+        }
+      }
+    };
+  },
+  SharedObjectRef({
+    objectId,
+    mutable,
+    initialSharedVersion
+  }) {
+    return {
+      $kind: "Object",
+      Object: {
+        $kind: "SharedObject",
+        SharedObject: {
+          mutable,
+          initialSharedVersion,
+          objectId: normalizeIotaAddress$1(objectId)
+        }
+      }
+    };
+  },
+  ReceivingRef({ objectId, digest, version }) {
+    return {
+      $kind: "Object",
+      Object: {
+        $kind: "Receiving",
+        Receiving: {
+          digest,
+          version,
+          objectId: normalizeIotaAddress$1(objectId)
+        }
+      }
+    };
+  }
+};
+function safeEnum(options) {
+  const unionOptions = Object.entries(options).map(([key, value]) => object({ [key]: value }));
+  return pipe(
+    union(unionOptions),
+    transform((value) => ({
+      ...value,
+      $kind: Object.keys(value)[0]
+    }))
+  );
+}
+const IotaAddress = pipe(
+  string(),
+  transform((value) => normalizeIotaAddress$1(value)),
+  check(isValidIotaAddress$1)
+);
+const ObjectID = IotaAddress;
+const BCSBytes = string();
+const JsonU64 = pipe(
+  union([string(), pipe(number(), integer())]),
+  check((val) => {
+    try {
+      BigInt(val);
+      return BigInt(val) >= 0 && BigInt(val) <= 18446744073709551615n;
+    } catch {
+      return false;
+    }
+  }, "Invalid u64")
+);
+const ObjectRef$1 = object({
+  objectId: IotaAddress,
+  version: JsonU64,
+  digest: string()
+});
+const Argument$1 = pipe(
+  union([
+    object({ GasCoin: literal(true) }),
+    object({ Input: pipe(number(), integer()), type: optional(literal("pure")) }),
+    object({ Input: pipe(number(), integer()), type: optional(literal("object")) }),
+    object({ Result: pipe(number(), integer()) }),
+    object({ NestedResult: tuple([pipe(number(), integer()), pipe(number(), integer())]) })
+  ]),
+  transform((value) => ({
+    ...value,
+    $kind: Object.keys(value)[0]
+  }))
+  // Defined manually to add `type?: 'pure' | 'object'` to Input
+);
+const GasData$1 = object({
+  budget: nullable(JsonU64),
+  price: nullable(JsonU64),
+  owner: nullable(IotaAddress),
+  payment: nullable(array(ObjectRef$1))
+});
+const OpenMoveTypeSignatureBody = union([
+  literal("address"),
+  literal("bool"),
+  literal("u8"),
+  literal("u16"),
+  literal("u32"),
+  literal("u64"),
+  literal("u128"),
+  literal("u256"),
+  object({ vector: lazy(() => OpenMoveTypeSignatureBody) }),
+  object({
+    datatype: object({
+      package: string(),
+      module: string(),
+      type: string(),
+      typeParameters: array(lazy(() => OpenMoveTypeSignatureBody))
+    })
+  }),
+  object({ typeParameter: pipe(number(), integer()) })
+]);
+const OpenMoveTypeSignature = object({
+  ref: nullable(union([literal("&"), literal("&mut")])),
+  body: OpenMoveTypeSignatureBody
+});
+const ProgrammableMoveCall$1 = object({
+  package: ObjectID,
+  module: string(),
+  function: string(),
+  // snake case in rust
+  typeArguments: array(string()),
+  arguments: array(Argument$1),
+  _argumentTypes: optional(nullable(array(OpenMoveTypeSignature)))
+});
+const $Intent$1 = object({
+  name: string(),
+  inputs: record(string(), union([Argument$1, array(Argument$1)])),
+  data: record(string(), unknown())
+});
+const Command$1 = safeEnum({
+  MoveCall: ProgrammableMoveCall$1,
+  TransferObjects: object({
+    objects: array(Argument$1),
+    address: Argument$1
+  }),
+  SplitCoins: object({
+    coin: Argument$1,
+    amounts: array(Argument$1)
+  }),
+  MergeCoins: object({
+    destination: Argument$1,
+    sources: array(Argument$1)
+  }),
+  Publish: object({
+    modules: array(BCSBytes),
+    dependencies: array(ObjectID)
+  }),
+  MakeMoveVec: object({
+    type: nullable(string()),
+    elements: array(Argument$1)
+  }),
+  Upgrade: object({
+    modules: array(BCSBytes),
+    dependencies: array(ObjectID),
+    package: ObjectID,
+    ticket: Argument$1
+  }),
+  $Intent: $Intent$1
+});
+const ObjectArg$2 = safeEnum({
+  ImmOrOwnedObject: ObjectRef$1,
+  SharedObject: object({
+    objectId: ObjectID,
+    // snake case in rust
+    initialSharedVersion: JsonU64,
+    mutable: boolean()
+  }),
+  Receiving: ObjectRef$1
+});
+const CallArg$1 = safeEnum({
+  Object: ObjectArg$2,
+  Pure: object({
+    bytes: BCSBytes
+  }),
+  UnresolvedPure: object({
+    value: unknown()
+  }),
+  UnresolvedObject: object({
+    objectId: ObjectID,
+    version: optional(nullable(JsonU64)),
+    digest: optional(nullable(string())),
+    initialSharedVersion: optional(nullable(JsonU64))
+  })
+});
+const NormalizedCallArg$1 = safeEnum({
+  Object: ObjectArg$2,
+  Pure: object({
+    bytes: BCSBytes
+  })
+});
+const TransactionExpiration$2 = safeEnum({
+  None: literal(true),
+  Epoch: JsonU64
+});
+const TransactionData = object({
+  version: literal(2),
+  sender: nullish(IotaAddress),
+  expiration: nullish(TransactionExpiration$2),
+  gasData: GasData$1,
+  inputs: array(CallArg$1),
+  commands: array(Command$1)
+});
+const Commands = {
+  MoveCall(input) {
+    const [pkg, mod2 = "", fn = ""] = "target" in input ? input.target.split("::") : [input.package, input.module, input.function];
+    return {
+      $kind: "MoveCall",
+      MoveCall: {
+        package: pkg,
+        module: mod2,
+        function: fn,
+        typeArguments: input.typeArguments ?? [],
+        arguments: input.arguments ?? []
+      }
+    };
+  },
+  TransferObjects(objects, address) {
+    return {
+      $kind: "TransferObjects",
+      TransferObjects: {
+        objects: objects.map((o) => parse(Argument$1, o)),
+        address: parse(Argument$1, address)
+      }
+    };
+  },
+  SplitCoins(coin, amounts) {
+    return {
+      $kind: "SplitCoins",
+      SplitCoins: {
+        coin: parse(Argument$1, coin),
+        amounts: amounts.map((o) => parse(Argument$1, o))
+      }
+    };
+  },
+  MergeCoins(destination, sources) {
+    return {
+      $kind: "MergeCoins",
+      MergeCoins: {
+        destination: parse(Argument$1, destination),
+        sources: sources.map((o) => parse(Argument$1, o))
+      }
+    };
+  },
+  Publish({
+    modules,
+    dependencies
+  }) {
+    return {
+      $kind: "Publish",
+      Publish: {
+        modules: modules.map(
+          (module) => typeof module === "string" ? module : toB64$1(new Uint8Array(module))
+        ),
+        dependencies: dependencies.map((dep) => normalizeIotaObjectId$1(dep))
+      }
+    };
+  },
+  Upgrade({
+    modules,
+    dependencies,
+    package: packageId,
+    ticket
+  }) {
+    return {
+      $kind: "Upgrade",
+      Upgrade: {
+        modules: modules.map(
+          (module) => typeof module === "string" ? module : toB64$1(new Uint8Array(module))
+        ),
+        dependencies: dependencies.map((dep) => normalizeIotaObjectId$1(dep)),
+        package: packageId,
+        ticket: parse(Argument$1, ticket)
+      }
+    };
+  },
+  MakeMoveVec({
+    type,
+    elements
+  }) {
+    return {
+      $kind: "MakeMoveVec",
+      MakeMoveVec: {
+        type: type ?? null,
+        elements: elements.map((o) => parse(Argument$1, o))
+      }
+    };
+  },
+  Intent({
+    name,
+    inputs = {},
+    data = {}
+  }) {
+    return {
+      $kind: "$Intent",
+      $Intent: {
+        name,
+        inputs: Object.fromEntries(
+          Object.entries(inputs).map(([key, value]) => [
+            key,
+            Array.isArray(value) ? value.map((o) => parse(Argument$1, o)) : parse(Argument$1, value)
+          ])
+        ),
+        data
+      }
+    };
+  }
+};
+const ObjectRef = object({
+  digest: string(),
+  objectId: string(),
+  version: union([pipe(number(), integer()), string(), bigint()])
+});
+const ObjectArg$1 = safeEnum({
+  ImmOrOwned: ObjectRef,
+  Shared: object({
+    objectId: ObjectID,
+    initialSharedVersion: JsonU64,
+    mutable: boolean()
+  }),
+  Receiving: ObjectRef
+});
+const NormalizedCallArg = safeEnum({
+  Object: ObjectArg$1,
+  Pure: array(pipe(number(), integer()))
+});
+const TransactionInput = union([
+  object({
+    kind: literal("Input"),
+    index: pipe(number(), integer()),
+    value: unknown(),
+    type: optional(literal("object"))
+  }),
+  object({
+    kind: literal("Input"),
+    index: pipe(number(), integer()),
+    value: unknown(),
+    type: literal("pure")
+  })
+]);
+const TransactionExpiration$1 = union([
+  object({ Epoch: pipe(number(), integer()) }),
+  object({ None: nullable(literal(true)) })
+]);
+const StringEncodedBigint = pipe(
+  union([number(), string(), bigint()]),
+  check((val) => {
+    if (!["string", "number", "bigint"].includes(typeof val)) return false;
+    try {
+      BigInt(val);
+      return true;
+    } catch {
+      return false;
+    }
+  })
+);
+const TypeTag = union([
+  object({ bool: nullable(literal(true)) }),
+  object({ u8: nullable(literal(true)) }),
+  object({ u64: nullable(literal(true)) }),
+  object({ u128: nullable(literal(true)) }),
+  object({ address: nullable(literal(true)) }),
+  object({ signer: nullable(literal(true)) }),
+  object({ vector: lazy(() => TypeTag) }),
+  object({ struct: lazy(() => StructTag) }),
+  object({ u16: nullable(literal(true)) }),
+  object({ u32: nullable(literal(true)) }),
+  object({ u256: nullable(literal(true)) })
+]);
+const StructTag = object({
+  address: string(),
+  module: string(),
+  name: string(),
+  typeParams: array(TypeTag)
+});
+const GasConfig = object({
+  budget: optional(StringEncodedBigint),
+  price: optional(StringEncodedBigint),
+  payment: optional(array(ObjectRef)),
+  owner: optional(string())
+});
+const TransactionArgumentTypes = [
+  TransactionInput,
+  object({ kind: literal("GasCoin") }),
+  object({ kind: literal("Result"), index: pipe(number(), integer()) }),
+  object({
+    kind: literal("NestedResult"),
+    index: pipe(number(), integer()),
+    resultIndex: pipe(number(), integer())
+  })
+];
+const TransactionArgument = union([...TransactionArgumentTypes]);
+const MoveCallTransaction = object({
+  kind: literal("MoveCall"),
+  target: pipe(
+    string(),
+    check((target2) => target2.split("::").length === 3)
+  ),
+  typeArguments: array(string()),
+  arguments: array(TransactionArgument)
+});
+const TransferObjectsTransaction = object({
+  kind: literal("TransferObjects"),
+  objects: array(TransactionArgument),
+  address: TransactionArgument
+});
+const SplitCoinsTransaction = object({
+  kind: literal("SplitCoins"),
+  coin: TransactionArgument,
+  amounts: array(TransactionArgument)
+});
+const MergeCoinsTransaction = object({
+  kind: literal("MergeCoins"),
+  destination: TransactionArgument,
+  sources: array(TransactionArgument)
+});
+const MakeMoveVecTransaction = object({
+  kind: literal("MakeMoveVec"),
+  type: union([object({ Some: TypeTag }), object({ None: nullable(literal(true)) })]),
+  objects: array(TransactionArgument)
+});
+const PublishTransaction = object({
+  kind: literal("Publish"),
+  modules: array(array(pipe(number(), integer()))),
+  dependencies: array(string())
+});
+const UpgradeTransaction = object({
+  kind: literal("Upgrade"),
+  modules: array(array(pipe(number(), integer()))),
+  dependencies: array(string()),
+  packageId: string(),
+  ticket: TransactionArgument
+});
+const TransactionTypes = [
+  MoveCallTransaction,
+  TransferObjectsTransaction,
+  SplitCoinsTransaction,
+  MergeCoinsTransaction,
+  PublishTransaction,
+  UpgradeTransaction,
+  MakeMoveVecTransaction
+];
+const TransactionType = union([...TransactionTypes]);
+object({
+  version: literal(1),
+  sender: optional(string()),
+  expiration: nullish(TransactionExpiration$1),
+  gasConfig: GasConfig,
+  inputs: array(TransactionInput),
+  transactions: array(TransactionType)
+});
+function serializeV1TransactionData(transactionData) {
+  var _a2;
+  const inputs = transactionData.inputs.map(
+    (input, index2) => {
+      if (input.Object) {
+        return {
+          kind: "Input",
+          index: index2,
+          value: {
+            Object: input.Object.ImmOrOwnedObject ? {
+              ImmOrOwned: input.Object.ImmOrOwnedObject
+            } : input.Object.Receiving ? {
+              Receiving: {
+                digest: input.Object.Receiving.digest,
+                version: input.Object.Receiving.version,
+                objectId: input.Object.Receiving.objectId
+              }
+            } : {
+              Shared: {
+                mutable: input.Object.SharedObject.mutable,
+                initialSharedVersion: input.Object.SharedObject.initialSharedVersion,
+                objectId: input.Object.SharedObject.objectId
+              }
+            }
+          },
+          type: "object"
+        };
+      }
+      if (input.Pure) {
+        return {
+          kind: "Input",
+          index: index2,
+          value: {
+            Pure: Array.from(fromB64$1(input.Pure.bytes))
+          },
+          type: "pure"
+        };
+      }
+      if (input.UnresolvedPure) {
+        return {
+          kind: "Input",
+          type: "pure",
+          index: index2,
+          value: input.UnresolvedPure.value
+        };
+      }
+      if (input.UnresolvedObject) {
+        return {
+          kind: "Input",
+          type: "object",
+          index: index2,
+          value: input.UnresolvedObject.objectId
+        };
+      }
+      throw new Error("Invalid input");
+    }
+  );
+  return {
+    version: 1,
+    sender: transactionData.sender ?? void 0,
+    expiration: ((_a2 = transactionData.expiration) == null ? void 0 : _a2.$kind) === "Epoch" ? { Epoch: Number(transactionData.expiration.Epoch) } : transactionData.expiration ? { None: true } : null,
+    gasConfig: {
+      owner: transactionData.gasData.owner ?? void 0,
+      budget: transactionData.gasData.budget ?? void 0,
+      price: transactionData.gasData.price ?? void 0,
+      payment: transactionData.gasData.payment ?? void 0
+    },
+    inputs,
+    transactions: transactionData.commands.map(
+      (command) => {
+        if (command.MakeMoveVec) {
+          return {
+            kind: "MakeMoveVec",
+            type: command.MakeMoveVec.type === null ? { None: true } : {
+              Some: TypeTagSerializer$1.parseFromStr(
+                command.MakeMoveVec.type
+              )
+            },
+            objects: command.MakeMoveVec.elements.map(
+              (arg) => convertTransactionArgument(arg, inputs)
+            )
+          };
+        }
+        if (command.MergeCoins) {
+          return {
+            kind: "MergeCoins",
+            destination: convertTransactionArgument(
+              command.MergeCoins.destination,
+              inputs
+            ),
+            sources: command.MergeCoins.sources.map(
+              (arg) => convertTransactionArgument(arg, inputs)
+            )
+          };
+        }
+        if (command.MoveCall) {
+          return {
+            kind: "MoveCall",
+            target: `${command.MoveCall.package}::${command.MoveCall.module}::${command.MoveCall.function}`,
+            typeArguments: command.MoveCall.typeArguments,
+            arguments: command.MoveCall.arguments.map(
+              (arg) => convertTransactionArgument(arg, inputs)
+            )
+          };
+        }
+        if (command.Publish) {
+          return {
+            kind: "Publish",
+            modules: command.Publish.modules.map((mod2) => Array.from(fromB64$1(mod2))),
+            dependencies: command.Publish.dependencies
+          };
+        }
+        if (command.SplitCoins) {
+          return {
+            kind: "SplitCoins",
+            coin: convertTransactionArgument(command.SplitCoins.coin, inputs),
+            amounts: command.SplitCoins.amounts.map(
+              (arg) => convertTransactionArgument(arg, inputs)
+            )
+          };
+        }
+        if (command.TransferObjects) {
+          return {
+            kind: "TransferObjects",
+            objects: command.TransferObjects.objects.map(
+              (arg) => convertTransactionArgument(arg, inputs)
+            ),
+            address: convertTransactionArgument(
+              command.TransferObjects.address,
+              inputs
+            )
+          };
+        }
+        if (command.Upgrade) {
+          return {
+            kind: "Upgrade",
+            modules: command.Upgrade.modules.map((mod2) => Array.from(fromB64$1(mod2))),
+            dependencies: command.Upgrade.dependencies,
+            packageId: command.Upgrade.package,
+            ticket: convertTransactionArgument(command.Upgrade.ticket, inputs)
+          };
+        }
+        throw new Error(`Unknown transaction ${Object.keys(command)}`);
+      }
+    )
+  };
+}
+function convertTransactionArgument(arg, inputs) {
+  if (arg.$kind === "GasCoin") {
+    return { kind: "GasCoin" };
+  }
+  if (arg.$kind === "Result") {
+    return { kind: "Result", index: arg.Result };
+  }
+  if (arg.$kind === "NestedResult") {
+    return {
+      kind: "NestedResult",
+      index: arg.NestedResult[0],
+      resultIndex: arg.NestedResult[1]
+    };
+  }
+  if (arg.$kind === "Input") {
+    return inputs[arg.Input];
+  }
+  throw new Error(`Invalid argument ${Object.keys(arg)}`);
+}
+function transactionDataFromV1(data) {
+  var _a2, _b, _c;
+  return parse(TransactionData, {
+    version: 2,
+    sender: data.sender ?? null,
+    expiration: data.expiration ? "Epoch" in data.expiration ? { Epoch: data.expiration.Epoch } : { None: true } : null,
+    gasData: {
+      owner: data.gasConfig.owner ?? null,
+      budget: ((_a2 = data.gasConfig.budget) == null ? void 0 : _a2.toString()) ?? null,
+      price: ((_b = data.gasConfig.price) == null ? void 0 : _b.toString()) ?? null,
+      payment: ((_c = data.gasConfig.payment) == null ? void 0 : _c.map((ref) => ({
+        digest: ref.digest,
+        objectId: ref.objectId,
+        version: ref.version.toString()
+      }))) ?? null
+    },
+    inputs: data.inputs.map((input) => {
+      if (input.kind === "Input") {
+        if (is(NormalizedCallArg, input.value)) {
+          const value = parse(NormalizedCallArg, input.value);
+          if (value.Object) {
+            if (value.Object.ImmOrOwned) {
+              return {
+                Object: {
+                  ImmOrOwnedObject: {
+                    objectId: value.Object.ImmOrOwned.objectId,
+                    version: String(value.Object.ImmOrOwned.version),
+                    digest: value.Object.ImmOrOwned.digest
+                  }
+                }
+              };
+            }
+            if (value.Object.Shared) {
+              return {
+                Object: {
+                  SharedObject: {
+                    mutable: value.Object.Shared.mutable ?? null,
+                    initialSharedVersion: value.Object.Shared.initialSharedVersion,
+                    objectId: value.Object.Shared.objectId
+                  }
+                }
+              };
+            }
+            if (value.Object.Receiving) {
+              return {
+                Object: {
+                  Receiving: {
+                    digest: value.Object.Receiving.digest,
+                    version: String(value.Object.Receiving.version),
+                    objectId: value.Object.Receiving.objectId
+                  }
+                }
+              };
+            }
+            throw new Error("Invalid object input");
+          }
+          return {
+            Pure: {
+              bytes: toB64$1(new Uint8Array(value.Pure))
+            }
+          };
+        }
+        if (input.type === "object") {
+          return {
+            UnresolvedObject: {
+              objectId: input.value
+            }
+          };
+        }
+        return {
+          UnresolvedPure: {
+            value: input.value
+          }
+        };
+      }
+      throw new Error("Invalid input");
+    }),
+    commands: data.transactions.map((transaction) => {
+      switch (transaction.kind) {
+        case "MakeMoveVec":
+          return {
+            MakeMoveVec: {
+              type: "Some" in transaction.type ? TypeTagSerializer$1.tagToString(transaction.type.Some) : null,
+              elements: transaction.objects.map(
+                (arg) => parseV1TransactionArgument(arg)
+              )
+            }
+          };
+        case "MergeCoins": {
+          return {
+            MergeCoins: {
+              destination: parseV1TransactionArgument(transaction.destination),
+              sources: transaction.sources.map(
+                (arg) => parseV1TransactionArgument(arg)
+              )
+            }
+          };
+        }
+        case "MoveCall": {
+          const [pkg, mod2, fn] = transaction.target.split("::");
+          return {
+            MoveCall: {
+              package: pkg,
+              module: mod2,
+              function: fn,
+              typeArguments: transaction.typeArguments,
+              arguments: transaction.arguments.map(
+                (arg) => parseV1TransactionArgument(arg)
+              )
+            }
+          };
+        }
+        case "Publish": {
+          return {
+            Publish: {
+              modules: transaction.modules.map((mod2) => toB64$1(Uint8Array.from(mod2))),
+              dependencies: transaction.dependencies
+            }
+          };
+        }
+        case "SplitCoins": {
+          return {
+            SplitCoins: {
+              coin: parseV1TransactionArgument(transaction.coin),
+              amounts: transaction.amounts.map(
+                (arg) => parseV1TransactionArgument(arg)
+              )
+            }
+          };
+        }
+        case "TransferObjects": {
+          return {
+            TransferObjects: {
+              objects: transaction.objects.map(
+                (arg) => parseV1TransactionArgument(arg)
+              ),
+              address: parseV1TransactionArgument(transaction.address)
+            }
+          };
+        }
+        case "Upgrade": {
+          return {
+            Upgrade: {
+              modules: transaction.modules.map((mod2) => toB64$1(Uint8Array.from(mod2))),
+              dependencies: transaction.dependencies,
+              package: transaction.packageId,
+              ticket: parseV1TransactionArgument(transaction.ticket)
+            }
+          };
+        }
+      }
+      throw new Error(`Unknown transaction ${Object.keys(transaction)}`);
+    })
+  });
+}
+function parseV1TransactionArgument(arg) {
+  switch (arg.kind) {
+    case "GasCoin": {
+      return { GasCoin: true };
+    }
+    case "Result":
+      return { Result: arg.index };
+    case "NestedResult": {
+      return { NestedResult: [arg.index, arg.resultIndex] };
+    }
+    case "Input": {
+      return { Input: arg.index };
+    }
+  }
+}
+function enumUnion(options) {
+  return union(
+    Object.entries(options).map(([key, value]) => object({ [key]: value }))
+  );
+}
+const Argument = enumUnion({
+  GasCoin: literal(true),
+  Input: pipe(number(), integer()),
+  Result: pipe(number(), integer()),
+  NestedResult: tuple([pipe(number(), integer()), pipe(number(), integer())])
+});
+const GasData = object({
+  budget: nullable(JsonU64),
+  price: nullable(JsonU64),
+  owner: nullable(IotaAddress),
+  payment: nullable(array(ObjectRef$1))
+});
+const ProgrammableMoveCall = object({
+  package: ObjectID,
+  module: string(),
+  function: string(),
+  // snake case in rust
+  typeArguments: array(string()),
+  arguments: array(Argument)
+});
+const $Intent = object({
+  name: string(),
+  inputs: record(string(), union([Argument, array(Argument)])),
+  data: record(string(), unknown())
+});
+const Command = enumUnion({
+  MoveCall: ProgrammableMoveCall,
+  TransferObjects: object({
+    objects: array(Argument),
+    address: Argument
+  }),
+  SplitCoins: object({
+    coin: Argument,
+    amounts: array(Argument)
+  }),
+  MergeCoins: object({
+    destination: Argument,
+    sources: array(Argument)
+  }),
+  Publish: object({
+    modules: array(BCSBytes),
+    dependencies: array(ObjectID)
+  }),
+  MakeMoveVec: object({
+    type: nullable(string()),
+    elements: array(Argument)
+  }),
+  Upgrade: object({
+    modules: array(BCSBytes),
+    dependencies: array(ObjectID),
+    package: ObjectID,
+    ticket: Argument
+  }),
+  $Intent
+});
+const ObjectArg = enumUnion({
+  ImmOrOwnedObject: ObjectRef$1,
+  SharedObject: object({
+    objectId: ObjectID,
+    // snake case in rust
+    initialSharedVersion: JsonU64,
+    mutable: boolean()
+  }),
+  Receiving: ObjectRef$1
+});
+const CallArg = enumUnion({
+  Object: ObjectArg,
+  Pure: object({
+    bytes: BCSBytes
+  }),
+  UnresolvedPure: object({
+    value: unknown()
+  }),
+  UnresolvedObject: object({
+    objectId: ObjectID,
+    version: optional(nullable(JsonU64)),
+    digest: optional(nullable(string())),
+    initialSharedVersion: optional(nullable(JsonU64))
+  })
+});
+const TransactionExpiration = enumUnion({
+  None: literal(true),
+  Epoch: JsonU64
+});
+const SerializedTransactionDataV2 = object({
+  version: literal(2),
+  sender: nullish(IotaAddress),
+  expiration: nullish(TransactionExpiration),
+  gasData: GasData,
+  inputs: array(CallArg),
+  commands: array(Command)
+});
+const MAX_OBJECTS_PER_FETCH = 50;
+const GAS_SAFE_OVERHEAD = 1000n;
+const MAX_GAS = 5e10;
+async function resolveTransactionData(transactionData, options, next) {
+  await normalizeInputs(transactionData, options);
+  await resolveObjectReferences(transactionData, options);
+  if (!options.onlyTransactionKind) {
+    await setGasPrice(transactionData, options);
+    await setGasBudget(transactionData, options);
+    await setGasPayment(transactionData, options);
+  }
+  await validate(transactionData);
+  return await next();
+}
+async function setGasPrice(transactionData, options) {
+  if (!transactionData.gasConfig.price) {
+    transactionData.gasConfig.price = String(await getClient$1(options).getReferenceGasPrice());
+  }
+}
+async function setGasBudget(transactionData, options) {
+  if (transactionData.gasConfig.budget) {
+    return;
+  }
+  const dryRunResult = await getClient$1(options).dryRunTransactionBlock({
+    transactionBlock: transactionData.build({
+      overrides: {
+        gasData: {
+          budget: String(MAX_GAS),
+          payment: []
+        }
+      }
+    })
+  });
+  if (dryRunResult.effects.status.status !== "success") {
+    throw new Error(
+      `Dry run failed, could not automatically determine a budget: ${dryRunResult.effects.status.error}`,
+      { cause: dryRunResult }
+    );
+  }
+  const safeOverhead = GAS_SAFE_OVERHEAD * BigInt(transactionData.gasConfig.price || 1n);
+  const baseComputationCostWithOverhead = BigInt(dryRunResult.effects.gasUsed.computationCost) + safeOverhead;
+  const gasBudget = baseComputationCostWithOverhead + BigInt(dryRunResult.effects.gasUsed.storageCost) - BigInt(dryRunResult.effects.gasUsed.storageRebate);
+  transactionData.gasConfig.budget = String(
+    gasBudget > baseComputationCostWithOverhead ? gasBudget : baseComputationCostWithOverhead
+  );
+}
+async function setGasPayment(transactionData, options) {
+  if (!transactionData.gasConfig.payment) {
+    const coins = await getClient$1(options).getCoins({
+      owner: transactionData.gasConfig.owner || transactionData.sender,
+      coinType: IOTA_TYPE_ARG
+    });
+    const paymentCoins = coins.data.filter((coin) => {
+      const matchingInput = transactionData.inputs.find((input) => {
+        var _a2;
+        if ((_a2 = input.Object) == null ? void 0 : _a2.ImmOrOwnedObject) {
+          return coin.coinObjectId === input.Object.ImmOrOwnedObject.objectId;
+        }
+        return false;
+      });
+      return !matchingInput;
+    }).map((coin) => ({
+      objectId: coin.coinObjectId,
+      digest: coin.digest,
+      version: coin.version
+    }));
+    if (!paymentCoins.length) {
+      throw new Error("No valid gas coins found for the transaction.");
+    }
+    transactionData.gasConfig.payment = paymentCoins.map(
+      (payment) => parse(ObjectRef$1, payment)
+    );
+  }
+}
+async function resolveObjectReferences(transactionData, options) {
+  const objectsToResolve = transactionData.inputs.filter((input) => {
+    var _a2;
+    return input.UnresolvedObject && !(input.UnresolvedObject.version || ((_a2 = input.UnresolvedObject) == null ? void 0 : _a2.initialSharedVersion));
+  });
+  const dedupedIds = [
+    ...new Set(
+      objectsToResolve.map((input) => normalizeIotaObjectId$1(input.UnresolvedObject.objectId))
+    )
+  ];
+  const objectChunks = dedupedIds.length ? chunk(dedupedIds, MAX_OBJECTS_PER_FETCH) : [];
+  const resolvedObjects = /* @__PURE__ */ new Map();
+  const erroredObjects = /* @__PURE__ */ new Map();
+  await Promise.all(
+    objectChunks.map(async (chunk2) => {
+      var _a2;
+      const chunkObjects = await getClient$1(options).multiGetObjects({
+        ids: chunk2,
+        options: { showOwner: true }
+      });
+      for (const object2 of chunkObjects) {
+        const objectId = (_a2 = object2.data) == null ? void 0 : _a2.objectId;
+        if (objectId) {
+          if (object2.error || !object2.data) {
+            erroredObjects.set(objectId, object2.error);
+            return;
+          }
+          const owner = object2.data.owner;
+          const initialSharedVersion = owner && typeof owner === "object" && "Shared" in owner ? owner.Shared.initial_shared_version : null;
+          resolvedObjects.set(objectId, {
+            objectId,
+            digest: object2.data.digest,
+            version: object2.data.version,
+            initialSharedVersion
+          });
+        }
+      }
+    })
+  );
+  if (erroredObjects.size > 0) {
+    throw new Error(
+      `The following input objects are invalid: ${Array.from(erroredObjects).join(", ")}`
+    );
+  }
+  for (const [index2, input] of transactionData.inputs.entries()) {
+    if (!input.UnresolvedObject) {
+      continue;
+    }
+    let updated;
+    const id = normalizeIotaAddress$1(input.UnresolvedObject.objectId);
+    const object2 = resolvedObjects.get(id);
+    if (input.UnresolvedObject.initialSharedVersion ?? (object2 == null ? void 0 : object2.initialSharedVersion)) {
+      updated = Inputs.SharedObjectRef({
+        objectId: id,
+        initialSharedVersion: input.UnresolvedObject.initialSharedVersion || (object2 == null ? void 0 : object2.initialSharedVersion),
+        mutable: isUsedAsMutable(transactionData, index2)
+      });
+    } else if (isUsedAsReceiving(transactionData, index2)) {
+      updated = Inputs.ReceivingRef(
+        {
+          objectId: id,
+          digest: input.UnresolvedObject.digest ?? (object2 == null ? void 0 : object2.digest),
+          version: input.UnresolvedObject.version ?? (object2 == null ? void 0 : object2.version)
+        }
+      );
+    }
+    transactionData.inputs[transactionData.inputs.indexOf(input)] = updated ?? Inputs.ObjectRef({
+      objectId: id,
+      digest: input.UnresolvedObject.digest ?? (object2 == null ? void 0 : object2.digest),
+      version: input.UnresolvedObject.version ?? (object2 == null ? void 0 : object2.version)
+    });
+  }
+}
+async function normalizeInputs(transactionData, options) {
+  const { inputs, commands } = transactionData;
+  const moveCallsToResolve = [];
+  const moveFunctionsToResolve = /* @__PURE__ */ new Set();
+  commands.forEach((command) => {
+    if (command.MoveCall) {
+      if (command.MoveCall._argumentTypes) {
+        return;
+      }
+      const inputs2 = command.MoveCall.arguments.map((arg) => {
+        if (arg.$kind === "Input") {
+          return transactionData.inputs[arg.Input];
+        }
+        return null;
+      });
+      const needsResolution = inputs2.some(
+        (input) => (input == null ? void 0 : input.UnresolvedPure) || (input == null ? void 0 : input.UnresolvedObject)
+      );
+      if (needsResolution) {
+        const functionName = `${command.MoveCall.package}::${command.MoveCall.module}::${command.MoveCall.function}`;
+        moveFunctionsToResolve.add(functionName);
+        moveCallsToResolve.push(command.MoveCall);
+      }
+    }
+    switch (command.$kind) {
+      case "SplitCoins":
+        command.SplitCoins.amounts.forEach((amount) => {
+          normalizeRawArgument(amount, iotaBcs$1.U64, transactionData);
+        });
+        break;
+      case "TransferObjects":
+        normalizeRawArgument(command.TransferObjects.address, iotaBcs$1.Address, transactionData);
+        break;
+    }
+  });
+  const moveFunctionParameters = /* @__PURE__ */ new Map();
+  if (moveFunctionsToResolve.size > 0) {
+    const client2 = getClient$1(options);
+    await Promise.all(
+      [...moveFunctionsToResolve].map(async (functionName) => {
+        const [packageId, moduleId, functionId] = functionName.split("::");
+        const def = await client2.getNormalizedMoveFunction({
+          package: packageId,
+          module: moduleId,
+          function: functionId
+        });
+        moveFunctionParameters.set(
+          functionName,
+          def.parameters.map((param) => normalizedTypeToMoveTypeSignature(param))
+        );
+      })
+    );
+  }
+  if (moveCallsToResolve.length) {
+    await Promise.all(
+      moveCallsToResolve.map(async (moveCall) => {
+        const parameters = moveFunctionParameters.get(
+          `${moveCall.package}::${moveCall.module}::${moveCall.function}`
+        );
+        if (!parameters) {
+          return;
+        }
+        const hasTxContext = parameters.length > 0 && isTxContext(parameters.at(-1));
+        const params = hasTxContext ? parameters.slice(0, parameters.length - 1) : parameters;
+        moveCall._argumentTypes = params;
+      })
+    );
+  }
+  commands.forEach((command) => {
+    if (!command.MoveCall) {
+      return;
+    }
+    const moveCall = command.MoveCall;
+    const fnName = `${moveCall.package}::${moveCall.module}::${moveCall.function}`;
+    const params = moveCall._argumentTypes;
+    if (!params) {
+      return;
+    }
+    if (params.length !== command.MoveCall.arguments.length) {
+      throw new Error(`Incorrect number of arguments for ${fnName}`);
+    }
+    params.forEach((param, i) => {
+      var _a2, _b;
+      const arg = moveCall.arguments[i];
+      if (arg.$kind !== "Input") return;
+      const input = inputs[arg.Input];
+      if (!input.UnresolvedPure && !input.UnresolvedObject) {
+        return;
+      }
+      const inputValue = ((_a2 = input.UnresolvedPure) == null ? void 0 : _a2.value) ?? ((_b = input.UnresolvedObject) == null ? void 0 : _b.objectId);
+      const inputIndex = inputs.indexOf(input);
+      const schema = getPureBcsSchema(param.body);
+      if (schema) {
+        arg.type = "pure";
+        inputs[inputIndex] = Inputs.Pure(schema.serialize(inputValue));
+        return;
+      }
+      if (typeof inputValue !== "string") {
+        throw new Error(
+          `Expect the argument to be an object id string, got ${JSON.stringify(
+            inputValue,
+            null,
+            2
+          )}`
+        );
+      }
+      arg.type = "object";
+      const unresolvedObject = input.UnresolvedPure ? {
+        $kind: "UnresolvedObject",
+        UnresolvedObject: {
+          objectId: inputValue
+        }
+      } : input;
+      inputs[inputIndex] = unresolvedObject;
+    });
+  });
+}
+function validate(transactionData) {
+  transactionData.inputs.forEach((input, index2) => {
+    if (input.$kind !== "Object" && input.$kind !== "Pure") {
+      throw new Error(
+        `Input at index ${index2} has not been resolved.  Expected a Pure or Object input, but found ${JSON.stringify(
+          input
+        )}`
+      );
+    }
+  });
+}
+function normalizeRawArgument(arg, schema, transactionData) {
+  if (arg.$kind !== "Input") {
+    return;
+  }
+  const input = transactionData.inputs[arg.Input];
+  if (input.$kind !== "UnresolvedPure") {
+    return;
+  }
+  transactionData.inputs[arg.Input] = Inputs.Pure(schema.serialize(input.UnresolvedPure.value));
+}
+function isUsedAsMutable(transactionData, index2) {
+  let usedAsMutable = false;
+  transactionData.getInputUses(index2, (arg, tx) => {
+    if (tx.MoveCall && tx.MoveCall._argumentTypes) {
+      const argIndex = tx.MoveCall.arguments.indexOf(arg);
+      usedAsMutable = tx.MoveCall._argumentTypes[argIndex].ref !== "&" || usedAsMutable;
+    }
+    if (tx.$kind === "MakeMoveVec" || tx.$kind === "MergeCoins" || tx.$kind === "SplitCoins") {
+      usedAsMutable = true;
+    }
+  });
+  return usedAsMutable;
+}
+function isUsedAsReceiving(transactionData, index2) {
+  let usedAsReceiving = false;
+  transactionData.getInputUses(index2, (arg, tx) => {
+    if (tx.MoveCall && tx.MoveCall._argumentTypes) {
+      const argIndex = tx.MoveCall.arguments.indexOf(arg);
+      usedAsReceiving = isReceivingType(tx.MoveCall._argumentTypes[argIndex]) || usedAsReceiving;
+    }
+  });
+  return usedAsReceiving;
+}
+function isReceivingType(type) {
+  if (typeof type.body !== "object" || !("datatype" in type.body)) {
+    return false;
+  }
+  return type.body.datatype.package === "0x2" && type.body.datatype.module === "transfer" && type.body.datatype.type === "Receiving";
+}
+function getClient$1(options) {
+  if (!options.client) {
+    throw new Error(
+      `No provider passed to Transaction#build, but transaction data was not sufficient to build offline.`
+    );
+  }
+  return options.client;
+}
+function chunk(arr, size) {
+  return Array.from(
+    { length: Math.ceil(arr.length / size) },
+    (_, i) => arr.slice(i * size, i * size + size)
+  );
+}
+function createObjectMethods(makeObject) {
+  function object2(value) {
+    return makeObject(value);
+  }
+  object2.system = () => object2("0x5");
+  object2.clock = () => object2("0x6");
+  object2.random = () => object2("0x8");
+  object2.denyList = () => object2("0x403");
+  return object2;
+}
+function createPure(makePure) {
+  function pure(typeOrSerializedValue, value) {
+    if (typeof typeOrSerializedValue === "string") {
+      return makePure(schemaFromName(typeOrSerializedValue).serialize(value));
+    }
+    if (typeOrSerializedValue instanceof Uint8Array || isSerializedBcs$1(typeOrSerializedValue)) {
+      return makePure(typeOrSerializedValue);
+    }
+    throw new Error("tx.pure must be called either a bcs type name, or a serialized bcs value");
+  }
+  pure.u8 = (value) => makePure(iotaBcs$1.U8.serialize(value));
+  pure.u16 = (value) => makePure(iotaBcs$1.U16.serialize(value));
+  pure.u32 = (value) => makePure(iotaBcs$1.U32.serialize(value));
+  pure.u64 = (value) => makePure(iotaBcs$1.U64.serialize(value));
+  pure.u128 = (value) => makePure(iotaBcs$1.U128.serialize(value));
+  pure.u256 = (value) => makePure(iotaBcs$1.U256.serialize(value));
+  pure.bool = (value) => makePure(iotaBcs$1.Bool.serialize(value));
+  pure.string = (value) => makePure(iotaBcs$1.String.serialize(value));
+  pure.address = (value) => makePure(iotaBcs$1.Address.serialize(value));
+  pure.id = pure.address;
+  pure.vector = (type, value) => {
+    return makePure(iotaBcs$1.vector(schemaFromName(type)).serialize(value));
+  };
+  pure.option = (type, value) => {
+    return makePure(iotaBcs$1.option(schemaFromName(type)).serialize(value));
+  };
+  return pure;
+}
+function schemaFromName(name) {
+  switch (name) {
+    case "u8":
+      return iotaBcs$1.u8();
+    case "u16":
+      return iotaBcs$1.u16();
+    case "u32":
+      return iotaBcs$1.u32();
+    case "u64":
+      return iotaBcs$1.u64();
+    case "u128":
+      return iotaBcs$1.u128();
+    case "u256":
+      return iotaBcs$1.u256();
+    case "bool":
+      return iotaBcs$1.bool();
+    case "string":
+      return iotaBcs$1.string();
+    case "id":
+    case "address":
+      return iotaBcs$1.Address;
+  }
+  const generic = name.match(/^(vector|option)<(.+)>$/);
+  if (generic) {
+    const [kind, inner] = generic.slice(1);
+    if (kind === "vector") {
+      return iotaBcs$1.vector(schemaFromName(inner));
+    } else {
+      return iotaBcs$1.option(schemaFromName(inner));
+    }
+  }
+  throw new Error(`Invalid Pure type name: ${name}`);
+}
+function hashTypedData(typeTag, data) {
+  const typeTagBytes = Array.from(`${typeTag}::`).map((e) => e.charCodeAt(0));
+  const dataWithTag = new Uint8Array(typeTagBytes.length + data.length);
+  dataWithTag.set(typeTagBytes);
+  dataWithTag.set(data, typeTagBytes.length);
+  return blake2b(dataWithTag, { dkLen: 32 });
+}
+function prepareIotaAddress(address) {
+  return normalizeIotaAddress$1(address).replace("0x", "");
+}
+class TransactionDataBuilder2 {
+  constructor(clone) {
+    this.version = 2;
+    this.sender = (clone == null ? void 0 : clone.sender) ?? null;
+    this.expiration = (clone == null ? void 0 : clone.expiration) ?? null;
+    this.inputs = (clone == null ? void 0 : clone.inputs) ?? [];
+    this.commands = (clone == null ? void 0 : clone.commands) ?? [];
+    this.gasData = (clone == null ? void 0 : clone.gasData) ?? {
+      budget: null,
+      price: null,
+      owner: null,
+      payment: null
+    };
+  }
+  static fromKindBytes(bytes) {
+    const kind = iotaBcs$1.TransactionKind.parse(bytes);
+    const programmableTx = kind.ProgrammableTransaction;
+    if (!programmableTx) {
+      throw new Error("Unable to deserialize from bytes.");
+    }
+    return TransactionDataBuilder2.restore({
+      version: 2,
+      sender: null,
+      expiration: null,
+      gasData: {
+        budget: null,
+        owner: null,
+        payment: null,
+        price: null
+      },
+      inputs: programmableTx.inputs,
+      commands: programmableTx.commands
+    });
+  }
+  static fromBytes(bytes) {
+    const rawData = iotaBcs$1.TransactionData.parse(bytes);
+    const data = rawData == null ? void 0 : rawData.V1;
+    const programmableTx = data.kind.ProgrammableTransaction;
+    if (!data || !programmableTx) {
+      throw new Error("Unable to deserialize from bytes.");
+    }
+    return TransactionDataBuilder2.restore({
+      version: 2,
+      sender: data.sender,
+      expiration: data.expiration,
+      gasData: data.gasData,
+      inputs: programmableTx.inputs,
+      commands: programmableTx.commands
+    });
+  }
+  static restore(data) {
+    if (data.version === 2) {
+      return new TransactionDataBuilder2(parse(TransactionData, data));
+    } else {
+      return new TransactionDataBuilder2(parse(TransactionData, transactionDataFromV1(data)));
+    }
+  }
+  /**
+   * Generate transaction digest.
+   *
+   * @param bytes BCS serialized transaction data
+   * @returns transaction digest.
+   */
+  static getDigestFromBytes(bytes) {
+    const hash = hashTypedData("TransactionData", bytes);
+    return toB58$1(hash);
+  }
+  // @deprecated use gasData instead
+  get gasConfig() {
+    return this.gasData;
+  }
+  // @deprecated use gasData instead
+  set gasConfig(value) {
+    this.gasData = value;
+  }
+  build({
+    maxSizeBytes = Infinity,
+    overrides,
+    onlyTransactionKind
+  } = {}) {
+    const inputs = this.inputs;
+    const commands = this.commands;
+    const kind = {
+      ProgrammableTransaction: {
+        inputs,
+        commands
+      }
+    };
+    if (onlyTransactionKind) {
+      return iotaBcs$1.TransactionKind.serialize(kind, { maxSize: maxSizeBytes }).toBytes();
+    }
+    const expiration = (overrides == null ? void 0 : overrides.expiration) ?? this.expiration;
+    const sender = (overrides == null ? void 0 : overrides.sender) ?? this.sender;
+    const gasData = { ...this.gasData, ...overrides == null ? void 0 : overrides.gasConfig, ...overrides == null ? void 0 : overrides.gasData };
+    if (!sender) {
+      throw new Error("Missing transaction sender");
+    }
+    if (!gasData.budget) {
+      throw new Error("Missing gas budget");
+    }
+    if (!gasData.payment) {
+      throw new Error("Missing gas payment");
+    }
+    if (!gasData.price) {
+      throw new Error("Missing gas price");
+    }
+    const transactionData = {
+      sender: prepareIotaAddress(sender),
+      expiration: expiration ? expiration : { None: true },
+      gasData: {
+        payment: gasData.payment,
+        owner: prepareIotaAddress(this.gasData.owner ?? sender),
+        price: BigInt(gasData.price),
+        budget: BigInt(gasData.budget)
+      },
+      kind: {
+        ProgrammableTransaction: {
+          inputs,
+          commands
+        }
+      }
+    };
+    return iotaBcs$1.TransactionData.serialize(
+      { V1: transactionData },
+      { maxSize: maxSizeBytes }
+    ).toBytes();
+  }
+  addInput(type, arg) {
+    const index2 = this.inputs.length;
+    this.inputs.push(arg);
+    return { Input: index2, type, $kind: "Input" };
+  }
+  getInputUses(index2, fn) {
+    this.mapArguments((arg, command) => {
+      if (arg.$kind === "Input" && arg.Input === index2) {
+        fn(arg, command);
+      }
+      return arg;
+    });
+  }
+  mapArguments(fn) {
+    for (const command of this.commands) {
+      switch (command.$kind) {
+        case "MoveCall":
+          command.MoveCall.arguments = command.MoveCall.arguments.map(
+            (arg) => fn(arg, command)
+          );
+          break;
+        case "TransferObjects":
+          command.TransferObjects.objects = command.TransferObjects.objects.map(
+            (arg) => fn(arg, command)
+          );
+          command.TransferObjects.address = fn(command.TransferObjects.address, command);
+          break;
+        case "SplitCoins":
+          command.SplitCoins.coin = fn(command.SplitCoins.coin, command);
+          command.SplitCoins.amounts = command.SplitCoins.amounts.map(
+            (arg) => fn(arg, command)
+          );
+          break;
+        case "MergeCoins":
+          command.MergeCoins.destination = fn(command.MergeCoins.destination, command);
+          command.MergeCoins.sources = command.MergeCoins.sources.map(
+            (arg) => fn(arg, command)
+          );
+          break;
+        case "MakeMoveVec":
+          command.MakeMoveVec.elements = command.MakeMoveVec.elements.map(
+            (arg) => fn(arg, command)
+          );
+          break;
+        case "Upgrade":
+          command.Upgrade.ticket = fn(command.Upgrade.ticket, command);
+          break;
+        case "$Intent":
+          const inputs = command.$Intent.inputs;
+          command.$Intent.inputs = {};
+          for (const [key, value] of Object.entries(inputs)) {
+            command.$Intent.inputs[key] = Array.isArray(value) ? value.map((arg) => fn(arg, command)) : fn(value, command);
+          }
+          break;
+        case "Publish":
+          break;
+        default:
+          throw new Error(
+            `Unexpected transaction kind: ${command.$kind}`
+          );
+      }
+    }
+  }
+  replaceCommand(index2, replacement) {
+    if (!Array.isArray(replacement)) {
+      this.commands[index2] = replacement;
+      return;
+    }
+    const sizeDiff = replacement.length - 1;
+    this.commands.splice(index2, 1, ...replacement);
+    if (sizeDiff !== 0) {
+      this.mapArguments((arg) => {
+        switch (arg.$kind) {
+          case "Result":
+            if (arg.Result > index2) {
+              arg.Result += sizeDiff;
+            }
+            break;
+          case "NestedResult":
+            if (arg.NestedResult[0] > index2) {
+              arg.NestedResult[0] += sizeDiff;
+            }
+            break;
+        }
+        return arg;
+      });
+    }
+  }
+  getDigest() {
+    const bytes = this.build({ onlyTransactionKind: false });
+    return TransactionDataBuilder2.getDigestFromBytes(bytes);
+  }
+  snapshot() {
+    return parse(TransactionData, this);
+  }
+}
+function getIdFromCallArg(arg) {
+  if (typeof arg === "string") {
+    return normalizeIotaAddress$1(arg);
+  }
+  if (arg.Object) {
+    if (arg.Object.ImmOrOwnedObject) {
+      return normalizeIotaAddress$1(arg.Object.ImmOrOwnedObject.objectId);
+    }
+    if (arg.Object.Receiving) {
+      return normalizeIotaAddress$1(arg.Object.Receiving.objectId);
+    }
+    return normalizeIotaAddress$1(arg.Object.SharedObject.objectId);
+  }
+  if (arg.UnresolvedObject) {
+    return normalizeIotaAddress$1(arg.UnresolvedObject.objectId);
+  }
+  return void 0;
+}
+var __typeError2 = (msg) => {
+  throw TypeError(msg);
+};
+var __accessCheck2 = (obj, member, msg) => member.has(obj) || __typeError2("Cannot " + msg);
+var __privateGet2 = (obj, member, getter) => (__accessCheck2(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+var __privateAdd2 = (obj, member, value) => member.has(obj) ? __typeError2("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+var __privateSet2 = (obj, member, value, setter) => (__accessCheck2(obj, member, "write to private field"), member.set(obj, value), value);
+var __privateMethod2 = (obj, member, method) => (__accessCheck2(obj, member, "access private method"), method);
+var _serializationPlugins, _buildPlugins, _intentResolvers, _data, _Transaction_instances, normalizeTransactionArgument_fn, resolveArgument_fn, prepareBuild_fn, runPlugins_fn;
+function createTransactionResult(index2) {
+  const baseResult = { $kind: "Result", Result: index2 };
+  const nestedResults = [];
+  const nestedResultFor = (resultIndex) => nestedResults[resultIndex] ?? (nestedResults[resultIndex] = {
+    $kind: "NestedResult",
+    NestedResult: [index2, resultIndex]
+  });
+  return new Proxy(baseResult, {
+    set() {
+      throw new Error(
+        "The transaction result is a proxy, and does not support setting properties directly"
+      );
+    },
+    // TODO: Instead of making this return a concrete argument, we should ideally
+    // make it reference-based (so that this gets resolved at build-time), which
+    // allows re-ordering transactions.
+    get(target2, property) {
+      if (property in target2) {
+        return Reflect.get(target2, property);
+      }
+      if (property === Symbol.iterator) {
+        return function* () {
+          let i = 0;
+          while (true) {
+            yield nestedResultFor(i);
+            i++;
+          }
+        };
+      }
+      if (typeof property === "symbol") return;
+      const resultIndex = parseInt(property, 10);
+      if (Number.isNaN(resultIndex) || resultIndex < 0) return;
+      return nestedResultFor(resultIndex);
+    }
+  });
+}
+const TRANSACTION_BRAND = Symbol.for("@iota/transaction");
+function isTransaction(obj) {
+  return !!obj && typeof obj === "object" && obj[TRANSACTION_BRAND] === true;
+}
+const modulePluginRegistry = {
+  buildPlugins: [],
+  serializationPlugins: []
+};
+const TRANSACTION_REGISTRY_KEY = Symbol.for("@iota/transaction/registry");
+function getGlobalPluginRegistry() {
+  try {
+    const target2 = globalThis;
+    if (!target2[TRANSACTION_REGISTRY_KEY]) {
+      target2[TRANSACTION_REGISTRY_KEY] = modulePluginRegistry;
+    }
+    return target2[TRANSACTION_REGISTRY_KEY];
+  } catch (e) {
+    return modulePluginRegistry;
+  }
+}
+const _Transaction = class _Transaction22 {
+  constructor() {
+    __privateAdd2(this, _Transaction_instances);
+    __privateAdd2(this, _serializationPlugins);
+    __privateAdd2(this, _buildPlugins);
+    __privateAdd2(this, _intentResolvers, /* @__PURE__ */ new Map());
+    __privateAdd2(this, _data);
+    this.object = createObjectMethods(
+      (value) => {
+        var _a2, _b;
+        if (typeof value === "function") {
+          return this.object(value(this));
+        }
+        if (typeof value === "object" && is(Argument$1, value)) {
+          return value;
+        }
+        const id = getIdFromCallArg(value);
+        const inserted = __privateGet2(this, _data).inputs.find((i) => id === getIdFromCallArg(i));
+        if (((_a2 = inserted == null ? void 0 : inserted.Object) == null ? void 0 : _a2.SharedObject) && typeof value === "object" && ((_b = value.Object) == null ? void 0 : _b.SharedObject)) {
+          inserted.Object.SharedObject.mutable = inserted.Object.SharedObject.mutable || value.Object.SharedObject.mutable;
+        }
+        return inserted ? { $kind: "Input", Input: __privateGet2(this, _data).inputs.indexOf(inserted), type: "object" } : __privateGet2(this, _data).addInput(
+          "object",
+          typeof value === "string" ? {
+            $kind: "UnresolvedObject",
+            UnresolvedObject: { objectId: normalizeIotaAddress$1(value) }
+          } : value
+        );
+      }
+    );
+    const globalPlugins = getGlobalPluginRegistry();
+    __privateSet2(this, _data, new TransactionDataBuilder2());
+    __privateSet2(this, _buildPlugins, [...globalPlugins.buildPlugins]);
+    __privateSet2(this, _serializationPlugins, [...globalPlugins.serializationPlugins]);
+  }
+  /**
+   * Converts from a serialize transaction kind (built with `build({ onlyTransactionKind: true })`) to a `Transaction` class.
+   * Supports either a byte array, or base64-encoded bytes.
+   */
+  static fromKind(serialized) {
+    const tx = new _Transaction22();
+    __privateSet2(tx, _data, TransactionDataBuilder2.fromKindBytes(
+      typeof serialized === "string" ? fromB64$1(serialized) : serialized
+    ));
+    return tx;
+  }
+  /**
+   * Converts from a serialized transaction format to a `Transaction` class.
+   * There are two supported serialized formats:
+   * - A string returned from `Transaction#serialize`. The serialized format must be compatible, or it will throw an error.
+   * - A byte array (or base64-encoded bytes) containing BCS transaction data.
+   */
+  static from(transaction) {
+    const newTransaction = new _Transaction22();
+    if (isTransaction(transaction)) {
+      __privateSet2(newTransaction, _data, new TransactionDataBuilder2(transaction.getData()));
+    } else if (typeof transaction !== "string" || !transaction.startsWith("{")) {
+      __privateSet2(newTransaction, _data, TransactionDataBuilder2.fromBytes(
+        typeof transaction === "string" ? fromB64$1(transaction) : transaction
+      ));
+    } else {
+      __privateSet2(newTransaction, _data, TransactionDataBuilder2.restore(JSON.parse(transaction)));
+    }
+    return newTransaction;
+  }
+  static registerGlobalSerializationPlugin(step) {
+    getGlobalPluginRegistry().serializationPlugins.push(step);
+  }
+  static registerGlobalBuildPlugin(step) {
+    getGlobalPluginRegistry().buildPlugins.push(step);
+  }
+  addSerializationPlugin(step) {
+    __privateGet2(this, _serializationPlugins).push(step);
+  }
+  addBuildPlugin(step) {
+    __privateGet2(this, _buildPlugins).push(step);
+  }
+  addIntentResolver(intent, resolver) {
+    if (__privateGet2(this, _intentResolvers).has(intent) && __privateGet2(this, _intentResolvers).get(intent) !== resolver) {
+      throw new Error(`Intent resolver for ${intent} already exists`);
+    }
+    __privateGet2(this, _intentResolvers).set(intent, resolver);
+  }
+  setSender(sender) {
+    __privateGet2(this, _data).sender = sender;
+  }
+  /**
+   * Sets the sender only if it has not already been set.
+   * This is useful for sponsored transaction flows where the sender may not be the same as the signer address.
+   */
+  setSenderIfNotSet(sender) {
+    if (!__privateGet2(this, _data).sender) {
+      __privateGet2(this, _data).sender = sender;
+    }
+  }
+  setExpiration(expiration) {
+    __privateGet2(this, _data).expiration = expiration ? parse(TransactionExpiration$2, expiration) : null;
+  }
+  setGasPrice(price) {
+    __privateGet2(this, _data).gasConfig.price = String(price);
+  }
+  setGasBudget(budget) {
+    __privateGet2(this, _data).gasConfig.budget = String(budget);
+  }
+  setGasBudgetIfNotSet(budget) {
+    if (__privateGet2(this, _data).gasData.budget == null) {
+      __privateGet2(this, _data).gasConfig.budget = String(budget);
+    }
+  }
+  setGasOwner(owner) {
+    __privateGet2(this, _data).gasConfig.owner = owner;
+  }
+  setGasPayment(payments) {
+    __privateGet2(this, _data).gasConfig.payment = payments.map((payment) => parse(ObjectRef$1, payment));
+  }
+  /** @deprecated Use `getData()` instead. */
+  get blockData() {
+    return serializeV1TransactionData(__privateGet2(this, _data).snapshot());
+  }
+  /** Get a snapshot of the transaction data, in JSON form: */
+  getData() {
+    return __privateGet2(this, _data).snapshot();
+  }
+  // Used to brand transaction classes so that they can be identified, even between multiple copies
+  // of the builder.
+  get [TRANSACTION_BRAND]() {
+    return true;
+  }
+  // Temporary workaround for the wallet interface accidentally serializing transactions via postMessage
+  get pure() {
+    Object.defineProperty(this, "pure", {
+      enumerable: false,
+      value: createPure((value) => {
+        if (isSerializedBcs$1(value)) {
+          return __privateGet2(this, _data).addInput("pure", {
+            $kind: "Pure",
+            Pure: {
+              bytes: value.toBase64()
+            }
+          });
+        }
+        return __privateGet2(this, _data).addInput(
+          "pure",
+          is(NormalizedCallArg$1, value) ? parse(NormalizedCallArg$1, value) : value instanceof Uint8Array ? Inputs.Pure(value) : { $kind: "UnresolvedPure", UnresolvedPure: { value } }
+        );
+      })
+    });
+    return this.pure;
+  }
+  /** Returns an argument for the gas coin, to be used in a transaction. */
+  get gas() {
+    return { $kind: "GasCoin", GasCoin: true };
+  }
+  /**
+   * Add a new object input to the transaction using the fully-resolved object reference.
+   * If you only have an object ID, use `builder.object(id)` instead.
+   */
+  objectRef(...args) {
+    return this.object(Inputs.ObjectRef(...args));
+  }
+  /**
+   * Add a new receiving input to the transaction using the fully-resolved object reference.
+   * If you only have an object ID, use `builder.object(id)` instead.
+   */
+  receivingRef(...args) {
+    return this.object(Inputs.ReceivingRef(...args));
+  }
+  /**
+   * Add a new shared object input to the transaction using the fully-resolved shared object reference.
+   * If you only have an object ID, use `builder.object(id)` instead.
+   */
+  sharedObjectRef(...args) {
+    return this.object(Inputs.SharedObjectRef(...args));
+  }
+  /** Add a transaction to the transaction */
+  add(command) {
+    if (typeof command === "function") {
+      return command(this);
+    }
+    const index2 = __privateGet2(this, _data).commands.push(command);
+    return createTransactionResult(index2 - 1);
+  }
+  // Method shorthands:
+  splitCoins(coin, amounts) {
+    return this.add(
+      Commands.SplitCoins(
+        typeof coin === "string" ? this.object(coin) : __privateMethod2(this, _Transaction_instances, resolveArgument_fn).call(this, coin),
+        amounts.map(
+          (amount) => typeof amount === "number" || typeof amount === "bigint" || typeof amount === "string" ? this.pure.u64(amount) : __privateMethod2(this, _Transaction_instances, normalizeTransactionArgument_fn).call(this, amount)
+        )
+      )
+    );
+  }
+  mergeCoins(destination, sources) {
+    return this.add(
+      Commands.MergeCoins(
+        this.object(destination),
+        sources.map((src) => this.object(src))
+      )
+    );
+  }
+  publish({ modules, dependencies }) {
+    return this.add(
+      Commands.Publish({
+        modules,
+        dependencies
+      })
+    );
+  }
+  upgrade({
+    modules,
+    dependencies,
+    package: packageId,
+    ticket
+  }) {
+    return this.add(
+      Commands.Upgrade({
+        modules,
+        dependencies,
+        package: packageId,
+        ticket: this.object(ticket)
+      })
+    );
+  }
+  moveCall({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    arguments: args,
+    ...input
+  }) {
+    return this.add(
+      Commands.MoveCall({
+        ...input,
+        arguments: args == null ? void 0 : args.map((arg) => __privateMethod2(this, _Transaction_instances, normalizeTransactionArgument_fn).call(this, arg))
+      })
+    );
+  }
+  transferObjects(objects, address) {
+    return this.add(
+      Commands.TransferObjects(
+        objects.map((obj) => this.object(obj)),
+        typeof address === "string" ? this.pure.address(address) : __privateMethod2(this, _Transaction_instances, normalizeTransactionArgument_fn).call(this, address)
+      )
+    );
+  }
+  makeMoveVec({
+    type,
+    elements
+  }) {
+    return this.add(
+      Commands.MakeMoveVec({
+        type,
+        elements: elements.map((obj) => this.object(obj))
+      })
+    );
+  }
+  /**
+   * @deprecated Use toJSON instead.
+   * For synchronous serialization, you can use `getData()`
+   * */
+  serialize() {
+    return JSON.stringify(serializeV1TransactionData(__privateGet2(this, _data).snapshot()));
+  }
+  async toJSON(options = {}) {
+    await this.prepareForSerialization(options);
+    return JSON.stringify(
+      parse(SerializedTransactionDataV2, __privateGet2(this, _data).snapshot()),
+      (_key, value) => typeof value === "bigint" ? value.toString() : value,
+      2
+    );
+  }
+  /** Build the transaction to BCS bytes, and sign it with the provided keypair. */
+  async sign(options) {
+    const { signer, ...buildOptions } = options;
+    const bytes = await this.build(buildOptions);
+    return signer.signTransaction(bytes);
+  }
+  /** Build the transaction to BCS bytes. */
+  async build(options = {}) {
+    await this.prepareForSerialization(options);
+    await __privateMethod2(this, _Transaction_instances, prepareBuild_fn).call(this, options);
+    return __privateGet2(this, _data).build({
+      maxSizeBytes: options.maxSizeBytes,
+      onlyTransactionKind: options.onlyTransactionKind
+    });
+  }
+  /** Derive transaction digest */
+  async getDigest(options = {}) {
+    await __privateMethod2(this, _Transaction_instances, prepareBuild_fn).call(this, options);
+    return __privateGet2(this, _data).getDigest();
+  }
+  async prepareForSerialization(options) {
+    var _a2;
+    const intents = /* @__PURE__ */ new Set();
+    for (const command of __privateGet2(this, _data).commands) {
+      if (command.$Intent) {
+        intents.add(command.$Intent.name);
+      }
+    }
+    const steps = [...__privateGet2(this, _serializationPlugins)];
+    for (const intent of intents) {
+      if ((_a2 = options.supportedIntents) == null ? void 0 : _a2.includes(intent)) {
+        continue;
+      }
+      if (!__privateGet2(this, _intentResolvers).has(intent)) {
+        throw new Error(`Missing intent resolver for ${intent}`);
+      }
+      steps.push(__privateGet2(this, _intentResolvers).get(intent));
+    }
+    await __privateMethod2(this, _Transaction_instances, runPlugins_fn).call(this, steps, options);
+  }
+};
+_serializationPlugins = /* @__PURE__ */ new WeakMap();
+_buildPlugins = /* @__PURE__ */ new WeakMap();
+_intentResolvers = /* @__PURE__ */ new WeakMap();
+_data = /* @__PURE__ */ new WeakMap();
+_Transaction_instances = /* @__PURE__ */ new WeakSet();
+normalizeTransactionArgument_fn = function(arg) {
+  if (isSerializedBcs$1(arg)) {
+    return this.pure(arg);
+  }
+  return __privateMethod2(this, _Transaction_instances, resolveArgument_fn).call(this, arg);
+};
+resolveArgument_fn = function(arg) {
+  if (typeof arg === "function") {
+    return parse(Argument$1, arg(this));
+  }
+  return parse(Argument$1, arg);
+};
+prepareBuild_fn = async function(options) {
+  if (!options.onlyTransactionKind && !__privateGet2(this, _data).sender) {
+    throw new Error("Missing transaction sender");
+  }
+  await __privateMethod2(this, _Transaction_instances, runPlugins_fn).call(this, [...__privateGet2(this, _buildPlugins), resolveTransactionData], options);
+};
+runPlugins_fn = async function(plugins, options) {
+  const createNext = (i) => {
+    if (i >= plugins.length) {
+      return () => {
+      };
+    }
+    const plugin = plugins[i];
+    return async () => {
+      const next = createNext(i + 1);
+      let calledNext = false;
+      let nextResolved = false;
+      await plugin(__privateGet2(this, _data), options, async () => {
+        if (calledNext) {
+          throw new Error(`next() was call multiple times in TransactionPlugin ${i}`);
+        }
+        calledNext = true;
+        await next();
+        nextResolved = true;
+      });
+      if (!calledNext) {
+        throw new Error(`next() was not called in TransactionPlugin ${i}`);
+      }
+      if (!nextResolved) {
+        throw new Error(`next() was not awaited in TransactionPlugin ${i}`);
+      }
+    };
+  };
+  await createNext(0)();
+};
+let Transaction = _Transaction;
+const IOTA_CLIENT_BRAND = Symbol.for("@iota/IotaClient");
+class IotaClient {
+  get [IOTA_CLIENT_BRAND]() {
+    return true;
+  }
+  /**
+   * Establish a connection to an IOTA RPC endpoint
+   *
+   * @param options configuration options for the API Client
+   */
+  constructor(options) {
+    this.transport = options.transport ?? new IotaHTTPTransport2({ url: options.url });
+  }
+  async getRpcApiVersion() {
+    const resp = await this.transport.request({
+      method: "rpc.discover",
+      params: []
+    });
+    return resp.info.version;
+  }
+  /**
+   * Get all Coin<`coin_type`> objects owned by an address.
+   */
+  async getCoins(input) {
+    if (!input.owner || !isValidIotaAddress$1(normalizeIotaAddress$1(input.owner))) {
+      throw new Error("Invalid IOTA address");
+    }
+    return await this.transport.request({
+      method: "iotax_getCoins",
+      params: [input.owner, input.coinType, input.cursor, input.limit]
+    });
+  }
+  /**
+   * Get all Coin objects owned by an address.
+   */
+  async getAllCoins(input) {
+    if (!input.owner || !isValidIotaAddress$1(normalizeIotaAddress$1(input.owner))) {
+      throw new Error("Invalid IOTA address");
+    }
+    return await this.transport.request({
+      method: "iotax_getAllCoins",
+      params: [input.owner, input.cursor, input.limit]
+    });
+  }
+  /**
+   * Get the total coin balance for one coin type, owned by the address owner.
+   */
+  async getBalance(input) {
+    if (!input.owner || !isValidIotaAddress$1(normalizeIotaAddress$1(input.owner))) {
+      throw new Error("Invalid IOTA address");
+    }
+    return await this.transport.request({
+      method: "iotax_getBalance",
+      params: [input.owner, input.coinType]
+    });
+  }
+  /**
+   * Get the total coin balance for all coin types, owned by the address owner.
+   */
+  async getAllBalances(input) {
+    if (!input.owner || !isValidIotaAddress$1(normalizeIotaAddress$1(input.owner))) {
+      throw new Error("Invalid IOTA address");
+    }
+    return await this.transport.request({
+      method: "iotax_getAllBalances",
+      params: [input.owner]
+    });
+  }
+  /**
+   * Fetch CoinMetadata for a given coin type
+   */
+  async getCoinMetadata(input) {
+    return await this.transport.request({
+      method: "iotax_getCoinMetadata",
+      params: [input.coinType]
+    });
+  }
+  /**
+   *  Fetch total supply for a coin
+   */
+  async getTotalSupply(input) {
+    return await this.transport.request({
+      method: "iotax_getTotalSupply",
+      params: [input.coinType]
+    });
+  }
+  /**
+   *  Fetch circulating supply for a coin
+   */
+  async getCirculatingSupply() {
+    return await this.transport.request({
+      method: "iotax_getCirculatingSupply",
+      params: []
+    });
+  }
+  /**
+   * Invoke any RPC method
+   * @param method the method to be invoked
+   * @param args the arguments to be passed to the RPC request
+   */
+  async call(method, params) {
+    return await this.transport.request({ method, params });
+  }
+  /**
+   * Get Move function argument types like read, write and full access
+   */
+  async getMoveFunctionArgTypes(input) {
+    return await this.transport.request({
+      method: "iota_getMoveFunctionArgTypes",
+      params: [input.package, input.module, input.function]
+    });
+  }
+  /**
+   * Get a map from module name to
+   * structured representations of Move modules
+   */
+  async getNormalizedMoveModulesByPackage(input) {
+    return await this.transport.request({
+      method: "iota_getNormalizedMoveModulesByPackage",
+      params: [input.package]
+    });
+  }
+  /**
+   * Get a structured representation of Move module
+   */
+  async getNormalizedMoveModule(input) {
+    return await this.transport.request({
+      method: "iota_getNormalizedMoveModule",
+      params: [input.package, input.module]
+    });
+  }
+  /**
+   * Get a structured representation of Move function
+   */
+  async getNormalizedMoveFunction(input) {
+    return await this.transport.request({
+      method: "iota_getNormalizedMoveFunction",
+      params: [input.package, input.module, input.function]
+    });
+  }
+  /**
+   * Get a structured representation of Move struct
+   */
+  async getNormalizedMoveStruct(input) {
+    return await this.transport.request({
+      method: "iota_getNormalizedMoveStruct",
+      params: [input.package, input.module, input.struct]
+    });
+  }
+  /**
+   * Get all objects owned by an address
+   */
+  async getOwnedObjects(input) {
+    if (!input.owner || !isValidIotaAddress$1(normalizeIotaAddress$1(input.owner))) {
+      throw new Error("Invalid IOTA address");
+    }
+    return await this.transport.request({
+      method: "iotax_getOwnedObjects",
+      params: [
+        input.owner,
+        {
+          filter: input.filter,
+          options: input.options
+        },
+        input.cursor,
+        input.limit
+      ]
+    });
+  }
+  /**
+   * Get details about an object
+   */
+  async getObject(input) {
+    if (!input.id || !isValidIotaObjectId(normalizeIotaObjectId$1(input.id))) {
+      throw new Error("Invalid IOTA Object id");
+    }
+    return await this.transport.request({
+      method: "iota_getObject",
+      params: [input.id, input.options]
+    });
+  }
+  async tryGetPastObject(input) {
+    return await this.transport.request({
+      method: "iota_tryGetPastObject",
+      params: [input.id, input.version, input.options]
+    });
+  }
+  /**
+   * Batch get details about a list of objects. If any of the object ids are duplicates the call will fail
+   */
+  async multiGetObjects(input) {
+    input.ids.forEach((id) => {
+      if (!id || !isValidIotaObjectId(normalizeIotaObjectId$1(id))) {
+        throw new Error(`Invalid IOTA Object id ${id}`);
+      }
+    });
+    const hasDuplicates = input.ids.length !== new Set(input.ids).size;
+    if (hasDuplicates) {
+      throw new Error(`Duplicate object ids in batch call ${input.ids}`);
+    }
+    return await this.transport.request({
+      method: "iota_multiGetObjects",
+      params: [input.ids, input.options]
+    });
+  }
+  /**
+   * Get transaction blocks for a given query criteria
+   */
+  async queryTransactionBlocks(input) {
+    return await this.transport.request({
+      method: "iotax_queryTransactionBlocks",
+      params: [
+        {
+          filter: input.filter,
+          options: input.options
+        },
+        input.cursor,
+        input.limit,
+        (input.order || "descending") === "descending"
+      ]
+    });
+  }
+  async getTransactionBlock(input) {
+    if (!isValidTransactionDigest(input.digest)) {
+      throw new Error("Invalid Transaction digest");
+    }
+    return await this.transport.request({
+      method: "iota_getTransactionBlock",
+      params: [input.digest, input.options]
+    });
+  }
+  async multiGetTransactionBlocks(input) {
+    input.digests.forEach((d) => {
+      if (!isValidTransactionDigest(d)) {
+        throw new Error(`Invalid Transaction digest ${d}`);
+      }
+    });
+    const hasDuplicates = input.digests.length !== new Set(input.digests).size;
+    if (hasDuplicates) {
+      throw new Error(`Duplicate digests in batch call ${input.digests}`);
+    }
+    return await this.transport.request({
+      method: "iota_multiGetTransactionBlocks",
+      params: [input.digests, input.options]
+    });
+  }
+  async executeTransactionBlock({
+    transactionBlock,
+    signature,
+    options
+  }) {
+    const result = await this.transport.request({
+      method: "iota_executeTransactionBlock",
+      params: [
+        typeof transactionBlock === "string" ? transactionBlock : toB64$1(transactionBlock),
+        Array.isArray(signature) ? signature : [signature],
+        options
+      ]
+    });
+    return result;
+  }
+  async signAndExecuteTransaction({
+    transaction,
+    signer,
+    ...input
+  }) {
+    let transactionBytes;
+    if (transaction instanceof Uint8Array) {
+      transactionBytes = transaction;
+    } else {
+      transaction.setSenderIfNotSet(signer.toIotaAddress());
+      transactionBytes = await transaction.build({ client: this });
+    }
+    const { signature, bytes } = await signer.signTransaction(transactionBytes);
+    return this.executeTransactionBlock({
+      transactionBlock: bytes,
+      signature,
+      ...input
+    });
+  }
+  /**
+   * Get total number of transactions
+   */
+  async getTotalTransactionBlocks() {
+    const resp = await this.transport.request({
+      method: "iota_getTotalTransactionBlocks",
+      params: []
+    });
+    return BigInt(resp);
+  }
+  /**
+   * Getting the reference gas price for the network
+   */
+  async getReferenceGasPrice() {
+    const resp = await this.transport.request({
+      method: "iotax_getReferenceGasPrice",
+      params: []
+    });
+    return BigInt(resp);
+  }
+  /**
+   * Return the delegated stakes for an address
+   */
+  async getStakes(input) {
+    if (!input.owner || !isValidIotaAddress$1(normalizeIotaAddress$1(input.owner))) {
+      throw new Error("Invalid IOTA address");
+    }
+    return await this.transport.request({ method: "iotax_getStakes", params: [input.owner] });
+  }
+  /**
+   * Return the timelocked delegated stakes for an address
+   */
+  async getTimelockedStakes(input) {
+    if (!input.owner || !isValidIotaAddress$1(normalizeIotaAddress$1(input.owner))) {
+      throw new Error("Invalid IOTA address");
+    }
+    return await this.transport.request({
+      method: "iotax_getTimelockedStakes",
+      params: [input.owner]
+    });
+  }
+  /**
+   * Return the delegated stakes queried by id.
+   */
+  async getStakesByIds(input) {
+    input.stakedIotaIds.forEach((id) => {
+      if (!id || !isValidIotaObjectId(normalizeIotaObjectId$1(id))) {
+        throw new Error(`Invalid IOTA Stake id ${id}`);
+      }
+    });
+    return await this.transport.request({
+      method: "iotax_getStakesByIds",
+      params: [input.stakedIotaIds]
+    });
+  }
+  /**
+   * Return the timelocked delegated stakes queried by id.
+   */
+  async getTimelockedStakesByIds(input) {
+    input.timelockedStakedIotaIds.forEach((id) => {
+      if (!id || !isValidIotaObjectId(normalizeIotaObjectId$1(id))) {
+        throw new Error(`Invalid IOTA Timelocked Stake id ${id}`);
+      }
+    });
+    return await this.transport.request({
+      method: "iotax_getTimelockedStakesByIds",
+      params: [input.timelockedStakedIotaIds]
+    });
+  }
+  /**
+   * Return the latest IOTA system state object on networks supporting protocol version `< 5`.
+   * These are networks with node software release version `< 0.11`.
+   * @deprecated Use `getLatestIotaSystemState` instead.
+   */
+  async getLatestIotaSystemStateV1() {
+    return await this.transport.request({
+      method: "iotax_getLatestIotaSystemState",
+      params: []
+    });
+  }
+  /**
+   * Return the latest IOTA system state object on networks supporting protocol version `>= 5`.
+   * These are networks with node software release version `>= 0.11`.
+   *
+   * You probably want to use `getLatestIotaSystemState` instead to prevent issues with future deprecations
+   * or in case the node does not support protocol version `>= 5`.
+   */
+  async getLatestIotaSystemStateV2() {
+    return await this.transport.request({
+      method: "iotax_getLatestIotaSystemStateV2",
+      params: []
+    });
+  }
+  /**
+   * Return the latest supported IOTA system state object.
+   *
+   * This returns a backwards-compatible system state object that dynamically uses the V1 or V2
+   * depending on the protocol version supported by the node. This method will continue to be supported
+   * as more protocol versions are released with changes to the system state.
+   *
+   * This is quite useful in case your app does not know in advance what node is it going to be using,
+   * this way you as developer dont need to handle each possible system state variant,
+   * this is already handled by this method.
+   */
+  async getLatestIotaSystemState() {
+    const protocolConfig = await this.getProtocolConfig();
+    const isV2Supported = Number(protocolConfig.maxSupportedProtocolVersion) >= 5;
+    const iotaSystemStateSummary = isV2Supported ? await this.getLatestIotaSystemStateV2() : {
+      V1: await this.getLatestIotaSystemStateV1()
+    };
+    return "V2" in iotaSystemStateSummary ? {
+      ...iotaSystemStateSummary.V2,
+      committeeMembers: iotaSystemStateSummary.V2.committeeMembers.map(
+        (committeeMemberIndex) => iotaSystemStateSummary.V2.activeValidators[Number(committeeMemberIndex)]
+      )
+    } : {
+      ...iotaSystemStateSummary.V1,
+      committeeMembers: iotaSystemStateSummary.V1.activeValidators,
+      safeModeComputationCharges: iotaSystemStateSummary.V1.safeModeComputationRewards,
+      safeModeComputationChargesBurned: iotaSystemStateSummary.V1.safeModeComputationRewards
+    };
+  }
+  /**
+   * Get events for a given query criteria
+   */
+  async queryEvents(input) {
+    return await this.transport.request({
+      method: "iotax_queryEvents",
+      params: [
+        input.query,
+        input.cursor,
+        input.limit,
+        (input.order || "descending") === "descending"
+      ]
+    });
+  }
+  /**
+   * Subscribe to get notifications whenever an event matching the filter occurs
+   *
+   * @deprecated
+   */
+  async subscribeEvent(input) {
+    return this.transport.subscribe({
+      method: "iotax_subscribeEvent",
+      unsubscribe: "iotax_unsubscribeEvent",
+      params: [input.filter],
+      onMessage: input.onMessage
+    });
+  }
+  /**
+   * @deprecated
+   */
+  async subscribeTransaction(input) {
+    return this.transport.subscribe({
+      method: "iotax_subscribeTransaction",
+      unsubscribe: "iotax_unsubscribeTransaction",
+      params: [input.filter],
+      onMessage: input.onMessage
+    });
+  }
+  /**
+   * Runs the transaction block in dev-inspect mode. Which allows for nearly any
+   * transaction (or Move call) with any arguments. Detailed results are
+   * provided, including both the transaction effects and any return values.
+   */
+  async devInspectTransactionBlock(input) {
+    var _a2;
+    let devInspectTxBytes;
+    if (isTransaction(input.transactionBlock)) {
+      input.transactionBlock.setSenderIfNotSet(input.sender);
+      devInspectTxBytes = toB64$1(
+        await input.transactionBlock.build({
+          client: this,
+          onlyTransactionKind: true
+        })
+      );
+    } else if (typeof input.transactionBlock === "string") {
+      devInspectTxBytes = input.transactionBlock;
+    } else if (input.transactionBlock instanceof Uint8Array) {
+      devInspectTxBytes = toB64$1(input.transactionBlock);
+    } else {
+      throw new Error("Unknown transaction block format.");
+    }
+    return await this.transport.request({
+      method: "iota_devInspectTransactionBlock",
+      params: [input.sender, devInspectTxBytes, (_a2 = input.gasPrice) == null ? void 0 : _a2.toString(), input.epoch]
+    });
+  }
+  /**
+   * Dry run a transaction block and return the result.
+   */
+  async dryRunTransactionBlock(input) {
+    return await this.transport.request({
+      method: "iota_dryRunTransactionBlock",
+      params: [
+        typeof input.transactionBlock === "string" ? input.transactionBlock : toB64$1(input.transactionBlock)
+      ]
+    });
+  }
+  /**
+   * Return the list of dynamic field objects owned by an object
+   */
+  async getDynamicFields(input) {
+    if (!input.parentId || !isValidIotaObjectId(normalizeIotaObjectId$1(input.parentId))) {
+      throw new Error("Invalid IOTA Object id");
+    }
+    return await this.transport.request({
+      method: "iotax_getDynamicFields",
+      params: [input.parentId, input.cursor, input.limit]
+    });
+  }
+  /**
+   * Return the dynamic field object information for a specified object
+   */
+  async getDynamicFieldObject(input) {
+    return await this.transport.request({
+      method: "iotax_getDynamicFieldObject",
+      params: [input.parentId, input.name]
+    });
+  }
+  /**
+   * Return the dynamic field object information for a specified object with content options.
+   */
+  async getDynamicFieldObjectV2(input) {
+    return await this.transport.request({
+      method: "iotax_getDynamicFieldObjectV2",
+      params: [input.parentObjectId, input.name]
+    });
+  }
+  /**
+   * Get the sequence number of the latest checkpoint that has been executed
+   */
+  async getLatestCheckpointSequenceNumber() {
+    const resp = await this.transport.request({
+      method: "iota_getLatestCheckpointSequenceNumber",
+      params: []
+    });
+    return String(resp);
+  }
+  /**
+   * Returns information about a given checkpoint
+   */
+  async getCheckpoint(input) {
+    return await this.transport.request({ method: "iota_getCheckpoint", params: [input.id] });
+  }
+  /**
+   * Returns historical checkpoints paginated
+   */
+  async getCheckpoints(input) {
+    return await this.transport.request({
+      method: "iota_getCheckpoints",
+      params: [input.cursor, input == null ? void 0 : input.limit, input.descendingOrder]
+    });
+  }
+  /**
+   * Return the committee information for the asked epoch
+   */
+  async getCommitteeInfo(input) {
+    return await this.transport.request({
+      method: "iotax_getCommitteeInfo",
+      params: [input == null ? void 0 : input.epoch]
+    });
+  }
+  async getNetworkMetrics() {
+    return await this.transport.request({ method: "iotax_getNetworkMetrics", params: [] });
+  }
+  async getAddressMetrics() {
+    return await this.transport.request({
+      method: "iotax_getLatestAddressMetrics",
+      params: []
+    });
+  }
+  async getEpochMetrics(input) {
+    return await this.transport.request({
+      method: "iotax_getEpochMetrics",
+      params: [input == null ? void 0 : input.cursor, input == null ? void 0 : input.limit, input == null ? void 0 : input.descendingOrder]
+    });
+  }
+  async getAllEpochAddressMetrics(input) {
+    return await this.transport.request({
+      method: "iotax_getAllEpochAddressMetrics",
+      params: [input == null ? void 0 : input.descendingOrder]
+    });
+  }
+  async getCheckpointAddressMetrics(input) {
+    return await this.transport.request({
+      method: "iotax_getCheckpointAddressMetrics",
+      params: [input == null ? void 0 : input.checkpoint]
+    });
+  }
+  /**
+   * Return the committee information for the asked epoch
+   */
+  async getEpochs(input) {
+    return await this.transport.request({
+      method: "iotax_getEpochs",
+      params: [input == null ? void 0 : input.cursor, input == null ? void 0 : input.limit, input == null ? void 0 : input.descendingOrder]
+    });
+  }
+  /**
+   * Returns list of top move calls by usage
+   */
+  async getMoveCallMetrics() {
+    return await this.transport.request({ method: "iotax_getMoveCallMetrics", params: [] });
+  }
+  /**
+   * Return the committee information for the asked epoch
+   */
+  async getCurrentEpoch() {
+    return await this.transport.request({ method: "iotax_getCurrentEpoch", params: [] });
+  }
+  async getTotalTransactions() {
+    const resp = await this.transport.request({
+      method: "iotax_getTotalTransactions",
+      params: []
+    });
+    return String(resp);
+  }
+  /**
+   * Return the Validators APYs
+   */
+  async getValidatorsApy() {
+    return await this.transport.request({ method: "iotax_getValidatorsApy", params: [] });
+  }
+  async getChainIdentifier() {
+    return await this.transport.request({
+      method: "iota_getChainIdentifier",
+      params: []
+    });
+  }
+  async getProtocolConfig(input) {
+    return await this.transport.request({
+      method: "iota_getProtocolConfig",
+      params: [input == null ? void 0 : input.version]
+    });
+  }
+  /**
+   * Returns the participation metrics (total unique addresses with delegated stake in the current epoch).
+   */
+  async getParticipationMetrics() {
+    return await this.transport.request({
+      method: "iotax_getParticipationMetrics",
+      params: []
+    });
+  }
+  /**
+   * Wait for a transaction block result to be available over the API.
+   * This can be used in conjunction with `executeTransactionBlock` to wait for the transaction to
+   * be available via the API.
+   * This currently polls the `getTransactionBlock` API to check for the transaction.
+   */
+  async waitForTransaction({
+    signal,
+    timeout = 60 * 1e3,
+    pollInterval = 2 * 1e3,
+    ...input
+  }) {
+    const timeoutSignal = AbortSignal.timeout(timeout);
+    const timeoutPromise = new Promise((_, reject) => {
+      timeoutSignal.addEventListener("abort", () => reject(timeoutSignal.reason));
+    });
+    timeoutPromise.catch(() => {
+    });
+    while (!timeoutSignal.aborted) {
+      signal == null ? void 0 : signal.throwIfAborted();
+      try {
+        return await this.getTransactionBlock(input);
+      } catch (e) {
+        await Promise.race([
+          new Promise((resolve) => setTimeout(resolve, pollInterval)),
+          timeoutPromise
+        ]);
+      }
+    }
+    timeoutSignal.throwIfAborted();
+    throw new Error("Unexpected error while waiting for transaction block.");
+  }
+  /**
+   * Return the resolved record for the given name.
+   */
+  async iotaNamesLookup(input) {
+    return await this.transport.request({
+      method: "iotax_iotaNamesLookup",
+      params: [input.name]
+    });
+  }
+  /**
+   * Return the resolved name for the given address.
+   */
+  async iotaNamesReverseLookup(input) {
+    return await this.transport.request({
+      method: "iotax_iotaNamesReverseLookup",
+      params: [input.address]
+    });
+  }
+  /**
+   * Find all registration NFTs for the given address.
+   */
+  async iotaNamesFindAllRegistrationNFTs(input) {
+    return await this.transport.request({
+      method: "iotax_iotaNamesFindAllRegistrationNFTs",
+      params: [input.address, input.cursor, input.limit, input.options]
+    });
   }
 }
 let previousInitializedNodeUrl = "";
@@ -23227,15 +27387,17 @@ function getWallets() {
   return wallets;
 }
 function register(...wallets2) {
+  var _a2;
   wallets2 = wallets2.filter((wallet) => !registeredWalletsSet.has(wallet));
   if (!wallets2.length)
     return () => {
     };
   wallets2.forEach((wallet) => addRegisteredWallet(wallet));
-  listeners["register"]?.forEach((listener) => guard(() => listener(...wallets2)));
+  (_a2 = listeners["register"]) == null ? void 0 : _a2.forEach((listener) => guard(() => listener(...wallets2)));
   return function unregister() {
+    var _a3;
     wallets2.forEach((wallet) => removeRegisteredWallet(wallet));
-    listeners["unregister"]?.forEach((listener) => guard(() => listener(...wallets2)));
+    (_a3 = listeners["unregister"]) == null ? void 0 : _a3.forEach((listener) => guard(() => listener(...wallets2)));
   };
 }
 let cachedWalletsArray;
@@ -23246,9 +27408,11 @@ function get() {
   return cachedWalletsArray;
 }
 function on(event2, listener) {
-  listeners[event2]?.push(listener) || (listeners[event2] = [listener]);
+  var _a2;
+  ((_a2 = listeners[event2]) == null ? void 0 : _a2.push(listener)) || (listeners[event2] = [listener]);
   return function off() {
-    listeners[event2] = listeners[event2]?.filter((existingListener) => listener !== existingListener);
+    var _a3;
+    listeners[event2] = (_a3 = listeners[event2]) == null ? void 0 : _a3.filter((existingListener) => listener !== existingListener);
   };
 }
 function guard(callback) {
@@ -23423,8 +27587,8 @@ var root_1$1 = /* @__PURE__ */ from_html(`<option class="svelte-1b5880f"> </opti
 var on_click = () => connectWallet(false);
 var root_2$1 = /* @__PURE__ */ from_html(`<button class="connect-btn svelte-1b5880f">Connect</button>`);
 var on_input = (__1, foreignAddress) => {
-  console.log("Input changed:", get$2(foreignAddress), "Valid:", isValidIotaAddress(get$2(foreignAddress)));
-  if (isValidIotaAddress(get$2(foreignAddress))) {
+  console.log("Input changed:", get$2(foreignAddress), "Valid:", isValidIotaAddress$1(get$2(foreignAddress)));
+  if (isValidIotaAddress$1(get$2(foreignAddress))) {
     updateSelectedSignerAccounts(get$2(foreignAddress));
   }
 };
@@ -23447,7 +27611,7 @@ function Signer2($$anchor, $$props) {
   });
   legacy_pre_effect(() => get$2(foreignAddress), () => {
     set(isAddressValid, (() => {
-      return isValidIotaAddress(get$2(foreignAddress));
+      return isValidIotaAddress$1(get$2(foreignAddress));
     })());
   });
   legacy_pre_effect_reset();
@@ -23600,7 +27764,7 @@ function Tabs($$anchor, $$props) {
         var a = root_2();
         var button = child(a);
         var text_1 = child(button);
-        action(a, ($$node) => link?.($$node));
+        action(a, ($$node) => link == null ? void 0 : link($$node));
         effect(() => event("click", a, () => loadTab(get$2(item).route)));
         template_effect(() => {
           set_attribute(a, "href", (get$2(item), untrack(() => get$2(item).route)));
@@ -23646,24 +27810,24 @@ var root = /* @__PURE__ */ from_html(`<main class="svelte-1j87mpa"><header class
 function App($$anchor, $$props) {
   push($$props, false);
   const pageImports = {
-    IotaSystemState: () => __vitePreload(() => import("./IotaSystemState-BFO-B-aE.js"), true ? __vite__mapDeps([0,1,2,3,4,5,6]) : void 0),
-    PTBs: () => __vitePreload(() => import("./PTBs-Chs1sdXf.js"), true ? __vite__mapDeps([7,8,9,2,3,5,10,11,12,13]) : void 0),
-    DynamicFields: () => __vitePreload(() => import("./DynamicFields-Own8MJD4.js"), true ? __vite__mapDeps([14,1,2,3,4,12]) : void 0),
-    StakingRewards: () => __vitePreload(() => import("./StakingRewards-DwHCMX81.js"), true ? __vite__mapDeps([15,1,2,3,4,8,16,11,12,17]) : void 0),
-    MultiAccountView: () => __vitePreload(() => import("./MultiAccountView-CfPcY79l.js"), true ? __vite__mapDeps([18,9,2,3,5,10,19]) : void 0),
-    AccountsList: () => __vitePreload(() => import("./AccountsList-BbDIRq2p.js"), true ? __vite__mapDeps([20,21]) : void 0),
-    Keystone: () => __vitePreload(() => import("./Keystone-CwoTaTD4.js"), true ? __vite__mapDeps([22,8,23,16,9,2,3,5,10,24]) : void 0),
-    LedgerNano: () => __vitePreload(() => import("./LedgerNano-ChfmHGx_.js"), true ? __vite__mapDeps([25,23,1,2,3,4,26]) : void 0),
-    PublishData: () => __vitePreload(() => import("./PublishData-DdzSvrkC.js"), true ? __vite__mapDeps([27,9,2,3,5,10,28,6]) : void 0),
-    SplitMergeCoins: () => __vitePreload(() => import("./SplitMergeCoins-C2dKIt6U.js"), true ? __vite__mapDeps([29,1,2,3,4,9,5,10,28,6]) : void 0),
-    BulkTransfer: () => __vitePreload(() => import("./BulkTransfer-BUD04hfp.js"), true ? __vite__mapDeps([30,9,2,3,5,10,28,31]) : void 0),
-    Stake: () => __vitePreload(() => import("./Stake-D1tMFHZV.js"), true ? __vite__mapDeps([32,1,2,3,4,5,28,6]) : void 0),
-    Faucet: () => __vitePreload(() => import("./Faucet-C04NPji_.js"), true ? __vite__mapDeps([33,1,2,3,4,6]) : void 0),
-    Converter: () => __vitePreload(() => import("./Converter-CLCFumjy.js"), true ? __vite__mapDeps([34,8,9,2,3,5,10,35]) : void 0),
-    TextAnalyzer: () => __vitePreload(() => import("./TextAnalyzer-DBhCDSD1.js"), true ? __vite__mapDeps([36,37]) : void 0),
-    Ed25519AddressGeneration: () => __vitePreload(() => import("./Ed25519AddressGeneration-CpWXq7Kw.js"), true ? __vite__mapDeps([38,39]) : void 0),
-    IotaNames: () => __vitePreload(() => import("./IotaNames-njWugiTs.js"), true ? __vite__mapDeps([40,12,9,2,3,5,10,28,6]) : void 0),
-    Settings: () => __vitePreload(() => import("./Settings-o5qtWb91.js"), true ? __vite__mapDeps([41,42]) : void 0)
+    IotaSystemState: () => __vitePreload(() => import("./IotaSystemState-BDsfdAo4.js"), true ? __vite__mapDeps([0,1,2,3,4,5,6]) : void 0),
+    PTBs: () => __vitePreload(() => import("./PTBs-CD0V08j3.js"), true ? __vite__mapDeps([7,8,9,2,3,5,10,11,12,13]) : void 0),
+    DynamicFields: () => __vitePreload(() => import("./DynamicFields-RLnlU-Ur.js"), true ? __vite__mapDeps([14,1,2,3,4,12]) : void 0),
+    StakingRewards: () => __vitePreload(() => import("./StakingRewards-BJMGsVNf.js"), true ? __vite__mapDeps([15,1,2,3,4,8,16,11,12,17]) : void 0),
+    MultiAccountView: () => __vitePreload(() => import("./MultiAccountView-Bkkh03bm.js"), true ? __vite__mapDeps([18,9,2,3,5,10,19]) : void 0),
+    AccountsList: () => __vitePreload(() => import("./AccountsList-DoSjUJu-.js"), true ? __vite__mapDeps([20,21]) : void 0),
+    Keystone: () => __vitePreload(() => import("./Keystone-1iyHUcZv.js"), true ? __vite__mapDeps([22,8,23,16,9,2,3,5,10,24]) : void 0),
+    LedgerNano: () => __vitePreload(() => import("./LedgerNano-D4UNpY_1.js"), true ? __vite__mapDeps([25,23,1,2,3,4,26]) : void 0),
+    PublishData: () => __vitePreload(() => import("./PublishData-CCA2s9u0.js"), true ? __vite__mapDeps([27,9,2,3,5,10,28,6]) : void 0),
+    SplitMergeCoins: () => __vitePreload(() => import("./SplitMergeCoins-D7AqSPhK.js"), true ? __vite__mapDeps([29,1,2,3,4,9,5,10,28,6]) : void 0),
+    BulkTransfer: () => __vitePreload(() => import("./BulkTransfer-DV3KZ8Jo.js"), true ? __vite__mapDeps([30,9,2,3,5,10,28,31]) : void 0),
+    Stake: () => __vitePreload(() => import("./Stake-QfdGM22L.js"), true ? __vite__mapDeps([32,1,2,3,4,5,28,6]) : void 0),
+    Faucet: () => __vitePreload(() => import("./Faucet-BPlTxnQ1.js"), true ? __vite__mapDeps([33,1,2,3,4,6]) : void 0),
+    Converter: () => __vitePreload(() => import("./Converter-BfT4iSfz.js"), true ? __vite__mapDeps([34,8,9,2,3,5,10,35]) : void 0),
+    TextAnalyzer: () => __vitePreload(() => import("./TextAnalyzer-CsUrlsw8.js"), true ? __vite__mapDeps([36,37]) : void 0),
+    Ed25519AddressGeneration: () => __vitePreload(() => import("./Ed25519AddressGeneration-Cs8mXNrG.js"), true ? __vite__mapDeps([38,39]) : void 0),
+    IotaNames: () => __vitePreload(() => import("./IotaNames-CENZz8ey.js"), true ? __vite__mapDeps([40,12,9,2,3,5,10,28,6]) : void 0),
+    Settings: () => __vitePreload(() => import("./Settings-Blv9JWZ4.js"), true ? __vite__mapDeps([41,42]) : void 0)
   };
   ({
     "/": wrap$1({ asyncComponent: pageImports["IotaSystemState"] }),
@@ -23808,9 +27972,9 @@ export {
   set_attribute as J,
   comment as K,
   set_class as L,
-  iotaBcs as M,
-  toB64 as N,
-  fromB64 as O,
+  iotaBcs$1 as M,
+  toB64$1 as N,
+  fromB64$1 as O,
   blake2b$1 as P,
   bytesToHex as Q,
   proxy as R,
@@ -23825,14 +27989,14 @@ export {
   effect as _,
   invalidate_inner_signals as a,
   action as a0,
-  bcs as a1,
+  bcs$1 as a1,
   activeAddress as a2,
   iota_accounts as a3,
   iota_wallets as a4,
   Transaction as a5,
-  isValidIotaAddress as a6,
+  isValidIotaAddress$1 as a6,
   clsx as a7,
-  toHEX as a8,
+  toHEX$1 as a8,
   sha256 as a9,
   entropyToMnemonic as aA,
   mnemonicToEntropy as aB,
@@ -23862,7 +28026,7 @@ export {
   createEventDispatcher as ab,
   tick as ac,
   base58$1 as ad,
-  fromHEX as ae,
+  fromHEX$1 as ae,
   Ed25519PublicKey as af,
   messageWithIntent as ag,
   get_descriptor as ah,
@@ -23875,9 +28039,9 @@ export {
   set_value as ao,
   IOTA_SYSTEM_STATE_OBJECT_ID as ap,
   sharedClientConfig as aq,
-  TransactionDataBuilder as ar,
-  fromB58 as as,
-  toB58 as at,
+  TransactionDataBuilder2 as ar,
+  fromB58$1 as as,
+  toB58$1 as at,
   render_effect as au,
   queue_micro_task as av,
   STATE_SYMBOL as aw,

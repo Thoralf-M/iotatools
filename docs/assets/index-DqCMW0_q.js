@@ -1,4 +1,4 @@
-import { aG as print } from "/iota-utils/assets/index-c15_P6cg.js";
+import { aG as print } from "/iota-utils/assets/index-CMiBu1ib.js";
 var __typeError = (msg) => {
   throw TypeError(msg);
 };
@@ -583,7 +583,7 @@ function initGraphQLTada() {
     }
     var d;
     if ((d = o2[0].kind === e$1.FRAGMENT_DEFINITION) && o2[0].directives) {
-      o2[0].directives = o2[0].directives.filter(((r) => "_unmask" !== r.name.value));
+      o2[0].directives = o2[0].directives.filter((r) => "_unmask" !== r.name.value);
     }
     var c;
     return {
@@ -591,7 +591,7 @@ function initGraphQLTada() {
       definitions: o2,
       get loc() {
         if (!c && d) {
-          var r = t2 + (function concatLocSources(r2) {
+          var r = t2 + function concatLocSources(r2) {
             try {
               a++;
               var n2 = "";
@@ -610,7 +610,7 @@ function initGraphQLTada() {
                 e.clear();
               }
             }
-          })(i2 || []);
+          }(i2 || []);
           return {
             start: 0,
             end: r.length,

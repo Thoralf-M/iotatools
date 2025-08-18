@@ -1,8 +1,8 @@
-import { p as push, w as legacy_pre_effect, g as get, m as mutable_source, j as set, y as legacy_pre_effect_reset, i as init, f as from_html, s as sibling, c as child, W as store_get, b as if_block, C as untrack, t as template_effect, d as set_text, L as set_class, E as bind_value, k as append, l as pop, V as setup_stores, a2 as activeAddress, a6 as isValidIotaAddress, z as each, A as index, n as getClient, a5 as Transaction, Z as delegate, an as set_selected } from "/iota-utils/assets/index-c15_P6cg.js";
-import { T as TransactionView } from "/iota-utils/assets/TransactionView-CYEOPiud.js";
-import { e as executeTransaction } from "/iota-utils/assets/transaction-execution-CSM3USGR.js";
-import "/iota-utils/assets/transaction-view-DMvVzL7-.js";
-import "/iota-utils/assets/iota-nano-conversion-Bp8husbX.js";
+import { p as push, w as legacy_pre_effect, g as get, m as mutable_source, j as set, y as legacy_pre_effect_reset, i as init, f as from_html, s as sibling, c as child, W as store_get, b as if_block, C as untrack, t as template_effect, d as set_text, L as set_class, E as bind_value, k as append, l as pop, V as setup_stores, a2 as activeAddress, a6 as isValidIotaAddress, z as each, A as index, n as getClient, a5 as Transaction, Z as delegate, an as set_selected } from "/iota-utils/assets/index-CMiBu1ib.js";
+import { T as TransactionView } from "/iota-utils/assets/TransactionView-CBaSEL_v.js";
+import { e as executeTransaction } from "/iota-utils/assets/transaction-execution-CAZkCFfJ.js";
+import "/iota-utils/assets/transaction-view-gcIY95EC.js";
+import "/iota-utils/assets/iota-nano-conversion-xJ_sof4-.js";
 const fetchAvailableCoins = async (_, fetchingCoins, fetchError, $activeAddress, availableCoins, extractSymbolFromCoinType) => {
   try {
     set(fetchingCoins, true);
@@ -23,6 +23,7 @@ const fetchAvailableCoins = async (_, fetchingCoins, fetchError, $activeAddress,
   }
 };
 const executeBulkTransfer = async (__1, errorMsg, parseTransfers, transfersJson, coinSymbol, coinType, $activeAddress, value) => {
+  var _a;
   try {
     set(errorMsg, "");
     let transfers;
@@ -74,7 +75,7 @@ const executeBulkTransfer = async (__1, errorMsg, parseTransfers, transfersJson,
       if (selectedAmount < totalTransferAmount) {
         throw new Error(`Not enough ${get(coinSymbol)} coins available for transfer. Available: ${selectedAmount}, Required: ${totalTransferAmount}`);
       }
-      const coinOne = txb.object(selectedCoins.shift()?.coinObjectId);
+      const coinOne = txb.object((_a = selectedCoins.shift()) == null ? void 0 : _a.coinObjectId);
       if (selectedCoins.length > 0) {
         txb.mergeCoins(coinOne, selectedCoins.map((coin) => txb.object(coin.coinObjectId)));
       }
