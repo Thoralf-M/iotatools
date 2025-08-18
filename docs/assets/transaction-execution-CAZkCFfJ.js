@@ -1,4 +1,4 @@
-import { n as getClient, aH as get, aI as sharedTransactionExecution, a2 as activeAddress, a4 as iota_wallets, aJ as TransactionExecution, N as toB64 } from "/iota-utils/assets/index-c15_P6cg.js";
+import { n as getClient, aH as get, aI as sharedTransactionExecution, a2 as activeAddress, a4 as iota_wallets, aJ as TransactionExecution, N as toB64 } from "/iota-utils/assets/index-CMiBu1ib.js";
 async function executeTransaction(transaction, options = {
   showEffects: true,
   showObjectChanges: true,

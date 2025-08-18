@@ -1,8 +1,11 @@
-import { M as iotaBcs, O as fromB64, U as getSelectedNetworkConfig } from "/iota-utils/assets/index-c15_P6cg.js";
-import { g as graphql, I as IotaGraphQLClient } from "/iota-utils/assets/index-BUk6joPt.js";
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+import { M as iotaBcs, O as fromB64, U as getSelectedNetworkConfig } from "/iota-utils/assets/index-CMiBu1ib.js";
+import { g as graphql, I as IotaGraphQLClient } from "/iota-utils/assets/index-DqCMW0_q.js";
 class TransactionDataProcessor {
-  transactionData;
   constructor() {
+    __publicField(this, "transactionData");
     this.transactionData = this.createEmptyTransactionData();
   }
   createEmptyTransactionData() {
@@ -29,12 +32,13 @@ class TransactionDataProcessor {
     }
   }
   processTransactionBlock(tx) {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k;
     this.transactionData.totalPTBs++;
-    if (tx.effects?.status !== "SUCCESS") {
+    if (((_a = tx.effects) == null ? void 0 : _a.status) !== "SUCCESS") {
       this.transactionData.failedPTBs++;
     }
     let decodedData = null;
-    if (tx.effects?.transactionBlock?.bcs) {
+    if ((_c = (_b = tx.effects) == null ? void 0 : _b.transactionBlock) == null ? void 0 : _c.bcs) {
       try {
         decodedData = iotaBcs.SenderSignedData.parse(
           fromB64(tx.effects.transactionBlock.bcs)
@@ -46,8 +50,8 @@ class TransactionDataProcessor {
     if (decodedData) {
       tx.decodedBCS = decodedData;
     }
-    const checkpointSeq = tx.effects?.checkpoint?.sequenceNumber;
-    const checkpointTimestamp = tx.effects?.checkpoint?.timestamp;
+    const checkpointSeq = (_e = (_d = tx.effects) == null ? void 0 : _d.checkpoint) == null ? void 0 : _e.sequenceNumber;
+    const checkpointTimestamp = (_g = (_f = tx.effects) == null ? void 0 : _f.checkpoint) == null ? void 0 : _g.timestamp;
     if (checkpointSeq !== void 0 && checkpointSeq !== null && checkpointTimestamp) {
       if (!this.transactionData.checkpointData.has(checkpointSeq)) {
         this.transactionData.checkpointData.set(checkpointSeq, {
@@ -63,9 +67,9 @@ class TransactionDataProcessor {
       this.transactionData.transactionsByCheckpoint.get(checkpointSeq).push(tx);
     }
     let senderAddress = null;
-    if (tx.sender?.address) {
+    if ((_h = tx.sender) == null ? void 0 : _h.address) {
       senderAddress = tx.sender.address;
-    } else if (decodedData?.intentMessage?.value?.V1?.sender) {
+    } else if ((_k = (_j = (_i = decodedData == null ? void 0 : decodedData.intentMessage) == null ? void 0 : _i.value) == null ? void 0 : _j.V1) == null ? void 0 : _k.sender) {
       senderAddress = decodedData.intentMessage.value.V1.sender;
     }
     if (senderAddress) {
@@ -78,8 +82,9 @@ class TransactionDataProcessor {
     this.transactionData.rawData.push(tx);
   }
   extractPTBCommands(decodedData) {
+    var _a, _b, _c, _d, _e;
     let ptbCommands = [];
-    if (decodedData?.intentMessage?.value?.V1?.kind?.ProgrammableTransaction?.commands) {
+    if ((_e = (_d = (_c = (_b = (_a = decodedData == null ? void 0 : decodedData.intentMessage) == null ? void 0 : _a.value) == null ? void 0 : _b.V1) == null ? void 0 : _c.kind) == null ? void 0 : _d.ProgrammableTransaction) == null ? void 0 : _e.commands) {
       ptbCommands = decodedData.intentMessage.value.V1.kind.ProgrammableTransaction.commands;
     }
     for (const command of ptbCommands) {
@@ -99,20 +104,21 @@ class TransactionDataProcessor {
     }
   }
   extractPublishedPackages(tx, senderAddress) {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
     let ptbCommands = [];
     const decodedData = tx.decodedBCS;
-    if (decodedData?.intentMessage?.value?.V1?.kind?.ProgrammableTransaction?.commands) {
+    if ((_e = (_d = (_c = (_b = (_a = decodedData == null ? void 0 : decodedData.intentMessage) == null ? void 0 : _a.value) == null ? void 0 : _b.V1) == null ? void 0 : _c.kind) == null ? void 0 : _d.ProgrammableTransaction) == null ? void 0 : _e.commands) {
       ptbCommands = decodedData.intentMessage.value.V1.kind.ProgrammableTransaction.commands;
     }
     const hasPublishCommand = ptbCommands.some((cmd) => cmd.Publish);
     if (!hasPublishCommand || !senderAddress) {
       return;
     }
-    const objectChanges = tx.effects?.objectChanges?.nodes || [];
+    const objectChanges = ((_g = (_f = tx.effects) == null ? void 0 : _f.objectChanges) == null ? void 0 : _g.nodes) || [];
     const txId = tx.digest || "";
     for (const change of objectChanges) {
-      if (change.outputState?.asMoveObject?.contents?.json?.package) {
-        if (!change.outputState?.asMoveObject?.contents?.json?.package.startsWith("0x")) {
+      if ((_k = (_j = (_i = (_h = change.outputState) == null ? void 0 : _h.asMoveObject) == null ? void 0 : _i.contents) == null ? void 0 : _j.json) == null ? void 0 : _k.package) {
+        if (!((_o = (_n = (_m = (_l = change.outputState) == null ? void 0 : _l.asMoveObject) == null ? void 0 : _m.contents) == null ? void 0 : _n.json) == null ? void 0 : _o.package.startsWith("0x"))) {
           continue;
         }
         const packageData = change.outputState.asMoveObject.contents.json;
@@ -124,7 +130,7 @@ class TransactionDataProcessor {
         };
         this.transactionData.publishedPackages.set(packageData.package, publishedPackage);
       }
-      if (change.outputState?.asMovePackage?.modules?.nodes) {
+      if ((_r = (_q = (_p = change.outputState) == null ? void 0 : _p.asMovePackage) == null ? void 0 : _q.modules) == null ? void 0 : _r.nodes) {
         const packageId = change.address || change.idCreated;
         if (packageId && packageId.startsWith("0x")) {
           const moduleNames = change.outputState.asMovePackage.modules.nodes.map((module) => module.name).filter((name) => name);
@@ -146,10 +152,11 @@ class TransactionDataProcessor {
     }
   }
   createDisplayData(checkpointRange) {
+    var _a, _b, _c, _d, _e, _f;
     const functionMap = /* @__PURE__ */ new Map();
     for (const tx of this.transactionData.rawData) {
       let ptbCommands = [];
-      if (tx.decodedBCS?.intentMessage?.value?.V1?.kind?.ProgrammableTransaction?.commands) {
+      if ((_f = (_e = (_d = (_c = (_b = (_a = tx.decodedBCS) == null ? void 0 : _a.intentMessage) == null ? void 0 : _b.value) == null ? void 0 : _c.V1) == null ? void 0 : _d.kind) == null ? void 0 : _e.ProgrammableTransaction) == null ? void 0 : _f.commands) {
         ptbCommands = tx.decodedBCS.intentMessage.value.V1.kind.ProgrammableTransaction.commands;
       }
       for (const command of ptbCommands) {
@@ -204,14 +211,17 @@ class TransactionDataProcessor {
   getCheckpointTransactions(checkpointNum) {
     const sequenceNumber = parseInt(checkpointNum.toString());
     const transactions = this.transactionData.transactionsByCheckpoint.get(sequenceNumber) || [];
-    return transactions.map((tx) => ({
-      digest: tx.digest,
-      sender: tx.sender?.address || tx.decodedBCS?.intentMessage?.value?.V1?.sender || "Unknown",
-      gasUsed: tx.effects?.gasEffects?.gasUsed || null,
-      timestamp: tx.effects?.checkpoint?.timestamp || null,
-      effects: tx.effects || null,
-      decodedBCS: tx.decodedBCS || null
-    }));
+    return transactions.map((tx) => {
+      var _a, _b, _c, _d, _e, _f, _g, _h, _i;
+      return {
+        digest: tx.digest,
+        sender: ((_a = tx.sender) == null ? void 0 : _a.address) || ((_e = (_d = (_c = (_b = tx.decodedBCS) == null ? void 0 : _b.intentMessage) == null ? void 0 : _c.value) == null ? void 0 : _d.V1) == null ? void 0 : _e.sender) || "Unknown",
+        gasUsed: ((_g = (_f = tx.effects) == null ? void 0 : _f.gasEffects) == null ? void 0 : _g.gasUsed) || null,
+        timestamp: ((_i = (_h = tx.effects) == null ? void 0 : _h.checkpoint) == null ? void 0 : _i.timestamp) || null,
+        effects: tx.effects || null,
+        decodedBCS: tx.decodedBCS || null
+      };
+    });
   }
   calculateProgress(checkpointRange) {
     let minCheckpointSeen = null;
@@ -256,6 +266,7 @@ class GraphQLDataFetcher {
     }).query(options);
   }
   async getCurrentEpoch() {
+    var _a, _b;
     try {
       const currentEpochQuery = `query {
                 epoch {
@@ -267,7 +278,7 @@ class GraphQLDataFetcher {
         console.error("Error fetching current epoch:", result.errors);
         return null;
       }
-      const currentEpochId = result.data?.epoch?.epochId;
+      const currentEpochId = (_b = (_a = result.data) == null ? void 0 : _a.epoch) == null ? void 0 : _b.epochId;
       return currentEpochId ? currentEpochId.toString() : null;
     } catch (err) {
       console.error("Error fetching current epoch:", err);
@@ -275,6 +286,7 @@ class GraphQLDataFetcher {
     }
   }
   async getCheckpointRangeForEpoch(epochNum) {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
     const checkpointRangeQuery = `query ($epochId: UInt53!) {
             epoch(id: $epochId) {
                 checkpoints(first: 1) {
@@ -295,14 +307,15 @@ class GraphQLDataFetcher {
         `GraphQL Error: ${result.errors.map((e) => e.message).join(", ")}`
       );
     }
-    const firstCheckpoint = result.data?.epoch?.checkpoints?.nodes?.[0]?.sequenceNumber;
-    const lastCheckpoint = result.data?.epoch?.lastCheckpoints?.nodes?.[0]?.sequenceNumber;
+    const firstCheckpoint = (_e = (_d = (_c = (_b = (_a = result.data) == null ? void 0 : _a.epoch) == null ? void 0 : _b.checkpoints) == null ? void 0 : _c.nodes) == null ? void 0 : _d[0]) == null ? void 0 : _e.sequenceNumber;
+    const lastCheckpoint = (_j = (_i = (_h = (_g = (_f = result.data) == null ? void 0 : _f.epoch) == null ? void 0 : _g.lastCheckpoints) == null ? void 0 : _h.nodes) == null ? void 0 : _i[0]) == null ? void 0 : _j.sequenceNumber;
     if (!firstCheckpoint || !lastCheckpoint) {
       throw new Error(`Could not find checkpoint range for epoch ${epochNum}`);
     }
     return { first: firstCheckpoint, last: lastCheckpoint };
   }
   async fetchTransactionBatch(checkpointRange, batchSize = 50, cursor, inputObject, functionFilter) {
+    var _a, _b, _c, _d, _e, _f, _g, _h;
     const cursorSection = cursor ? `, after: "${cursor}"` : "";
     const filterParts = [
       `afterCheckpoint: ${checkpointRange.first}`,
@@ -410,9 +423,9 @@ class GraphQLDataFetcher {
         `GraphQL Error: ${result.errors.map((e) => e.message).join(", ")}`
       );
     }
-    const transactionBlocks = result.data?.transactionBlocks?.nodes || [];
-    const hasNextPage = result.data?.transactionBlocks?.pageInfo?.hasNextPage || false;
-    const endCursor = result.data?.transactionBlocks?.pageInfo?.endCursor;
+    const transactionBlocks = ((_b = (_a = result.data) == null ? void 0 : _a.transactionBlocks) == null ? void 0 : _b.nodes) || [];
+    const hasNextPage = ((_e = (_d = (_c = result.data) == null ? void 0 : _c.transactionBlocks) == null ? void 0 : _d.pageInfo) == null ? void 0 : _e.hasNextPage) || false;
+    const endCursor = (_h = (_g = (_f = result.data) == null ? void 0 : _f.transactionBlocks) == null ? void 0 : _g.pageInfo) == null ? void 0 : _h.endCursor;
     return {
       transactions: transactionBlocks,
       hasNextPage,
@@ -451,10 +464,10 @@ class GraphQLDataFetcher {
   }
 }
 class EpochPTBAnalyzer {
-  fetcher;
-  processor;
-  stopRequested = false;
   constructor() {
+    __publicField(this, "fetcher");
+    __publicField(this, "processor");
+    __publicField(this, "stopRequested", false);
     this.fetcher = new GraphQLDataFetcher();
     this.processor = new TransactionDataProcessor();
   }
@@ -474,9 +487,9 @@ class EpochPTBAnalyzer {
     return this.processor.getCheckpointTransactions(checkpointNum);
   }
   async resolveCheckpointRange(epoch, startCheckpoint, endCheckpoint) {
-    const epochStr = epoch?.toString();
-    const startCheckpointStr = startCheckpoint?.toString();
-    const endCheckpointStr = endCheckpoint?.toString();
+    const epochStr = epoch == null ? void 0 : epoch.toString();
+    const startCheckpointStr = startCheckpoint == null ? void 0 : startCheckpoint.toString();
+    const endCheckpointStr = endCheckpoint == null ? void 0 : endCheckpoint.toString();
     if (epochStr && epochStr.trim() !== "") {
       const epochNum = parseInt(epochStr.trim());
       if (isNaN(epochNum) || epochNum < 0) {

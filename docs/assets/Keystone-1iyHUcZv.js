@@ -1,1342 +1,14 @@
-import { a9 as sha256, q as getDefaultExportFromCjs, p as push, r as prop, u as onMount, g as get, m as mutable_source, o as mutate, v as onDestroy, w as legacy_pre_effect, x as deep_read_state, y as legacy_pre_effect_reset, i as init, f as from_html, G as first_child, b as if_block, s as sibling, k as append, l as pop, j as set, c as child, C as untrack, t as template_effect, d as set_text, e as event, z as each, L as set_class, $ as derived_safe_equal, A as index, aa as __vitePreload, ab as createEventDispatcher, ac as tick, I as set_style, ad as base58, ae as fromHEX, af as Ed25519PublicKey, ag as messageWithIntent, a as invalidate_inner_signals, a8 as toHEX, h as bind_select_value, E as bind_value, n as getClient, N as toB64 } from "/iota-utils/assets/index-c15_P6cg.js";
-import { b as bind_this } from "/iota-utils/assets/this-D5oa0JbG.js";
-import { b as bufferExports } from "/iota-utils/assets/index-rSD_0cGr.js";
-import { b as bind_prop } from "/iota-utils/assets/props-C8CLyeUW.js";
-import { T as TransactionView } from "/iota-utils/assets/TransactionView-CYEOPiud.js";
-import "/iota-utils/assets/transaction-view-DMvVzL7-.js";
-import "/iota-utils/assets/iota-nano-conversion-Bp8husbX.js";
-var isNumeric = /^-?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i, mathceil = Math.ceil, mathfloor = Math.floor, bignumberError = "[BigNumber Error] ", tooManyDigits = bignumberError + "Number primitive has more than 15 significant digits: ", BASE = 1e14, LOG_BASE = 14, MAX_SAFE_INTEGER = 9007199254740991, POWS_TEN = [1, 10, 100, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10, 1e11, 1e12, 1e13], SQRT_BASE = 1e7, MAX = 1e9;
-function clone(configObject) {
-  var div, convertBase, parseNumeric, P = BigNumber2.prototype = { constructor: BigNumber2, toString: null, valueOf: null }, ONE = new BigNumber2(1), DECIMAL_PLACES = 20, ROUNDING_MODE = 4, TO_EXP_NEG = -7, TO_EXP_POS = 21, MIN_EXP = -1e7, MAX_EXP = 1e7, CRYPTO = false, MODULO_MODE = 1, POW_PRECISION = 0, FORMAT = {
-    prefix: "",
-    groupSize: 3,
-    secondaryGroupSize: 0,
-    groupSeparator: ",",
-    decimalSeparator: ".",
-    fractionGroupSize: 0,
-    fractionGroupSeparator: " ",
-    // non-breaking space
-    suffix: ""
-  }, ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz", alphabetHasNormalDecimalDigits = true;
-  function BigNumber2(v, b) {
-    var alphabet, c, caseChanged, e2, i, isNum, len, str, x = this;
-    if (!(x instanceof BigNumber2)) return new BigNumber2(v, b);
-    if (b == null) {
-      if (v && v._isBigNumber === true) {
-        x.s = v.s;
-        if (!v.c || v.e > MAX_EXP) {
-          x.c = x.e = null;
-        } else if (v.e < MIN_EXP) {
-          x.c = [x.e = 0];
-        } else {
-          x.e = v.e;
-          x.c = v.c.slice();
-        }
-        return;
-      }
-      if ((isNum = typeof v == "number") && v * 0 == 0) {
-        x.s = 1 / v < 0 ? (v = -v, -1) : 1;
-        if (v === ~~v) {
-          for (e2 = 0, i = v; i >= 10; i /= 10, e2++) ;
-          if (e2 > MAX_EXP) {
-            x.c = x.e = null;
-          } else {
-            x.e = e2;
-            x.c = [v];
-          }
-          return;
-        }
-        str = String(v);
-      } else {
-        if (!isNumeric.test(str = String(v))) return parseNumeric(x, str, isNum);
-        x.s = str.charCodeAt(0) == 45 ? (str = str.slice(1), -1) : 1;
-      }
-      if ((e2 = str.indexOf(".")) > -1) str = str.replace(".", "");
-      if ((i = str.search(/e/i)) > 0) {
-        if (e2 < 0) e2 = i;
-        e2 += +str.slice(i + 1);
-        str = str.substring(0, i);
-      } else if (e2 < 0) {
-        e2 = str.length;
-      }
-    } else {
-      intCheck(b, 2, ALPHABET.length, "Base");
-      if (b == 10 && alphabetHasNormalDecimalDigits) {
-        x = new BigNumber2(v);
-        return round(x, DECIMAL_PLACES + x.e + 1, ROUNDING_MODE);
-      }
-      str = String(v);
-      if (isNum = typeof v == "number") {
-        if (v * 0 != 0) return parseNumeric(x, str, isNum, b);
-        x.s = 1 / v < 0 ? (str = str.slice(1), -1) : 1;
-        if (BigNumber2.DEBUG && str.replace(/^0\.0*|\./, "").length > 15) {
-          throw Error(tooManyDigits + v);
-        }
-      } else {
-        x.s = str.charCodeAt(0) === 45 ? (str = str.slice(1), -1) : 1;
-      }
-      alphabet = ALPHABET.slice(0, b);
-      e2 = i = 0;
-      for (len = str.length; i < len; i++) {
-        if (alphabet.indexOf(c = str.charAt(i)) < 0) {
-          if (c == ".") {
-            if (i > e2) {
-              e2 = len;
-              continue;
-            }
-          } else if (!caseChanged) {
-            if (str == str.toUpperCase() && (str = str.toLowerCase()) || str == str.toLowerCase() && (str = str.toUpperCase())) {
-              caseChanged = true;
-              i = -1;
-              e2 = 0;
-              continue;
-            }
-          }
-          return parseNumeric(x, String(v), isNum, b);
-        }
-      }
-      isNum = false;
-      str = convertBase(str, b, 10, x.s);
-      if ((e2 = str.indexOf(".")) > -1) str = str.replace(".", "");
-      else e2 = str.length;
-    }
-    for (i = 0; str.charCodeAt(i) === 48; i++) ;
-    for (len = str.length; str.charCodeAt(--len) === 48; ) ;
-    if (str = str.slice(i, ++len)) {
-      len -= i;
-      if (isNum && BigNumber2.DEBUG && len > 15 && (v > MAX_SAFE_INTEGER || v !== mathfloor(v))) {
-        throw Error(tooManyDigits + x.s * v);
-      }
-      if ((e2 = e2 - i - 1) > MAX_EXP) {
-        x.c = x.e = null;
-      } else if (e2 < MIN_EXP) {
-        x.c = [x.e = 0];
-      } else {
-        x.e = e2;
-        x.c = [];
-        i = (e2 + 1) % LOG_BASE;
-        if (e2 < 0) i += LOG_BASE;
-        if (i < len) {
-          if (i) x.c.push(+str.slice(0, i));
-          for (len -= LOG_BASE; i < len; ) {
-            x.c.push(+str.slice(i, i += LOG_BASE));
-          }
-          i = LOG_BASE - (str = str.slice(i)).length;
-        } else {
-          i -= len;
-        }
-        for (; i--; str += "0") ;
-        x.c.push(+str);
-      }
-    } else {
-      x.c = [x.e = 0];
-    }
-  }
-  BigNumber2.clone = clone;
-  BigNumber2.ROUND_UP = 0;
-  BigNumber2.ROUND_DOWN = 1;
-  BigNumber2.ROUND_CEIL = 2;
-  BigNumber2.ROUND_FLOOR = 3;
-  BigNumber2.ROUND_HALF_UP = 4;
-  BigNumber2.ROUND_HALF_DOWN = 5;
-  BigNumber2.ROUND_HALF_EVEN = 6;
-  BigNumber2.ROUND_HALF_CEIL = 7;
-  BigNumber2.ROUND_HALF_FLOOR = 8;
-  BigNumber2.EUCLID = 9;
-  BigNumber2.config = BigNumber2.set = function(obj) {
-    var p, v;
-    if (obj != null) {
-      if (typeof obj == "object") {
-        if (obj.hasOwnProperty(p = "DECIMAL_PLACES")) {
-          v = obj[p];
-          intCheck(v, 0, MAX, p);
-          DECIMAL_PLACES = v;
-        }
-        if (obj.hasOwnProperty(p = "ROUNDING_MODE")) {
-          v = obj[p];
-          intCheck(v, 0, 8, p);
-          ROUNDING_MODE = v;
-        }
-        if (obj.hasOwnProperty(p = "EXPONENTIAL_AT")) {
-          v = obj[p];
-          if (v && v.pop) {
-            intCheck(v[0], -MAX, 0, p);
-            intCheck(v[1], 0, MAX, p);
-            TO_EXP_NEG = v[0];
-            TO_EXP_POS = v[1];
-          } else {
-            intCheck(v, -MAX, MAX, p);
-            TO_EXP_NEG = -(TO_EXP_POS = v < 0 ? -v : v);
-          }
-        }
-        if (obj.hasOwnProperty(p = "RANGE")) {
-          v = obj[p];
-          if (v && v.pop) {
-            intCheck(v[0], -MAX, -1, p);
-            intCheck(v[1], 1, MAX, p);
-            MIN_EXP = v[0];
-            MAX_EXP = v[1];
-          } else {
-            intCheck(v, -MAX, MAX, p);
-            if (v) {
-              MIN_EXP = -(MAX_EXP = v < 0 ? -v : v);
-            } else {
-              throw Error(bignumberError + p + " cannot be zero: " + v);
-            }
-          }
-        }
-        if (obj.hasOwnProperty(p = "CRYPTO")) {
-          v = obj[p];
-          if (v === !!v) {
-            if (v) {
-              if (typeof crypto != "undefined" && crypto && (crypto.getRandomValues || crypto.randomBytes)) {
-                CRYPTO = v;
-              } else {
-                CRYPTO = !v;
-                throw Error(bignumberError + "crypto unavailable");
-              }
-            } else {
-              CRYPTO = v;
-            }
-          } else {
-            throw Error(bignumberError + p + " not true or false: " + v);
-          }
-        }
-        if (obj.hasOwnProperty(p = "MODULO_MODE")) {
-          v = obj[p];
-          intCheck(v, 0, 9, p);
-          MODULO_MODE = v;
-        }
-        if (obj.hasOwnProperty(p = "POW_PRECISION")) {
-          v = obj[p];
-          intCheck(v, 0, MAX, p);
-          POW_PRECISION = v;
-        }
-        if (obj.hasOwnProperty(p = "FORMAT")) {
-          v = obj[p];
-          if (typeof v == "object") FORMAT = v;
-          else throw Error(bignumberError + p + " not an object: " + v);
-        }
-        if (obj.hasOwnProperty(p = "ALPHABET")) {
-          v = obj[p];
-          if (typeof v == "string" && !/^.?$|[+\-.\s]|(.).*\1/.test(v)) {
-            alphabetHasNormalDecimalDigits = v.slice(0, 10) == "0123456789";
-            ALPHABET = v;
-          } else {
-            throw Error(bignumberError + p + " invalid: " + v);
-          }
-        }
-      } else {
-        throw Error(bignumberError + "Object expected: " + obj);
-      }
-    }
-    return {
-      DECIMAL_PLACES,
-      ROUNDING_MODE,
-      EXPONENTIAL_AT: [TO_EXP_NEG, TO_EXP_POS],
-      RANGE: [MIN_EXP, MAX_EXP],
-      CRYPTO,
-      MODULO_MODE,
-      POW_PRECISION,
-      FORMAT,
-      ALPHABET
-    };
-  };
-  BigNumber2.isBigNumber = function(v) {
-    if (!v || v._isBigNumber !== true) return false;
-    if (!BigNumber2.DEBUG) return true;
-    var i, n, c = v.c, e2 = v.e, s = v.s;
-    out: if ({}.toString.call(c) == "[object Array]") {
-      if ((s === 1 || s === -1) && e2 >= -MAX && e2 <= MAX && e2 === mathfloor(e2)) {
-        if (c[0] === 0) {
-          if (e2 === 0 && c.length === 1) return true;
-          break out;
-        }
-        i = (e2 + 1) % LOG_BASE;
-        if (i < 1) i += LOG_BASE;
-        if (String(c[0]).length == i) {
-          for (i = 0; i < c.length; i++) {
-            n = c[i];
-            if (n < 0 || n >= BASE || n !== mathfloor(n)) break out;
-          }
-          if (n !== 0) return true;
-        }
-      }
-    } else if (c === null && e2 === null && (s === null || s === 1 || s === -1)) {
-      return true;
-    }
-    throw Error(bignumberError + "Invalid BigNumber: " + v);
-  };
-  BigNumber2.maximum = BigNumber2.max = function() {
-    return maxOrMin(arguments, -1);
-  };
-  BigNumber2.minimum = BigNumber2.min = function() {
-    return maxOrMin(arguments, 1);
-  };
-  BigNumber2.random = (function() {
-    var pow2_53 = 9007199254740992;
-    var random53bitInt = Math.random() * pow2_53 & 2097151 ? function() {
-      return mathfloor(Math.random() * pow2_53);
-    } : function() {
-      return (Math.random() * 1073741824 | 0) * 8388608 + (Math.random() * 8388608 | 0);
-    };
-    return function(dp) {
-      var a, b, e2, k, v, i = 0, c = [], rand = new BigNumber2(ONE);
-      if (dp == null) dp = DECIMAL_PLACES;
-      else intCheck(dp, 0, MAX);
-      k = mathceil(dp / LOG_BASE);
-      if (CRYPTO) {
-        if (crypto.getRandomValues) {
-          a = crypto.getRandomValues(new Uint32Array(k *= 2));
-          for (; i < k; ) {
-            v = a[i] * 131072 + (a[i + 1] >>> 11);
-            if (v >= 9e15) {
-              b = crypto.getRandomValues(new Uint32Array(2));
-              a[i] = b[0];
-              a[i + 1] = b[1];
-            } else {
-              c.push(v % 1e14);
-              i += 2;
-            }
-          }
-          i = k / 2;
-        } else if (crypto.randomBytes) {
-          a = crypto.randomBytes(k *= 7);
-          for (; i < k; ) {
-            v = (a[i] & 31) * 281474976710656 + a[i + 1] * 1099511627776 + a[i + 2] * 4294967296 + a[i + 3] * 16777216 + (a[i + 4] << 16) + (a[i + 5] << 8) + a[i + 6];
-            if (v >= 9e15) {
-              crypto.randomBytes(7).copy(a, i);
-            } else {
-              c.push(v % 1e14);
-              i += 7;
-            }
-          }
-          i = k / 7;
-        } else {
-          CRYPTO = false;
-          throw Error(bignumberError + "crypto unavailable");
-        }
-      }
-      if (!CRYPTO) {
-        for (; i < k; ) {
-          v = random53bitInt();
-          if (v < 9e15) c[i++] = v % 1e14;
-        }
-      }
-      k = c[--i];
-      dp %= LOG_BASE;
-      if (k && dp) {
-        v = POWS_TEN[LOG_BASE - dp];
-        c[i] = mathfloor(k / v) * v;
-      }
-      for (; c[i] === 0; c.pop(), i--) ;
-      if (i < 0) {
-        c = [e2 = 0];
-      } else {
-        for (e2 = -1; c[0] === 0; c.splice(0, 1), e2 -= LOG_BASE) ;
-        for (i = 1, v = c[0]; v >= 10; v /= 10, i++) ;
-        if (i < LOG_BASE) e2 -= LOG_BASE - i;
-      }
-      rand.e = e2;
-      rand.c = c;
-      return rand;
-    };
-  })();
-  BigNumber2.sum = function() {
-    var i = 1, args = arguments, sum = new BigNumber2(args[0]);
-    for (; i < args.length; ) sum = sum.plus(args[i++]);
-    return sum;
-  };
-  convertBase = /* @__PURE__ */ (function() {
-    var decimal = "0123456789";
-    function toBaseOut(str, baseIn, baseOut, alphabet) {
-      var j, arr = [0], arrL, i = 0, len = str.length;
-      for (; i < len; ) {
-        for (arrL = arr.length; arrL--; arr[arrL] *= baseIn) ;
-        arr[0] += alphabet.indexOf(str.charAt(i++));
-        for (j = 0; j < arr.length; j++) {
-          if (arr[j] > baseOut - 1) {
-            if (arr[j + 1] == null) arr[j + 1] = 0;
-            arr[j + 1] += arr[j] / baseOut | 0;
-            arr[j] %= baseOut;
-          }
-        }
-      }
-      return arr.reverse();
-    }
-    return function(str, baseIn, baseOut, sign, callerIsToString) {
-      var alphabet, d, e2, k, r, x, xc, y, i = str.indexOf("."), dp = DECIMAL_PLACES, rm = ROUNDING_MODE;
-      if (i >= 0) {
-        k = POW_PRECISION;
-        POW_PRECISION = 0;
-        str = str.replace(".", "");
-        y = new BigNumber2(baseIn);
-        x = y.pow(str.length - i);
-        POW_PRECISION = k;
-        y.c = toBaseOut(
-          toFixedPoint(coeffToString(x.c), x.e, "0"),
-          10,
-          baseOut,
-          decimal
-        );
-        y.e = y.c.length;
-      }
-      xc = toBaseOut(str, baseIn, baseOut, callerIsToString ? (alphabet = ALPHABET, decimal) : (alphabet = decimal, ALPHABET));
-      e2 = k = xc.length;
-      for (; xc[--k] == 0; xc.pop()) ;
-      if (!xc[0]) return alphabet.charAt(0);
-      if (i < 0) {
-        --e2;
-      } else {
-        x.c = xc;
-        x.e = e2;
-        x.s = sign;
-        x = div(x, y, dp, rm, baseOut);
-        xc = x.c;
-        r = x.r;
-        e2 = x.e;
-      }
-      d = e2 + dp + 1;
-      i = xc[d];
-      k = baseOut / 2;
-      r = r || d < 0 || xc[d + 1] != null;
-      r = rm < 4 ? (i != null || r) && (rm == 0 || rm == (x.s < 0 ? 3 : 2)) : i > k || i == k && (rm == 4 || r || rm == 6 && xc[d - 1] & 1 || rm == (x.s < 0 ? 8 : 7));
-      if (d < 1 || !xc[0]) {
-        str = r ? toFixedPoint(alphabet.charAt(1), -dp, alphabet.charAt(0)) : alphabet.charAt(0);
-      } else {
-        xc.length = d;
-        if (r) {
-          for (--baseOut; ++xc[--d] > baseOut; ) {
-            xc[d] = 0;
-            if (!d) {
-              ++e2;
-              xc = [1].concat(xc);
-            }
-          }
-        }
-        for (k = xc.length; !xc[--k]; ) ;
-        for (i = 0, str = ""; i <= k; str += alphabet.charAt(xc[i++])) ;
-        str = toFixedPoint(str, e2, alphabet.charAt(0));
-      }
-      return str;
-    };
-  })();
-  div = /* @__PURE__ */ (function() {
-    function multiply(x, k, base) {
-      var m, temp, xlo, xhi, carry = 0, i = x.length, klo = k % SQRT_BASE, khi = k / SQRT_BASE | 0;
-      for (x = x.slice(); i--; ) {
-        xlo = x[i] % SQRT_BASE;
-        xhi = x[i] / SQRT_BASE | 0;
-        m = khi * xlo + xhi * klo;
-        temp = klo * xlo + m % SQRT_BASE * SQRT_BASE + carry;
-        carry = (temp / base | 0) + (m / SQRT_BASE | 0) + khi * xhi;
-        x[i] = temp % base;
-      }
-      if (carry) x = [carry].concat(x);
-      return x;
-    }
-    function compare2(a, b, aL, bL) {
-      var i, cmp;
-      if (aL != bL) {
-        cmp = aL > bL ? 1 : -1;
-      } else {
-        for (i = cmp = 0; i < aL; i++) {
-          if (a[i] != b[i]) {
-            cmp = a[i] > b[i] ? 1 : -1;
-            break;
-          }
-        }
-      }
-      return cmp;
-    }
-    function subtract(a, b, aL, base) {
-      var i = 0;
-      for (; aL--; ) {
-        a[aL] -= i;
-        i = a[aL] < b[aL] ? 1 : 0;
-        a[aL] = i * base + a[aL] - b[aL];
-      }
-      for (; !a[0] && a.length > 1; a.splice(0, 1)) ;
-    }
-    return function(x, y, dp, rm, base) {
-      var cmp, e2, i, more, n, prod, prodL, q, qc, rem, remL, rem0, xi, xL, yc0, yL, yz, s = x.s == y.s ? 1 : -1, xc = x.c, yc = y.c;
-      if (!xc || !xc[0] || !yc || !yc[0]) {
-        return new BigNumber2(
-          // Return NaN if either NaN, or both Infinity or 0.
-          !x.s || !y.s || (xc ? yc && xc[0] == yc[0] : !yc) ? NaN : (
-            // Return ±0 if x is ±0 or y is ±Infinity, or return ±Infinity as y is ±0.
-            xc && xc[0] == 0 || !yc ? s * 0 : s / 0
-          )
-        );
-      }
-      q = new BigNumber2(s);
-      qc = q.c = [];
-      e2 = x.e - y.e;
-      s = dp + e2 + 1;
-      if (!base) {
-        base = BASE;
-        e2 = bitFloor(x.e / LOG_BASE) - bitFloor(y.e / LOG_BASE);
-        s = s / LOG_BASE | 0;
-      }
-      for (i = 0; yc[i] == (xc[i] || 0); i++) ;
-      if (yc[i] > (xc[i] || 0)) e2--;
-      if (s < 0) {
-        qc.push(1);
-        more = true;
-      } else {
-        xL = xc.length;
-        yL = yc.length;
-        i = 0;
-        s += 2;
-        n = mathfloor(base / (yc[0] + 1));
-        if (n > 1) {
-          yc = multiply(yc, n, base);
-          xc = multiply(xc, n, base);
-          yL = yc.length;
-          xL = xc.length;
-        }
-        xi = yL;
-        rem = xc.slice(0, yL);
-        remL = rem.length;
-        for (; remL < yL; rem[remL++] = 0) ;
-        yz = yc.slice();
-        yz = [0].concat(yz);
-        yc0 = yc[0];
-        if (yc[1] >= base / 2) yc0++;
-        do {
-          n = 0;
-          cmp = compare2(yc, rem, yL, remL);
-          if (cmp < 0) {
-            rem0 = rem[0];
-            if (yL != remL) rem0 = rem0 * base + (rem[1] || 0);
-            n = mathfloor(rem0 / yc0);
-            if (n > 1) {
-              if (n >= base) n = base - 1;
-              prod = multiply(yc, n, base);
-              prodL = prod.length;
-              remL = rem.length;
-              while (compare2(prod, rem, prodL, remL) == 1) {
-                n--;
-                subtract(prod, yL < prodL ? yz : yc, prodL, base);
-                prodL = prod.length;
-                cmp = 1;
-              }
-            } else {
-              if (n == 0) {
-                cmp = n = 1;
-              }
-              prod = yc.slice();
-              prodL = prod.length;
-            }
-            if (prodL < remL) prod = [0].concat(prod);
-            subtract(rem, prod, remL, base);
-            remL = rem.length;
-            if (cmp == -1) {
-              while (compare2(yc, rem, yL, remL) < 1) {
-                n++;
-                subtract(rem, yL < remL ? yz : yc, remL, base);
-                remL = rem.length;
-              }
-            }
-          } else if (cmp === 0) {
-            n++;
-            rem = [0];
-          }
-          qc[i++] = n;
-          if (rem[0]) {
-            rem[remL++] = xc[xi] || 0;
-          } else {
-            rem = [xc[xi]];
-            remL = 1;
-          }
-        } while ((xi++ < xL || rem[0] != null) && s--);
-        more = rem[0] != null;
-        if (!qc[0]) qc.splice(0, 1);
-      }
-      if (base == BASE) {
-        for (i = 1, s = qc[0]; s >= 10; s /= 10, i++) ;
-        round(q, dp + (q.e = i + e2 * LOG_BASE - 1) + 1, rm, more);
-      } else {
-        q.e = e2;
-        q.r = +more;
-      }
-      return q;
-    };
-  })();
-  function format(n, i, rm, id) {
-    var c0, e2, ne, len, str;
-    if (rm == null) rm = ROUNDING_MODE;
-    else intCheck(rm, 0, 8);
-    if (!n.c) return n.toString();
-    c0 = n.c[0];
-    ne = n.e;
-    if (i == null) {
-      str = coeffToString(n.c);
-      str = id == 1 || id == 2 && (ne <= TO_EXP_NEG || ne >= TO_EXP_POS) ? toExponential(str, ne) : toFixedPoint(str, ne, "0");
-    } else {
-      n = round(new BigNumber2(n), i, rm);
-      e2 = n.e;
-      str = coeffToString(n.c);
-      len = str.length;
-      if (id == 1 || id == 2 && (i <= e2 || e2 <= TO_EXP_NEG)) {
-        for (; len < i; str += "0", len++) ;
-        str = toExponential(str, e2);
-      } else {
-        i -= ne + (id === 2 && e2 > ne);
-        str = toFixedPoint(str, e2, "0");
-        if (e2 + 1 > len) {
-          if (--i > 0) for (str += "."; i--; str += "0") ;
-        } else {
-          i += e2 - len;
-          if (i > 0) {
-            if (e2 + 1 == len) str += ".";
-            for (; i--; str += "0") ;
-          }
-        }
-      }
-    }
-    return n.s < 0 && c0 ? "-" + str : str;
-  }
-  function maxOrMin(args, n) {
-    var k, y, i = 1, x = new BigNumber2(args[0]);
-    for (; i < args.length; i++) {
-      y = new BigNumber2(args[i]);
-      if (!y.s || (k = compare$1(x, y)) === n || k === 0 && x.s === n) {
-        x = y;
-      }
-    }
-    return x;
-  }
-  function normalise(n, c, e2) {
-    var i = 1, j = c.length;
-    for (; !c[--j]; c.pop()) ;
-    for (j = c[0]; j >= 10; j /= 10, i++) ;
-    if ((e2 = i + e2 * LOG_BASE - 1) > MAX_EXP) {
-      n.c = n.e = null;
-    } else if (e2 < MIN_EXP) {
-      n.c = [n.e = 0];
-    } else {
-      n.e = e2;
-      n.c = c;
-    }
-    return n;
-  }
-  parseNumeric = /* @__PURE__ */ (function() {
-    var basePrefix = /^(-?)0([xbo])(?=\w[\w.]*$)/i, dotAfter = /^([^.]+)\.$/, dotBefore = /^\.([^.]+)$/, isInfinityOrNaN = /^-?(Infinity|NaN)$/, whitespaceOrPlus = /^\s*\+(?=[\w.])|^\s+|\s+$/g;
-    return function(x, str, isNum, b) {
-      var base, s = isNum ? str : str.replace(whitespaceOrPlus, "");
-      if (isInfinityOrNaN.test(s)) {
-        x.s = isNaN(s) ? null : s < 0 ? -1 : 1;
-      } else {
-        if (!isNum) {
-          s = s.replace(basePrefix, function(m, p1, p2) {
-            base = (p2 = p2.toLowerCase()) == "x" ? 16 : p2 == "b" ? 2 : 8;
-            return !b || b == base ? p1 : m;
-          });
-          if (b) {
-            base = b;
-            s = s.replace(dotAfter, "$1").replace(dotBefore, "0.$1");
-          }
-          if (str != s) return new BigNumber2(s, base);
-        }
-        if (BigNumber2.DEBUG) {
-          throw Error(bignumberError + "Not a" + (b ? " base " + b : "") + " number: " + str);
-        }
-        x.s = null;
-      }
-      x.c = x.e = null;
-    };
-  })();
-  function round(x, sd, rm, r) {
-    var d, i, j, k, n, ni, rd, xc = x.c, pows10 = POWS_TEN;
-    if (xc) {
-      out: {
-        for (d = 1, k = xc[0]; k >= 10; k /= 10, d++) ;
-        i = sd - d;
-        if (i < 0) {
-          i += LOG_BASE;
-          j = sd;
-          n = xc[ni = 0];
-          rd = mathfloor(n / pows10[d - j - 1] % 10);
-        } else {
-          ni = mathceil((i + 1) / LOG_BASE);
-          if (ni >= xc.length) {
-            if (r) {
-              for (; xc.length <= ni; xc.push(0)) ;
-              n = rd = 0;
-              d = 1;
-              i %= LOG_BASE;
-              j = i - LOG_BASE + 1;
-            } else {
-              break out;
-            }
-          } else {
-            n = k = xc[ni];
-            for (d = 1; k >= 10; k /= 10, d++) ;
-            i %= LOG_BASE;
-            j = i - LOG_BASE + d;
-            rd = j < 0 ? 0 : mathfloor(n / pows10[d - j - 1] % 10);
-          }
-        }
-        r = r || sd < 0 || // Are there any non-zero digits after the rounding digit?
-        // The expression  n % pows10[d - j - 1]  returns all digits of n to the right
-        // of the digit at j, e.g. if n is 908714 and j is 2, the expression gives 714.
-        xc[ni + 1] != null || (j < 0 ? n : n % pows10[d - j - 1]);
-        r = rm < 4 ? (rd || r) && (rm == 0 || rm == (x.s < 0 ? 3 : 2)) : rd > 5 || rd == 5 && (rm == 4 || r || rm == 6 && // Check whether the digit to the left of the rounding digit is odd.
-        (i > 0 ? j > 0 ? n / pows10[d - j] : 0 : xc[ni - 1]) % 10 & 1 || rm == (x.s < 0 ? 8 : 7));
-        if (sd < 1 || !xc[0]) {
-          xc.length = 0;
-          if (r) {
-            sd -= x.e + 1;
-            xc[0] = pows10[(LOG_BASE - sd % LOG_BASE) % LOG_BASE];
-            x.e = -sd || 0;
-          } else {
-            xc[0] = x.e = 0;
-          }
-          return x;
-        }
-        if (i == 0) {
-          xc.length = ni;
-          k = 1;
-          ni--;
-        } else {
-          xc.length = ni + 1;
-          k = pows10[LOG_BASE - i];
-          xc[ni] = j > 0 ? mathfloor(n / pows10[d - j] % pows10[j]) * k : 0;
-        }
-        if (r) {
-          for (; ; ) {
-            if (ni == 0) {
-              for (i = 1, j = xc[0]; j >= 10; j /= 10, i++) ;
-              j = xc[0] += k;
-              for (k = 1; j >= 10; j /= 10, k++) ;
-              if (i != k) {
-                x.e++;
-                if (xc[0] == BASE) xc[0] = 1;
-              }
-              break;
-            } else {
-              xc[ni] += k;
-              if (xc[ni] != BASE) break;
-              xc[ni--] = 0;
-              k = 1;
-            }
-          }
-        }
-        for (i = xc.length; xc[--i] === 0; xc.pop()) ;
-      }
-      if (x.e > MAX_EXP) {
-        x.c = x.e = null;
-      } else if (x.e < MIN_EXP) {
-        x.c = [x.e = 0];
-      }
-    }
-    return x;
-  }
-  function valueOf(n) {
-    var str, e2 = n.e;
-    if (e2 === null) return n.toString();
-    str = coeffToString(n.c);
-    str = e2 <= TO_EXP_NEG || e2 >= TO_EXP_POS ? toExponential(str, e2) : toFixedPoint(str, e2, "0");
-    return n.s < 0 ? "-" + str : str;
-  }
-  P.absoluteValue = P.abs = function() {
-    var x = new BigNumber2(this);
-    if (x.s < 0) x.s = 1;
-    return x;
-  };
-  P.comparedTo = function(y, b) {
-    return compare$1(this, new BigNumber2(y, b));
-  };
-  P.decimalPlaces = P.dp = function(dp, rm) {
-    var c, n, v, x = this;
-    if (dp != null) {
-      intCheck(dp, 0, MAX);
-      if (rm == null) rm = ROUNDING_MODE;
-      else intCheck(rm, 0, 8);
-      return round(new BigNumber2(x), dp + x.e + 1, rm);
-    }
-    if (!(c = x.c)) return null;
-    n = ((v = c.length - 1) - bitFloor(this.e / LOG_BASE)) * LOG_BASE;
-    if (v = c[v]) for (; v % 10 == 0; v /= 10, n--) ;
-    if (n < 0) n = 0;
-    return n;
-  };
-  P.dividedBy = P.div = function(y, b) {
-    return div(this, new BigNumber2(y, b), DECIMAL_PLACES, ROUNDING_MODE);
-  };
-  P.dividedToIntegerBy = P.idiv = function(y, b) {
-    return div(this, new BigNumber2(y, b), 0, 1);
-  };
-  P.exponentiatedBy = P.pow = function(n, m) {
-    var half, isModExp, i, k, more, nIsBig, nIsNeg, nIsOdd, y, x = this;
-    n = new BigNumber2(n);
-    if (n.c && !n.isInteger()) {
-      throw Error(bignumberError + "Exponent not an integer: " + valueOf(n));
-    }
-    if (m != null) m = new BigNumber2(m);
-    nIsBig = n.e > 14;
-    if (!x.c || !x.c[0] || x.c[0] == 1 && !x.e && x.c.length == 1 || !n.c || !n.c[0]) {
-      y = new BigNumber2(Math.pow(+valueOf(x), nIsBig ? n.s * (2 - isOdd(n)) : +valueOf(n)));
-      return m ? y.mod(m) : y;
-    }
-    nIsNeg = n.s < 0;
-    if (m) {
-      if (m.c ? !m.c[0] : !m.s) return new BigNumber2(NaN);
-      isModExp = !nIsNeg && x.isInteger() && m.isInteger();
-      if (isModExp) x = x.mod(m);
-    } else if (n.e > 9 && (x.e > 0 || x.e < -1 || (x.e == 0 ? x.c[0] > 1 || nIsBig && x.c[1] >= 24e7 : x.c[0] < 8e13 || nIsBig && x.c[0] <= 9999975e7))) {
-      k = x.s < 0 && isOdd(n) ? -0 : 0;
-      if (x.e > -1) k = 1 / k;
-      return new BigNumber2(nIsNeg ? 1 / k : k);
-    } else if (POW_PRECISION) {
-      k = mathceil(POW_PRECISION / LOG_BASE + 2);
-    }
-    if (nIsBig) {
-      half = new BigNumber2(0.5);
-      if (nIsNeg) n.s = 1;
-      nIsOdd = isOdd(n);
-    } else {
-      i = Math.abs(+valueOf(n));
-      nIsOdd = i % 2;
-    }
-    y = new BigNumber2(ONE);
-    for (; ; ) {
-      if (nIsOdd) {
-        y = y.times(x);
-        if (!y.c) break;
-        if (k) {
-          if (y.c.length > k) y.c.length = k;
-        } else if (isModExp) {
-          y = y.mod(m);
-        }
-      }
-      if (i) {
-        i = mathfloor(i / 2);
-        if (i === 0) break;
-        nIsOdd = i % 2;
-      } else {
-        n = n.times(half);
-        round(n, n.e + 1, 1);
-        if (n.e > 14) {
-          nIsOdd = isOdd(n);
-        } else {
-          i = +valueOf(n);
-          if (i === 0) break;
-          nIsOdd = i % 2;
-        }
-      }
-      x = x.times(x);
-      if (k) {
-        if (x.c && x.c.length > k) x.c.length = k;
-      } else if (isModExp) {
-        x = x.mod(m);
-      }
-    }
-    if (isModExp) return y;
-    if (nIsNeg) y = ONE.div(y);
-    return m ? y.mod(m) : k ? round(y, POW_PRECISION, ROUNDING_MODE, more) : y;
-  };
-  P.integerValue = function(rm) {
-    var n = new BigNumber2(this);
-    if (rm == null) rm = ROUNDING_MODE;
-    else intCheck(rm, 0, 8);
-    return round(n, n.e + 1, rm);
-  };
-  P.isEqualTo = P.eq = function(y, b) {
-    return compare$1(this, new BigNumber2(y, b)) === 0;
-  };
-  P.isFinite = function() {
-    return !!this.c;
-  };
-  P.isGreaterThan = P.gt = function(y, b) {
-    return compare$1(this, new BigNumber2(y, b)) > 0;
-  };
-  P.isGreaterThanOrEqualTo = P.gte = function(y, b) {
-    return (b = compare$1(this, new BigNumber2(y, b))) === 1 || b === 0;
-  };
-  P.isInteger = function() {
-    return !!this.c && bitFloor(this.e / LOG_BASE) > this.c.length - 2;
-  };
-  P.isLessThan = P.lt = function(y, b) {
-    return compare$1(this, new BigNumber2(y, b)) < 0;
-  };
-  P.isLessThanOrEqualTo = P.lte = function(y, b) {
-    return (b = compare$1(this, new BigNumber2(y, b))) === -1 || b === 0;
-  };
-  P.isNaN = function() {
-    return !this.s;
-  };
-  P.isNegative = function() {
-    return this.s < 0;
-  };
-  P.isPositive = function() {
-    return this.s > 0;
-  };
-  P.isZero = function() {
-    return !!this.c && this.c[0] == 0;
-  };
-  P.minus = function(y, b) {
-    var i, j, t, xLTy, x = this, a = x.s;
-    y = new BigNumber2(y, b);
-    b = y.s;
-    if (!a || !b) return new BigNumber2(NaN);
-    if (a != b) {
-      y.s = -b;
-      return x.plus(y);
-    }
-    var xe = x.e / LOG_BASE, ye = y.e / LOG_BASE, xc = x.c, yc = y.c;
-    if (!xe || !ye) {
-      if (!xc || !yc) return xc ? (y.s = -b, y) : new BigNumber2(yc ? x : NaN);
-      if (!xc[0] || !yc[0]) {
-        return yc[0] ? (y.s = -b, y) : new BigNumber2(xc[0] ? x : (
-          // IEEE 754 (2008) 6.3: n - n = -0 when rounding to -Infinity
-          ROUNDING_MODE == 3 ? -0 : 0
-        ));
-      }
-    }
-    xe = bitFloor(xe);
-    ye = bitFloor(ye);
-    xc = xc.slice();
-    if (a = xe - ye) {
-      if (xLTy = a < 0) {
-        a = -a;
-        t = xc;
-      } else {
-        ye = xe;
-        t = yc;
-      }
-      t.reverse();
-      for (b = a; b--; t.push(0)) ;
-      t.reverse();
-    } else {
-      j = (xLTy = (a = xc.length) < (b = yc.length)) ? a : b;
-      for (a = b = 0; b < j; b++) {
-        if (xc[b] != yc[b]) {
-          xLTy = xc[b] < yc[b];
-          break;
-        }
-      }
-    }
-    if (xLTy) {
-      t = xc;
-      xc = yc;
-      yc = t;
-      y.s = -y.s;
-    }
-    b = (j = yc.length) - (i = xc.length);
-    if (b > 0) for (; b--; xc[i++] = 0) ;
-    b = BASE - 1;
-    for (; j > a; ) {
-      if (xc[--j] < yc[j]) {
-        for (i = j; i && !xc[--i]; xc[i] = b) ;
-        --xc[i];
-        xc[j] += BASE;
-      }
-      xc[j] -= yc[j];
-    }
-    for (; xc[0] == 0; xc.splice(0, 1), --ye) ;
-    if (!xc[0]) {
-      y.s = ROUNDING_MODE == 3 ? -1 : 1;
-      y.c = [y.e = 0];
-      return y;
-    }
-    return normalise(y, xc, ye);
-  };
-  P.modulo = P.mod = function(y, b) {
-    var q, s, x = this;
-    y = new BigNumber2(y, b);
-    if (!x.c || !y.s || y.c && !y.c[0]) {
-      return new BigNumber2(NaN);
-    } else if (!y.c || x.c && !x.c[0]) {
-      return new BigNumber2(x);
-    }
-    if (MODULO_MODE == 9) {
-      s = y.s;
-      y.s = 1;
-      q = div(x, y, 0, 3);
-      y.s = s;
-      q.s *= s;
-    } else {
-      q = div(x, y, 0, MODULO_MODE);
-    }
-    y = x.minus(q.times(y));
-    if (!y.c[0] && MODULO_MODE == 1) y.s = x.s;
-    return y;
-  };
-  P.multipliedBy = P.times = function(y, b) {
-    var c, e2, i, j, k, m, xcL, xlo, xhi, ycL, ylo, yhi, zc, base, sqrtBase, x = this, xc = x.c, yc = (y = new BigNumber2(y, b)).c;
-    if (!xc || !yc || !xc[0] || !yc[0]) {
-      if (!x.s || !y.s || xc && !xc[0] && !yc || yc && !yc[0] && !xc) {
-        y.c = y.e = y.s = null;
-      } else {
-        y.s *= x.s;
-        if (!xc || !yc) {
-          y.c = y.e = null;
-        } else {
-          y.c = [0];
-          y.e = 0;
-        }
-      }
-      return y;
-    }
-    e2 = bitFloor(x.e / LOG_BASE) + bitFloor(y.e / LOG_BASE);
-    y.s *= x.s;
-    xcL = xc.length;
-    ycL = yc.length;
-    if (xcL < ycL) {
-      zc = xc;
-      xc = yc;
-      yc = zc;
-      i = xcL;
-      xcL = ycL;
-      ycL = i;
-    }
-    for (i = xcL + ycL, zc = []; i--; zc.push(0)) ;
-    base = BASE;
-    sqrtBase = SQRT_BASE;
-    for (i = ycL; --i >= 0; ) {
-      c = 0;
-      ylo = yc[i] % sqrtBase;
-      yhi = yc[i] / sqrtBase | 0;
-      for (k = xcL, j = i + k; j > i; ) {
-        xlo = xc[--k] % sqrtBase;
-        xhi = xc[k] / sqrtBase | 0;
-        m = yhi * xlo + xhi * ylo;
-        xlo = ylo * xlo + m % sqrtBase * sqrtBase + zc[j] + c;
-        c = (xlo / base | 0) + (m / sqrtBase | 0) + yhi * xhi;
-        zc[j--] = xlo % base;
-      }
-      zc[j] = c;
-    }
-    if (c) {
-      ++e2;
-    } else {
-      zc.splice(0, 1);
-    }
-    return normalise(y, zc, e2);
-  };
-  P.negated = function() {
-    var x = new BigNumber2(this);
-    x.s = -x.s || null;
-    return x;
-  };
-  P.plus = function(y, b) {
-    var t, x = this, a = x.s;
-    y = new BigNumber2(y, b);
-    b = y.s;
-    if (!a || !b) return new BigNumber2(NaN);
-    if (a != b) {
-      y.s = -b;
-      return x.minus(y);
-    }
-    var xe = x.e / LOG_BASE, ye = y.e / LOG_BASE, xc = x.c, yc = y.c;
-    if (!xe || !ye) {
-      if (!xc || !yc) return new BigNumber2(a / 0);
-      if (!xc[0] || !yc[0]) return yc[0] ? y : new BigNumber2(xc[0] ? x : a * 0);
-    }
-    xe = bitFloor(xe);
-    ye = bitFloor(ye);
-    xc = xc.slice();
-    if (a = xe - ye) {
-      if (a > 0) {
-        ye = xe;
-        t = yc;
-      } else {
-        a = -a;
-        t = xc;
-      }
-      t.reverse();
-      for (; a--; t.push(0)) ;
-      t.reverse();
-    }
-    a = xc.length;
-    b = yc.length;
-    if (a - b < 0) {
-      t = yc;
-      yc = xc;
-      xc = t;
-      b = a;
-    }
-    for (a = 0; b; ) {
-      a = (xc[--b] = xc[b] + yc[b] + a) / BASE | 0;
-      xc[b] = BASE === xc[b] ? 0 : xc[b] % BASE;
-    }
-    if (a) {
-      xc = [a].concat(xc);
-      ++ye;
-    }
-    return normalise(y, xc, ye);
-  };
-  P.precision = P.sd = function(sd, rm) {
-    var c, n, v, x = this;
-    if (sd != null && sd !== !!sd) {
-      intCheck(sd, 1, MAX);
-      if (rm == null) rm = ROUNDING_MODE;
-      else intCheck(rm, 0, 8);
-      return round(new BigNumber2(x), sd, rm);
-    }
-    if (!(c = x.c)) return null;
-    v = c.length - 1;
-    n = v * LOG_BASE + 1;
-    if (v = c[v]) {
-      for (; v % 10 == 0; v /= 10, n--) ;
-      for (v = c[0]; v >= 10; v /= 10, n++) ;
-    }
-    if (sd && x.e + 1 > n) n = x.e + 1;
-    return n;
-  };
-  P.shiftedBy = function(k) {
-    intCheck(k, -MAX_SAFE_INTEGER, MAX_SAFE_INTEGER);
-    return this.times("1e" + k);
-  };
-  P.squareRoot = P.sqrt = function() {
-    var m, n, r, rep, t, x = this, c = x.c, s = x.s, e2 = x.e, dp = DECIMAL_PLACES + 4, half = new BigNumber2("0.5");
-    if (s !== 1 || !c || !c[0]) {
-      return new BigNumber2(!s || s < 0 && (!c || c[0]) ? NaN : c ? x : 1 / 0);
-    }
-    s = Math.sqrt(+valueOf(x));
-    if (s == 0 || s == 1 / 0) {
-      n = coeffToString(c);
-      if ((n.length + e2) % 2 == 0) n += "0";
-      s = Math.sqrt(+n);
-      e2 = bitFloor((e2 + 1) / 2) - (e2 < 0 || e2 % 2);
-      if (s == 1 / 0) {
-        n = "5e" + e2;
-      } else {
-        n = s.toExponential();
-        n = n.slice(0, n.indexOf("e") + 1) + e2;
-      }
-      r = new BigNumber2(n);
-    } else {
-      r = new BigNumber2(s + "");
-    }
-    if (r.c[0]) {
-      e2 = r.e;
-      s = e2 + dp;
-      if (s < 3) s = 0;
-      for (; ; ) {
-        t = r;
-        r = half.times(t.plus(div(x, t, dp, 1)));
-        if (coeffToString(t.c).slice(0, s) === (n = coeffToString(r.c)).slice(0, s)) {
-          if (r.e < e2) --s;
-          n = n.slice(s - 3, s + 1);
-          if (n == "9999" || !rep && n == "4999") {
-            if (!rep) {
-              round(t, t.e + DECIMAL_PLACES + 2, 0);
-              if (t.times(t).eq(x)) {
-                r = t;
-                break;
-              }
-            }
-            dp += 4;
-            s += 4;
-            rep = 1;
-          } else {
-            if (!+n || !+n.slice(1) && n.charAt(0) == "5") {
-              round(r, r.e + DECIMAL_PLACES + 2, 1);
-              m = !r.times(r).eq(x);
-            }
-            break;
-          }
-        }
-      }
-    }
-    return round(r, r.e + DECIMAL_PLACES + 1, ROUNDING_MODE, m);
-  };
-  P.toExponential = function(dp, rm) {
-    if (dp != null) {
-      intCheck(dp, 0, MAX);
-      dp++;
-    }
-    return format(this, dp, rm, 1);
-  };
-  P.toFixed = function(dp, rm) {
-    if (dp != null) {
-      intCheck(dp, 0, MAX);
-      dp = dp + this.e + 1;
-    }
-    return format(this, dp, rm);
-  };
-  P.toFormat = function(dp, rm, format2) {
-    var str, x = this;
-    if (format2 == null) {
-      if (dp != null && rm && typeof rm == "object") {
-        format2 = rm;
-        rm = null;
-      } else if (dp && typeof dp == "object") {
-        format2 = dp;
-        dp = rm = null;
-      } else {
-        format2 = FORMAT;
-      }
-    } else if (typeof format2 != "object") {
-      throw Error(bignumberError + "Argument not an object: " + format2);
-    }
-    str = x.toFixed(dp, rm);
-    if (x.c) {
-      var i, arr = str.split("."), g1 = +format2.groupSize, g2 = +format2.secondaryGroupSize, groupSeparator = format2.groupSeparator || "", intPart = arr[0], fractionPart = arr[1], isNeg = x.s < 0, intDigits = isNeg ? intPart.slice(1) : intPart, len = intDigits.length;
-      if (g2) {
-        i = g1;
-        g1 = g2;
-        g2 = i;
-        len -= i;
-      }
-      if (g1 > 0 && len > 0) {
-        i = len % g1 || g1;
-        intPart = intDigits.substr(0, i);
-        for (; i < len; i += g1) intPart += groupSeparator + intDigits.substr(i, g1);
-        if (g2 > 0) intPart += groupSeparator + intDigits.slice(i);
-        if (isNeg) intPart = "-" + intPart;
-      }
-      str = fractionPart ? intPart + (format2.decimalSeparator || "") + ((g2 = +format2.fractionGroupSize) ? fractionPart.replace(
-        new RegExp("\\d{" + g2 + "}\\B", "g"),
-        "$&" + (format2.fractionGroupSeparator || "")
-      ) : fractionPart) : intPart;
-    }
-    return (format2.prefix || "") + str + (format2.suffix || "");
-  };
-  P.toFraction = function(md) {
-    var d, d0, d1, d2, e2, exp, n, n0, n1, q, r, s, x = this, xc = x.c;
-    if (md != null) {
-      n = new BigNumber2(md);
-      if (!n.isInteger() && (n.c || n.s !== 1) || n.lt(ONE)) {
-        throw Error(bignumberError + "Argument " + (n.isInteger() ? "out of range: " : "not an integer: ") + valueOf(n));
-      }
-    }
-    if (!xc) return new BigNumber2(x);
-    d = new BigNumber2(ONE);
-    n1 = d0 = new BigNumber2(ONE);
-    d1 = n0 = new BigNumber2(ONE);
-    s = coeffToString(xc);
-    e2 = d.e = s.length - x.e - 1;
-    d.c[0] = POWS_TEN[(exp = e2 % LOG_BASE) < 0 ? LOG_BASE + exp : exp];
-    md = !md || n.comparedTo(d) > 0 ? e2 > 0 ? d : n1 : n;
-    exp = MAX_EXP;
-    MAX_EXP = 1 / 0;
-    n = new BigNumber2(s);
-    n0.c[0] = 0;
-    for (; ; ) {
-      q = div(n, d, 0, 1);
-      d2 = d0.plus(q.times(d1));
-      if (d2.comparedTo(md) == 1) break;
-      d0 = d1;
-      d1 = d2;
-      n1 = n0.plus(q.times(d2 = n1));
-      n0 = d2;
-      d = n.minus(q.times(d2 = d));
-      n = d2;
-    }
-    d2 = div(md.minus(d0), d1, 0, 1);
-    n0 = n0.plus(d2.times(n1));
-    d0 = d0.plus(d2.times(d1));
-    n0.s = n1.s = x.s;
-    e2 = e2 * 2;
-    r = div(n1, d1, e2, ROUNDING_MODE).minus(x).abs().comparedTo(
-      div(n0, d0, e2, ROUNDING_MODE).minus(x).abs()
-    ) < 1 ? [n1, d1] : [n0, d0];
-    MAX_EXP = exp;
-    return r;
-  };
-  P.toNumber = function() {
-    return +valueOf(this);
-  };
-  P.toPrecision = function(sd, rm) {
-    if (sd != null) intCheck(sd, 1, MAX);
-    return format(this, sd, rm, 2);
-  };
-  P.toString = function(b) {
-    var str, n = this, s = n.s, e2 = n.e;
-    if (e2 === null) {
-      if (s) {
-        str = "Infinity";
-        if (s < 0) str = "-" + str;
-      } else {
-        str = "NaN";
-      }
-    } else {
-      if (b == null) {
-        str = e2 <= TO_EXP_NEG || e2 >= TO_EXP_POS ? toExponential(coeffToString(n.c), e2) : toFixedPoint(coeffToString(n.c), e2, "0");
-      } else if (b === 10 && alphabetHasNormalDecimalDigits) {
-        n = round(new BigNumber2(n), DECIMAL_PLACES + e2 + 1, ROUNDING_MODE);
-        str = toFixedPoint(coeffToString(n.c), n.e, "0");
-      } else {
-        intCheck(b, 2, ALPHABET.length, "Base");
-        str = convertBase(toFixedPoint(coeffToString(n.c), e2, "0"), 10, b, s, true);
-      }
-      if (s < 0 && n.c[0]) str = "-" + str;
-    }
-    return str;
-  };
-  P.valueOf = P.toJSON = function() {
-    return valueOf(this);
-  };
-  P._isBigNumber = true;
-  P[Symbol.toStringTag] = "BigNumber";
-  P[Symbol.for("nodejs.util.inspect.custom")] = P.valueOf;
-  if (configObject != null) BigNumber2.set(configObject);
-  return BigNumber2;
-}
-function bitFloor(n) {
-  var i = n | 0;
-  return n > 0 || n === i ? i : i - 1;
-}
-function coeffToString(a) {
-  var s, z, i = 1, j = a.length, r = a[0] + "";
-  for (; i < j; ) {
-    s = a[i++] + "";
-    z = LOG_BASE - s.length;
-    for (; z--; s = "0" + s) ;
-    r += s;
-  }
-  for (j = r.length; r.charCodeAt(--j) === 48; ) ;
-  return r.slice(0, j + 1 || 1);
-}
-function compare$1(x, y) {
-  var a, b, xc = x.c, yc = y.c, i = x.s, j = y.s, k = x.e, l = y.e;
-  if (!i || !j) return null;
-  a = xc && !xc[0];
-  b = yc && !yc[0];
-  if (a || b) return a ? b ? 0 : -j : i;
-  if (i != j) return i;
-  a = i < 0;
-  b = k == l;
-  if (!xc || !yc) return b ? 0 : !xc ^ a ? 1 : -1;
-  if (!b) return k > l ^ a ? 1 : -1;
-  j = (k = xc.length) < (l = yc.length) ? k : l;
-  for (i = 0; i < j; i++) if (xc[i] != yc[i]) return xc[i] > yc[i] ^ a ? 1 : -1;
-  return k == l ? 0 : k > l ^ a ? 1 : -1;
-}
-function intCheck(n, min, max, name) {
-  if (n < min || n > max || n !== mathfloor(n)) {
-    throw Error(bignumberError + (name || "Argument") + (typeof n == "number" ? n < min || n > max ? " out of range: " : " not an integer: " : " not a primitive number: ") + String(n));
-  }
-}
-function isOdd(n) {
-  var k = n.c.length - 1;
-  return bitFloor(n.e / LOG_BASE) == k && n.c[k] % 2 != 0;
-}
-function toExponential(str, e2) {
-  return (str.length > 1 ? str.charAt(0) + "." + str.slice(1) : str) + (e2 < 0 ? "e" : "e+") + e2;
-}
-function toFixedPoint(str, e2, z) {
-  var len, zs;
-  if (e2 < 0) {
-    for (zs = z + "."; ++e2; zs += z) ;
-    str = zs + str;
-  } else {
-    len = str.length;
-    if (++e2 > len) {
-      for (zs = z, e2 -= len; --e2; zs += z) ;
-      str += zs;
-    } else if (e2 < len) {
-      str = str.slice(0, e2) + "." + str.slice(e2);
-    }
-  }
-  return str;
-}
-var BigNumber = clone();
-var __extends = /* @__PURE__ */ (function() {
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+import { a9 as sha256, q as getDefaultExportFromCjs, p as push, r as prop, u as onMount, g as get, m as mutable_source, o as mutate, v as onDestroy, w as legacy_pre_effect, x as deep_read_state, y as legacy_pre_effect_reset, i as init, f as from_html, G as first_child, b as if_block, s as sibling, k as append, l as pop, j as set, c as child, C as untrack, t as template_effect, d as set_text, e as event, z as each, L as set_class, $ as derived_safe_equal, A as index, aa as __vitePreload, ab as createEventDispatcher, ac as tick, I as set_style, ad as base58, ae as fromHEX, af as Ed25519PublicKey, ag as messageWithIntent, a as invalidate_inner_signals, a8 as toHEX, h as bind_select_value, E as bind_value, n as getClient, N as toB64 } from "/iota-utils/assets/index-CMiBu1ib.js";
+import { b as bind_this } from "/iota-utils/assets/this-DEuQhPCH.js";
+import { b as bufferExports } from "/iota-utils/assets/index-DDJ5SC1F.js";
+import { b as bind_prop } from "/iota-utils/assets/props-BxqDVfOI.js";
+import { T as TransactionView } from "/iota-utils/assets/TransactionView-CBaSEL_v.js";
+import "/iota-utils/assets/transaction-view-gcIY95EC.js";
+import "/iota-utils/assets/iota-nano-conversion-xJ_sof4-.js";
+var __extends = /* @__PURE__ */ function() {
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
       d2.__proto__ = b2;
@@ -1352,10 +24,10 @@ var __extends = /* @__PURE__ */ (function() {
     }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
   };
-})();
+}();
 var InvalidSchemeError = (
   /** @class */
-  (function(_super) {
+  function(_super) {
     __extends(InvalidSchemeError2, _super);
     function InvalidSchemeError2() {
       var _this = _super.call(this, "Invalid Scheme") || this;
@@ -1363,11 +35,11 @@ var InvalidSchemeError = (
       return _this;
     }
     return InvalidSchemeError2;
-  })(Error)
+  }(Error)
 );
 var InvalidPathLengthError = (
   /** @class */
-  (function(_super) {
+  function(_super) {
     __extends(InvalidPathLengthError2, _super);
     function InvalidPathLengthError2() {
       var _this = _super.call(this, "Invalid Path") || this;
@@ -1375,11 +47,11 @@ var InvalidPathLengthError = (
       return _this;
     }
     return InvalidPathLengthError2;
-  })(Error)
+  }(Error)
 );
 var InvalidTypeError = (
   /** @class */
-  (function(_super) {
+  function(_super) {
     __extends(InvalidTypeError2, _super);
     function InvalidTypeError2() {
       var _this = _super.call(this, "Invalid Type") || this;
@@ -1387,11 +59,11 @@ var InvalidTypeError = (
       return _this;
     }
     return InvalidTypeError2;
-  })(Error)
+  }(Error)
 );
 var InvalidSequenceComponentError = (
   /** @class */
-  (function(_super) {
+  function(_super) {
     __extends(InvalidSequenceComponentError2, _super);
     function InvalidSequenceComponentError2() {
       var _this = _super.call(this, "Invalid Sequence Component") || this;
@@ -1399,11 +71,11 @@ var InvalidSequenceComponentError = (
       return _this;
     }
     return InvalidSequenceComponentError2;
-  })(Error)
+  }(Error)
 );
 var InvalidChecksumError = (
   /** @class */
-  (function(_super) {
+  function(_super) {
     __extends(InvalidChecksumError2, _super);
     function InvalidChecksumError2() {
       var _this = _super.call(this, "Invalid Checksum") || this;
@@ -1411,9 +83,9 @@ var InvalidChecksumError = (
       return _this;
     }
     return InvalidChecksumError2;
-  })(Error)
+  }(Error)
 );
-var CRC_TABLE = (function() {
+var CRC_TABLE = function() {
   var c;
   var crcTable = [];
   for (var n = 0; n < 256; n++) {
@@ -1424,7 +96,7 @@ var CRC_TABLE = (function() {
     crcTable[n] = c;
   }
   return crcTable;
-})();
+}();
 var crc32 = function(message) {
   var crc = 0 ^ -1;
   for (var i = 0; i < message.length; i++) {
@@ -1652,13 +324,13 @@ const toString = useBuffer ? (
    * @param {number} start
    * @param {number} end
    */
-  ((bytes, start, end) => {
+  (bytes, start, end) => {
     return end - start > 64 ? (
       // eslint-disable-line operator-linebreak
       // @ts-ignore
       globalThis.Buffer.from(bytes.subarray(start, end)).toString("utf8")
     ) : utf8Slice(bytes, start, end);
-  })
+  }
 ) : (
   // eslint-disable-line operator-linebreak
   /**
@@ -1666,30 +338,30 @@ const toString = useBuffer ? (
    * @param {number} start
    * @param {number} end
    */
-  ((bytes, start, end) => {
+  (bytes, start, end) => {
     return end - start > 64 ? textDecoder.decode(bytes.subarray(start, end)) : utf8Slice(bytes, start, end);
-  })
+  }
 );
 const fromString = useBuffer ? (
   // eslint-disable-line operator-linebreak
   /**
    * @param {string} string
    */
-  ((string) => {
+  (string) => {
     return string.length > 64 ? (
       // eslint-disable-line operator-linebreak
       // @ts-ignore
       globalThis.Buffer.from(string)
     ) : utf8ToBytes(string);
-  })
+  }
 ) : (
   // eslint-disable-line operator-linebreak
   /**
    * @param {string} string
    */
-  ((string) => {
+  (string) => {
     return string.length > 64 ? textEncoder.encode(string) : utf8ToBytes(string);
-  })
+  }
 );
 const fromArray = (arr) => {
   return Uint8Array.from(arr);
@@ -1701,12 +373,12 @@ const slice = useBuffer ? (
    * @param {number} start
    * @param {number} end
    */
-  ((bytes, start, end) => {
+  (bytes, start, end) => {
     if (isBuffer(bytes)) {
       return new Uint8Array(bytes.subarray(start, end));
     }
     return bytes.slice(start, end);
-  })
+  }
 ) : (
   // eslint-disable-line operator-linebreak
   /**
@@ -1714,9 +386,9 @@ const slice = useBuffer ? (
    * @param {number} start
    * @param {number} end
    */
-  ((bytes, start, end) => {
+  (bytes, start, end) => {
     return bytes.slice(start, end);
-  })
+  }
 );
 const concat = useBuffer ? (
   // eslint-disable-line operator-linebreak
@@ -1725,14 +397,14 @@ const concat = useBuffer ? (
    * @param {number} length
    * @returns {Uint8Array}
    */
-  ((chunks, length) => {
+  (chunks, length) => {
     chunks = chunks.map((c) => c instanceof Uint8Array ? c : (
       // eslint-disable-line operator-linebreak
       // @ts-ignore
       globalThis.Buffer.from(c)
     ));
     return asU8A(globalThis.Buffer.concat(chunks, length));
-  })
+  }
 ) : (
   // eslint-disable-line operator-linebreak
   /**
@@ -1740,7 +412,7 @@ const concat = useBuffer ? (
    * @param {number} length
    * @returns {Uint8Array}
    */
-  ((chunks, length) => {
+  (chunks, length) => {
     const out = new Uint8Array(length);
     let off = 0;
     for (let b of chunks) {
@@ -1751,7 +423,7 @@ const concat = useBuffer ? (
       off += b.length;
     }
     return out;
-  })
+  }
 );
 const alloc = useBuffer ? (
   // eslint-disable-line operator-linebreak
@@ -1759,20 +431,20 @@ const alloc = useBuffer ? (
    * @param {number} size
    * @returns {Uint8Array}
    */
-  ((size) => {
+  (size) => {
     return globalThis.Buffer.allocUnsafe(size);
-  })
+  }
 ) : (
   // eslint-disable-line operator-linebreak
   /**
    * @param {number} size
    * @returns {Uint8Array}
    */
-  ((size) => {
+  (size) => {
     return new Uint8Array(size);
-  })
+  }
 );
-function compare(b1, b2) {
+function compare$1(b1, b2) {
   if (isBuffer(b1) && isBuffer(b2)) {
     return b1.compare(b2);
   }
@@ -2182,7 +854,7 @@ encodeBytes.compareTokens = function compareTokens3(tok1, tok2) {
   return compareBytes(tokenBytes(tok1), tokenBytes(tok2));
 };
 function compareBytes(b1, b2) {
-  return b1.length < b2.length ? -1 : b1.length > b2.length ? 1 : compare(b1, b2);
+  return b1.length < b2.length ? -1 : b1.length > b2.length ? 1 : compare$1(b1, b2);
 }
 function toToken$2(data, pos, prefix, length, options) {
   const totLength = prefix + length;
@@ -3074,7 +1746,7 @@ var cborDecode = function(data) {
 };
 var UR = (
   /** @class */
-  (function() {
+  function() {
     function UR2(_cborPayload, _type) {
       if (_type === void 0) {
         _type = "bytes";
@@ -3112,8 +1784,1339 @@ var UR = (
       return this.type === ur2.type && this.cbor.equals(ur2.cbor);
     };
     return UR2;
-  })()
+  }()
 );
+var isNumeric = /^-?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i, mathceil = Math.ceil, mathfloor = Math.floor, bignumberError = "[BigNumber Error] ", tooManyDigits = bignumberError + "Number primitive has more than 15 significant digits: ", BASE = 1e14, LOG_BASE = 14, MAX_SAFE_INTEGER = 9007199254740991, POWS_TEN = [1, 10, 100, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10, 1e11, 1e12, 1e13], SQRT_BASE = 1e7, MAX = 1e9;
+function clone(configObject) {
+  var div, convertBase, parseNumeric, P = BigNumber2.prototype = { constructor: BigNumber2, toString: null, valueOf: null }, ONE = new BigNumber2(1), DECIMAL_PLACES = 20, ROUNDING_MODE = 4, TO_EXP_NEG = -7, TO_EXP_POS = 21, MIN_EXP = -1e7, MAX_EXP = 1e7, CRYPTO = false, MODULO_MODE = 1, POW_PRECISION = 0, FORMAT = {
+    prefix: "",
+    groupSize: 3,
+    secondaryGroupSize: 0,
+    groupSeparator: ",",
+    decimalSeparator: ".",
+    fractionGroupSize: 0,
+    fractionGroupSeparator: " ",
+    // non-breaking space
+    suffix: ""
+  }, ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz", alphabetHasNormalDecimalDigits = true;
+  function BigNumber2(v, b) {
+    var alphabet, c, caseChanged, e2, i, isNum, len, str, x = this;
+    if (!(x instanceof BigNumber2)) return new BigNumber2(v, b);
+    if (b == null) {
+      if (v && v._isBigNumber === true) {
+        x.s = v.s;
+        if (!v.c || v.e > MAX_EXP) {
+          x.c = x.e = null;
+        } else if (v.e < MIN_EXP) {
+          x.c = [x.e = 0];
+        } else {
+          x.e = v.e;
+          x.c = v.c.slice();
+        }
+        return;
+      }
+      if ((isNum = typeof v == "number") && v * 0 == 0) {
+        x.s = 1 / v < 0 ? (v = -v, -1) : 1;
+        if (v === ~~v) {
+          for (e2 = 0, i = v; i >= 10; i /= 10, e2++) ;
+          if (e2 > MAX_EXP) {
+            x.c = x.e = null;
+          } else {
+            x.e = e2;
+            x.c = [v];
+          }
+          return;
+        }
+        str = String(v);
+      } else {
+        if (!isNumeric.test(str = String(v))) return parseNumeric(x, str, isNum);
+        x.s = str.charCodeAt(0) == 45 ? (str = str.slice(1), -1) : 1;
+      }
+      if ((e2 = str.indexOf(".")) > -1) str = str.replace(".", "");
+      if ((i = str.search(/e/i)) > 0) {
+        if (e2 < 0) e2 = i;
+        e2 += +str.slice(i + 1);
+        str = str.substring(0, i);
+      } else if (e2 < 0) {
+        e2 = str.length;
+      }
+    } else {
+      intCheck(b, 2, ALPHABET.length, "Base");
+      if (b == 10 && alphabetHasNormalDecimalDigits) {
+        x = new BigNumber2(v);
+        return round(x, DECIMAL_PLACES + x.e + 1, ROUNDING_MODE);
+      }
+      str = String(v);
+      if (isNum = typeof v == "number") {
+        if (v * 0 != 0) return parseNumeric(x, str, isNum, b);
+        x.s = 1 / v < 0 ? (str = str.slice(1), -1) : 1;
+        if (BigNumber2.DEBUG && str.replace(/^0\.0*|\./, "").length > 15) {
+          throw Error(tooManyDigits + v);
+        }
+      } else {
+        x.s = str.charCodeAt(0) === 45 ? (str = str.slice(1), -1) : 1;
+      }
+      alphabet = ALPHABET.slice(0, b);
+      e2 = i = 0;
+      for (len = str.length; i < len; i++) {
+        if (alphabet.indexOf(c = str.charAt(i)) < 0) {
+          if (c == ".") {
+            if (i > e2) {
+              e2 = len;
+              continue;
+            }
+          } else if (!caseChanged) {
+            if (str == str.toUpperCase() && (str = str.toLowerCase()) || str == str.toLowerCase() && (str = str.toUpperCase())) {
+              caseChanged = true;
+              i = -1;
+              e2 = 0;
+              continue;
+            }
+          }
+          return parseNumeric(x, String(v), isNum, b);
+        }
+      }
+      isNum = false;
+      str = convertBase(str, b, 10, x.s);
+      if ((e2 = str.indexOf(".")) > -1) str = str.replace(".", "");
+      else e2 = str.length;
+    }
+    for (i = 0; str.charCodeAt(i) === 48; i++) ;
+    for (len = str.length; str.charCodeAt(--len) === 48; ) ;
+    if (str = str.slice(i, ++len)) {
+      len -= i;
+      if (isNum && BigNumber2.DEBUG && len > 15 && (v > MAX_SAFE_INTEGER || v !== mathfloor(v))) {
+        throw Error(tooManyDigits + x.s * v);
+      }
+      if ((e2 = e2 - i - 1) > MAX_EXP) {
+        x.c = x.e = null;
+      } else if (e2 < MIN_EXP) {
+        x.c = [x.e = 0];
+      } else {
+        x.e = e2;
+        x.c = [];
+        i = (e2 + 1) % LOG_BASE;
+        if (e2 < 0) i += LOG_BASE;
+        if (i < len) {
+          if (i) x.c.push(+str.slice(0, i));
+          for (len -= LOG_BASE; i < len; ) {
+            x.c.push(+str.slice(i, i += LOG_BASE));
+          }
+          i = LOG_BASE - (str = str.slice(i)).length;
+        } else {
+          i -= len;
+        }
+        for (; i--; str += "0") ;
+        x.c.push(+str);
+      }
+    } else {
+      x.c = [x.e = 0];
+    }
+  }
+  BigNumber2.clone = clone;
+  BigNumber2.ROUND_UP = 0;
+  BigNumber2.ROUND_DOWN = 1;
+  BigNumber2.ROUND_CEIL = 2;
+  BigNumber2.ROUND_FLOOR = 3;
+  BigNumber2.ROUND_HALF_UP = 4;
+  BigNumber2.ROUND_HALF_DOWN = 5;
+  BigNumber2.ROUND_HALF_EVEN = 6;
+  BigNumber2.ROUND_HALF_CEIL = 7;
+  BigNumber2.ROUND_HALF_FLOOR = 8;
+  BigNumber2.EUCLID = 9;
+  BigNumber2.config = BigNumber2.set = function(obj) {
+    var p, v;
+    if (obj != null) {
+      if (typeof obj == "object") {
+        if (obj.hasOwnProperty(p = "DECIMAL_PLACES")) {
+          v = obj[p];
+          intCheck(v, 0, MAX, p);
+          DECIMAL_PLACES = v;
+        }
+        if (obj.hasOwnProperty(p = "ROUNDING_MODE")) {
+          v = obj[p];
+          intCheck(v, 0, 8, p);
+          ROUNDING_MODE = v;
+        }
+        if (obj.hasOwnProperty(p = "EXPONENTIAL_AT")) {
+          v = obj[p];
+          if (v && v.pop) {
+            intCheck(v[0], -MAX, 0, p);
+            intCheck(v[1], 0, MAX, p);
+            TO_EXP_NEG = v[0];
+            TO_EXP_POS = v[1];
+          } else {
+            intCheck(v, -MAX, MAX, p);
+            TO_EXP_NEG = -(TO_EXP_POS = v < 0 ? -v : v);
+          }
+        }
+        if (obj.hasOwnProperty(p = "RANGE")) {
+          v = obj[p];
+          if (v && v.pop) {
+            intCheck(v[0], -MAX, -1, p);
+            intCheck(v[1], 1, MAX, p);
+            MIN_EXP = v[0];
+            MAX_EXP = v[1];
+          } else {
+            intCheck(v, -MAX, MAX, p);
+            if (v) {
+              MIN_EXP = -(MAX_EXP = v < 0 ? -v : v);
+            } else {
+              throw Error(bignumberError + p + " cannot be zero: " + v);
+            }
+          }
+        }
+        if (obj.hasOwnProperty(p = "CRYPTO")) {
+          v = obj[p];
+          if (v === !!v) {
+            if (v) {
+              if (typeof crypto != "undefined" && crypto && (crypto.getRandomValues || crypto.randomBytes)) {
+                CRYPTO = v;
+              } else {
+                CRYPTO = !v;
+                throw Error(bignumberError + "crypto unavailable");
+              }
+            } else {
+              CRYPTO = v;
+            }
+          } else {
+            throw Error(bignumberError + p + " not true or false: " + v);
+          }
+        }
+        if (obj.hasOwnProperty(p = "MODULO_MODE")) {
+          v = obj[p];
+          intCheck(v, 0, 9, p);
+          MODULO_MODE = v;
+        }
+        if (obj.hasOwnProperty(p = "POW_PRECISION")) {
+          v = obj[p];
+          intCheck(v, 0, MAX, p);
+          POW_PRECISION = v;
+        }
+        if (obj.hasOwnProperty(p = "FORMAT")) {
+          v = obj[p];
+          if (typeof v == "object") FORMAT = v;
+          else throw Error(bignumberError + p + " not an object: " + v);
+        }
+        if (obj.hasOwnProperty(p = "ALPHABET")) {
+          v = obj[p];
+          if (typeof v == "string" && !/^.?$|[+\-.\s]|(.).*\1/.test(v)) {
+            alphabetHasNormalDecimalDigits = v.slice(0, 10) == "0123456789";
+            ALPHABET = v;
+          } else {
+            throw Error(bignumberError + p + " invalid: " + v);
+          }
+        }
+      } else {
+        throw Error(bignumberError + "Object expected: " + obj);
+      }
+    }
+    return {
+      DECIMAL_PLACES,
+      ROUNDING_MODE,
+      EXPONENTIAL_AT: [TO_EXP_NEG, TO_EXP_POS],
+      RANGE: [MIN_EXP, MAX_EXP],
+      CRYPTO,
+      MODULO_MODE,
+      POW_PRECISION,
+      FORMAT,
+      ALPHABET
+    };
+  };
+  BigNumber2.isBigNumber = function(v) {
+    if (!v || v._isBigNumber !== true) return false;
+    if (!BigNumber2.DEBUG) return true;
+    var i, n, c = v.c, e2 = v.e, s = v.s;
+    out: if ({}.toString.call(c) == "[object Array]") {
+      if ((s === 1 || s === -1) && e2 >= -MAX && e2 <= MAX && e2 === mathfloor(e2)) {
+        if (c[0] === 0) {
+          if (e2 === 0 && c.length === 1) return true;
+          break out;
+        }
+        i = (e2 + 1) % LOG_BASE;
+        if (i < 1) i += LOG_BASE;
+        if (String(c[0]).length == i) {
+          for (i = 0; i < c.length; i++) {
+            n = c[i];
+            if (n < 0 || n >= BASE || n !== mathfloor(n)) break out;
+          }
+          if (n !== 0) return true;
+        }
+      }
+    } else if (c === null && e2 === null && (s === null || s === 1 || s === -1)) {
+      return true;
+    }
+    throw Error(bignumberError + "Invalid BigNumber: " + v);
+  };
+  BigNumber2.maximum = BigNumber2.max = function() {
+    return maxOrMin(arguments, -1);
+  };
+  BigNumber2.minimum = BigNumber2.min = function() {
+    return maxOrMin(arguments, 1);
+  };
+  BigNumber2.random = function() {
+    var pow2_53 = 9007199254740992;
+    var random53bitInt = Math.random() * pow2_53 & 2097151 ? function() {
+      return mathfloor(Math.random() * pow2_53);
+    } : function() {
+      return (Math.random() * 1073741824 | 0) * 8388608 + (Math.random() * 8388608 | 0);
+    };
+    return function(dp) {
+      var a, b, e2, k, v, i = 0, c = [], rand = new BigNumber2(ONE);
+      if (dp == null) dp = DECIMAL_PLACES;
+      else intCheck(dp, 0, MAX);
+      k = mathceil(dp / LOG_BASE);
+      if (CRYPTO) {
+        if (crypto.getRandomValues) {
+          a = crypto.getRandomValues(new Uint32Array(k *= 2));
+          for (; i < k; ) {
+            v = a[i] * 131072 + (a[i + 1] >>> 11);
+            if (v >= 9e15) {
+              b = crypto.getRandomValues(new Uint32Array(2));
+              a[i] = b[0];
+              a[i + 1] = b[1];
+            } else {
+              c.push(v % 1e14);
+              i += 2;
+            }
+          }
+          i = k / 2;
+        } else if (crypto.randomBytes) {
+          a = crypto.randomBytes(k *= 7);
+          for (; i < k; ) {
+            v = (a[i] & 31) * 281474976710656 + a[i + 1] * 1099511627776 + a[i + 2] * 4294967296 + a[i + 3] * 16777216 + (a[i + 4] << 16) + (a[i + 5] << 8) + a[i + 6];
+            if (v >= 9e15) {
+              crypto.randomBytes(7).copy(a, i);
+            } else {
+              c.push(v % 1e14);
+              i += 7;
+            }
+          }
+          i = k / 7;
+        } else {
+          CRYPTO = false;
+          throw Error(bignumberError + "crypto unavailable");
+        }
+      }
+      if (!CRYPTO) {
+        for (; i < k; ) {
+          v = random53bitInt();
+          if (v < 9e15) c[i++] = v % 1e14;
+        }
+      }
+      k = c[--i];
+      dp %= LOG_BASE;
+      if (k && dp) {
+        v = POWS_TEN[LOG_BASE - dp];
+        c[i] = mathfloor(k / v) * v;
+      }
+      for (; c[i] === 0; c.pop(), i--) ;
+      if (i < 0) {
+        c = [e2 = 0];
+      } else {
+        for (e2 = -1; c[0] === 0; c.splice(0, 1), e2 -= LOG_BASE) ;
+        for (i = 1, v = c[0]; v >= 10; v /= 10, i++) ;
+        if (i < LOG_BASE) e2 -= LOG_BASE - i;
+      }
+      rand.e = e2;
+      rand.c = c;
+      return rand;
+    };
+  }();
+  BigNumber2.sum = function() {
+    var i = 1, args = arguments, sum = new BigNumber2(args[0]);
+    for (; i < args.length; ) sum = sum.plus(args[i++]);
+    return sum;
+  };
+  convertBase = /* @__PURE__ */ function() {
+    var decimal = "0123456789";
+    function toBaseOut(str, baseIn, baseOut, alphabet) {
+      var j, arr = [0], arrL, i = 0, len = str.length;
+      for (; i < len; ) {
+        for (arrL = arr.length; arrL--; arr[arrL] *= baseIn) ;
+        arr[0] += alphabet.indexOf(str.charAt(i++));
+        for (j = 0; j < arr.length; j++) {
+          if (arr[j] > baseOut - 1) {
+            if (arr[j + 1] == null) arr[j + 1] = 0;
+            arr[j + 1] += arr[j] / baseOut | 0;
+            arr[j] %= baseOut;
+          }
+        }
+      }
+      return arr.reverse();
+    }
+    return function(str, baseIn, baseOut, sign, callerIsToString) {
+      var alphabet, d, e2, k, r, x, xc, y, i = str.indexOf("."), dp = DECIMAL_PLACES, rm = ROUNDING_MODE;
+      if (i >= 0) {
+        k = POW_PRECISION;
+        POW_PRECISION = 0;
+        str = str.replace(".", "");
+        y = new BigNumber2(baseIn);
+        x = y.pow(str.length - i);
+        POW_PRECISION = k;
+        y.c = toBaseOut(
+          toFixedPoint(coeffToString(x.c), x.e, "0"),
+          10,
+          baseOut,
+          decimal
+        );
+        y.e = y.c.length;
+      }
+      xc = toBaseOut(str, baseIn, baseOut, callerIsToString ? (alphabet = ALPHABET, decimal) : (alphabet = decimal, ALPHABET));
+      e2 = k = xc.length;
+      for (; xc[--k] == 0; xc.pop()) ;
+      if (!xc[0]) return alphabet.charAt(0);
+      if (i < 0) {
+        --e2;
+      } else {
+        x.c = xc;
+        x.e = e2;
+        x.s = sign;
+        x = div(x, y, dp, rm, baseOut);
+        xc = x.c;
+        r = x.r;
+        e2 = x.e;
+      }
+      d = e2 + dp + 1;
+      i = xc[d];
+      k = baseOut / 2;
+      r = r || d < 0 || xc[d + 1] != null;
+      r = rm < 4 ? (i != null || r) && (rm == 0 || rm == (x.s < 0 ? 3 : 2)) : i > k || i == k && (rm == 4 || r || rm == 6 && xc[d - 1] & 1 || rm == (x.s < 0 ? 8 : 7));
+      if (d < 1 || !xc[0]) {
+        str = r ? toFixedPoint(alphabet.charAt(1), -dp, alphabet.charAt(0)) : alphabet.charAt(0);
+      } else {
+        xc.length = d;
+        if (r) {
+          for (--baseOut; ++xc[--d] > baseOut; ) {
+            xc[d] = 0;
+            if (!d) {
+              ++e2;
+              xc = [1].concat(xc);
+            }
+          }
+        }
+        for (k = xc.length; !xc[--k]; ) ;
+        for (i = 0, str = ""; i <= k; str += alphabet.charAt(xc[i++])) ;
+        str = toFixedPoint(str, e2, alphabet.charAt(0));
+      }
+      return str;
+    };
+  }();
+  div = /* @__PURE__ */ function() {
+    function multiply(x, k, base) {
+      var m, temp, xlo, xhi, carry = 0, i = x.length, klo = k % SQRT_BASE, khi = k / SQRT_BASE | 0;
+      for (x = x.slice(); i--; ) {
+        xlo = x[i] % SQRT_BASE;
+        xhi = x[i] / SQRT_BASE | 0;
+        m = khi * xlo + xhi * klo;
+        temp = klo * xlo + m % SQRT_BASE * SQRT_BASE + carry;
+        carry = (temp / base | 0) + (m / SQRT_BASE | 0) + khi * xhi;
+        x[i] = temp % base;
+      }
+      if (carry) x = [carry].concat(x);
+      return x;
+    }
+    function compare2(a, b, aL, bL) {
+      var i, cmp;
+      if (aL != bL) {
+        cmp = aL > bL ? 1 : -1;
+      } else {
+        for (i = cmp = 0; i < aL; i++) {
+          if (a[i] != b[i]) {
+            cmp = a[i] > b[i] ? 1 : -1;
+            break;
+          }
+        }
+      }
+      return cmp;
+    }
+    function subtract(a, b, aL, base) {
+      var i = 0;
+      for (; aL--; ) {
+        a[aL] -= i;
+        i = a[aL] < b[aL] ? 1 : 0;
+        a[aL] = i * base + a[aL] - b[aL];
+      }
+      for (; !a[0] && a.length > 1; a.splice(0, 1)) ;
+    }
+    return function(x, y, dp, rm, base) {
+      var cmp, e2, i, more, n, prod, prodL, q, qc, rem, remL, rem0, xi, xL, yc0, yL, yz, s = x.s == y.s ? 1 : -1, xc = x.c, yc = y.c;
+      if (!xc || !xc[0] || !yc || !yc[0]) {
+        return new BigNumber2(
+          // Return NaN if either NaN, or both Infinity or 0.
+          !x.s || !y.s || (xc ? yc && xc[0] == yc[0] : !yc) ? NaN : (
+            // Return ±0 if x is ±0 or y is ±Infinity, or return ±Infinity as y is ±0.
+            xc && xc[0] == 0 || !yc ? s * 0 : s / 0
+          )
+        );
+      }
+      q = new BigNumber2(s);
+      qc = q.c = [];
+      e2 = x.e - y.e;
+      s = dp + e2 + 1;
+      if (!base) {
+        base = BASE;
+        e2 = bitFloor(x.e / LOG_BASE) - bitFloor(y.e / LOG_BASE);
+        s = s / LOG_BASE | 0;
+      }
+      for (i = 0; yc[i] == (xc[i] || 0); i++) ;
+      if (yc[i] > (xc[i] || 0)) e2--;
+      if (s < 0) {
+        qc.push(1);
+        more = true;
+      } else {
+        xL = xc.length;
+        yL = yc.length;
+        i = 0;
+        s += 2;
+        n = mathfloor(base / (yc[0] + 1));
+        if (n > 1) {
+          yc = multiply(yc, n, base);
+          xc = multiply(xc, n, base);
+          yL = yc.length;
+          xL = xc.length;
+        }
+        xi = yL;
+        rem = xc.slice(0, yL);
+        remL = rem.length;
+        for (; remL < yL; rem[remL++] = 0) ;
+        yz = yc.slice();
+        yz = [0].concat(yz);
+        yc0 = yc[0];
+        if (yc[1] >= base / 2) yc0++;
+        do {
+          n = 0;
+          cmp = compare2(yc, rem, yL, remL);
+          if (cmp < 0) {
+            rem0 = rem[0];
+            if (yL != remL) rem0 = rem0 * base + (rem[1] || 0);
+            n = mathfloor(rem0 / yc0);
+            if (n > 1) {
+              if (n >= base) n = base - 1;
+              prod = multiply(yc, n, base);
+              prodL = prod.length;
+              remL = rem.length;
+              while (compare2(prod, rem, prodL, remL) == 1) {
+                n--;
+                subtract(prod, yL < prodL ? yz : yc, prodL, base);
+                prodL = prod.length;
+                cmp = 1;
+              }
+            } else {
+              if (n == 0) {
+                cmp = n = 1;
+              }
+              prod = yc.slice();
+              prodL = prod.length;
+            }
+            if (prodL < remL) prod = [0].concat(prod);
+            subtract(rem, prod, remL, base);
+            remL = rem.length;
+            if (cmp == -1) {
+              while (compare2(yc, rem, yL, remL) < 1) {
+                n++;
+                subtract(rem, yL < remL ? yz : yc, remL, base);
+                remL = rem.length;
+              }
+            }
+          } else if (cmp === 0) {
+            n++;
+            rem = [0];
+          }
+          qc[i++] = n;
+          if (rem[0]) {
+            rem[remL++] = xc[xi] || 0;
+          } else {
+            rem = [xc[xi]];
+            remL = 1;
+          }
+        } while ((xi++ < xL || rem[0] != null) && s--);
+        more = rem[0] != null;
+        if (!qc[0]) qc.splice(0, 1);
+      }
+      if (base == BASE) {
+        for (i = 1, s = qc[0]; s >= 10; s /= 10, i++) ;
+        round(q, dp + (q.e = i + e2 * LOG_BASE - 1) + 1, rm, more);
+      } else {
+        q.e = e2;
+        q.r = +more;
+      }
+      return q;
+    };
+  }();
+  function format(n, i, rm, id) {
+    var c0, e2, ne, len, str;
+    if (rm == null) rm = ROUNDING_MODE;
+    else intCheck(rm, 0, 8);
+    if (!n.c) return n.toString();
+    c0 = n.c[0];
+    ne = n.e;
+    if (i == null) {
+      str = coeffToString(n.c);
+      str = id == 1 || id == 2 && (ne <= TO_EXP_NEG || ne >= TO_EXP_POS) ? toExponential(str, ne) : toFixedPoint(str, ne, "0");
+    } else {
+      n = round(new BigNumber2(n), i, rm);
+      e2 = n.e;
+      str = coeffToString(n.c);
+      len = str.length;
+      if (id == 1 || id == 2 && (i <= e2 || e2 <= TO_EXP_NEG)) {
+        for (; len < i; str += "0", len++) ;
+        str = toExponential(str, e2);
+      } else {
+        i -= ne + (id === 2 && e2 > ne);
+        str = toFixedPoint(str, e2, "0");
+        if (e2 + 1 > len) {
+          if (--i > 0) for (str += "."; i--; str += "0") ;
+        } else {
+          i += e2 - len;
+          if (i > 0) {
+            if (e2 + 1 == len) str += ".";
+            for (; i--; str += "0") ;
+          }
+        }
+      }
+    }
+    return n.s < 0 && c0 ? "-" + str : str;
+  }
+  function maxOrMin(args, n) {
+    var k, y, i = 1, x = new BigNumber2(args[0]);
+    for (; i < args.length; i++) {
+      y = new BigNumber2(args[i]);
+      if (!y.s || (k = compare(x, y)) === n || k === 0 && x.s === n) {
+        x = y;
+      }
+    }
+    return x;
+  }
+  function normalise(n, c, e2) {
+    var i = 1, j = c.length;
+    for (; !c[--j]; c.pop()) ;
+    for (j = c[0]; j >= 10; j /= 10, i++) ;
+    if ((e2 = i + e2 * LOG_BASE - 1) > MAX_EXP) {
+      n.c = n.e = null;
+    } else if (e2 < MIN_EXP) {
+      n.c = [n.e = 0];
+    } else {
+      n.e = e2;
+      n.c = c;
+    }
+    return n;
+  }
+  parseNumeric = /* @__PURE__ */ function() {
+    var basePrefix = /^(-?)0([xbo])(?=\w[\w.]*$)/i, dotAfter = /^([^.]+)\.$/, dotBefore = /^\.([^.]+)$/, isInfinityOrNaN = /^-?(Infinity|NaN)$/, whitespaceOrPlus = /^\s*\+(?=[\w.])|^\s+|\s+$/g;
+    return function(x, str, isNum, b) {
+      var base, s = isNum ? str : str.replace(whitespaceOrPlus, "");
+      if (isInfinityOrNaN.test(s)) {
+        x.s = isNaN(s) ? null : s < 0 ? -1 : 1;
+      } else {
+        if (!isNum) {
+          s = s.replace(basePrefix, function(m, p1, p2) {
+            base = (p2 = p2.toLowerCase()) == "x" ? 16 : p2 == "b" ? 2 : 8;
+            return !b || b == base ? p1 : m;
+          });
+          if (b) {
+            base = b;
+            s = s.replace(dotAfter, "$1").replace(dotBefore, "0.$1");
+          }
+          if (str != s) return new BigNumber2(s, base);
+        }
+        if (BigNumber2.DEBUG) {
+          throw Error(bignumberError + "Not a" + (b ? " base " + b : "") + " number: " + str);
+        }
+        x.s = null;
+      }
+      x.c = x.e = null;
+    };
+  }();
+  function round(x, sd, rm, r) {
+    var d, i, j, k, n, ni, rd, xc = x.c, pows10 = POWS_TEN;
+    if (xc) {
+      out: {
+        for (d = 1, k = xc[0]; k >= 10; k /= 10, d++) ;
+        i = sd - d;
+        if (i < 0) {
+          i += LOG_BASE;
+          j = sd;
+          n = xc[ni = 0];
+          rd = mathfloor(n / pows10[d - j - 1] % 10);
+        } else {
+          ni = mathceil((i + 1) / LOG_BASE);
+          if (ni >= xc.length) {
+            if (r) {
+              for (; xc.length <= ni; xc.push(0)) ;
+              n = rd = 0;
+              d = 1;
+              i %= LOG_BASE;
+              j = i - LOG_BASE + 1;
+            } else {
+              break out;
+            }
+          } else {
+            n = k = xc[ni];
+            for (d = 1; k >= 10; k /= 10, d++) ;
+            i %= LOG_BASE;
+            j = i - LOG_BASE + d;
+            rd = j < 0 ? 0 : mathfloor(n / pows10[d - j - 1] % 10);
+          }
+        }
+        r = r || sd < 0 || // Are there any non-zero digits after the rounding digit?
+        // The expression  n % pows10[d - j - 1]  returns all digits of n to the right
+        // of the digit at j, e.g. if n is 908714 and j is 2, the expression gives 714.
+        xc[ni + 1] != null || (j < 0 ? n : n % pows10[d - j - 1]);
+        r = rm < 4 ? (rd || r) && (rm == 0 || rm == (x.s < 0 ? 3 : 2)) : rd > 5 || rd == 5 && (rm == 4 || r || rm == 6 && // Check whether the digit to the left of the rounding digit is odd.
+        (i > 0 ? j > 0 ? n / pows10[d - j] : 0 : xc[ni - 1]) % 10 & 1 || rm == (x.s < 0 ? 8 : 7));
+        if (sd < 1 || !xc[0]) {
+          xc.length = 0;
+          if (r) {
+            sd -= x.e + 1;
+            xc[0] = pows10[(LOG_BASE - sd % LOG_BASE) % LOG_BASE];
+            x.e = -sd || 0;
+          } else {
+            xc[0] = x.e = 0;
+          }
+          return x;
+        }
+        if (i == 0) {
+          xc.length = ni;
+          k = 1;
+          ni--;
+        } else {
+          xc.length = ni + 1;
+          k = pows10[LOG_BASE - i];
+          xc[ni] = j > 0 ? mathfloor(n / pows10[d - j] % pows10[j]) * k : 0;
+        }
+        if (r) {
+          for (; ; ) {
+            if (ni == 0) {
+              for (i = 1, j = xc[0]; j >= 10; j /= 10, i++) ;
+              j = xc[0] += k;
+              for (k = 1; j >= 10; j /= 10, k++) ;
+              if (i != k) {
+                x.e++;
+                if (xc[0] == BASE) xc[0] = 1;
+              }
+              break;
+            } else {
+              xc[ni] += k;
+              if (xc[ni] != BASE) break;
+              xc[ni--] = 0;
+              k = 1;
+            }
+          }
+        }
+        for (i = xc.length; xc[--i] === 0; xc.pop()) ;
+      }
+      if (x.e > MAX_EXP) {
+        x.c = x.e = null;
+      } else if (x.e < MIN_EXP) {
+        x.c = [x.e = 0];
+      }
+    }
+    return x;
+  }
+  function valueOf(n) {
+    var str, e2 = n.e;
+    if (e2 === null) return n.toString();
+    str = coeffToString(n.c);
+    str = e2 <= TO_EXP_NEG || e2 >= TO_EXP_POS ? toExponential(str, e2) : toFixedPoint(str, e2, "0");
+    return n.s < 0 ? "-" + str : str;
+  }
+  P.absoluteValue = P.abs = function() {
+    var x = new BigNumber2(this);
+    if (x.s < 0) x.s = 1;
+    return x;
+  };
+  P.comparedTo = function(y, b) {
+    return compare(this, new BigNumber2(y, b));
+  };
+  P.decimalPlaces = P.dp = function(dp, rm) {
+    var c, n, v, x = this;
+    if (dp != null) {
+      intCheck(dp, 0, MAX);
+      if (rm == null) rm = ROUNDING_MODE;
+      else intCheck(rm, 0, 8);
+      return round(new BigNumber2(x), dp + x.e + 1, rm);
+    }
+    if (!(c = x.c)) return null;
+    n = ((v = c.length - 1) - bitFloor(this.e / LOG_BASE)) * LOG_BASE;
+    if (v = c[v]) for (; v % 10 == 0; v /= 10, n--) ;
+    if (n < 0) n = 0;
+    return n;
+  };
+  P.dividedBy = P.div = function(y, b) {
+    return div(this, new BigNumber2(y, b), DECIMAL_PLACES, ROUNDING_MODE);
+  };
+  P.dividedToIntegerBy = P.idiv = function(y, b) {
+    return div(this, new BigNumber2(y, b), 0, 1);
+  };
+  P.exponentiatedBy = P.pow = function(n, m) {
+    var half, isModExp, i, k, more, nIsBig, nIsNeg, nIsOdd, y, x = this;
+    n = new BigNumber2(n);
+    if (n.c && !n.isInteger()) {
+      throw Error(bignumberError + "Exponent not an integer: " + valueOf(n));
+    }
+    if (m != null) m = new BigNumber2(m);
+    nIsBig = n.e > 14;
+    if (!x.c || !x.c[0] || x.c[0] == 1 && !x.e && x.c.length == 1 || !n.c || !n.c[0]) {
+      y = new BigNumber2(Math.pow(+valueOf(x), nIsBig ? n.s * (2 - isOdd(n)) : +valueOf(n)));
+      return m ? y.mod(m) : y;
+    }
+    nIsNeg = n.s < 0;
+    if (m) {
+      if (m.c ? !m.c[0] : !m.s) return new BigNumber2(NaN);
+      isModExp = !nIsNeg && x.isInteger() && m.isInteger();
+      if (isModExp) x = x.mod(m);
+    } else if (n.e > 9 && (x.e > 0 || x.e < -1 || (x.e == 0 ? x.c[0] > 1 || nIsBig && x.c[1] >= 24e7 : x.c[0] < 8e13 || nIsBig && x.c[0] <= 9999975e7))) {
+      k = x.s < 0 && isOdd(n) ? -0 : 0;
+      if (x.e > -1) k = 1 / k;
+      return new BigNumber2(nIsNeg ? 1 / k : k);
+    } else if (POW_PRECISION) {
+      k = mathceil(POW_PRECISION / LOG_BASE + 2);
+    }
+    if (nIsBig) {
+      half = new BigNumber2(0.5);
+      if (nIsNeg) n.s = 1;
+      nIsOdd = isOdd(n);
+    } else {
+      i = Math.abs(+valueOf(n));
+      nIsOdd = i % 2;
+    }
+    y = new BigNumber2(ONE);
+    for (; ; ) {
+      if (nIsOdd) {
+        y = y.times(x);
+        if (!y.c) break;
+        if (k) {
+          if (y.c.length > k) y.c.length = k;
+        } else if (isModExp) {
+          y = y.mod(m);
+        }
+      }
+      if (i) {
+        i = mathfloor(i / 2);
+        if (i === 0) break;
+        nIsOdd = i % 2;
+      } else {
+        n = n.times(half);
+        round(n, n.e + 1, 1);
+        if (n.e > 14) {
+          nIsOdd = isOdd(n);
+        } else {
+          i = +valueOf(n);
+          if (i === 0) break;
+          nIsOdd = i % 2;
+        }
+      }
+      x = x.times(x);
+      if (k) {
+        if (x.c && x.c.length > k) x.c.length = k;
+      } else if (isModExp) {
+        x = x.mod(m);
+      }
+    }
+    if (isModExp) return y;
+    if (nIsNeg) y = ONE.div(y);
+    return m ? y.mod(m) : k ? round(y, POW_PRECISION, ROUNDING_MODE, more) : y;
+  };
+  P.integerValue = function(rm) {
+    var n = new BigNumber2(this);
+    if (rm == null) rm = ROUNDING_MODE;
+    else intCheck(rm, 0, 8);
+    return round(n, n.e + 1, rm);
+  };
+  P.isEqualTo = P.eq = function(y, b) {
+    return compare(this, new BigNumber2(y, b)) === 0;
+  };
+  P.isFinite = function() {
+    return !!this.c;
+  };
+  P.isGreaterThan = P.gt = function(y, b) {
+    return compare(this, new BigNumber2(y, b)) > 0;
+  };
+  P.isGreaterThanOrEqualTo = P.gte = function(y, b) {
+    return (b = compare(this, new BigNumber2(y, b))) === 1 || b === 0;
+  };
+  P.isInteger = function() {
+    return !!this.c && bitFloor(this.e / LOG_BASE) > this.c.length - 2;
+  };
+  P.isLessThan = P.lt = function(y, b) {
+    return compare(this, new BigNumber2(y, b)) < 0;
+  };
+  P.isLessThanOrEqualTo = P.lte = function(y, b) {
+    return (b = compare(this, new BigNumber2(y, b))) === -1 || b === 0;
+  };
+  P.isNaN = function() {
+    return !this.s;
+  };
+  P.isNegative = function() {
+    return this.s < 0;
+  };
+  P.isPositive = function() {
+    return this.s > 0;
+  };
+  P.isZero = function() {
+    return !!this.c && this.c[0] == 0;
+  };
+  P.minus = function(y, b) {
+    var i, j, t, xLTy, x = this, a = x.s;
+    y = new BigNumber2(y, b);
+    b = y.s;
+    if (!a || !b) return new BigNumber2(NaN);
+    if (a != b) {
+      y.s = -b;
+      return x.plus(y);
+    }
+    var xe = x.e / LOG_BASE, ye = y.e / LOG_BASE, xc = x.c, yc = y.c;
+    if (!xe || !ye) {
+      if (!xc || !yc) return xc ? (y.s = -b, y) : new BigNumber2(yc ? x : NaN);
+      if (!xc[0] || !yc[0]) {
+        return yc[0] ? (y.s = -b, y) : new BigNumber2(xc[0] ? x : (
+          // IEEE 754 (2008) 6.3: n - n = -0 when rounding to -Infinity
+          ROUNDING_MODE == 3 ? -0 : 0
+        ));
+      }
+    }
+    xe = bitFloor(xe);
+    ye = bitFloor(ye);
+    xc = xc.slice();
+    if (a = xe - ye) {
+      if (xLTy = a < 0) {
+        a = -a;
+        t = xc;
+      } else {
+        ye = xe;
+        t = yc;
+      }
+      t.reverse();
+      for (b = a; b--; t.push(0)) ;
+      t.reverse();
+    } else {
+      j = (xLTy = (a = xc.length) < (b = yc.length)) ? a : b;
+      for (a = b = 0; b < j; b++) {
+        if (xc[b] != yc[b]) {
+          xLTy = xc[b] < yc[b];
+          break;
+        }
+      }
+    }
+    if (xLTy) {
+      t = xc;
+      xc = yc;
+      yc = t;
+      y.s = -y.s;
+    }
+    b = (j = yc.length) - (i = xc.length);
+    if (b > 0) for (; b--; xc[i++] = 0) ;
+    b = BASE - 1;
+    for (; j > a; ) {
+      if (xc[--j] < yc[j]) {
+        for (i = j; i && !xc[--i]; xc[i] = b) ;
+        --xc[i];
+        xc[j] += BASE;
+      }
+      xc[j] -= yc[j];
+    }
+    for (; xc[0] == 0; xc.splice(0, 1), --ye) ;
+    if (!xc[0]) {
+      y.s = ROUNDING_MODE == 3 ? -1 : 1;
+      y.c = [y.e = 0];
+      return y;
+    }
+    return normalise(y, xc, ye);
+  };
+  P.modulo = P.mod = function(y, b) {
+    var q, s, x = this;
+    y = new BigNumber2(y, b);
+    if (!x.c || !y.s || y.c && !y.c[0]) {
+      return new BigNumber2(NaN);
+    } else if (!y.c || x.c && !x.c[0]) {
+      return new BigNumber2(x);
+    }
+    if (MODULO_MODE == 9) {
+      s = y.s;
+      y.s = 1;
+      q = div(x, y, 0, 3);
+      y.s = s;
+      q.s *= s;
+    } else {
+      q = div(x, y, 0, MODULO_MODE);
+    }
+    y = x.minus(q.times(y));
+    if (!y.c[0] && MODULO_MODE == 1) y.s = x.s;
+    return y;
+  };
+  P.multipliedBy = P.times = function(y, b) {
+    var c, e2, i, j, k, m, xcL, xlo, xhi, ycL, ylo, yhi, zc, base, sqrtBase, x = this, xc = x.c, yc = (y = new BigNumber2(y, b)).c;
+    if (!xc || !yc || !xc[0] || !yc[0]) {
+      if (!x.s || !y.s || xc && !xc[0] && !yc || yc && !yc[0] && !xc) {
+        y.c = y.e = y.s = null;
+      } else {
+        y.s *= x.s;
+        if (!xc || !yc) {
+          y.c = y.e = null;
+        } else {
+          y.c = [0];
+          y.e = 0;
+        }
+      }
+      return y;
+    }
+    e2 = bitFloor(x.e / LOG_BASE) + bitFloor(y.e / LOG_BASE);
+    y.s *= x.s;
+    xcL = xc.length;
+    ycL = yc.length;
+    if (xcL < ycL) {
+      zc = xc;
+      xc = yc;
+      yc = zc;
+      i = xcL;
+      xcL = ycL;
+      ycL = i;
+    }
+    for (i = xcL + ycL, zc = []; i--; zc.push(0)) ;
+    base = BASE;
+    sqrtBase = SQRT_BASE;
+    for (i = ycL; --i >= 0; ) {
+      c = 0;
+      ylo = yc[i] % sqrtBase;
+      yhi = yc[i] / sqrtBase | 0;
+      for (k = xcL, j = i + k; j > i; ) {
+        xlo = xc[--k] % sqrtBase;
+        xhi = xc[k] / sqrtBase | 0;
+        m = yhi * xlo + xhi * ylo;
+        xlo = ylo * xlo + m % sqrtBase * sqrtBase + zc[j] + c;
+        c = (xlo / base | 0) + (m / sqrtBase | 0) + yhi * xhi;
+        zc[j--] = xlo % base;
+      }
+      zc[j] = c;
+    }
+    if (c) {
+      ++e2;
+    } else {
+      zc.splice(0, 1);
+    }
+    return normalise(y, zc, e2);
+  };
+  P.negated = function() {
+    var x = new BigNumber2(this);
+    x.s = -x.s || null;
+    return x;
+  };
+  P.plus = function(y, b) {
+    var t, x = this, a = x.s;
+    y = new BigNumber2(y, b);
+    b = y.s;
+    if (!a || !b) return new BigNumber2(NaN);
+    if (a != b) {
+      y.s = -b;
+      return x.minus(y);
+    }
+    var xe = x.e / LOG_BASE, ye = y.e / LOG_BASE, xc = x.c, yc = y.c;
+    if (!xe || !ye) {
+      if (!xc || !yc) return new BigNumber2(a / 0);
+      if (!xc[0] || !yc[0]) return yc[0] ? y : new BigNumber2(xc[0] ? x : a * 0);
+    }
+    xe = bitFloor(xe);
+    ye = bitFloor(ye);
+    xc = xc.slice();
+    if (a = xe - ye) {
+      if (a > 0) {
+        ye = xe;
+        t = yc;
+      } else {
+        a = -a;
+        t = xc;
+      }
+      t.reverse();
+      for (; a--; t.push(0)) ;
+      t.reverse();
+    }
+    a = xc.length;
+    b = yc.length;
+    if (a - b < 0) {
+      t = yc;
+      yc = xc;
+      xc = t;
+      b = a;
+    }
+    for (a = 0; b; ) {
+      a = (xc[--b] = xc[b] + yc[b] + a) / BASE | 0;
+      xc[b] = BASE === xc[b] ? 0 : xc[b] % BASE;
+    }
+    if (a) {
+      xc = [a].concat(xc);
+      ++ye;
+    }
+    return normalise(y, xc, ye);
+  };
+  P.precision = P.sd = function(sd, rm) {
+    var c, n, v, x = this;
+    if (sd != null && sd !== !!sd) {
+      intCheck(sd, 1, MAX);
+      if (rm == null) rm = ROUNDING_MODE;
+      else intCheck(rm, 0, 8);
+      return round(new BigNumber2(x), sd, rm);
+    }
+    if (!(c = x.c)) return null;
+    v = c.length - 1;
+    n = v * LOG_BASE + 1;
+    if (v = c[v]) {
+      for (; v % 10 == 0; v /= 10, n--) ;
+      for (v = c[0]; v >= 10; v /= 10, n++) ;
+    }
+    if (sd && x.e + 1 > n) n = x.e + 1;
+    return n;
+  };
+  P.shiftedBy = function(k) {
+    intCheck(k, -MAX_SAFE_INTEGER, MAX_SAFE_INTEGER);
+    return this.times("1e" + k);
+  };
+  P.squareRoot = P.sqrt = function() {
+    var m, n, r, rep, t, x = this, c = x.c, s = x.s, e2 = x.e, dp = DECIMAL_PLACES + 4, half = new BigNumber2("0.5");
+    if (s !== 1 || !c || !c[0]) {
+      return new BigNumber2(!s || s < 0 && (!c || c[0]) ? NaN : c ? x : 1 / 0);
+    }
+    s = Math.sqrt(+valueOf(x));
+    if (s == 0 || s == 1 / 0) {
+      n = coeffToString(c);
+      if ((n.length + e2) % 2 == 0) n += "0";
+      s = Math.sqrt(+n);
+      e2 = bitFloor((e2 + 1) / 2) - (e2 < 0 || e2 % 2);
+      if (s == 1 / 0) {
+        n = "5e" + e2;
+      } else {
+        n = s.toExponential();
+        n = n.slice(0, n.indexOf("e") + 1) + e2;
+      }
+      r = new BigNumber2(n);
+    } else {
+      r = new BigNumber2(s + "");
+    }
+    if (r.c[0]) {
+      e2 = r.e;
+      s = e2 + dp;
+      if (s < 3) s = 0;
+      for (; ; ) {
+        t = r;
+        r = half.times(t.plus(div(x, t, dp, 1)));
+        if (coeffToString(t.c).slice(0, s) === (n = coeffToString(r.c)).slice(0, s)) {
+          if (r.e < e2) --s;
+          n = n.slice(s - 3, s + 1);
+          if (n == "9999" || !rep && n == "4999") {
+            if (!rep) {
+              round(t, t.e + DECIMAL_PLACES + 2, 0);
+              if (t.times(t).eq(x)) {
+                r = t;
+                break;
+              }
+            }
+            dp += 4;
+            s += 4;
+            rep = 1;
+          } else {
+            if (!+n || !+n.slice(1) && n.charAt(0) == "5") {
+              round(r, r.e + DECIMAL_PLACES + 2, 1);
+              m = !r.times(r).eq(x);
+            }
+            break;
+          }
+        }
+      }
+    }
+    return round(r, r.e + DECIMAL_PLACES + 1, ROUNDING_MODE, m);
+  };
+  P.toExponential = function(dp, rm) {
+    if (dp != null) {
+      intCheck(dp, 0, MAX);
+      dp++;
+    }
+    return format(this, dp, rm, 1);
+  };
+  P.toFixed = function(dp, rm) {
+    if (dp != null) {
+      intCheck(dp, 0, MAX);
+      dp = dp + this.e + 1;
+    }
+    return format(this, dp, rm);
+  };
+  P.toFormat = function(dp, rm, format2) {
+    var str, x = this;
+    if (format2 == null) {
+      if (dp != null && rm && typeof rm == "object") {
+        format2 = rm;
+        rm = null;
+      } else if (dp && typeof dp == "object") {
+        format2 = dp;
+        dp = rm = null;
+      } else {
+        format2 = FORMAT;
+      }
+    } else if (typeof format2 != "object") {
+      throw Error(bignumberError + "Argument not an object: " + format2);
+    }
+    str = x.toFixed(dp, rm);
+    if (x.c) {
+      var i, arr = str.split("."), g1 = +format2.groupSize, g2 = +format2.secondaryGroupSize, groupSeparator = format2.groupSeparator || "", intPart = arr[0], fractionPart = arr[1], isNeg = x.s < 0, intDigits = isNeg ? intPart.slice(1) : intPart, len = intDigits.length;
+      if (g2) {
+        i = g1;
+        g1 = g2;
+        g2 = i;
+        len -= i;
+      }
+      if (g1 > 0 && len > 0) {
+        i = len % g1 || g1;
+        intPart = intDigits.substr(0, i);
+        for (; i < len; i += g1) intPart += groupSeparator + intDigits.substr(i, g1);
+        if (g2 > 0) intPart += groupSeparator + intDigits.slice(i);
+        if (isNeg) intPart = "-" + intPart;
+      }
+      str = fractionPart ? intPart + (format2.decimalSeparator || "") + ((g2 = +format2.fractionGroupSize) ? fractionPart.replace(
+        new RegExp("\\d{" + g2 + "}\\B", "g"),
+        "$&" + (format2.fractionGroupSeparator || "")
+      ) : fractionPart) : intPart;
+    }
+    return (format2.prefix || "") + str + (format2.suffix || "");
+  };
+  P.toFraction = function(md) {
+    var d, d0, d1, d2, e2, exp, n, n0, n1, q, r, s, x = this, xc = x.c;
+    if (md != null) {
+      n = new BigNumber2(md);
+      if (!n.isInteger() && (n.c || n.s !== 1) || n.lt(ONE)) {
+        throw Error(bignumberError + "Argument " + (n.isInteger() ? "out of range: " : "not an integer: ") + valueOf(n));
+      }
+    }
+    if (!xc) return new BigNumber2(x);
+    d = new BigNumber2(ONE);
+    n1 = d0 = new BigNumber2(ONE);
+    d1 = n0 = new BigNumber2(ONE);
+    s = coeffToString(xc);
+    e2 = d.e = s.length - x.e - 1;
+    d.c[0] = POWS_TEN[(exp = e2 % LOG_BASE) < 0 ? LOG_BASE + exp : exp];
+    md = !md || n.comparedTo(d) > 0 ? e2 > 0 ? d : n1 : n;
+    exp = MAX_EXP;
+    MAX_EXP = 1 / 0;
+    n = new BigNumber2(s);
+    n0.c[0] = 0;
+    for (; ; ) {
+      q = div(n, d, 0, 1);
+      d2 = d0.plus(q.times(d1));
+      if (d2.comparedTo(md) == 1) break;
+      d0 = d1;
+      d1 = d2;
+      n1 = n0.plus(q.times(d2 = n1));
+      n0 = d2;
+      d = n.minus(q.times(d2 = d));
+      n = d2;
+    }
+    d2 = div(md.minus(d0), d1, 0, 1);
+    n0 = n0.plus(d2.times(n1));
+    d0 = d0.plus(d2.times(d1));
+    n0.s = n1.s = x.s;
+    e2 = e2 * 2;
+    r = div(n1, d1, e2, ROUNDING_MODE).minus(x).abs().comparedTo(
+      div(n0, d0, e2, ROUNDING_MODE).minus(x).abs()
+    ) < 1 ? [n1, d1] : [n0, d0];
+    MAX_EXP = exp;
+    return r;
+  };
+  P.toNumber = function() {
+    return +valueOf(this);
+  };
+  P.toPrecision = function(sd, rm) {
+    if (sd != null) intCheck(sd, 1, MAX);
+    return format(this, sd, rm, 2);
+  };
+  P.toString = function(b) {
+    var str, n = this, s = n.s, e2 = n.e;
+    if (e2 === null) {
+      if (s) {
+        str = "Infinity";
+        if (s < 0) str = "-" + str;
+      } else {
+        str = "NaN";
+      }
+    } else {
+      if (b == null) {
+        str = e2 <= TO_EXP_NEG || e2 >= TO_EXP_POS ? toExponential(coeffToString(n.c), e2) : toFixedPoint(coeffToString(n.c), e2, "0");
+      } else if (b === 10 && alphabetHasNormalDecimalDigits) {
+        n = round(new BigNumber2(n), DECIMAL_PLACES + e2 + 1, ROUNDING_MODE);
+        str = toFixedPoint(coeffToString(n.c), n.e, "0");
+      } else {
+        intCheck(b, 2, ALPHABET.length, "Base");
+        str = convertBase(toFixedPoint(coeffToString(n.c), e2, "0"), 10, b, s, true);
+      }
+      if (s < 0 && n.c[0]) str = "-" + str;
+    }
+    return str;
+  };
+  P.valueOf = P.toJSON = function() {
+    return valueOf(this);
+  };
+  P._isBigNumber = true;
+  P[Symbol.toStringTag] = "BigNumber";
+  P[Symbol.for("nodejs.util.inspect.custom")] = P.valueOf;
+  if (configObject != null) BigNumber2.set(configObject);
+  return BigNumber2;
+}
+function bitFloor(n) {
+  var i = n | 0;
+  return n > 0 || n === i ? i : i - 1;
+}
+function coeffToString(a) {
+  var s, z, i = 1, j = a.length, r = a[0] + "";
+  for (; i < j; ) {
+    s = a[i++] + "";
+    z = LOG_BASE - s.length;
+    for (; z--; s = "0" + s) ;
+    r += s;
+  }
+  for (j = r.length; r.charCodeAt(--j) === 48; ) ;
+  return r.slice(0, j + 1 || 1);
+}
+function compare(x, y) {
+  var a, b, xc = x.c, yc = y.c, i = x.s, j = y.s, k = x.e, l = y.e;
+  if (!i || !j) return null;
+  a = xc && !xc[0];
+  b = yc && !yc[0];
+  if (a || b) return a ? b ? 0 : -j : i;
+  if (i != j) return i;
+  a = i < 0;
+  b = k == l;
+  if (!xc || !yc) return b ? 0 : !xc ^ a ? 1 : -1;
+  if (!b) return k > l ^ a ? 1 : -1;
+  j = (k = xc.length) < (l = yc.length) ? k : l;
+  for (i = 0; i < j; i++) if (xc[i] != yc[i]) return xc[i] > yc[i] ^ a ? 1 : -1;
+  return k == l ? 0 : k > l ^ a ? 1 : -1;
+}
+function intCheck(n, min, max, name) {
+  if (n < min || n > max || n !== mathfloor(n)) {
+    throw Error(bignumberError + (name || "Argument") + (typeof n == "number" ? n < min || n > max ? " out of range: " : " not an integer: " : " not a primitive number: ") + String(n));
+  }
+}
+function isOdd(n) {
+  var k = n.c.length - 1;
+  return bitFloor(n.e / LOG_BASE) == k && n.c[k] % 2 != 0;
+}
+function toExponential(str, e2) {
+  return (str.length > 1 ? str.charAt(0) + "." + str.slice(1) : str) + (e2 < 0 ? "e" : "e+") + e2;
+}
+function toFixedPoint(str, e2, z) {
+  var len, zs;
+  if (e2 < 0) {
+    for (zs = z + "."; ++e2; zs += z) ;
+    str = zs + str;
+  } else {
+    len = str.length;
+    if (++e2 > len) {
+      for (zs = z, e2 -= len; --e2; zs += z) ;
+      str += zs;
+    } else if (e2 < len) {
+      str = str.slice(0, e2) + "." + str.slice(e2);
+    }
+  }
+  return str;
+}
+var BigNumber = clone();
 class JSBI extends Array {
   constructor(a, b) {
     if (a > JSBI.__kMaxLength) throw new RangeError("Maximum BigInt size exceeded");
@@ -4170,7 +4173,7 @@ var rotl = function(x, k) {
 };
 var Xoshiro = (
   /** @class */
-  (function() {
+  function() {
     function Xoshiro2(seed) {
       var _this = this;
       this.next = function() {
@@ -4217,7 +4220,7 @@ var Xoshiro = (
       return result;
     };
     return Xoshiro2;
-  })()
+  }()
 );
 var aliasSampling;
 var hasRequiredAliasSampling;
@@ -4331,7 +4334,7 @@ var chooseFragments = function(seqNum, seqLength, checksum) {
 };
 var FountainEncoderPart = (
   /** @class */
-  (function() {
+  function() {
     function FountainEncoderPart2(_seqNum, _seqLength, _messageLength, _checksum, _fragment) {
       this._seqNum = _seqNum;
       this._seqLength = _seqLength;
@@ -4395,11 +4398,11 @@ var FountainEncoderPart = (
       return new FountainEncoderPart2(seqNum, seqLength, messageLength, checksum, bufferExports.Buffer.from(fragment));
     };
     return FountainEncoderPart2;
-  })()
+  }()
 );
 var FountainEncoder = (
   /** @class */
-  (function() {
+  function() {
     function FountainEncoder2(message, maxFragmentLength, firstSeqNum, minFragmentLength) {
       if (maxFragmentLength === void 0) {
         maxFragmentLength = 100;
@@ -4486,7 +4489,7 @@ var FountainEncoder = (
       return _fragments;
     };
     return FountainEncoder2;
-  })()
+  }()
 );
 var __spreadArrays$2 = function() {
   for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
@@ -4630,7 +4633,7 @@ var __spreadArrays$1 = function() {
 };
 var UREncoder = (
   /** @class */
-  (function() {
+  function() {
     function UREncoder2(_ur, maxFragmentLength, firstSeqNum, minFragmentLength) {
       this.ur = _ur;
       this.fountainEncoder = new FountainEncoder(_ur.cbor, maxFragmentLength, firstSeqNum, minFragmentLength);
@@ -4694,7 +4697,7 @@ var UREncoder = (
       return UREncoder2.encodeUR([ur.type, body]);
     };
     return UREncoder2;
-  })()
+  }()
 );
 var __spreadArrays = function() {
   for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
@@ -4705,7 +4708,7 @@ var __spreadArrays = function() {
 };
 var FountainDecoderPart = (
   /** @class */
-  (function() {
+  function() {
     function FountainDecoderPart2(_indexes, _fragment) {
       this._indexes = _indexes;
       this._fragment = _fragment;
@@ -4733,11 +4736,11 @@ var FountainDecoderPart = (
       return this.indexes.length === 1;
     };
     return FountainDecoderPart2;
-  })()
+  }()
 );
 var FountainDecoder = (
   /** @class */
-  (function() {
+  function() {
     function FountainDecoder2() {
       this.result = void 0;
       this.expectedMessageLength = 0;
@@ -4928,11 +4931,11 @@ var FountainDecoder = (
       return bufferExports.Buffer.concat(fragments).slice(0, messageLength);
     };
     return FountainDecoder2;
-  })()
+  }()
 );
 var URDecoder = (
   /** @class */
-  (function() {
+  function() {
     function URDecoder2(fountainDecoder, type) {
       if (fountainDecoder === void 0) {
         fountainDecoder = new FountainDecoder();
@@ -5063,7 +5066,7 @@ var URDecoder = (
       return this.fountainDecoder.getProgress();
     };
     return URDecoder2;
-  })()
+  }()
 );
 const qrcode = function(typeNumber, errorCorrectionLevel) {
   const PAD0 = 236;
@@ -5077,7 +5080,7 @@ const qrcode = function(typeNumber, errorCorrectionLevel) {
   const _this = {};
   const makeImpl = function(test, maskPattern) {
     _moduleCount = _typeNumber * 4 + 17;
-    _modules = (function(moduleCount) {
+    _modules = function(moduleCount) {
       const modules = new Array(moduleCount);
       for (let row = 0; row < moduleCount; row += 1) {
         modules[row] = new Array(moduleCount);
@@ -5086,7 +5089,7 @@ const qrcode = function(typeNumber, errorCorrectionLevel) {
         }
       }
       return modules;
-    })(_moduleCount);
+    }(_moduleCount);
     setupPositionProbePattern(0, 0);
     setupPositionProbePattern(_moduleCount - 7, 0);
     setupPositionProbePattern(0, _moduleCount - 7);
@@ -5587,7 +5590,7 @@ const qrcode = function(typeNumber, errorCorrectionLevel) {
     for (let row = 0; row < length; row++) {
       for (let col = 0; col < length; col++) {
         context.fillStyle = _this.isDark(row, col) ? "black" : "white";
-        context.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+        context.fillRect(row * cellSize, col * cellSize, cellSize, cellSize);
       }
     }
   };
@@ -5602,7 +5605,7 @@ qrcode.stringToBytes = function(s) {
   return bytes;
 };
 qrcode.createStringToBytes = function(unicodeData, numChars) {
-  const unicodeMap = (function() {
+  const unicodeMap = function() {
     const bin = base64DecodeInputStream(unicodeData);
     const read = function() {
       const b = bin.read();
@@ -5626,7 +5629,7 @@ qrcode.createStringToBytes = function(unicodeData, numChars) {
       throw count + " != " + numChars;
     }
     return unicodeMap2;
-  })();
+  }();
   const unknownChar = "?".charCodeAt(0);
   return function(s) {
     const bytes = [];
@@ -5673,7 +5676,7 @@ const QRMaskPattern = {
   PATTERN110: 6,
   PATTERN111: 7
 };
-const QRUtil = (function() {
+const QRUtil = function() {
   const PATTERN_POSITION_TABLE = [
     [],
     [6, 18],
@@ -5901,8 +5904,8 @@ const QRUtil = (function() {
     return lostPoint;
   };
   return _this;
-})();
-const QRMath = (function() {
+}();
+const QRMath = function() {
   const EXP_TABLE = new Array(256);
   const LOG_TABLE = new Array(256);
   for (let i = 0; i < 8; i += 1) {
@@ -5931,12 +5934,12 @@ const QRMath = (function() {
     return EXP_TABLE[n];
   };
   return _this;
-})();
+}();
 const qrPolynomial = function(num, shift) {
   if (typeof num.length == "undefined") {
     throw num.length + "/" + shift;
   }
-  const _num = (function() {
+  const _num = function() {
     let offset = 0;
     while (offset < num.length && num[offset] == 0) {
       offset += 1;
@@ -5946,7 +5949,7 @@ const qrPolynomial = function(num, shift) {
       _num2[i] = num[i + offset];
     }
     return _num2;
-  })();
+  }();
   const _this = {};
   _this.getAt = function(index2) {
     return _num[index2];
@@ -5979,7 +5982,7 @@ const qrPolynomial = function(num, shift) {
   };
   return _this;
 };
-const QRRSBlock = (function() {
+const QRRSBlock = function() {
   const RS_BLOCK_TABLE = [
     // L
     // M
@@ -6225,7 +6228,7 @@ const QRRSBlock = (function() {
     return list;
   };
   return _this;
-})();
+}();
 const qrBitBuffer = function() {
   const _buffer = [];
   let _length = 0;
@@ -6373,12 +6376,12 @@ const qr8BitByte = function(data) {
 const qrKanji = function(data) {
   const _mode = QRMode.MODE_KANJI;
   const stringToBytes = qrcode.stringToBytes;
-  !(function(c, code) {
+  !function(c, code) {
     const test = stringToBytes(c);
     if (test.length != 2 || (test[0] << 8 | test[1]) != code) {
       throw "sjis not supported.";
     }
-  })("友", 38726);
+  }("友", 38726);
   const _bytes = stringToBytes(data);
   const _this = {};
   _this.getMode = function() {
@@ -6978,8 +6981,8 @@ function QrGenerator($$anchor, $$props) {
           var text_7 = sibling(child(li_2));
           var div_6 = sibling(div_5, 2);
           each(div_6, 5, () => get(allQRParts), index, ($$anchor4, part, index2) => {
-            const partInfo = derived_safe_equal(() => (get(part), get(totalBasicParts), untrack(() => getPartType(get(part), get(totalBasicParts)))));
             var div_7 = root_8$2();
+            const partInfo = derived_safe_equal(() => (get(part), get(totalBasicParts), untrack(() => getPartType(get(part), get(totalBasicParts)))));
             var div_8 = child(div_7);
             var strong = child(div_8);
             strong.textContent = `Part ${index2 + 1}:`;
@@ -7695,11 +7698,11 @@ function QrScanner_1($$anchor, $$props) {
 }
 class RegistryType {
   constructor(type, tag) {
+    __publicField(this, "getTag", () => this.tag);
+    __publicField(this, "getType", () => this.type);
     this.type = type;
     this.tag = tag;
   }
-  getTag = () => this.tag;
-  getType = () => this.type;
 }
 const RegistryTypes$2 = {
   UUID: new RegistryType("uuid", 37),
@@ -7718,16 +7721,16 @@ const RegistryTypes$2 = {
 };
 class ScriptExpression {
   constructor(tag, expression) {
+    __publicField(this, "getTag", () => this.tag);
+    __publicField(this, "getExpression", () => this.expression);
     this.tag = tag;
     this.expression = expression;
   }
-  getTag = () => this.tag;
-  getExpression = () => this.expression;
-  static fromTag = (tag) => {
-    const se = Object.values(ScriptExpressions).find((se2) => se2.getTag() === tag);
-    return se;
-  };
 }
+__publicField(ScriptExpression, "fromTag", (tag) => {
+  const se = Object.values(ScriptExpressions).find((se2) => se2.getTag() === tag);
+  return se;
+});
 const ScriptExpressions = {
   SCRIPT_HASH: new ScriptExpression(400, "sh"),
   WITNESS_SCRIPT_HASH: new ScriptExpression(401, "wsh"),
@@ -7741,24 +7744,24 @@ const ScriptExpressions = {
   RAW_SCRIPT: new ScriptExpression(408, "raw")
 };
 class DataItem {
-  tag;
-  data;
   constructor(data, tag) {
+    __publicField(this, "tag");
+    __publicField(this, "data");
+    __publicField(this, "setTag", (tag) => {
+      this.tag = tag;
+    });
+    __publicField(this, "clearTag", () => {
+      this.tag = void 0;
+    });
+    __publicField(this, "getTag", () => {
+      return this.tag;
+    });
+    __publicField(this, "getData", () => {
+      return this.data;
+    });
     this.data = data;
     this.tag = tag;
   }
-  setTag = (tag) => {
-    this.tag = tag;
-  };
-  clearTag = () => {
-    this.tag = void 0;
-  };
-  getTag = () => {
-    return this.tag;
-  };
-  getData = () => {
-    return this.data;
-  };
 }
 var semanticEncoders = [];
 var semanticDecoders = {};
@@ -8370,71 +8373,74 @@ const registryTags = Object.values(RegistryTypes$2).filter((r) => !!r.getTag()).
 const scriptExpressionTags = Object.values(ScriptExpressions).map((se) => se.getTag());
 patchTags(registryTags.concat(scriptExpressionTags));
 class RegistryItem {
-  toCBOR = () => {
-    if (this.toDataItem() === void 0) {
-      throw new Error(
-        `#[ur-registry][RegistryItem][fn.toCBOR]: registry ${this.getRegistryType()}'s method toDataItem returns undefined`
-      );
-    }
-    return encodeDataItem(this.toDataItem());
-  };
-  toUR = () => {
-    return new UR(this.toCBOR(), this.getRegistryType().getType());
-  };
-  toUREncoder = (maxFragmentLength, firstSeqNum, minFragmentLength) => {
-    const ur = this.toUR();
-    const urEncoder = new UREncoder(ur, maxFragmentLength, firstSeqNum, minFragmentLength);
-    return urEncoder;
-  };
+  constructor() {
+    __publicField(this, "toCBOR", () => {
+      if (this.toDataItem() === void 0) {
+        throw new Error(
+          `#[ur-registry][RegistryItem][fn.toCBOR]: registry ${this.getRegistryType()}'s method toDataItem returns undefined`
+        );
+      }
+      return encodeDataItem(this.toDataItem());
+    });
+    __publicField(this, "toUR", () => {
+      return new UR(this.toCBOR(), this.getRegistryType().getType());
+    });
+    __publicField(this, "toUREncoder", (maxFragmentLength, firstSeqNum, minFragmentLength) => {
+      const ur = this.toUR();
+      const urEncoder = new UREncoder(ur, maxFragmentLength, firstSeqNum, minFragmentLength);
+      return urEncoder;
+    });
+  }
 }
-class CryptoCoinInfo extends RegistryItem {
+const _CryptoCoinInfo = class _CryptoCoinInfo extends RegistryItem {
   constructor(type, network) {
     super();
+    __publicField(this, "getRegistryType", () => {
+      return RegistryTypes$2.CRYPTO_COIN_INFO;
+    });
+    __publicField(this, "getType", () => {
+      return this.type || 0;
+    });
+    __publicField(this, "getNetwork", () => {
+      return this.network || 0;
+    });
+    __publicField(this, "toDataItem", () => {
+      const map = {};
+      if (this.type) {
+        map[
+          "1"
+          /* type */
+        ] = this.type;
+      }
+      if (this.network) {
+        map[
+          "2"
+          /* network */
+        ] = this.network;
+      }
+      return new DataItem(map);
+    });
     this.type = type;
     this.network = network;
   }
-  getRegistryType = () => {
-    return RegistryTypes$2.CRYPTO_COIN_INFO;
-  };
-  getType = () => {
-    return this.type || 0;
-  };
-  getNetwork = () => {
-    return this.network || 0;
-  };
-  toDataItem = () => {
-    const map = {};
-    if (this.type) {
-      map[
-        "1"
-        /* type */
-      ] = this.type;
-    }
-    if (this.network) {
-      map[
-        "2"
-        /* network */
-      ] = this.network;
-    }
-    return new DataItem(map);
-  };
-  static fromDataItem = (dataItem) => {
-    const map = dataItem.getData();
-    const type = map[
-      "1"
-      /* type */
-    ];
-    const network = map[
-      "2"
-      /* network */
-    ];
-    return new CryptoCoinInfo(type, network);
-  };
-  static fromCBOR = (_cborPayload) => {
-    const dataItem = decodeToDataItem$2(_cborPayload);
-    return CryptoCoinInfo.fromDataItem(dataItem);
-  };
-}
+};
+__publicField(_CryptoCoinInfo, "fromDataItem", (dataItem) => {
+  const map = dataItem.getData();
+  const type = map[
+    "1"
+    /* type */
+  ];
+  const network = map[
+    "2"
+    /* network */
+  ];
+  return new _CryptoCoinInfo(type, network);
+});
+__publicField(_CryptoCoinInfo, "fromCBOR", (_cborPayload) => {
+  const dataItem = decodeToDataItem$2(_cborPayload);
+  return _CryptoCoinInfo.fromDataItem(dataItem);
+});
+let CryptoCoinInfo = _CryptoCoinInfo;
 function bs58checkBase(checksumFn) {
   function encode2(payload) {
     var payloadU8 = Uint8Array.from(payload);
@@ -8476,12 +8482,14 @@ function sha256x2(buffer2) {
   return sha256(sha256(buffer2));
 }
 const bs58check = bs58checkBase(sha256x2);
-class PathComponent {
-  static HARDENED_BIT = 2147483648;
-  index;
-  wildcard;
-  hardened;
+const _PathComponent = class _PathComponent {
   constructor(args) {
+    __publicField(this, "index");
+    __publicField(this, "wildcard");
+    __publicField(this, "hardened");
+    __publicField(this, "getIndex", () => this.index);
+    __publicField(this, "isWildcard", () => this.wildcard);
+    __publicField(this, "isHardened", () => this.hardened);
     this.index = args.index;
     this.hardened = args.hardened;
     if (this.index !== void 0) {
@@ -8489,453 +8497,457 @@ class PathComponent {
     } else {
       this.wildcard = true;
     }
-    if (this.index && (this.index & PathComponent.HARDENED_BIT) !== 0) {
+    if (this.index && (this.index & _PathComponent.HARDENED_BIT) !== 0) {
       throw new Error(
         `#[ur-registry][PathComponent][fn.constructor]: Invalid index ${this.index} - most significant bit cannot be set`
       );
     }
   }
-  getIndex = () => this.index;
-  isWildcard = () => this.wildcard;
-  isHardened = () => this.hardened;
-}
-class CryptoKeypath extends RegistryItem {
+};
+__publicField(_PathComponent, "HARDENED_BIT", 2147483648);
+let PathComponent = _PathComponent;
+const _CryptoKeypath = class _CryptoKeypath extends RegistryItem {
   constructor(components = [], sourceFingerprint, depth) {
     super();
+    __publicField(this, "getRegistryType", () => {
+      return RegistryTypes$2.CRYPTO_KEYPATH;
+    });
+    __publicField(this, "getPath", () => {
+      if (this.components.length === 0) {
+        return void 0;
+      }
+      const components = this.components.map((component) => {
+        return `${component.isWildcard() ? "*" : component.getIndex()}${component.isHardened() ? "'" : ""}`;
+      });
+      return components.join("/");
+    });
+    __publicField(this, "getComponents", () => this.components);
+    __publicField(this, "getSourceFingerprint", () => this.sourceFingerprint);
+    __publicField(this, "getDepth", () => this.depth);
+    __publicField(this, "toDataItem", () => {
+      const map = {};
+      const components = [];
+      this.components && this.components.forEach((component) => {
+        if (component.isWildcard()) {
+          components.push([]);
+        } else {
+          components.push(component.getIndex());
+        }
+        components.push(component.isHardened());
+      });
+      map[
+        1
+        /* components */
+      ] = components;
+      if (this.sourceFingerprint) {
+        map[
+          2
+          /* source_fingerprint */
+        ] = this.sourceFingerprint.readUInt32BE(0);
+      }
+      if (this.depth !== void 0) {
+        map[
+          3
+          /* depth */
+        ] = this.depth;
+      }
+      return new DataItem(map);
+    });
     this.components = components;
     this.sourceFingerprint = sourceFingerprint;
     this.depth = depth;
   }
-  getRegistryType = () => {
-    return RegistryTypes$2.CRYPTO_KEYPATH;
-  };
-  getPath = () => {
-    if (this.components.length === 0) {
-      return void 0;
-    }
-    const components = this.components.map((component) => {
-      return `${component.isWildcard() ? "*" : component.getIndex()}${component.isHardened() ? "'" : ""}`;
-    });
-    return components.join("/");
-  };
-  getComponents = () => this.components;
-  getSourceFingerprint = () => this.sourceFingerprint;
-  getDepth = () => this.depth;
-  toDataItem = () => {
-    const map = {};
-    const components = [];
-    this.components && this.components.forEach((component) => {
-      if (component.isWildcard()) {
-        components.push([]);
+};
+__publicField(_CryptoKeypath, "fromDataItem", (dataItem) => {
+  const map = dataItem.getData();
+  const pathComponents = [];
+  const components = map[
+    1
+    /* components */
+  ];
+  if (components) {
+    for (let i = 0; i < components.length; i += 2) {
+      const isHardened = components[i + 1];
+      const path = components[i];
+      if (typeof path === "number") {
+        pathComponents.push(new PathComponent({ index: path, hardened: isHardened }));
       } else {
-        components.push(component.getIndex());
-      }
-      components.push(component.isHardened());
-    });
-    map[
-      1
-      /* components */
-    ] = components;
-    if (this.sourceFingerprint) {
-      map[
-        2
-        /* source_fingerprint */
-      ] = this.sourceFingerprint.readUInt32BE(0);
-    }
-    if (this.depth !== void 0) {
-      map[
-        3
-        /* depth */
-      ] = this.depth;
-    }
-    return new DataItem(map);
-  };
-  static fromDataItem = (dataItem) => {
-    const map = dataItem.getData();
-    const pathComponents = [];
-    const components = map[
-      1
-      /* components */
-    ];
-    if (components) {
-      for (let i = 0; i < components.length; i += 2) {
-        const isHardened = components[i + 1];
-        const path = components[i];
-        if (typeof path === "number") {
-          pathComponents.push(new PathComponent({ index: path, hardened: isHardened }));
-        } else {
-          pathComponents.push(new PathComponent({ hardened: isHardened }));
-        }
+        pathComponents.push(new PathComponent({ hardened: isHardened }));
       }
     }
-    const _sourceFingerprint = map[
-      2
-      /* source_fingerprint */
-    ];
-    let sourceFingerprint;
-    if (_sourceFingerprint) {
-      sourceFingerprint = bufferExports.Buffer.alloc(4);
-      sourceFingerprint.writeUInt32BE(_sourceFingerprint, 0);
-    }
-    const depth = map[
-      3
-      /* depth */
-    ];
-    return new CryptoKeypath(pathComponents, sourceFingerprint, depth);
-  };
-  static fromCBOR = (_cborPayload) => {
-    const dataItem = decodeToDataItem$2(_cborPayload);
-    return CryptoKeypath.fromDataItem(dataItem);
-  };
-}
+  }
+  const _sourceFingerprint = map[
+    2
+    /* source_fingerprint */
+  ];
+  let sourceFingerprint;
+  if (_sourceFingerprint) {
+    sourceFingerprint = bufferExports.Buffer.alloc(4);
+    sourceFingerprint.writeUInt32BE(_sourceFingerprint, 0);
+  }
+  const depth = map[
+    3
+    /* depth */
+  ];
+  return new _CryptoKeypath(pathComponents, sourceFingerprint, depth);
+});
+__publicField(_CryptoKeypath, "fromCBOR", (_cborPayload) => {
+  const dataItem = decodeToDataItem$2(_cborPayload);
+  return _CryptoKeypath.fromDataItem(dataItem);
+});
+let CryptoKeypath = _CryptoKeypath;
 const { encode } = bs58check;
-class CryptoHDKey extends RegistryItem {
-  master;
-  privateKey;
-  key;
-  chainCode;
-  useInfo;
-  origin;
-  children;
-  parentFingerprint;
-  name;
-  note;
-  isECKey = () => {
-    return false;
-  };
-  getKey = () => this.key;
-  getChainCode = () => this.chainCode;
-  isMaster = () => this.master;
-  isPrivateKey = () => !!this.privateKey;
-  getUseInfo = () => this.useInfo;
-  getOrigin = () => this.origin;
-  getChildren = () => this.children;
-  getParentFingerprint = () => this.parentFingerprint;
-  getName = () => this.name;
-  getNote = () => this.note;
-  getBip32Key = () => {
-    let version;
-    let depth;
-    let index2 = 0;
-    let parentFingerprint = bufferExports.Buffer.alloc(4).fill(0);
-    if (this.isMaster()) {
-      version = bufferExports.Buffer.from("0488ADE4", "hex");
-      depth = 0;
-      index2 = 0;
-    } else {
-      depth = this.getOrigin()?.getComponents().length || this.getOrigin()?.getDepth();
-      const paths = this.getOrigin()?.getComponents();
-      const lastPath = paths[paths.length - 1];
-      if (lastPath) {
-        index2 = lastPath.isHardened() ? lastPath.getIndex() + 2147483648 : lastPath.getIndex();
-        if (this.getParentFingerprint()) {
-          parentFingerprint = this.getParentFingerprint();
-        }
-      }
-      if (this.isPrivateKey()) {
-        version = bufferExports.Buffer.from("0488ADE4", "hex");
-      } else {
-        version = bufferExports.Buffer.from("0488B21E", "hex");
-      }
-    }
-    const depthBuffer = bufferExports.Buffer.alloc(1);
-    depthBuffer.writeUInt8(depth, 0);
-    const indexBuffer = bufferExports.Buffer.alloc(4);
-    indexBuffer.writeUInt32BE(index2, 0);
-    const chainCode = this.getChainCode();
-    const key = this.getKey();
-    return encode(
-      bufferExports.Buffer.concat([
-        version,
-        depthBuffer,
-        parentFingerprint,
-        indexBuffer,
-        chainCode,
-        key
-      ])
-    );
-  };
-  getRegistryType = () => {
-    return RegistryTypes$2.CRYPTO_HDKEY;
-  };
-  getOutputDescriptorContent = () => {
-    let result = "";
-    if (this.getOrigin()) {
-      if (this.getOrigin()?.getSourceFingerprint() && this.getOrigin()?.getPath()) {
-        result += `${this.getOrigin()?.getSourceFingerprint()?.toString("hex")}/${this.getOrigin()?.getPath()}`;
-      }
-    }
-    result += this.getBip32Key();
-    if (this.getChildren()) {
-      if (this.getChildren()?.getPath()) {
-        result += `/${this.getChildren()?.getPath()}`;
-      }
-    }
-    return result;
-  };
+const _CryptoHDKey = class _CryptoHDKey extends RegistryItem {
   constructor(args) {
     super();
+    __publicField(this, "master");
+    __publicField(this, "privateKey");
+    __publicField(this, "key");
+    __publicField(this, "chainCode");
+    __publicField(this, "useInfo");
+    __publicField(this, "origin");
+    __publicField(this, "children");
+    __publicField(this, "parentFingerprint");
+    __publicField(this, "name");
+    __publicField(this, "note");
+    __publicField(this, "isECKey", () => {
+      return false;
+    });
+    __publicField(this, "getKey", () => this.key);
+    __publicField(this, "getChainCode", () => this.chainCode);
+    __publicField(this, "isMaster", () => this.master);
+    __publicField(this, "isPrivateKey", () => !!this.privateKey);
+    __publicField(this, "getUseInfo", () => this.useInfo);
+    __publicField(this, "getOrigin", () => this.origin);
+    __publicField(this, "getChildren", () => this.children);
+    __publicField(this, "getParentFingerprint", () => this.parentFingerprint);
+    __publicField(this, "getName", () => this.name);
+    __publicField(this, "getNote", () => this.note);
+    __publicField(this, "getBip32Key", () => {
+      var _a, _b, _c;
+      let version;
+      let depth;
+      let index2 = 0;
+      let parentFingerprint = bufferExports.Buffer.alloc(4).fill(0);
+      if (this.isMaster()) {
+        version = bufferExports.Buffer.from("0488ADE4", "hex");
+        depth = 0;
+        index2 = 0;
+      } else {
+        depth = ((_a = this.getOrigin()) == null ? void 0 : _a.getComponents().length) || ((_b = this.getOrigin()) == null ? void 0 : _b.getDepth());
+        const paths = (_c = this.getOrigin()) == null ? void 0 : _c.getComponents();
+        const lastPath = paths[paths.length - 1];
+        if (lastPath) {
+          index2 = lastPath.isHardened() ? lastPath.getIndex() + 2147483648 : lastPath.getIndex();
+          if (this.getParentFingerprint()) {
+            parentFingerprint = this.getParentFingerprint();
+          }
+        }
+        if (this.isPrivateKey()) {
+          version = bufferExports.Buffer.from("0488ADE4", "hex");
+        } else {
+          version = bufferExports.Buffer.from("0488B21E", "hex");
+        }
+      }
+      const depthBuffer = bufferExports.Buffer.alloc(1);
+      depthBuffer.writeUInt8(depth, 0);
+      const indexBuffer = bufferExports.Buffer.alloc(4);
+      indexBuffer.writeUInt32BE(index2, 0);
+      const chainCode = this.getChainCode();
+      const key = this.getKey();
+      return encode(
+        bufferExports.Buffer.concat([
+          version,
+          depthBuffer,
+          parentFingerprint,
+          indexBuffer,
+          chainCode,
+          key
+        ])
+      );
+    });
+    __publicField(this, "getRegistryType", () => {
+      return RegistryTypes$2.CRYPTO_HDKEY;
+    });
+    __publicField(this, "getOutputDescriptorContent", () => {
+      var _a, _b, _c, _d, _e, _f, _g;
+      let result = "";
+      if (this.getOrigin()) {
+        if (((_a = this.getOrigin()) == null ? void 0 : _a.getSourceFingerprint()) && ((_b = this.getOrigin()) == null ? void 0 : _b.getPath())) {
+          result += `${(_d = (_c = this.getOrigin()) == null ? void 0 : _c.getSourceFingerprint()) == null ? void 0 : _d.toString("hex")}/${(_e = this.getOrigin()) == null ? void 0 : _e.getPath()}`;
+        }
+      }
+      result += this.getBip32Key();
+      if (this.getChildren()) {
+        if ((_f = this.getChildren()) == null ? void 0 : _f.getPath()) {
+          result += `/${(_g = this.getChildren()) == null ? void 0 : _g.getPath()}`;
+        }
+      }
+      return result;
+    });
+    __publicField(this, "setupMasterKey", (args) => {
+      this.master = true;
+      this.key = args.key;
+      this.chainCode = args.chainCode;
+    });
+    __publicField(this, "setupDeriveKey", (args) => {
+      this.master = false;
+      this.privateKey = args.isPrivateKey;
+      this.key = args.key;
+      this.chainCode = args.chainCode;
+      this.useInfo = args.useInfo;
+      this.origin = args.origin;
+      this.children = args.children;
+      this.parentFingerprint = args.parentFingerprint;
+      this.name = args.name;
+      this.note = args.note;
+    });
+    __publicField(this, "toDataItem", () => {
+      const map = {};
+      if (this.master) {
+        map[
+          1
+          /* is_master */
+        ] = true;
+        map[
+          3
+          /* key_data */
+        ] = this.key;
+        map[
+          4
+          /* chain_code */
+        ] = this.chainCode;
+      } else {
+        if (this.privateKey !== void 0) {
+          map[
+            2
+            /* is_private */
+          ] = this.privateKey;
+        }
+        map[
+          3
+          /* key_data */
+        ] = this.key;
+        if (this.chainCode) {
+          map[
+            4
+            /* chain_code */
+          ] = this.chainCode;
+        }
+        if (this.useInfo) {
+          const useInfo = this.useInfo.toDataItem();
+          useInfo.setTag(this.useInfo.getRegistryType().getTag());
+          map[
+            5
+            /* use_info */
+          ] = useInfo;
+        }
+        if (this.origin) {
+          const origin = this.origin.toDataItem();
+          origin.setTag(this.origin.getRegistryType().getTag());
+          map[
+            6
+            /* origin */
+          ] = origin;
+        }
+        if (this.children) {
+          const children = this.children.toDataItem();
+          children.setTag(this.children.getRegistryType().getTag());
+          map[
+            7
+            /* children */
+          ] = children;
+        }
+        if (this.parentFingerprint) {
+          map[
+            8
+            /* parent_fingerprint */
+          ] = this.parentFingerprint.readUInt32BE(0);
+        }
+        if (this.name !== void 0) {
+          map[
+            9
+            /* name */
+          ] = this.name;
+        }
+        if (this.note !== void 0) {
+          map[
+            10
+            /* note */
+          ] = this.note;
+        }
+      }
+      return new DataItem(map);
+    });
     if (args.isMaster) {
       this.setupMasterKey(args);
     } else {
       this.setupDeriveKey(args);
     }
   }
-  setupMasterKey = (args) => {
-    this.master = true;
-    this.key = args.key;
-    this.chainCode = args.chainCode;
-  };
-  setupDeriveKey = (args) => {
-    this.master = false;
-    this.privateKey = args.isPrivateKey;
-    this.key = args.key;
-    this.chainCode = args.chainCode;
-    this.useInfo = args.useInfo;
-    this.origin = args.origin;
-    this.children = args.children;
-    this.parentFingerprint = args.parentFingerprint;
-    this.name = args.name;
-    this.note = args.note;
-  };
-  toDataItem = () => {
-    const map = {};
-    if (this.master) {
-      map[
-        1
-        /* is_master */
-      ] = true;
-      map[
-        3
-        /* key_data */
-      ] = this.key;
-      map[
-        4
-        /* chain_code */
-      ] = this.chainCode;
-    } else {
-      if (this.privateKey !== void 0) {
-        map[
-          2
-          /* is_private */
-        ] = this.privateKey;
-      }
-      map[
-        3
-        /* key_data */
-      ] = this.key;
-      if (this.chainCode) {
-        map[
-          4
-          /* chain_code */
-        ] = this.chainCode;
-      }
-      if (this.useInfo) {
-        const useInfo = this.useInfo.toDataItem();
-        useInfo.setTag(this.useInfo.getRegistryType().getTag());
-        map[
-          5
-          /* use_info */
-        ] = useInfo;
-      }
-      if (this.origin) {
-        const origin = this.origin.toDataItem();
-        origin.setTag(this.origin.getRegistryType().getTag());
-        map[
-          6
-          /* origin */
-        ] = origin;
-      }
-      if (this.children) {
-        const children = this.children.toDataItem();
-        children.setTag(this.children.getRegistryType().getTag());
-        map[
-          7
-          /* children */
-        ] = children;
-      }
-      if (this.parentFingerprint) {
-        map[
-          8
-          /* parent_fingerprint */
-        ] = this.parentFingerprint.readUInt32BE(0);
-      }
-      if (this.name !== void 0) {
-        map[
-          9
-          /* name */
-        ] = this.name;
-      }
-      if (this.note !== void 0) {
-        map[
-          10
-          /* note */
-        ] = this.note;
-      }
-    }
-    return new DataItem(map);
-  };
-  static fromDataItem = (dataItem) => {
-    const map = dataItem.getData();
-    const isMaster = !!map[
-      1
-      /* is_master */
-    ];
-    const isPrivateKey = map[
-      2
-      /* is_private */
-    ];
-    const key = map[
-      3
-      /* key_data */
-    ];
-    const chainCode = map[
-      4
-      /* chain_code */
-    ];
-    const useInfo = map[
-      5
-      /* use_info */
-    ] ? CryptoCoinInfo.fromDataItem(map[
-      5
-      /* use_info */
-    ]) : void 0;
-    const origin = map[
-      6
-      /* origin */
-    ] ? CryptoKeypath.fromDataItem(map[
-      6
-      /* origin */
-    ]) : void 0;
-    const children = map[
-      7
-      /* children */
-    ] ? CryptoKeypath.fromDataItem(map[
-      7
-      /* children */
-    ]) : void 0;
-    const _parentFingerprint = map[
-      8
-      /* parent_fingerprint */
-    ];
-    let parentFingerprint = void 0;
-    if (_parentFingerprint) {
-      parentFingerprint = bufferExports.Buffer.alloc(4);
-      parentFingerprint.writeUInt32BE(_parentFingerprint, 0);
-    }
-    const name = map[
-      9
-      /* name */
-    ];
-    const note = map[
-      10
-      /* note */
-    ];
-    return new CryptoHDKey({
-      isMaster,
-      isPrivateKey,
-      key,
-      chainCode,
-      useInfo,
-      origin,
-      children,
-      parentFingerprint,
-      name,
-      note
-    });
-  };
-  static fromCBOR = (_cborPayload) => {
-    const dataItem = decodeToDataItem$2(_cborPayload);
-    return CryptoHDKey.fromDataItem(dataItem);
-  };
-}
-class CryptoMultiAccounts extends RegistryItem {
+};
+__publicField(_CryptoHDKey, "fromDataItem", (dataItem) => {
+  const map = dataItem.getData();
+  const isMaster = !!map[
+    1
+    /* is_master */
+  ];
+  const isPrivateKey = map[
+    2
+    /* is_private */
+  ];
+  const key = map[
+    3
+    /* key_data */
+  ];
+  const chainCode = map[
+    4
+    /* chain_code */
+  ];
+  const useInfo = map[
+    5
+    /* use_info */
+  ] ? CryptoCoinInfo.fromDataItem(map[
+    5
+    /* use_info */
+  ]) : void 0;
+  const origin = map[
+    6
+    /* origin */
+  ] ? CryptoKeypath.fromDataItem(map[
+    6
+    /* origin */
+  ]) : void 0;
+  const children = map[
+    7
+    /* children */
+  ] ? CryptoKeypath.fromDataItem(map[
+    7
+    /* children */
+  ]) : void 0;
+  const _parentFingerprint = map[
+    8
+    /* parent_fingerprint */
+  ];
+  let parentFingerprint = void 0;
+  if (_parentFingerprint) {
+    parentFingerprint = bufferExports.Buffer.alloc(4);
+    parentFingerprint.writeUInt32BE(_parentFingerprint, 0);
+  }
+  const name = map[
+    9
+    /* name */
+  ];
+  const note = map[
+    10
+    /* note */
+  ];
+  return new _CryptoHDKey({
+    isMaster,
+    isPrivateKey,
+    key,
+    chainCode,
+    useInfo,
+    origin,
+    children,
+    parentFingerprint,
+    name,
+    note
+  });
+});
+__publicField(_CryptoHDKey, "fromCBOR", (_cborPayload) => {
+  const dataItem = decodeToDataItem$2(_cborPayload);
+  return _CryptoHDKey.fromDataItem(dataItem);
+});
+let CryptoHDKey = _CryptoHDKey;
+const _CryptoMultiAccounts = class _CryptoMultiAccounts extends RegistryItem {
   constructor(masterFingerprint, keys, device, deviceId, version) {
     super();
+    __publicField(this, "getRegistryType", () => RegistryTypes$2.CRYPTO_MULTI_ACCOUNTS);
+    __publicField(this, "getMasterFingerprint", () => this.masterFingerprint);
+    __publicField(this, "getKeys", () => this.keys);
+    __publicField(this, "getDevice", () => this.device);
+    __publicField(this, "getDeviceId", () => this.deviceId);
+    __publicField(this, "getVersion", () => this.version);
+    __publicField(this, "toDataItem", () => {
+      const map = {};
+      if (this.masterFingerprint) {
+        map[
+          1
+          /* masterFingerprint */
+        ] = this.masterFingerprint.readUInt32BE(0);
+      }
+      if (this.keys) {
+        map[
+          2
+          /* keys */
+        ] = this.keys.map((item) => {
+          const dataItem = item.toDataItem();
+          dataItem.setTag(item.getRegistryType().getTag());
+          return dataItem;
+        });
+      }
+      if (this.device) {
+        map[
+          3
+          /* device */
+        ] = this.device;
+      }
+      if (this.deviceId) {
+        map[
+          4
+          /* deviceId */
+        ] = this.deviceId;
+      }
+      if (this.version) {
+        map[
+          5
+          /* version */
+        ] = this.version;
+      }
+      return new DataItem(map);
+    });
     this.masterFingerprint = masterFingerprint;
     this.keys = keys;
     this.device = device;
     this.deviceId = deviceId;
     this.version = version;
   }
-  getRegistryType = () => RegistryTypes$2.CRYPTO_MULTI_ACCOUNTS;
-  getMasterFingerprint = () => this.masterFingerprint;
-  getKeys = () => this.keys;
-  getDevice = () => this.device;
-  getDeviceId = () => this.deviceId;
-  getVersion = () => this.version;
-  toDataItem = () => {
-    const map = {};
-    if (this.masterFingerprint) {
-      map[
-        1
-        /* masterFingerprint */
-      ] = this.masterFingerprint.readUInt32BE(0);
-    }
-    if (this.keys) {
-      map[
-        2
-        /* keys */
-      ] = this.keys.map((item) => {
-        const dataItem = item.toDataItem();
-        dataItem.setTag(item.getRegistryType().getTag());
-        return dataItem;
-      });
-    }
-    if (this.device) {
-      map[
-        3
-        /* device */
-      ] = this.device;
-    }
-    if (this.deviceId) {
-      map[
-        4
-        /* deviceId */
-      ] = this.deviceId;
-    }
-    if (this.version) {
-      map[
-        5
-        /* version */
-      ] = this.version;
-    }
-    return new DataItem(map);
-  };
-  static fromDataItem = (dataItem) => {
-    const map = dataItem.getData();
-    const masterFingerprint = bufferExports.Buffer.alloc(4);
-    const _masterFingerprint = map[
-      1
-      /* masterFingerprint */
-    ];
-    if (_masterFingerprint) {
-      masterFingerprint.writeUInt32BE(_masterFingerprint, 0);
-    }
-    const keys = map[
-      2
-      /* keys */
-    ];
-    const cryptoHDKeys = keys.map((item) => CryptoHDKey.fromDataItem(item));
-    const device = map[
-      3
-      /* device */
-    ];
-    const deviceId = map[
-      4
-      /* deviceId */
-    ];
-    const version = map[
-      5
-      /* version */
-    ];
-    return new CryptoMultiAccounts(masterFingerprint, cryptoHDKeys, device, deviceId, version);
-  };
-  static fromCBOR = (_cborPayload) => {
-    const dataItem = decodeToDataItem$2(_cborPayload);
-    return CryptoMultiAccounts.fromDataItem(dataItem);
-  };
-}
+};
+__publicField(_CryptoMultiAccounts, "fromDataItem", (dataItem) => {
+  const map = dataItem.getData();
+  const masterFingerprint = bufferExports.Buffer.alloc(4);
+  const _masterFingerprint = map[
+    1
+    /* masterFingerprint */
+  ];
+  if (_masterFingerprint) {
+    masterFingerprint.writeUInt32BE(_masterFingerprint, 0);
+  }
+  const keys = map[
+    2
+    /* keys */
+  ];
+  const cryptoHDKeys = keys.map((item) => CryptoHDKey.fromDataItem(item));
+  const device = map[
+    3
+    /* device */
+  ];
+  const deviceId = map[
+    4
+    /* deviceId */
+  ];
+  const version = map[
+    5
+    /* version */
+  ];
+  return new _CryptoMultiAccounts(masterFingerprint, cryptoHDKeys, device, deviceId, version);
+});
+__publicField(_CryptoMultiAccounts, "fromCBOR", (_cborPayload) => {
+  const dataItem = decodeToDataItem$2(_cborPayload);
+  return _CryptoMultiAccounts.fromDataItem(dataItem);
+});
+let CryptoMultiAccounts = _CryptoMultiAccounts;
 const extend = {
   RegistryTypes: RegistryTypes$2,
   decodeToDataItem: decodeToDataItem$2
@@ -8957,96 +8969,61 @@ function parse(uuid) {
   return Uint8Array.of((v = parseInt(uuid.slice(0, 8), 16)) >>> 24, v >>> 16 & 255, v >>> 8 & 255, v & 255, (v = parseInt(uuid.slice(9, 13), 16)) >>> 8, v & 255, (v = parseInt(uuid.slice(14, 18), 16)) >>> 8, v & 255, (v = parseInt(uuid.slice(19, 23), 16)) >>> 8, v & 255, (v = parseInt(uuid.slice(24, 36), 16)) / 1099511627776 & 255, v / 4294967296 & 255, v >>> 24 & 255, v >>> 16 & 255, v >>> 8 & 255, v & 255);
 }
 const { decodeToDataItem: decodeToDataItem$1, RegistryTypes: RegistryTypes$1 } = extend;
-class IotaSignRequest extends RegistryItem {
-  requestId;
-  intentMessage;
-  derivationPaths;
-  addresses;
-  origin;
-  getRegistryType = () => ExtendedRegistryTypes.IOTA_SIGN_REQUEST;
+const _IotaSignRequest = class _IotaSignRequest extends RegistryItem {
   constructor(args) {
     super();
+    __publicField(this, "requestId");
+    __publicField(this, "intentMessage");
+    __publicField(this, "derivationPaths");
+    __publicField(this, "addresses");
+    __publicField(this, "origin");
+    __publicField(this, "getRegistryType", () => ExtendedRegistryTypes.IOTA_SIGN_REQUEST);
+    __publicField(this, "getRequestId", () => this.requestId);
+    __publicField(this, "getIntentMessage", () => this.intentMessage);
+    __publicField(this, "getDerivationPaths", () => this.derivationPaths);
+    __publicField(this, "getAddresses", () => this.addresses);
+    __publicField(this, "getOrigin", () => this.origin);
+    __publicField(this, "toDataItem", () => {
+      const map = {};
+      if (this.requestId) {
+        map[
+          1
+          /* requestId */
+        ] = new DataItem(this.requestId, RegistryTypes$1.UUID.getTag());
+      }
+      map[
+        2
+        /* intentMessage */
+      ] = this.intentMessage;
+      const derivationPaths = this.derivationPaths.map((path) => {
+        const dataItem = path.toDataItem();
+        dataItem.setTag(path.getRegistryType().getTag());
+        return dataItem;
+      });
+      map[
+        3
+        /* derivationPaths */
+      ] = derivationPaths;
+      if (this.addresses) {
+        map[
+          4
+          /* addresses */
+        ] = this.addresses;
+      }
+      if (this.origin) {
+        map[
+          5
+          /* origin */
+        ] = this.origin;
+      }
+      return new DataItem(map);
+    });
     this.requestId = args.requestId;
     this.intentMessage = args.intentMessage;
     this.derivationPaths = args.derivationPaths;
     this.addresses = args.addresses;
     this.origin = args.origin;
   }
-  getRequestId = () => this.requestId;
-  getIntentMessage = () => this.intentMessage;
-  getDerivationPaths = () => this.derivationPaths;
-  getAddresses = () => this.addresses;
-  getOrigin = () => this.origin;
-  toDataItem = () => {
-    const map = {};
-    if (this.requestId) {
-      map[
-        1
-        /* requestId */
-      ] = new DataItem(this.requestId, RegistryTypes$1.UUID.getTag());
-    }
-    map[
-      2
-      /* intentMessage */
-    ] = this.intentMessage;
-    const derivationPaths = this.derivationPaths.map((path) => {
-      const dataItem = path.toDataItem();
-      dataItem.setTag(path.getRegistryType().getTag());
-      return dataItem;
-    });
-    map[
-      3
-      /* derivationPaths */
-    ] = derivationPaths;
-    if (this.addresses) {
-      map[
-        4
-        /* addresses */
-      ] = this.addresses;
-    }
-    if (this.origin) {
-      map[
-        5
-        /* origin */
-      ] = this.origin;
-    }
-    return new DataItem(map);
-  };
-  static fromDataItem = (dataItem) => {
-    const map = dataItem.getData();
-    const requestId = map[
-      1
-      /* requestId */
-    ] ? map[
-      1
-      /* requestId */
-    ].getData() : void 0;
-    return new IotaSignRequest({
-      requestId,
-      intentMessage: map[
-        2
-        /* intentMessage */
-      ],
-      derivationPaths: map[
-        3
-        /* derivationPaths */
-      ].map(
-        (path) => CryptoKeypath.fromDataItem(path)
-      ),
-      addresses: map[
-        4
-        /* addresses */
-      ],
-      origin: map[
-        5
-        /* origin */
-      ]
-    });
-  };
-  static fromCBOR = (_cborPayload) => {
-    const dataItem = decodeToDataItem$1(_cborPayload);
-    return IotaSignRequest.fromDataItem(dataItem);
-  };
   static parsePath(path, xfp) {
     const paths = path.replace(/[m|M]\//, "").split("/");
     const pathComponent = paths.map((path2) => {
@@ -9060,73 +9037,111 @@ class IotaSignRequest extends RegistryItem {
     return new CryptoKeypath(pathComponent, bufferExports.Buffer.from(xfp, "hex"));
   }
   static constructIotaSignRequest(intentMessage, derivationPaths, xfp, uuidString, addresses, origin) {
-    return new IotaSignRequest({
+    return new _IotaSignRequest({
       requestId: uuidString ? bufferExports.Buffer.from(parse(uuidString)) : void 0,
       intentMessage,
-      derivationPaths: derivationPaths.map((path) => IotaSignRequest.parsePath(path, xfp)),
+      derivationPaths: derivationPaths.map((path) => _IotaSignRequest.parsePath(path, xfp)),
       addresses,
       origin
     });
   }
-}
+};
+__publicField(_IotaSignRequest, "fromDataItem", (dataItem) => {
+  const map = dataItem.getData();
+  const requestId = map[
+    1
+    /* requestId */
+  ] ? map[
+    1
+    /* requestId */
+  ].getData() : void 0;
+  return new _IotaSignRequest({
+    requestId,
+    intentMessage: map[
+      2
+      /* intentMessage */
+    ],
+    derivationPaths: map[
+      3
+      /* derivationPaths */
+    ].map(
+      (path) => CryptoKeypath.fromDataItem(path)
+    ),
+    addresses: map[
+      4
+      /* addresses */
+    ],
+    origin: map[
+      5
+      /* origin */
+    ]
+  });
+});
+__publicField(_IotaSignRequest, "fromCBOR", (_cborPayload) => {
+  const dataItem = decodeToDataItem$1(_cborPayload);
+  return _IotaSignRequest.fromDataItem(dataItem);
+});
+let IotaSignRequest = _IotaSignRequest;
 const { RegistryTypes, decodeToDataItem } = extend;
-class IotaSignature extends RegistryItem {
-  requestId;
-  signature;
-  publicKey;
-  getRegistryType = () => ExtendedRegistryTypes.IOTA_SIGNATURE;
+const _IotaSignature = class _IotaSignature extends RegistryItem {
   constructor(args) {
     super();
+    __publicField(this, "requestId");
+    __publicField(this, "signature");
+    __publicField(this, "publicKey");
+    __publicField(this, "getRegistryType", () => ExtendedRegistryTypes.IOTA_SIGNATURE);
+    __publicField(this, "getRequestId", () => this.requestId);
+    __publicField(this, "getSignature", () => this.signature);
+    __publicField(this, "getPublicKey", () => this.publicKey);
+    __publicField(this, "toDataItem", () => {
+      const map = {};
+      map[
+        1
+        /* requestId */
+      ] = new DataItem(this.requestId, RegistryTypes.UUID.getTag());
+      map[
+        2
+        /* signature */
+      ] = this.signature;
+      if (this.publicKey) {
+        map[
+          3
+          /* publicKey */
+        ] = this.publicKey;
+      }
+      return new DataItem(map);
+    });
     this.requestId = args.requestId;
     this.signature = args.signature;
     this.publicKey = args.publicKey;
   }
-  getRequestId = () => this.requestId;
-  getSignature = () => this.signature;
-  getPublicKey = () => this.publicKey;
-  toDataItem = () => {
-    const map = {};
-    map[
-      1
-      /* requestId */
-    ] = new DataItem(this.requestId, RegistryTypes.UUID.getTag());
-    map[
-      2
-      /* signature */
-    ] = this.signature;
-    if (this.publicKey) {
-      map[
-        3
-        /* publicKey */
-      ] = this.publicKey;
-    }
-    return new DataItem(map);
-  };
-  static fromDataItem = (dataItem) => {
-    const map = dataItem.getData();
-    const signature = map[
-      2
-      /* signature */
-    ];
-    const requestId = map[
-      1
-      /* requestId */
-    ]?.getData();
-    const publicKey = map[
-      3
-      /* publicKey */
-    ];
-    return new IotaSignature({
-      requestId,
-      signature,
-      publicKey
-    });
-  };
-  static fromCBOR = (_cborPayload) => {
-    const dataItem = decodeToDataItem(_cborPayload);
-    return IotaSignature.fromDataItem(dataItem);
-  };
-}
+};
+__publicField(_IotaSignature, "fromDataItem", (dataItem) => {
+  var _a;
+  const map = dataItem.getData();
+  const signature = map[
+    2
+    /* signature */
+  ];
+  const requestId = (_a = map[
+    1
+    /* requestId */
+  ]) == null ? void 0 : _a.getData();
+  const publicKey = map[
+    3
+    /* publicKey */
+  ];
+  return new _IotaSignature({
+    requestId,
+    signature,
+    publicKey
+  });
+});
+__publicField(_IotaSignature, "fromCBOR", (_cborPayload) => {
+  const dataItem = decodeToDataItem(_cborPayload);
+  return _IotaSignature.fromDataItem(dataItem);
+});
+let IotaSignature = _IotaSignature;
 patchTags(
   Object.values(ExtendedRegistryTypes).filter((rt) => !!rt.getTag()).map((rt) => rt.getTag())
 );
@@ -9349,6 +9364,7 @@ function processCompleteUR(type, cborHex, state) {
 }
 function processAccountData(type, cborHex) {
   const onSucceed = ({ type: type2, cbor }) => {
+    var _a, _b, _c;
     try {
       console.log("Attempting to parse as multi-accounts...");
       const multiAccounts = CryptoMultiAccounts.fromCBOR(bufferExports.Buffer.from(cbor, "hex"));
@@ -9356,14 +9372,14 @@ function processAccountData(type, cborHex) {
       const fullMultiAccountsData = JSON.stringify(multiAccounts, null, 2);
       const keystoneAccountData = {
         device: multiAccounts.getDevice() || "Keystone Device",
-        masterFingerprint: multiAccounts.getMasterFingerprint()?.toString("hex") || "",
+        masterFingerprint: ((_a = multiAccounts.getMasterFingerprint()) == null ? void 0 : _a.toString("hex")) || "",
         keys: multiAccounts.getKeys() || []
       };
       if (multiAccounts && multiAccounts.getKeys && multiAccounts.getKeys().length > 0) {
         const firstAccount = multiAccounts.getKeys()[0];
         const connectedDevice = multiAccounts.getDevice() || "Keystone Device";
-        const devicePublicKeyBuf = extractBuffer(firstAccount.getKey?.());
-        const deviceChainCodeBuf = extractBuffer(firstAccount.getChainCode?.());
+        const devicePublicKeyBuf = extractBuffer((_b = firstAccount.getKey) == null ? void 0 : _b.call(firstAccount));
+        const deviceChainCodeBuf = extractBuffer((_c = firstAccount.getChainCode) == null ? void 0 : _c.call(firstAccount));
         const devicePublicKey = devicePublicKeyBuf && devicePublicKeyBuf.length > 0 ? devicePublicKeyBuf.toString("hex") : void 0;
         const deviceChainCode = deviceChainCodeBuf && deviceChainCodeBuf.length > 0 ? deviceChainCodeBuf.toString("hex") : void 0;
         let accountAddressDecoded = "Error deriving address";
@@ -9599,6 +9615,7 @@ function Keystone($$anchor, $$props) {
     decodeUR();
   }
   function decodeUR() {
+    var _a;
     try {
       if (!get(urToDecode).trim()) {
         set(urDecodeError, "Please enter a UR to decode");
@@ -9623,7 +9640,7 @@ function Keystone($$anchor, $$props) {
             requestId: uuidStringify(signRequest.getRequestId()),
             intentMessage: bufferExports.Buffer.from(signRequest.getIntentMessage()).toString("hex"),
             derivationPaths: signRequest.getDerivationPaths().map((p) => p.getPath()),
-            addresses: signRequest.getAddresses()?.map((a) => bufferExports.Buffer.from(a).toString("hex")) || [],
+            addresses: ((_a = signRequest.getAddresses()) == null ? void 0 : _a.map((a) => bufferExports.Buffer.from(a).toString("hex"))) || [],
             origin: signRequest.getOrigin()
           };
         } else if (type === UR_TYPES.IOTA_SIGNATURE) {
@@ -9771,11 +9788,17 @@ function Keystone($$anchor, $$props) {
         ($0) => {
           set_text(text_1, ` ${(get(keystoneAccountData), untrack(() => get(keystoneAccountData).device)) ?? ""}`);
           set_text(text_2, (get(keystoneAccountData), untrack(() => get(keystoneAccountData).masterFingerprint)));
-          set_text(text_3, (get(keystoneAccountData), get(selectedAccountIndex), untrack(() => get(keystoneAccountData).keys[get(selectedAccountIndex)]?.path)));
+          set_text(text_3, (get(keystoneAccountData), get(selectedAccountIndex), untrack(() => {
+            var _a;
+            return (_a = get(keystoneAccountData).keys[get(selectedAccountIndex)]) == null ? void 0 : _a.path;
+          })));
           set_text(text_4, $0);
         },
         [
-          () => (deep_read_state(deriveIotaAddress), deep_read_state(toHEX), get(keystoneAccountData), get(selectedAccountIndex), untrack(() => deriveIotaAddress(toHEX(get(keystoneAccountData).keys[get(selectedAccountIndex)]?.key) || "")))
+          () => (deep_read_state(deriveIotaAddress), deep_read_state(toHEX), get(keystoneAccountData), get(selectedAccountIndex), untrack(() => {
+            var _a;
+            return deriveIotaAddress(toHEX((_a = get(keystoneAccountData).keys[get(selectedAccountIndex)]) == null ? void 0 : _a.key) || "");
+          }))
         ]
       );
       bind_select_value(select, () => get(selectedAccountIndex), ($$value) => set(selectedAccountIndex, $$value));

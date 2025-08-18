@@ -9,10 +9,60 @@ import {
 } from './binary-cache';
 
 async function fetchStakeTransactionsByRole(address: string, role: 'signAddress' | 'recvAddress') {
+    // Reusable objectChanges GraphQL section
+    const objectChangesSection = `
+        pageInfo {
+            hasNextPage
+            endCursor
+        }
+        nodes {
+            idDeleted
+            idCreated
+            address
+            inputState {
+                asMoveObject {
+                    owner {
+                        ... on AddressOwner {
+                            owner {
+                                ... on IOwner {
+                                    address
+                                }
+                            }
+                        }
+                    }
+                    contents {
+                        type {
+                            repr
+                        }
+                        json
+                    }
+                }
+            }
+            outputState {
+                asMoveObject {
+                    owner {
+                        ... on AddressOwner {
+                            owner {
+                                ... on IOwner {
+                                    address
+                                }
+                            }
+                        }
+                    }
+                    contents {
+                        type {
+                            repr
+                        }
+                        json
+                    }
+                }
+            }
+        }
+    `;
     const gqlClient = new IotaGraphQLClient({
         url: getSelectedNetworkConfig().graphql,
     });
-    let allNodes: any[] = [];
+    let allNodes = [];
     let cursorSection = '';
     let hasNextPage = true;
     let endCursor = '';
@@ -40,49 +90,7 @@ async function fetchStakeTransactionsByRole(address: string, role: 'signAddress'
                                 epochId
                             }
                             objectChanges {
-                                nodes {
-                                    idDeleted
-                                    idCreated
-                                    address
-                                    inputState {
-                                        asMoveObject {
-                                            owner {
-                                                ... on AddressOwner {
-                                                    owner {
-                                                        ... on IOwner {
-                                                            address
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            contents {
-                                                type {
-                                                    repr
-                                                }
-                                                json
-                                            }
-                                        }
-                                    }
-                                    outputState {
-                                        asMoveObject {
-                                            owner {
-                                                ... on AddressOwner {
-                                                    owner {
-                                                        ... on IOwner {
-                                                            address
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            contents {
-                                                type {
-                                                    repr
-                                                }
-                                                json
-                                            }
-                                        }
-                                    }
-                                }
+${objectChangesSection}
                             }
                         }
                     }
@@ -93,15 +101,83 @@ async function fetchStakeTransactionsByRole(address: string, role: 'signAddress'
         const variables = { address };
         const result = await gqlClient.query({ query, variables });
         const txBlocks = result.data?.transactionBlocks;
-        // @ts-ignore
-        if (txBlocks?.nodes) {
-            // @ts-ignore
-            allNodes.push(...txBlocks.nodes);
+        if (
+            txBlocks &&
+            typeof txBlocks === 'object' &&
+            'nodes' in txBlocks &&
+            Array.isArray((txBlocks as any).nodes)
+        ) {
+            // For each transaction, handle objectChanges pagination
+            for (const tx of (txBlocks as any).nodes as any[]) {
+                const effects = tx.effects;
+                if (!effects?.objectChanges) {
+                    allNodes.push(tx);
+                    continue;
+                }
+                let objectNodes = Array.isArray(effects.objectChanges.nodes)
+                    ? [...effects.objectChanges.nodes]
+                    : [];
+                let objectHasNextPage = effects.objectChanges.pageInfo?.hasNextPage;
+                let objectEndCursor = effects.objectChanges.pageInfo?.endCursor;
+                // Paginate objectChanges if needed
+                while (objectHasNextPage && objectEndCursor) {
+                    const objectChangesQuery = `
+                        query ($txDigest: String!, $objectChangesCursor: String) {
+                            transactionBlock(digest: $txDigest) {
+                                effects {
+                                    objectChanges(after: $objectChangesCursor) {
+${objectChangesSection}
+                                    }
+                                }
+                            }
+                        }
+                    `;
+                    const objectVariables = {
+                        txDigest: tx.digest,
+                        objectChangesCursor: objectEndCursor,
+                    };
+                    const objectResult = await gqlClient.query({
+                        query: objectChangesQuery,
+                        variables: objectVariables,
+                    });
+                    const transactionBlock = objectResult.data?.transactionBlock;
+                    let nextObjectChanges = undefined;
+                    if (
+                        transactionBlock &&
+                        typeof transactionBlock === 'object' &&
+                        'effects' in transactionBlock &&
+                        (transactionBlock as any).effects?.objectChanges
+                    ) {
+                        nextObjectChanges = (transactionBlock as any).effects.objectChanges;
+                    }
+                    if (nextObjectChanges && Array.isArray(nextObjectChanges.nodes)) {
+                        objectNodes.push(...nextObjectChanges.nodes);
+                        objectHasNextPage = nextObjectChanges.pageInfo?.hasNextPage;
+                        objectEndCursor = nextObjectChanges.pageInfo?.endCursor;
+                    } else {
+                        objectHasNextPage = false;
+                        objectEndCursor = undefined;
+                    }
+                }
+                // Replace objectChanges.nodes with the full list
+                tx.effects.objectChanges.nodes = objectNodes;
+                allNodes.push(tx);
+            }
         }
-        // @ts-ignore
-        hasNextPage = txBlocks?.pageInfo?.hasNextPage;
-        // @ts-ignore
-        endCursor = txBlocks?.pageInfo?.endCursor;
+        hasNextPage =
+            txBlocks &&
+            typeof txBlocks === 'object' &&
+            'pageInfo' in txBlocks &&
+            (txBlocks as any).pageInfo?.hasNextPage
+                ? (txBlocks as any).pageInfo.hasNextPage
+                : false;
+        endCursor =
+            txBlocks &&
+            typeof txBlocks === 'object' &&
+            'pageInfo' in txBlocks &&
+            (txBlocks as any).pageInfo?.endCursor
+                ? (txBlocks as any).pageInfo.endCursor
+                : undefined;
         if (hasNextPage && endCursor) {
             cursorSection = `after: \"${endCursor}\"`;
         } else {

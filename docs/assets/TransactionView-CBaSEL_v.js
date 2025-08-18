@@ -1,6 +1,6 @@
-import { a1 as bcs, O as fromB64, p as push, r as prop, w as legacy_pre_effect, j as set, m as mutable_source, x as deep_read_state, g as get, y as legacy_pre_effect_reset, i as init, f as from_html, b as if_block, c as child, k as append, l as pop, G as first_child, s as sibling, C as untrack, t as template_effect, J as set_attribute, d as set_text, I as set_style, K as comment, z as each, A as index, $ as derived_safe_equal, H as text, L as set_class, e as event } from "/iota-utils/assets/index-c15_P6cg.js";
-import { f as formatJsonWithCompactArrays, r as removeKindFields, i as isTransactionData, g as getTransactionData, R as Root } from "/iota-utils/assets/transaction-view-DMvVzL7-.js";
-import { a as formatNumberWithUnderscores, n as nanoToIota } from "/iota-utils/assets/iota-nano-conversion-Bp8husbX.js";
+import { a1 as bcs, O as fromB64, p as push, r as prop, w as legacy_pre_effect, j as set, m as mutable_source, x as deep_read_state, g as get, y as legacy_pre_effect_reset, i as init, f as from_html, b as if_block, c as child, k as append, l as pop, G as first_child, s as sibling, C as untrack, t as template_effect, J as set_attribute, d as set_text, I as set_style, K as comment, z as each, A as index, $ as derived_safe_equal, H as text, L as set_class, e as event } from "/iota-utils/assets/index-CMiBu1ib.js";
+import { f as formatJsonWithCompactArrays, r as removeKindFields, i as isTransactionData, g as getTransactionData, R as Root } from "/iota-utils/assets/transaction-view-gcIY95EC.js";
+import { a as formatNumberWithUnderscores, n as nanoToIota } from "/iota-utils/assets/iota-nano-conversion-xJ_sof4-.js";
 function bytesToUtf8(bytes) {
   try {
     return new TextDecoder().decode(new Uint8Array(bytes));
@@ -191,8 +191,8 @@ function TransactionEffects($$anchor, $$props) {
     }
   }
   function getStatusColor(status) {
-    const statusString = typeof status === "string" ? status : status?.status;
-    switch (statusString?.toUpperCase()) {
+    const statusString = typeof status === "string" ? status : status == null ? void 0 : status.status;
+    switch (statusString == null ? void 0 : statusString.toUpperCase()) {
       case "SUCCESS":
         return "#28a745";
       case "FAILURE":
@@ -203,47 +203,59 @@ function TransactionEffects($$anchor, $$props) {
     }
   }
   function getStatusString(status) {
-    return typeof status === "string" ? status : status?.status || "Unknown";
+    return typeof status === "string" ? status : (status == null ? void 0 : status.status) || "Unknown";
   }
   legacy_pre_effect(() => deep_read_state(transactionData()), () => {
-    set(effects, transactionData()?.effects);
+    var _a;
+    set(effects, (_a = transactionData()) == null ? void 0 : _a.effects);
   });
   legacy_pre_effect(() => (deep_read_state(transactionData()), get(effects)), () => {
-    set(balanceChanges, transactionData()?.balanceChanges || get(effects)?.balanceChanges?.nodes || get(effects)?.balanceChanges || []);
+    var _a, _b, _c, _d;
+    set(balanceChanges, ((_a = transactionData()) == null ? void 0 : _a.balanceChanges) || ((_c = (_b = get(effects)) == null ? void 0 : _b.balanceChanges) == null ? void 0 : _c.nodes) || ((_d = get(effects)) == null ? void 0 : _d.balanceChanges) || []);
   });
   legacy_pre_effect(() => (deep_read_state(transactionData()), get(effects)), () => {
-    set(objectChanges, transactionData()?.objectChanges || get(effects)?.objectChanges?.nodes || get(effects)?.objectChanges || []);
+    var _a, _b, _c, _d;
+    set(objectChanges, ((_a = transactionData()) == null ? void 0 : _a.objectChanges) || ((_c = (_b = get(effects)) == null ? void 0 : _b.objectChanges) == null ? void 0 : _c.nodes) || ((_d = get(effects)) == null ? void 0 : _d.objectChanges) || []);
   });
   legacy_pre_effect(() => (deep_read_state(transactionData()), get(effects)), () => {
-    set(events, transactionData()?.events || get(effects)?.events?.nodes || get(effects)?.events || []);
+    var _a, _b, _c, _d;
+    set(events, ((_a = transactionData()) == null ? void 0 : _a.events) || ((_c = (_b = get(effects)) == null ? void 0 : _b.events) == null ? void 0 : _c.nodes) || ((_d = get(effects)) == null ? void 0 : _d.events) || []);
   });
   legacy_pre_effect(() => get(objectChanges), () => {
     set(deletedObjects, get(objectChanges).filter((change) => change.idDeleted === true || change.type === "deleted"));
   });
   legacy_pre_effect(() => (get(objectChanges), get(effects)), () => {
+    var _a;
     set(createdObjects, [
       ...get(objectChanges).filter((change) => change.idCreated === true || change.type === "created"),
-      ...(get(effects)?.created || []).map((obj) => ({
-        type: "created",
-        objectId: obj.reference?.objectId,
-        version: obj.reference?.version,
-        digest: obj.reference?.digest,
-        owner: obj.owner,
-        objectType: ""
-      }))
+      ...(((_a = get(effects)) == null ? void 0 : _a.created) || []).map((obj) => {
+        var _a2, _b, _c;
+        return {
+          type: "created",
+          objectId: (_a2 = obj.reference) == null ? void 0 : _a2.objectId,
+          version: (_b = obj.reference) == null ? void 0 : _b.version,
+          digest: (_c = obj.reference) == null ? void 0 : _c.digest,
+          owner: obj.owner,
+          objectType: ""
+        };
+      })
     ]);
   });
   legacy_pre_effect(() => (get(objectChanges), get(effects)), () => {
+    var _a;
     set(mutatedObjects, [
       ...get(objectChanges).filter((change) => change.idDeleted === false && change.idCreated === false || change.type === "mutated"),
-      ...(get(effects)?.mutated || []).map((obj) => ({
-        type: "mutated",
-        objectId: obj.reference?.objectId,
-        version: obj.reference?.version,
-        digest: obj.reference?.digest,
-        owner: obj.owner,
-        objectType: ""
-      }))
+      ...(((_a = get(effects)) == null ? void 0 : _a.mutated) || []).map((obj) => {
+        var _a2, _b, _c;
+        return {
+          type: "mutated",
+          objectId: (_a2 = obj.reference) == null ? void 0 : _a2.objectId,
+          version: (_b = obj.reference) == null ? void 0 : _b.version,
+          digest: (_c = obj.reference) == null ? void 0 : _c.digest,
+          owner: obj.owner,
+          objectType: ""
+        };
+      })
     ]);
   });
   legacy_pre_effect(() => (get(effects), get(balanceChanges)), () => {
@@ -269,12 +281,18 @@ function TransactionEffects($$anchor, $$props) {
           var span_3 = root_2();
           var text_3 = child(span_3);
           template_effect(($0) => set_text(text_3, $0), [
-            () => (get(effects), deep_read_state(transactionData()), untrack(() => new Date(get(effects).checkpoint?.timestamp || transactionData()?.timestamp).toLocaleString()))
+            () => (get(effects), deep_read_state(transactionData()), untrack(() => {
+              var _a, _b;
+              return new Date(((_a = get(effects).checkpoint) == null ? void 0 : _a.timestamp) || ((_b = transactionData()) == null ? void 0 : _b.timestamp)).toLocaleString();
+            }))
           ]);
           append($$anchor3, span_3);
         };
         if_block(node_1, ($$render) => {
-          if (get(effects), deep_read_state(transactionData()), untrack(() => get(effects).checkpoint?.timestamp || transactionData()?.timestamp)) $$render(consequent);
+          if (get(effects), deep_read_state(transactionData()), untrack(() => {
+            var _a, _b;
+            return ((_a = get(effects).checkpoint) == null ? void 0 : _a.timestamp) || ((_b = transactionData()) == null ? void 0 : _b.timestamp);
+          })) $$render(consequent);
         });
       }
       var div_2 = sibling(div_1, 2);
@@ -307,7 +325,10 @@ function TransactionEffects($$anchor, $$props) {
           append($$anchor3, div_5);
         };
         if_block(node_2, ($$render) => {
-          if (get(effects), untrack(() => get(effects).gasEffects?.gasSummary)) $$render(consequent_1);
+          if (get(effects), untrack(() => {
+            var _a;
+            return (_a = get(effects).gasEffects) == null ? void 0 : _a.gasSummary;
+          })) $$render(consequent_1);
         });
       }
       var node_3 = sibling(div_2, 2);
@@ -334,8 +355,14 @@ function TransactionEffects($$anchor, $$props) {
               var text_11 = child(div_12);
               template_effect(
                 ($0) => {
-                  set_attribute(div_11, "title", (get(change), untrack(() => get(change).owner?.address)));
-                  set_text(text_10, (get(change), untrack(() => get(change).owner?.address)));
+                  set_attribute(div_11, "title", (get(change), untrack(() => {
+                    var _a;
+                    return (_a = get(change).owner) == null ? void 0 : _a.address;
+                  })));
+                  set_text(text_10, (get(change), untrack(() => {
+                    var _a;
+                    return (_a = get(change).owner) == null ? void 0 : _a.address;
+                  })));
                   set_text(text_11, $0);
                 },
                 [
@@ -362,8 +389,14 @@ function TransactionEffects($$anchor, $$props) {
               var text_14 = child(div_17);
               template_effect(
                 ($0) => {
-                  set_attribute(div_16, "title", (get(change), untrack(() => get(change).owner?.address)));
-                  set_text(text_13, (get(change), untrack(() => get(change).owner?.address)));
+                  set_attribute(div_16, "title", (get(change), untrack(() => {
+                    var _a;
+                    return (_a = get(change).owner) == null ? void 0 : _a.address;
+                  })));
+                  set_text(text_13, (get(change), untrack(() => {
+                    var _a;
+                    return (_a = get(change).owner) == null ? void 0 : _a.address;
+                  })));
                   set_text(text_14, $0);
                 },
                 [
@@ -454,7 +487,10 @@ function TransactionEffects($$anchor, $$props) {
                 append($$anchor5, details);
               };
               if_block(node_8, ($$render) => {
-                if (get(change), untrack(() => get(change).inputState?.asMoveObject?.contents?.json)) $$render(consequent_6);
+                if (get(change), untrack(() => {
+                  var _a, _b, _c;
+                  return (_c = (_b = (_a = get(change).inputState) == null ? void 0 : _a.asMoveObject) == null ? void 0 : _b.contents) == null ? void 0 : _c.json;
+                })) $$render(consequent_6);
               });
             }
             template_effect(() => set_text(text_17, (get(change), untrack(() => get(change).objectId || get(change).address))));
@@ -485,7 +521,10 @@ function TransactionEffects($$anchor, $$props) {
                     append($$anchor6, details_1);
                   };
                   if_block(node_10, ($$render) => {
-                    if (get(change), untrack(() => get(change).inputState?.asMoveObject?.contents?.json)) $$render(consequent_7);
+                    if (get(change), untrack(() => {
+                      var _a, _b, _c;
+                      return (_c = (_b = (_a = get(change).inputState) == null ? void 0 : _a.asMoveObject) == null ? void 0 : _b.contents) == null ? void 0 : _c.json;
+                    })) $$render(consequent_7);
                   });
                 }
                 var details_2 = sibling(node_10, 2);
@@ -579,7 +618,10 @@ function TransactionEffects($$anchor, $$props) {
                         append($$anchor7, details_3);
                       };
                       if_block(node_16, ($$render) => {
-                        if (get(change), untrack(() => get(change).inputState?.asMoveObject?.contents?.json)) $$render(consequent_14);
+                        if (get(change), untrack(() => {
+                          var _a, _b, _c;
+                          return (_c = (_b = (_a = get(change).inputState) == null ? void 0 : _a.asMoveObject) == null ? void 0 : _b.contents) == null ? void 0 : _c.json;
+                        })) $$render(consequent_14);
                       });
                     }
                     template_effect(() => set_text(text_31, (get(change), untrack(() => get(change).address))));
@@ -597,7 +639,10 @@ function TransactionEffects($$anchor, $$props) {
                 append($$anchor5, fragment_2);
               };
               if_block(node_9, ($$render) => {
-                if (get(change), untrack(() => get(change).outputState?.asMoveObject?.contents?.json?.id)) $$render(consequent_8);
+                if (get(change), untrack(() => {
+                  var _a, _b, _c, _d;
+                  return (_d = (_c = (_b = (_a = get(change).outputState) == null ? void 0 : _a.asMoveObject) == null ? void 0 : _b.contents) == null ? void 0 : _c.json) == null ? void 0 : _d.id;
+                })) $$render(consequent_8);
                 else $$render(alternate_1, false);
               });
             }
@@ -695,7 +740,10 @@ function TransactionEffects($$anchor, $$props) {
                 append($$anchor5, fragment_6);
               };
               if_block(node_17, ($$render) => {
-                if (get(change), untrack(() => get(change).outputState?.asMoveObject?.contents?.json?.id)) $$render(consequent_15);
+                if (get(change), untrack(() => {
+                  var _a, _b, _c, _d;
+                  return (_d = (_c = (_b = (_a = get(change).outputState) == null ? void 0 : _a.asMoveObject) == null ? void 0 : _b.contents) == null ? void 0 : _c.json) == null ? void 0 : _d.id;
+                })) $$render(consequent_15);
                 else $$render(alternate_3, false);
               });
             }
@@ -773,6 +821,7 @@ function TransactionEffects($$anchor, $$props) {
               var node_25 = child(div_57);
               {
                 var consequent_23 = ($$anchor5) => {
+                  var pre_6 = root_37();
                   const moveCall = derived_safe_equal(() => (get(command), untrack(() => get(command).MoveCall)));
                   const signature = derived_safe_equal(() => (deep_read_state(get(moveCall)), untrack(() => `${get(moveCall).package}::${get(moveCall).module}::${get(moveCall).function}`)));
                   const cleanData = derived_safe_equal(() => (deep_read_state(get(signature)), deep_read_state(get(moveCall)), untrack(() => ({
@@ -780,7 +829,6 @@ function TransactionEffects($$anchor, $$props) {
                     typeArguments: get(moveCall).typeArguments,
                     arguments: get(moveCall).arguments
                   }))));
-                  var pre_6 = root_37();
                   var text_46 = child(pre_6);
                   template_effect(($0) => set_text(text_46, $0), [
                     () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), deep_read_state(get(cleanData)), untrack(() => formatJsonWithCompactArrays(removeKindFields(get(cleanData)))))
@@ -831,11 +879,12 @@ function TransactionEffects($$anchor, $$props) {
                   var node_27 = child(div_61);
                   {
                     var consequent_26 = ($$anchor6) => {
-                      const commandValue = derived_safe_equal(() => (get(command), untrack(() => Object.values(get(command))[0])));
                       var fragment_9 = comment();
+                      const commandValue = derived_safe_equal(() => (get(command), untrack(() => Object.values(get(command))[0])));
                       var node_28 = first_child(fragment_9);
                       {
                         var consequent_25 = ($$anchor7) => {
+                          var pre_8 = root_43();
                           const moveCall = derived_safe_equal(() => get(commandValue));
                           const signature = derived_safe_equal(() => (deep_read_state(get(moveCall)), untrack(() => `${get(moveCall).package}::${get(moveCall).module}::${get(moveCall).function}`)));
                           const cleanData = derived_safe_equal(() => (deep_read_state(get(signature)), deep_read_state(get(moveCall)), untrack(() => ({
@@ -843,7 +892,6 @@ function TransactionEffects($$anchor, $$props) {
                             typeArguments: get(moveCall).typeArguments,
                             arguments: get(moveCall).arguments
                           }))));
-                          var pre_8 = root_43();
                           var text_50 = child(pre_8);
                           template_effect(($0) => set_text(text_50, $0), [
                             () => (deep_read_state(formatJsonWithCompactArrays), deep_read_state(removeKindFields), deep_read_state(get(cleanData)), untrack(() => formatJsonWithCompactArrays(removeKindFields(get(cleanData)))))
@@ -890,7 +938,10 @@ function TransactionEffects($$anchor, $$props) {
             if_block(
               node_26,
               ($$render) => {
-                if (deep_read_state(transactionData()), untrack(() => transactionData()?.input?.transaction?.transactions?.length)) $$render(consequent_27);
+                if (deep_read_state(transactionData()), untrack(() => {
+                  var _a, _b, _c, _d;
+                  return (_d = (_c = (_b = (_a = transactionData()) == null ? void 0 : _a.input) == null ? void 0 : _b.transaction) == null ? void 0 : _c.transactions) == null ? void 0 : _d.length;
+                })) $$render(consequent_27);
               },
               true
             );
@@ -898,7 +949,10 @@ function TransactionEffects($$anchor, $$props) {
           append($$anchor3, fragment_8);
         };
         if_block(node_24, ($$render) => {
-          if (deep_read_state(transactionData()), untrack(() => transactionData()?.decodedBCS?.intentMessage?.value?.V1?.kind?.ProgrammableTransaction?.commands?.length)) $$render(consequent_24);
+          if (deep_read_state(transactionData()), untrack(() => {
+            var _a, _b, _c, _d, _e, _f, _g, _h;
+            return (_h = (_g = (_f = (_e = (_d = (_c = (_b = (_a = transactionData()) == null ? void 0 : _a.decodedBCS) == null ? void 0 : _b.intentMessage) == null ? void 0 : _c.value) == null ? void 0 : _d.V1) == null ? void 0 : _e.kind) == null ? void 0 : _f.ProgrammableTransaction) == null ? void 0 : _g.commands) == null ? void 0 : _h.length;
+          })) $$render(consequent_24);
           else $$render(alternate_7, false);
         });
       }
@@ -924,8 +978,8 @@ function TransactionEffects($$anchor, $$props) {
               var node_30 = sibling(pre_11, 2);
               {
                 var consequent_29 = ($$anchor5) => {
-                  const decoded = derived_safe_equal(() => (deep_read_state(decodeBase64Bytes), get(input), untrack(() => decodeBase64Bytes(get(input)[get(input).$kind].bytes))));
                   var fragment_10 = comment();
+                  const decoded = derived_safe_equal(() => (deep_read_state(decodeBase64Bytes), get(input), untrack(() => decodeBase64Bytes(get(input)[get(input).$kind].bytes))));
                   var node_31 = first_child(fragment_10);
                   {
                     var consequent_28 = ($$anchor6) => {
@@ -991,8 +1045,8 @@ function TransactionEffects($$anchor, $$props) {
                 () => (deep_read_state(transactionData()), untrack(() => transactionData().input.transaction.inputs)),
                 index,
                 ($$anchor5, input, index2) => {
-                  const inputData = derived_safe_equal(() => (get(input), untrack(() => ({ valueType: get(input).valueType, value: get(input).value }))));
                   var div_72 = root_52();
+                  const inputData = derived_safe_equal(() => (get(input), untrack(() => ({ valueType: get(input).valueType, value: get(input).value }))));
                   var span_22 = child(div_72);
                   span_22.textContent = index2;
                   var span_23 = sibling(span_22, 2);
@@ -1017,7 +1071,10 @@ function TransactionEffects($$anchor, $$props) {
             if_block(
               node_32,
               ($$render) => {
-                if (deep_read_state(transactionData()), untrack(() => transactionData()?.input?.transaction?.inputs?.length)) $$render(consequent_31);
+                if (deep_read_state(transactionData()), untrack(() => {
+                  var _a, _b, _c, _d;
+                  return (_d = (_c = (_b = (_a = transactionData()) == null ? void 0 : _a.input) == null ? void 0 : _b.transaction) == null ? void 0 : _c.inputs) == null ? void 0 : _d.length;
+                })) $$render(consequent_31);
               },
               true
             );
@@ -1025,7 +1082,10 @@ function TransactionEffects($$anchor, $$props) {
           append($$anchor3, fragment_11);
         };
         if_block(node_29, ($$render) => {
-          if (deep_read_state(transactionData()), untrack(() => transactionData()?.decodedBCS?.intentMessage?.value?.V1?.kind?.ProgrammableTransaction?.inputs?.length)) $$render(consequent_30);
+          if (deep_read_state(transactionData()), untrack(() => {
+            var _a, _b, _c, _d, _e, _f, _g, _h;
+            return (_h = (_g = (_f = (_e = (_d = (_c = (_b = (_a = transactionData()) == null ? void 0 : _a.decodedBCS) == null ? void 0 : _b.intentMessage) == null ? void 0 : _c.value) == null ? void 0 : _d.V1) == null ? void 0 : _e.kind) == null ? void 0 : _f.ProgrammableTransaction) == null ? void 0 : _g.inputs) == null ? void 0 : _h.length;
+          })) $$render(consequent_30);
           else $$render(alternate_8, false);
         });
       }
@@ -1071,7 +1131,10 @@ function TransactionEffects($$anchor, $$props) {
               append($$anchor4, text_62);
             };
             if_block(node_34, ($$render) => {
-              if (deep_read_state(transactionData()), untrack(() => transactionData().decodedBCS.intentMessage.value.V1.gasData.payment?.length)) $$render(consequent_33);
+              if (deep_read_state(transactionData()), untrack(() => {
+                var _a;
+                return (_a = transactionData().decodedBCS.intentMessage.value.V1.gasData.payment) == null ? void 0 : _a.length;
+              })) $$render(consequent_33);
               else $$render(alternate_9, false);
             });
           }
@@ -1141,7 +1204,10 @@ function TransactionEffects($$anchor, $$props) {
                   append($$anchor5, text_67);
                 };
                 if_block(node_38, ($$render) => {
-                  if (deep_read_state(transactionData()), untrack(() => transactionData().input.gasData.payment?.length)) $$render(consequent_36);
+                  if (deep_read_state(transactionData()), untrack(() => {
+                    var _a;
+                    return (_a = transactionData().input.gasData.payment) == null ? void 0 : _a.length;
+                  })) $$render(consequent_36);
                   else $$render(alternate_10, false);
                 });
               }
@@ -1170,7 +1236,10 @@ function TransactionEffects($$anchor, $$props) {
             if_block(
               node_37,
               ($$render) => {
-                if (deep_read_state(transactionData()), untrack(() => transactionData()?.input?.gasData)) $$render(consequent_37);
+                if (deep_read_state(transactionData()), untrack(() => {
+                  var _a, _b;
+                  return (_b = (_a = transactionData()) == null ? void 0 : _a.input) == null ? void 0 : _b.gasData;
+                })) $$render(consequent_37);
               },
               true
             );
@@ -1178,7 +1247,10 @@ function TransactionEffects($$anchor, $$props) {
           append($$anchor3, fragment_14);
         };
         if_block(node_33, ($$render) => {
-          if (deep_read_state(transactionData()), untrack(() => transactionData()?.decodedBCS?.intentMessage?.value?.V1?.gasData)) $$render(consequent_34);
+          if (deep_read_state(transactionData()), untrack(() => {
+            var _a, _b, _c, _d, _e;
+            return (_e = (_d = (_c = (_b = (_a = transactionData()) == null ? void 0 : _a.decodedBCS) == null ? void 0 : _b.intentMessage) == null ? void 0 : _c.value) == null ? void 0 : _d.V1) == null ? void 0 : _e.gasData;
+          })) $$render(consequent_34);
           else $$render(alternate_11, false);
         });
       }
@@ -1230,7 +1302,10 @@ function TransactionEffects($$anchor, $$props) {
                           append($$anchor7, div_93);
                         };
                         if_block(node_44, ($$render) => {
-                          if (get(output), untrack(() => get(output)[1]?.length)) $$render(consequent_38);
+                          if (get(output), untrack(() => {
+                            var _a;
+                            return (_a = get(output)[1]) == null ? void 0 : _a.length;
+                          })) $$render(consequent_38);
                         });
                       }
                       var node_45 = sibling(node_44, 2);
@@ -1254,7 +1329,10 @@ function TransactionEffects($$anchor, $$props) {
                   append($$anchor5, div_90);
                 };
                 if_block(node_42, ($$render) => {
-                  if (get(result), untrack(() => get(result).mutableReferenceOutputs?.length)) $$render(consequent_40);
+                  if (get(result), untrack(() => {
+                    var _a;
+                    return (_a = get(result).mutableReferenceOutputs) == null ? void 0 : _a.length;
+                  })) $$render(consequent_40);
                 });
               }
               var node_46 = sibling(node_42, 2);
@@ -1281,7 +1359,10 @@ function TransactionEffects($$anchor, $$props) {
                         append($$anchor7, div_99);
                       };
                       if_block(node_48, ($$render) => {
-                        if (get(returnValue), untrack(() => get(returnValue)[0]?.length)) $$render(consequent_41);
+                        if (get(returnValue), untrack(() => {
+                          var _a;
+                          return (_a = get(returnValue)[0]) == null ? void 0 : _a.length;
+                        })) $$render(consequent_41);
                       });
                     }
                     var node_49 = sibling(node_48, 2);
@@ -1303,7 +1384,10 @@ function TransactionEffects($$anchor, $$props) {
                   append($$anchor5, div_96);
                 };
                 if_block(node_46, ($$render) => {
-                  if (get(result), untrack(() => get(result).returnValues?.length)) $$render(consequent_43);
+                  if (get(result), untrack(() => {
+                    var _a;
+                    return (_a = get(result).returnValues) == null ? void 0 : _a.length;
+                  })) $$render(consequent_43);
                 });
               }
               var node_50 = sibling(node_46, 2);
@@ -1329,7 +1413,10 @@ function TransactionEffects($$anchor, $$props) {
           append($$anchor3, div_86);
         };
         if_block(node_41, ($$render) => {
-          if (deep_read_state(transactionData()), untrack(() => transactionData()?.devInspectResults?.length)) $$render(consequent_45);
+          if (deep_read_state(transactionData()), untrack(() => {
+            var _a, _b;
+            return (_b = (_a = transactionData()) == null ? void 0 : _a.devInspectResults) == null ? void 0 : _b.length;
+          })) $$render(consequent_45);
         });
       }
       var node_51 = sibling(node_41, 2);
@@ -1362,23 +1449,41 @@ function TransactionEffects($$anchor, $$props) {
           append($$anchor3, div_103);
         };
         if_block(node_51, ($$render) => {
-          if (deep_read_state(transactionData()), untrack(() => transactionData()?.results?.length)) $$render(consequent_46);
+          if (deep_read_state(transactionData()), untrack(() => {
+            var _a, _b;
+            return (_b = (_a = transactionData()) == null ? void 0 : _a.results) == null ? void 0 : _b.length;
+          })) $$render(consequent_46);
         });
       }
       template_effect(
         ($0, $1, $2) => {
-          set_attribute(span, "title", (deep_read_state(transactionData()), untrack(() => transactionData()?.digest)));
-          set_text(text$1, (deep_read_state(transactionData()), untrack(() => transactionData()?.digest)));
+          set_attribute(span, "title", (deep_read_state(transactionData()), untrack(() => {
+            var _a;
+            return (_a = transactionData()) == null ? void 0 : _a.digest;
+          })));
+          set_text(text$1, (deep_read_state(transactionData()), untrack(() => {
+            var _a;
+            return (_a = transactionData()) == null ? void 0 : _a.digest;
+          })));
           set_style(span_1, `color: ${$0 ?? ""}`);
           set_text(text_1, $1);
           set_text(text_2, `Checkpoint: ${$2 ?? ""}`);
-          set_attribute(span_4, "title", (deep_read_state(transactionData()), untrack(() => transactionData()?.sender)));
-          set_text(text_4, (deep_read_state(transactionData()), untrack(() => transactionData()?.sender || "N/A")));
+          set_attribute(span_4, "title", (deep_read_state(transactionData()), untrack(() => {
+            var _a;
+            return (_a = transactionData()) == null ? void 0 : _a.sender;
+          })));
+          set_text(text_4, (deep_read_state(transactionData()), untrack(() => {
+            var _a;
+            return ((_a = transactionData()) == null ? void 0 : _a.sender) || "N/A";
+          })));
         },
         [
           () => (get(effects), untrack(() => getStatusColor(get(effects).status))),
           () => (get(effects), untrack(() => getStatusString(get(effects).status))),
-          () => (deep_read_state(formatNumberWithUnderscores), get(effects), untrack(() => formatNumberWithUnderscores(get(effects).checkpoint?.sequenceNumber || "")))
+          () => (deep_read_state(formatNumberWithUnderscores), get(effects), untrack(() => {
+            var _a;
+            return formatNumberWithUnderscores(((_a = get(effects).checkpoint) == null ? void 0 : _a.sequenceNumber) || "");
+          }))
         ]
       );
       append($$anchor2, fragment);

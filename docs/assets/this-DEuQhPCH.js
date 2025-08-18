@@ -1,6 +1,6 @@
-import { _ as effect, au as render_effect, C as untrack, av as queue_micro_task, aw as STATE_SYMBOL } from "/iota-utils/assets/index-c15_P6cg.js";
+import { _ as effect, au as render_effect, C as untrack, av as queue_micro_task, aw as STATE_SYMBOL } from "/iota-utils/assets/index-CMiBu1ib.js";
 function is_bound_this(bound_value, element_or_component) {
-  return bound_value === element_or_component || bound_value?.[STATE_SYMBOL] === element_or_component;
+  return bound_value === element_or_component || (bound_value == null ? void 0 : bound_value[STATE_SYMBOL]) === element_or_component;
 }
 function bind_this(element_or_component = {}, update, get_value, get_parts) {
   effect(() => {
