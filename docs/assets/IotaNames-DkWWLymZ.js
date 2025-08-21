@@ -1,11 +1,10 @@
-import { p as push, i as init, f as from_html, s as sibling, c as child, m as mutable_source, b as if_block, g as get, W as store_get, E as bind_value, k as append, l as pop, V as setup_stores, a2 as activeAddress, U as getSelectedNetworkConfig, j as set, a5 as Transaction, n as getClient, z as each, A as index, t as template_effect, d as set_text, a8 as toHEX, a6 as isValidIotaAddress, aF as IOTA_CLOCK_OBJECT_ID, Z as delegate, K as comment, G as first_child } from "/iota-utils/assets/index-CMiBu1ib.js";
-import { I as IotaGraphQLClient, g as graphql } from "/iota-utils/assets/index-DqCMW0_q.js";
-import { T as TransactionView } from "/iota-utils/assets/TransactionView-CBaSEL_v.js";
-import { e as executeTransaction } from "/iota-utils/assets/transaction-execution-CAZkCFfJ.js";
-import "/iota-utils/assets/transaction-view-gcIY95EC.js";
-import "/iota-utils/assets/iota-nano-conversion-xJ_sof4-.js";
+import { p as push, i as init, f as from_html, s as sibling, c as child, m as mutable_source, b as if_block, g as get, W as store_get, E as bind_value, k as append, l as pop, V as setup_stores, a2 as activeAddress, U as getSelectedNetworkConfig, j as set, a5 as Transaction, n as getClient, z as each, A as index, t as template_effect, d as set_text, a8 as toHEX, a6 as isValidIotaAddress, aF as IOTA_CLOCK_OBJECT_ID, Z as delegate, I as comment, G as first_child } from "/iota-utils/assets/index-NKvaKa41.js";
+import { I as IotaGraphQLClient, g as graphql } from "/iota-utils/assets/index-WkeHLBVI.js";
+import { T as TransactionView } from "/iota-utils/assets/TransactionView-EFcNOC_h.js";
+import { e as executeTransaction } from "/iota-utils/assets/transaction-execution-BUo5XFGX.js";
+import "/iota-utils/assets/transaction-view-D1qOmpCD.js";
+import "/iota-utils/assets/iota-nano-conversion-1QM8x308.js";
 const resolveAddress = async (_, IOTA_NAMES_OBJECT_ID, queryIotaNamesObjectId, IOTA_NAMES_PACKAGE_ID, nameName, value) => {
-  var _a, _b, _c;
   try {
     if (get(IOTA_NAMES_OBJECT_ID).length == 0) {
       await queryIotaNamesObjectId();
@@ -53,7 +52,7 @@ const resolveAddress = async (_, IOTA_NAMES_OBJECT_ID, queryIotaNamesObjectId, I
     if (txResult.error) {
       throw new Error(txResult.error);
     }
-    let resolvedAddress = "0x" + toHEX(new Uint8Array((_c = (_b = (_a = txResult.results) == null ? void 0 : _a.pop()) == null ? void 0 : _b.returnValues) == null ? void 0 : _c[0][0]));
+    let resolvedAddress = "0x" + toHEX(new Uint8Array(txResult.results?.pop()?.returnValues?.[0][0]));
     console.log(resolvedAddress);
     set(value, resolvedAddress);
   } catch (err) {
@@ -62,7 +61,6 @@ const resolveAddress = async (_, IOTA_NAMES_OBJECT_ID, queryIotaNamesObjectId, I
   }
 };
 const resolveName = async (__1, address, IOTA_NAMES_OBJECT_ID, queryIotaNamesObjectId, IOTA_NAMES_PACKAGE_ID, value) => {
-  var _a, _b, _c;
   try {
     if (!isValidIotaAddress(get(address))) {
       throw new Error("invalid address");
@@ -104,7 +102,7 @@ const resolveName = async (__1, address, IOTA_NAMES_OBJECT_ID, queryIotaNamesObj
     if (txResult.error) {
       throw new Error(txResult.error);
     }
-    let nameBytes = (_c = (_b = (_a = txResult.results) == null ? void 0 : _a.pop()) == null ? void 0 : _b.returnValues) == null ? void 0 : _c[0][0].slice(1);
+    let nameBytes = txResult.results?.pop()?.returnValues?.[0][0].slice(1);
     let resolvedName = new TextDecoder().decode(new Uint8Array(nameBytes));
     console.log(resolvedName);
     set(value, resolvedName);
@@ -170,13 +168,11 @@ async function getDynamicFields(__4, value, queryDynamicFields) {
   }
 }
 async function toggleIotaNamesIds(__5, showIotaNamesIds, getPackageIds) {
-  var _a;
   set(showIotaNamesIds, true);
   await getPackageIds();
-  (_a = document.querySelector("details")) == null ? void 0 : _a.setAttribute("open", "true");
+  document.querySelector("details")?.setAttribute("open", "true");
 }
 async function registerName(__6, getPackageIds, queryDynamicFields, nameName, IOTA_NAMES_PACKAGE_ID, IOTA_NAMES_OBJECT_ID, PAYMENTS_PACKAGE_ID, $activeAddress, getNft, SUBNAME_PROXY_PACKAGE_ID, SUBNAME_PACKAGE_ID, value) {
-  var _a;
   try {
     await getPackageIds();
     let dynamicFields = await queryDynamicFields();
@@ -240,7 +236,7 @@ async function registerName(__6, getPackageIds, queryDynamicFields, nameName, IO
         });
         const subnameOutputs = outputs.data.filter((output) => output.data.content.type.includes("SubNameRegistration"));
         let subnameNft = subnameOutputs.find((e) => e.data.content.fields.nft.fields.name == parentNameName);
-        parentNft = (_a = subnameNft == null ? void 0 : subnameNft.data) == null ? void 0 : _a.objectId;
+        parentNft = subnameNft?.data?.objectId;
         expirationNextMonthTimestampMs = // @ts-ignore
         subnameNft.data.content.fields.nft.fields.expiration_timestamp_ms;
       }
@@ -555,7 +551,6 @@ function IotaNames($$anchor, $$props) {
     }
   }
   async function listAuctions() {
-    var _a, _b, _c, _d, _e;
     try {
       await getPackageIds();
       await queryAuctionObjectId();
@@ -573,9 +568,9 @@ function IotaNames($$anchor, $$props) {
         auctions: [],
         unclaimedAuctions: []
       };
-      res.objectId = (_a = object.data) == null ? void 0 : _a.objectId;
-      res.previousTransaction = (_b = object.data) == null ? void 0 : _b.previousTransaction;
-      res.balance = (_e = (_d = (_c = object.data) == null ? void 0 : _c.content) == null ? void 0 : _d.fields) == null ? void 0 : _e.balance;
+      res.objectId = object.data?.objectId;
+      res.previousTransaction = object.data?.previousTransaction;
+      res.balance = object.data?.content?.fields?.balance;
       let linked_table_id = (
         // @ts-ignore
         object.data.content.fields.auctions.fields.id.id

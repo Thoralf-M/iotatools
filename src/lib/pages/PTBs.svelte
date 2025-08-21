@@ -371,7 +371,8 @@
 
     function toggleTransactionIds(event: Event) {
         const detailsElement = event.target as HTMLDetailsElement;
-        const functionItem = detailsElement.closest('.function-item');
+        const functionItem =
+            detailsElement.parentElement!.parentElement!.parentElement!.parentElement;
         const transactionSection = functionItem?.querySelector('.transaction-ids-section');
 
         if (transactionSection) {
@@ -883,6 +884,69 @@
                                 </div>
                             </div>
                         {/each}
+                    </div>
+                </details>
+
+                <details>
+                    <summary
+                        >PTB Command Types ({displayData.commandTypeStats
+                            ? displayData.commandTypeStats.length
+                            : 0})</summary
+                    >
+                    <div class="command-type-list">
+                        {#if displayData.commandTypeStats}
+                            {#each displayData.commandTypeStats as cmd}
+                                <div class="function-item">
+                                    <div class="function-header">
+                                        <div class="function-signature">
+                                            <div class="address-left">
+                                                <div class="address-info">
+                                                    <span>{cmd.type}</span>
+                                                </div>
+                                                <button
+                                                    class="copy-btn"
+                                                    style="padding: 4px 8px; align-self: center;"
+                                                    on:click={() => copyToClipboard(cmd.type)}
+                                                    title="Copy command type">📋</button
+                                                >
+                                            </div>
+                                            <div class="function-actions">
+                                                <details on:toggle={toggleTransactionIds}>
+                                                    <summary>Txs</summary>
+                                                </details>
+                                            </div>
+                                            <div class="address-stats">
+                                                <div class="call-count">
+                                                    <span class="count-label">Count:</span>
+                                                    <span class="count-value"
+                                                        >{cmd.count.toLocaleString()}</span
+                                                    >
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="transaction-ids-section">
+                                        <div class="transaction-ids-list">
+                                            {#each cmd.digests as txId}
+                                                <div class="transaction-id-item">
+                                                    <span class="tx-id" title={txId}
+                                                        >{formatAddress(txId)}</span
+                                                    >
+                                                    <button
+                                                        class="copy-btn"
+                                                        style="padding: 4px 8px; align-self: center;"
+                                                        on:click={() => copyToClipboard(txId)}
+                                                        title="Copy transaction ID"
+                                                    >
+                                                        📋
+                                                    </button>
+                                                </div>
+                                            {/each}
+                                        </div>
+                                    </div>
+                                </div>
+                            {/each}
+                        {/if}
                     </div>
                 </details>
             </div>

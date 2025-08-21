@@ -1,73 +1,55 @@
-var __defProp = Object.defineProperty;
-var __typeError = (msg) => {
-  throw TypeError(msg);
-};
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
-var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
-var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
-var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
-var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
-var _listeners, _observer, _options, _ResizeObserverSingleton_instances, getObserver_fn;
-import { _ as effect, C as untrack, p as push, r as prop, w as legacy_pre_effect, j as set, m as mutable_source, x as deep_read_state, g as get, y as legacy_pre_effect_reset, f as from_html, b as if_block, c as child, s as sibling, z as each, t as template_effect, I as set_style, e as event, k as append, l as pop, K as comment, G as first_child, $ as derived_safe_equal, H as text, o as mutate, i as init, a as invalidate_inner_signals, A as index, d as set_text, a0 as action, h as bind_select_value, U as getSelectedNetworkConfig, N as toB64, a1 as bcs, W as store_get, E as bind_value, V as setup_stores, a2 as activeAddress, Z as delegate } from "/iota-utils/assets/index-CMiBu1ib.js";
-import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-Bbi3Ax_Q.js";
-import { b as bind_this } from "/iota-utils/assets/this-DEuQhPCH.js";
-import { s as sanitize_slots, a as slot } from "/iota-utils/assets/transaction-view-gcIY95EC.js";
-import { b as bind_prop } from "/iota-utils/assets/props-BxqDVfOI.js";
-import { E as EpochPTBAnalyzer } from "/iota-utils/assets/index-CZpT3lew.js";
-import { I as IotaGraphQLClient } from "/iota-utils/assets/index-DqCMW0_q.js";
-const _ResizeObserverSingleton = class _ResizeObserverSingleton {
+import { _ as effect, C as untrack, p as push, r as prop, w as legacy_pre_effect, j as set, m as mutable_source, x as deep_read_state, g as get, y as legacy_pre_effect_reset, f as from_html, b as if_block, c as child, s as sibling, z as each, t as template_effect, J as set_style, e as event, k as append, l as pop, I as comment, G as first_child, $ as derived_safe_equal, H as text, o as mutate, i as init, a as invalidate_inner_signals, A as index, d as set_text, a0 as action, h as bind_select_value, U as getSelectedNetworkConfig, N as toB64, a1 as bcs, W as store_get, E as bind_value, V as setup_stores, a2 as activeAddress, Z as delegate } from "/iota-utils/assets/index-NKvaKa41.js";
+import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-DevpPHhq.js";
+import { b as bind_this } from "/iota-utils/assets/this-BXXnZM7c.js";
+import { s as sanitize_slots, a as slot } from "/iota-utils/assets/transaction-view-D1qOmpCD.js";
+import { b as bind_prop } from "/iota-utils/assets/props-CCX7vASe.js";
+import { E as EpochPTBAnalyzer } from "/iota-utils/assets/index-Evz3JjFh.js";
+import { I as IotaGraphQLClient } from "/iota-utils/assets/index-WkeHLBVI.js";
+class ResizeObserverSingleton {
+  /** */
+  #listeners = /* @__PURE__ */ new WeakMap();
+  /** @type {ResizeObserver | undefined} */
+  #observer;
+  /** @type {ResizeObserverOptions} */
+  #options;
+  /** @static */
+  static entries = /* @__PURE__ */ new WeakMap();
   /** @param {ResizeObserverOptions} options */
   constructor(options) {
-    __privateAdd(this, _ResizeObserverSingleton_instances);
-    /** */
-    __privateAdd(this, _listeners, /* @__PURE__ */ new WeakMap());
-    /** @type {ResizeObserver | undefined} */
-    __privateAdd(this, _observer);
-    /** @type {ResizeObserverOptions} */
-    __privateAdd(this, _options);
-    __privateSet(this, _options, options);
+    this.#options = options;
   }
   /**
    * @param {Element} element
    * @param {(entry: ResizeObserverEntry) => any} listener
    */
   observe(element, listener) {
-    var listeners = __privateGet(this, _listeners).get(element) || /* @__PURE__ */ new Set();
+    var listeners = this.#listeners.get(element) || /* @__PURE__ */ new Set();
     listeners.add(listener);
-    __privateGet(this, _listeners).set(element, listeners);
-    __privateMethod(this, _ResizeObserverSingleton_instances, getObserver_fn).call(this).observe(element, __privateGet(this, _options));
+    this.#listeners.set(element, listeners);
+    this.#getObserver().observe(element, this.#options);
     return () => {
-      var listeners2 = __privateGet(this, _listeners).get(element);
+      var listeners2 = this.#listeners.get(element);
       listeners2.delete(listener);
       if (listeners2.size === 0) {
-        __privateGet(this, _listeners).delete(element);
-        __privateGet(this, _observer).unobserve(element);
+        this.#listeners.delete(element);
+        this.#observer.unobserve(element);
       }
     };
   }
-};
-_listeners = new WeakMap();
-_observer = new WeakMap();
-_options = new WeakMap();
-_ResizeObserverSingleton_instances = new WeakSet();
-getObserver_fn = function() {
-  return __privateGet(this, _observer) ?? __privateSet(this, _observer, new ResizeObserver(
-    /** @param {any} entries */
-    (entries) => {
-      for (var entry of entries) {
-        _ResizeObserverSingleton.entries.set(entry.target, entry);
-        for (var listener of __privateGet(this, _listeners).get(entry.target) || []) {
-          listener(entry);
+  #getObserver() {
+    return this.#observer ?? (this.#observer = new ResizeObserver(
+      /** @param {any} entries */
+      (entries) => {
+        for (var entry of entries) {
+          ResizeObserverSingleton.entries.set(entry.target, entry);
+          for (var listener of this.#listeners.get(entry.target) || []) {
+            listener(entry);
+          }
         }
       }
-    }
-  ));
-};
-/** @static */
-__publicField(_ResizeObserverSingleton, "entries", /* @__PURE__ */ new WeakMap());
-let ResizeObserverSingleton = _ResizeObserverSingleton;
+    ));
+  }
+}
 var resize_observer_border_box = /* @__PURE__ */ new ResizeObserverSingleton({
   box: "border-box"
 });
@@ -205,8 +187,8 @@ function List($$anchor, $$props) {
   }
   var div_2 = sibling(node, 2);
   each(div_2, 5, () => get(indexes), (index2) => index2, ($$anchor2, index2) => {
-    var fragment = comment();
     const style = derived_safe_equal(() => (get(index2), untrack(() => getItemStyle(get(index2)))));
+    var fragment = comment();
     var node_2 = first_child(fragment);
     slot(
       node_2,
@@ -390,31 +372,25 @@ function StakingRewardsTable($$anchor, $$props) {
   let validatorPrincipal = mutable_source({});
   let epochs = mutable_source([]);
   function isActiveInEpoch(stakeObject, epoch) {
-    var _a;
-    return ((_a = get(epochData)[epoch]) == null ? void 0 : _a.active[stakeObject.address]) ?? false;
+    return get(epochData)[epoch]?.active[stakeObject.address] ?? false;
   }
   function isPreActivationInEpoch(stakeObject, epoch) {
-    var _a;
-    return ((_a = get(epochData)[epoch]) == null ? void 0 : _a.preActive[stakeObject.address]) ?? false;
+    return get(epochData)[epoch]?.preActive[stakeObject.address] ?? false;
   }
   function getTotalRewardsForEpoch(epoch) {
-    var _a;
-    const total = ((_a = get(epochData)[epoch]) == null ? void 0 : _a.totalRewards) ?? 0n;
+    const total = get(epochData)[epoch]?.totalRewards ?? 0n;
     return total === 0n ? "0" : (Number(total) / 1e9).toFixed(2) + " IOTA";
   }
   function getTotalAccumulatedRewardsForEpoch(epoch) {
-    var _a;
-    const total = ((_a = get(epochData)[epoch]) == null ? void 0 : _a.totalAccumulated) ?? 0n;
+    const total = get(epochData)[epoch]?.totalAccumulated ?? 0n;
     return total === 0n ? "0" : (Number(total) / 1e9).toFixed(2) + " IOTA";
   }
   function getValidatorRewardsForEpoch(validatorPoolId, epoch) {
-    var _a;
-    const total = ((_a = get(epochData)[epoch]) == null ? void 0 : _a.validatorRewards[validatorPoolId]) ?? 0n;
+    const total = get(epochData)[epoch]?.validatorRewards[validatorPoolId] ?? 0n;
     return total === 0n ? "0" : (Number(total) / 1e9).toFixed(2) + " IOTA";
   }
   function getValidatorAccumulatedRewardsForEpoch(validatorPoolId, epoch) {
-    var _a;
-    const total = ((_a = get(epochData)[epoch]) == null ? void 0 : _a.validatorAccumulated[validatorPoolId]) ?? 0n;
+    const total = get(epochData)[epoch]?.validatorAccumulated[validatorPoolId] ?? 0n;
     return total === 0n ? "0" : (Number(total) / 1e9).toFixed(2) + " IOTA";
   }
   function getValidatorTotalPrincipal(validatorPoolId) {
@@ -439,11 +415,10 @@ function StakingRewardsTable($$anchor, $$props) {
   let headerElement = mutable_source();
   let listElement = mutable_source();
   function syncHeaderScroll(event2) {
-    var _a, _b, _c, _d;
     const target = event2.target;
     let scrollContainer = null;
     if (get(listElement)) {
-      scrollContainer = ((_b = (_a = get(listElement)).querySelector) == null ? void 0 : _b.call(_a, "[data-virtual-list-viewport]")) || ((_d = (_c = get(listElement)).querySelector) == null ? void 0 : _d.call(_c, '[style*="overflow"]'));
+      scrollContainer = get(listElement).querySelector?.("[data-virtual-list-viewport]") || get(listElement).querySelector?.('[style*="overflow"]');
     }
     if (scrollContainer && scrollContainer.scrollLeft !== target.scrollLeft) {
       scrollContainer.scrollLeft = target.scrollLeft;
@@ -583,7 +558,6 @@ function StakingRewardsTable($$anchor, $$props) {
     return `${dd}-${mm}-${yyyy}`;
   }
   async function fetchAllPrices() {
-    var _a, _b, _c, _d;
     set(showPriceColumns, true);
     set(isFetchingPrice, true);
     set(priceError, "");
@@ -614,8 +588,8 @@ function StakingRewardsTable($$anchor, $$props) {
           const res = await fetch(url);
           if (!res.ok) throw new Error("API error for epoch " + epoch);
           const data = await res.json();
-          const usd = (_b = (_a = data == null ? void 0 : data.market_data) == null ? void 0 : _a.current_price) == null ? void 0 : _b["usd"];
-          const eur = (_d = (_c = data == null ? void 0 : data.market_data) == null ? void 0 : _c.current_price) == null ? void 0 : _d["eur"];
+          const usd = data?.market_data?.current_price?.["usd"];
+          const eur = data?.market_data?.current_price?.["eur"];
           if (typeof usd !== "number" && typeof eur !== "number") throw new Error("No price data for epoch " + epoch);
           if (typeof usd === "number") {
             if (get(selectedCurrency) === "usd") mutate(epochPrices, get(epochPrices)[epoch] = usd);
@@ -813,18 +787,14 @@ function StakingRewardsTable($$anchor, $$props) {
           set_text(text_8, `Total principal staked: ${$1 ?? ""}`);
         },
         [
-          () => (deep_read_state(stakeObjects()), get(selectedValidator), untrack(() => stakeObjects().filter((obj) => {
-            var _a;
-            return obj.poolId === ((_a = get(selectedValidator)) == null ? void 0 : _a.poolId);
-          }).length)),
+          () => (deep_read_state(stakeObjects()), get(selectedValidator), untrack(() => stakeObjects().filter((obj) => obj.poolId === get(selectedValidator)?.poolId).length)),
           () => (get(selectedValidator), untrack(() => get(selectedValidator) ? getValidatorTotalPrincipal(get(selectedValidator).poolId) : "0"))
         ]
       );
       event("click", button_1, () => set(selectedValidator, null));
       event("click", button_2, (e) => {
-        var _a;
         e.stopPropagation();
-        if ((_a = get(selectedValidator)) == null ? void 0 : _a.poolId) {
+        if (get(selectedValidator)?.poolId) {
           copyToClipboard(get(selectedValidator).poolId);
         }
       });
@@ -925,13 +895,11 @@ function StakingRewardsTable($$anchor, $$props) {
         var text_17 = child(div_22);
         template_effect(() => set_text(text_17, (get(validator), untrack(() => get(validator).name))));
         event("click", div_22, () => {
-          var _a;
-          set(selectedValidator, ((_a = get(selectedValidator)) == null ? void 0 : _a.poolId) === get(validator).poolId ? null : get(validator));
+          set(selectedValidator, get(selectedValidator)?.poolId === get(validator).poolId ? null : get(validator));
         });
         event("keydown", div_22, (e) => {
-          var _a;
           if (e.key === "Enter" || e.key === " ") {
-            set(selectedValidator, ((_a = get(selectedValidator)) == null ? void 0 : _a.poolId) === get(validator).poolId ? null : get(validator));
+            set(selectedValidator, get(selectedValidator)?.poolId === get(validator).poolId ? null : get(validator));
           }
         });
         append($$anchor3, div_20);
@@ -1184,10 +1152,7 @@ function StakingRewardsTable($$anchor, $$props) {
                   if_block(
                     node_17,
                     ($$render) => {
-                      if (get(stakeObject), get(epochs), deep_read_state(get(index$1)), deep_read_state(currentEpoch()), untrack(() => {
-                        var _a;
-                        return isActiveInEpoch(get(stakeObject), get(epochs)[get(index$1)]) && get(epochs)[get(index$1)] >= get(stakeObject).firstEpoch && get(epochs)[get(index$1)] !== currentEpoch() && (!get(stakeObject).actionByEpoch || get(stakeObject).actionByEpoch && ((_a = get(stakeObject).actionByEpoch[get(epochs)[get(index$1)]]) == null ? void 0 : _a.action) !== "Unstaked");
-                      })) $$render(consequent_12);
+                      if (get(stakeObject), get(epochs), deep_read_state(get(index$1)), deep_read_state(currentEpoch()), untrack(() => isActiveInEpoch(get(stakeObject), get(epochs)[get(index$1)]) && get(epochs)[get(index$1)] >= get(stakeObject).firstEpoch && get(epochs)[get(index$1)] !== currentEpoch() && (!get(stakeObject).actionByEpoch || get(stakeObject).actionByEpoch && get(stakeObject).actionByEpoch[get(epochs)[get(index$1)]]?.action !== "Unstaked"))) $$render(consequent_12);
                       else $$render(alternate_2, false);
                     },
                     true
@@ -1235,7 +1200,7 @@ function StakingRewardsTable($$anchor, $$props) {
     ($$value) => set(listElement, $$value),
     () => get(listElement)
   );
-  action(div_26, ($$node) => setupScrollSync == null ? void 0 : setupScrollSync($$node));
+  action(div_26, ($$node) => setupScrollSync?.($$node));
   template_effect(() => {
     button_3.disabled = get(isFetchingPrice);
     set_text(text_9, get(isFetchingPrice) ? "Fetching... (rate limited)" : "Fetch prices from coingecko");
@@ -1365,7 +1330,6 @@ function decompressExchangeRateCache(base64Data) {
   return deserializeExchangeRateCache(binaryData);
 }
 async function fetchStakeTransactionsByRole(address, role) {
-  var _a, _b, _c, _d, _e, _f, _g, _h, _i;
   const objectChangesSection = `
         pageInfo {
             hasNextPage
@@ -1454,17 +1418,17 @@ ${objectChangesSection}
         `;
     const variables = { address };
     const result = await gqlClient.query({ query, variables });
-    const txBlocks = (_a = result.data) == null ? void 0 : _a.transactionBlocks;
+    const txBlocks = result.data?.transactionBlocks;
     if (txBlocks && typeof txBlocks === "object" && "nodes" in txBlocks && Array.isArray(txBlocks.nodes)) {
       for (const tx of txBlocks.nodes) {
         const effects = tx.effects;
-        if (!(effects == null ? void 0 : effects.objectChanges)) {
+        if (!effects?.objectChanges) {
           allNodes.push(tx);
           continue;
         }
         let objectNodes = Array.isArray(effects.objectChanges.nodes) ? [...effects.objectChanges.nodes] : [];
-        let objectHasNextPage = (_b = effects.objectChanges.pageInfo) == null ? void 0 : _b.hasNextPage;
-        let objectEndCursor = (_c = effects.objectChanges.pageInfo) == null ? void 0 : _c.endCursor;
+        let objectHasNextPage = effects.objectChanges.pageInfo?.hasNextPage;
+        let objectEndCursor = effects.objectChanges.pageInfo?.endCursor;
         while (objectHasNextPage && objectEndCursor) {
           const objectChangesQuery = `
                         query ($txDigest: String!, $objectChangesCursor: String) {
@@ -1485,15 +1449,15 @@ ${objectChangesSection}
             query: objectChangesQuery,
             variables: objectVariables
           });
-          const transactionBlock = (_d = objectResult.data) == null ? void 0 : _d.transactionBlock;
+          const transactionBlock = objectResult.data?.transactionBlock;
           let nextObjectChanges = void 0;
-          if (transactionBlock && typeof transactionBlock === "object" && "effects" in transactionBlock && ((_e = transactionBlock.effects) == null ? void 0 : _e.objectChanges)) {
+          if (transactionBlock && typeof transactionBlock === "object" && "effects" in transactionBlock && transactionBlock.effects?.objectChanges) {
             nextObjectChanges = transactionBlock.effects.objectChanges;
           }
           if (nextObjectChanges && Array.isArray(nextObjectChanges.nodes)) {
             objectNodes.push(...nextObjectChanges.nodes);
-            objectHasNextPage = (_f = nextObjectChanges.pageInfo) == null ? void 0 : _f.hasNextPage;
-            objectEndCursor = (_g = nextObjectChanges.pageInfo) == null ? void 0 : _g.endCursor;
+            objectHasNextPage = nextObjectChanges.pageInfo?.hasNextPage;
+            objectEndCursor = nextObjectChanges.pageInfo?.endCursor;
           } else {
             objectHasNextPage = false;
             objectEndCursor = void 0;
@@ -1503,8 +1467,8 @@ ${objectChangesSection}
         allNodes.push(tx);
       }
     }
-    hasNextPage = txBlocks && typeof txBlocks === "object" && "pageInfo" in txBlocks && ((_h = txBlocks.pageInfo) == null ? void 0 : _h.hasNextPage) ? txBlocks.pageInfo.hasNextPage : false;
-    endCursor = txBlocks && typeof txBlocks === "object" && "pageInfo" in txBlocks && ((_i = txBlocks.pageInfo) == null ? void 0 : _i.endCursor) ? txBlocks.pageInfo.endCursor : void 0;
+    hasNextPage = txBlocks && typeof txBlocks === "object" && "pageInfo" in txBlocks && txBlocks.pageInfo?.hasNextPage ? txBlocks.pageInfo.hasNextPage : false;
+    endCursor = txBlocks && typeof txBlocks === "object" && "pageInfo" in txBlocks && txBlocks.pageInfo?.endCursor ? txBlocks.pageInfo.endCursor : void 0;
     if (hasNextPage && endCursor) {
       cursorSection = `after: "${endCursor}"`;
     } else {
@@ -1516,16 +1480,14 @@ ${objectChangesSection}
     "0x0000000000000000000000000000000000000000000000000000000000000003::timelocked_staking::TimelockedStakedIota"
   ];
   const filteredNodes = allNodes.map((tx) => {
-    var _a2, _b2, _c2;
-    const objectNodes = ((_b2 = (_a2 = tx.effects) == null ? void 0 : _a2.objectChanges) == null ? void 0 : _b2.nodes) || [];
+    const objectNodes = tx.effects?.objectChanges?.nodes || [];
     const stakeObjects = objectNodes.filter((obj) => {
-      var _a3, _b3, _c3, _d2, _e2, _f2, _g2, _h2, _i2, _j, _k, _l, _m, _n, _o, _p;
-      const inputType = (_d2 = (_c3 = (_b3 = (_a3 = obj.inputState) == null ? void 0 : _a3.asMoveObject) == null ? void 0 : _b3.contents) == null ? void 0 : _c3.type) == null ? void 0 : _d2.repr;
-      const outputType = (_h2 = (_g2 = (_f2 = (_e2 = obj.outputState) == null ? void 0 : _e2.asMoveObject) == null ? void 0 : _f2.contents) == null ? void 0 : _g2.type) == null ? void 0 : _h2.repr;
+      const inputType = obj.inputState?.asMoveObject?.contents?.type?.repr;
+      const outputType = obj.outputState?.asMoveObject?.contents?.type?.repr;
       const isStakeType = stakeTypes.includes(inputType) || stakeTypes.includes(outputType);
       if (!isStakeType) return false;
-      const inputOwner = (_l = (_k = (_j = (_i2 = obj.inputState) == null ? void 0 : _i2.asMoveObject) == null ? void 0 : _j.owner) == null ? void 0 : _k.owner) == null ? void 0 : _l.address;
-      const outputOwner = (_p = (_o = (_n = (_m = obj.outputState) == null ? void 0 : _m.asMoveObject) == null ? void 0 : _n.owner) == null ? void 0 : _o.owner) == null ? void 0 : _p.address;
+      const inputOwner = obj.inputState?.asMoveObject?.owner?.owner?.address;
+      const outputOwner = obj.outputState?.asMoveObject?.owner?.owner?.address;
       return inputOwner === address || outputOwner === address;
     });
     if (stakeObjects.length > 0) {
@@ -1534,7 +1496,7 @@ ${objectChangesSection}
         effects: {
           ...tx.effects,
           objectChanges: {
-            ...(_c2 = tx.effects) == null ? void 0 : _c2.objectChanges,
+            ...tx.effects?.objectChanges,
             nodes: stakeObjects
           }
         }
@@ -1552,7 +1514,6 @@ async function fetchReceivedStakeTransactions(address) {
   return fetchStakeTransactionsByRole(address, "recvAddress");
 }
 async function fetchSystemState() {
-  var _a, _b, _c;
   const gqlClient = new IotaGraphQLClient({
     url: getSelectedNetworkConfig().graphql
   });
@@ -1573,19 +1534,18 @@ async function fetchSystemState() {
         }
     }`;
   const result = await gqlClient.query({ query });
-  const nodes = ((_c = (_b = (_a = result.data) == null ? void 0 : _a.owner) == null ? void 0 : _b.dynamicFields) == null ? void 0 : _c.nodes) || [];
+  const nodes = result.data?.owner?.dynamicFields?.nodes || [];
   return nodes.map((node) => node.value);
 }
 function parseExchangeRateData(structData) {
-  var _a, _b;
-  if (!(structData == null ? void 0 : structData.Struct)) return null;
+  if (!structData?.Struct) return null;
   const struct = structData.Struct;
   let iotaAmount = "";
   let poolTokenAmount = "";
   for (const field of struct) {
-    if (field.name === "iota_amount" && ((_a = field.value) == null ? void 0 : _a.Number)) {
+    if (field.name === "iota_amount" && field.value?.Number) {
       iotaAmount = field.value.Number;
-    } else if (field.name === "pool_token_amount" && ((_b = field.value) == null ? void 0 : _b.Number)) {
+    } else if (field.name === "pool_token_amount" && field.value?.Number) {
       poolTokenAmount = field.value.Number;
     }
   }
@@ -1627,7 +1587,6 @@ function getMissingEpochs(currentEpoch, requiredPoolIds) {
   return { missingEpochsPerPool, maxCachedEpoch, shouldUseDynamicFieldFetch };
 }
 async function fetchMissingEpochsWithDynamicFields(missingEpochsPerPool) {
-  var _a, _b, _c, _d;
   let totalFetches = 0;
   for (const [poolId, missingEpochs] of missingEpochsPerPool.entries()) {
     let cacheEntry = exchangeRateCache.get(poolId);
@@ -1665,7 +1624,7 @@ async function fetchMissingEpochsWithDynamicFields(missingEpochsPerPool) {
         const result = await new IotaGraphQLClient({
           url: getSelectedNetworkConfig().graphql
         }).query({ query, variables });
-        const data = (_d = (_c = (_b = (_a = result.data) == null ? void 0 : _a.owner) == null ? void 0 : _b.dynamicField) == null ? void 0 : _c.value) == null ? void 0 : _d.json;
+        const data = result.data?.owner?.dynamicField?.value?.json;
         if (data) {
           cacheEntry.epochData[epoch] = {
             iota: data.iota_amount,
@@ -1685,7 +1644,6 @@ async function fetchMissingEpochsWithDynamicFields(missingEpochsPerPool) {
   console.log(`Fetched ${totalFetches} missing epochs using dynamic field approach.`);
 }
 async function fetchAllExchangeRates(currentEpoch, requiredPoolIds) {
-  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s;
   const { missingEpochsPerPool, maxCachedEpoch, shouldUseDynamicFieldFetch } = getMissingEpochs(
     currentEpoch,
     requiredPoolIds
@@ -1756,12 +1714,12 @@ async function fetchAllExchangeRates(currentEpoch, requiredPoolIds) {
         }`;
     const variables = { epochId: currentEpoch };
     const result = await gqlClient.query({ query, variables });
-    const activeValidators = (_c = (_b = (_a = result.data) == null ? void 0 : _a.epoch) == null ? void 0 : _b.validatorSet) == null ? void 0 : _c.activeValidators;
-    if (!(activeValidators == null ? void 0 : activeValidators.nodes)) break;
+    const activeValidators = result.data?.epoch?.validatorSet?.activeValidators;
+    if (!activeValidators?.nodes) break;
     for (const validator of activeValidators.nodes) {
       console.log(`Processing validator: ${validator.name} (${validator.address.address})`);
       console.log(
-        `stakingPoolId: ${validator.stakingPoolId} table id (${(_d = validator.exchangeRatesTable) == null ? void 0 : _d.address})`
+        `stakingPoolId: ${validator.stakingPoolId} table id (${validator.exchangeRatesTable?.address})`
       );
       const poolId = validator.stakingPoolId;
       if (!poolId) continue;
@@ -1769,19 +1727,19 @@ async function fetchAllExchangeRates(currentEpoch, requiredPoolIds) {
       if (!cacheEntry) {
         cacheEntry = {
           poolId,
-          exchangeRateId: ((_e = validator.exchangeRatesTable) == null ? void 0 : _e.address) || "",
+          exchangeRateId: validator.exchangeRatesTable?.address || "",
           epochData: {}
         };
         exchangeRateCache.set(poolId, cacheEntry);
       }
       let hasNextExchangeRatePage = true;
       let exchangeRateCursor = "";
-      const exchangeRatesTable = (_f = validator.exchangeRatesTable) == null ? void 0 : _f.dynamicFields;
+      const exchangeRatesTable = validator.exchangeRatesTable?.dynamicFields;
       if (exchangeRatesTable) {
         if (exchangeRatesTable.nodes) {
           for (const node of exchangeRatesTable.nodes) {
-            const epochFromName = parseInt((_g = node.name) == null ? void 0 : _g.json);
-            if (!isNaN(epochFromName) && ((_h = node.value) == null ? void 0 : _h.data)) {
+            const epochFromName = parseInt(node.name?.json);
+            if (!isNaN(epochFromName) && node.value?.data) {
               const exchangeRateData = parseExchangeRateData(node.value.data);
               if (exchangeRateData) {
                 cacheEntry.epochData[epochFromName] = exchangeRateData;
@@ -1789,8 +1747,8 @@ async function fetchAllExchangeRates(currentEpoch, requiredPoolIds) {
             }
           }
         }
-        hasNextExchangeRatePage = ((_i = exchangeRatesTable.pageInfo) == null ? void 0 : _i.hasNextPage) || false;
-        exchangeRateCursor = ((_j = exchangeRatesTable.pageInfo) == null ? void 0 : _j.endCursor) || "";
+        hasNextExchangeRatePage = exchangeRatesTable.pageInfo?.hasNextPage || false;
+        exchangeRateCursor = exchangeRatesTable.pageInfo?.endCursor || "";
         while (hasNextExchangeRatePage) {
           const exchangeRateQuery = `query getValidatorExchangeRates($exchangeRatesTableId: IotaAddress!, $cursor: String!) {
                         owner(address: $exchangeRatesTableId) {
@@ -1813,31 +1771,31 @@ async function fetchAllExchangeRates(currentEpoch, requiredPoolIds) {
                         }
                     }`;
           const exchangeRateVariables = {
-            exchangeRatesTableId: (_k = validator.exchangeRatesTable) == null ? void 0 : _k.address,
+            exchangeRatesTableId: validator.exchangeRatesTable?.address,
             cursor: exchangeRateCursor
           };
           const exchangeRateResult = await gqlClient.query({
             query: exchangeRateQuery,
             variables: exchangeRateVariables
           });
-          const dynamicFields = (_m = (_l = exchangeRateResult.data) == null ? void 0 : _l.owner) == null ? void 0 : _m.dynamicFields;
-          if (!(dynamicFields == null ? void 0 : dynamicFields.nodes)) break;
+          const dynamicFields = exchangeRateResult.data?.owner?.dynamicFields;
+          if (!dynamicFields?.nodes) break;
           for (const node of dynamicFields.nodes) {
-            const epochFromName = parseInt((_n = node.name) == null ? void 0 : _n.json);
-            if (!isNaN(epochFromName) && ((_o = node.value) == null ? void 0 : _o.data)) {
+            const epochFromName = parseInt(node.name?.json);
+            if (!isNaN(epochFromName) && node.value?.data) {
               const exchangeRateData = parseExchangeRateData(node.value.data);
               if (exchangeRateData) {
                 cacheEntry.epochData[epochFromName] = exchangeRateData;
               }
             }
           }
-          hasNextExchangeRatePage = ((_p = dynamicFields.pageInfo) == null ? void 0 : _p.hasNextPage) || false;
-          exchangeRateCursor = ((_q = dynamicFields.pageInfo) == null ? void 0 : _q.endCursor) || "";
+          hasNextExchangeRatePage = dynamicFields.pageInfo?.hasNextPage || false;
+          exchangeRateCursor = dynamicFields.pageInfo?.endCursor || "";
         }
       }
     }
-    hasNextValidatorPage = ((_r = activeValidators.pageInfo) == null ? void 0 : _r.hasNextPage) || false;
-    validatorCursor = ((_s = activeValidators.pageInfo) == null ? void 0 : _s.endCursor) || "";
+    hasNextValidatorPage = activeValidators.pageInfo?.hasNextPage || false;
+    validatorCursor = activeValidators.pageInfo?.endCursor || "";
   }
   allExchangeRatesFetched = true;
   const totalPools = exchangeRateCache.size;
@@ -1948,14 +1906,13 @@ function getExchangeRateCacheStats() {
   };
 }
 async function fetchEpochStartTimestamp(epochId) {
-  var _a, _b;
   const gqlClient = new IotaGraphQLClient({
     url: getSelectedNetworkConfig().graphql
   });
   const query = `query ($epochId: Int!) { epoch(id: $epochId) { startTimestamp } }`;
   const variables = { epochId };
   const result = await gqlClient.query({ query, variables });
-  const startTimestamp = (_b = (_a = result.data) == null ? void 0 : _a.epoch) == null ? void 0 : _b.startTimestamp;
+  const startTimestamp = result.data?.epoch?.startTimestamp;
   if (typeof startTimestamp === "string") {
     return Math.floor(new Date(startTimestamp).getTime() / 1e3);
   }
@@ -1978,7 +1935,6 @@ function getTokenAmount(exchangeRate, iotaAmount) {
   return poolTokenAmount * iotaAmount / iotaAmountBig;
 }
 async function computeRewardsForStakeObject(stakeObject, exchangeRateId) {
-  var _a;
   const principalAmount = BigInt(Object.values(stakeObject.principalByEpoch)[0] || "0");
   const epochs = Object.keys(stakeObject.exchangeRatesByEpoch).map(Number).sort((a, b) => a - b);
   let previousAccumulatedRewards = 0n;
@@ -2021,7 +1977,7 @@ async function computeRewardsForStakeObject(stakeObject, exchangeRateId) {
       const totalIotaWithdrawAmount = getIotaAmount(exchangeRate, poolTokenWithdrawAmount);
       const currentAccumulatedRewards = totalIotaWithdrawAmount > principalAmount ? totalIotaWithdrawAmount - principalAmount : 0n;
       const newEpochRewards = currentAccumulatedRewards > previousAccumulatedRewards ? currentAccumulatedRewards - previousAccumulatedRewards : 0n;
-      if (stakeObject.actionByEpoch && ((_a = stakeObject.actionByEpoch[epoch]) == null ? void 0 : _a.action) === "Unstaked") {
+      if (stakeObject.actionByEpoch && stakeObject.actionByEpoch[epoch]?.action === "Unstaked") {
         stakeObject.accumulatedRewards[epoch] = "0";
         stakeObject.rewardsByEpoch[epoch] = "0";
       } else {
@@ -2037,12 +1993,11 @@ async function computeRewardsForStakeObject(stakeObject, exchangeRateId) {
   }
 }
 function getCurrentActiveValidatorsExchangeRateIds(systemState) {
-  var _a, _b, _c, _d, _e;
   const validatorMap = {};
-  const activeValidators = ((_b = (_a = systemState == null ? void 0 : systemState.json) == null ? void 0 : _a.validators) == null ? void 0 : _b.active_validators) || [];
+  const activeValidators = systemState?.json?.validators?.active_validators || [];
   for (const validator of activeValidators) {
-    const poolId = (_c = validator == null ? void 0 : validator.staking_pool) == null ? void 0 : _c.id;
-    const exchangeRateId = (_e = (_d = validator == null ? void 0 : validator.staking_pool) == null ? void 0 : _d.exchange_rates) == null ? void 0 : _e.id;
+    const poolId = validator?.staking_pool?.id;
+    const exchangeRateId = validator?.staking_pool?.exchange_rates?.id;
     if (poolId && exchangeRateId) {
       validatorMap[poolId] = exchangeRateId;
     }
@@ -2050,12 +2005,11 @@ function getCurrentActiveValidatorsExchangeRateIds(systemState) {
   return validatorMap;
 }
 function getValidatorInfo(systemState) {
-  var _a, _b, _c, _d;
   const validatorInfo = {};
-  const activeValidators = ((_b = (_a = systemState == null ? void 0 : systemState.json) == null ? void 0 : _a.validators) == null ? void 0 : _b.active_validators) || [];
+  const activeValidators = systemState?.json?.validators?.active_validators || [];
   for (const validator of activeValidators) {
-    const poolId = (_c = validator == null ? void 0 : validator.staking_pool) == null ? void 0 : _c.id;
-    const name = ((_d = validator == null ? void 0 : validator.metadata) == null ? void 0 : _d.name) || "Unknown Validator";
+    const poolId = validator?.staking_pool?.id;
+    const name = validator?.metadata?.name || "Unknown Validator";
     if (poolId) {
       validatorInfo[poolId] = { name, poolId };
     }
@@ -2071,22 +2025,21 @@ async function processStakeTransactionsWithExchangeRates(transactions, currentEp
     const epochId = transaction.effects.epoch.epochId;
     const digest = transaction.digest;
     transaction.effects.objectChanges.nodes.forEach((node) => {
-      var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C;
       const address = node.address;
-      const outputState = (_b = (_a = node.outputState) == null ? void 0 : _a.asMoveObject) == null ? void 0 : _b.contents;
-      const inputState = (_d = (_c = node.inputState) == null ? void 0 : _c.asMoveObject) == null ? void 0 : _d.contents;
+      const outputState = node.outputState?.asMoveObject?.contents;
+      const inputState = node.inputState?.asMoveObject?.contents;
       let poolId = void 0;
       let principal = void 0;
       let stakeActivationEpoch = void 0;
-      if ((_f = (_e = outputState == null ? void 0 : outputState.type) == null ? void 0 : _e.repr) == null ? void 0 : _f.includes("timelocked_staking::TimelockedStakedIota")) {
-        const stakedIota = (_g = outputState.json) == null ? void 0 : _g.staked_iota;
-        poolId = (stakedIota == null ? void 0 : stakedIota.pool_id) ?? "";
-        principal = ((_h = stakedIota == null ? void 0 : stakedIota.principal) == null ? void 0 : _h.value) ?? "";
-        stakeActivationEpoch = (stakedIota == null ? void 0 : stakedIota.stake_activation_epoch) ?? "";
-      } else if ((_j = (_i = outputState == null ? void 0 : outputState.type) == null ? void 0 : _i.repr) == null ? void 0 : _j.includes("staking_pool::StakedIota")) {
-        poolId = ((_k = outputState.json) == null ? void 0 : _k.pool_id) ?? "";
-        principal = ((_m = (_l = outputState.json) == null ? void 0 : _l.principal) == null ? void 0 : _m.value) ?? "";
-        stakeActivationEpoch = ((_n = outputState.json) == null ? void 0 : _n.stake_activation_epoch) ?? "";
+      if (outputState?.type?.repr?.includes("timelocked_staking::TimelockedStakedIota")) {
+        const stakedIota = outputState.json?.staked_iota;
+        poolId = stakedIota?.pool_id ?? "";
+        principal = stakedIota?.principal?.value ?? "";
+        stakeActivationEpoch = stakedIota?.stake_activation_epoch ?? "";
+      } else if (outputState?.type?.repr?.includes("staking_pool::StakedIota")) {
+        poolId = outputState.json?.pool_id ?? "";
+        principal = outputState.json?.principal?.value ?? "";
+        stakeActivationEpoch = outputState.json?.stake_activation_epoch ?? "";
       }
       if (poolId && principal && stakeActivationEpoch) {
         if (!stakeObjects.has(address)) {
@@ -2112,16 +2065,16 @@ async function processStakeTransactionsWithExchangeRates(transactions, currentEp
       let inputOwner = void 0;
       let outputOwner = void 0;
       let inputAction = void 0;
-      if ((_p = (_o = inputState == null ? void 0 : inputState.type) == null ? void 0 : _o.repr) == null ? void 0 : _p.includes("timelocked_staking::TimelockedStakedIota")) {
-        const stakedIota = (_q = inputState.json) == null ? void 0 : _q.staked_iota;
-        inputPoolId = (stakedIota == null ? void 0 : stakedIota.pool_id) ?? "";
-        inputOwner = ((_t = (_s = (_r = node.inputState.asMoveObject) == null ? void 0 : _r.owner) == null ? void 0 : _s.owner) == null ? void 0 : _t.address) ?? void 0;
-      } else if ((_v = (_u = inputState == null ? void 0 : inputState.type) == null ? void 0 : _u.repr) == null ? void 0 : _v.includes("staking_pool::StakedIota")) {
-        inputPoolId = ((_w = inputState.json) == null ? void 0 : _w.pool_id) ?? "";
-        inputOwner = ((_z = (_y = (_x = node.inputState.asMoveObject) == null ? void 0 : _x.owner) == null ? void 0 : _y.owner) == null ? void 0 : _z.address) ?? void 0;
+      if (inputState?.type?.repr?.includes("timelocked_staking::TimelockedStakedIota")) {
+        const stakedIota = inputState.json?.staked_iota;
+        inputPoolId = stakedIota?.pool_id ?? "";
+        inputOwner = node.inputState.asMoveObject?.owner?.owner?.address ?? void 0;
+      } else if (inputState?.type?.repr?.includes("staking_pool::StakedIota")) {
+        inputPoolId = inputState.json?.pool_id ?? "";
+        inputOwner = node.inputState.asMoveObject?.owner?.owner?.address ?? void 0;
       }
       if (outputState) {
-        outputOwner = ((_C = (_B = (_A = node.outputState.asMoveObject) == null ? void 0 : _A.owner) == null ? void 0 : _B.owner) == null ? void 0 : _C.address) ?? void 0;
+        outputOwner = node.outputState.asMoveObject?.owner?.owner?.address ?? void 0;
       }
       const idCreated = node.idCreated === true;
       const idDeleted = node.idDeleted === true;
@@ -2253,7 +2206,7 @@ async function fetchTransactions(_, error, transactions, stakeObjects, validator
     set(transactions, uniqueTxs);
     console.log("fetching txs complete");
   } catch (err) {
-    set(error, (err == null ? void 0 : err.toString()) ?? "Error fetching transactions.");
+    set(error, err?.toString() ?? "Error fetching transactions.");
   } finally {
     set(loadingTxs, false);
     set(loadingStep, null);
@@ -2292,7 +2245,7 @@ function StakingRewards($$anchor, $$props) {
         set(endTimestamp, null);
       }
     } catch (err) {
-      set(error, (err == null ? void 0 : err.toString()) ?? "Error fetching current epoch.");
+      set(error, err?.toString() ?? "Error fetching current epoch.");
       set(endTimestamp, null);
     } finally {
       epochLoading = false;

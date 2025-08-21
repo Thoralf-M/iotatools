@@ -1,6 +1,6 @@
-import { p as push, i as init, f as from_html, s as sibling, c as child, z as each, A as index, W as store_get, g as get, m as mutable_source, e as event, E as bind_value, k as append, l as pop, V as setup_stores, aq as sharedClientConfig, j as set, a2 as activeAddress, a6 as isValidIotaAddress, t as template_effect, d as set_text } from "/iota-utils/assets/index-CMiBu1ib.js";
-import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-Bbi3Ax_Q.js";
-import "/iota-utils/assets/transaction-view-gcIY95EC.js";
+import { p as push, i as init, f as from_html, s as sibling, c as child, z as each, A as index, W as store_get, g as get, m as mutable_source, e as event, E as bind_value, k as append, l as pop, V as setup_stores, aq as sharedClientConfig, j as set, a2 as activeAddress, a6 as isValidIotaAddress, t as template_effect, d as set_text } from "/iota-utils/assets/index-NKvaKa41.js";
+import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-DevpPHhq.js";
+import "/iota-utils/assets/transaction-view-D1qOmpCD.js";
 class FaucetRateLimitError extends Error {
 }
 async function faucetRequest({ host, path, body, headers, method }) {
@@ -83,14 +83,13 @@ function Faucet($$anchor, $$props) {
     }
   };
   const requestFunds = async () => {
-    var _a;
     try {
       if (!isValidIotaAddress(get(address))) {
         throw new Error("invalid address");
       }
       try {
         var response = await requestIotaFromFaucetV1({ host: get(faucetUrl), recipient: get(address) });
-        let taskId = (_a = response.task) == null ? void 0 : _a.taskId;
+        let taskId = response.task?.taskId;
         if (error || !taskId) {
           throw new Error(error ?? "Failed, task id not found.");
         }
@@ -142,9 +141,8 @@ function Faucet($$anchor, $$props) {
     }
   });
   event("click", button, () => {
-    var _a;
     set(address, $activeAddress());
-    set(faucetUrl, ((_a = $sharedClientConfig().networks.find((network) => network.name === $sharedClientConfig().selected)) == null ? void 0 : _a.faucet) ?? "http://127.0.0.1:9123/gas");
+    set(faucetUrl, $sharedClientConfig().networks.find((network) => network.name === $sharedClientConfig().selected)?.faucet ?? "http://127.0.0.1:9123/gas");
   });
   bind_value(input, () => get(faucetUrl), ($$value) => set(faucetUrl, $$value));
   bind_value(input_1, () => get(address), ($$value) => set(address, $$value));
