@@ -83,60 +83,62 @@ async function computeRewardsForStakeObject(
     stakeObject: StakeObject,
     exchangeRateId: string,
 ): Promise<void> {
-    const principalAmount = BigInt(Object.values(stakeObject.principalByEpoch)[0] || '0');
-
     // Get all epochs with exchange rates, sorted chronologically
     const epochs = Object.keys(stakeObject.exchangeRatesByEpoch)
         .map(Number)
         .sort((a, b) => a - b);
 
     let previousAccumulatedRewards = 0n;
+    const baselineEpoch = stakeObject.stakeActivationEpoch - 1; // Always use the original baseline epoch
+
+    // Get the baseline exchange rate (from before staking started)
+    let baselineExchangeRate = stakeObject.exchangeRatesByEpoch[baselineEpoch];
+
+    // If we don't have the baseline epoch exchange rate, fetch it or use 1:1 ratio
+    if (!baselineExchangeRate) {
+        // Try to fetch the exchange rate for the baseline epoch
+        try {
+            const fetchedRate = await fetchPoolExchangeRates(
+                exchangeRateId,
+                baselineEpoch,
+                stakeObject.poolId,
+                true,
+            );
+            if (fetchedRate) {
+                baselineExchangeRate = fetchedRate;
+                stakeObject.exchangeRatesByEpoch[baselineEpoch] = fetchedRate;
+            } else {
+                // Fallback to 1:1 ratio
+                baselineExchangeRate = {
+                    iota_amount: '1',
+                    pool_token_amount: '1',
+                };
+            }
+        } catch (err) {
+            console.warn(
+                `Failed to fetch exchange rate for baseline epoch ${baselineEpoch}, using 1:1 ratio`,
+            );
+            baselineExchangeRate = {
+                iota_amount: '1',
+                pool_token_amount: '1',
+            };
+        }
+    }
 
     // For each epoch where we have exchange rates, compute rewards
+    let previousPrincipal = BigInt(0);
     for (const epoch of epochs) {
+        const principalAmount = BigInt(stakeObject.principalByEpoch[epoch] || '0');
         const exchangeRate = stakeObject.exchangeRatesByEpoch[epoch];
 
         try {
-            // Get exchange rate at staking epoch (activation epoch)
-            let preStakingEpoch = stakeObject.stakeActivationEpoch - 1;
-            let preStakingEpochExchangeRate = stakeObject.exchangeRatesByEpoch[preStakingEpoch];
+            // Check if this is a transition epoch (principal amount changed)
+            const isTransitionEpoch =
+                previousPrincipal !== 0n && principalAmount !== previousPrincipal;
 
-            // If we don't have the pre staking epoch exchange rate, fetch it or use 1:1 ratio
-            if (!preStakingEpochExchangeRate) {
-                // Try to fetch the exchange rate for the staking epoch
-                try {
-                    const fetchedRate = await fetchPoolExchangeRates(
-                        exchangeRateId,
-                        preStakingEpoch,
-                        stakeObject.poolId,
-                        true,
-                    );
-                    if (fetchedRate) {
-                        preStakingEpochExchangeRate = fetchedRate;
-                        stakeObject.exchangeRatesByEpoch[preStakingEpoch] = fetchedRate;
-                    } else {
-                        // Fallback to 1:1 ratio
-                        preStakingEpochExchangeRate = {
-                            iota_amount: '1',
-                            pool_token_amount: '1',
-                        };
-                    }
-                } catch (err) {
-                    console.warn(
-                        `Failed to fetch exchange rate for pre staking epoch ${preStakingEpoch}, using 1:1 ratio`,
-                    );
-                    preStakingEpochExchangeRate = {
-                        iota_amount: '1',
-                        pool_token_amount: '1',
-                    };
-                }
-            }
-
-            // Step 1: Calculate pool token withdraw amount using exchange rate at pre staking epoch
-            const poolTokenWithdrawAmount = getTokenAmount(
-                preStakingEpochExchangeRate,
-                principalAmount,
-            );
+            // Step 1: Calculate pool token withdraw amount using exchange rate at original baseline epoch
+            // This ensures that even if principal changes, we still use the original baseline
+            const poolTokenWithdrawAmount = getTokenAmount(baselineExchangeRate, principalAmount);
 
             // Step 2: Calculate total IOTA withdraw amount using current epoch exchange rate
             const totalIotaWithdrawAmount = getIotaAmount(exchangeRate, poolTokenWithdrawAmount);
@@ -147,22 +149,63 @@ async function computeRewardsForStakeObject(
                     ? totalIotaWithdrawAmount - principalAmount
                     : 0n;
 
-            // Step 4: Calculate new rewards for this epoch (difference from previous accumulated)
-            const newEpochRewards =
-                currentAccumulatedRewards > previousAccumulatedRewards
-                    ? currentAccumulatedRewards - previousAccumulatedRewards
-                    : 0n;
-            // if (epoch == stakeObject.stakeActivationEpoch || epoch == stakeObject.stakeActivationEpoch + 1 || epoch == stakeObject.stakeActivationEpoch + 2) {
-            //     console.log(`epoch: ${epoch}`)
-            //     console.log("preStakingEpochExchangeRate", preStakingEpochExchangeRate);
-            //     console.log("exchangeRate", exchangeRate);
-            //     console.log(`principalAmount: ${principalAmount}`)
-            //     console.log(`poolTokenWithdrawAmount: ${poolTokenWithdrawAmount}`)
-            //     console.log(`totalIotaWithdrawAmount: ${totalIotaWithdrawAmount}`)
-            //     console.log(`currentAccumulatedRewards: ${currentAccumulatedRewards}`)
-            //     console.log(`previousAccumulatedRewards: ${previousAccumulatedRewards}`)
-            //     console.log(`newEpochRewards: ${newEpochRewards}`)
-            // }
+            let newEpochRewards: bigint;
+
+            if (isTransitionEpoch) {
+                // In transition epoch, we need to calculate the rewards more carefully
+                // The currentAccumulatedRewards is for the new principal amount
+                // But we need to subtract what would have been accumulated with the new principal
+                // in previous epochs to get just the rewards for this epoch
+
+                // Calculate what the accumulated rewards would have been for the new principal
+                // in the previous epoch using the previous epoch's exchange rate
+                const previousEpoch = epoch - 1;
+                const previousExchangeRate = stakeObject.exchangeRatesByEpoch[previousEpoch];
+
+                if (previousExchangeRate) {
+                    const previousPoolTokenAmount = getTokenAmount(
+                        baselineExchangeRate,
+                        principalAmount,
+                    );
+                    const previousTotalIotaAmount = getIotaAmount(
+                        previousExchangeRate,
+                        previousPoolTokenAmount,
+                    );
+                    const previousAccumulatedForNewPrincipal =
+                        previousTotalIotaAmount > principalAmount
+                            ? previousTotalIotaAmount - principalAmount
+                            : 0n;
+
+                    // The new epoch rewards should be the difference
+                    newEpochRewards =
+                        currentAccumulatedRewards > previousAccumulatedForNewPrincipal
+                            ? currentAccumulatedRewards - previousAccumulatedForNewPrincipal
+                            : 0n;
+                } else {
+                    // Fallback: if we don't have previous epoch exchange rate, use current accumulated
+                    newEpochRewards = currentAccumulatedRewards;
+                }
+
+                // Reset previous accumulated rewards to handle the principal change
+                previousAccumulatedRewards = 0n;
+            } else {
+                // Step 4: Calculate new rewards for this epoch (difference from previous accumulated)
+                newEpochRewards =
+                    currentAccumulatedRewards > previousAccumulatedRewards
+                        ? currentAccumulatedRewards - previousAccumulatedRewards
+                        : 0n;
+            }
+
+            // console.log(`epoch: ${epoch}`)
+            // console.log("baselineExchangeRate", baselineExchangeRate);
+            // console.log("exchangeRate", exchangeRate);
+            // console.log(`principalAmount: ${principalAmount}`)
+            // console.log(`poolTokenWithdrawAmount: ${poolTokenWithdrawAmount}`)
+            // console.log(`totalIotaWithdrawAmount: ${totalIotaWithdrawAmount}`)
+            // console.log(`currentAccumulatedRewards: ${currentAccumulatedRewards}`)
+            // console.log(`previousAccumulatedRewards: ${previousAccumulatedRewards}`)
+            // console.log(`newEpochRewards: ${newEpochRewards}`)
+
             // Store both accumulated and epoch-specific rewards
             // If action for this epoch is 'Unstaked', set rewards to '0'
             if (
@@ -178,6 +221,7 @@ async function computeRewardsForStakeObject(
 
             // Update previous accumulated rewards for next iteration
             previousAccumulatedRewards = currentAccumulatedRewards;
+            previousPrincipal = principalAmount;
         } catch (err) {
             console.error(`Error computing rewards for epoch ${epoch}:`, err);
             stakeObject.accumulatedRewards[epoch] = previousAccumulatedRewards.toString();

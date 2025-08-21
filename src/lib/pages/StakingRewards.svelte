@@ -5,7 +5,6 @@
     // @ts-ignore
     import exchangeRateCacheBinary from '../lib/exchange-rate-cache.bin?raw';
     import { activeAddress } from '../lib/signer-data';
-    import { fetchEpochStartTimestamp } from '../lib/staking-rewards/graphql-requests';
     import {
         fetchReceivedStakeTransactions,
         fetchStakeTransactions,
@@ -24,7 +23,7 @@
     let validatorInfo: Record<string, ValidatorInfo> = {};
     let loadingTxs = false;
     let loadingStep: string | null = null;
-    let endTimestamp: number | null = null;
+    let fetchReceivedTxs = true;
 
     // Initialize exchange rate cache on component load
     setInitialExchangeRateCacheFromBinary(exchangeRateCacheBinary);
@@ -36,15 +35,11 @@
             const currentEpochId = await new EpochPTBAnalyzer().getCurrentEpoch();
             if (currentEpochId) {
                 epoch = parseInt(currentEpochId);
-                const startTimestamp = await fetchEpochStartTimestamp(epoch);
-                endTimestamp = startTimestamp ? startTimestamp + 24 * 60 * 60 : null;
             } else {
                 error = 'Failed to fetch current epoch.';
-                endTimestamp = null;
             }
         } catch (err: any) {
             error = err?.toString() ?? 'Error fetching current epoch.';
-            endTimestamp = null;
         } finally {
             epochLoading = false;
         }
@@ -63,22 +58,27 @@
             const sentTxs = await fetchStakeTransactions(address);
             console.log('sentTxs:', sentTxs);
 
-            // Step 2: Fetch received stake transactions
-            loadingStep = 'Fetching received txs...';
-            const receivedTxs = await fetchReceivedStakeTransactions(address);
-            console.log('receivedTxs:', receivedTxs);
+            let receivedTxs: any[] = [];
+            if (fetchReceivedTxs) {
+                // Step 2: Fetch received stake transactions
+                loadingStep = 'Fetching received txs...';
+                receivedTxs = await fetchReceivedStakeTransactions(address);
+                console.log('receivedTxs:', receivedTxs);
+            }
 
             // Step 3: Get current epoch and end timestamp
             loadingStep = 'Fetching epoch info...';
             await getCurrentEpochAndEndTimestamp();
 
             // A tx can be in both sent and received lists
-            let uniqueTxs = [sentTxs, receivedTxs].flat().reduce((acc: any, tx: any) => {
-                if (!acc.some((t: any) => t.digest === tx.digest)) {
-                    acc.push(tx);
-                }
-                return acc;
-            }, []);
+            let uniqueTxs = [sentTxs, ...(fetchReceivedTxs ? receivedTxs : [])]
+                .flat()
+                .reduce((acc: any, tx: any) => {
+                    if (!acc.some((t: any) => t.digest === tx.digest)) {
+                        acc.push(tx);
+                    }
+                    return acc;
+                }, []);
 
             // Step 4: Process transactions with exchange rates
             loadingStep = 'Fetching exchange rates...';
@@ -111,6 +111,16 @@
             <input bind:value={address} placeholder="address" size="67" />
             <button onclick={() => (address = $activeAddress)}> Set to active address </button>
         </span>
+        <span>
+            <button
+                type="button"
+                onclick={() => (fetchReceivedTxs = !fetchReceivedTxs)}
+                disabled={loadingTxs}
+                style="margin-left: 1rem;"
+            >
+                {fetchReceivedTxs ? 'Skip received txs' : 'Include received txs'}
+            </button>
+        </span>
     </div>
     {#if loadingTxs}
         <div style="text-align: left;">
@@ -122,12 +132,7 @@
     {/if}
     <div>
         <h3>Staking Rewards:</h3>
-        <StakingRewardsTable
-            currentEpoch={epoch || 1}
-            {stakeObjects}
-            {endTimestamp}
-            {validatorInfo}
-        />
+        <StakingRewardsTable currentEpoch={epoch || 1} {stakeObjects} {validatorInfo} />
     </div>
     <details>
         <summary>Stake objects:</summary>

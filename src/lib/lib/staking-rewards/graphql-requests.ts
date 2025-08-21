@@ -816,4 +816,25 @@ export async function fetchEpochStartTimestamp(epochId: number): Promise<number 
     return null;
 }
 
+/**
+ * Fetches the end timestamp for a given epoch.
+ * Returns the UNIX timestamp (seconds) or null if not found.
+ */
+export async function fetchEpochEndTimestamp(epochId: number): Promise<number | null> {
+    const gqlClient = new IotaGraphQLClient({
+        url: getSelectedNetworkConfig().graphql,
+    });
+    const query = `query ($epochId: Int!) { epoch(id: $epochId) { endTimestamp } }`;
+    const variables = { epochId };
+    // @ts-ignore
+    const result = await gqlClient.query({ query, variables });
+    // @ts-ignore
+    const endTimestamp = result.data?.epoch?.endTimestamp;
+    if (typeof endTimestamp === 'string') {
+        // Parse ISO string to Date and return seconds since epoch
+        return Math.floor(new Date(endTimestamp).getTime() / 1000);
+    }
+    return null;
+}
+
 export { exchangeRateCache };
