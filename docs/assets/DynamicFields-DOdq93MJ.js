@@ -1,9 +1,9 @@
-import { M as iotaBcs, N as toB64, O as fromB64, P as blake2b, Q as bytesToHex, p as push, R as proxy, S as user_effect, g as get, T as state, j as set, U as getSelectedNetworkConfig, f as from_html, s as sibling, c as child, b as if_block, t as template_effect, d as set_text, E as bind_value, k as append, l as pop, V as setup_stores, K as comment, G as first_child, z as each, A as index, W as store_get, h as bind_select_value, X as writable, C as untrack, Y as user_derived, Z as delegate } from "/iota-utils/assets/index-CMiBu1ib.js";
-import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-Bbi3Ax_Q.js";
-import { I as IotaGraphQLClient, g as graphql } from "/iota-utils/assets/index-DqCMW0_q.js";
-import "/iota-utils/assets/transaction-view-gcIY95EC.js";
+import { M as iotaBcs, N as toB64, O as fromB64, P as blake2b, Q as bytesToHex, p as push, R as proxy, S as user_effect, g as get, T as state, j as set, U as getSelectedNetworkConfig, f as from_html, s as sibling, c as child, b as if_block, t as template_effect, d as set_text, E as bind_value, k as append, l as pop, V as setup_stores, I as comment, G as first_child, z as each, A as index, W as store_get, h as bind_select_value, X as writable, C as untrack, Y as user_derived, Z as delegate } from "/iota-utils/assets/index-NKvaKa41.js";
+import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-DevpPHhq.js";
+import { I as IotaGraphQLClient, g as graphql } from "/iota-utils/assets/index-WkeHLBVI.js";
+import "/iota-utils/assets/transaction-view-D1qOmpCD.js";
 function toShortTypeString(type) {
-  return type == null ? void 0 : type.replace(/0x0{31,}(\d)/g, "0x$1").replace(/,\b/g, ", ");
+  return type?.replace(/0x0{31,}(\d)/g, "0x$1").replace(/,\b/g, ", ");
 }
 function layoutToBcs(layout) {
   switch (layout) {
@@ -119,7 +119,6 @@ function deriveDynamicFieldIdWithBcs(parentObjectId, tag, valueBytesB64) {
   return `0x${bytesToHex(hash)}`;
 }
 async function queryDynamicFields(options) {
-  var _a, _b, _c, _d;
   try {
     const gqlClient = new IotaGraphQLClient({
       url: options.graphqlUrl
@@ -158,11 +157,11 @@ async function queryDynamicFields(options) {
         error: JSON.stringify(result.errors, null, 2)
       };
     }
-    const data = (_b = (_a = result.data) == null ? void 0 : _a.owner) == null ? void 0 : _b.dynamicFields;
+    const data = result.data?.owner?.dynamicFields;
     return {
-      nodes: (data == null ? void 0 : data.nodes) ?? [],
-      hasNextPage: ((_c = data == null ? void 0 : data.pageInfo) == null ? void 0 : _c.hasNextPage) ?? false,
-      endCursor: ((_d = data == null ? void 0 : data.pageInfo) == null ? void 0 : _d.endCursor) ?? null
+      nodes: data?.nodes ?? [],
+      hasNextPage: data?.pageInfo?.hasNextPage ?? false,
+      endCursor: data?.pageInfo?.endCursor ?? null
     };
   } catch (e) {
     return {
@@ -174,7 +173,6 @@ async function queryDynamicFields(options) {
   }
 }
 async function getMoveLayout(type, graphqlUrl) {
-  var _a;
   try {
     const gqlClient = new IotaGraphQLClient({
       url: graphqlUrl
@@ -191,8 +189,8 @@ async function getMoveLayout(type, graphqlUrl) {
     if (result.errors) {
       return { error: JSON.stringify(result.errors, null, 2) };
     }
-    const typeResult = (_a = result.data) == null ? void 0 : _a.type;
-    if (!(typeResult == null ? void 0 : typeResult.layout)) {
+    const typeResult = result.data?.type;
+    if (!typeResult?.layout) {
       return { error: "Layout not found for this type" };
     }
     return { layout: typeResult.layout };
@@ -201,7 +199,6 @@ async function getMoveLayout(type, graphqlUrl) {
   }
 }
 async function queryDynamicField(options) {
-  var _a, _b;
   try {
     const gqlClient = new IotaGraphQLClient({
       url: options.graphqlUrl
@@ -231,7 +228,7 @@ async function queryDynamicField(options) {
     if (result.errors) {
       return { error: JSON.stringify(result.errors, null, 2) };
     }
-    const fieldResult = (_b = (_a = result.data) == null ? void 0 : _a.owner) == null ? void 0 : _b.dynamicField;
+    const fieldResult = result.data?.owner?.dynamicField;
     if (fieldResult === null) {
       return {
         error: "Dynamic field not found. The specified field does not exist on this object."
@@ -243,7 +240,6 @@ async function queryDynamicField(options) {
   }
 }
 async function queryDynamicObjectField(options) {
-  var _a, _b;
   try {
     const gqlClient = new IotaGraphQLClient({
       url: options.graphqlUrl
@@ -275,7 +271,7 @@ async function queryDynamicObjectField(options) {
     if (result.errors) {
       return { error: JSON.stringify(result.errors, null, 2) };
     }
-    const objectFieldResult = (_b = (_a = result.data) == null ? void 0 : _a.owner) == null ? void 0 : _b.dynamicObjectField;
+    const objectFieldResult = result.data?.owner?.dynamicObjectField;
     if (objectFieldResult === null) {
       return {
         error: "Dynamic object field not found. The specified field does not exist on this object."
@@ -289,9 +285,8 @@ async function queryDynamicObjectField(options) {
 async function enhanceFieldsWithLayoutsAndBcs(fields, graphqlUrl) {
   return Promise.all(
     fields.map(async (field) => {
-      var _a, _b, _c;
       try {
-        const fieldType = (_b = (_a = field.name) == null ? void 0 : _a.type) == null ? void 0 : _b.repr;
+        const fieldType = field.name?.type?.repr;
         if (!fieldType) {
           return { ...field, error: "No type information available" };
         }
@@ -303,7 +298,7 @@ async function enhanceFieldsWithLayoutsAndBcs(fields, graphqlUrl) {
         let bcsValue = null;
         let bcsError = null;
         try {
-          if ((_c = field.name) == null ? void 0 : _c.json) {
+          if (field.name?.json) {
             const jsonValue = field.name.json;
             bcsValue = mapJsonToBcs(jsonValue, moveLayout);
           }
@@ -650,7 +645,6 @@ function DynamicFields($$anchor, $$props) {
     set(computedDynamicFieldId, computeDynamicFieldId(), true);
   });
   async function handleQueryDynamicFields(cursor) {
-    var _a, _b, _c;
     set(error, "");
     if (!cursor) {
       set(dynamicFields, [], true);
@@ -670,7 +664,7 @@ function DynamicFields($$anchor, $$props) {
         set(dynamicFields, [...get(dynamicFields), ...result.nodes], true);
       } else {
         set(dynamicFields, result.nodes, true);
-        if (result.nodes.length > 0 && ((_c = (_b = (_a = result.nodes[0]) == null ? void 0 : _a.name) == null ? void 0 : _b.type) == null ? void 0 : _c.repr)) {
+        if (result.nodes.length > 0 && result.nodes[0]?.name?.type?.repr) {
           set(fieldType, result.nodes[0].name.type.repr, true);
         }
       }
@@ -757,7 +751,6 @@ function DynamicFields($$anchor, $$props) {
     }
   });
   async function decodeFieldBcs() {
-    var _a;
     if (get(isDecodingInProgress)) return;
     set(isDecodingInProgress, true);
     set(decodedFieldValue, null);
@@ -767,7 +760,7 @@ function DynamicFields($$anchor, $$props) {
       return;
     }
     try {
-      let currentLayout = (_a = get(layoutResult)) == null ? void 0 : _a.layout;
+      let currentLayout = get(layoutResult)?.layout;
       if (!currentLayout) {
         const result = await getMoveLayout(get(fieldType), getSelectedNetworkConfig().graphql);
         if (result.error) {
@@ -1011,8 +1004,8 @@ function DynamicFields($$anchor, $$props) {
       var node_14 = sibling(div_8, 2);
       {
         var consequent_12 = ($$anchor3) => {
-          var fragment_8 = comment();
           const bcsValue = user_derived(getBcsBase64);
+          var fragment_8 = comment();
           var node_15 = first_child(fragment_8);
           {
             var consequent_11 = ($$anchor4) => {

@@ -1,13 +1,10 @@
-var __defProp = Object.defineProperty;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-import { q as getDefaultExportFromCjs, p as push, r as prop, u as onMount, g as get, m as mutable_source, v as onDestroy, w as legacy_pre_effect, j as set$1, x as deep_read_state, y as legacy_pre_effect_reset, i as init, f as from_html, s as sibling, c as child, z as each$1, A as index$1, B as init_select, b as if_block, C as untrack, t as template_effect, D as select_option, e as event, k as append, l as pop, o as mutate, d as set_text, E as bind_value, F as bind_group, G as first_child, H as text, I as set_style, J as set_attribute, K as comment, L as set_class } from "/iota-utils/assets/index-CMiBu1ib.js";
-import { b as bind_this } from "/iota-utils/assets/this-DEuQhPCH.js";
-import { T as TransactionView } from "/iota-utils/assets/TransactionView-CBaSEL_v.js";
-import { E as EpochPTBAnalyzer } from "/iota-utils/assets/index-CZpT3lew.js";
-import "/iota-utils/assets/transaction-view-gcIY95EC.js";
-import "/iota-utils/assets/iota-nano-conversion-xJ_sof4-.js";
-import "/iota-utils/assets/index-DqCMW0_q.js";
+import { q as getDefaultExportFromCjs, p as push, r as prop, u as onMount, g as get, m as mutable_source, v as onDestroy, w as legacy_pre_effect, j as set$1, x as deep_read_state, y as legacy_pre_effect_reset, i as init, f as from_html, s as sibling, c as child, z as each$1, A as index$1, B as init_select, b as if_block, C as untrack, t as template_effect, D as select_option, e as event, k as append, l as pop, o as mutate, d as set_text, E as bind_value, F as bind_group, G as first_child, H as text, I as comment, J as set_style, K as set_attribute, L as set_class } from "/iota-utils/assets/index-NKvaKa41.js";
+import { b as bind_this } from "/iota-utils/assets/this-BXXnZM7c.js";
+import { T as TransactionView } from "/iota-utils/assets/TransactionView-EFcNOC_h.js";
+import { E as EpochPTBAnalyzer } from "/iota-utils/assets/index-Evz3JjFh.js";
+import "/iota-utils/assets/transaction-view-D1qOmpCD.js";
+import "/iota-utils/assets/iota-nano-conversion-1QM8x308.js";
+import "/iota-utils/assets/index-WkeHLBVI.js";
 /*!
  * @kurkle/color v0.3.4
  * https://github.com/kurkle/color#readme
@@ -990,14 +987,14 @@ function _arrayUnique(items) {
   }
   return Array.from(set2);
 }
-const requestAnimFrame = function() {
+const requestAnimFrame = (function() {
   if (typeof window === "undefined") {
     return function(callback2) {
       return callback2();
     };
   }
   return window.requestAnimationFrame;
-}();
+})();
 function throttled(fn, thisArg) {
   let argsToUse = [];
   let ticking = false;
@@ -2542,7 +2539,7 @@ function retinaScale(chart, forceRatio, forceStyle) {
   }
   return false;
 }
-const supportsEventListenerOptions = function() {
+const supportsEventListenerOptions = (function() {
   let passiveSupported = false;
   try {
     const options = {
@@ -2558,7 +2555,7 @@ const supportsEventListenerOptions = function() {
   } catch (e) {
   }
   return passiveSupported;
-}();
+})();
 function readUsedSize(element, property) {
   const value = getStyle(element, property);
   const matches = value && value.match(/^(\d+)(\.\d+)?px$/);
@@ -3538,6 +3535,9 @@ const createStack = (canStack, meta, chart) => canStack && !meta.hidden && meta.
   values: null
 };
 class DatasetController {
+  static defaults = {};
+  static datasetElementType = null;
+  static dataElementType = null;
   constructor(chart, datasetIndex) {
     this.chart = chart;
     this._ctx = chart.ctx;
@@ -4130,9 +4130,6 @@ class DatasetController {
     ]);
   }
 }
-__publicField(DatasetController, "defaults", {});
-__publicField(DatasetController, "datasetElementType", null);
-__publicField(DatasetController, "dataElementType", null);
 function getAllScaleValues(scale, type) {
   if (!scale._cache.$bar) {
     const visibleMetas = scale.getMatchingVisibleMetas(type);
@@ -4334,6 +4331,41 @@ function setInflateAmount(properties, { inflateAmount }, ratio) {
   properties.inflateAmount = inflateAmount === "auto" ? ratio === 1 ? 0.33 : 0 : inflateAmount;
 }
 class BarController extends DatasetController {
+  static id = "bar";
+  static defaults = {
+    datasetElementType: false,
+    dataElementType: "bar",
+    categoryPercentage: 0.8,
+    barPercentage: 0.9,
+    grouped: true,
+    animations: {
+      numbers: {
+        type: "number",
+        properties: [
+          "x",
+          "y",
+          "base",
+          "width",
+          "height"
+        ]
+      }
+    }
+  };
+  static overrides = {
+    scales: {
+      _index_: {
+        type: "category",
+        offset: true,
+        grid: {
+          offset: true
+        }
+      },
+      _value_: {
+        type: "linear",
+        beginAtZero: true
+      }
+    }
+  };
   parsePrimitiveData(meta, data, start, count) {
     return parseArrayOrPrimitive(meta, data, start, count);
   }
@@ -4592,42 +4624,33 @@ class BarController extends DatasetController {
     }
   }
 }
-__publicField(BarController, "id", "bar");
-__publicField(BarController, "defaults", {
-  datasetElementType: false,
-  dataElementType: "bar",
-  categoryPercentage: 0.8,
-  barPercentage: 0.9,
-  grouped: true,
-  animations: {
-    numbers: {
-      type: "number",
-      properties: [
-        "x",
-        "y",
-        "base",
-        "width",
-        "height"
-      ]
-    }
-  }
-});
-__publicField(BarController, "overrides", {
-  scales: {
-    _index_: {
-      type: "category",
-      offset: true,
-      grid: {
-        offset: true
-      }
-    },
-    _value_: {
-      type: "linear",
-      beginAtZero: true
-    }
-  }
-});
 class BubbleController extends DatasetController {
+  static id = "bubble";
+  static defaults = {
+    datasetElementType: false,
+    dataElementType: "point",
+    animations: {
+      numbers: {
+        type: "number",
+        properties: [
+          "x",
+          "y",
+          "borderWidth",
+          "radius"
+        ]
+      }
+    }
+  };
+  static overrides = {
+    scales: {
+      x: {
+        type: "linear"
+      },
+      y: {
+        type: "linear"
+      }
+    }
+  };
   initialize() {
     this.enableOptionSharing = true;
     super.initialize();
@@ -4718,32 +4741,6 @@ class BubbleController extends DatasetController {
     return values;
   }
 }
-__publicField(BubbleController, "id", "bubble");
-__publicField(BubbleController, "defaults", {
-  datasetElementType: false,
-  dataElementType: "point",
-  animations: {
-    numbers: {
-      type: "number",
-      properties: [
-        "x",
-        "y",
-        "borderWidth",
-        "radius"
-      ]
-    }
-  }
-});
-__publicField(BubbleController, "overrides", {
-  scales: {
-    x: {
-      type: "linear"
-    },
-    y: {
-      type: "linear"
-    }
-  }
-});
 function getRatioAndOffset(rotation, circumference, cutout) {
   let ratioX = 1;
   let ratioY = 1;
@@ -4775,6 +4772,76 @@ function getRatioAndOffset(rotation, circumference, cutout) {
   };
 }
 class DoughnutController extends DatasetController {
+  static id = "doughnut";
+  static defaults = {
+    datasetElementType: false,
+    dataElementType: "arc",
+    animation: {
+      animateRotate: true,
+      animateScale: false
+    },
+    animations: {
+      numbers: {
+        type: "number",
+        properties: [
+          "circumference",
+          "endAngle",
+          "innerRadius",
+          "outerRadius",
+          "startAngle",
+          "x",
+          "y",
+          "offset",
+          "borderWidth",
+          "spacing"
+        ]
+      }
+    },
+    cutout: "50%",
+    rotation: 0,
+    circumference: 360,
+    radius: "100%",
+    spacing: 0,
+    indexAxis: "r"
+  };
+  static descriptors = {
+    _scriptable: (name) => name !== "spacing",
+    _indexable: (name) => name !== "spacing" && !name.startsWith("borderDash") && !name.startsWith("hoverBorderDash")
+  };
+  static overrides = {
+    aspectRatio: 1,
+    plugins: {
+      legend: {
+        labels: {
+          generateLabels(chart) {
+            const data = chart.data;
+            if (data.labels.length && data.datasets.length) {
+              const { labels: { pointStyle, color: color2 } } = chart.legend.options;
+              return data.labels.map((label, i) => {
+                const meta = chart.getDatasetMeta(0);
+                const style = meta.controller.getStyle(i);
+                return {
+                  text: label,
+                  fillStyle: style.backgroundColor,
+                  strokeStyle: style.borderColor,
+                  fontColor: color2,
+                  lineWidth: style.borderWidth,
+                  pointStyle,
+                  hidden: !chart.getDataVisibility(i),
+                  index: i
+                };
+              });
+            }
+            return [];
+          }
+        },
+        onClick(e, legendItem, legend) {
+          legend.chart.toggleDataVisibility(legendItem.index);
+          legend.chart.update();
+        }
+      }
+    }
+  };
   constructor(chart, datasetIndex) {
     super(chart, datasetIndex);
     this.enableOptionSharing = true;
@@ -4973,77 +5040,24 @@ class DoughnutController extends DatasetController {
     return this._getRingWeightOffset(this.chart.data.datasets.length) || 1;
   }
 }
-__publicField(DoughnutController, "id", "doughnut");
-__publicField(DoughnutController, "defaults", {
-  datasetElementType: false,
-  dataElementType: "arc",
-  animation: {
-    animateRotate: true,
-    animateScale: false
-  },
-  animations: {
-    numbers: {
-      type: "number",
-      properties: [
-        "circumference",
-        "endAngle",
-        "innerRadius",
-        "outerRadius",
-        "startAngle",
-        "x",
-        "y",
-        "offset",
-        "borderWidth",
-        "spacing"
-      ]
-    }
-  },
-  cutout: "50%",
-  rotation: 0,
-  circumference: 360,
-  radius: "100%",
-  spacing: 0,
-  indexAxis: "r"
-});
-__publicField(DoughnutController, "descriptors", {
-  _scriptable: (name) => name !== "spacing",
-  _indexable: (name) => name !== "spacing" && !name.startsWith("borderDash") && !name.startsWith("hoverBorderDash")
-});
-__publicField(DoughnutController, "overrides", {
-  aspectRatio: 1,
-  plugins: {
-    legend: {
-      labels: {
-        generateLabels(chart) {
-          const data = chart.data;
-          if (data.labels.length && data.datasets.length) {
-            const { labels: { pointStyle, color: color2 } } = chart.legend.options;
-            return data.labels.map((label, i) => {
-              const meta = chart.getDatasetMeta(0);
-              const style = meta.controller.getStyle(i);
-              return {
-                text: label,
-                fillStyle: style.backgroundColor,
-                strokeStyle: style.borderColor,
-                fontColor: color2,
-                lineWidth: style.borderWidth,
-                pointStyle,
-                hidden: !chart.getDataVisibility(i),
-                index: i
-              };
-            });
-          }
-          return [];
-        }
+class LineController extends DatasetController {
+  static id = "line";
+  static defaults = {
+    datasetElementType: "line",
+    dataElementType: "point",
+    showLine: true,
+    spanGaps: false
+  };
+  static overrides = {
+    scales: {
+      _index_: {
+        type: "category"
       },
-      onClick(e, legendItem, legend) {
-        legend.chart.toggleDataVisibility(legendItem.index);
-        legend.chart.update();
+      _value_: {
+        type: "linear"
       }
     }
-  }
-});
-class LineController extends DatasetController {
+  };
   initialize() {
     this.enableOptionSharing = true;
     this.supportsDecimation = true;
@@ -5131,24 +5145,80 @@ class LineController extends DatasetController {
     super.draw();
   }
 }
-__publicField(LineController, "id", "line");
-__publicField(LineController, "defaults", {
-  datasetElementType: "line",
-  dataElementType: "point",
-  showLine: true,
-  spanGaps: false
-});
-__publicField(LineController, "overrides", {
-  scales: {
-    _index_: {
-      type: "category"
-    },
-    _value_: {
-      type: "linear"
-    }
-  }
-});
 class PolarAreaController extends DatasetController {
+  static id = "polarArea";
+  static defaults = {
+    dataElementType: "arc",
+    animation: {
+      animateRotate: true,
+      animateScale: true
+    },
+    animations: {
+      numbers: {
+        type: "number",
+        properties: [
+          "x",
+          "y",
+          "startAngle",
+          "endAngle",
+          "innerRadius",
+          "outerRadius"
+        ]
+      }
+    },
+    indexAxis: "r",
+    startAngle: 0
+  };
+  static overrides = {
+    aspectRatio: 1,
+    plugins: {
+      legend: {
+        labels: {
+          generateLabels(chart) {
+            const data = chart.data;
+            if (data.labels.length && data.datasets.length) {
+              const { labels: { pointStyle, color: color2 } } = chart.legend.options;
+              return data.labels.map((label, i) => {
+                const meta = chart.getDatasetMeta(0);
+                const style = meta.controller.getStyle(i);
+                return {
+                  text: label,
+                  fillStyle: style.backgroundColor,
+                  strokeStyle: style.borderColor,
+                  fontColor: color2,
+                  lineWidth: style.borderWidth,
+                  pointStyle,
+                  hidden: !chart.getDataVisibility(i),
+                  index: i
+                };
+              });
+            }
+            return [];
+          }
+        },
+        onClick(e, legendItem, legend) {
+          legend.chart.toggleDataVisibility(legendItem.index);
+          legend.chart.update();
+        }
+      }
+    },
+    scales: {
+      r: {
+        type: "radialLinear",
+        angleLines: {
+          display: false
+        },
+        beginAtZero: true,
+        grid: {
+          circular: true
+        },
+        pointLabels: {
+          display: false
+        },
+        startAngle: 0
+      }
+    }
+  };
   constructor(chart, datasetIndex) {
     super(chart, datasetIndex);
     this.innerRadius = void 0;
@@ -5257,89 +5327,36 @@ class PolarAreaController extends DatasetController {
     return this.chart.getDataVisibility(index2) ? toRadians(this.resolveDataElementOptions(index2, mode).angle || defaultAngle) : 0;
   }
 }
-__publicField(PolarAreaController, "id", "polarArea");
-__publicField(PolarAreaController, "defaults", {
-  dataElementType: "arc",
-  animation: {
-    animateRotate: true,
-    animateScale: true
-  },
-  animations: {
-    numbers: {
-      type: "number",
-      properties: [
-        "x",
-        "y",
-        "startAngle",
-        "endAngle",
-        "innerRadius",
-        "outerRadius"
-      ]
-    }
-  },
-  indexAxis: "r",
-  startAngle: 0
-});
-__publicField(PolarAreaController, "overrides", {
-  aspectRatio: 1,
-  plugins: {
-    legend: {
-      labels: {
-        generateLabels(chart) {
-          const data = chart.data;
-          if (data.labels.length && data.datasets.length) {
-            const { labels: { pointStyle, color: color2 } } = chart.legend.options;
-            return data.labels.map((label, i) => {
-              const meta = chart.getDatasetMeta(0);
-              const style = meta.controller.getStyle(i);
-              return {
-                text: label,
-                fillStyle: style.backgroundColor,
-                strokeStyle: style.borderColor,
-                fontColor: color2,
-                lineWidth: style.borderWidth,
-                pointStyle,
-                hidden: !chart.getDataVisibility(i),
-                index: i
-              };
-            });
-          }
-          return [];
-        }
-      },
-      onClick(e, legendItem, legend) {
-        legend.chart.toggleDataVisibility(legendItem.index);
-        legend.chart.update();
+class PieController extends DoughnutController {
+  static id = "pie";
+  static defaults = {
+    cutout: 0,
+    rotation: 0,
+    circumference: 360,
+    radius: "100%"
+  };
+}
+class RadarController extends DatasetController {
+  static id = "radar";
+  static defaults = {
+    datasetElementType: "line",
+    dataElementType: "point",
+    indexAxis: "r",
+    showLine: true,
+    elements: {
+      line: {
+        fill: "start"
       }
     }
-  },
-  scales: {
-    r: {
-      type: "radialLinear",
-      angleLines: {
-        display: false
-      },
-      beginAtZero: true,
-      grid: {
-        circular: true
-      },
-      pointLabels: {
-        display: false
-      },
-      startAngle: 0
+  };
+  static overrides = {
+    aspectRatio: 1,
+    scales: {
+      r: {
+        type: "radialLinear"
+      }
     }
-  }
-});
-class PieController extends DoughnutController {
-}
-__publicField(PieController, "id", "pie");
-__publicField(PieController, "defaults", {
-  cutout: 0,
-  rotation: 0,
-  circumference: 360,
-  radius: "100%"
-});
-class RadarController extends DatasetController {
+  };
   getLabelAndValue(index2) {
     const vScale = this._cachedMeta.vScale;
     const parsed = this.getParsed(index2);
@@ -5391,27 +5408,27 @@ class RadarController extends DatasetController {
     }
   }
 }
-__publicField(RadarController, "id", "radar");
-__publicField(RadarController, "defaults", {
-  datasetElementType: "line",
-  dataElementType: "point",
-  indexAxis: "r",
-  showLine: true,
-  elements: {
-    line: {
-      fill: "start"
-    }
-  }
-});
-__publicField(RadarController, "overrides", {
-  aspectRatio: 1,
-  scales: {
-    r: {
-      type: "radialLinear"
-    }
-  }
-});
 class ScatterController extends DatasetController {
+  static id = "scatter";
+  static defaults = {
+    datasetElementType: false,
+    dataElementType: "point",
+    showLine: false,
+    fill: false
+  };
+  static overrides = {
+    interaction: {
+      mode: "point"
+    },
+    scales: {
+      x: {
+        type: "linear"
+      },
+      y: {
+        type: "linear"
+      }
+    }
+  };
   getLabelAndValue(index2) {
     const meta = this._cachedMeta;
     const labels = this.chart.data.labels || [];
@@ -5518,26 +5535,6 @@ class ScatterController extends DatasetController {
     return Math.max(border, firstPoint, lastPoint) / 2;
   }
 }
-__publicField(ScatterController, "id", "scatter");
-__publicField(ScatterController, "defaults", {
-  datasetElementType: false,
-  dataElementType: "point",
-  showLine: false,
-  fill: false
-});
-__publicField(ScatterController, "overrides", {
-  interaction: {
-    mode: "point"
-  },
-  scales: {
-    x: {
-      type: "linear"
-    },
-    y: {
-      type: "linear"
-    }
-  }
-});
 var controllers = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   BarController,
@@ -5553,10 +5550,6 @@ function abstract() {
   throw new Error("This method is not implemented: Check that a complete date adapter is provided.");
 }
 class DateAdapterBase {
-  constructor(options) {
-    __publicField(this, "options");
-    this.options = options || {};
-  }
   /**
   * Override default date adapter methods.
   * Accepts type parameter to define options type.
@@ -5569,6 +5562,10 @@ class DateAdapterBase {
   */
   static override(members) {
     Object.assign(DateAdapterBase.prototype, members);
+  }
+  options;
+  constructor(options) {
+    this.options = options || {};
   }
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   init() {
@@ -6451,13 +6448,13 @@ function _detectPlatform(canvas) {
   return DomPlatform;
 }
 class Element {
-  constructor() {
-    __publicField(this, "x");
-    __publicField(this, "y");
-    __publicField(this, "active", false);
-    __publicField(this, "options");
-    __publicField(this, "$animations");
-  }
+  static defaults = {};
+  static defaultRoutes = void 0;
+  x;
+  y;
+  active = false;
+  options;
+  $animations;
   tooltipPosition(useFinalPosition) {
     const { x, y } = this.getProps([
       "x",
@@ -6483,8 +6480,6 @@ class Element {
     return ret;
   }
 }
-__publicField(Element, "defaults", {});
-__publicField(Element, "defaultRoutes");
 function autoSkip(scale, ticks) {
   const tickOpts = scale.options.ticks;
   const determinedMaxTicks = determineMaxTicks(scale);
@@ -8564,6 +8559,12 @@ function determineLastEvent(e, lastEvent, inChartArea, isClick) {
   return e;
 }
 class Chart {
+  static defaults = defaults;
+  static instances = instances;
+  static overrides = overrides;
+  static registry = registry;
+  static version = version$1;
+  static getChart = getChart;
   static register(...items) {
     registry.add(...items);
     invalidatePlugins();
@@ -9377,12 +9378,6 @@ class Chart {
     return this.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions, useFinalPosition);
   }
 }
-__publicField(Chart, "defaults", defaults);
-__publicField(Chart, "instances", instances);
-__publicField(Chart, "overrides", overrides);
-__publicField(Chart, "registry", registry);
-__publicField(Chart, "version", version$1);
-__publicField(Chart, "getChart", getChart);
 function invalidatePlugins() {
   return each(Chart.instances, (chart) => chart._plugins.invalidate());
 }
@@ -9576,15 +9571,37 @@ function drawBorder(ctx, element, offset, spacing, circular) {
   }
 }
 class ArcElement extends Element {
+  static id = "arc";
+  static defaults = {
+    borderAlign: "center",
+    borderColor: "#fff",
+    borderDash: [],
+    borderDashOffset: 0,
+    borderJoinStyle: void 0,
+    borderRadius: 0,
+    borderWidth: 2,
+    offset: 0,
+    spacing: 0,
+    angle: void 0,
+    circular: true,
+    selfJoin: false
+  };
+  static defaultRoutes = {
+    backgroundColor: "backgroundColor"
+  };
+  static descriptors = {
+    _scriptable: true,
+    _indexable: (name) => name !== "borderDash"
+  };
+  circumference;
+  endAngle;
+  fullCircles;
+  innerRadius;
+  outerRadius;
+  pixelMargin;
+  startAngle;
   constructor(cfg) {
     super();
-    __publicField(this, "circumference");
-    __publicField(this, "endAngle");
-    __publicField(this, "fullCircles");
-    __publicField(this, "innerRadius");
-    __publicField(this, "outerRadius");
-    __publicField(this, "pixelMargin");
-    __publicField(this, "startAngle");
     this.options = void 0;
     this.circumference = void 0;
     this.startAngle = void 0;
@@ -9662,28 +9679,6 @@ class ArcElement extends Element {
     ctx.restore();
   }
 }
-__publicField(ArcElement, "id", "arc");
-__publicField(ArcElement, "defaults", {
-  borderAlign: "center",
-  borderColor: "#fff",
-  borderDash: [],
-  borderDashOffset: 0,
-  borderJoinStyle: void 0,
-  borderRadius: 0,
-  borderWidth: 2,
-  offset: 0,
-  spacing: 0,
-  angle: void 0,
-  circular: true,
-  selfJoin: false
-});
-__publicField(ArcElement, "defaultRoutes", {
-  backgroundColor: "backgroundColor"
-});
-__publicField(ArcElement, "descriptors", {
-  _scriptable: true,
-  _indexable: (name) => name !== "borderDash"
-});
 function setStyle(ctx, options, style = options) {
   ctx.lineCap = valueOrDefault(style.borderCapStyle, options.borderCapStyle);
   ctx.setLineDash(valueOrDefault(style.borderDash, options.borderDash));
@@ -9837,6 +9832,28 @@ function draw$1(ctx, line, start, count) {
   }
 }
 class LineElement extends Element {
+  static id = "line";
+  static defaults = {
+    borderCapStyle: "butt",
+    borderDash: [],
+    borderDashOffset: 0,
+    borderJoinStyle: "miter",
+    borderWidth: 3,
+    capBezierPoints: true,
+    cubicInterpolationMode: "default",
+    fill: false,
+    spanGaps: false,
+    stepped: false,
+    tension: 0
+  };
+  static defaultRoutes = {
+    backgroundColor: "backgroundColor",
+    borderColor: "borderColor"
+  };
+  static descriptors = {
+    _scriptable: true,
+    _indexable: (name) => name !== "borderDash" && name !== "fill"
+  };
   constructor(cfg) {
     super();
     this.animated = true;
@@ -9947,28 +9964,6 @@ class LineElement extends Element {
     }
   }
 }
-__publicField(LineElement, "id", "line");
-__publicField(LineElement, "defaults", {
-  borderCapStyle: "butt",
-  borderDash: [],
-  borderDashOffset: 0,
-  borderJoinStyle: "miter",
-  borderWidth: 3,
-  capBezierPoints: true,
-  cubicInterpolationMode: "default",
-  fill: false,
-  spanGaps: false,
-  stepped: false,
-  tension: 0
-});
-__publicField(LineElement, "defaultRoutes", {
-  backgroundColor: "backgroundColor",
-  borderColor: "borderColor"
-});
-__publicField(LineElement, "descriptors", {
-  _scriptable: true,
-  _indexable: (name) => name !== "borderDash" && name !== "fill"
-});
 function inRange$1(el, pos, axis, useFinalPosition) {
   const options = el.options;
   const { [axis]: value } = el.getProps([
@@ -9977,11 +9972,31 @@ function inRange$1(el, pos, axis, useFinalPosition) {
   return Math.abs(pos - value) < options.radius + options.hitRadius;
 }
 class PointElement extends Element {
+  static id = "point";
+  parsed;
+  skip;
+  stop;
+  /**
+  * @type {any}
+  */
+  static defaults = {
+    borderWidth: 1,
+    hitRadius: 1,
+    hoverBorderWidth: 1,
+    hoverRadius: 4,
+    pointStyle: "circle",
+    radius: 3,
+    rotation: 0
+  };
+  /**
+  * @type {any}
+  */
+  static defaultRoutes = {
+    backgroundColor: "backgroundColor",
+    borderColor: "borderColor"
+  };
   constructor(cfg) {
     super();
-    __publicField(this, "parsed");
-    __publicField(this, "skip");
-    __publicField(this, "stop");
     this.options = void 0;
     this.parsed = void 0;
     this.skip = void 0;
@@ -10036,26 +10051,6 @@ class PointElement extends Element {
     return options.radius + options.hitRadius;
   }
 }
-__publicField(PointElement, "id", "point");
-/**
-* @type {any}
-*/
-__publicField(PointElement, "defaults", {
-  borderWidth: 1,
-  hitRadius: 1,
-  hoverBorderWidth: 1,
-  hoverRadius: 4,
-  pointStyle: "circle",
-  radius: 3,
-  rotation: 0
-});
-/**
-* @type {any}
-*/
-__publicField(PointElement, "defaultRoutes", {
-  backgroundColor: "backgroundColor",
-  borderColor: "borderColor"
-});
 function getBarBounds(bar, useFinalPosition) {
   const { x, y, base, width, height } = bar.getProps([
     "x",
@@ -10170,6 +10165,18 @@ function inflateRect(rect, amount, refRect = {}) {
   };
 }
 class BarElement extends Element {
+  static id = "bar";
+  static defaults = {
+    borderSkipped: "start",
+    borderWidth: 0,
+    borderRadius: 0,
+    inflateAmount: "auto",
+    pointStyle: void 0
+  };
+  static defaultRoutes = {
+    backgroundColor: "backgroundColor",
+    borderColor: "borderColor"
+  };
   constructor(cfg) {
     super();
     this.options = void 0;
@@ -10226,18 +10233,6 @@ class BarElement extends Element {
     return axis === "x" ? this.width / 2 : this.height / 2;
   }
 }
-__publicField(BarElement, "id", "bar");
-__publicField(BarElement, "defaults", {
-  borderSkipped: "start",
-  borderWidth: 0,
-  borderRadius: 0,
-  inflateAmount: "auto",
-  pointStyle: void 0
-});
-__publicField(BarElement, "defaultRoutes", {
-  backgroundColor: "backgroundColor",
-  borderColor: "borderColor"
-});
 var elements = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   ArcElement,
@@ -12212,6 +12207,7 @@ function invokeCallbackWithFallback(callbacks, name, ctx, arg) {
   return result;
 }
 class Tooltip extends Element {
+  static positioners = positioners;
   constructor(config) {
     super();
     this.opacity = 0;
@@ -12751,7 +12747,6 @@ class Tooltip extends Element {
     return position !== false && (caretX !== position.x || caretY !== position.y);
   }
 }
-__publicField(Tooltip, "positioners", positioners);
 var plugin_tooltip = {
   id: "tooltip",
   _element: Tooltip,
@@ -12917,6 +12912,12 @@ function _getLabelForValue(value) {
   return value;
 }
 class CategoryScale extends Scale {
+  static id = "category";
+  static defaults = {
+    ticks: {
+      callback: _getLabelForValue
+    }
+  };
   constructor(cfg) {
     super(cfg);
     this._startValue = void 0;
@@ -13003,12 +13004,6 @@ class CategoryScale extends Scale {
     return this.bottom;
   }
 }
-__publicField(CategoryScale, "id", "category");
-__publicField(CategoryScale, "defaults", {
-  ticks: {
-    callback: _getLabelForValue
-  }
-});
 function generateTicks$1(generationOptions, dataRange) {
   const ticks = [];
   const MIN_SPACING = 1e-14;
@@ -13232,6 +13227,12 @@ class LinearScaleBase extends Scale {
   }
 }
 class LinearScale extends LinearScaleBase {
+  static id = "linear";
+  static defaults = {
+    ticks: {
+      callback: Ticks.formatters.numeric
+    }
+  };
   determineDataLimits() {
     const { min, max } = this.getMinMax(true);
     this.min = isNumberFinite(min) ? min : 0;
@@ -13253,12 +13254,6 @@ class LinearScale extends LinearScaleBase {
     return this._startValue + this.getDecimalForPixel(pixel) * this._valueRange;
   }
 }
-__publicField(LinearScale, "id", "linear");
-__publicField(LinearScale, "defaults", {
-  ticks: {
-    callback: Ticks.formatters.numeric
-  }
-});
 const log10Floor = (v) => Math.floor(log10(v));
 const changeExponent = (v, m) => Math.pow(10, log10Floor(v) + m);
 function isMajor(tickVal) {
@@ -13321,6 +13316,15 @@ function generateTicks(generationOptions, { min, max }) {
   return ticks;
 }
 class LogarithmicScale extends Scale {
+  static id = "logarithmic";
+  static defaults = {
+    ticks: {
+      callback: Ticks.formatters.logarithmic,
+      major: {
+        enabled: true
+      }
+    }
+  };
   constructor(cfg) {
     super(cfg);
     this.start = void 0;
@@ -13418,15 +13422,6 @@ class LogarithmicScale extends Scale {
     return Math.pow(10, this._startValue + decimal * this._valueRange);
   }
 }
-__publicField(LogarithmicScale, "id", "logarithmic");
-__publicField(LogarithmicScale, "defaults", {
-  ticks: {
-    callback: Ticks.formatters.logarithmic,
-    major: {
-      enabled: true
-    }
-  }
-});
 function getTickBackdropHeight(opts) {
   const tickOpts = opts.ticks;
   if (tickOpts.display && opts.display) {
@@ -13680,6 +13675,49 @@ function createPointLabelContext(parent, index2, label) {
   });
 }
 class RadialLinearScale extends LinearScaleBase {
+  static id = "radialLinear";
+  static defaults = {
+    display: true,
+    animate: true,
+    position: "chartArea",
+    angleLines: {
+      display: true,
+      lineWidth: 1,
+      borderDash: [],
+      borderDashOffset: 0
+    },
+    grid: {
+      circular: false
+    },
+    startAngle: 0,
+    ticks: {
+      showLabelBackdrop: true,
+      callback: Ticks.formatters.numeric
+    },
+    pointLabels: {
+      backdropColor: void 0,
+      backdropPadding: 2,
+      display: true,
+      font: {
+        size: 10
+      },
+      callback(label) {
+        return label;
+      },
+      padding: 5,
+      centerPointLabels: false
+    }
+  };
+  static defaultRoutes = {
+    "angleLines.color": "borderColor",
+    "pointLabels.color": "color",
+    "ticks.color": "color"
+  };
+  static descriptors = {
+    angleLines: {
+      _fallback: "grid"
+    }
+  };
   constructor(cfg) {
     super(cfg);
     this.xCenter = void 0;
@@ -13876,49 +13914,6 @@ class RadialLinearScale extends LinearScaleBase {
   drawTitle() {
   }
 }
-__publicField(RadialLinearScale, "id", "radialLinear");
-__publicField(RadialLinearScale, "defaults", {
-  display: true,
-  animate: true,
-  position: "chartArea",
-  angleLines: {
-    display: true,
-    lineWidth: 1,
-    borderDash: [],
-    borderDashOffset: 0
-  },
-  grid: {
-    circular: false
-  },
-  startAngle: 0,
-  ticks: {
-    showLabelBackdrop: true,
-    callback: Ticks.formatters.numeric
-  },
-  pointLabels: {
-    backdropColor: void 0,
-    backdropPadding: 2,
-    display: true,
-    font: {
-      size: 10
-    },
-    callback(label) {
-      return label;
-    },
-    padding: 5,
-    centerPointLabels: false
-  }
-});
-__publicField(RadialLinearScale, "defaultRoutes", {
-  "angleLines.color": "borderColor",
-  "pointLabels.color": "color",
-  "ticks.color": "color"
-});
-__publicField(RadialLinearScale, "descriptors", {
-  angleLines: {
-    _fallback: "grid"
-  }
-});
 const INTERVALS = {
   millisecond: {
     common: true,
@@ -14055,6 +14050,26 @@ function ticksFromTimestamps(scale, values, majorUnit) {
   return ilen === 0 || !majorUnit ? ticks : setMajorTicks(scale, ticks, map2, majorUnit);
 }
 class TimeScale extends Scale {
+  static id = "time";
+  static defaults = {
+    bounds: "data",
+    adapters: {},
+    time: {
+      parser: false,
+      unit: false,
+      round: false,
+      isoWeekday: false,
+      minUnit: "millisecond",
+      displayFormats: {}
+    },
+    ticks: {
+      source: "auto",
+      callback: false,
+      major: {
+        enabled: false
+      }
+    }
+  };
   constructor(props) {
     super(props);
     this._cache = {
@@ -14321,26 +14336,6 @@ class TimeScale extends Scale {
     return _arrayUnique(values.sort(sorter));
   }
 }
-__publicField(TimeScale, "id", "time");
-__publicField(TimeScale, "defaults", {
-  bounds: "data",
-  adapters: {},
-  time: {
-    parser: false,
-    unit: false,
-    round: false,
-    isoWeekday: false,
-    minUnit: "millisecond",
-    displayFormats: {}
-  },
-  ticks: {
-    source: "auto",
-    callback: false,
-    major: {
-      enabled: false
-    }
-  }
-});
 function interpolate(table, val, reverse) {
   let lo = 0;
   let hi = table.length - 1;
@@ -14362,6 +14357,8 @@ function interpolate(table, val, reverse) {
   return span ? prevTarget + (nextTarget - prevTarget) * (val - prevSource) / span : prevTarget;
 }
 class TimeSeriesScale extends TimeScale {
+  static id = "timeseries";
+  static defaults = TimeScale.defaults;
   constructor(props) {
     super(props);
     this._table = [];
@@ -14447,8 +14444,6 @@ class TimeSeriesScale extends TimeScale {
     return interpolate(this._table, decimal * this._tableRange + this._minPos, true);
   }
 }
-__publicField(TimeSeriesScale, "id", "timeseries");
-__publicField(TimeSeriesScale, "defaults", TimeScale.defaults);
 var scales = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   CategoryScale,
@@ -16623,13 +16618,12 @@ function zoomRect(chart, p0, p1, transition = "none", trigger = "api") {
   callback(zoomOptions.onZoom, [{ chart, trigger }]);
 }
 function zoomScale(chart, scaleId, range, transition = "none", trigger = "api") {
-  var _a;
   const state = getState(chart);
   storeOriginalScaleLimits(chart, state);
   const scale = chart.scales[scaleId];
   updateRange(scale, range, void 0, true);
   chart.update(transition);
-  callback((_a = state.options.zoom) == null ? void 0 : _a.onZoom, [{ chart, trigger }]);
+  callback(state.options.zoom?.onZoom, [{ chart, trigger }]);
 }
 function resetZoom(chart, transition = "default") {
   const state = getState(chart);
@@ -17090,16 +17084,15 @@ function stopHammer(chart) {
   }
 }
 function hammerOptionsChanged(oldOptions, newOptions) {
-  var _a, _b, _c, _d;
   const { pan: oldPan, zoom: oldZoom } = oldOptions;
   const { pan: newPan, zoom: newZoom } = newOptions;
-  if (((_b = (_a = oldZoom == null ? void 0 : oldZoom.zoom) == null ? void 0 : _a.pinch) == null ? void 0 : _b.enabled) !== ((_d = (_c = newZoom == null ? void 0 : newZoom.zoom) == null ? void 0 : _c.pinch) == null ? void 0 : _d.enabled)) {
+  if (oldZoom?.zoom?.pinch?.enabled !== newZoom?.zoom?.pinch?.enabled) {
     return true;
   }
-  if ((oldPan == null ? void 0 : oldPan.enabled) !== (newPan == null ? void 0 : newPan.enabled)) {
+  if (oldPan?.enabled !== newPan?.enabled) {
     return true;
   }
-  if ((oldPan == null ? void 0 : oldPan.threshold) !== (newPan == null ? void 0 : newPan.threshold)) {
+  if (oldPan?.threshold !== newPan?.threshold) {
     return true;
   }
   return false;
@@ -17236,14 +17229,14 @@ function toDate(argument, context) {
   return constructFrom(context || argument, argument);
 }
 function addDays(date, amount, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
-  if (isNaN(amount)) return constructFrom((options == null ? void 0 : options.in) || date, NaN);
+  const _date = toDate(date, options?.in);
+  if (isNaN(amount)) return constructFrom(options?.in || date, NaN);
   if (!amount) return _date;
   _date.setDate(_date.getDate() + amount);
   return _date;
 }
 function addMonths(date, amount, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   if (isNaN(amount)) return constructFrom(date, NaN);
   if (!amount) {
     return _date;
@@ -17274,10 +17267,9 @@ function getDefaultOptions$1() {
   return defaultOptions;
 }
 function startOfWeek(date, options) {
-  var _a, _b, _c, _d;
   const defaultOptions2 = getDefaultOptions$1();
-  const weekStartsOn = (options == null ? void 0 : options.weekStartsOn) ?? ((_b = (_a = options == null ? void 0 : options.locale) == null ? void 0 : _a.options) == null ? void 0 : _b.weekStartsOn) ?? defaultOptions2.weekStartsOn ?? ((_d = (_c = defaultOptions2.locale) == null ? void 0 : _c.options) == null ? void 0 : _d.weekStartsOn) ?? 0;
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const weekStartsOn = options?.weekStartsOn ?? options?.locale?.options?.weekStartsOn ?? defaultOptions2.weekStartsOn ?? defaultOptions2.locale?.options?.weekStartsOn ?? 0;
+  const _date = toDate(date, options?.in);
   const day = _date.getDay();
   const diff = (day < weekStartsOn ? 7 : 0) + day - weekStartsOn;
   _date.setDate(_date.getDate() - diff);
@@ -17288,7 +17280,7 @@ function startOfISOWeek(date, options) {
   return startOfWeek(date, { ...options, weekStartsOn: 1 });
 }
 function getISOWeekYear(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   const year = _date.getFullYear();
   const fourthOfJanuaryOfNextYear = constructFrom(_date, 0);
   fourthOfJanuaryOfNextYear.setFullYear(year + 1, 0, 4);
@@ -17330,13 +17322,13 @@ function normalizeDates(context, ...dates) {
   return dates.map(normalize);
 }
 function startOfDay(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   _date.setHours(0, 0, 0, 0);
   return _date;
 }
 function differenceInCalendarDays(laterDate, earlierDate, options) {
   const [laterDate_, earlierDate_] = normalizeDates(
-    options == null ? void 0 : options.in,
+    options?.in,
     laterDate,
     earlierDate
   );
@@ -17354,7 +17346,7 @@ function startOfISOWeekYear(date, options) {
   return startOfISOWeek(fourthOfJanuary);
 }
 function addMinutes(date, amount, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   _date.setTime(_date.getTime() + amount * millisecondsInMinute);
   return _date;
 }
@@ -17384,7 +17376,7 @@ function isValid(date) {
 }
 function differenceInCalendarMonths(laterDate, earlierDate, options) {
   const [laterDate_, earlierDate_] = normalizeDates(
-    options == null ? void 0 : options.in,
+    options?.in,
     laterDate,
     earlierDate
   );
@@ -17394,7 +17386,7 @@ function differenceInCalendarMonths(laterDate, earlierDate, options) {
 }
 function differenceInCalendarYears(laterDate, earlierDate, options) {
   const [laterDate_, earlierDate_] = normalizeDates(
-    options == null ? void 0 : options.in,
+    options?.in,
     laterDate,
     earlierDate
   );
@@ -17402,7 +17394,7 @@ function differenceInCalendarYears(laterDate, earlierDate, options) {
 }
 function differenceInDays(laterDate, earlierDate, options) {
   const [laterDate_, earlierDate_] = normalizeDates(
-    options == null ? void 0 : options.in,
+    options?.in,
     laterDate,
     earlierDate
   );
@@ -17432,39 +17424,39 @@ function getRoundingMethod(method) {
 }
 function differenceInHours(laterDate, earlierDate, options) {
   const [laterDate_, earlierDate_] = normalizeDates(
-    options == null ? void 0 : options.in,
+    options?.in,
     laterDate,
     earlierDate
   );
   const diff = (+laterDate_ - +earlierDate_) / millisecondsInHour;
-  return getRoundingMethod(options == null ? void 0 : options.roundingMethod)(diff);
+  return getRoundingMethod(options?.roundingMethod)(diff);
 }
 function differenceInMilliseconds(laterDate, earlierDate) {
   return +toDate(laterDate) - +toDate(earlierDate);
 }
 function differenceInMinutes(dateLeft, dateRight, options) {
   const diff = differenceInMilliseconds(dateLeft, dateRight) / millisecondsInMinute;
-  return getRoundingMethod(options == null ? void 0 : options.roundingMethod)(diff);
+  return getRoundingMethod(options?.roundingMethod)(diff);
 }
 function endOfDay(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   _date.setHours(23, 59, 59, 999);
   return _date;
 }
 function endOfMonth(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   const month = _date.getMonth();
   _date.setFullYear(_date.getFullYear(), month + 1, 0);
   _date.setHours(23, 59, 59, 999);
   return _date;
 }
 function isLastDayOfMonth(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   return +endOfDay(_date, options) === +endOfMonth(_date, options);
 }
 function differenceInMonths(laterDate, earlierDate, options) {
   const [laterDate_, workingLaterDate, earlierDate_] = normalizeDates(
-    options == null ? void 0 : options.in,
+    options?.in,
     laterDate,
     laterDate,
     earlierDate
@@ -17486,19 +17478,19 @@ function differenceInMonths(laterDate, earlierDate, options) {
 }
 function differenceInQuarters(laterDate, earlierDate, options) {
   const diff = differenceInMonths(laterDate, earlierDate, options) / 3;
-  return getRoundingMethod(options == null ? void 0 : options.roundingMethod)(diff);
+  return getRoundingMethod(options?.roundingMethod)(diff);
 }
 function differenceInSeconds(laterDate, earlierDate, options) {
   const diff = differenceInMilliseconds(laterDate, earlierDate) / 1e3;
-  return getRoundingMethod(options == null ? void 0 : options.roundingMethod)(diff);
+  return getRoundingMethod(options?.roundingMethod)(diff);
 }
 function differenceInWeeks(laterDate, earlierDate, options) {
   const diff = differenceInDays(laterDate, earlierDate, options) / 7;
-  return getRoundingMethod(options == null ? void 0 : options.roundingMethod)(diff);
+  return getRoundingMethod(options?.roundingMethod)(diff);
 }
 function differenceInYears(laterDate, earlierDate, options) {
   const [laterDate_, earlierDate_] = normalizeDates(
-    options == null ? void 0 : options.in,
+    options?.in,
     laterDate,
     earlierDate
   );
@@ -17511,7 +17503,7 @@ function differenceInYears(laterDate, earlierDate, options) {
   return result === 0 ? 0 : result;
 }
 function startOfQuarter(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   const currentMonth = _date.getMonth();
   const month = currentMonth - currentMonth % 3;
   _date.setMonth(month, 1);
@@ -17519,34 +17511,33 @@ function startOfQuarter(date, options) {
   return _date;
 }
 function startOfMonth(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   _date.setDate(1);
   _date.setHours(0, 0, 0, 0);
   return _date;
 }
 function endOfYear(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   const year = _date.getFullYear();
   _date.setFullYear(year + 1, 0, 0);
   _date.setHours(23, 59, 59, 999);
   return _date;
 }
 function startOfYear(date, options) {
-  const date_ = toDate(date, options == null ? void 0 : options.in);
+  const date_ = toDate(date, options?.in);
   date_.setFullYear(date_.getFullYear(), 0, 1);
   date_.setHours(0, 0, 0, 0);
   return date_;
 }
 function endOfHour(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   _date.setMinutes(59, 59, 999);
   return _date;
 }
 function endOfWeek(date, options) {
-  var _a, _b;
   const defaultOptions2 = getDefaultOptions$1();
-  const weekStartsOn = defaultOptions2.weekStartsOn ?? ((_b = (_a = defaultOptions2.locale) == null ? void 0 : _a.options) == null ? void 0 : _b.weekStartsOn) ?? 0;
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const weekStartsOn = defaultOptions2.weekStartsOn ?? defaultOptions2.locale?.options?.weekStartsOn ?? 0;
+  const _date = toDate(date, options?.in);
   const day = _date.getDay();
   const diff = (day < weekStartsOn ? -7 : 0) + 6 - (day - weekStartsOn);
   _date.setDate(_date.getDate() + diff);
@@ -17554,12 +17545,12 @@ function endOfWeek(date, options) {
   return _date;
 }
 function endOfMinute(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   _date.setSeconds(59, 999);
   return _date;
 }
 function endOfQuarter(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   const currentMonth = _date.getMonth();
   const month = currentMonth - currentMonth % 3 + 3;
   _date.setMonth(month, 0);
@@ -17567,7 +17558,7 @@ function endOfQuarter(date, options) {
   return _date;
 }
 function endOfSecond(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   _date.setMilliseconds(999);
   return _date;
 }
@@ -17644,7 +17635,7 @@ const formatDistance = (token, count, options) => {
   } else {
     result = tokenValue.other.replace("{{count}}", count.toString());
   }
-  if (options == null ? void 0 : options.addSuffix) {
+  if (options?.addSuffix) {
     if (options.comparison && options.comparison > 0) {
       return "in " + result;
     } else {
@@ -17703,15 +17694,15 @@ const formatRelativeLocale = {
 const formatRelative = (token, _date, _baseDate, _options) => formatRelativeLocale[token];
 function buildLocalizeFn(args) {
   return (value, options) => {
-    const context = (options == null ? void 0 : options.context) ? String(options.context) : "standalone";
+    const context = options?.context ? String(options.context) : "standalone";
     let valuesArray;
     if (context === "formatting" && args.formattingValues) {
       const defaultWidth = args.defaultFormattingWidth || args.defaultWidth;
-      const width = (options == null ? void 0 : options.width) ? String(options.width) : defaultWidth;
+      const width = options?.width ? String(options.width) : defaultWidth;
       valuesArray = args.formattingValues[width] || args.formattingValues[defaultWidth];
     } else {
       const defaultWidth = args.defaultWidth;
-      const width = (options == null ? void 0 : options.width) ? String(options.width) : args.defaultWidth;
+      const width = options?.width ? String(options.width) : args.defaultWidth;
       valuesArray = args.values[width] || args.values[defaultWidth];
     }
     const index2 = args.argumentCallback ? args.argumentCallback(value) : value;
@@ -18061,27 +18052,26 @@ const enUS = {
   }
 };
 function getDayOfYear(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   const diff = differenceInCalendarDays(_date, startOfYear(_date));
   const dayOfYear = diff + 1;
   return dayOfYear;
 }
 function getISOWeek(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   const diff = +startOfISOWeek(_date) - +startOfISOWeekYear(_date);
   return Math.round(diff / millisecondsInWeek) + 1;
 }
 function getWeekYear(date, options) {
-  var _a, _b, _c, _d;
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   const year = _date.getFullYear();
   const defaultOptions2 = getDefaultOptions$1();
-  const firstWeekContainsDate = (options == null ? void 0 : options.firstWeekContainsDate) ?? ((_b = (_a = options == null ? void 0 : options.locale) == null ? void 0 : _a.options) == null ? void 0 : _b.firstWeekContainsDate) ?? defaultOptions2.firstWeekContainsDate ?? ((_d = (_c = defaultOptions2.locale) == null ? void 0 : _c.options) == null ? void 0 : _d.firstWeekContainsDate) ?? 1;
-  const firstWeekOfNextYear = constructFrom((options == null ? void 0 : options.in) || date, 0);
+  const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions2.firstWeekContainsDate ?? defaultOptions2.locale?.options?.firstWeekContainsDate ?? 1;
+  const firstWeekOfNextYear = constructFrom(options?.in || date, 0);
   firstWeekOfNextYear.setFullYear(year + 1, 0, firstWeekContainsDate);
   firstWeekOfNextYear.setHours(0, 0, 0, 0);
   const startOfNextYear = startOfWeek(firstWeekOfNextYear, options);
-  const firstWeekOfThisYear = constructFrom((options == null ? void 0 : options.in) || date, 0);
+  const firstWeekOfThisYear = constructFrom(options?.in || date, 0);
   firstWeekOfThisYear.setFullYear(year, 0, firstWeekContainsDate);
   firstWeekOfThisYear.setHours(0, 0, 0, 0);
   const startOfThisYear = startOfWeek(firstWeekOfThisYear, options);
@@ -18094,18 +18084,17 @@ function getWeekYear(date, options) {
   }
 }
 function startOfWeekYear(date, options) {
-  var _a, _b, _c, _d;
   const defaultOptions2 = getDefaultOptions$1();
-  const firstWeekContainsDate = (options == null ? void 0 : options.firstWeekContainsDate) ?? ((_b = (_a = options == null ? void 0 : options.locale) == null ? void 0 : _a.options) == null ? void 0 : _b.firstWeekContainsDate) ?? defaultOptions2.firstWeekContainsDate ?? ((_d = (_c = defaultOptions2.locale) == null ? void 0 : _c.options) == null ? void 0 : _d.firstWeekContainsDate) ?? 1;
+  const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions2.firstWeekContainsDate ?? defaultOptions2.locale?.options?.firstWeekContainsDate ?? 1;
   const year = getWeekYear(date, options);
-  const firstWeek = constructFrom((options == null ? void 0 : options.in) || date, 0);
+  const firstWeek = constructFrom(options?.in || date, 0);
   firstWeek.setFullYear(year, 0, firstWeekContainsDate);
   firstWeek.setHours(0, 0, 0, 0);
   const _date = startOfWeek(firstWeek, options);
   return _date;
 }
 function getWeek(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   const diff = +startOfWeek(_date, options) - +startOfWeekYear(_date, options);
   return Math.round(diff / millisecondsInWeek) + 1;
 }
@@ -18893,12 +18882,11 @@ const escapedStringRegExp$1 = /^'([^]*?)'?$/;
 const doubleQuoteRegExp$1 = /''/g;
 const unescapedLatinCharacterRegExp$1 = /[a-zA-Z]/;
 function format(date, formatStr, options) {
-  var _a, _b, _c, _d, _e, _f, _g, _h;
   const defaultOptions2 = getDefaultOptions$1();
-  const locale = (options == null ? void 0 : options.locale) ?? defaultOptions2.locale ?? enUS;
-  const firstWeekContainsDate = (options == null ? void 0 : options.firstWeekContainsDate) ?? ((_b = (_a = options == null ? void 0 : options.locale) == null ? void 0 : _a.options) == null ? void 0 : _b.firstWeekContainsDate) ?? defaultOptions2.firstWeekContainsDate ?? ((_d = (_c = defaultOptions2.locale) == null ? void 0 : _c.options) == null ? void 0 : _d.firstWeekContainsDate) ?? 1;
-  const weekStartsOn = (options == null ? void 0 : options.weekStartsOn) ?? ((_f = (_e = options == null ? void 0 : options.locale) == null ? void 0 : _e.options) == null ? void 0 : _f.weekStartsOn) ?? defaultOptions2.weekStartsOn ?? ((_h = (_g = defaultOptions2.locale) == null ? void 0 : _g.options) == null ? void 0 : _h.weekStartsOn) ?? 0;
-  const originalDate = toDate(date, options == null ? void 0 : options.in);
+  const locale = options?.locale ?? defaultOptions2.locale ?? enUS;
+  const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions2.firstWeekContainsDate ?? defaultOptions2.locale?.options?.firstWeekContainsDate ?? 1;
+  const weekStartsOn = options?.weekStartsOn ?? options?.locale?.options?.weekStartsOn ?? defaultOptions2.weekStartsOn ?? defaultOptions2.locale?.options?.weekStartsOn ?? 0;
+  const originalDate = toDate(date, options?.in);
   if (!isValid(originalDate)) {
     throw new RangeError("Invalid time value");
   }
@@ -18938,7 +18926,7 @@ function format(date, formatStr, options) {
   return parts.map((part) => {
     if (!part.isToken) return part.value;
     const token = part.value;
-    if (!(options == null ? void 0 : options.useAdditionalWeekYearTokens) && isProtectedWeekYearToken(token) || !(options == null ? void 0 : options.useAdditionalDayOfYearTokens) && isProtectedDayOfYearToken(token)) {
+    if (!options?.useAdditionalWeekYearTokens && isProtectedWeekYearToken(token) || !options?.useAdditionalDayOfYearTokens && isProtectedDayOfYearToken(token)) {
       warnOrThrowProtectedError(token, formatStr, String(date));
     }
     const formatter = formatters[token[0]];
@@ -18956,7 +18944,7 @@ function getDefaultOptions() {
   return Object.assign({}, getDefaultOptions$1());
 }
 function getISODay(date, options) {
-  const day = toDate(date, options == null ? void 0 : options.in).getDay();
+  const day = toDate(date, options?.in).getDay();
   return day === 0 ? 7 : day;
 }
 function transpose(date, constructor) {
@@ -18971,14 +18959,11 @@ function transpose(date, constructor) {
   return date_;
 }
 function isConstructor(constructor) {
-  var _a;
-  return typeof constructor === "function" && ((_a = constructor.prototype) == null ? void 0 : _a.constructor) === constructor;
+  return typeof constructor === "function" && constructor.prototype?.constructor === constructor;
 }
 const TIMEZONE_UNIT_PRIORITY = 10;
 class Setter {
-  constructor() {
-    __publicField(this, "subPriority", 0);
-  }
+  subPriority = 0;
   validate(_utcDate, _options) {
     return true;
   }
@@ -19002,10 +18987,10 @@ class ValueSetter extends Setter {
   }
 }
 class DateTimezoneSetter extends Setter {
+  priority = TIMEZONE_UNIT_PRIORITY;
+  subPriority = -1;
   constructor(context, reference) {
     super();
-    __publicField(this, "priority", TIMEZONE_UNIT_PRIORITY);
-    __publicField(this, "subPriority", -1);
     this.context = context || ((date) => constructFrom(reference, date));
   }
   set(date, flags) {
@@ -19035,11 +19020,7 @@ class Parser {
   }
 }
 class EraParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 140);
-    __publicField(this, "incompatibleTokens", ["R", "u", "t", "T"]);
-  }
+  priority = 140;
   parse(dateString, token, match2) {
     switch (token) {
       // AD, BC
@@ -19062,6 +19043,7 @@ class EraParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
+  incompatibleTokens = ["R", "u", "t", "T"];
 }
 const numericPatterns = {
   month: /^(1[0-2]|0?\d)/,
@@ -19214,11 +19196,8 @@ function isLeapYearIndex$1(year) {
   return year % 400 === 0 || year % 4 === 0 && year % 100 !== 0;
 }
 class YearParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 130);
-    __publicField(this, "incompatibleTokens", ["Y", "R", "u", "w", "I", "i", "e", "c", "t", "T"]);
-  }
+  priority = 130;
+  incompatibleTokens = ["Y", "R", "u", "w", "I", "i", "e", "c", "t", "T"];
   parse(dateString, token, match2) {
     const valueCallback = (year) => ({
       year,
@@ -19259,25 +19238,7 @@ class YearParser extends Parser {
   }
 }
 class LocalWeekYearParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 130);
-    __publicField(this, "incompatibleTokens", [
-      "y",
-      "R",
-      "u",
-      "Q",
-      "q",
-      "M",
-      "L",
-      "I",
-      "d",
-      "D",
-      "i",
-      "t",
-      "T"
-    ]);
-  }
+  priority = 130;
   parse(dateString, token, match2) {
     const valueCallback = (year) => ({
       year,
@@ -19320,29 +19281,24 @@ class LocalWeekYearParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return startOfWeek(date, options);
   }
+  incompatibleTokens = [
+    "y",
+    "R",
+    "u",
+    "Q",
+    "q",
+    "M",
+    "L",
+    "I",
+    "d",
+    "D",
+    "i",
+    "t",
+    "T"
+  ];
 }
 class ISOWeekYearParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 130);
-    __publicField(this, "incompatibleTokens", [
-      "G",
-      "y",
-      "Y",
-      "u",
-      "Q",
-      "q",
-      "M",
-      "L",
-      "w",
-      "d",
-      "D",
-      "e",
-      "c",
-      "t",
-      "T"
-    ]);
-  }
+  priority = 130;
   parse(dateString, token) {
     if (token === "R") {
       return parseNDigitsSigned(4, dateString);
@@ -19355,13 +19311,26 @@ class ISOWeekYearParser extends Parser {
     firstWeekOfYear.setHours(0, 0, 0, 0);
     return startOfISOWeek(firstWeekOfYear);
   }
+  incompatibleTokens = [
+    "G",
+    "y",
+    "Y",
+    "u",
+    "Q",
+    "q",
+    "M",
+    "L",
+    "w",
+    "d",
+    "D",
+    "e",
+    "c",
+    "t",
+    "T"
+  ];
 }
 class ExtendedYearParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 130);
-    __publicField(this, "incompatibleTokens", ["G", "y", "Y", "R", "w", "I", "i", "e", "c", "t", "T"]);
-  }
+  priority = 130;
   parse(dateString, token) {
     if (token === "u") {
       return parseNDigitsSigned(4, dateString);
@@ -19373,28 +19342,10 @@ class ExtendedYearParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
+  incompatibleTokens = ["G", "y", "Y", "R", "w", "I", "i", "e", "c", "t", "T"];
 }
 class QuarterParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 120);
-    __publicField(this, "incompatibleTokens", [
-      "Y",
-      "R",
-      "q",
-      "M",
-      "L",
-      "w",
-      "I",
-      "d",
-      "D",
-      "i",
-      "e",
-      "c",
-      "t",
-      "T"
-    ]);
-  }
+  priority = 120;
   parse(dateString, token, match2) {
     switch (token) {
       // 1, 2, 3, 4
@@ -19442,28 +19393,25 @@ class QuarterParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
+  incompatibleTokens = [
+    "Y",
+    "R",
+    "q",
+    "M",
+    "L",
+    "w",
+    "I",
+    "d",
+    "D",
+    "i",
+    "e",
+    "c",
+    "t",
+    "T"
+  ];
 }
 class StandAloneQuarterParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 120);
-    __publicField(this, "incompatibleTokens", [
-      "Y",
-      "R",
-      "Q",
-      "M",
-      "L",
-      "w",
-      "I",
-      "d",
-      "D",
-      "i",
-      "e",
-      "c",
-      "t",
-      "T"
-    ]);
-  }
+  priority = 120;
   parse(dateString, token, match2) {
     switch (token) {
       // 1, 2, 3, 4
@@ -19511,27 +19459,40 @@ class StandAloneQuarterParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
+  incompatibleTokens = [
+    "Y",
+    "R",
+    "Q",
+    "M",
+    "L",
+    "w",
+    "I",
+    "d",
+    "D",
+    "i",
+    "e",
+    "c",
+    "t",
+    "T"
+  ];
 }
 class MonthParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "incompatibleTokens", [
-      "Y",
-      "R",
-      "q",
-      "Q",
-      "L",
-      "w",
-      "I",
-      "D",
-      "i",
-      "e",
-      "c",
-      "t",
-      "T"
-    ]);
-    __publicField(this, "priority", 110);
-  }
+  incompatibleTokens = [
+    "Y",
+    "R",
+    "q",
+    "Q",
+    "L",
+    "w",
+    "I",
+    "D",
+    "i",
+    "e",
+    "c",
+    "t",
+    "T"
+  ];
+  priority = 110;
   parse(dateString, token, match2) {
     const valueCallback = (value) => value - 1;
     switch (token) {
@@ -19583,25 +19544,7 @@ class MonthParser extends Parser {
   }
 }
 class StandAloneMonthParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 110);
-    __publicField(this, "incompatibleTokens", [
-      "Y",
-      "R",
-      "q",
-      "Q",
-      "M",
-      "w",
-      "I",
-      "D",
-      "i",
-      "e",
-      "c",
-      "t",
-      "T"
-    ]);
-  }
+  priority = 110;
   parse(dateString, token, match2) {
     const valueCallback = (value) => value - 1;
     switch (token) {
@@ -19651,33 +19594,30 @@ class StandAloneMonthParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
+  incompatibleTokens = [
+    "Y",
+    "R",
+    "q",
+    "Q",
+    "M",
+    "w",
+    "I",
+    "D",
+    "i",
+    "e",
+    "c",
+    "t",
+    "T"
+  ];
 }
 function setWeek(date, week, options) {
-  const date_ = toDate(date, options == null ? void 0 : options.in);
+  const date_ = toDate(date, options?.in);
   const diff = getWeek(date_, options) - week;
   date_.setDate(date_.getDate() - diff * 7);
-  return toDate(date_, options == null ? void 0 : options.in);
+  return toDate(date_, options?.in);
 }
 class LocalWeekParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 100);
-    __publicField(this, "incompatibleTokens", [
-      "y",
-      "R",
-      "u",
-      "q",
-      "Q",
-      "M",
-      "L",
-      "I",
-      "d",
-      "D",
-      "i",
-      "t",
-      "T"
-    ]);
-  }
+  priority = 100;
   parse(dateString, token, match2) {
     switch (token) {
       case "w":
@@ -19694,34 +19634,30 @@ class LocalWeekParser extends Parser {
   set(date, _flags, value, options) {
     return startOfWeek(setWeek(date, value, options), options);
   }
+  incompatibleTokens = [
+    "y",
+    "R",
+    "u",
+    "q",
+    "Q",
+    "M",
+    "L",
+    "I",
+    "d",
+    "D",
+    "i",
+    "t",
+    "T"
+  ];
 }
 function setISOWeek(date, week, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   const diff = getISOWeek(_date, options) - week;
   _date.setDate(_date.getDate() - diff * 7);
   return _date;
 }
 class ISOWeekParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 100);
-    __publicField(this, "incompatibleTokens", [
-      "y",
-      "Y",
-      "u",
-      "q",
-      "Q",
-      "M",
-      "L",
-      "w",
-      "d",
-      "D",
-      "e",
-      "c",
-      "t",
-      "T"
-    ]);
-  }
+  priority = 100;
   parse(dateString, token, match2) {
     switch (token) {
       case "I":
@@ -19738,6 +19674,22 @@ class ISOWeekParser extends Parser {
   set(date, _flags, value) {
     return startOfISOWeek(setISOWeek(date, value));
   }
+  incompatibleTokens = [
+    "y",
+    "Y",
+    "u",
+    "q",
+    "Q",
+    "M",
+    "L",
+    "w",
+    "d",
+    "D",
+    "e",
+    "c",
+    "t",
+    "T"
+  ];
 }
 const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 const DAYS_IN_MONTH_LEAP_YEAR = [
@@ -19755,25 +19707,8 @@ const DAYS_IN_MONTH_LEAP_YEAR = [
   31
 ];
 class DateParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 90);
-    __publicField(this, "subPriority", 1);
-    __publicField(this, "incompatibleTokens", [
-      "Y",
-      "R",
-      "q",
-      "Q",
-      "w",
-      "I",
-      "D",
-      "i",
-      "e",
-      "c",
-      "t",
-      "T"
-    ]);
-  }
+  priority = 90;
+  subPriority = 1;
   parse(dateString, token, match2) {
     switch (token) {
       case "d":
@@ -19799,30 +19734,24 @@ class DateParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
+  incompatibleTokens = [
+    "Y",
+    "R",
+    "q",
+    "Q",
+    "w",
+    "I",
+    "D",
+    "i",
+    "e",
+    "c",
+    "t",
+    "T"
+  ];
 }
 class DayOfYearParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 90);
-    __publicField(this, "subpriority", 1);
-    __publicField(this, "incompatibleTokens", [
-      "Y",
-      "R",
-      "q",
-      "Q",
-      "M",
-      "L",
-      "w",
-      "I",
-      "d",
-      "E",
-      "i",
-      "e",
-      "c",
-      "t",
-      "T"
-    ]);
-  }
+  priority = 90;
+  subpriority = 1;
   parse(dateString, token, match2) {
     switch (token) {
       case "D":
@@ -19848,12 +19777,28 @@ class DayOfYearParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
+  incompatibleTokens = [
+    "Y",
+    "R",
+    "q",
+    "Q",
+    "M",
+    "L",
+    "w",
+    "I",
+    "d",
+    "E",
+    "i",
+    "e",
+    "c",
+    "t",
+    "T"
+  ];
 }
 function setDay(date, day, options) {
-  var _a, _b, _c, _d;
   const defaultOptions2 = getDefaultOptions$1();
-  const weekStartsOn = (options == null ? void 0 : options.weekStartsOn) ?? ((_b = (_a = options == null ? void 0 : options.locale) == null ? void 0 : _a.options) == null ? void 0 : _b.weekStartsOn) ?? defaultOptions2.weekStartsOn ?? ((_d = (_c = defaultOptions2.locale) == null ? void 0 : _c.options) == null ? void 0 : _d.weekStartsOn) ?? 0;
-  const date_ = toDate(date, options == null ? void 0 : options.in);
+  const weekStartsOn = options?.weekStartsOn ?? options?.locale?.options?.weekStartsOn ?? defaultOptions2.weekStartsOn ?? defaultOptions2.locale?.options?.weekStartsOn ?? 0;
+  const date_ = toDate(date, options?.in);
   const currentDay = date_.getDay();
   const remainder = day % 7;
   const dayIndex = (remainder + 7) % 7;
@@ -19862,11 +19807,7 @@ function setDay(date, day, options) {
   return addDays(date_, diff, options);
 }
 class DayParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 90);
-    __publicField(this, "incompatibleTokens", ["D", "i", "e", "c", "t", "T"]);
-  }
+  priority = 90;
   parse(dateString, token, match2) {
     switch (token) {
       // Tue
@@ -19903,29 +19844,10 @@ class DayParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
+  incompatibleTokens = ["D", "i", "e", "c", "t", "T"];
 }
 class LocalDayParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 90);
-    __publicField(this, "incompatibleTokens", [
-      "y",
-      "R",
-      "u",
-      "q",
-      "Q",
-      "M",
-      "L",
-      "I",
-      "d",
-      "D",
-      "E",
-      "i",
-      "c",
-      "t",
-      "T"
-    ]);
-  }
+  priority = 90;
   parse(dateString, token, match2, options) {
     const valueCallback = (value) => {
       const wholeWeekDays = Math.floor((value - 1) / 7) * 7;
@@ -19976,29 +19898,26 @@ class LocalDayParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
+  incompatibleTokens = [
+    "y",
+    "R",
+    "u",
+    "q",
+    "Q",
+    "M",
+    "L",
+    "I",
+    "d",
+    "D",
+    "E",
+    "i",
+    "c",
+    "t",
+    "T"
+  ];
 }
 class StandAloneLocalDayParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 90);
-    __publicField(this, "incompatibleTokens", [
-      "y",
-      "R",
-      "u",
-      "q",
-      "Q",
-      "M",
-      "L",
-      "I",
-      "d",
-      "D",
-      "E",
-      "i",
-      "e",
-      "t",
-      "T"
-    ]);
-  }
+  priority = 90;
   parse(dateString, token, match2, options) {
     const valueCallback = (value) => {
       const wholeWeekDays = Math.floor((value - 1) / 7) * 7;
@@ -20049,35 +19968,32 @@ class StandAloneLocalDayParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
+  incompatibleTokens = [
+    "y",
+    "R",
+    "u",
+    "q",
+    "Q",
+    "M",
+    "L",
+    "I",
+    "d",
+    "D",
+    "E",
+    "i",
+    "e",
+    "t",
+    "T"
+  ];
 }
 function setISODay(date, day, options) {
-  const date_ = toDate(date, options == null ? void 0 : options.in);
+  const date_ = toDate(date, options?.in);
   const currentDay = getISODay(date_, options);
   const diff = day - currentDay;
   return addDays(date_, diff, options);
 }
 class ISODayParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 90);
-    __publicField(this, "incompatibleTokens", [
-      "y",
-      "Y",
-      "u",
-      "q",
-      "Q",
-      "M",
-      "L",
-      "w",
-      "d",
-      "D",
-      "E",
-      "e",
-      "c",
-      "t",
-      "T"
-    ]);
-  }
+  priority = 90;
   parse(dateString, token, match2) {
     const valueCallback = (value) => {
       if (value === 0) {
@@ -20158,13 +20074,26 @@ class ISODayParser extends Parser {
     date.setHours(0, 0, 0, 0);
     return date;
   }
+  incompatibleTokens = [
+    "y",
+    "Y",
+    "u",
+    "q",
+    "Q",
+    "M",
+    "L",
+    "w",
+    "d",
+    "D",
+    "E",
+    "e",
+    "c",
+    "t",
+    "T"
+  ];
 }
 class AMPMParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 80);
-    __publicField(this, "incompatibleTokens", ["b", "B", "H", "k", "t", "T"]);
-  }
+  priority = 80;
   parse(dateString, token, match2) {
     switch (token) {
       case "a":
@@ -20200,13 +20129,10 @@ class AMPMParser extends Parser {
     date.setHours(dayPeriodEnumToHours(value), 0, 0, 0);
     return date;
   }
+  incompatibleTokens = ["b", "B", "H", "k", "t", "T"];
 }
 class AMPMMidnightParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 80);
-    __publicField(this, "incompatibleTokens", ["a", "B", "H", "k", "t", "T"]);
-  }
+  priority = 80;
   parse(dateString, token, match2) {
     switch (token) {
       case "b":
@@ -20242,13 +20168,10 @@ class AMPMMidnightParser extends Parser {
     date.setHours(dayPeriodEnumToHours(value), 0, 0, 0);
     return date;
   }
+  incompatibleTokens = ["a", "B", "H", "k", "t", "T"];
 }
 class DayPeriodParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 80);
-    __publicField(this, "incompatibleTokens", ["a", "b", "t", "T"]);
-  }
+  priority = 80;
   parse(dateString, token, match2) {
     switch (token) {
       case "B":
@@ -20284,13 +20207,10 @@ class DayPeriodParser extends Parser {
     date.setHours(dayPeriodEnumToHours(value), 0, 0, 0);
     return date;
   }
+  incompatibleTokens = ["a", "b", "t", "T"];
 }
 class Hour1to12Parser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 70);
-    __publicField(this, "incompatibleTokens", ["H", "K", "k", "t", "T"]);
-  }
+  priority = 70;
   parse(dateString, token, match2) {
     switch (token) {
       case "h":
@@ -20315,13 +20235,10 @@ class Hour1to12Parser extends Parser {
     }
     return date;
   }
+  incompatibleTokens = ["H", "K", "k", "t", "T"];
 }
 class Hour0to23Parser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 70);
-    __publicField(this, "incompatibleTokens", ["a", "b", "h", "K", "k", "t", "T"]);
-  }
+  priority = 70;
   parse(dateString, token, match2) {
     switch (token) {
       case "H":
@@ -20339,13 +20256,10 @@ class Hour0to23Parser extends Parser {
     date.setHours(value, 0, 0, 0);
     return date;
   }
+  incompatibleTokens = ["a", "b", "h", "K", "k", "t", "T"];
 }
 class Hour0To11Parser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 70);
-    __publicField(this, "incompatibleTokens", ["h", "H", "k", "t", "T"]);
-  }
+  priority = 70;
   parse(dateString, token, match2) {
     switch (token) {
       case "K":
@@ -20368,13 +20282,10 @@ class Hour0To11Parser extends Parser {
     }
     return date;
   }
+  incompatibleTokens = ["h", "H", "k", "t", "T"];
 }
 class Hour1To24Parser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 70);
-    __publicField(this, "incompatibleTokens", ["a", "b", "h", "H", "K", "t", "T"]);
-  }
+  priority = 70;
   parse(dateString, token, match2) {
     switch (token) {
       case "k":
@@ -20393,13 +20304,10 @@ class Hour1To24Parser extends Parser {
     date.setHours(hours, 0, 0, 0);
     return date;
   }
+  incompatibleTokens = ["a", "b", "h", "H", "K", "t", "T"];
 }
 class MinuteParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 60);
-    __publicField(this, "incompatibleTokens", ["t", "T"]);
-  }
+  priority = 60;
   parse(dateString, token, match2) {
     switch (token) {
       case "m":
@@ -20417,13 +20325,10 @@ class MinuteParser extends Parser {
     date.setMinutes(value, 0, 0);
     return date;
   }
+  incompatibleTokens = ["t", "T"];
 }
 class SecondParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 50);
-    __publicField(this, "incompatibleTokens", ["t", "T"]);
-  }
+  priority = 50;
   parse(dateString, token, match2) {
     switch (token) {
       case "s":
@@ -20441,13 +20346,10 @@ class SecondParser extends Parser {
     date.setSeconds(value, 0);
     return date;
   }
+  incompatibleTokens = ["t", "T"];
 }
 class FractionOfSecondParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 30);
-    __publicField(this, "incompatibleTokens", ["t", "T"]);
-  }
+  priority = 30;
   parse(dateString, token) {
     const valueCallback = (value) => Math.trunc(value * Math.pow(10, -token.length + 3));
     return mapValue(parseNDigits(token.length, dateString), valueCallback);
@@ -20456,13 +20358,10 @@ class FractionOfSecondParser extends Parser {
     date.setMilliseconds(value);
     return date;
   }
+  incompatibleTokens = ["t", "T"];
 }
 class ISOTimezoneWithZParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 10);
-    __publicField(this, "incompatibleTokens", ["t", "T", "x"]);
-  }
+  priority = 10;
   parse(dateString, token) {
     switch (token) {
       case "X":
@@ -20494,13 +20393,10 @@ class ISOTimezoneWithZParser extends Parser {
       date.getTime() - getTimezoneOffsetInMilliseconds(date) - value
     );
   }
+  incompatibleTokens = ["t", "T", "x"];
 }
 class ISOTimezoneParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 10);
-    __publicField(this, "incompatibleTokens", ["t", "T", "X"]);
-  }
+  priority = 10;
   parse(dateString, token) {
     switch (token) {
       case "x":
@@ -20532,32 +20428,27 @@ class ISOTimezoneParser extends Parser {
       date.getTime() - getTimezoneOffsetInMilliseconds(date) - value
     );
   }
+  incompatibleTokens = ["t", "T", "X"];
 }
 class TimestampSecondsParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 40);
-    __publicField(this, "incompatibleTokens", "*");
-  }
+  priority = 40;
   parse(dateString) {
     return parseAnyDigitsSigned(dateString);
   }
   set(date, _flags, value) {
     return [constructFrom(date, value * 1e3), { timestampIsSet: true }];
   }
+  incompatibleTokens = "*";
 }
 class TimestampMillisecondsParser extends Parser {
-  constructor() {
-    super(...arguments);
-    __publicField(this, "priority", 20);
-    __publicField(this, "incompatibleTokens", "*");
-  }
+  priority = 20;
   parse(dateString) {
     return parseAnyDigitsSigned(dateString);
   }
   set(date, _flags, value) {
     return [constructFrom(date, value), { timestampIsSet: true }];
   }
+  incompatibleTokens = "*";
 }
 const parsers = {
   G: new EraParser(),
@@ -20599,20 +20490,19 @@ const doubleQuoteRegExp = /''/g;
 const notWhitespaceRegExp = /\S/;
 const unescapedLatinCharacterRegExp = /[a-zA-Z]/;
 function parse(dateStr, formatStr, referenceDate, options) {
-  var _a, _b, _c, _d, _e, _f, _g, _h;
-  const invalidDate = () => constructFrom((options == null ? void 0 : options.in) || referenceDate, NaN);
+  const invalidDate = () => constructFrom(options?.in || referenceDate, NaN);
   const defaultOptions2 = getDefaultOptions();
-  const locale = (options == null ? void 0 : options.locale) ?? defaultOptions2.locale ?? enUS;
-  const firstWeekContainsDate = (options == null ? void 0 : options.firstWeekContainsDate) ?? ((_b = (_a = options == null ? void 0 : options.locale) == null ? void 0 : _a.options) == null ? void 0 : _b.firstWeekContainsDate) ?? defaultOptions2.firstWeekContainsDate ?? ((_d = (_c = defaultOptions2.locale) == null ? void 0 : _c.options) == null ? void 0 : _d.firstWeekContainsDate) ?? 1;
-  const weekStartsOn = (options == null ? void 0 : options.weekStartsOn) ?? ((_f = (_e = options == null ? void 0 : options.locale) == null ? void 0 : _e.options) == null ? void 0 : _f.weekStartsOn) ?? defaultOptions2.weekStartsOn ?? ((_h = (_g = defaultOptions2.locale) == null ? void 0 : _g.options) == null ? void 0 : _h.weekStartsOn) ?? 0;
+  const locale = options?.locale ?? defaultOptions2.locale ?? enUS;
+  const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions2.firstWeekContainsDate ?? defaultOptions2.locale?.options?.firstWeekContainsDate ?? 1;
+  const weekStartsOn = options?.weekStartsOn ?? options?.locale?.options?.weekStartsOn ?? defaultOptions2.weekStartsOn ?? defaultOptions2.locale?.options?.weekStartsOn ?? 0;
   if (!formatStr)
-    return dateStr ? invalidDate() : toDate(referenceDate, options == null ? void 0 : options.in);
+    return dateStr ? invalidDate() : toDate(referenceDate, options?.in);
   const subFnOptions = {
     firstWeekContainsDate,
     weekStartsOn,
     locale
   };
-  const setters = [new DateTimezoneSetter(options == null ? void 0 : options.in, referenceDate)];
+  const setters = [new DateTimezoneSetter(options?.in, referenceDate)];
   const tokens = formatStr.match(longFormattingTokensRegExp).map((substring) => {
     const firstCharacter = substring[0];
     if (firstCharacter in longFormatters) {
@@ -20623,10 +20513,10 @@ function parse(dateStr, formatStr, referenceDate, options) {
   }).join("").match(formattingTokensRegExp);
   const usedTokens = [];
   for (let token of tokens) {
-    if (!(options == null ? void 0 : options.useAdditionalWeekYearTokens) && isProtectedWeekYearToken(token)) {
+    if (!options?.useAdditionalWeekYearTokens && isProtectedWeekYearToken(token)) {
       warnOrThrowProtectedError(token, formatStr, dateStr);
     }
-    if (!(options == null ? void 0 : options.useAdditionalDayOfYearTokens) && isProtectedDayOfYearToken(token)) {
+    if (!options?.useAdditionalDayOfYearTokens && isProtectedDayOfYearToken(token)) {
       warnOrThrowProtectedError(token, formatStr, dateStr);
     }
     const firstCharacter = token[0];
@@ -20683,7 +20573,7 @@ function parse(dateStr, formatStr, referenceDate, options) {
   const uniquePrioritySetters = setters.map((setter) => setter.priority).sort((a, b) => b - a).filter((priority, index2, array) => array.indexOf(priority) === index2).map(
     (priority) => setters.filter((setter) => setter.priority === priority).sort((a, b) => b.subPriority - a.subPriority)
   ).map((setterArray) => setterArray[0]);
-  let date = toDate(referenceDate, options == null ? void 0 : options.in);
+  let date = toDate(referenceDate, options?.in);
   if (isNaN(+date)) return invalidDate();
   const flags = {};
   for (const setter of uniquePrioritySetters) {
@@ -20704,23 +20594,23 @@ function cleanEscapedString(input) {
   return input.match(escapedStringRegExp)[1].replace(doubleQuoteRegExp, "'");
 }
 function startOfHour(date, options) {
-  const _date = toDate(date, options == null ? void 0 : options.in);
+  const _date = toDate(date, options?.in);
   _date.setMinutes(0, 0, 0);
   return _date;
 }
 function startOfMinute(date, options) {
-  const date_ = toDate(date, options == null ? void 0 : options.in);
+  const date_ = toDate(date, options?.in);
   date_.setSeconds(0, 0);
   return date_;
 }
 function startOfSecond(date, options) {
-  const date_ = toDate(date, options == null ? void 0 : options.in);
+  const date_ = toDate(date, options?.in);
   date_.setMilliseconds(0);
   return date_;
 }
 function parseISO(argument, options) {
-  const invalidDate = () => constructFrom(options == null ? void 0 : options.in, NaN);
-  const additionalDigits = (options == null ? void 0 : options.additionalDigits) ?? 2;
+  const invalidDate = () => constructFrom(options?.in, NaN);
+  const additionalDigits = options?.additionalDigits ?? 2;
   const dateStrings = splitDateString(argument);
   let date;
   if (dateStrings.date) {
@@ -20740,7 +20630,7 @@ function parseISO(argument, options) {
     if (isNaN(offset)) return invalidDate();
   } else {
     const tmpDate = new Date(timestamp + time);
-    const result = toDate(0, options == null ? void 0 : options.in);
+    const result = toDate(0, options?.in);
     result.setFullYear(
       tmpDate.getUTCFullYear(),
       tmpDate.getUTCMonth(),
@@ -20754,7 +20644,7 @@ function parseISO(argument, options) {
     );
     return result;
   }
-  return toDate(timestamp + time + offset, options == null ? void 0 : options.in);
+  return toDate(timestamp + time + offset, options?.in);
 }
 const patterns = {
   dateTimeDelimiter: /[T ]/,
@@ -21681,18 +21571,20 @@ var root_26 = from_html(`<div class="address-item svelte-ex19u4"><div class="add
 var root_29 = from_html(`<span class="module-name svelte-ex19u4"> </span>`);
 var root_28 = from_html(`<div class="modules-row svelte-ex19u4"><span class="modules-label svelte-ex19u4">Modules:</span> <div class="modules-list svelte-ex19u4"></div></div>`);
 var root_27 = from_html(`<div class="package-item svelte-ex19u4"><div class="package-left svelte-ex19u4"><div class="package-header svelte-ex19u4"><div class="package-info svelte-ex19u4"><div class="package-id-row svelte-ex19u4"><span class="package-label svelte-ex19u4">Package:</span> <span class="package-id"> </span> <button class="copy-btn" style="padding: 4px 8px; align-self: center;" title="Copy package ID">📋</button></div> <!> <div class="sender-row svelte-ex19u4"><span class="sender-label svelte-ex19u4">Sender:</span> <span class="sender-address"> </span> <button class="copy-btn" style="padding: 4px 8px; align-self: center;" title="Copy sender address">📋</button></div></div></div></div> <div class="package-meta svelte-ex19u4"><div class="version-info"><span class="version-label"> </span></div> <button class="copy-btn tx-btn">TX</button></div></div>`);
-var root_31 = from_html(`<button class="clear-checkpoint-btn" title="Clear checkpoint selection">✕</button>`);
-var root_32 = from_html(`<div class="checkpoint-loading svelte-ex19u4"><p> </p></div>`);
-var root_36 = from_html(`<span class="transaction-digest svelte-ex19u4"> </span>`);
-var root_38 = from_html(`<span class="transaction-digest svelte-ex19u4"> </span>`);
-var root_39 = from_html(`<span> </span>`);
-var root_35 = from_html(`<details class="transaction-details svelte-ex19u4"><summary class="transaction-summary svelte-ex19u4"><span class="transaction-number svelte-ex19u4"></span> <!> <!></summary> <div class="transaction-content svelte-ex19u4"><!></div></details>`);
-var root_34 = from_html(`<div class="checkpoint-transactions"><div class="transaction-list svelte-ex19u4"></div></div>`);
-var root_41 = from_html(`<div class="no-transactions svelte-ex19u4"><p> </p></div>`);
-var root_42 = from_html(`<div class="checkpoint-placeholder svelte-ex19u4"><p>Click on a data point in the chart above or enter a checkpoint
+var root_32 = from_html(`<div class="transaction-id-item svelte-ex19u4"><span class="tx-id svelte-ex19u4"> </span> <button class="copy-btn" style="padding: 4px 8px; align-self: center;" title="Copy transaction ID">📋</button></div>`);
+var root_31 = from_html(`<div class="function-item svelte-ex19u4"><div class="function-header svelte-ex19u4"><div class="function-signature svelte-ex19u4"><div class="address-left svelte-ex19u4"><div class="address-info svelte-ex19u4"><span> </span></div> <button class="copy-btn" style="padding: 4px 8px; align-self: center;" title="Copy command type">📋</button></div> <div class="function-actions svelte-ex19u4"><details class="svelte-ex19u4"><summary class="svelte-ex19u4">Txs</summary></details></div> <div class="address-stats svelte-ex19u4"><div class="call-count svelte-ex19u4"><span class="count-label">Count:</span> <span class="count-value"> </span></div></div></div></div> <div class="transaction-ids-section svelte-ex19u4"><div class="transaction-ids-list svelte-ex19u4"></div></div></div>`);
+var root_34 = from_html(`<button class="clear-checkpoint-btn" title="Clear checkpoint selection">✕</button>`);
+var root_35 = from_html(`<div class="checkpoint-loading svelte-ex19u4"><p> </p></div>`);
+var root_39 = from_html(`<span class="transaction-digest svelte-ex19u4"> </span>`);
+var root_41 = from_html(`<span class="transaction-digest svelte-ex19u4"> </span>`);
+var root_42 = from_html(`<span> </span>`);
+var root_38 = from_html(`<details class="transaction-details svelte-ex19u4"><summary class="transaction-summary svelte-ex19u4"><span class="transaction-number svelte-ex19u4"></span> <!> <!></summary> <div class="transaction-content svelte-ex19u4"><!></div></details>`);
+var root_37 = from_html(`<div class="checkpoint-transactions"><div class="transaction-list svelte-ex19u4"></div></div>`);
+var root_44 = from_html(`<div class="no-transactions svelte-ex19u4"><p> </p></div>`);
+var root_45 = from_html(`<div class="checkpoint-placeholder svelte-ex19u4"><p>Click on a data point in the chart above or enter a checkpoint
                                 number to inspect its transactions</p></div>`);
-var root_30 = from_html(`<!> <div class="checkpoint-inspector svelte-ex19u4"><h4 class="svelte-ex19u4">Checkpoint Inspector</h4> <div class="checkpoint-input-section svelte-ex19u4"><label for="checkpoint-input" class="svelte-ex19u4">Checkpoint Number:</label> <input id="checkpoint-input" type="number" placeholder="Enter checkpoint number or click on chart" min="0" class="svelte-ex19u4"/> <!> <h5> </h5></div> <!></div>`, 1);
-var root_19 = from_html(`<div class="results"><!> <!> <div class="summary-cards svelte-ex19u4"><div class="summary-card svelte-ex19u4"><h4 class="svelte-ex19u4">Total PTBs</h4> <div class="metric svelte-ex19u4"> </div> </div> <div class="summary-card svelte-ex19u4"><h4 class="svelte-ex19u4">Unique Senders</h4> <div class="metric svelte-ex19u4"> </div></div> <div class="summary-card svelte-ex19u4"><h4 class="svelte-ex19u4">Called Functions</h4> <div class="metric svelte-ex19u4"> </div></div> <div class="summary-card svelte-ex19u4"><h4 class="svelte-ex19u4">Published Packages</h4> <div class="metric svelte-ex19u4"> </div></div></div> <div class="details-section svelte-ex19u4"><details class="svelte-ex19u4"><summary class="svelte-ex19u4"> </summary> <div class="function-list svelte-ex19u4"></div></details> <details class="svelte-ex19u4"><summary class="svelte-ex19u4"> </summary> <div class="address-list svelte-ex19u4"></div></details> <details class="svelte-ex19u4"><summary class="svelte-ex19u4"> </summary> <div class="address-list svelte-ex19u4"></div></details> <details class="svelte-ex19u4"><summary class="svelte-ex19u4"> </summary> <div class="package-list svelte-ex19u4"></div></details></div> <!></div>`);
+var root_33 = from_html(`<!> <div class="checkpoint-inspector svelte-ex19u4"><h4 class="svelte-ex19u4">Checkpoint Inspector</h4> <div class="checkpoint-input-section svelte-ex19u4"><label for="checkpoint-input" class="svelte-ex19u4">Checkpoint Number:</label> <input id="checkpoint-input" type="number" placeholder="Enter checkpoint number or click on chart" min="0" class="svelte-ex19u4"/> <!> <h5> </h5></div> <!></div>`, 1);
+var root_19 = from_html(`<div class="results"><!> <!> <div class="summary-cards svelte-ex19u4"><div class="summary-card svelte-ex19u4"><h4 class="svelte-ex19u4">Total PTBs</h4> <div class="metric svelte-ex19u4"> </div> </div> <div class="summary-card svelte-ex19u4"><h4 class="svelte-ex19u4">Unique Senders</h4> <div class="metric svelte-ex19u4"> </div></div> <div class="summary-card svelte-ex19u4"><h4 class="svelte-ex19u4">Called Functions</h4> <div class="metric svelte-ex19u4"> </div></div> <div class="summary-card svelte-ex19u4"><h4 class="svelte-ex19u4">Published Packages</h4> <div class="metric svelte-ex19u4"> </div></div></div> <div class="details-section svelte-ex19u4"><details class="svelte-ex19u4"><summary class="svelte-ex19u4"> </summary> <div class="function-list svelte-ex19u4"></div></details> <details class="svelte-ex19u4"><summary class="svelte-ex19u4"> </summary> <div class="address-list svelte-ex19u4"></div></details> <details class="svelte-ex19u4"><summary class="svelte-ex19u4"> </summary> <div class="address-list svelte-ex19u4"></div></details> <details class="svelte-ex19u4"><summary class="svelte-ex19u4"> </summary> <div class="package-list svelte-ex19u4"></div></details> <details class="svelte-ex19u4"><summary class="svelte-ex19u4"> </summary> <div class="command-type-list"><!></div></details></div> <!></div>`);
 var root = from_html(`<div class="epoch-transaction-blocks svelte-ex19u4"><p style="margin-top:0;">Query programmable transaction blocks data for a specific epoch or checkpoint range</p> <div class="input-section svelte-ex19u4"><div class="filter-section svelte-ex19u4"><div class="filter-row svelte-ex19u4"><div class="filter-group svelte-ex19u4"><label for="input-object-filter" class="svelte-ex19u4">Input Object:</label> <div class="input-with-button svelte-ex19u4"><input id="input-object-filter" type="text" placeholder="0x... object ID" style="width: 30rem; font-size: 12px;" class="svelte-ex19u4"/> <button class="example-btn svelte-ex19u4" title="Insert example object ID">Example</button></div></div> <div class="filter-group svelte-ex19u4"><label for="function-filter" class="svelte-ex19u4">Function:</label> <div class="input-with-button svelte-ex19u4"><input id="function-filter" type="text" placeholder="package::module::function" style="width: 30rem; font-size: 12px;" class="svelte-ex19u4"/> <button class="example-btn svelte-ex19u4" title="Insert example function">Example</button></div></div></div></div> <div class="input-row-single svelte-ex19u4"><div class="mode-selection-column svelte-ex19u4"><label class="mode-option-stacked svelte-ex19u4"><span class="mode-label-stacked svelte-ex19u4">Epoch Number</span> <input type="radio" class="svelte-ex19u4"/></label> <label class="mode-option-stacked svelte-ex19u4"><span class="mode-label-stacked svelte-ex19u4">Checkpoint Range</span> <input type="radio" class="svelte-ex19u4"/></label></div> <div class="input-controls svelte-ex19u4"><!></div></div> <div class="button-row svelte-ex19u4"><button> </button> <div class="input-group svelte-ex19u4"><label for="transaction-limit">Limit to:</label> <input id="transaction-limit" type="number" placeholder="Max transactions" min="1" style="width: 6rem;"/></div> <button> </button></div></div> <!> <!> <!></div>`);
 function PTBs($$anchor, $$props) {
   push($$props, false);
@@ -21974,8 +21866,8 @@ function PTBs($$anchor, $$props) {
   }
   function toggleTransactionIds(event2) {
     const detailsElement = event2.target;
-    const functionItem = detailsElement.closest(".function-item");
-    const transactionSection = functionItem == null ? void 0 : functionItem.querySelector(".transaction-ids-section");
+    const functionItem = detailsElement.parentElement.parentElement.parentElement.parentElement;
+    const transactionSection = functionItem?.querySelector(".transaction-ids-section");
     if (transactionSection) {
       if (detailsElement.open) {
         transactionSection.classList.add("show");
@@ -22258,7 +22150,7 @@ function PTBs($$anchor, $$props) {
   }
   var node_12 = sibling(node_6, 2);
   {
-    var consequent_23 = ($$anchor2) => {
+    var consequent_24 = ($$anchor2) => {
       var div_21 = root_19();
       var node_13 = child(div_21);
       {
@@ -22512,107 +22404,175 @@ function PTBs($$anchor, $$props) {
           append($$anchor3, div_60);
         }
       );
-      var node_16 = sibling(div_32, 2);
+      var details_5 = sibling(details_4, 2);
+      var summary_4 = child(details_5);
+      var text_45 = child(summary_4);
+      var div_70 = sibling(summary_4, 2);
+      var node_16 = child(div_70);
       {
-        var consequent_22 = ($$anchor3) => {
-          var fragment_4 = root_30();
+        var consequent_15 = ($$anchor3) => {
+          var fragment_4 = comment();
           var node_17 = first_child(fragment_4);
-          TransactionChart(node_17, {
+          each$1(
+            node_17,
+            1,
+            () => (get(displayData), untrack(() => get(displayData).commandTypeStats)),
+            index$1,
+            ($$anchor4, cmd) => {
+              var div_71 = root_31();
+              var div_72 = child(div_71);
+              var div_73 = child(div_72);
+              var div_74 = child(div_73);
+              var div_75 = child(div_74);
+              var span_18 = child(div_75);
+              var text_46 = child(span_18);
+              var button_14 = sibling(div_75, 2);
+              var div_76 = sibling(div_74, 2);
+              var details_6 = child(div_76);
+              var div_77 = sibling(div_76, 2);
+              var div_78 = child(div_77);
+              var span_19 = sibling(child(div_78), 2);
+              var text_47 = child(span_19);
+              var div_79 = sibling(div_72, 2);
+              var div_80 = child(div_79);
+              each$1(div_80, 5, () => (get(cmd), untrack(() => get(cmd).digests)), index$1, ($$anchor5, txId) => {
+                var div_81 = root_32();
+                var span_20 = child(div_81);
+                var text_48 = child(span_20);
+                var button_15 = sibling(span_20, 2);
+                template_effect(
+                  ($0) => {
+                    set_attribute(span_20, "title", get(txId));
+                    set_text(text_48, $0);
+                  },
+                  [
+                    () => (get(txId), untrack(() => formatAddress(get(txId))))
+                  ]
+                );
+                event("click", button_15, () => copyToClipboard(get(txId)));
+                append($$anchor5, div_81);
+              });
+              template_effect(
+                ($0) => {
+                  set_text(text_46, (get(cmd), untrack(() => get(cmd).type)));
+                  set_text(text_47, $0);
+                },
+                [
+                  () => (get(cmd), untrack(() => get(cmd).count.toLocaleString()))
+                ]
+              );
+              event("click", button_14, () => copyToClipboard(get(cmd).type));
+              event("toggle", details_6, toggleTransactionIds);
+              append($$anchor4, div_71);
+            }
+          );
+          append($$anchor3, fragment_4);
+        };
+        if_block(node_16, ($$render) => {
+          if (get(displayData), untrack(() => get(displayData).commandTypeStats)) $$render(consequent_15);
+        });
+      }
+      var node_18 = sibling(div_32, 2);
+      {
+        var consequent_23 = ($$anchor3) => {
+          var fragment_5 = root_33();
+          var node_19 = first_child(fragment_5);
+          TransactionChart(node_19, {
             get checkpointData() {
               return get(displayData), untrack(() => get(displayData).checkpointData);
             },
             title: "Transactions per Checkpoint Over Time",
             onCheckpointSelected: handleCheckpointSelection
           });
-          var div_70 = sibling(node_17, 2);
-          var div_71 = sibling(child(div_70), 2);
-          var input_8 = sibling(child(div_71), 2);
-          var node_18 = sibling(input_8, 2);
+          var div_82 = sibling(node_19, 2);
+          var div_83 = sibling(child(div_82), 2);
+          var input_8 = sibling(child(div_83), 2);
+          var node_20 = sibling(input_8, 2);
           {
-            var consequent_15 = ($$anchor4) => {
-              var button_14 = root_31();
-              event("click", button_14, () => {
+            var consequent_16 = ($$anchor4) => {
+              var button_16 = root_34();
+              event("click", button_16, () => {
                 set$1(selectedCheckpoint, "");
                 set$1(checkpointTransactions, []);
               });
-              append($$anchor4, button_14);
+              append($$anchor4, button_16);
             };
-            if_block(node_18, ($$render) => {
-              if (get(selectedCheckpoint)) $$render(consequent_15);
+            if_block(node_20, ($$render) => {
+              if (get(selectedCheckpoint)) $$render(consequent_16);
             });
           }
-          var h5 = sibling(node_18, 2);
-          var text_45 = child(h5);
-          var node_19 = sibling(div_71, 2);
+          var h5 = sibling(node_20, 2);
+          var text_49 = child(h5);
+          var node_21 = sibling(div_83, 2);
           {
-            var consequent_16 = ($$anchor4) => {
-              var div_72 = root_32();
-              var p_7 = child(div_72);
-              var text_46 = child(p_7);
-              template_effect(() => set_text(text_46, `Loading transactions for checkpoint ${get(selectedCheckpoint) ?? ""}...`));
-              append($$anchor4, div_72);
+            var consequent_17 = ($$anchor4) => {
+              var div_84 = root_35();
+              var p_7 = child(div_84);
+              var text_50 = child(p_7);
+              template_effect(() => set_text(text_50, `Loading transactions for checkpoint ${get(selectedCheckpoint) ?? ""}...`));
+              append($$anchor4, div_84);
             };
             var alternate_10 = ($$anchor4) => {
-              var fragment_5 = comment();
-              var node_20 = first_child(fragment_5);
+              var fragment_6 = comment();
+              var node_22 = first_child(fragment_6);
               {
-                var consequent_20 = ($$anchor5) => {
-                  var div_73 = root_34();
-                  var div_74 = child(div_73);
-                  each$1(div_74, 5, () => get(checkpointTransactions), index$1, ($$anchor6, tx, index2) => {
-                    var details_5 = root_35();
-                    var summary_4 = child(details_5);
-                    var span_18 = child(summary_4);
-                    span_18.textContent = `Transaction ${index2 + 1}`;
-                    var node_21 = sibling(span_18, 2);
+                var consequent_21 = ($$anchor5) => {
+                  var div_85 = root_37();
+                  var div_86 = child(div_85);
+                  each$1(div_86, 5, () => get(checkpointTransactions), index$1, ($$anchor6, tx, index2) => {
+                    var details_7 = root_38();
+                    var summary_5 = child(details_7);
+                    var span_21 = child(summary_5);
+                    span_21.textContent = `Transaction ${index2 + 1}`;
+                    var node_23 = sibling(span_21, 2);
                     {
-                      var consequent_17 = ($$anchor7) => {
-                        var span_19 = root_36();
-                        var text_47 = child(span_19);
+                      var consequent_18 = ($$anchor7) => {
+                        var span_22 = root_39();
+                        var text_51 = child(span_22);
                         template_effect(() => {
-                          set_attribute(span_19, "title", (get(tx), untrack(() => get(tx).digest)));
-                          set_text(text_47, (get(tx), untrack(() => get(tx).digest)));
+                          set_attribute(span_22, "title", (get(tx), untrack(() => get(tx).digest)));
+                          set_text(text_51, (get(tx), untrack(() => get(tx).digest)));
                         });
-                        append($$anchor7, span_19);
+                        append($$anchor7, span_22);
                       };
                       var alternate_7 = ($$anchor7) => {
-                        var fragment_6 = comment();
-                        var node_22 = first_child(fragment_6);
+                        var fragment_7 = comment();
+                        var node_24 = first_child(fragment_7);
                         {
-                          var consequent_18 = ($$anchor8) => {
-                            var span_20 = root_38();
-                            var text_48 = child(span_20);
+                          var consequent_19 = ($$anchor8) => {
+                            var span_23 = root_41();
+                            var text_52 = child(span_23);
                             template_effect(() => {
-                              set_attribute(span_20, "title", (get(tx), untrack(() => get(tx).transactionDigest)));
-                              set_text(text_48, (get(tx), untrack(() => get(tx).transactionDigest)));
+                              set_attribute(span_23, "title", (get(tx), untrack(() => get(tx).transactionDigest)));
+                              set_text(text_52, (get(tx), untrack(() => get(tx).transactionDigest)));
                             });
-                            append($$anchor8, span_20);
+                            append($$anchor8, span_23);
                           };
                           if_block(
-                            node_22,
+                            node_24,
                             ($$render) => {
-                              if (get(tx), untrack(() => get(tx).transactionDigest)) $$render(consequent_18);
+                              if (get(tx), untrack(() => get(tx).transactionDigest)) $$render(consequent_19);
                             },
                             true
                           );
                         }
-                        append($$anchor7, fragment_6);
+                        append($$anchor7, fragment_7);
                       };
-                      if_block(node_21, ($$render) => {
-                        if (get(tx), untrack(() => get(tx).digest)) $$render(consequent_17);
+                      if_block(node_23, ($$render) => {
+                        if (get(tx), untrack(() => get(tx).digest)) $$render(consequent_18);
                         else $$render(alternate_7, false);
                       });
                     }
-                    var node_23 = sibling(node_21, 2);
+                    var node_25 = sibling(node_23, 2);
                     {
-                      var consequent_19 = ($$anchor7) => {
-                        var span_21 = root_39();
+                      var consequent_20 = ($$anchor7) => {
+                        var span_24 = root_42();
                         let classes;
-                        var text_49 = child(span_21);
+                        var text_53 = child(span_24);
                         template_effect(
                           ($0) => {
-                            classes = set_class(span_21, 1, "transaction-status svelte-ex19u4", null, classes, $0);
-                            set_text(text_49, (get(tx), untrack(() => get(tx).effects.status.status)));
+                            classes = set_class(span_24, 1, "transaction-status svelte-ex19u4", null, classes, $0);
+                            set_text(text_53, (get(tx), untrack(() => get(tx).effects.status.status)));
                           },
                           [
                             () => ({
@@ -22621,75 +22581,75 @@ function PTBs($$anchor, $$props) {
                             })
                           ]
                         );
-                        append($$anchor7, span_21);
+                        append($$anchor7, span_24);
                       };
-                      if_block(node_23, ($$render) => {
-                        if (get(tx), untrack(() => get(tx).effects && get(tx).effects.status)) $$render(consequent_19);
+                      if_block(node_25, ($$render) => {
+                        if (get(tx), untrack(() => get(tx).effects && get(tx).effects.status)) $$render(consequent_20);
                       });
                     }
-                    var div_75 = sibling(summary_4, 2);
-                    var node_24 = child(div_75);
-                    TransactionView(node_24, {
+                    var div_87 = sibling(summary_5, 2);
+                    var node_26 = child(div_87);
+                    TransactionView(node_26, {
                       get value() {
                         return get(tx);
                       }
                     });
-                    append($$anchor6, details_5);
+                    append($$anchor6, details_7);
                   });
-                  append($$anchor5, div_73);
+                  append($$anchor5, div_85);
                 };
                 var alternate_9 = ($$anchor5) => {
-                  var fragment_7 = comment();
-                  var node_25 = first_child(fragment_7);
+                  var fragment_8 = comment();
+                  var node_27 = first_child(fragment_8);
                   {
-                    var consequent_21 = ($$anchor6) => {
-                      var div_76 = root_41();
-                      var p_8 = child(div_76);
-                      var text_50 = child(p_8);
-                      template_effect(() => set_text(text_50, `No transactions found for checkpoint ${get(selectedCheckpoint) ?? ""}`));
-                      append($$anchor6, div_76);
+                    var consequent_22 = ($$anchor6) => {
+                      var div_88 = root_44();
+                      var p_8 = child(div_88);
+                      var text_54 = child(p_8);
+                      template_effect(() => set_text(text_54, `No transactions found for checkpoint ${get(selectedCheckpoint) ?? ""}`));
+                      append($$anchor6, div_88);
                     };
                     var alternate_8 = ($$anchor6) => {
-                      var div_77 = root_42();
-                      append($$anchor6, div_77);
+                      var div_89 = root_45();
+                      append($$anchor6, div_89);
                     };
                     if_block(
-                      node_25,
+                      node_27,
                       ($$render) => {
-                        if (get(selectedCheckpoint), get(checkpointTransactions), get(loadingCheckpointTransactions), untrack(() => get(selectedCheckpoint) && get(checkpointTransactions).length === 0 && !get(loadingCheckpointTransactions))) $$render(consequent_21);
+                        if (get(selectedCheckpoint), get(checkpointTransactions), get(loadingCheckpointTransactions), untrack(() => get(selectedCheckpoint) && get(checkpointTransactions).length === 0 && !get(loadingCheckpointTransactions))) $$render(consequent_22);
                         else $$render(alternate_8, false);
                       },
                       true
                     );
                   }
-                  append($$anchor5, fragment_7);
+                  append($$anchor5, fragment_8);
                 };
                 if_block(
-                  node_20,
+                  node_22,
                   ($$render) => {
-                    if (get(selectedCheckpoint), get(checkpointTransactions), untrack(() => get(selectedCheckpoint) && get(checkpointTransactions).length > 0)) $$render(consequent_20);
+                    if (get(selectedCheckpoint), get(checkpointTransactions), untrack(() => get(selectedCheckpoint) && get(checkpointTransactions).length > 0)) $$render(consequent_21);
                     else $$render(alternate_9, false);
                   },
                   true
                 );
               }
-              append($$anchor4, fragment_5);
+              append($$anchor4, fragment_6);
             };
-            if_block(node_19, ($$render) => {
-              if (get(loadingCheckpointTransactions)) $$render(consequent_16);
+            if_block(node_21, ($$render) => {
+              if (get(loadingCheckpointTransactions)) $$render(consequent_17);
               else $$render(alternate_10, false);
             });
           }
           template_effect(() => {
             input_8.disabled = get(loadingCheckpointTransactions);
-            set_text(text_45, `Transactions: ${(get(checkpointTransactions), untrack(() => get(checkpointTransactions).length)) ?? ""}`);
+            set_text(text_49, `Transactions: ${(get(checkpointTransactions), untrack(() => get(checkpointTransactions).length)) ?? ""}`);
           });
           bind_value(input_8, () => get(selectedCheckpoint), ($$value) => set$1(selectedCheckpoint, $$value));
           event("input", input_8, onCheckpointInputChange);
-          append($$anchor3, fragment_4);
+          append($$anchor3, fragment_5);
         };
-        if_block(node_16, ($$render) => {
-          if (get(displayData), get(loading), untrack(() => get(displayData).checkpointData.length > 0 && !get(loading))) $$render(consequent_22);
+        if_block(node_18, ($$render) => {
+          if (get(displayData), get(loading), untrack(() => get(displayData).checkpointData.length > 0 && !get(loading))) $$render(consequent_23);
         });
       }
       template_effect(
@@ -22703,6 +22663,7 @@ function PTBs($$anchor, $$props) {
           set_text(text_34, `Unique Sender Addresses (${(get(displayData), untrack(() => get(displayData).uniqueSendersCount)) ?? ""})`);
           set_text(text_37, `Called Packages (${(get(displayData), untrack(() => get(displayData).calledPackagesCount)) ?? ""})`);
           set_text(text_40, `Published Packages (${(get(displayData), untrack(() => get(displayData).publishedPackagesCount)) ?? ""})`);
+          set_text(text_45, `PTB Command Types (${(get(displayData), untrack(() => get(displayData).commandTypeStats ? get(displayData).commandTypeStats.length : 0)) ?? ""})`);
         },
         [
           () => (get(displayData), untrack(() => get(displayData).totalPTBs.toLocaleString())),
@@ -22714,7 +22675,7 @@ function PTBs($$anchor, $$props) {
       append($$anchor2, div_21);
     };
     if_block(node_12, ($$render) => {
-      if (get(displayData), untrack(() => get(displayData).totalPTBs > 0)) $$render(consequent_23);
+      if (get(displayData), untrack(() => get(displayData).totalPTBs > 0)) $$render(consequent_24);
     });
   }
   template_effect(() => {

@@ -38,6 +38,7 @@ export interface TransactionData {
     rawData: any[];
     checkpointData: Map<number, CheckpointData>;
     transactionsByCheckpoint: Map<number, any[]>;
+    commandTypeStats: Map<string, { count: number; digests: string[] }>;
 }
 
 export interface DisplayData {
@@ -59,6 +60,7 @@ export interface DisplayData {
         callCount: number;
         transactionIds: string[];
     }[];
+    commandTypeStats: { type: string; count: number; digests: string[] }[];
     checkpointRange: { first: number; last: number } | null;
     checkpointData: CheckpointData[];
     transactionsByCheckpoint: Map<number, any[]>;
@@ -84,6 +86,7 @@ export class TransactionDataProcessor {
             rawData: [],
             checkpointData: new Map<number, CheckpointData>(),
             transactionsByCheckpoint: new Map<number, any[]>(),
+            commandTypeStats: new Map<string, { count: number; digests: string[] }>(),
         };
     }
 
@@ -156,7 +159,7 @@ export class TransactionDataProcessor {
         }
 
         // Extract PTB commands for package tracking
-        this.extractPTBCommands(decodedData);
+        this.extractPTBCommands(decodedData, tx.digest);
 
         // Extract published packages from transaction
         this.extractPublishedPackages(tx, senderAddress);
@@ -165,7 +168,7 @@ export class TransactionDataProcessor {
         this.transactionData.rawData.push(tx);
     }
 
-    private extractPTBCommands(decodedData: any): void {
+    private extractPTBCommands(decodedData: any, txDigest: string): void {
         let ptbCommands: any[] = [];
 
         if (decodedData?.intentMessage?.value?.V1?.kind?.ProgrammableTransaction?.commands) {
@@ -174,6 +177,20 @@ export class TransactionDataProcessor {
 
         // Track called packages from decoded PTB commands
         for (const command of ptbCommands) {
+            // Track command type and up to 20 digests
+            const commandType = Object.keys(command)[0];
+            if (commandType) {
+                let stats = this.transactionData.commandTypeStats.get(commandType);
+                if (!stats) {
+                    stats = { count: 0, digests: [] };
+                    this.transactionData.commandTypeStats.set(commandType, stats);
+                }
+                stats.count++;
+                if (txDigest && (!stats.digests.includes(txDigest)) && stats.digests.length < 20) {
+                    stats.digests.push(txDigest);
+                }
+            }
+
             if (command.MoveCall) {
                 const moveCall = command.MoveCall;
                 const packageId = moveCall.package;
@@ -289,6 +306,7 @@ export class TransactionDataProcessor {
                     .ProgrammableTransaction.commands;
             }
 
+            // console.log("ptbCommands:", ptbCommands);
             // Process commands to build function map
             for (const command of ptbCommands) {
                 if (command.MoveCall) {
@@ -323,6 +341,10 @@ export class TransactionDataProcessor {
             }
         }
 
+        const commandTypeStats = Array.from(this.transactionData.commandTypeStats.entries())
+            .map(([type, stat]) => ({ type, count: stat.count, digests: stat.digests.slice(0, 20) }))
+            .sort((a, b) => b.count - a.count || a.type.localeCompare(b.type));
+
         return {
             totalPTBs: this.transactionData.totalPTBs,
             failedPTBs: this.transactionData.failedPTBs,
@@ -347,6 +369,7 @@ export class TransactionDataProcessor {
                 (a, b) => a.sequenceNumber - b.sequenceNumber,
             ),
             transactionsByCheckpoint: this.transactionData.transactionsByCheckpoint,
+            commandTypeStats,
         };
     }
 
