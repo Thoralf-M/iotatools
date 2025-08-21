@@ -1,8 +1,8 @@
-import { p as push, i as init, f as from_html, s as sibling, c as child, g as get, m as mutable_source, E as bind_value, e as event, k as append, l as pop, j as set, a5 as Transaction } from "/iota-utils/assets/index-NKvaKa41.js";
-import { T as TransactionView } from "/iota-utils/assets/TransactionView-EFcNOC_h.js";
-import { e as executeTransaction } from "/iota-utils/assets/transaction-execution-BUo5XFGX.js";
-import "/iota-utils/assets/transaction-view-D1qOmpCD.js";
-import "/iota-utils/assets/iota-nano-conversion-1QM8x308.js";
+import { p as push, i as init, f as from_html, s as sibling, c as child, g as get, m as mutable_source, E as bind_value, e as event, k as append, l as pop, j as set, a5 as Transaction } from "/iota-utils/assets/index-CZnLUIzX.js";
+import { T as TransactionView } from "/iota-utils/assets/TransactionView-BVVryeKF.js";
+import { e as executeTransaction } from "/iota-utils/assets/transaction-execution-OSO7mZCm.js";
+import "/iota-utils/assets/transaction-view-Cs5noiIB.js";
+import "/iota-utils/assets/iota-nano-conversion-DP8fTz8k.js";
 var root = from_html(`<main>Publish data as input to a tx <br/> <span>pure input data: <input placeholder="string" size="60"/></span> <br/> <button class="svelte-8fa537">publish data in tx</button> <!></main>`);
 function PublishData($$anchor, $$props) {
   push($$props, false);

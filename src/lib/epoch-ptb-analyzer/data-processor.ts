@@ -186,7 +186,7 @@ export class TransactionDataProcessor {
                     this.transactionData.commandTypeStats.set(commandType, stats);
                 }
                 stats.count++;
-                if (txDigest && (!stats.digests.includes(txDigest)) && stats.digests.length < 20) {
+                if (txDigest && !stats.digests.includes(txDigest) && stats.digests.length < 20) {
                     stats.digests.push(txDigest);
                 }
             }
@@ -342,7 +342,11 @@ export class TransactionDataProcessor {
         }
 
         const commandTypeStats = Array.from(this.transactionData.commandTypeStats.entries())
-            .map(([type, stat]) => ({ type, count: stat.count, digests: stat.digests.slice(0, 20) }))
+            .map(([type, stat]) => ({
+                type,
+                count: stat.count,
+                digests: stat.digests.slice(0, 20),
+            }))
             .sort((a, b) => b.count - a.count || a.type.localeCompare(b.type));
 
         return {

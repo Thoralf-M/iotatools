@@ -1,8 +1,10 @@
+import { toBase64 } from '@iota/bcs';
 import type { IotaTransactionBlockResponse } from '@iota/iota-sdk/client';
 import { decodeIotaPrivateKey, Keypair } from '@iota/iota-sdk/cryptography';
 import { Ed25519Keypair } from '@iota/iota-sdk/keypairs/ed25519';
 import { Secp256k1Keypair } from '@iota/iota-sdk/keypairs/secp256k1';
 import { Secp256r1Keypair } from '@iota/iota-sdk/keypairs/secp256r1';
+import type { Transaction } from '@iota/iota-sdk/transactions';
 import type { IotaSignAndExecuteTransactionInput, WalletAccount } from '@iota/wallet-standard';
 import { get } from 'svelte/store';
 
@@ -122,5 +124,33 @@ export class PrivateKeyWallet {
             signer: keypair,
             options: params.options,
         });
+    }
+
+    async signTransaction(params: {
+        transaction: Transaction;
+        account: { address: string };
+    }): Promise<{ signature: string }> {
+        let senderAddress = params.account.address;
+        let senderAccount = get(sharedPrivateKeyAccounts).accounts[senderAddress];
+        if (!senderAccount) {
+            throw new Error(`No account found for address: ${senderAddress}`);
+        }
+        const keypair = keypairFromBech32PrivateKey(senderAccount.bech32PrivateKey);
+        const signature = await keypair.signTransaction(await params.transaction.build());
+        return { signature: signature.signature };
+    }
+
+    async signPersonalMessage(params: {
+        message: Uint8Array;
+        account: { address: string };
+    }): Promise<{ signature: string }> {
+        let senderAddress = params.account.address;
+        let senderAccount = get(sharedPrivateKeyAccounts).accounts[senderAddress];
+        if (!senderAccount) {
+            throw new Error(`No account found for address: ${senderAddress}`);
+        }
+        const keypair = keypairFromBech32PrivateKey(senderAccount.bech32PrivateKey);
+        const signature = await keypair.signPersonalMessage(params.message);
+        return { signature: signature.signature };
     }
 }

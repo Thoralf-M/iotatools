@@ -1,10 +1,10 @@
-import { a9 as sha256, q as getDefaultExportFromCjs, p as push, r as prop, u as onMount, g as get, m as mutable_source, o as mutate, v as onDestroy, w as legacy_pre_effect, x as deep_read_state, y as legacy_pre_effect_reset, i as init, f as from_html, G as first_child, b as if_block, s as sibling, k as append, l as pop, j as set, c as child, C as untrack, t as template_effect, d as set_text, e as event, z as each, L as set_class, $ as derived_safe_equal, A as index, aa as __vitePreload, ab as createEventDispatcher, ac as tick, J as set_style, ad as base58, ae as fromHEX, af as Ed25519PublicKey, ag as messageWithIntent, a as invalidate_inner_signals, a8 as toHEX, h as bind_select_value, E as bind_value, n as getClient, N as toB64 } from "/iota-utils/assets/index-NKvaKa41.js";
-import { b as bind_this } from "/iota-utils/assets/this-BXXnZM7c.js";
+import { a9 as sha256, q as getDefaultExportFromCjs, p as push, r as prop, u as onMount, g as get, m as mutable_source, o as mutate, v as onDestroy, w as legacy_pre_effect, x as deep_read_state, y as legacy_pre_effect_reset, i as init, f as from_html, G as first_child, b as if_block, s as sibling, k as append, l as pop, j as set, c as child, C as untrack, t as template_effect, d as set_text, e as event, z as each, L as set_class, $ as derived_safe_equal, A as index, aa as __vitePreload, ab as createEventDispatcher, ac as tick, J as set_style, ad as base58, ae as fromHEX, af as Ed25519PublicKey, ag as messageWithIntent, a as invalidate_inner_signals, a8 as toHEX, h as bind_select_value, E as bind_value, n as getClient, N as toB64 } from "/iota-utils/assets/index-CZnLUIzX.js";
+import { b as bind_this } from "/iota-utils/assets/this-uxie2fiW.js";
 import { b as bufferExports } from "/iota-utils/assets/index-rSD_0cGr.js";
-import { b as bind_prop } from "/iota-utils/assets/props-CCX7vASe.js";
-import { T as TransactionView } from "/iota-utils/assets/TransactionView-EFcNOC_h.js";
-import "/iota-utils/assets/transaction-view-D1qOmpCD.js";
-import "/iota-utils/assets/iota-nano-conversion-1QM8x308.js";
+import { b as bind_prop } from "/iota-utils/assets/props-xZGVEYUj.js";
+import { T as TransactionView } from "/iota-utils/assets/TransactionView-BVVryeKF.js";
+import "/iota-utils/assets/transaction-view-Cs5noiIB.js";
+import "/iota-utils/assets/iota-nano-conversion-DP8fTz8k.js";
 var isNumeric = /^-?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i, mathceil = Math.ceil, mathfloor = Math.floor, bignumberError = "[BigNumber Error] ", tooManyDigits = bignumberError + "Number primitive has more than 15 significant digits: ", BASE = 1e14, LOG_BASE = 14, MAX_SAFE_INTEGER = 9007199254740991, POWS_TEN = [1, 10, 100, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10, 1e11, 1e12, 1e13], SQRT_BASE = 1e7, MAX = 1e9;
 function clone(configObject) {
   var div, convertBase, parseNumeric, P = BigNumber2.prototype = { constructor: BigNumber2, toString: null, valueOf: null }, ONE = new BigNumber2(1), DECIMAL_PLACES = 20, ROUNDING_MODE = 4, TO_EXP_NEG = -7, TO_EXP_POS = 21, MIN_EXP = -1e7, MAX_EXP = 1e7, CRYPTO = false, MODULO_MODE = 1, POW_PRECISION = 0, FORMAT = {

@@ -66,6 +66,7 @@ function get_wallets() {
         // iotaWallets[0].on('*', (event: any, second: any) => {
         //     console.log('Wallet event:', event, second);
         // });
+        console.log('Web wallets found:', iotaWallets);
         iota_wallets.set(iotaWallets);
 
         // @ts-ignore

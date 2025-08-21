@@ -1,5 +1,5 @@
-import { M as iotaBcs, O as fromB64, U as getSelectedNetworkConfig } from "/iota-utils/assets/index-NKvaKa41.js";
-import { g as graphql, I as IotaGraphQLClient } from "/iota-utils/assets/index-WkeHLBVI.js";
+import { M as iotaBcs, O as fromB64, U as getSelectedNetworkConfig } from "/iota-utils/assets/index-CZnLUIzX.js";
+import { g as graphql, I as IotaGraphQLClient } from "/iota-utils/assets/index-BVT6uh_-.js";
 class TransactionDataProcessor {
   transactionData;
   constructor() {
@@ -192,7 +192,11 @@ class TransactionDataProcessor {
         }
       }
     }
-    const commandTypeStats = Array.from(this.transactionData.commandTypeStats.entries()).map(([type, stat]) => ({ type, count: stat.count, digests: stat.digests.slice(0, 20) })).sort((a, b) => b.count - a.count || a.type.localeCompare(b.type));
+    const commandTypeStats = Array.from(this.transactionData.commandTypeStats.entries()).map(([type, stat]) => ({
+      type,
+      count: stat.count,
+      digests: stat.digests.slice(0, 20)
+    })).sort((a, b) => b.count - a.count || a.type.localeCompare(b.type));
     return {
       totalPTBs: this.transactionData.totalPTBs,
       failedPTBs: this.transactionData.failedPTBs,

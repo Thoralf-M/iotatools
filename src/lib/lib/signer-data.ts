@@ -18,6 +18,14 @@ interface TransactionOptions {
 
 export abstract class WalletSigner {
     abstract signAndExecuteTransaction(params: TransactionOptions): Promise<any>;
+    abstract signTransaction?(params: {
+        transaction: Transaction;
+        account: { address: string };
+    }): Promise<{ signature: string }>;
+    abstract signPersonalMessage?(params: {
+        message: Uint8Array;
+        account: { address: string };
+    }): Promise<{ signature: string }>;
 }
 
 export let iota_wallets: Writable<WalletSigner[]> = writable([]);
@@ -39,6 +47,20 @@ export class ForeignAddressWallet {
         return {
             errors: ['Foreign address wallet cannot sign and execute transactions.'],
         };
+    }
+
+    async signTransaction(params: {
+        transactionBytes: Uint8Array;
+        account: { address: string };
+    }): Promise<{ signature: string }> {
+        throw new Error('Foreign address wallet cannot sign transactions.');
+    }
+
+    async signPersonalMessage(params: {
+        message: Uint8Array;
+        account: { address: string };
+    }): Promise<{ signature: string }> {
+        throw new Error('Foreign address wallet cannot sign messages.');
     }
 }
 
