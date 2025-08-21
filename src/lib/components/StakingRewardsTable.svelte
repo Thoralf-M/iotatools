@@ -1,12 +1,17 @@
 <script lang="ts">
     import { List } from 'svelte-virtual';
 
+    import { getSelectedNetworkConfig } from '../lib/client';
     import type { StakeObject, ValidatorInfo } from '../lib/staking-rewards/';
+    import {
+        fetchEpochEndTimestamp,
+        fetchEpochStartTimestamp,
+    } from '../lib/staking-rewards/graphql-requests';
     import pricesCache from './iota-prices-coingecko.json';
+    import epochTimestampsCacheJson from './mainnet-epoch-timestamps-cache.json';
 
     export let currentEpoch: number = 0;
     export let stakeObjects: StakeObject[] = [];
-    export let endTimestamp: number | null = null;
     export let validatorInfo: Record<string, ValidatorInfo> = {};
 
     function copyToClipboard(text: string) {
@@ -210,55 +215,70 @@
     // Elements for scroll synchronization
     let headerElement: HTMLElement;
     let listElement: any; // Reference to the List component
+    let isScrolling = false;
+    let virtualListContainer: HTMLElement | null = null;
 
     // Synchronize horizontal scroll between header and virtual list
     function syncHeaderScroll(event: Event) {
+        if (isScrolling) return;
+        isScrolling = true;
+
         const target = event.target as HTMLElement;
-        // Find the scrollable container within the virtual list
-        let scrollContainer: HTMLElement | null = null;
-        if (listElement) {
-            scrollContainer =
-                listElement.querySelector?.('[data-virtual-list-viewport]') ||
-                listElement.querySelector?.('[style*="overflow"]');
+        const scrollLeft = target.scrollLeft;
+
+        // Sync with the virtual list container if found
+        if (virtualListContainer) {
+            virtualListContainer.scrollLeft = scrollLeft;
         }
-        if (scrollContainer && scrollContainer.scrollLeft !== target.scrollLeft) {
-            scrollContainer.scrollLeft = target.scrollLeft;
-        }
+
+        setTimeout(() => {
+            isScrolling = false;
+        }, 10);
     }
 
     function syncListScroll(event: Event) {
+        if (isScrolling) return;
+        isScrolling = true;
+
         const target = event.target as HTMLElement;
-        if (headerElement && headerElement.scrollLeft !== target.scrollLeft) {
+        if (headerElement) {
             headerElement.scrollLeft = target.scrollLeft;
+        }
+
+        setTimeout(() => {
+            isScrolling = false;
+        }, 10);
+    }
+
+    // Global scroll event handler to catch any scroll within the table area
+    function handleGlobalScroll(event: Event) {
+        const target = event.target as HTMLElement;
+
+        // Check if this scroll event is from within our virtual list area
+        if (target && target !== headerElement) {
+            // Check if the target is a scrollable element with horizontal scroll
+            if (target.scrollWidth > target.clientWidth && target.scrollLeft !== undefined) {
+                // Cache this as our virtual list container
+                virtualListContainer = target;
+                // Sync the scroll
+                syncListScroll(event);
+            }
         }
     }
 
     // Set up scroll synchronization for the virtual list
     function setupScrollSync(node: HTMLElement) {
-        // Find the scrollable container within the virtual list
-        const findScrollContainer = () => {
-            return (
-                (node.querySelector('[style*="overflow"]') as HTMLElement) ||
-                (node.querySelector('[data-virtual-list-viewport]') as HTMLElement)
-            );
+        // Add a global scroll listener to catch scroll events from any child
+        const scrollHandler = (event: Event) => {
+            handleGlobalScroll(event);
         };
 
-        let scrollContainer: HTMLElement | null = null;
-
-        // Use a timeout to ensure the virtual list is fully rendered
-        const timeout = setTimeout(() => {
-            scrollContainer = findScrollContainer();
-            if (scrollContainer) {
-                scrollContainer.addEventListener('scroll', syncListScroll);
-            }
-        }, 100);
+        // Use capture phase to catch scroll events from any descendant
+        node.addEventListener('scroll', scrollHandler, { passive: true, capture: true });
 
         return {
             destroy() {
-                clearTimeout(timeout);
-                if (scrollContainer) {
-                    scrollContainer.removeEventListener('scroll', syncListScroll);
-                }
+                node.removeEventListener('scroll', scrollHandler, { capture: true });
             },
         };
     }
@@ -267,6 +287,20 @@
     let selectedValidator: ValidatorInfo | null = null;
 
     let epochEndDates: string[] = [];
+    let epochTimestampsCache: Record<number, number> = {};
+    let isMainnet = false;
+
+    $: {
+        // Determine if mainnet is selected
+        try {
+            isMainnet = getSelectedNetworkConfig().name?.toLowerCase().includes('mainnet');
+        } catch {}
+        if (isMainnet && Object.keys(epochTimestampsCacheJson).length > 0) {
+            epochTimestampsCache = { ...epochTimestampsCacheJson };
+        } else {
+            epochTimestampsCache = {};
+        }
+    }
 
     function formatDate(date: Date): string {
         const yyyy = date.getFullYear();
@@ -278,14 +312,43 @@
     }
 
     $: {
-        if (!endTimestamp || !epochs.length) {
-            epochEndDates = Array.from({ length: epochs.length }, () => '');
+        if (!epochs.length) {
+            epochEndDates = [];
         } else {
-            const endDateCurrent = new Date(endTimestamp * 1000);
-            epochEndDates = epochs.map((epochNum) => {
-                const offset = epochs[epochs.length - 1] - epochNum;
-                const date = new Date(endDateCurrent.getTime() - offset * 24 * 60 * 60 * 1000);
-                return formatDate(date);
+            // Fetch timestamps for each epoch
+            let promises: Promise<number | null>[] = [];
+            let fetchedEpochTimestamps: Record<number, number> = {};
+            for (let i = 0; i < epochs.length; i++) {
+                const epochNum = epochs[i];
+                // Use cache if mainnet and available
+                if (isMainnet && epochTimestampsCache[epochNum]) {
+                    promises.push(Promise.resolve(epochTimestampsCache[epochNum]));
+                } else {
+                    if (epochNum == currentEpoch) {
+                        promises.push(fetchEpochStartTimestamp(epochNum));
+                    } else {
+                        promises.push(fetchEpochEndTimestamp(epochNum));
+                    }
+                }
+            }
+            Promise.all(promises).then((timestamps) => {
+                epochEndDates = timestamps.map((ts, i) => {
+                    if (!ts) return '';
+                    // For current epoch, add 24 hours to start timestamp
+                    if (epochs[i] === currentEpoch) {
+                        return formatDate(new Date((ts + 24 * 60 * 60) * 1000));
+                    }
+                    return formatDate(new Date(ts * 1000));
+                });
+                // Build checkpoint object for cache
+                for (let i = 0; i < epochs.length; i++) {
+                    if (timestamps[i]) {
+                        fetchedEpochTimestamps[epochs[i]] = timestamps[i] as number;
+                    }
+                }
+                // Log for easy copy-paste into cache file
+                console.log('Copy this to mainnet-epoch-timestamps-cache.json:');
+                console.log(JSON.stringify(fetchedEpochTimestamps, null, 2));
             });
         }
     }
@@ -691,174 +754,180 @@
 
         <!-- Virtual scrolling body -->
         <div class="table-body" use:setupScrollSync>
-            <List bind:this={listElement} itemCount={epochs.length} itemSize={50} height={800}>
-                <div slot="item" let:index let:style {style} class="table-row">
-                    <div class="data-row">
-                        <div class="table-cell epoch-cell">{epochs[index]}</div>
-                        <div class="table-cell end-date-cell">{epochEndDates[index] || '-'}</div>
-                        <div class="table-cell rewards-cell">
-                            {epochs[index] === currentEpoch
-                                ? 'pending'
-                                : getTotalRewardsForEpoch(epochs[index])}
-                        </div>
-                        <div class="table-cell rewards-cell">
-                            {epochs[index] === currentEpoch
-                                ? 'pending'
-                                : getTotalAccumulatedRewardsForEpoch(epochs[index])}
-                        </div>
-                        {#if Object.keys(epochPrices).length > 0}
-                            {#if showPriceColumns && Object.keys(epochPrices).length > 0}
-                                <div class="table-cell rewards-cell">
-                                    {epochs[index] === currentEpoch
-                                        ? 'pending'
-                                        : epochPrices[epochs[index]]
-                                          ? epochPrices[epochs[index]].toFixed(6)
-                                          : 'no price'}
-                                </div>
-                                <div class="table-cell rewards-cell">
-                                    {epochs[index] === currentEpoch
-                                        ? 'pending'
-                                        : epochPrices[epochs[index]]
-                                          ? `${(
-                                                Number(
-                                                    getTotalRewardsForEpoch(epochs[index]).replace(
-                                                        ' IOTA',
-                                                        '',
-                                                    ),
-                                                ) * epochPrices[epochs[index]]
-                                            ).toFixed(2)} ${selectedCurrency.toUpperCase()}`
-                                          : 'no price'}
-                                </div>
-                                <div class="table-cell rewards-cell">
-                                    {epochs[index] === currentEpoch
-                                        ? 'pending'
-                                        : epochPrices[epochs[index]]
-                                          ? `${(
-                                                Number(
-                                                    getTotalAccumulatedRewardsForEpoch(
-                                                        epochs[index],
-                                                    ).replace(' IOTA', ''),
-                                                ) * epochPrices[epochs[index]]
-                                            ).toFixed(2)} ${selectedCurrency.toUpperCase()}`
-                                          : 'no price'}
-                                </div>
+            {#key epochData}
+                <List bind:this={listElement} itemCount={epochs.length} itemSize={50} height={800}>
+                    <div slot="item" let:index let:style {style} class="table-row">
+                        <div class="data-row">
+                            <div class="table-cell epoch-cell">{epochs[index]}</div>
+                            <div class="table-cell end-date-cell">
+                                {epochEndDates[index] || '-'}
+                            </div>
+                            <div class="table-cell rewards-cell">
+                                {epochs[index] === currentEpoch
+                                    ? 'pending'
+                                    : getTotalRewardsForEpoch(epochs[index])}
+                            </div>
+                            <div class="table-cell rewards-cell">
+                                {epochs[index] === currentEpoch
+                                    ? 'pending'
+                                    : getTotalAccumulatedRewardsForEpoch(epochs[index])}
+                            </div>
+                            {#if Object.keys(epochPrices).length > 0}
+                                {#if showPriceColumns && Object.keys(epochPrices).length > 0}
+                                    <div class="table-cell rewards-cell">
+                                        {epochs[index] === currentEpoch
+                                            ? 'pending'
+                                            : epochPrices[epochs[index]]
+                                              ? epochPrices[epochs[index]].toFixed(6)
+                                              : 'no price'}
+                                    </div>
+                                    <div class="table-cell rewards-cell">
+                                        {epochs[index] === currentEpoch
+                                            ? 'pending'
+                                            : epochPrices[epochs[index]]
+                                              ? `${(
+                                                    Number(
+                                                        getTotalRewardsForEpoch(
+                                                            epochs[index],
+                                                        ).replace(' IOTA', ''),
+                                                    ) * epochPrices[epochs[index]]
+                                                ).toFixed(2)} ${selectedCurrency.toUpperCase()}`
+                                              : 'no price'}
+                                    </div>
+                                    <div class="table-cell rewards-cell">
+                                        {epochs[index] === currentEpoch
+                                            ? 'pending'
+                                            : epochPrices[epochs[index]]
+                                              ? `${(
+                                                    Number(
+                                                        getTotalAccumulatedRewardsForEpoch(
+                                                            epochs[index],
+                                                        ).replace(' IOTA', ''),
+                                                    ) * epochPrices[epochs[index]]
+                                                ).toFixed(2)} ${selectedCurrency.toUpperCase()}`
+                                              : 'no price'}
+                                    </div>
+                                {/if}
                             {/if}
-                        {/if}
-                        {#if showValidatorColumns}
-                            {#each uniqueValidators as validator}
-                                <div class="table-cell validator-cell">
-                                    <div class="validator-popup-container">
-                                        {#if epochs[index] === currentEpoch}
-                                            pending
-                                        {:else}
-                                            <span class="validator-reward-value">
-                                                {getValidatorRewardsForEpoch(
-                                                    validator.poolId,
-                                                    epochs[index],
-                                                )}
-                                            </span>
-                                            <div class="validator-popup">
-                                                <div>
-                                                    Validator: {validator.name}
-                                                </div>
-                                                <div>
-                                                    Pool ID: {validator.poolId}
-                                                </div>
-                                                <div>
-                                                    Rewards this epoch: {getValidatorRewardsForEpoch(
+                            {#if showValidatorColumns}
+                                {#each uniqueValidators as validator}
+                                    <div class="table-cell validator-cell">
+                                        <div class="validator-popup-container">
+                                            {#if epochs[index] === currentEpoch}
+                                                pending
+                                            {:else}
+                                                <span class="validator-reward-value">
+                                                    {getValidatorRewardsForEpoch(
                                                         validator.poolId,
                                                         epochs[index],
                                                     )}
+                                                </span>
+                                                <div class="validator-popup">
+                                                    <div>
+                                                        Validator: {validator.name}
+                                                    </div>
+                                                    <div>
+                                                        Pool ID: {validator.poolId}
+                                                    </div>
+                                                    <div>
+                                                        Rewards this epoch: {getValidatorRewardsForEpoch(
+                                                            validator.poolId,
+                                                            epochs[index],
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        Accumulated rewards: {getValidatorAccumulatedRewardsForEpoch(
+                                                            validator.poolId,
+                                                            epochs[index],
+                                                        )}
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    Accumulated rewards: {getValidatorAccumulatedRewardsForEpoch(
-                                                        validator.poolId,
-                                                        epochs[index],
-                                                    )}
+                                            {/if}
+                                        </div>
+                                    </div>
+                                {/each}
+                            {/if}
+                            {#each stakeObjects as stakeObject}
+                                <div class="table-cell stake-cell">
+                                    <div class="stake-popup-container">
+                                        {#if isPreActivationInEpoch(stakeObject, epochs[index])}
+                                            <div class="pre-active-indicator">pre-active</div>
+                                        {:else if isActiveInEpoch(stakeObject, epochs[index]) && epochs[index] >= stakeObject.firstEpoch && epochs[index] !== currentEpoch && (!stakeObject.actionByEpoch || (stakeObject.actionByEpoch && stakeObject.actionByEpoch[epochs[index]]?.action !== 'Unstaked'))}
+                                            <div class="stake-cell-content">
+                                                <span class="stake-value">
+                                                    {stakeObject.rewardsByEpoch[epochs[index]] ===
+                                                    '0'
+                                                        ? '-'
+                                                        : (
+                                                              Number(
+                                                                  stakeObject.rewardsByEpoch[
+                                                                      epochs[index]
+                                                                  ],
+                                                              ) / 1_000_000_000
+                                                          ).toFixed(2) + ' IOTA'}
+                                                </span>
+                                                <div class="stake-popup">
+                                                    <div>
+                                                        Rewards this epoch: {(
+                                                            Number(
+                                                                stakeObject.rewardsByEpoch[
+                                                                    epochs[index]
+                                                                ],
+                                                            ) / 1_000_000_000
+                                                        ).toFixed(9)} IOTA
+                                                    </div>
+                                                    <div>
+                                                        Accumulated rewards: {(
+                                                            Number(
+                                                                stakeObject.accumulatedRewards[
+                                                                    epochs[index]
+                                                                ],
+                                                            ) / 1_000_000_000
+                                                        ).toFixed(9)} IOTA
+                                                    </div>
                                                 </div>
                                             </div>
+                                        {:else if isActiveInEpoch(stakeObject, epochs[index - 1]) && epochs[index] === currentEpoch && (!stakeObject.actionByEpoch || (stakeObject.actionByEpoch && !stakeObject.actionByEpoch[epochs[index]]))}
+                                            pending
+                                        {:else if !stakeObject.actionByEpoch || !stakeObject.actionByEpoch[epochs[index]]}
+                                            <div class="inactive-indicator">-</div>
+                                        {/if}
+                                        {#if stakeObject.actionByEpoch && stakeObject.actionByEpoch[epochs[index]]}
+                                            <span class="action-indicator"
+                                                >{stakeObject.actionByEpoch[epochs[index]].action}
+
+                                                {#if stakeObject.principalByEpoch[epochs[index]] && stakeObject.principalByEpoch[epochs[index - 1]] && stakeObject.principalByEpoch[epochs[index]] !== stakeObject.principalByEpoch[epochs[index - 1]]}
+                                                    <span class="principal-change-tooltip">
+                                                        <span class="principal-change-icon">❗</span
+                                                        >
+                                                        <span class="principal-tooltip-text">
+                                                            Principal amount changed from
+                                                            {(
+                                                                Number(
+                                                                    stakeObject.principalByEpoch[
+                                                                        epochs[index - 1]
+                                                                    ],
+                                                                ) / 1_000_000_000
+                                                            ).toFixed(2)} IOTA to
+                                                            {(
+                                                                Number(
+                                                                    stakeObject.principalByEpoch[
+                                                                        epochs[index]
+                                                                    ],
+                                                                ) / 1_000_000_000
+                                                            ).toFixed(2)} IOTA
+                                                        </span>
+                                                    </span>
+                                                {/if}
+                                            </span>
                                         {/if}
                                     </div>
                                 </div>
                             {/each}
-                        {/if}
-                        {#each stakeObjects as stakeObject}
-                            <div class="table-cell stake-cell">
-                                <div class="stake-popup-container">
-                                    {#if isPreActivationInEpoch(stakeObject, epochs[index])}
-                                        <div class="pre-active-indicator">pre-active</div>
-                                    {:else if isActiveInEpoch(stakeObject, epochs[index]) && epochs[index] >= stakeObject.firstEpoch && epochs[index] !== currentEpoch && (!stakeObject.actionByEpoch || (stakeObject.actionByEpoch && stakeObject.actionByEpoch[epochs[index]]?.action !== 'Unstaked'))}
-                                        <div class="stake-cell-content">
-                                            <span class="stake-value">
-                                                {stakeObject.rewardsByEpoch[epochs[index]] === '0'
-                                                    ? '-'
-                                                    : (
-                                                          Number(
-                                                              stakeObject.rewardsByEpoch[
-                                                                  epochs[index]
-                                                              ],
-                                                          ) / 1_000_000_000
-                                                      ).toFixed(2) + ' IOTA'}
-                                            </span>
-                                            {#if stakeObject.principalByEpoch[epochs[index]] && stakeObject.principalByEpoch[epochs[index - 1]] && stakeObject.principalByEpoch[epochs[index]] !== stakeObject.principalByEpoch[epochs[index - 1]]}
-                                                <span class="principal-change-tooltip">
-                                                    <span class="principal-change-icon">❗</span>
-                                                    <span class="principal-tooltip-text">
-                                                        Principal amount changed from
-                                                        {(
-                                                            Number(
-                                                                stakeObject.principalByEpoch[
-                                                                    epochs[index - 1]
-                                                                ],
-                                                            ) / 1_000_000_000
-                                                        ).toFixed(2)} IOTA to
-                                                        {(
-                                                            Number(
-                                                                stakeObject.principalByEpoch[
-                                                                    epochs[index]
-                                                                ],
-                                                            ) / 1_000_000_000
-                                                        ).toFixed(2)} IOTA
-                                                    </span>
-                                                </span>
-                                            {/if}
-                                            <div class="stake-popup">
-                                                <div>
-                                                    Rewards this epoch: {(
-                                                        Number(
-                                                            stakeObject.rewardsByEpoch[
-                                                                epochs[index]
-                                                            ],
-                                                        ) / 1_000_000_000
-                                                    ).toFixed(9)} IOTA
-                                                </div>
-                                                <div>
-                                                    Accumulated rewards: {(
-                                                        Number(
-                                                            stakeObject.accumulatedRewards[
-                                                                epochs[index]
-                                                            ],
-                                                        ) / 1_000_000_000
-                                                    ).toFixed(9)} IOTA
-                                                </div>
-                                            </div>
-                                        </div>
-                                    {:else if isActiveInEpoch(stakeObject, epochs[index - 1]) && epochs[index] === currentEpoch && (!stakeObject.actionByEpoch || (stakeObject.actionByEpoch && !stakeObject.actionByEpoch[epochs[index]]))}
-                                        pending
-                                    {:else if !stakeObject.actionByEpoch || !stakeObject.actionByEpoch[epochs[index]]}
-                                        <div class="inactive-indicator">-</div>
-                                    {/if}
-                                    {#if stakeObject.actionByEpoch && stakeObject.actionByEpoch[epochs[index]]}
-                                        <span class="action-indicator" style="margin-left:6px;"
-                                            >{stakeObject.actionByEpoch[epochs[index]].action}</span
-                                        >
-                                    {/if}
-                                </div>
-                            </div>
-                        {/each}
+                        </div>
                     </div>
-                </div>
-            </List>
+                </List>
+            {/key}
         </div>
     </div>
 </div>
@@ -1159,7 +1228,6 @@
     /* Add CSS for popup */
     .stake-popup-container {
         position: relative;
-        display: inline-block;
     }
     .stake-cell-content .stake-popup {
         display: none;
@@ -1225,7 +1293,7 @@
     }
     .principal-change-icon {
         color: #ff9800;
-        font-size: 1.2em;
+        font-size: 1em;
         cursor: pointer;
         vertical-align: middle;
     }
@@ -1249,5 +1317,10 @@
     }
     .principal-change-tooltip:hover .principal-tooltip-text {
         visibility: visible;
+    }
+    .action-indicator {
+        font-size: 0.75em;
+        margin-left: 10px;
+        text-align: center;
     }
 </style>

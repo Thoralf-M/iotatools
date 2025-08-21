@@ -1,4 +1,4 @@
-import { p as push, f as from_html, s as sibling, c as child, T as state, b as if_block, g as get, Y as user_derived, t as template_effect, d as set_text, J as set_style, E as bind_value, k as append, l as pop, G as first_child, j as set, Z as delegate } from "/iota-utils/assets/index-CZnLUIzX.js";
+import { p as push, f as from_html, s as sibling, c as child, T as state, b as if_block, g as get, Y as user_derived, t as template_effect, d as set_text, J as set_style, E as bind_value, k as append, l as pop, G as first_child, j as set, Z as delegate } from "/iota-utils/assets/index-pEqYToSC.js";
 var on_click = (_, textContent, limit) => {
   if (get(textContent).length > 0) {
     const repeatCount = Math.ceil(get(limit) / get(textContent).length);
