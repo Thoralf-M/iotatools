@@ -1,7 +1,7 @@
-import { q as getDefaultExportFromCjs, at as getAugmentedNamespace, p as push, T as state, R as proxy, f as from_html, c as child, s as sibling, g as get, z as each, A as index, E as bind_value, h as bind_select_value, j as set, k as append, l as pop, ai as toHEX, au as update, n as getClient, ag as isValidIotaAddress, af as Transaction, aq as messageWithIntent, av as toSerializedSignature, ap as Ed25519PublicKey, Z as delegate, G as first_child, b as if_block, t as template_effect, d as set_text, Y as user_derived, aw as to_array } from "/iota-utils/assets/index-pEqYToSC.js";
+import { q as getDefaultExportFromCjs, at as getAugmentedNamespace, p as push, T as state, R as proxy, f as from_html, c as child, s as sibling, g as get, z as each, A as index, E as bind_value, h as bind_select_value, j as set, k as append, l as pop, ai as toHEX, au as update, n as getClient, ag as isValidIotaAddress, af as Transaction, aq as messageWithIntent, av as toSerializedSignature, ap as Ed25519PublicKey, Z as delegate, G as first_child, b as if_block, t as template_effect, d as set_text, Y as user_derived, aw as to_array } from "/iota-utils/assets/index-C9GeLqyr.js";
 import { b as bufferExports } from "/iota-utils/assets/index-rSD_0cGr.js";
-import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-3B2DllqX.js";
-import "/iota-utils/assets/transaction-view-DvozDHB2.js";
+import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-SuVghi4f.js";
+import "/iota-utils/assets/transaction-view-hQRLBdds.js";
 var browser = { exports: {} };
 var hasRequiredBrowser;
 function requireBrowser() {

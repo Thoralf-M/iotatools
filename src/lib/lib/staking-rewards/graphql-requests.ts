@@ -188,14 +188,15 @@ ${objectChangesSection}
         '0x0000000000000000000000000000000000000000000000000000000000000003::staking_pool::StakedIota',
         '0x0000000000000000000000000000000000000000000000000000000000000003::timelocked_staking::TimelockedStakedIota',
     ];
-    // Filter transactions and their object nodes to only stake-related objects
+    // Filter transactions to only those that contain stake objects for the given address
+    // but keep ALL objects in those transactions for proper analysis
     const filteredNodes = allNodes
         .map((tx) => {
             // @ts-ignore
             const objectNodes: any[] = tx.effects?.objectChanges?.nodes || [];
-            // Only keep stake-related objects with matching owner address
+            // Check if this transaction has any stake-related objects with matching owner address
             // @ts-ignore
-            const stakeObjects = objectNodes.filter((obj: any) => {
+            const hasRelevantStakeObjects = objectNodes.some((obj: any) => {
                 const inputType = obj.inputState?.asMoveObject?.contents?.type?.repr;
                 const outputType = obj.outputState?.asMoveObject?.contents?.type?.repr;
                 const isStakeType =
@@ -207,18 +208,9 @@ ${objectChangesSection}
                 // Only include if owner matches provided address
                 return inputOwner === address || outputOwner === address;
             });
-            // If there are stake objects, return a copy of tx with filtered nodes
-            if (stakeObjects.length > 0) {
-                return {
-                    ...tx,
-                    effects: {
-                        ...tx.effects,
-                        objectChanges: {
-                            ...tx.effects?.objectChanges,
-                            nodes: stakeObjects,
-                        },
-                    },
-                };
+            // If there are relevant stake objects, return the entire transaction with ALL objects
+            if (hasRelevantStakeObjects) {
+                return tx; // Return the original transaction with all objects intact
             }
             return null;
         })
