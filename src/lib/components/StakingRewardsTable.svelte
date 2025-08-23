@@ -2,7 +2,7 @@
     import { List } from 'svelte-virtual';
 
     import { getSelectedNetworkConfig } from '../lib/client';
-    import type { StakeObject, ValidatorInfo } from '../lib/staking-rewards/';
+    import type { ActionDetails, StakeObject, ValidatorInfo } from '../lib/staking-rewards/';
     import {
         fetchEpochEndTimestamp,
         fetchEpochStartTimestamp,
@@ -212,6 +212,56 @@
         return stakeObject.principalByEpoch[minEpoch];
     }
 
+    function formatActionDetails(action: ActionDetails): string {
+        let details = `Action: ${action.action}\nTransaction: ${action.digest}`;
+
+        if (action.amount) {
+            const iotaAmount = (Number(action.amount) / 1_000_000_000).toFixed(2);
+            if (action.action === 'Partial Unstake') {
+                details += `\nUnstaked Amount: ${iotaAmount} IOTA`;
+            } else {
+                details += `\nAmount: ${iotaAmount} IOTA`;
+            }
+        }
+
+        if (action.totalRewards) {
+            const iotaRewards = (Number(action.totalRewards) / 1_000_000_000).toFixed(2);
+            if (action.action === 'Partial Unstake') {
+                details += `\nUnstake Rewards: ${iotaRewards} IOTA`;
+            } else {
+                details += `\nTotal Rewards: ${iotaRewards} IOTA`;
+            }
+        }
+
+        if (action.fromAddress && action.toAddress) {
+            details += `\nFrom: ${action.fromAddress}\nTo: ${action.toAddress}`;
+        }
+
+        if (action.principalChange) {
+            const fromAmount = (Number(action.principalChange.from) / 1_000_000_000).toFixed(2);
+            const toAmount = (Number(action.principalChange.to) / 1_000_000_000).toFixed(2);
+            details += `\nPrincipal changed from ${fromAmount} IOTA to ${toAmount} IOTA`;
+        }
+
+        if (action.mergedStakeObjects && action.mergedStakeObjects.length > 0) {
+            details += `\nMerged stake objects:`;
+            action.mergedStakeObjects.forEach((obj) => {
+                const amount = (Number(obj.amount) / 1_000_000_000).toFixed(2);
+                details += `\n  - ${obj.objectId}: ${amount} IOTA`;
+            });
+        }
+
+        if (action.splitStakeObjects && action.splitStakeObjects.length > 0) {
+            details += `\nSplit into stake objects:`;
+            action.splitStakeObjects.forEach((obj) => {
+                const amount = (Number(obj.amount) / 1_000_000_000).toFixed(2);
+                details += `\n  - ${obj.objectId}: ${amount} IOTA`;
+            });
+        }
+
+        return details;
+    }
+
     // Elements for scroll synchronization
     let headerElement: HTMLElement;
     let listElement: any; // Reference to the List component
@@ -285,6 +335,11 @@
 
     let selectedStakeObject: StakeObject | null = null;
     let selectedValidator: ValidatorInfo | null = null;
+    let selectedAction: {
+        action: ActionDetails;
+        epoch: number;
+        stakeObjectAddress: string;
+    } | null = null;
 
     let epochEndDates: string[] = [];
     let epochTimestampsCache: Record<number, number> = {};
@@ -403,7 +458,11 @@
             });
         }
         stakeObjects.forEach((stakeObject) => {
-            headers.push(`Stake: ${stakeObject.address}`);
+            headers.push(
+                `Stake: ${stakeObject.address}`,
+                `Action: ${stakeObject.address}`,
+                `Action Details: ${stakeObject.address}`,
+            );
         });
 
         let rows: string[][] = [];
@@ -460,10 +519,11 @@
             }
             stakeObjects.forEach((stakeObject) => {
                 if (epoch === currentEpoch) {
-                    row.push('pending');
+                    row.push('pending', '', '');
                 } else if (isPreActivationInEpoch(stakeObject, epoch)) {
-                    row.push('pre-active');
+                    row.push('pre-active', '', '');
                 } else if (isActiveInEpoch(stakeObject, epoch) && epoch >= stakeObject.firstEpoch) {
+                    // Add reward amount
                     row.push(
                         stakeObject.rewardsByEpoch[epoch] === '0'
                             ? '-'
@@ -471,8 +531,49 @@
                                   4,
                               ),
                     );
+
+                    // Add action information
+                    const action = stakeObject.actionByEpoch?.[epoch];
+                    if (action) {
+                        row.push(action.action);
+
+                        // Format action details for CSV
+                        let actionDetails = `TX: ${action.digest}`;
+                        if (action.amount) {
+                            const amount = (Number(action.amount) / 1_000_000_000).toFixed(2);
+                            actionDetails += ` | Amount: ${amount} IOTA`;
+                        }
+                        if (action.totalRewards) {
+                            const rewards = (Number(action.totalRewards) / 1_000_000_000).toFixed(
+                                2,
+                            );
+                            actionDetails += ` | Rewards: ${rewards} IOTA`;
+                        }
+                        if (action.fromAddress && action.toAddress) {
+                            actionDetails += ` | From: ${action.fromAddress} To: ${action.toAddress}`;
+                        }
+                        if (action.principalChange) {
+                            const from = (
+                                Number(action.principalChange.from) / 1_000_000_000
+                            ).toFixed(2);
+                            const to = (Number(action.principalChange.to) / 1_000_000_000).toFixed(
+                                2,
+                            );
+                            actionDetails += ` | Principal: ${from} → ${to} IOTA`;
+                        }
+                        if (action.mergedStakeObjects && action.mergedStakeObjects.length > 0) {
+                            actionDetails += ` | Merged: ${action.mergedStakeObjects.length} objects`;
+                        }
+                        if (action.splitStakeObjects && action.splitStakeObjects.length > 0) {
+                            actionDetails += ` | Split: ${action.splitStakeObjects.length} objects`;
+                        }
+
+                        row.push(actionDetails);
+                    } else {
+                        row.push('', '');
+                    }
                 } else {
-                    row.push('-');
+                    row.push('-', '', '');
                 }
             });
             rows.push(row);
@@ -623,6 +724,25 @@
                     ? getValidatorTotalPrincipal(selectedValidator.poolId)
                     : '0'}
             </div>
+        </div>
+    </div>
+{/if}
+
+{#if selectedAction}
+    <div class="action-hover-inline">
+        <button
+            class="close-hover"
+            aria-label="Close action info"
+            on:click={() => (selectedAction = null)}>×</button
+        >
+        <div class="action-title">
+            Epoch {selectedAction.epoch} - {selectedAction.action.action}
+        </div>
+        <div class="action-stake-object">
+            Stake Object: {selectedAction.stakeObjectAddress}
+        </div>
+        <div class="action-details">
+            {formatActionDetails(selectedAction.action)}
         </div>
     </div>
 {/if}
@@ -893,7 +1013,20 @@
                                             <div class="inactive-indicator">-</div>
                                         {/if}
                                         {#if stakeObject.actionByEpoch && stakeObject.actionByEpoch[epochs[index]]}
-                                            <span class="action-indicator"
+                                            <button
+                                                class="action-indicator clickable-action"
+                                                type="button"
+                                                on:click={() => {
+                                                    const actionData =
+                                                        stakeObject.actionByEpoch?.[epochs[index]];
+                                                    if (actionData) {
+                                                        selectedAction = {
+                                                            action: actionData,
+                                                            epoch: epochs[index],
+                                                            stakeObjectAddress: stakeObject.address,
+                                                        };
+                                                    }
+                                                }}
                                                 >{stakeObject.actionByEpoch[epochs[index]].action}
 
                                                 {#if stakeObject.principalByEpoch[epochs[index]] && stakeObject.principalByEpoch[epochs[index - 1]] && stakeObject.principalByEpoch[epochs[index]] !== stakeObject.principalByEpoch[epochs[index - 1]]}
@@ -919,7 +1052,7 @@
                                                         </span>
                                                     </span>
                                                 {/if}
-                                            </span>
+                                            </button>
                                         {/if}
                                     </div>
                                 </div>
@@ -1322,5 +1455,57 @@
         font-size: 0.75em;
         margin-left: 10px;
         text-align: center;
+        background: none;
+        border: none;
+        color: inherit;
+        font-family: inherit;
+    }
+
+    .clickable-action {
+        cursor: pointer;
+        padding: 2px 4px;
+        border-radius: 3px;
+        transition: background-color 0.2s;
+    }
+
+    .clickable-action:hover {
+        background-color: rgba(186, 204, 230, 0.2);
+    }
+
+    .action-hover-inline {
+        position: relative;
+        margin: 0 auto 16px auto;
+        background: #2a3441;
+        color: #fff;
+        border: 1px solid #4fc3f7;
+        border-radius: 6px;
+        padding: 16px 40px 16px 16px;
+        min-width: 300px;
+        max-width: 700px;
+        box-shadow: 0 2px 8px #0002;
+        font-size: 0.95em;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .action-title {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #4fc3f7;
+    }
+
+    .action-stake-object {
+        font-family: monospace;
+        color: #a5bbe1;
+        font-size: 0.9em;
+    }
+
+    .action-details {
+        color: #bacce6;
+        font-family: monospace;
+        font-size: 0.9em;
+        white-space: pre-line;
+        line-height: 1.4;
     }
 </style>

@@ -6,6 +6,43 @@ import {
     getExchangeRateCacheStats,
 } from './graphql-requests';
 
+// Helper function to safely convert to BigInt
+function safeBigInt(value: any): bigint {
+    if (typeof value === 'bigint') return value;
+    if (typeof value === 'number') return BigInt(value);
+    if (typeof value === 'string') {
+        try {
+            return BigInt(value);
+        } catch (e) {
+            console.warn(`Failed to convert "${value}" to BigInt:`, e);
+            return 0n;
+        }
+    }
+    if (typeof value === 'object' && value?.value) {
+        return safeBigInt(value.value);
+    }
+    console.warn(`Cannot convert ${typeof value} to BigInt:`, value);
+    return 0n;
+}
+
+export type ActionDetails = {
+    action: string;
+    digest: string;
+    // For Staked and Unstaked actions
+    amount?: string;
+    totalRewards?: string;
+    // For Transfer actions
+    fromAddress?: string;
+    toAddress?: string;
+    // For Transition actions (stake object merges/splits)
+    principalChange?: {
+        from: string;
+        to: string;
+    };
+    mergedStakeObjects?: Array<{ objectId: string; amount: string }>;
+    splitStakeObjects?: Array<{ objectId: string; amount: string }>;
+};
+
 export type StakeObject = {
     address: string;
     poolId: string;
@@ -17,8 +54,8 @@ export type StakeObject = {
     rewardsByEpoch: Record<number, string>;
     // Map of epoch -> total accumulated rewards since staking started
     accumulatedRewards: Record<number, string>;
-    // Map of epoch -> action string ("Stake", "Unstake", "Transfer", "Transition")
-    actionByEpoch?: Record<number, { action: string; digest?: string }>;
+    // Map of epoch -> detailed action information
+    actionByEpoch?: Record<number, ActionDetails>;
     firstEpoch: number;
     lastEpoch: number;
     stakeActivationEpoch: number;
@@ -43,9 +80,13 @@ function getIotaAmount(
 ): bigint {
     // Handle both formats - new cache format and GraphQL response format
     const iotaAmount =
-        'iota' in exchangeRate ? BigInt(exchangeRate.iota) : BigInt(exchangeRate.iota_amount);
+        'iota' in exchangeRate
+            ? safeBigInt(exchangeRate.iota)
+            : safeBigInt(exchangeRate.iota_amount);
     const poolTokenAmount =
-        'pool' in exchangeRate ? BigInt(exchangeRate.pool) : BigInt(exchangeRate.pool_token_amount);
+        'pool' in exchangeRate
+            ? safeBigInt(exchangeRate.pool)
+            : safeBigInt(exchangeRate.pool_token_amount);
 
     // When either amount is 0, return the token amount (as per Move implementation)
     if (iotaAmount === 0n || poolTokenAmount === 0n) {
@@ -65,9 +106,13 @@ function getTokenAmount(
 ): bigint {
     // Handle both formats - new cache format and GraphQL response format
     const iotaAmountBig =
-        'iota' in exchangeRate ? BigInt(exchangeRate.iota) : BigInt(exchangeRate.iota_amount);
+        'iota' in exchangeRate
+            ? safeBigInt(exchangeRate.iota)
+            : safeBigInt(exchangeRate.iota_amount);
     const poolTokenAmount =
-        'pool' in exchangeRate ? BigInt(exchangeRate.pool) : BigInt(exchangeRate.pool_token_amount);
+        'pool' in exchangeRate
+            ? safeBigInt(exchangeRate.pool)
+            : safeBigInt(exchangeRate.pool_token_amount);
 
     // When either amount is 0, return the iota amount
     if (iotaAmountBig === 0n || poolTokenAmount === 0n) {
@@ -126,9 +171,9 @@ async function computeRewardsForStakeObject(
     }
 
     // For each epoch where we have exchange rates, compute rewards
-    let previousPrincipal = BigInt(0);
+    let previousPrincipal = 0n;
     for (const epoch of epochs) {
-        const principalAmount = BigInt(stakeObject.principalByEpoch[epoch] || '0');
+        const principalAmount = safeBigInt(stakeObject.principalByEpoch[epoch] || '0');
         const exchangeRate = stakeObject.exchangeRatesByEpoch[epoch];
 
         try {
@@ -207,11 +252,15 @@ async function computeRewardsForStakeObject(
             // console.log(`newEpochRewards: ${newEpochRewards}`)
 
             // Store both accumulated and epoch-specific rewards
-            // If action for this epoch is 'Unstaked', set rewards to '0'
+            // If action for this epoch is 'Unstaked', set rewards to '0' but record total rewards
             if (
                 stakeObject.actionByEpoch &&
                 stakeObject.actionByEpoch[epoch]?.action === 'Unstaked'
             ) {
+                // Update the action with total rewards at unstaking, epoch -1 because there are only rewards for full epochs.
+                // So epoch in which the unstake tx is, will not receive rewards
+                stakeObject.actionByEpoch[epoch].totalRewards =
+                    stakeObject.accumulatedRewards[epoch - 1];
                 stakeObject.accumulatedRewards[epoch] = '0';
                 stakeObject.rewardsByEpoch[epoch] = '0';
             } else {
@@ -273,31 +322,109 @@ export async function processStakeTransactionsWithExchangeRates(
     transactions.forEach((transaction) => {
         const epochId = transaction.effects.epoch.epochId;
         const digest = transaction.digest;
+
+        // Collect all stake-related object changes in this transaction for merge/split detection
+        const txStakeObjects = new Map<
+            string,
+            {
+                input?: {
+                    poolId: string;
+                    principal: string;
+                    owner?: string;
+                    stakeActivationEpoch?: string;
+                };
+                output?: {
+                    poolId: string;
+                    principal: string;
+                    owner?: string;
+                    stakeActivationEpoch?: string;
+                };
+                idCreated: boolean;
+                idDeleted: boolean;
+            }
+        >();
+
+        // Collect all coin objects created in this transaction (potential unstake rewards)
+        const coinObjects: Array<{ address: string; balance: string; owner?: string }> = [];
+
+        // First pass: collect all stake object changes and coin objects
         transaction.effects.objectChanges.nodes.forEach((node: any) => {
             const address = node.address;
             const outputState = node.outputState?.asMoveObject?.contents;
             const inputState = node.inputState?.asMoveObject?.contents;
-            let poolId: string | undefined = undefined;
-            let principal: string | undefined = undefined;
-            let stakeActivationEpoch: string | undefined = undefined;
+            const idCreated = node.idCreated === true;
+            const idDeleted = node.idDeleted === true;
 
-            // Track poolId, principal, stakeActivationEpoch for stake object creation
-            if (outputState?.type?.repr?.includes('timelocked_staking::TimelockedStakedIota')) {
-                const stakedIota = outputState.json?.staked_iota;
-                poolId = stakedIota?.pool_id ?? '';
-                principal = stakedIota?.principal?.value ?? '';
-                stakeActivationEpoch = stakedIota?.stake_activation_epoch ?? '';
-            } else if (outputState?.type?.repr?.includes('staking_pool::StakedIota')) {
-                poolId = outputState.json?.pool_id ?? '';
-                principal = outputState.json?.principal?.value ?? '';
-                stakeActivationEpoch = outputState.json?.stake_activation_epoch ?? '';
+            // Collect coin objects that were created (potential unstake rewards)
+            if (idCreated && outputState?.type?.repr?.includes('::coin::Coin')) {
+                let balance = outputState.json?.balance;
+                // Handle balance as either string or object with value property
+                if (typeof balance === 'object' && balance?.value) {
+                    balance = balance.value;
+                }
+                const owner = node.outputState?.asMoveObject?.owner?.owner?.address;
+                if (balance && owner && typeof balance === 'string') {
+                    coinObjects.push({ address, balance, owner });
+                }
             }
 
-            if (poolId && principal && stakeActivationEpoch) {
+            const stakeData: any = {};
+
+            // Extract input state data
+            if (inputState?.type?.repr?.includes('timelocked_staking::TimelockedStakedIota')) {
+                const stakedIota = inputState.json?.staked_iota;
+                stakeData.input = {
+                    poolId: stakedIota?.pool_id ?? '',
+                    principal: stakedIota?.principal?.value ?? '',
+                    owner: node.inputState.asMoveObject?.owner?.owner?.address,
+                    stakeActivationEpoch: stakedIota?.stake_activation_epoch,
+                };
+            } else if (inputState?.type?.repr?.includes('staking_pool::StakedIota')) {
+                stakeData.input = {
+                    poolId: inputState.json?.pool_id ?? '',
+                    principal: inputState.json?.principal?.value ?? '',
+                    owner: node.inputState.asMoveObject?.owner?.owner?.address,
+                    stakeActivationEpoch: inputState.json?.stake_activation_epoch,
+                };
+            }
+
+            // Extract output state data
+            if (outputState?.type?.repr?.includes('timelocked_staking::TimelockedStakedIota')) {
+                const stakedIota = outputState.json?.staked_iota;
+                stakeData.output = {
+                    poolId: stakedIota?.pool_id ?? '',
+                    principal: stakedIota?.principal?.value ?? '',
+                    owner: node.outputState.asMoveObject?.owner?.owner?.address,
+                    stakeActivationEpoch: stakedIota?.stake_activation_epoch,
+                };
+            } else if (outputState?.type?.repr?.includes('staking_pool::StakedIota')) {
+                stakeData.output = {
+                    poolId: outputState.json?.pool_id ?? '',
+                    principal: outputState.json?.principal?.value ?? '',
+                    owner: node.outputState.asMoveObject?.owner?.owner?.address,
+                    stakeActivationEpoch: outputState.json?.stake_activation_epoch,
+                };
+            }
+
+            if (stakeData.input || stakeData.output) {
+                txStakeObjects.set(address, {
+                    ...stakeData,
+                    idCreated,
+                    idDeleted,
+                });
+            }
+        });
+
+        // Second pass: process each stake object and determine detailed actions
+        txStakeObjects.forEach((stakeData, address) => {
+            const { input, output, idCreated, idDeleted } = stakeData;
+
+            // Create or update stake objects based on output state
+            if (output) {
                 if (!stakeObjects.has(address)) {
                     stakeObjects.set(address, {
                         address,
-                        poolId,
+                        poolId: output.poolId,
                         principalByEpoch: {},
                         exchangeRatesByEpoch: {},
                         rewardsByEpoch: {},
@@ -305,57 +432,121 @@ export async function processStakeTransactionsWithExchangeRates(
                         actionByEpoch: {},
                         firstEpoch: epochId,
                         lastEpoch: currentEpoch,
-                        stakeActivationEpoch: parseInt(stakeActivationEpoch),
+                        stakeActivationEpoch: output.stakeActivationEpoch
+                            ? parseInt(output.stakeActivationEpoch)
+                            : epochId,
                     });
                 }
                 const obj = stakeObjects.get(address)!;
-                obj.principalByEpoch[epochId] = principal;
+                obj.principalByEpoch[epochId] = output.principal;
                 obj.rewardsByEpoch[epochId] = '0';
                 obj.accumulatedRewards[epochId] = '0';
+
+                // Update stakeActivationEpoch if we have the real value
+                if (output.stakeActivationEpoch) {
+                    obj.stakeActivationEpoch = parseInt(output.stakeActivationEpoch);
+                }
             }
 
-            // Handle deletion/transfer
-            let inputPoolId: string = '';
-            let inputOwner: string | undefined = undefined;
-            let outputOwner: string | undefined = undefined;
-            let inputAction: string | undefined = undefined;
-            if (inputState?.type?.repr?.includes('timelocked_staking::TimelockedStakedIota')) {
-                const stakedIota = inputState.json?.staked_iota;
-                inputPoolId = stakedIota?.pool_id ?? '';
-                inputOwner = node.inputState.asMoveObject?.owner?.owner?.address ?? undefined;
-            } else if (inputState?.type?.repr?.includes('staking_pool::StakedIota')) {
-                inputPoolId = inputState.json?.pool_id ?? '';
-                inputOwner = node.inputState.asMoveObject?.owner?.owner?.address ?? undefined;
-            }
-            if (outputState) {
-                outputOwner = node.outputState.asMoveObject?.owner?.owner?.address ?? undefined;
-            }
-
-            // Action detection using idCreated, idDeleted, and owner comparison
-            const idCreated = node.idCreated === true;
-            const idDeleted = node.idDeleted === true;
-
-            if (inputPoolId) {
+            // Determine action type and create detailed action info
+            if (input) {
                 const existing = stakeObjects.get(address);
                 if (existing) {
-                    if (idCreated) {
-                        inputAction = 'Staked';
-                    } else if (idDeleted) {
-                        inputAction = 'Unstaked';
-                        existing.lastEpoch = epochId;
-                    } else if (!idCreated && !idDeleted) {
-                        if (inputOwner && outputOwner && inputOwner !== outputOwner) {
-                            inputAction = 'Transfer';
-                            existing.lastEpoch = epochId;
-                        } else {
-                            inputAction = 'Transition';
-                        }
-                    }
-                    existing.actionByEpoch = existing.actionByEpoch || {};
-                    existing.actionByEpoch[epochId] = {
-                        action: inputAction ?? 'Unknown',
+                    let actionDetails: ActionDetails = {
+                        action: 'Unknown',
                         digest,
                     };
+
+                    if (idCreated) {
+                        actionDetails.action = 'Staked';
+                        actionDetails.amount = output?.principal || input.principal;
+                    } else if (idDeleted) {
+                        actionDetails.action = 'Unstaked';
+                        actionDetails.amount = input.principal;
+                        // Calculate total rewards at this point (will be filled later after exchange rate processing)
+                        actionDetails.totalRewards = '0'; // Placeholder
+                        existing.lastEpoch = epochId;
+                    } else if (!idCreated && !idDeleted) {
+                        if (input.owner && output?.owner && input.owner !== output.owner) {
+                            actionDetails.action = 'Transfer';
+                            actionDetails.fromAddress = input.owner;
+                            actionDetails.toAddress = output.owner;
+                            existing.lastEpoch = epochId;
+                        } else {
+                            // Check if this is a partial unstake
+                            const inputPrincipal = safeBigInt(input.principal);
+                            const outputPrincipal = safeBigInt(output?.principal || '0');
+                            const principalDecrease = inputPrincipal - outputPrincipal;
+
+                            // Find coins created for this owner in this transaction
+                            const ownerCoins = coinObjects.filter(
+                                (coin) => coin.owner === input.owner,
+                            );
+                            const totalCoinBalance = ownerCoins.reduce((sum, coin) => {
+                                return sum + safeBigInt(coin.balance);
+                            }, 0n);
+
+                            if (principalDecrease > 0n && ownerCoins.length > 0) {
+                                // This is a partial unstake
+                                actionDetails.action = 'Partial Unstake';
+                                actionDetails.amount = principalDecrease.toString(); // Amount unstaked
+
+                                // Calculate rewards: total coins received minus principal decrease
+                                const rewards = totalCoinBalance - principalDecrease;
+                                if (rewards > 0n) {
+                                    actionDetails.totalRewards = rewards.toString();
+                                }
+
+                                // Record principal change
+                                actionDetails.principalChange = {
+                                    from: input.principal,
+                                    to: output?.principal || '0',
+                                };
+                            } else {
+                                actionDetails.action = 'Transition';
+
+                                // Check for principal changes
+                                if (input.principal !== output?.principal) {
+                                    actionDetails.principalChange = {
+                                        from: input.principal,
+                                        to: output?.principal || '0',
+                                    };
+                                }
+                            }
+
+                            // Detect merged stake objects (deleted objects in this transaction)
+                            const mergedObjects: Array<{ objectId: string; amount: string }> = [];
+                            const splitObjects: Array<{ objectId: string; amount: string }> = [];
+
+                            txStakeObjects.forEach((otherStakeData, otherAddress) => {
+                                if (otherAddress !== address) {
+                                    if (otherStakeData.idDeleted && otherStakeData.input) {
+                                        // This object was deleted and merged into our current object
+                                        mergedObjects.push({
+                                            objectId: otherAddress,
+                                            amount: otherStakeData.input.principal,
+                                        });
+                                    } else if (otherStakeData.idCreated && otherStakeData.output) {
+                                        // This object was created, potentially split from our current object
+                                        splitObjects.push({
+                                            objectId: otherAddress,
+                                            amount: otherStakeData.output.principal,
+                                        });
+                                    }
+                                }
+                            });
+
+                            if (mergedObjects.length > 0) {
+                                actionDetails.mergedStakeObjects = mergedObjects;
+                            }
+                            if (splitObjects.length > 0) {
+                                actionDetails.splitStakeObjects = splitObjects;
+                            }
+                        }
+                    }
+
+                    existing.actionByEpoch = existing.actionByEpoch || {};
+                    existing.actionByEpoch[epochId] = actionDetails;
                 }
             }
         });
@@ -474,7 +665,7 @@ export function getTotalAccumulatedRewards(stakeObject: StakeObject): string {
 export function calculateTotalRewards(stakeObject: StakeObject): string {
     let totalRewards = 0n;
     for (const rewardStr of Object.values(stakeObject.rewardsByEpoch)) {
-        totalRewards += BigInt(rewardStr);
+        totalRewards += safeBigInt(rewardStr);
     }
     return totalRewards.toString();
 }

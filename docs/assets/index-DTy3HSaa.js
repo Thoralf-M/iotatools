@@ -1,4 +1,4 @@
-import { aS as print } from "/iota-utils/assets/index-pEqYToSC.js";
+import { aS as print } from "/iota-utils/assets/index-C9GeLqyr.js";
 var __typeError = (msg) => {
   throw TypeError(msg);
 };
