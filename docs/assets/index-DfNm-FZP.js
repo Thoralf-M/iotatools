@@ -1,5 +1,5 @@
-import { M as iotaBcs, O as fromB64, U as getSelectedNetworkConfig } from "/iota-utils/assets/index-C9GeLqyr.js";
-import { g as graphql, I as IotaGraphQLClient } from "/iota-utils/assets/index-DTy3HSaa.js";
+import { M as iotaBcs, O as fromB64, U as getSelectedNetworkConfig } from "/iota-utils/assets/index-C6lov13X.js";
+import { g as graphql, I as IotaGraphQLClient } from "/iota-utils/assets/index-BmmuoJzX.js";
 class TransactionDataProcessor {
   transactionData;
   constructor() {

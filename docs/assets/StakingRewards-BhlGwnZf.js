@@ -1,10 +1,10 @@
-import { _ as is_runes, $ as not_equal, a0 as safe_not_equal, a1 as block, a2 as create_text, a3 as branch, a4 as current_batch, a5 as should_defer_append, a6 as UNINITIALIZED, a7 as pause_effect, a8 as effect, C as untrack, p as push, r as prop, w as legacy_pre_effect, j as set, m as mutable_source, x as deep_read_state, g as get, y as legacy_pre_effect_reset, f as from_html, b as if_block, c as child, s as sibling, z as each, t as template_effect, J as set_style, e as event, k as append, l as pop, I as comment, G as first_child, a9 as derived_safe_equal, H as text, U as getSelectedNetworkConfig, N as toB64, aa as bcs, o as mutate, i as init, a as invalidate_inner_signals, A as index, ab as action, d as set_text, h as bind_select_value, W as store_get, E as bind_value, V as setup_stores, ac as activeAddress, Z as delegate } from "/iota-utils/assets/index-C9GeLqyr.js";
-import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-SuVghi4f.js";
-import { b as bind_this } from "/iota-utils/assets/this-GYlfUYHe.js";
-import { s as sanitize_slots, a as slot } from "/iota-utils/assets/transaction-view-hQRLBdds.js";
-import { b as bind_prop } from "/iota-utils/assets/props-DkXNyTcw.js";
-import { I as IotaGraphQLClient } from "/iota-utils/assets/index-DTy3HSaa.js";
-import { E as EpochPTBAnalyzer } from "/iota-utils/assets/index-0q6yBYYz.js";
+import { _ as is_runes, $ as not_equal, a0 as safe_not_equal, a1 as block, a2 as create_text, a3 as branch, a4 as current_batch, a5 as should_defer_append, a6 as UNINITIALIZED, a7 as pause_effect, a8 as effect, C as untrack, p as push, r as prop, w as legacy_pre_effect, j as set, m as mutable_source, x as deep_read_state, g as get, y as legacy_pre_effect_reset, f as from_html, b as if_block, c as child, s as sibling, z as each, t as template_effect, J as set_style, e as event, k as append, l as pop, I as comment, G as first_child, a9 as derived_safe_equal, H as text, U as getSelectedNetworkConfig, N as toB64, aa as bcs, o as mutate, i as init, a as invalidate_inner_signals, A as index, ab as action, d as set_text, h as bind_select_value, W as store_get, E as bind_value, V as setup_stores, ac as activeAddress, Z as delegate } from "/iota-utils/assets/index-C6lov13X.js";
+import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-Chj_dVVT.js";
+import { b as bind_this } from "/iota-utils/assets/this-DoskCTq4.js";
+import { s as sanitize_slots, a as slot } from "/iota-utils/assets/transaction-view-DNwfIfQM.js";
+import { b as bind_prop } from "/iota-utils/assets/props-D7fyn3BB.js";
+import { I as IotaGraphQLClient } from "/iota-utils/assets/index-BmmuoJzX.js";
+import { E as EpochPTBAnalyzer } from "/iota-utils/assets/index-DfNm-FZP.js";
 function key(node, get_key, render_fn) {
   var anchor = node;
   var key2 = UNINITIALIZED;
@@ -1207,12 +1207,7 @@ var root_27 = from_html(`<span class="principal-change-tooltip svelte-1w412i5"><
 var root_26 = from_html(`<button class="action-indicator clickable-action svelte-1w412i5" type="button"> <!></button>`);
 var root_18 = from_html(`<div class="table-cell stake-cell svelte-1w412i5"><div class="stake-popup-container svelte-1w412i5"><!> <!></div></div>`);
 var root_11 = from_html(`<div slot="item" class="table-row svelte-1w412i5"><div class="data-row svelte-1w412i5"><div class="table-cell epoch-cell svelte-1w412i5"> </div> <div class="table-cell end-date-cell svelte-1w412i5"> </div> <div class="table-cell rewards-cell svelte-1w412i5"> </div> <div class="table-cell rewards-cell svelte-1w412i5"> </div> <!> <!> <!></div></div>`);
-var root$1 = from_html(
-  `<!> <!> <!> <div style="margin-bottom: 8px; text-align: left;">Data might be incomplete. Values are estimates due to rounding. Epochs before the first
-    transaction are hidden.<br/> Transfer history is currently not taken into account, values are computed like the objects were always
-    owned by the provided address.</div> <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 12px;"><div style="display: flex; flex: 1; align-items: center; gap: 12px;"><label>Currency: <select><option>USD</option><option>EUR</option></select></label> <button> </button> <!> <!> <button> </button> <button> </button></div> <div style="margin-left: auto;"><button style="min-width: 120px;">Export table to CSV</button></div></div> <div class="table-container svelte-1w412i5"><div class="virtual-table svelte-1w412i5"><div class="table-header svelte-1w412i5"><div class="header-row svelte-1w412i5"><div class="header-cell epoch-header svelte-1w412i5">Epoch</div> <div class="header-cell end-date-header svelte-1w412i5">End Date</div> <div class="header-cell rewards-header svelte-1w412i5">Rewards</div> <div class="header-cell rewards-header svelte-1w412i5">Accumulated</div> <!> <!> <!></div></div> <div class="table-body svelte-1w412i5"><!></div></div></div>`,
-  1
-);
+var root$1 = from_html(`<!> <!> <!> <div style="margin-bottom: 8px; text-align: left;">The data may be incomplete or incorrect, so it is advisable to check it against other sources. <br/> Values are estimates due to rounding. Epochs before the first transaction are hidden.</div> <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 12px;"><div style="display: flex; flex: 1; align-items: center; gap: 12px;"><label>Currency: <select><option>USD</option><option>EUR</option></select></label> <button> </button> <!> <!> <button> </button> <button> </button></div> <div style="margin-left: auto;"><button style="min-width: 120px;">Export table to CSV</button></div></div> <div class="table-container svelte-1w412i5"><div class="virtual-table svelte-1w412i5"><div class="table-header svelte-1w412i5"><div class="header-row svelte-1w412i5"><div class="header-cell epoch-header svelte-1w412i5">Epoch</div> <div class="header-cell end-date-header svelte-1w412i5">End Date</div> <div class="header-cell rewards-header svelte-1w412i5">Rewards</div> <div class="header-cell rewards-header svelte-1w412i5">Accumulated</div> <!> <!> <!></div></div> <div class="table-body svelte-1w412i5"><!></div></div></div>`, 1);
 function StakingRewardsTable($$anchor, $$props) {
   push($$props, false);
   let currentEpoch = prop($$props, "currentEpoch", 8, 0);
@@ -1229,10 +1224,10 @@ function StakingRewardsTable($$anchor, $$props) {
   let validatorPrincipal = mutable_source({});
   let epochs = mutable_source([]);
   function isActiveInEpoch(stakeObject, epoch) {
-    return get(epochData)[epoch]?.active[stakeObject.address] ?? false;
+    return get(epochData)[epoch]?.active[stakeObject.objectId] ?? false;
   }
   function isPreActivationInEpoch(stakeObject, epoch) {
-    return get(epochData)[epoch]?.preActive[stakeObject.address] ?? false;
+    return get(epochData)[epoch]?.preActive[stakeObject.objectId] ?? false;
   }
   function getTotalRewardsForEpoch(epoch) {
     const total = get(epochData)[epoch]?.totalRewards ?? 0n;
@@ -1426,7 +1421,7 @@ Split into stake objects:`;
       });
     }
     stakeObjects().forEach((stakeObject) => {
-      headers.push(`Stake: ${stakeObject.address}`, `Action: ${stakeObject.address}`, `Action Details: ${stakeObject.address}`);
+      headers.push(`Stake: ${stakeObject.objectId}`, `Action: ${stakeObject.objectId}`, `Action Details: ${stakeObject.objectId}`);
     });
     let rows = [];
     for (let i = 0; i < get(epochs).length; i++) {
@@ -1627,9 +1622,9 @@ Split into stake objects:`;
               } catch {
               }
             }
-            mutate(epochData, get(epochData)[epoch].stakeRewards[stakeObject.address] = rewards || "0");
-            mutate(epochData, get(epochData)[epoch].preActive[stakeObject.address] = epoch >= stakeObject.firstEpoch && epoch < stakeObject.stakeActivationEpoch);
-            mutate(epochData, get(epochData)[epoch].active[stakeObject.address] = epoch >= stakeObject.firstEpoch && epoch <= stakeObject.lastEpoch);
+            mutate(epochData, get(epochData)[epoch].stakeRewards[stakeObject.objectId] = rewards || "0");
+            mutate(epochData, get(epochData)[epoch].preActive[stakeObject.objectId] = epoch >= stakeObject.firstEpoch && epoch < stakeObject.stakeActivationEpoch);
+            mutate(epochData, get(epochData)[epoch].active[stakeObject.objectId] = epoch >= stakeObject.firstEpoch && epoch <= stakeObject.lastEpoch);
           });
         });
         for (let i = 0; i < epochRange.length; i++) {
@@ -1650,13 +1645,13 @@ Split into stake objects:`;
               const prevEpoch = epochRange[i - 1];
               mutate(epochData, get(epochData)[epoch].validatorAccumulated[stakeObject.poolId] += get(epochData)[prevEpoch].validatorAccumulated[stakeObject.poolId] || 0n);
             }
-            if (!get(epochData)[epoch].stakeAccumulated[stakeObject.address]) {
-              mutate(epochData, get(epochData)[epoch].stakeAccumulated[stakeObject.address] = "0");
+            if (!get(epochData)[epoch].stakeAccumulated[stakeObject.objectId]) {
+              mutate(epochData, get(epochData)[epoch].stakeAccumulated[stakeObject.objectId] = "0");
             }
             const stakeRewards = stakeObject.rewardsByEpoch[epoch];
-            let prevAccum = i > 0 ? BigInt(get(epochData)[epochRange[i - 1]].stakeAccumulated[stakeObject.address] || "0") : 0n;
+            let prevAccum = i > 0 ? BigInt(get(epochData)[epochRange[i - 1]].stakeAccumulated[stakeObject.objectId] || "0") : 0n;
             let currAccum = (stakeRewards && stakeRewards !== "0" ? BigInt(stakeRewards) : 0n) + prevAccum;
-            mutate(epochData, get(epochData)[epoch].stakeAccumulated[stakeObject.address] = currAccum.toString());
+            mutate(epochData, get(epochData)[epoch].stakeAccumulated[stakeObject.objectId] = currAccum.toString());
           });
         });
       }
@@ -1744,7 +1739,7 @@ Split into stake objects:`;
       var text_4 = sibling(div_3);
       template_effect(
         ($0) => {
-          set_text(text_1, (get(selectedStakeObject), untrack(() => get(selectedStakeObject).address)));
+          set_text(text_1, (get(selectedStakeObject), untrack(() => get(selectedStakeObject).objectId)));
           set_text(text_2, $0);
           set_text(text_3, `Pool: ${(get(selectedStakeObject), untrack(() => get(selectedStakeObject).poolId)) ?? ""}`);
           set_text(text_4, ` First Epoch: ${(get(selectedStakeObject), untrack(() => get(selectedStakeObject).firstEpoch)) ?? ""}
@@ -1815,7 +1810,7 @@ Split into stake objects:`;
       template_effect(
         ($0) => {
           set_text(text_9, `Epoch ${(get(selectedAction), untrack(() => get(selectedAction).epoch)) ?? ""} - ${(get(selectedAction), untrack(() => get(selectedAction).action.action)) ?? ""}`);
-          set_text(text_10, `Stake Object: ${(get(selectedAction), untrack(() => get(selectedAction).stakeObjectAddress)) ?? ""}`);
+          set_text(text_10, `Stake Object: ${(get(selectedAction), untrack(() => get(selectedAction).stakeObjectId)) ?? ""}`);
           set_text(text_11, $0);
         },
         [
@@ -1944,12 +1939,12 @@ Split into stake objects:`;
     var text_21 = child(span_2);
     var button_8 = sibling(text_21);
     template_effect(($0, $1) => set_text(text_21, `${$0 ?? ""}..${$1 ?? ""} `), [
-      () => (get(stakeObject), untrack(() => get(stakeObject).address.slice(0, 6))),
-      () => (get(stakeObject), untrack(() => get(stakeObject).address.slice(-3)))
+      () => (get(stakeObject), untrack(() => get(stakeObject).objectId.slice(0, 6))),
+      () => (get(stakeObject), untrack(() => get(stakeObject).objectId.slice(-3)))
     ]);
     event("click", button_8, (e) => {
       e.stopPropagation();
-      copyToClipboard(get(stakeObject).address);
+      copyToClipboard(get(stakeObject).objectId);
     });
     event("click", span_2, () => {
       set(selectedStakeObject, get(stakeObject));
@@ -2203,7 +2198,7 @@ Split into stake objects:`;
                       set(selectedAction, {
                         action: actionData,
                         epoch: get(epochs)[get(index$1)],
-                        stakeObjectAddress: get(stakeObject).address
+                        stakeObjectId: get(stakeObject).objectId
                       });
                     }
                   });
@@ -2392,7 +2387,7 @@ function getValidatorInfo(systemState) {
   }
   return validatorInfo;
 }
-async function processStakeTransactionsWithExchangeRates(transactions, currentEpoch) {
+async function processStakeTransactionsWithExchangeRates(transactions, currentEpoch, targetAddress) {
   const systemState = (await fetchSystemState())[0];
   const validatorMap = getCurrentActiveValidatorsExchangeRateIds(systemState);
   const validatorInfo = getValidatorInfo(systemState);
@@ -2461,10 +2456,12 @@ async function processStakeTransactionsWithExchangeRates(transactions, currentEp
     });
     txStakeObjects.forEach((stakeData, address) => {
       const { input, output, idCreated, idDeleted } = stakeData;
+      const wasOwnedByTarget = input?.owner === targetAddress || output?.owner === targetAddress;
       if (output) {
         if (!stakeObjects.has(address)) {
           stakeObjects.set(address, {
-            address,
+            objectId: address,
+            wasOwnedByTargetAddress: wasOwnedByTarget,
             poolId: output.poolId,
             principalByEpoch: {},
             exchangeRatesByEpoch: {},
@@ -2475,6 +2472,14 @@ async function processStakeTransactionsWithExchangeRates(transactions, currentEp
             lastEpoch: currentEpoch,
             stakeActivationEpoch: output.stakeActivationEpoch ? parseInt(output.stakeActivationEpoch) : epochId
           });
+        } else {
+          const existing = stakeObjects.get(address);
+          if (wasOwnedByTarget) {
+            existing.wasOwnedByTargetAddress = true;
+          }
+          if (epochId < existing.firstEpoch) {
+            existing.firstEpoch = epochId;
+          }
         }
         const obj = stakeObjects.get(address);
         obj.principalByEpoch[epochId] = output.principal;
@@ -2485,8 +2490,34 @@ async function processStakeTransactionsWithExchangeRates(transactions, currentEp
         }
       }
       if (input) {
+        const wasOwnedByTarget2 = input?.owner === targetAddress || output?.owner === targetAddress;
+        if (!output && wasOwnedByTarget2) {
+          if (!stakeObjects.has(address)) {
+            stakeObjects.set(address, {
+              objectId: address,
+              wasOwnedByTargetAddress: true,
+              poolId: input.poolId,
+              principalByEpoch: {},
+              exchangeRatesByEpoch: {},
+              rewardsByEpoch: {},
+              accumulatedRewards: {},
+              actionByEpoch: {},
+              firstEpoch: epochId,
+              lastEpoch: epochId,
+              // This object ends in this epoch
+              stakeActivationEpoch: input.stakeActivationEpoch ? parseInt(input.stakeActivationEpoch) : epochId
+            });
+          } else {
+            const existing2 = stakeObjects.get(address);
+            existing2.wasOwnedByTargetAddress = true;
+            existing2.lastEpoch = epochId;
+          }
+        }
         const existing = stakeObjects.get(address);
         if (existing) {
+          if (wasOwnedByTarget2) {
+            existing.wasOwnedByTargetAddress = true;
+          }
           let actionDetails = {
             action: "Unknown",
             digest
@@ -2504,7 +2535,11 @@ async function processStakeTransactionsWithExchangeRates(transactions, currentEp
               actionDetails.action = "Transfer";
               actionDetails.fromAddress = input.owner;
               actionDetails.toAddress = output.owner;
-              existing.lastEpoch = epochId;
+              if (input.owner === targetAddress && output.owner !== targetAddress) {
+                existing.lastEpoch = epochId;
+              } else if (output.owner === targetAddress) {
+                existing.lastEpoch = currentEpoch;
+              }
             } else {
               const inputPrincipal = safeBigInt(input.principal);
               const outputPrincipal = safeBigInt(output?.principal || "0");
@@ -2567,14 +2602,18 @@ async function processStakeTransactionsWithExchangeRates(transactions, currentEp
     });
   });
   const requiredPoolIds = /* @__PURE__ */ new Set();
-  stakeObjects.forEach((stakeObject) => {
-    requiredPoolIds.add(stakeObject.poolId);
+  const ownedStakeObjects = /* @__PURE__ */ new Map();
+  stakeObjects.forEach((stakeObject, address) => {
+    if (stakeObject.wasOwnedByTargetAddress) {
+      ownedStakeObjects.set(address, stakeObject);
+      requiredPoolIds.add(stakeObject.poolId);
+    }
   });
   console.log(
-    `Found ${stakeObjects.size} stake objects requiring exchange rates for ${requiredPoolIds.size} pools`
+    `Found ${ownedStakeObjects.size} owned stake objects (filtered from ${stakeObjects.size} total) requiring exchange rates for ${requiredPoolIds.size} pools`
   );
   await fetchAllExchangeRates(currentEpoch, requiredPoolIds);
-  const stakeObjectsArray = Array.from(stakeObjects.values());
+  const stakeObjectsArray = Array.from(ownedStakeObjects.values());
   for (const stakeObject of stakeObjectsArray) {
     const exchangeRateId = validatorMap[stakeObject.poolId];
     if (!exchangeRateId) {
@@ -2665,7 +2704,7 @@ async function fetchTransactions(_, error, transactions, stakeObjects, validator
       []
     );
     set(loadingStep, "Fetching exchange rates...");
-    const result = await processStakeTransactionsWithExchangeRates(uniqueTxs, get(epoch));
+    const result = await processStakeTransactionsWithExchangeRates(uniqueTxs, get(epoch), get(address));
     set(stakeObjects, result.stakeObjects);
     set(validatorInfo, result.validatorInfo);
     console.log(get(stakeObjects));

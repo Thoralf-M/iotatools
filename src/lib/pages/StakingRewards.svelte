@@ -85,6 +85,7 @@
             const result = await processStakeTransactionsWithExchangeRates(
                 uniqueTxs,
                 epoch as number,
+                address,
             );
             stakeObjects = result.stakeObjects;
             validatorInfo = result.validatorInfo;
