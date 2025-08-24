@@ -105,11 +105,11 @@
                                 BigInt(rewards);
                         } catch {}
                     }
-                    epochData[epoch].stakeRewards[stakeObject.address] = rewards || '0';
+                    epochData[epoch].stakeRewards[stakeObject.objectId] = rewards || '0';
                     // Pre-active/active
-                    epochData[epoch].preActive[stakeObject.address] =
+                    epochData[epoch].preActive[stakeObject.objectId] =
                         epoch >= stakeObject.firstEpoch && epoch < stakeObject.stakeActivationEpoch;
-                    epochData[epoch].active[stakeObject.address] =
+                    epochData[epoch].active[stakeObject.objectId] =
                         epoch >= stakeObject.firstEpoch && epoch <= stakeObject.lastEpoch;
                 });
             });
@@ -141,22 +141,22 @@
                             epochData[prevEpoch].validatorAccumulated[stakeObject.poolId] || 0n;
                     }
                     // Stake accumulated
-                    if (!epochData[epoch].stakeAccumulated[stakeObject.address]) {
-                        epochData[epoch].stakeAccumulated[stakeObject.address] = '0';
+                    if (!epochData[epoch].stakeAccumulated[stakeObject.objectId]) {
+                        epochData[epoch].stakeAccumulated[stakeObject.objectId] = '0';
                     }
                     const stakeRewards = stakeObject.rewardsByEpoch[epoch];
                     let prevAccum =
                         i > 0
                             ? BigInt(
                                   epochData[epochRange[i - 1]].stakeAccumulated[
-                                      stakeObject.address
+                                      stakeObject.objectId
                                   ] || '0',
                               )
                             : 0n;
                     let currAccum =
                         (stakeRewards && stakeRewards !== '0' ? BigInt(stakeRewards) : 0n) +
                         prevAccum;
-                    epochData[epoch].stakeAccumulated[stakeObject.address] = currAccum.toString();
+                    epochData[epoch].stakeAccumulated[stakeObject.objectId] = currAccum.toString();
                 });
             });
         }
@@ -167,10 +167,10 @@
 
     // Efficient lookup helpers
     function isActiveInEpoch(stakeObject: StakeObject, epoch: number): boolean {
-        return epochData[epoch]?.active[stakeObject.address] ?? false;
+        return epochData[epoch]?.active[stakeObject.objectId] ?? false;
     }
     function isPreActivationInEpoch(stakeObject: StakeObject, epoch: number): boolean {
-        return epochData[epoch]?.preActive[stakeObject.address] ?? false;
+        return epochData[epoch]?.preActive[stakeObject.objectId] ?? false;
     }
     function getTotalRewardsForEpoch(epoch: number): string {
         const total = epochData[epoch]?.totalRewards ?? 0n;
@@ -338,7 +338,7 @@
     let selectedAction: {
         action: ActionDetails;
         epoch: number;
-        stakeObjectAddress: string;
+        stakeObjectId: string;
     } | null = null;
 
     let epochEndDates: string[] = [];
@@ -459,9 +459,9 @@
         }
         stakeObjects.forEach((stakeObject) => {
             headers.push(
-                `Stake: ${stakeObject.address}`,
-                `Action: ${stakeObject.address}`,
-                `Action Details: ${stakeObject.address}`,
+                `Stake: ${stakeObject.objectId}`,
+                `Action: ${stakeObject.objectId}`,
+                `Action Details: ${stakeObject.objectId}`,
             );
         });
 
@@ -680,7 +680,7 @@
             aria-label="Close address info"
             on:click={() => (selectedStakeObject = null)}>×</button
         >
-        <div class="full-address">{selectedStakeObject.address}</div>
+        <div class="full-address">{selectedStakeObject.objectId}</div>
         <div class="principal">{formatPrincipal(getFirstPrincipal(selectedStakeObject))}</div>
         <div class="pool-id">
             Pool: {selectedStakeObject.poolId}
@@ -739,7 +739,7 @@
             Epoch {selectedAction.epoch} - {selectedAction.action.action}
         </div>
         <div class="action-stake-object">
-            Stake Object: {selectedAction.stakeObjectAddress}
+            Stake Object: {selectedAction.stakeObjectId}
         </div>
         <div class="action-details">
             {formatActionDetails(selectedAction.action)}
@@ -748,10 +748,9 @@
 {/if}
 
 <div style="margin-bottom: 8px; text-align: left;">
-    Data might be incomplete. Values are estimates due to rounding. Epochs before the first
-    transaction are hidden.<br />
-    Transfer history is currently not taken into account, values are computed like the objects were always
-    owned by the provided address.
+    The data may be incomplete or incorrect, so it is advisable to check it against other sources.
+    <br />
+    Values are estimates due to rounding. Epochs before the first transaction are hidden.
 </div>
 
 <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
@@ -851,7 +850,7 @@
                                         }
                                     }}
                                 >
-                                    {stakeObject.address.slice(0, 6)}..{stakeObject.address.slice(
+                                    {stakeObject.objectId.slice(0, 6)}..{stakeObject.objectId.slice(
                                         -3,
                                     )}
                                     <button
@@ -859,7 +858,7 @@
                                         title="Copy full address"
                                         on:click={(e) => {
                                             e.stopPropagation();
-                                            copyToClipboard(stakeObject.address);
+                                            copyToClipboard(stakeObject.objectId);
                                         }}
                                     >
                                         📋
@@ -1023,7 +1022,7 @@
                                                         selectedAction = {
                                                             action: actionData,
                                                             epoch: epochs[index],
-                                                            stakeObjectAddress: stakeObject.address,
+                                                            stakeObjectId: stakeObject.objectId,
                                                         };
                                                     }
                                                 }}
