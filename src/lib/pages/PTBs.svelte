@@ -406,7 +406,7 @@
                             bind:value={inputObjectFilter}
                             placeholder="0x... object ID"
                             disabled={loading}
-                            style="width: 30rem; font-size: 12px;"
+                            class="wide-input"
                         />
                         <button
                             class="example-btn"
@@ -429,7 +429,7 @@
                             bind:value={functionFilter}
                             placeholder="package::module::function"
                             disabled={loading}
-                            style="width: 30rem; font-size: 12px;"
+                            class="wide-input"
                         />
                         <button
                             class="example-btn"
@@ -1093,6 +1093,15 @@
         border-radius: 4px;
         font-family: 'Courier New', monospace;
         font-size: 11px;
+    }
+
+    .wide-input {
+        width: 100%;
+        width: 30rem;
+        font-size: 12px;
+        box-sizing: border-box;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .filter-group input[type='text']:focus {
@@ -1798,6 +1807,25 @@
     }
 
     @media (max-width: 768px) {
+        .wide-input {
+            max-width: 100%;
+            width: 100%;
+        }
+        .filter-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .input-with-button {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .input-with-button .example-btn {
+            width: 100%;
+            margin-left: 0;
+        }
+        .wide-input {
+            width: 100%;
+        }
         .input-row-single {
             flex-direction: column;
             align-items: stretch;
