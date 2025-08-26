@@ -2,9 +2,9 @@
     import JsonToggleView from '../components/JsonToggleView.svelte';
     import StakingRewardsTable from '../components/StakingRewardsTable.svelte';
     import { EpochPTBAnalyzer } from '../epoch-ptb-analyzer';
-    // @ts-ignore
-    import exchangeRateCacheBinary from '../lib/exchange-rate-cache.bin?raw';
     import { activeAddress } from '../lib/signer-data';
+    // @ts-ignore
+    import exchangeRateCacheBinary from '../lib/staking-rewards/exchange-rate-cache.bin?raw';
     import {
         fetchReceivedStakeTransactions,
         fetchStakeTransactions,
@@ -109,15 +109,17 @@
         </button>
         <span>
             address:
-            <input bind:value={address} placeholder="address" size="67" />
-            <button onclick={() => (address = $activeAddress)}> Set to active address </button>
+            <input class="address-input" bind:value={address} placeholder="address" />
+            <button class="set-active-btn" onclick={() => (address = $activeAddress)}>
+                Set to active address
+            </button>
         </span>
         <span>
             <button
                 type="button"
                 onclick={() => (fetchReceivedTxs = !fetchReceivedTxs)}
                 disabled={loadingTxs}
-                style="margin-left: 1rem;"
+                class="toggle-received-btn"
             >
                 {fetchReceivedTxs ? 'Skip received txs' : 'Include received txs'}
             </button>
@@ -162,5 +164,38 @@
     .error-message {
         color: #d63031;
         margin-bottom: 1rem;
+    }
+    .address-input {
+        max-width: 100%;
+        width: 40rem; /* large enough on desktop */
+        box-sizing: border-box;
+    }
+    /* Prevent horizontal overflow due to fixed button margins */
+    .input-row {
+        flex-wrap: wrap;
+    }
+    /* Mobile adjustments */
+    @media (max-width: 700px) {
+        .input-row {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.5rem;
+        }
+        .input-row > span,
+        .input-row > button {
+            width: 100%;
+        }
+        .address-input {
+            width: 100%;
+        }
+        .input-row button,
+        .set-active-btn,
+        .toggle-received-btn {
+            margin-left: 0; /* reset desktop margin */
+            width: 100%;
+        }
+        .toggle-received-btn {
+            order: 3; /* ensure visibility; comes after address controls */
+        }
     }
 </style>

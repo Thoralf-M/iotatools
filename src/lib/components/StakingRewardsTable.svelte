@@ -7,8 +7,12 @@
         fetchEpochEndTimestamp,
         fetchEpochStartTimestamp,
     } from '../lib/staking-rewards/graphql-requests';
-    import pricesCache from './iota-prices-coingecko.json';
-    import epochTimestampsCacheJson from './mainnet-epoch-timestamps-cache.json';
+    import pricesCache from '../lib/staking-rewards/iota-prices-coingecko.json';
+    import epochTimestampsCacheJson from '../lib/staking-rewards/mainnet-epoch-timestamps-cache.json';
+    import {
+        fetchAllPrices as fetchAllPricesUtil,
+        reloadFromCoinGeckoCache,
+    } from '../lib/staking-rewards/price-fetching';
 
     export let currentEpoch: number = 0;
     export let stakeObjects: StakeObject[] = [];
@@ -408,27 +412,15 @@
         }
     }
 
-    // Price fetch state
     let selectedCurrency: 'usd' | 'eur' = 'usd';
     let previousCurrency: 'usd' | 'eur' = selectedCurrency;
     function reloadPricesFromCache() {
-        let cache: Record<string, { usd: number; eur: number }> = { ...loadedCache };
-        let newEpochPrices: Record<number, number> = {};
-        for (let i = 0; i < epochs.length; i++) {
-            const epoch = epochs[i];
-            const dateStr = epochEndDates[i];
-            if (!dateStr) continue;
-            const formattedDate = formatDateForCoinGecko(dateStr);
-            if (cache[formattedDate]) {
-                const cached = cache[formattedDate];
-                if (selectedCurrency === 'usd' && typeof cached.usd === 'number') {
-                    newEpochPrices[epoch] = cached.usd;
-                } else if (selectedCurrency === 'eur' && typeof cached.eur === 'number') {
-                    newEpochPrices[epoch] = cached.eur;
-                }
-            }
-        }
-        epochPrices = newEpochPrices;
+        epochPrices = reloadFromCoinGeckoCache({
+            epochs,
+            epochEndDates,
+            selectedCurrency,
+            loadedCache,
+        });
     }
 
     $: if (!isFetchingPrice && selectedCurrency !== previousCurrency) {
@@ -438,7 +430,6 @@
     let isFetchingPrice = false;
     let priceError: string = '';
     let epochPrices: Record<number, number> = {};
-
     let loadedCache: Record<string, { usd: number; eur: number }> = pricesCache;
 
     // Export table data to CSV
@@ -611,64 +602,24 @@
         isFetchingPrice = true;
         priceError = '';
         epochPrices = {};
-        let cache: Record<string, { usd: number; eur: number }> = { ...loadedCache };
-        const now = new Date();
-        for (let i = 0; i < epochs.length; i++) {
-            const epoch = epochs[i];
-            const dateStr = epochEndDates[i];
-            if (!dateStr) continue;
-            // Skip if the epoch end date is in the future (current epoch or later)
-            const epochEndDate = new Date(dateStr);
-            if (epochEndDate > now) continue;
-            const formattedDate = formatDateForCoinGecko(dateStr);
-            // Use cached price if available
-            if (cache[formattedDate]) {
-                const cached = cache[formattedDate];
-                if (selectedCurrency === 'usd' && typeof cached.usd === 'number') {
-                    epochPrices[epoch] = cached.usd;
-                } else if (selectedCurrency === 'eur' && typeof cached.eur === 'number') {
-                    epochPrices[epoch] = cached.eur;
-                }
-                continue;
-            }
-            // Otherwise, fetch from API with retry logic
-            let success = false;
-            let attempt = 0;
-            while (!success && attempt < 5) {
-                try {
-                    const url = `https://api.coingecko.com/api/v3/coins/iota/history?date=${formattedDate}`;
-                    const res = await fetch(url);
-                    if (!res.ok) throw new Error('API error for epoch ' + epoch);
-                    const data = await res.json();
-                    const usd = data?.market_data?.current_price?.['usd'];
-                    const eur = data?.market_data?.current_price?.['eur'];
-                    if (typeof usd !== 'number' && typeof eur !== 'number')
-                        throw new Error('No price data for epoch ' + epoch);
-                    if (typeof usd === 'number') {
-                        if (selectedCurrency === 'usd') epochPrices[epoch] = usd;
-                    }
-                    if (typeof eur === 'number') {
-                        if (selectedCurrency === 'eur') epochPrices[epoch] = eur;
-                    }
-                    cache[formattedDate] = { usd, eur };
-                    console.log('Copy this to iota-prices-coingecko.json:');
-                    console.log(JSON.stringify(cache, null, 2));
-                    success = true;
-                } catch (e) {
-                    attempt++;
-                    priceError =
-                        typeof e === 'object' && e && 'message' in e
-                            ? (e as any).message
-                            : 'Failed to fetch prices';
-                    // Wait extra 10s before retrying
-                    await new Promise((r) => setTimeout(r, attempt * 10000));
-                }
-            }
-            // To avoid rate limits, add a small delay except for the last round
-            if (i < epochs.length - 1) {
-                await new Promise((r) => setTimeout(r, 5000));
-            }
+        const {
+            epochPrices: prices,
+            updatedCache,
+            error,
+        } = await fetchAllPricesUtil({
+            epochs,
+            epochEndDates,
+            currentEpoch,
+            selectedCurrency,
+            loadedCache,
+        });
+        if (updatedCache) {
+            loadedCache = updatedCache; // allow user to copy from console if desired
+            console.log('Copy this to iota-prices-coingecko.json:');
+            console.log(JSON.stringify(updatedCache, null, 2));
         }
+        if (error) priceError = error;
+        epochPrices = prices;
         isFetchingPrice = false;
     }
 </script>
@@ -754,10 +705,10 @@
 </div>
 
 <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
-    <div style="display: flex; flex: 1; align-items: center; gap: 12px;">
+    <div style="display: flex; flex: 1; align-items: center; gap: 12px; flex-wrap: wrap;">
         <label>
             Currency:
-            <select bind:value={selectedCurrency} on:change={reloadPricesFromCache}>
+            <select bind:value={selectedCurrency}>
                 <option value="usd">USD</option>
                 <option value="eur">EUR</option>
             </select>
