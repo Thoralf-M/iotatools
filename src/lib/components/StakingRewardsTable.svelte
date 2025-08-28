@@ -2,17 +2,39 @@
     import { List } from 'svelte-virtual';
 
     import { getSelectedNetworkConfig } from '../lib/client';
-    import type { ActionDetails, StakeObject, ValidatorInfo } from '../lib/staking-rewards/';
+    import type {
+        ActionDetails,
+        StakeObject,
+        TableComputationResult,
+        ValidatorInfo,
+    } from '../lib/staking-rewards/';
+    import pricesCache from '../lib/staking-rewards/cache/iota-prices-coingecko.json';
+    import epochTimestampsCacheJson from '../lib/staking-rewards/cache/mainnet-epoch-timestamps-cache.json';
+    import { exportTableToCSV, type ExportOptions } from '../lib/staking-rewards/csv-export';
     import {
         fetchEpochEndTimestamp,
         fetchEpochStartTimestamp,
     } from '../lib/staking-rewards/graphql-requests';
-    import pricesCache from '../lib/staking-rewards/iota-prices-coingecko.json';
-    import epochTimestampsCacheJson from '../lib/staking-rewards/mainnet-epoch-timestamps-cache.json';
     import {
         fetchAllPrices as fetchAllPricesUtil,
         reloadFromCoinGeckoCache,
     } from '../lib/staking-rewards/price-fetching';
+    import {
+        computeEpochData,
+        formatActionDetails,
+        formatDate,
+        formatPrincipal,
+        getFirstPrincipal,
+        getTotalAccumulatedRewardsForEpoch,
+        getTotalAccumulatedUnstakeRewardsForEpoch,
+        getTotalRewardsForEpoch,
+        getTotalUnstakeRewardsForEpoch,
+        getValidatorAccumulatedRewardsForEpoch,
+        getValidatorRewardsForEpoch,
+        getValidatorTotalPrincipal,
+        isActiveInEpoch,
+        isPreActivationInEpoch,
+    } from '../lib/staking-rewards/table-utils';
 
     export let currentEpoch: number = 0;
     export let stakeObjects: StakeObject[] = [];
@@ -25,246 +47,22 @@
     // Toggle state for columns
     let showPriceColumns = true;
     let showValidatorColumns = true;
-    // Efficient computation: single pass over stakeObjects
-    let minEpoch = 0;
-    let uniqueValidators: ValidatorInfo[] = [];
-    let epochData: Record<
-        number,
-        {
-            totalRewards: bigint;
-            totalAccumulated: bigint;
-            validatorRewards: Record<string, bigint>;
-            validatorAccumulated: Record<string, bigint>;
-            stakeRewards: Record<string, string>;
-            stakeAccumulated: Record<string, string>;
-            preActive: Record<string, boolean>;
-            active: Record<string, boolean>;
-        }
-    > = {};
-    let validatorPrincipal: Record<string, bigint> = {};
+
+    // Computed table data
+    let tableData: TableComputationResult = {
+        minEpoch: 0,
+        uniqueValidators: [],
+        epochData: {},
+        validatorPrincipal: {},
+        epochs: [],
+    };
 
     $: {
-        // Reset
-        minEpoch = 0;
-        uniqueValidators = [];
-        epochData = {};
-        validatorPrincipal = {};
-        if (stakeObjects.length === 0) {
-            minEpoch = 0;
-            uniqueValidators = [];
-            epochData = {};
-            validatorPrincipal = {};
-        } else {
-            let min = Infinity;
-            const poolIds = new Set<string>();
-            // Find minEpoch and uniqueValidators
-            stakeObjects.forEach((stakeObject) => {
-                if (stakeObject.firstEpoch < min) min = stakeObject.firstEpoch;
-                poolIds.add(stakeObject.poolId);
-            });
-            minEpoch = min === Infinity ? 0 : min;
-            uniqueValidators = Array.from(poolIds).map(
-                (poolId) =>
-                    validatorInfo[poolId] || { name: `Unknown (${poolId.slice(0, 6)}...)`, poolId },
-            );
-
-            // Build epochData and validatorPrincipal
-            const epochRange = Array.from({ length: currentEpoch + 1 }, (_, i) => i).slice(
-                minEpoch,
-            );
-            epochRange.forEach((epoch) => {
-                epochData[epoch] = {
-                    totalRewards: 0n,
-                    totalAccumulated: 0n,
-                    validatorRewards: {},
-                    validatorAccumulated: {},
-                    stakeRewards: {},
-                    stakeAccumulated: {},
-                    preActive: {},
-                    active: {},
-                };
-            });
-            stakeObjects.forEach((stakeObject) => {
-                // Principal for validator
-                if (!validatorPrincipal[stakeObject.poolId]) {
-                    const firstPrincipal = getFirstPrincipal(stakeObject);
-                    if (firstPrincipal && firstPrincipal !== '0') {
-                        try {
-                            validatorPrincipal[stakeObject.poolId] = BigInt(firstPrincipal);
-                        } catch {}
-                    } else {
-                        validatorPrincipal[stakeObject.poolId] = 0n;
-                    }
-                }
-                epochRange.forEach((epoch) => {
-                    // Rewards
-                    const rewards = stakeObject.rewardsByEpoch[epoch];
-                    if (rewards && rewards !== '0') {
-                        try {
-                            epochData[epoch].totalRewards += BigInt(rewards);
-                            if (!epochData[epoch].validatorRewards[stakeObject.poolId]) {
-                                epochData[epoch].validatorRewards[stakeObject.poolId] = 0n;
-                            }
-                            epochData[epoch].validatorRewards[stakeObject.poolId] +=
-                                BigInt(rewards);
-                        } catch {}
-                    }
-                    epochData[epoch].stakeRewards[stakeObject.objectId] = rewards || '0';
-                    // Pre-active/active
-                    epochData[epoch].preActive[stakeObject.objectId] =
-                        epoch >= stakeObject.firstEpoch && epoch < stakeObject.stakeActivationEpoch;
-                    epochData[epoch].active[stakeObject.objectId] =
-                        epoch >= stakeObject.firstEpoch && epoch <= stakeObject.lastEpoch;
-                });
-            });
-
-            // Compute accumulated rewards for each epoch (totalAccumulated)
-            for (let i = 0; i < epochRange.length; i++) {
-                const epoch = epochRange[i];
-                const prevEpoch = epochRange[i - 1];
-                epochData[epoch].totalAccumulated =
-                    epochData[epoch].totalRewards +
-                    (prevEpoch !== undefined ? epochData[prevEpoch].totalAccumulated : 0n);
-            }
-
-            // Compute validatorAccumulated and stakeAccumulated for each epoch
-            stakeObjects.forEach((stakeObject) => {
-                epochRange.forEach((epoch, i) => {
-                    // Validator accumulated
-                    if (!epochData[epoch].validatorAccumulated[stakeObject.poolId]) {
-                        epochData[epoch].validatorAccumulated[stakeObject.poolId] = 0n;
-                    }
-                    const rewards = stakeObject.rewardsByEpoch[epoch];
-                    if (rewards && rewards !== '0') {
-                        epochData[epoch].validatorAccumulated[stakeObject.poolId] +=
-                            BigInt(rewards);
-                    }
-                    if (i > 0) {
-                        const prevEpoch = epochRange[i - 1];
-                        epochData[epoch].validatorAccumulated[stakeObject.poolId] +=
-                            epochData[prevEpoch].validatorAccumulated[stakeObject.poolId] || 0n;
-                    }
-                    // Stake accumulated
-                    if (!epochData[epoch].stakeAccumulated[stakeObject.objectId]) {
-                        epochData[epoch].stakeAccumulated[stakeObject.objectId] = '0';
-                    }
-                    const stakeRewards = stakeObject.rewardsByEpoch[epoch];
-                    let prevAccum =
-                        i > 0
-                            ? BigInt(
-                                  epochData[epochRange[i - 1]].stakeAccumulated[
-                                      stakeObject.objectId
-                                  ] || '0',
-                              )
-                            : 0n;
-                    let currAccum =
-                        (stakeRewards && stakeRewards !== '0' ? BigInt(stakeRewards) : 0n) +
-                        prevAccum;
-                    epochData[epoch].stakeAccumulated[stakeObject.objectId] = currAccum.toString();
-                });
-            });
-        }
+        tableData = computeEpochData(stakeObjects, validatorInfo, currentEpoch);
     }
 
-    let epochs: number[] = [];
-    $: epochs = Array.from({ length: currentEpoch + 1 }, (_, i) => i).slice(minEpoch);
-
-    // Efficient lookup helpers
-    function isActiveInEpoch(stakeObject: StakeObject, epoch: number): boolean {
-        return epochData[epoch]?.active[stakeObject.objectId] ?? false;
-    }
-    function isPreActivationInEpoch(stakeObject: StakeObject, epoch: number): boolean {
-        return epochData[epoch]?.preActive[stakeObject.objectId] ?? false;
-    }
-    function getTotalRewardsForEpoch(epoch: number): string {
-        const total = epochData[epoch]?.totalRewards ?? 0n;
-        return total === 0n ? '0' : (Number(total) / 1_000_000_000).toFixed(2) + ' IOTA';
-    }
-    function getTotalAccumulatedRewardsForEpoch(epoch: number): string {
-        const total = epochData[epoch]?.totalAccumulated ?? 0n;
-        return total === 0n ? '0' : (Number(total) / 1_000_000_000).toFixed(2) + ' IOTA';
-    }
-    function getValidatorRewardsForEpoch(validatorPoolId: string, epoch: number): string {
-        const total = epochData[epoch]?.validatorRewards[validatorPoolId] ?? 0n;
-        return total === 0n ? '0' : (Number(total) / 1_000_000_000).toFixed(2) + ' IOTA';
-    }
-    function getValidatorAccumulatedRewardsForEpoch(
-        validatorPoolId: string,
-        epoch: number,
-    ): string {
-        const total = epochData[epoch]?.validatorAccumulated[validatorPoolId] ?? 0n;
-        return total === 0n ? '0' : (Number(total) / 1_000_000_000).toFixed(2) + ' IOTA';
-    }
-    function getValidatorTotalPrincipal(validatorPoolId: string): string {
-        const total = validatorPrincipal[validatorPoolId] ?? 0n;
-        return total === 0n ? '0' : (Number(total) / 1_000_000_000).toFixed(2) + ' IOTA';
-    }
-    function formatPrincipal(principal: string): string {
-        if (!principal || principal === '0') return 'N/A';
-        try {
-            const value = BigInt(principal);
-            return 'Initial amount: ' + (Number(value) / 1_000_000_000).toFixed(2) + ' IOTA';
-        } catch {
-            return 'N/A';
-        }
-    }
-
-    function getFirstPrincipal(stakeObject: StakeObject): string {
-        const epochs = Object.keys(stakeObject.principalByEpoch).map(Number);
-        if (epochs.length === 0) return '';
-        const minEpoch = Math.min(...epochs);
-        return stakeObject.principalByEpoch[minEpoch];
-    }
-
-    function formatActionDetails(action: ActionDetails): string {
-        let details = `Action: ${action.action}\nTransaction: ${action.digest}`;
-
-        if (action.amount) {
-            const iotaAmount = (Number(action.amount) / 1_000_000_000).toFixed(2);
-            if (action.action === 'Partial Unstake') {
-                details += `\nUnstaked Amount: ${iotaAmount} IOTA`;
-            } else {
-                details += `\nAmount: ${iotaAmount} IOTA`;
-            }
-        }
-
-        if (action.totalRewards) {
-            const iotaRewards = (Number(action.totalRewards) / 1_000_000_000).toFixed(2);
-            if (action.action === 'Partial Unstake') {
-                details += `\nUnstake Rewards: ${iotaRewards} IOTA`;
-            } else {
-                details += `\nTotal Rewards: ${iotaRewards} IOTA`;
-            }
-        }
-
-        if (action.fromAddress && action.toAddress) {
-            details += `\nFrom: ${action.fromAddress}\nTo: ${action.toAddress}`;
-        }
-
-        if (action.principalChange) {
-            const fromAmount = (Number(action.principalChange.from) / 1_000_000_000).toFixed(2);
-            const toAmount = (Number(action.principalChange.to) / 1_000_000_000).toFixed(2);
-            details += `\nPrincipal changed from ${fromAmount} IOTA to ${toAmount} IOTA`;
-        }
-
-        if (action.mergedStakeObjects && action.mergedStakeObjects.length > 0) {
-            details += `\nMerged stake objects:`;
-            action.mergedStakeObjects.forEach((obj) => {
-                const amount = (Number(obj.amount) / 1_000_000_000).toFixed(2);
-                details += `\n  - ${obj.objectId}: ${amount} IOTA`;
-            });
-        }
-
-        if (action.splitStakeObjects && action.splitStakeObjects.length > 0) {
-            details += `\nSplit into stake objects:`;
-            action.splitStakeObjects.forEach((obj) => {
-                const amount = (Number(obj.amount) / 1_000_000_000).toFixed(2);
-                details += `\n  - ${obj.objectId}: ${amount} IOTA`;
-            });
-        }
-
-        return details;
-    }
+    // Destructure for easy access
+    $: ({ minEpoch, uniqueValidators, epochData, validatorPrincipal, epochs } = tableData);
 
     // Elements for scroll synchronization
     let headerElement: HTMLElement;
@@ -361,15 +159,6 @@
         }
     }
 
-    function formatDate(date: Date): string {
-        const yyyy = date.getFullYear();
-        const mm = String(date.getMonth() + 1).padStart(2, '0');
-        const dd = String(date.getDate()).padStart(2, '0');
-        const hh = String(date.getHours()).padStart(2, '0');
-        const min = String(date.getMinutes()).padStart(2, '0');
-        return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
-    }
-
     $: {
         if (!epochs.length) {
             epochEndDates = [];
@@ -433,168 +222,23 @@
     let loadedCache: Record<string, { usd: number; eur: number }> = pricesCache;
 
     // Export table data to CSV
-    function exportTableToCSV() {
-        // Build header row
-        let headers = ['Epoch', 'End Date', 'Rewards', 'Accumulated'];
-        if (showPriceColumns && Object.keys(epochPrices).length > 0) {
-            headers.push(
-                `Price (${selectedCurrency.toUpperCase()})`,
-                `Rewards in ${selectedCurrency.toUpperCase()}`,
-                `Accumulated in ${selectedCurrency.toUpperCase()}`,
-            );
-        }
-        if (showValidatorColumns) {
-            uniqueValidators.forEach((validator) => {
-                headers.push(`Validator: ${validator.name}`);
-            });
-        }
-        stakeObjects.forEach((stakeObject) => {
-            headers.push(
-                `Stake: ${stakeObject.objectId}`,
-                `Action: ${stakeObject.objectId}`,
-                `Action Details: ${stakeObject.objectId}`,
-            );
-        });
+    function handleExportCSV() {
+        const options: ExportOptions = {
+            showPriceColumns,
+            showValidatorColumns,
+            epochPrices,
+            selectedCurrency,
+        };
 
-        let rows: string[][] = [];
-        for (let i = 0; i < epochs.length; i++) {
-            const epoch = epochs[i];
-            const row: string[] = [];
-            row.push(
-                epoch.toString(),
-                epochEndDates[i] || '-',
-                epoch === currentEpoch
-                    ? 'pending'
-                    : getTotalRewardsForEpoch(epoch).replace(' IOTA', ''),
-                epoch === currentEpoch
-                    ? 'pending'
-                    : getTotalAccumulatedRewardsForEpoch(epoch).replace(' IOTA', ''),
-            );
-            if (showPriceColumns && Object.keys(epochPrices).length > 0) {
-                row.push(
-                    epoch === currentEpoch
-                        ? 'pending'
-                        : epochPrices[epoch]
-                          ? epochPrices[epoch].toString()
-                          : 'no price',
-                    epoch === currentEpoch
-                        ? 'pending'
-                        : epochPrices[epoch]
-                          ? (
-                                Number(getTotalRewardsForEpoch(epoch).replace(' IOTA', '')) *
-                                epochPrices[epoch]
-                            ).toFixed(4)
-                          : 'no price',
-                    epoch === currentEpoch
-                        ? 'pending'
-                        : epochPrices[epoch]
-                          ? (
-                                Number(
-                                    getTotalAccumulatedRewardsForEpoch(epoch).replace(' IOTA', ''),
-                                ) * epochPrices[epoch]
-                            ).toFixed(4)
-                          : 'no price',
-                );
-            }
-            if (showValidatorColumns) {
-                uniqueValidators.forEach((validator) => {
-                    row.push(
-                        epoch === currentEpoch
-                            ? 'pending'
-                            : getValidatorRewardsForEpoch(validator.poolId, epoch).replace(
-                                  ' IOTA',
-                                  '',
-                              ),
-                    );
-                });
-            }
-            stakeObjects.forEach((stakeObject) => {
-                if (epoch === currentEpoch) {
-                    row.push('pending', '', '');
-                } else if (isPreActivationInEpoch(stakeObject, epoch)) {
-                    row.push('pre-active', '', '');
-                } else if (isActiveInEpoch(stakeObject, epoch) && epoch >= stakeObject.firstEpoch) {
-                    // Add reward amount
-                    row.push(
-                        stakeObject.rewardsByEpoch[epoch] === '0'
-                            ? '-'
-                            : (Number(stakeObject.rewardsByEpoch[epoch]) / 1_000_000_000).toFixed(
-                                  4,
-                              ),
-                    );
-
-                    // Add action information
-                    const action = stakeObject.actionByEpoch?.[epoch];
-                    if (action) {
-                        row.push(action.action);
-
-                        // Format action details for CSV
-                        let actionDetails = `TX: ${action.digest}`;
-                        if (action.amount) {
-                            const amount = (Number(action.amount) / 1_000_000_000).toFixed(2);
-                            actionDetails += ` | Amount: ${amount} IOTA`;
-                        }
-                        if (action.totalRewards) {
-                            const rewards = (Number(action.totalRewards) / 1_000_000_000).toFixed(
-                                2,
-                            );
-                            actionDetails += ` | Rewards: ${rewards} IOTA`;
-                        }
-                        if (action.fromAddress && action.toAddress) {
-                            actionDetails += ` | From: ${action.fromAddress} To: ${action.toAddress}`;
-                        }
-                        if (action.principalChange) {
-                            const from = (
-                                Number(action.principalChange.from) / 1_000_000_000
-                            ).toFixed(2);
-                            const to = (Number(action.principalChange.to) / 1_000_000_000).toFixed(
-                                2,
-                            );
-                            actionDetails += ` | Principal: ${from} → ${to} IOTA`;
-                        }
-                        if (action.mergedStakeObjects && action.mergedStakeObjects.length > 0) {
-                            actionDetails += ` | Merged: ${action.mergedStakeObjects.length} objects`;
-                        }
-                        if (action.splitStakeObjects && action.splitStakeObjects.length > 0) {
-                            actionDetails += ` | Split: ${action.splitStakeObjects.length} objects`;
-                        }
-
-                        row.push(actionDetails);
-                    } else {
-                        row.push('', '');
-                    }
-                } else {
-                    row.push('-', '', '');
-                }
-            });
-            rows.push(row);
-        }
-
-        // Convert to CSV string
-        let csvContent = '';
-        csvContent += headers.map((h) => '"' + h.replace(/"/g, '""') + '"').join(',') + '\n';
-        rows.forEach((row) => {
-            csvContent +=
-                row.map((cell) => '"' + String(cell).replace(/"/g, '""') + '"').join(',') + '\n';
-        });
-
-        // Download as file
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'staking-rewards-table.csv';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-
-    // Helper to format date for CoinGecko API (DD-MM-YYYY)
-    function formatDateForCoinGecko(dateStr: string): string {
-        const [date] = dateStr.split(' ');
-        const [yyyy, mm, dd] = date.split('-');
-        return `${dd}-${mm}-${yyyy}`;
+        exportTableToCSV(
+            epochs,
+            epochEndDates,
+            currentEpoch,
+            stakeObjects,
+            uniqueValidators,
+            epochData,
+            options,
+        );
     }
 
     async function fetchAllPrices() {
@@ -672,7 +316,7 @@
             </div>
             <div>
                 Total principal staked: {selectedValidator
-                    ? getValidatorTotalPrincipal(selectedValidator.poolId)
+                    ? getValidatorTotalPrincipal(selectedValidator.poolId, validatorPrincipal)
                     : '0'}
             </div>
         </div>
@@ -732,7 +376,7 @@
         </button>
     </div>
     <div style="margin-left: auto;">
-        <button on:click={exportTableToCSV} style="min-width: 120px;"> Export table to CSV </button>
+        <button on:click={handleExportCSV} style="min-width: 120px;"> Export table to CSV </button>
     </div>
 </div>
 <div class="table-container">
@@ -744,6 +388,8 @@
                 <div class="header-cell end-date-header">End Date</div>
                 <div class="header-cell rewards-header">Rewards</div>
                 <div class="header-cell rewards-header">Accumulated</div>
+                <div class="header-cell rewards-header">Unstake Rewards</div>
+                <div class="header-cell rewards-header">Unstake Total</div>
                 {#if showPriceColumns && Object.keys(epochPrices).length > 0}
                     <div class="header-cell rewards-header">
                         Price ({selectedCurrency.toUpperCase()})
@@ -835,12 +481,25 @@
                             <div class="table-cell rewards-cell">
                                 {epochs[index] === currentEpoch
                                     ? 'pending'
-                                    : getTotalRewardsForEpoch(epochs[index])}
+                                    : getTotalRewardsForEpoch(epochs[index], epochData)}
                             </div>
                             <div class="table-cell rewards-cell">
                                 {epochs[index] === currentEpoch
                                     ? 'pending'
-                                    : getTotalAccumulatedRewardsForEpoch(epochs[index])}
+                                    : getTotalAccumulatedRewardsForEpoch(epochs[index], epochData)}
+                            </div>
+                            <div class="table-cell rewards-cell">
+                                {epochs[index] === currentEpoch
+                                    ? 'pending'
+                                    : getTotalUnstakeRewardsForEpoch(epochs[index], epochData)}
+                            </div>
+                            <div class="table-cell rewards-cell">
+                                {epochs[index] === currentEpoch
+                                    ? 'pending'
+                                    : getTotalAccumulatedUnstakeRewardsForEpoch(
+                                          epochs[index],
+                                          epochData,
+                                      )}
                             </div>
                             {#if Object.keys(epochPrices).length > 0}
                                 {#if showPriceColumns && Object.keys(epochPrices).length > 0}
@@ -859,6 +518,7 @@
                                                     Number(
                                                         getTotalRewardsForEpoch(
                                                             epochs[index],
+                                                            epochData,
                                                         ).replace(' IOTA', ''),
                                                     ) * epochPrices[epochs[index]]
                                                 ).toFixed(2)} ${selectedCurrency.toUpperCase()}`
@@ -872,6 +532,7 @@
                                                     Number(
                                                         getTotalAccumulatedRewardsForEpoch(
                                                             epochs[index],
+                                                            epochData,
                                                         ).replace(' IOTA', ''),
                                                     ) * epochPrices[epochs[index]]
                                                 ).toFixed(2)} ${selectedCurrency.toUpperCase()}`
@@ -890,6 +551,7 @@
                                                     {getValidatorRewardsForEpoch(
                                                         validator.poolId,
                                                         epochs[index],
+                                                        epochData,
                                                     )}
                                                 </span>
                                                 <div class="validator-popup">
@@ -903,12 +565,14 @@
                                                         Rewards this epoch: {getValidatorRewardsForEpoch(
                                                             validator.poolId,
                                                             epochs[index],
+                                                            epochData,
                                                         )}
                                                     </div>
                                                     <div>
                                                         Accumulated rewards: {getValidatorAccumulatedRewardsForEpoch(
                                                             validator.poolId,
                                                             epochs[index],
+                                                            epochData,
                                                         )}
                                                     </div>
                                                 </div>
@@ -920,9 +584,9 @@
                             {#each stakeObjects as stakeObject}
                                 <div class="table-cell stake-cell">
                                     <div class="stake-popup-container">
-                                        {#if isPreActivationInEpoch(stakeObject, epochs[index])}
+                                        {#if isPreActivationInEpoch(stakeObject, epochs[index], epochData)}
                                             <div class="pre-active-indicator">pre-active</div>
-                                        {:else if isActiveInEpoch(stakeObject, epochs[index]) && epochs[index] >= stakeObject.firstEpoch && epochs[index] !== currentEpoch && (!stakeObject.actionByEpoch || (stakeObject.actionByEpoch && stakeObject.actionByEpoch[epochs[index]]?.action !== 'Unstaked'))}
+                                        {:else if isActiveInEpoch(stakeObject, epochs[index], epochData) && epochs[index] >= stakeObject.firstEpoch && epochs[index] !== currentEpoch && (!stakeObject.actionByEpoch || (stakeObject.actionByEpoch && stakeObject.actionByEpoch[epochs[index]]?.action !== 'Unstaked'))}
                                             <div class="stake-cell-content">
                                                 <span class="stake-value">
                                                     {stakeObject.rewardsByEpoch[epochs[index]] ===
@@ -957,7 +621,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                        {:else if isActiveInEpoch(stakeObject, epochs[index - 1]) && epochs[index] === currentEpoch && (!stakeObject.actionByEpoch || (stakeObject.actionByEpoch && !stakeObject.actionByEpoch[epochs[index]]))}
+                                        {:else if isActiveInEpoch(stakeObject, epochs[index - 1], epochData) && epochs[index] === currentEpoch && (!stakeObject.actionByEpoch || (stakeObject.actionByEpoch && !stakeObject.actionByEpoch[epochs[index]]))}
                                             pending
                                         {:else if !stakeObject.actionByEpoch || !stakeObject.actionByEpoch[epochs[index]]}
                                             <div class="inactive-indicator">-</div>

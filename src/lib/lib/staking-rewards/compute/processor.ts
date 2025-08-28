@@ -1,0 +1,738 @@
+import {
+    exchangeRateCache,
+    fetchAllExchangeRates,
+    fetchPoolExchangeRates,
+    fetchSystemState,
+    getExchangeRateCacheStats,
+} from '../graphql-requests';
+import { computeRewardsForStakeObject } from './rewards-calculator';
+import type { ActionDetails, ProcessStakeTransactionsResult, StakeObject } from './types';
+import { safeBigInt, getTokenAmount, getIotaAmount } from './utils';
+import { getCurrentActiveValidatorsExchangeRateIds, getValidatorInfo } from './validator-utils';
+
+// Types for internal processing
+type StakeObjectData = {
+    input?: {
+        poolId: string;
+        principal: string;
+        owner?: string;
+        stakeActivationEpoch?: string;
+    };
+    output?: {
+        poolId: string;
+        principal: string;
+        owner?: string;
+        stakeActivationEpoch?: string;
+    };
+    idCreated: boolean;
+    idDeleted: boolean;
+};
+
+type CoinObject = {
+    address: string;
+    balance: string;
+    owner?: string;
+};
+
+type TimelockObject = {
+    address: string;
+    lockedAmount: string;
+    owner?: string;
+};
+
+// Extract stake object data from node state
+function extractStakeObjectData(node: any): StakeObjectData | null {
+    const address = node.address;
+    const outputState = node.outputState?.asMoveObject?.contents;
+    const inputState = node.inputState?.asMoveObject?.contents;
+    const idCreated = node.idCreated === true;
+    const idDeleted = node.idDeleted === true;
+
+    const stakeData: any = {};
+
+    // Extract input state data
+    if (inputState?.type?.repr?.includes('timelocked_staking::TimelockedStakedIota')) {
+        const stakedIota = inputState.json?.staked_iota;
+        stakeData.input = {
+            poolId: stakedIota?.pool_id ?? '',
+            principal: stakedIota?.principal?.value ?? '',
+            owner: node.inputState.asMoveObject?.owner?.owner?.address,
+            stakeActivationEpoch: stakedIota?.stake_activation_epoch,
+        };
+    } else if (inputState?.type?.repr?.includes('staking_pool::StakedIota')) {
+        stakeData.input = {
+            poolId: inputState.json?.pool_id ?? '',
+            principal: inputState.json?.principal?.value ?? '',
+            owner: node.inputState.asMoveObject?.owner?.owner?.address,
+            stakeActivationEpoch: inputState.json?.stake_activation_epoch,
+        };
+    }
+
+    // Extract output state data
+    if (outputState?.type?.repr?.includes('timelocked_staking::TimelockedStakedIota')) {
+        const stakedIota = outputState.json?.staked_iota;
+        stakeData.output = {
+            poolId: stakedIota?.pool_id ?? '',
+            principal: stakedIota?.principal?.value ?? '',
+            owner: node.outputState.asMoveObject?.owner?.owner?.address,
+            stakeActivationEpoch: stakedIota?.stake_activation_epoch,
+        };
+    } else if (outputState?.type?.repr?.includes('staking_pool::StakedIota')) {
+        stakeData.output = {
+            poolId: outputState.json?.pool_id ?? '',
+            principal: outputState.json?.principal?.value ?? '',
+            owner: node.outputState.asMoveObject?.owner?.owner?.address,
+            stakeActivationEpoch: outputState.json?.stake_activation_epoch,
+        };
+    }
+
+    if (stakeData.input || stakeData.output) {
+        return {
+            ...stakeData,
+            idCreated,
+            idDeleted,
+        };
+    }
+
+    return null;
+}
+
+// Extract coin object data from node state
+function extractCoinObjectData(node: any): CoinObject | null {
+    const address = node.address;
+    const outputState = node.outputState?.asMoveObject?.contents;
+    const idCreated = node.idCreated === true;
+
+    // Collect coin objects that were created (potential unstake rewards)
+    if (idCreated && outputState?.type?.repr?.includes('::coin::Coin')) {
+        let balance = outputState.json?.balance;
+        // Handle balance as either string or object with value property
+        if (typeof balance === 'object' && balance?.value) {
+            balance = balance.value;
+        }
+        const owner = node.outputState?.asMoveObject?.owner?.owner?.address;
+        if (balance && owner && typeof balance === 'string') {
+            return { address, balance, owner };
+        }
+    }
+
+    return null;
+}
+
+// Extract timelock object data from node state
+function extractTimelockObjectData(node: any): TimelockObject | null {
+    const address = node.address;
+    const outputState = node.outputState?.asMoveObject?.contents;
+    const idCreated = node.idCreated === true;
+
+    // Collect timelock objects that were created (potential unstaked principal)
+    if (idCreated && outputState?.type?.repr?.includes('::timelock::TimeLock')) {
+        let lockedAmount = outputState.json?.locked;
+        // Handle locked amount as either string or object with value property
+        if (typeof lockedAmount === 'object' && lockedAmount?.value) {
+            lockedAmount = lockedAmount.value;
+        }
+        const owner = node.outputState?.asMoveObject?.owner?.owner?.address;
+        if (lockedAmount && owner && typeof lockedAmount === 'string') {
+            return { address, lockedAmount, owner };
+        }
+    }
+
+    return null;
+}
+
+// Parse transaction to extract stake and coin object changes
+function parseTransactionObjects(transaction: any): {
+    txStakeObjects: Map<string, StakeObjectData>;
+    coinObjects: CoinObject[];
+    timelockObjects: TimelockObject[];
+} {
+    const txStakeObjects = new Map<string, StakeObjectData>();
+    const coinObjects: CoinObject[] = [];
+    const timelockObjects: TimelockObject[] = [];
+
+    // First pass: collect all stake object changes, coin objects, and timelock objects
+    transaction.effects.objectChanges.nodes.forEach((node: any) => {
+        const address = node.address;
+
+        // Extract coin objects
+        const coinData = extractCoinObjectData(node);
+        if (coinData) {
+            coinObjects.push(coinData);
+        }
+
+        // Extract timelock objects
+        const timelockData = extractTimelockObjectData(node);
+        if (timelockData) {
+            timelockObjects.push(timelockData);
+        }
+
+        // Extract stake objects
+        const stakeData = extractStakeObjectData(node);
+        if (stakeData) {
+            txStakeObjects.set(address, stakeData);
+        }
+    });
+
+    return { txStakeObjects, coinObjects, timelockObjects };
+}
+
+// Create or update stake object based on output state
+function createOrUpdateStakeObject(
+    stakeObjects: Map<string, StakeObject>,
+    address: string,
+    output: StakeObjectData['output'],
+    epochId: number,
+    currentEpoch: number,
+    wasOwnedByTarget: boolean,
+): void {
+    if (!output) return;
+
+    if (!stakeObjects.has(address)) {
+        stakeObjects.set(address, {
+            objectId: address,
+            wasOwnedByTargetAddress: wasOwnedByTarget,
+            poolId: output.poolId,
+            principalByEpoch: {},
+            exchangeRatesByEpoch: {},
+            rewardsByEpoch: {},
+            accumulatedRewards: {},
+            actionByEpoch: {},
+            firstEpoch: epochId,
+            lastEpoch: currentEpoch,
+            stakeActivationEpoch: output.stakeActivationEpoch
+                ? parseInt(output.stakeActivationEpoch)
+                : epochId,
+        });
+    } else {
+        // Update the flag if this transaction shows target ownership
+        const existing = stakeObjects.get(address)!;
+        if (wasOwnedByTarget) {
+            existing.wasOwnedByTargetAddress = true;
+        }
+        // Preserve the original firstEpoch - only update if this epoch is earlier
+        if (epochId < existing.firstEpoch) {
+            existing.firstEpoch = epochId;
+        }
+        // Don't automatically update lastEpoch to currentEpoch - let transfer logic handle it
+    }
+
+    const obj = stakeObjects.get(address)!;
+    obj.principalByEpoch[epochId] = output.principal;
+    obj.rewardsByEpoch[epochId] = '0';
+    obj.accumulatedRewards[epochId] = '0';
+
+    // Update stakeActivationEpoch if we have the real value
+    if (output.stakeActivationEpoch) {
+        obj.stakeActivationEpoch = parseInt(output.stakeActivationEpoch);
+    }
+}
+
+// Create stake object for input-only transactions
+function createInputOnlyStakeObject(
+    stakeObjects: Map<string, StakeObject>,
+    address: string,
+    input: StakeObjectData['input'],
+    epochId: number,
+): void {
+    if (!input) return;
+
+    if (!stakeObjects.has(address)) {
+        stakeObjects.set(address, {
+            objectId: address,
+            wasOwnedByTargetAddress: true,
+            poolId: input.poolId,
+            principalByEpoch: {},
+            exchangeRatesByEpoch: {},
+            rewardsByEpoch: {},
+            accumulatedRewards: {},
+            actionByEpoch: {},
+            firstEpoch: epochId,
+            lastEpoch: epochId, // This object ends in this epoch
+            stakeActivationEpoch: input.stakeActivationEpoch
+                ? parseInt(input.stakeActivationEpoch)
+                : epochId,
+        });
+    } else {
+        // Update the flag if this transaction shows target ownership
+        const existing = stakeObjects.get(address)!;
+        existing.wasOwnedByTargetAddress = true;
+        // For input-only transactions, this might be the final epoch for this object
+        // But preserve the firstEpoch - only update lastEpoch
+        existing.lastEpoch = epochId;
+    }
+}
+
+// Helper function to calculate rewards based on principal amount and exchange rates
+async function calculateRewardsFromExchangeRates(
+    poolId: string,
+    principalAmount: bigint,
+    stakeActivationEpoch: number,
+    currentEpoch: number,
+): Promise<{ totalRewards: bigint; success: boolean }> {
+    try {
+        // Get baseline exchange rate (from before staking started)
+        const baselineEpoch = stakeActivationEpoch;
+        let baselineExchangeRate;
+        let currentExchangeRate;
+
+        // Try to get exchange rates from cache
+        const cacheEntry = exchangeRateCache.get(poolId);
+
+        if (cacheEntry && cacheEntry.epochData) {
+            // Find baseline and current exchange rates
+            const baselineData = cacheEntry.epochData[baselineEpoch];
+            const currentData = cacheEntry.epochData[currentEpoch]; // Use previous epoch as "current"
+
+            if (baselineData) {
+                baselineExchangeRate = {
+                    iota_amount: baselineData.iota,
+                    pool_token_amount: baselineData.pool,
+                };
+            } else {
+                // Fallback to 1:1 ratio
+                baselineExchangeRate = {
+                    iota_amount: '1',
+                    pool_token_amount: '1',
+                };
+            }
+
+            if (currentData) {
+                currentExchangeRate = {
+                    iota_amount: currentData.iota,
+                    pool_token_amount: currentData.pool,
+                };
+            } else {
+                // If no exchange rate available, we can't calculate rewards
+                return { totalRewards: 0n, success: false };
+            }
+        } else {
+            // If no cache entry available, we can't calculate rewards
+            return { totalRewards: 0n, success: false };
+        }
+
+        // Calculate pool token amount using baseline exchange rate
+        const poolTokenAmount = getTokenAmount(baselineExchangeRate, principalAmount);
+
+        // Calculate total IOTA amount using current exchange rate
+        const totalIotaAmount = getIotaAmount(currentExchangeRate, poolTokenAmount);
+
+        // Calculate rewards (total - principal)
+        const totalRewards = totalIotaAmount > principalAmount ? totalIotaAmount - principalAmount : 0n;
+
+        return { totalRewards, success: true };
+    } catch (error) {
+        console.warn('Failed to calculate rewards from exchange rates:', error);
+        return { totalRewards: 0n, success: false };
+    }
+}
+
+// Determine action details for a stake object transaction
+async function determineActionDetails(
+    input: StakeObjectData['input'],
+    output: StakeObjectData['output'],
+    idCreated: boolean,
+    idDeleted: boolean,
+    digest: string,
+    targetAddress: string,
+    currentEpoch: number,
+    epochId: number,
+    existing: StakeObject,
+    coinObjects: CoinObject[],
+    timelockObjects: TimelockObject[],
+    txStakeObjects: Map<string, StakeObjectData>,
+    address: string,
+): Promise<ActionDetails> {
+    if (!input) {
+        return { action: 'Unknown', digest };
+    }
+
+    let actionDetails: ActionDetails = {
+        action: 'Unknown',
+        digest,
+    };
+
+    if (idCreated) {
+        actionDetails.action = 'Staked';
+        actionDetails.amount = output?.principal || input.principal;
+    } else if (idDeleted) {
+        actionDetails.action = 'Unstaked';
+        actionDetails.amount = input.principal;
+        // Total rewards will be calculated later in the rewards calculator using exchange rates
+        actionDetails.totalRewards = '0'; // Placeholder
+        existing.lastEpoch = epochId;
+    } else if (!idCreated && !idDeleted) {
+        if (input.owner && output?.owner && input.owner !== output.owner) {
+            actionDetails.action = 'Transfer';
+            actionDetails.fromAddress = input.owner;
+            actionDetails.toAddress = output.owner;
+
+            console.log(`Transfer detected: epoch ${epochId}, from ${input.owner} to ${output.owner}, targetAddress: ${targetAddress}`);
+            console.log(`existing.wasOwnedByTargetAddress: ${existing.wasOwnedByTargetAddress}`);
+
+            // If this stake object was owned by target address and is being transferred to someone else,
+            // stop tracking rewards from this epoch onwards
+            if (existing.wasOwnedByTargetAddress && output.owner !== targetAddress) {
+                console.log(`Transfer away detected: epoch ${epochId}, setting lastEpoch from ${existing.lastEpoch} to ${epochId}`);
+                existing.lastEpoch = epochId;
+            } else if (output.owner === targetAddress) {
+                // Transferring TO target address - extend tracking until current epoch
+                // Only extend if current lastEpoch is earlier than currentEpoch (don't override later transfer-away epochs)
+                if (existing.lastEpoch < currentEpoch) {
+                    console.log(`Transfer to target detected: epoch ${epochId}, setting lastEpoch to ${currentEpoch}`);
+                    existing.lastEpoch = currentEpoch;
+                } else {
+                    console.log(`Transfer to target detected: epoch ${epochId}, but lastEpoch (${existing.lastEpoch}) is already later than currentEpoch (${currentEpoch}), not changing`);
+                }
+            }
+        } else {
+            // Check if this is a partial unstake
+            const inputPrincipal = safeBigInt(input.principal);
+            const outputPrincipal = safeBigInt(output?.principal || '0');
+            const principalDecrease = inputPrincipal - outputPrincipal;
+
+            // Find coins created for this owner in this transaction
+            const ownerCoins = coinObjects.filter((coin) => coin.owner === input.owner);
+            const totalCoinBalance = ownerCoins.reduce((sum, coin) => {
+                return sum + safeBigInt(coin.balance);
+            }, 0n);
+
+            // Find timelock objects created for this owner in this transaction
+            const ownerTimelocks = timelockObjects.filter(
+                (timelock) => timelock.owner === input.owner,
+            );
+            const totalTimelockAmount = ownerTimelocks.reduce((sum, timelock) => {
+                return sum + safeBigInt(timelock.lockedAmount);
+            }, 0n);
+
+            if (principalDecrease > 0n && ownerCoins.length > 0) {
+                // This is a partial unstake
+                actionDetails.action = 'Partial Unstake';
+                actionDetails.amount = principalDecrease.toString(); // Amount unstaked
+
+                // Calculate rewards based on exchange rates
+                const exchangeRateResult = await calculateRewardsFromExchangeRates(
+                    input.poolId,
+                    principalDecrease, // Use the unstaked amount for reward calculation
+                    existing.stakeActivationEpoch,
+                    epochId,
+                );
+
+                if (exchangeRateResult.success) {
+                    actionDetails.totalRewards = exchangeRateResult.totalRewards.toString();
+                } else {
+                    // Fallback to coin-based calculation if exchange rates are not available
+                    console.warn(`Exchange rate calculation failed for pool ${input.poolId}, falling back to coin-based calculation`);
+
+                    if (totalTimelockAmount > 0n) {
+                        // Timelocked staking scenario: coins contain only rewards,
+                        // unstaked principal goes into timelock
+                        actionDetails.totalRewards = totalCoinBalance.toString();
+                    } else {
+                        // Normal staking scenario: coins contain principal + rewards
+                        const rewards = totalCoinBalance - principalDecrease;
+                        if (rewards > 0n) {
+                            actionDetails.totalRewards = rewards.toString();
+                        }
+                    }
+                }
+
+                // Record principal change
+                actionDetails.principalChange = {
+                    from: input.principal,
+                    to: output?.principal || '0',
+                };
+            } else {
+                actionDetails.action = 'Transition';
+
+                // Check for principal changes
+                if (input.principal !== output?.principal) {
+                    actionDetails.principalChange = {
+                        from: input.principal,
+                        to: output?.principal || '0',
+                    };
+                }
+            }
+
+            // Detect merged stake objects (deleted objects in this transaction)
+            const mergedObjects: Array<{ objectId: string; amount: string }> = [];
+            const splitObjects: Array<{ objectId: string; amount: string }> = [];
+
+            txStakeObjects.forEach((otherStakeData, otherAddress) => {
+                if (otherAddress !== address) {
+                    if (otherStakeData.idDeleted && otherStakeData.input) {
+                        // This object was deleted and merged into our current object
+                        mergedObjects.push({
+                            objectId: otherAddress,
+                            amount: otherStakeData.input.principal,
+                        });
+                    } else if (otherStakeData.idCreated && otherStakeData.output) {
+                        // This object was created, potentially split from our current object
+                        splitObjects.push({
+                            objectId: otherAddress,
+                            amount: otherStakeData.output.principal,
+                        });
+                    }
+                }
+            });
+
+            if (mergedObjects.length > 0) {
+                actionDetails.mergedStakeObjects = mergedObjects;
+            }
+            if (splitObjects.length > 0) {
+                actionDetails.splitStakeObjects = splitObjects;
+            }
+        }
+    }
+
+    return actionDetails;
+}
+
+// Process all transactions to build stake objects
+async function processTransactions(
+    transactions: Array<any>,
+    currentEpoch: number,
+    targetAddress: string,
+): Promise<Map<string, StakeObject>> {
+    const stakeObjects = new Map<string, StakeObject>();
+
+    // Sort transactions by epoch to ensure chronological processing
+    const sortedTransactions = transactions.sort((a, b) => {
+        const epochA = a.effects.epoch.epochId;
+        const epochB = b.effects.epoch.epochId;
+        return epochA - epochB;
+    });
+
+    for (const transaction of sortedTransactions) {
+        const epochId = transaction.effects.epoch.epochId;
+        const digest = transaction.digest;
+
+        const { txStakeObjects, coinObjects, timelockObjects } =
+            parseTransactionObjects(transaction);
+
+        // Second pass: process each stake object and determine detailed actions
+        for (const [address, stakeData] of txStakeObjects) {
+            const { input, output, idCreated, idDeleted } = stakeData;
+
+            // Check if this object was ever owned by the target address
+            const wasOwnedByTarget =
+                input?.owner === targetAddress || output?.owner === targetAddress;
+
+            // Create or update stake objects based on output state
+            if (output) {
+                createOrUpdateStakeObject(
+                    stakeObjects,
+                    address,
+                    output,
+                    epochId,
+                    currentEpoch,
+                    wasOwnedByTarget,
+                );
+            }
+
+            // Determine action type and create detailed action info
+            if (input) {
+                // Check if this object was ever owned by the target address
+                const wasOwnedByTarget =
+                    input?.owner === targetAddress || output?.owner === targetAddress;
+
+                // If this is an input-only object (no output), we still need to track it
+                // if it was owned by the target address
+                if (!output && wasOwnedByTarget) {
+                    createInputOnlyStakeObject(stakeObjects, address, input, epochId);
+                }
+
+                const existing = stakeObjects.get(address);
+                if (existing) {
+                    // Update the flag if this transaction shows target ownership
+                    if (wasOwnedByTarget) {
+                        existing.wasOwnedByTargetAddress = true;
+                    }
+
+                    const actionDetails = await determineActionDetails(
+                        input,
+                        output,
+                        idCreated,
+                        idDeleted,
+                        digest,
+                        targetAddress,
+                        currentEpoch,
+                        epochId,
+                        existing,
+                        coinObjects,
+                        timelockObjects,
+                        txStakeObjects,
+                        address,
+                    );
+
+                    existing.actionByEpoch = existing.actionByEpoch || {};
+                    existing.actionByEpoch[epochId] = actionDetails;
+                }
+            }
+        }
+    }
+
+    return stakeObjects;
+}
+
+// Filter stake objects to only include those owned by target address
+function filterOwnedStakeObjects(stakeObjects: Map<string, StakeObject>): {
+    ownedStakeObjects: Map<string, StakeObject>;
+    requiredPoolIds: Set<string>;
+} {
+    const requiredPoolIds = new Set<string>();
+    const ownedStakeObjects = new Map<string, StakeObject>();
+
+    stakeObjects.forEach((stakeObject, address) => {
+        // Check if this stake object was ever owned by the target address
+        if (stakeObject.wasOwnedByTargetAddress) {
+            ownedStakeObjects.set(address, stakeObject);
+            requiredPoolIds.add(stakeObject.poolId);
+        }
+    });
+
+    return { ownedStakeObjects, requiredPoolIds };
+}
+
+// Fill in missing principal entries for active epochs
+function fillMissingPrincipalEntries(stakeObject: StakeObject): void {
+    // Generate all epochs where this stake object was active
+    // Include the stake activation epoch itself, as that's where the principal is established
+    const activeEpochs: number[] = [];
+    for (let epoch = stakeObject.stakeActivationEpoch; epoch <= stakeObject.lastEpoch; epoch++) {
+        activeEpochs.push(epoch);
+    }
+
+    // Fill in missing principal entries by carrying forward the previous epoch's value
+    // First, find the initial principal amount from any existing epoch
+    let lastKnownPrincipal: string | undefined;
+    const existingEpochs = Object.keys(stakeObject.principalByEpoch)
+        .map(Number)
+        .sort((a, b) => a - b);
+    if (existingEpochs.length > 0) {
+        lastKnownPrincipal = stakeObject.principalByEpoch[existingEpochs[0]];
+    }
+
+    // Fill in all active epochs with principal amounts
+    for (const epoch of activeEpochs) {
+        if (stakeObject.principalByEpoch[epoch]) {
+            // Update the last known principal if we have a value for this epoch
+            lastKnownPrincipal = stakeObject.principalByEpoch[epoch];
+        } else if (lastKnownPrincipal) {
+            // If no entry exists for this epoch, carry forward the last known value
+            stakeObject.principalByEpoch[epoch] = lastKnownPrincipal;
+            stakeObject.rewardsByEpoch[epoch] = '0';
+            stakeObject.accumulatedRewards[epoch] = '0';
+        }
+    }
+}
+
+// Fetch exchange rates for a stake object
+async function fetchExchangeRatesForStakeObject(
+    stakeObject: StakeObject,
+    exchangeRateId: string,
+    currentEpoch: number,
+): Promise<void> {
+    const activeEpochs: number[] = [];
+    for (let epoch = stakeObject.stakeActivationEpoch; epoch <= stakeObject.lastEpoch; epoch++) {
+        activeEpochs.push(epoch);
+    }
+
+    // Fetch exchange rates for epochs where rewards are earned (stakeActivationEpoch onwards)
+    const rewardEpochs = activeEpochs.filter((epoch) => epoch >= stakeObject.stakeActivationEpoch);
+    for (const epoch of rewardEpochs) {
+        if (epoch == currentEpoch) {
+            continue; // Skip current epoch as we don't have exchange rates for it yet
+        }
+        try {
+            const exchangeRates = await fetchPoolExchangeRates(
+                exchangeRateId,
+                epoch,
+                stakeObject.poolId,
+            );
+            if (exchangeRates) {
+                stakeObject.exchangeRatesByEpoch[epoch] = exchangeRates;
+            }
+        } catch (err) {
+            console.error(
+                `Error fetching exchange rates for poolId ${stakeObject.poolId}, epoch ${epoch}:`,
+                err,
+            );
+        }
+    }
+}
+
+// Process stake objects with exchange rates and compute rewards
+async function processStakeObjectsWithExchangeRates(
+    ownedStakeObjects: Map<string, StakeObject>,
+    validatorMap: Record<string, string>,
+    currentEpoch: number,
+): Promise<StakeObject[]> {
+    const stakeObjectsArray = Array.from(ownedStakeObjects.values());
+
+    for (const stakeObject of stakeObjectsArray) {
+        const exchangeRateId = validatorMap[stakeObject.poolId];
+        if (!exchangeRateId) {
+            console.warn(`No exchange rate ID found for pool ${stakeObject.poolId}`);
+            continue;
+        }
+
+        // Fill in missing principal entries
+        fillMissingPrincipalEntries(stakeObject);
+
+        // Fetch exchange rates
+        await fetchExchangeRatesForStakeObject(stakeObject, exchangeRateId, currentEpoch);
+
+        // Compute rewards for each epoch
+        await computeRewardsForStakeObject(stakeObject, exchangeRateId);
+    }
+
+    return stakeObjectsArray;
+}
+
+export async function processStakeTransactionsWithExchangeRates(
+    transactions: Array<any>,
+    currentEpoch: number,
+    targetAddress: string,
+): Promise<ProcessStakeTransactionsResult> {
+    // Get system state to map pool IDs to exchange rate IDs
+    const systemState = (await fetchSystemState())[0];
+    // TODO: handle inactive validators
+    const validatorMap = getCurrentActiveValidatorsExchangeRateIds(systemState);
+    const validatorInfo = getValidatorInfo(systemState);
+
+    // Process transactions to build stake objects
+    const stakeObjects = await processTransactions(transactions, currentEpoch, targetAddress);
+
+    // Filter to only owned stake objects and get required pool IDs
+    const { ownedStakeObjects, requiredPoolIds } = filterOwnedStakeObjects(stakeObjects);
+
+    console.log(
+        `Found ${ownedStakeObjects.size} owned stake objects (filtered from ${stakeObjects.size} total) requiring exchange rates for ${requiredPoolIds.size} pools`,
+    );
+
+    // Fetch exchange rates for the required pools
+    await fetchAllExchangeRates(currentEpoch, requiredPoolIds);
+
+    // Process stake objects with exchange rates and compute rewards
+    const stakeObjectsArray = await processStakeObjectsWithExchangeRates(
+        ownedStakeObjects,
+        validatorMap,
+        currentEpoch,
+    );
+
+    // Log the entire cache for copying to a JSON file
+    const cacheArray = Array.from(exchangeRateCache.values());
+    const cacheStats = getExchangeRateCacheStats();
+
+    console.log('=== EXCHANGE RATE CACHE DATA ===');
+    console.log('Cache Statistics:', cacheStats);
+    console.log('Copy this data to a JSON file for initial cache loading:');
+    console.log(JSON.stringify(cacheArray, null, 2));
+    console.log('=== END CACHE DATA ===');
+
+    return {
+        stakeObjects: stakeObjectsArray,
+        validatorInfo,
+    };
+}
