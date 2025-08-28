@@ -1,29 +1,58 @@
 <script lang="ts">
-    import { fromBase64, toBase64 } from '@iota/bcs';
+    import { fromB64, toB64 } from '@iota/bcs';
     import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
     import { Transaction, TransactionDataBuilder } from '@iota/iota-sdk/transactions';
     import { get } from 'svelte/store';
 
     import TransactionView from '../components/TransactionView.svelte';
-    import { getClient } from '../lib/client';
+    import { updatePageQueryParams, usePageQueryParams } from '../lib/page-query-params';
     import { activeAddress, iota_wallets } from '../lib/signer-data';
+
+    // Use query parameters for the transaction bytes
+    const queryParamValues = usePageQueryParams({
+        tx: '', // Query parameter for transaction bytes
+    });
 
     let error = '';
     let value: any;
     let signatureResult = '';
     let signatureTypeLabel = '';
+    let txBytesInput = '';
+
+    // Reactive assignment from query parameters
+    $: txBytesInput = $queryParamValues.tx;
+
+    // Function to update transaction bytes and query parameter
+    function updateTxBytes(newTxBytes: string) {
+        txBytesInput = newTxBytes;
+        updatePageQueryParams({ tx: newTxBytes || null });
+
+        // Process the transaction bytes
+        processTransactionBytes(newTxBytes);
+    }
+
+    // Function to process transaction bytes and update the value
+    function processTransactionBytes(inputString: string) {
+        try {
+            let txBytes = fromB64(inputString);
+            value = TransactionDataBuilder.fromBytes(txBytes);
+        } catch (e) {
+            console.log('error TransactionDataBuilder', e);
+            try {
+                value = IotaBcs.SenderSignedData.parse(fromB64(inputString))[0];
+            } catch (e) {
+                console.log('error SenderSignedData', e);
+                value = e;
+            }
+        }
+    }
 
     let txBytesTextarea: HTMLTextAreaElement;
     const exampleTx =
         'AAACAAgAypo7AAAAAAAg0qtr7KbsZQK7i9NNc+lDxtEgh8yTfy+s2wRs+2eQSpECAgABAQAAAQEDAAAAAAEBANKra+ym7GUCu4vTTXPpQ8bRIIfMk38vrNsEbPtnkEqRAhqhmE/Wz9u5hD63usyXx55ZG8kDHwdq9KNGKDXH3pQ2Mj0AAAAAAAAgnPGssCCNJPH94p+4VvX3Fzp32jLZO9zsO5eMsp4LujqznOy0o0pHmEqaslIo0HQKO7U5nouSh6qph3HYLxK94jM9AAAAAAAAIMX/XZSN7Cn09U1FYXDGPcaUk5v9VkmnwMeY1geClYzW0qtr7KbsZQK7i9NNc+lDxtEgh8yTfy+s2wRs+2eQSpHoAwAAAAAAAOBvPAAAAAAAAA==';
 
     function insertExampleTx() {
-        if (txBytesTextarea) {
-            txBytesTextarea.value = exampleTx;
-            // Trigger the input event to process the transaction
-            const event = new Event('input', { bubbles: true });
-            txBytesTextarea.dispatchEvent(event);
-        }
+        updateTxBytes(exampleTx);
     }
 
     async function signTransaction() {
@@ -31,7 +60,7 @@
             error = '';
             signatureResult = '';
 
-            const inputString = txBytesTextarea.value.trim();
+            const inputString = txBytesInput.trim();
             if (!inputString) {
                 error = 'Please enter transaction bytes';
                 return;
@@ -54,7 +83,7 @@
             let transactionBytes: Uint8Array;
 
             try {
-                transactionBytes = fromBase64(inputString);
+                transactionBytes = fromB64(inputString);
             } catch (e) {
                 error = 'Invalid base64 transaction bytes';
                 return;
@@ -78,7 +107,7 @@
             error = '';
             signatureResult = '';
 
-            const inputString = txBytesTextarea.value.trim();
+            const inputString = txBytesInput.trim();
             if (!inputString) {
                 error = 'Please enter a message';
                 return;
@@ -117,29 +146,15 @@
     <div>
         <div style="float: left; display: flex; align-items: center; gap: 10px;">
             <span>Tx bytes base64 encoded or message:</span>
-            <button on:click={insertExampleTx} style="padding: 4px 8px; font-size: 12px;">
+            <button onclick={insertExampleTx} style="padding: 4px 8px; font-size: 12px;">
                 Example tx
             </button>
         </div>
         <div class="box">
             <textarea
                 bind:this={txBytesTextarea}
-                on:input={(event) => {
-                    // @ts-ignore
-                    let inputString = event.target.value;
-                    try {
-                        let txBytes = fromBase64(inputString);
-                        value = TransactionDataBuilder.fromBytes(txBytes);
-                    } catch (e) {
-                        console.log('error TransactionDataBuilder', e);
-                        try {
-                            value = IotaBcs.SenderSignedData.parse(fromBase64(inputString))[0];
-                        } catch (e) {
-                            console.log('error SenderSignedData', e);
-                            value = e;
-                        }
-                    }
-                }}
+                value={txBytesInput}
+                oninput={(e) => updateTxBytes((e.target as HTMLTextAreaElement)?.value || '')}
                 placeholder="base64 transaction bytes or message"
             ></textarea>
         </div>
@@ -148,13 +163,13 @@
     <!-- Signing buttons -->
     <div style="margin: 20px 0; display: flex; gap: 10px;">
         <button
-            on:click={signTransaction}
+            onclick={signTransaction}
             style="padding: 8px 16px; background: #007acc; color: white; border: none; border-radius: 4px; cursor: pointer;"
         >
             Sign Transaction
         </button>
         <button
-            on:click={signPersonalMessage}
+            onclick={signPersonalMessage}
             style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;"
         >
             Sign Personal Message

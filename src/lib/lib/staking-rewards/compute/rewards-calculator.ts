@@ -10,7 +10,7 @@ export async function computeRewardsForStakeObject(
     // Get all epochs with exchange rates, sorted chronologically, but only up to lastEpoch
     const epochs = Object.keys(stakeObject.exchangeRatesByEpoch)
         .map(Number)
-        .filter(epoch => epoch <= stakeObject.lastEpoch)
+        .filter((epoch) => epoch <= stakeObject.lastEpoch)
         .sort((a, b) => a - b);
 
     let previousAccumulatedRewards = 0n;

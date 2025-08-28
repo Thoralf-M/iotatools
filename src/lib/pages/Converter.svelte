@@ -2,10 +2,26 @@
     import { bcs, fromB58, fromB64, toB58, toB64, toHEX } from '@iota/bcs';
     import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
     import { TransactionDataBuilder } from '@iota/iota-sdk/transactions';
+    import { onMount } from 'svelte';
 
     import TransactionView from '../components/TransactionView.svelte';
     import { bcsBytesToInteger, bytesToUtf8, hexToBytes } from '../lib/converter';
     import { iotaToNano, nanoToIota } from '../lib/iota-nano-conversion';
+    import { updatePageQueryParams, usePageQueryParams } from '../lib/page-query-params';
+
+    // Query parameter integration
+    const queryParamDefaults = {
+        hex: '',
+        base58: '',
+        base64: '',
+        utf8: '',
+        bcsNumber: '',
+        nano: '',
+        iota: '',
+        txBytes: '',
+    };
+
+    const pageParams = usePageQueryParams(queryParamDefaults);
 
     let bytes: any;
     let hex = '';
@@ -25,7 +41,42 @@
 
     let txBytesTextarea: HTMLTextAreaElement;
     const exampleTx =
-        'AQAAAAAABQAgAADITWzmvxDdFgAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAQOrTZ5H0khvmeaMM7Q+RqIE3kXhhUmg8Ye1x03DM1/oxo+fFQAAAAABAQC1UdUC/HAd21HmDkcdewfnQ/8ZyCdSznxVvhX2A+UdkhQ/8xUAAAAAIGvBzsOprOdLXmvbV4WNEAdCeVyxUQC4casadEmSiOz8AQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgEAAAAAAAAAAAEBVB+vemIenOWjJKPeaiUWCEN25jsEPmTpIlut31oacd9AaKkVAAAAAAEEAKBMDds1kJoNC+au685RIk/bcqEzZUlnLfnwjJpgx1omB2ZpeGVkMTgNZnJvbV9yYXdfdTI1NgABAQAAAHS7cwUfi9jmrdrHu2LvhWKLCdye6W294+RBZ4pEgCvbC21vY2tfc291cmNlCXNldF92YWx1ZQADAQEAAQIAAgAAAHS7cwUfi9jmrdrHu2LvhWKLCdye6W294+RBZ4pEgCvbC21vY2tfc291cmNlBXByaWNlAAIBAQABAwAADSboscHb0PENnJ/ZKPsb8EgfRLahSRbrPfEuFCT0XaoGbWFya2V0DHVwZGF0ZV9wcmljZQEHVk0OWNWfzsxej+coc1GWFdn7sceB009VRe4/PcHNRf0Gc3RhYmxlBlNUQUJMRQACAQQAAgIAKncQef3db67TtP+AYhEsoc86M8mLAnwGhbj7/3IK0mEBRfaRcZkkQl7YnEMWcsyOrUsBJtE2Di3bqK/2JiFVZP0UP/MVAAAAACDNN3mgas1+l1nWysvP0pprzh7yATGvFfv+hKdhxMIwiyp3EHn93W+u07T/gGIRLKHPOjPJiwJ8BoW4+/9yCtJh6AMAAAAAAACcxWVRAAAAAAABYQBuCFSJ1RJeUMmPez2iX78Kz4uLyOBFD+mUii8dqFUHgMeg+ioHP3cI/3LnNc+id/JHyjRpl1Lgc9tXdRpnPoADDR2pqxdjx19PH7B5MVEMS2PLUy97CDQNgDC1vbQqPXQ=';
+        'AQAAAAAABQAgAADITWzmvxDdFgAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAQOrTZ5H0khvmeaMM7Q+RqIE3kXhhUmg8Ye1x03DM1/oxo+fFQAAAAABAQC1UdUC/HAd21HmDkcdewfnQ/8ZyCdSznxVvhX2A+UdkhQ/8xUAAAAAIGvBzsOprOdLXmvbV4WNEAdCeVyxUQC4casadEmSiOz8AQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgEAAAAAAAAAAAEBVB+vemIenOWjJKPeaiUWCEN25jsEPmTpIlut31oacd9AaKkVAAAAAAEEAKBMDts1kJoNC+au685RIk/bcqEzZUlnLfnwjJpgx1omB2ZpeGVkMTgNZnJvbV9yYXdfdTI1NgABAQAAAHS7cwUfi9jmrdrHu2LvhWKLCdye6W294+RBZ4pEgCvbC21vY2tfc291cmNlCXNldF92YWx1ZQADAQEAAQIAAgAAAHS7cwUfi9jmrdrHu2LvhWKLCdye6W294+RBZ4pEgCvbC21vY2tfc291cmNlBXByaWNlAAIBAQABAwAADSboscHb0PENnJ/ZKPsb8EgfRLahSRbrPfEuFCT0XaoGbWFya2V0DHVwZGF0ZV9wcmljZQEHVk0OWNWfzsxej+coc1GWFdn7sceB009VRe4/PcHNRf0Gc3RhYmxlBlNUQUJMRQACAQQAAgIAKncQef3db67TtP+AYhEsoc86M8mLAnwGhbj7/3IK0mEBRfaRcZkkQl7YnEMWcsyOrUsBJtE2Di3bqK/2JiFVZP0UP/MVAAAAACDNN3mgas1+l1nWysvP0pprzh7yATGvFfv+hKdhxMIwiyp3EHn93W+u07T/gGIRLKHPOjPJiwJ8BoW4+/9yCtJh6AMAAAAAAACcxWVRAAAAAAABYQBuCFSJ1RJeUMmPez2iX78Kz4uLyOBFD+mUii8dqFUHgMeg+ioHP3cI/3LnNc+id/JHyjRpl1Lgc9tXdRpnPoADDR2pqxdjx19PH7B5MVEMS2PLUy97CDQNgDC1vbQqPXQ=';
+
+    // Initialize values from query parameters
+    onMount(() => {
+        const params = $pageParams;
+        if (params.hex) {
+            hex = params.hex;
+            convert(SourceType.Hex);
+        } else if (params.base58) {
+            base58 = params.base58;
+            convert(SourceType.Base58);
+        } else if (params.base64) {
+            base64 = params.base64;
+            convert(SourceType.Base64);
+        } else if (params.utf8) {
+            utf8 = params.utf8;
+            convert(SourceType.UTF8);
+        } else if (params.bcsNumber) {
+            bcsNumber = params.bcsNumber;
+            convert(SourceType.BcsNumber);
+        }
+
+        if (params.nano) {
+            nano = params.nano;
+            convertToNano();
+        } else if (params.iota) {
+            iota = params.iota;
+            convertToIota();
+        }
+
+        if (params.txBytes && txBytesTextarea) {
+            txBytesTextarea.value = params.txBytes;
+            const event = new Event('input', { bubbles: true });
+            txBytesTextarea.dispatchEvent(event);
+        }
+    });
 
     function insertExampleTx() {
         if (txBytesTextarea) {
@@ -33,6 +84,8 @@
             // Trigger the input event to process the transaction
             const event = new Event('input', { bubbles: true });
             txBytesTextarea.dispatchEvent(event);
+            // Update query params
+            updatePageQueryParams({ txBytes: exampleTx });
         }
     }
 
@@ -106,6 +159,35 @@
                 error = err;
             }
         }
+
+        // Update query parameters based on which field was the source
+        const queryUpdates: Record<string, string | null> = {
+            hex: null,
+            base58: null,
+            base64: null,
+            utf8: null,
+            bcsNumber: null,
+        };
+
+        switch (+source) {
+            case SourceType.Hex:
+                if (hex) queryUpdates.hex = hex;
+                break;
+            case SourceType.Base58:
+                if (base58) queryUpdates.base58 = base58;
+                break;
+            case SourceType.Base64:
+                if (base64) queryUpdates.base64 = base64;
+                break;
+            case SourceType.UTF8:
+                if (utf8) queryUpdates.utf8 = utf8;
+                break;
+            case SourceType.BcsNumber:
+                if (bcsNumber) queryUpdates.bcsNumber = bcsNumber;
+                break;
+        }
+
+        updatePageQueryParams(queryUpdates);
     }
 
     function hexToBytesLocal(hex: string) {
@@ -129,8 +211,11 @@
                 iota = nanoToIota(nano);
                 iotaWithUnderscore = iota.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1_');
                 nanoWithUnderscore = nano.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1_');
+                // Update query parameter
+                updatePageQueryParams({ nano: nano, iota: null });
             } else {
                 iota = '';
+                updatePageQueryParams({ nano: null, iota: null });
             }
         } catch (err: any) {
             error = err;
@@ -144,8 +229,11 @@
                 nano = iotaToNano(iota);
                 iotaWithUnderscore = iota.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1_');
                 nanoWithUnderscore = nano.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1_');
+                // Update query parameter
+                updatePageQueryParams({ iota: iota, nano: null });
             } else {
                 nano = '';
+                updatePageQueryParams({ iota: null, nano: null });
             }
         } catch (err: any) {
             error = err;

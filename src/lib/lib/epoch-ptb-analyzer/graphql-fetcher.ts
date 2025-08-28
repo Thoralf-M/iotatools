@@ -5,7 +5,7 @@ import {
 } from '@iota/iota-sdk/graphql';
 import { graphql } from '@iota/iota-sdk/graphql/schemas/2025.2';
 
-import { getSelectedNetworkConfig } from '../lib/client';
+import { getSelectedNetworkConfig } from '../../lib/client';
 
 export interface CheckpointRange {
     first: number;

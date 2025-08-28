@@ -7,7 +7,7 @@ import {
 } from '../graphql-requests';
 import { computeRewardsForStakeObject } from './rewards-calculator';
 import type { ActionDetails, ProcessStakeTransactionsResult, StakeObject } from './types';
-import { safeBigInt, getTokenAmount, getIotaAmount } from './utils';
+import { getIotaAmount, getTokenAmount, safeBigInt } from './utils';
 import { getCurrentActiveValidatorsExchangeRateIds, getValidatorInfo } from './validator-utils';
 
 // Types for internal processing
@@ -318,7 +318,8 @@ async function calculateRewardsFromExchangeRates(
         const totalIotaAmount = getIotaAmount(currentExchangeRate, poolTokenAmount);
 
         // Calculate rewards (total - principal)
-        const totalRewards = totalIotaAmount > principalAmount ? totalIotaAmount - principalAmount : 0n;
+        const totalRewards =
+            totalIotaAmount > principalAmount ? totalIotaAmount - principalAmount : 0n;
 
         return { totalRewards, success: true };
     } catch (error) {
@@ -367,22 +368,30 @@ async function determineActionDetails(
             actionDetails.fromAddress = input.owner;
             actionDetails.toAddress = output.owner;
 
-            console.log(`Transfer detected: epoch ${epochId}, from ${input.owner} to ${output.owner}, targetAddress: ${targetAddress}`);
+            console.log(
+                `Transfer detected: epoch ${epochId}, from ${input.owner} to ${output.owner}, targetAddress: ${targetAddress}`,
+            );
             console.log(`existing.wasOwnedByTargetAddress: ${existing.wasOwnedByTargetAddress}`);
 
             // If this stake object was owned by target address and is being transferred to someone else,
             // stop tracking rewards from this epoch onwards
             if (existing.wasOwnedByTargetAddress && output.owner !== targetAddress) {
-                console.log(`Transfer away detected: epoch ${epochId}, setting lastEpoch from ${existing.lastEpoch} to ${epochId}`);
+                console.log(
+                    `Transfer away detected: epoch ${epochId}, setting lastEpoch from ${existing.lastEpoch} to ${epochId}`,
+                );
                 existing.lastEpoch = epochId;
             } else if (output.owner === targetAddress) {
                 // Transferring TO target address - extend tracking until current epoch
                 // Only extend if current lastEpoch is earlier than currentEpoch (don't override later transfer-away epochs)
                 if (existing.lastEpoch < currentEpoch) {
-                    console.log(`Transfer to target detected: epoch ${epochId}, setting lastEpoch to ${currentEpoch}`);
+                    console.log(
+                        `Transfer to target detected: epoch ${epochId}, setting lastEpoch to ${currentEpoch}`,
+                    );
                     existing.lastEpoch = currentEpoch;
                 } else {
-                    console.log(`Transfer to target detected: epoch ${epochId}, but lastEpoch (${existing.lastEpoch}) is already later than currentEpoch (${currentEpoch}), not changing`);
+                    console.log(
+                        `Transfer to target detected: epoch ${epochId}, but lastEpoch (${existing.lastEpoch}) is already later than currentEpoch (${currentEpoch}), not changing`,
+                    );
                 }
             }
         } else {
@@ -422,7 +431,9 @@ async function determineActionDetails(
                     actionDetails.totalRewards = exchangeRateResult.totalRewards.toString();
                 } else {
                     // Fallback to coin-based calculation if exchange rates are not available
-                    console.warn(`Exchange rate calculation failed for pool ${input.poolId}, falling back to coin-based calculation`);
+                    console.warn(
+                        `Exchange rate calculation failed for pool ${input.poolId}, falling back to coin-based calculation`,
+                    );
 
                     if (totalTimelockAmount > 0n) {
                         // Timelocked staking scenario: coins contain only rewards,

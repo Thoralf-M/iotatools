@@ -3,7 +3,7 @@
 
     import TransactionChart from '../components/TransactionChart.svelte';
     import TransactionView from '../components/TransactionView.svelte';
-    import { EpochPTBAnalyzer, type DisplayData } from '../epoch-ptb-analyzer';
+    import { EpochPTBAnalyzer, type DisplayData } from '../lib/epoch-ptb-analyzer';
 
     let epoch = '';
     let startCheckpoint = '';

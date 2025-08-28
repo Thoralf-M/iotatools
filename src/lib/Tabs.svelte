@@ -2,6 +2,8 @@
     import { onMount } from 'svelte';
     import { link, location } from 'svelte-spa-router';
 
+    import { navigateWithGlobalParams } from './lib/query-param-store';
+
     let currentRoute = '';
     $: currentRoute = $location;
 
@@ -38,11 +40,15 @@
             <div class="group-label">{group}</div>
             <div class="tab-buttons-row">
                 {#each items.filter((item) => item.group === group) as item}
-                    <a href={item.route} use:link on:click={() => loadTab(item.route)}>
-                        <button class={$location === item.route ? 'active' : ''}
-                            >{item.label}</button
-                        >
-                    </a>
+                    <button
+                        class={$location === item.route ? 'active' : ''}
+                        onclick={() => {
+                            loadTab(item.route);
+                            navigateWithGlobalParams(item.route);
+                        }}
+                    >
+                        {item.label}
+                    </button>
                 {/each}
             </div>
         </div>
@@ -115,10 +121,6 @@
             0 4px 6px -2px rgba(0, 0, 0, 0.1);
     }
 
-    a {
-        margin: 0;
-        padding: 0;
-    }
     button {
         border: 1px solid rgba(156, 163, 175, 0.1);
         border-radius: 12px;
