@@ -1,10 +1,10 @@
-import { _ as is_runes, $ as not_equal, a0 as safe_not_equal, a1 as block, a2 as create_text, a3 as branch, a4 as current_batch, a5 as should_defer_append, a6 as UNINITIALIZED, a7 as pause_effect, a8 as effect, C as untrack, p as push, r as prop, w as legacy_pre_effect, j as set, m as mutable_source, x as deep_read_state, g as get, y as legacy_pre_effect_reset, f as from_html, b as if_block, c as child, s as sibling, z as each, t as template_effect, J as set_style, e as event, k as append, l as pop, I as comment, G as first_child, a9 as derived_safe_equal, H as text, U as getSelectedNetworkConfig, N as toB64, aa as bcs, i as init, a as invalidate_inner_signals, A as index, ab as action, d as set_text, h as bind_select_value, o as mutate, W as store_get, E as bind_value, V as setup_stores, ac as activeAddress, Z as delegate } from "/iota-utils/assets/index-DyxRZp83.js";
-import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-DF1L8ho3.js";
-import { b as bind_this } from "/iota-utils/assets/this-DoU-7r-F.js";
-import { s as sanitize_slots, a as slot } from "/iota-utils/assets/transaction-view-BNShn8GZ.js";
-import { b as bind_prop } from "/iota-utils/assets/props-DLKVo7rC.js";
-import { I as IotaGraphQLClient } from "/iota-utils/assets/index-0D6hzPhX.js";
-import { E as EpochPTBAnalyzer } from "/iota-utils/assets/index-COnrlush.js";
+import { _ as is_runes, $ as not_equal, a0 as safe_not_equal, a1 as block, a2 as create_text, a3 as branch, a4 as current_batch, a5 as should_defer_append, a6 as UNINITIALIZED, a7 as pause_effect, a8 as effect, C as untrack, p as push, r as prop, w as legacy_pre_effect, j as set, m as mutable_source, x as deep_read_state, g as get, y as legacy_pre_effect_reset, f as from_html, b as if_block, c as child, s as sibling, z as each, t as template_effect, J as set_style, e as event, k as append, l as pop, I as comment, G as first_child, a9 as derived_safe_equal, H as text, U as getSelectedNetworkConfig, N as toB64, aa as bcs, i as init, a as invalidate_inner_signals, A as index, ab as action, d as set_text, h as bind_select_value, o as mutate, W as store_get, E as bind_value, V as setup_stores, ac as activeAddress, Z as delegate } from "/iota-utils/assets/index-BESuQFHp.js";
+import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-pZSPdhv3.js";
+import { b as bind_this } from "/iota-utils/assets/this-CeVDE1sA.js";
+import { s as sanitize_slots, a as slot } from "/iota-utils/assets/transaction-view-DfnyB8X3.js";
+import { b as bind_prop } from "/iota-utils/assets/props-As4mYsR4.js";
+import { I as IotaGraphQLClient } from "/iota-utils/assets/index-CBCa076e.js";
+import { E as EpochPTBAnalyzer } from "/iota-utils/assets/index-KJ1X8o_V.js";
 function key(node, get_key, render_fn) {
   var anchor = node;
   var key2 = UNINITIALIZED;
@@ -2433,7 +2433,7 @@ function getTokenAmount(exchangeRate, iotaAmount) {
   return poolTokenAmount * iotaAmount / iotaAmountBig;
 }
 async function computeRewardsForStakeObject(stakeObject, exchangeRateId) {
-  const epochs = Object.keys(stakeObject.exchangeRatesByEpoch).map(Number).sort((a, b) => a - b);
+  const epochs = Object.keys(stakeObject.exchangeRatesByEpoch).map(Number).filter((epoch) => epoch <= stakeObject.lastEpoch).sort((a, b) => a - b);
   let previousAccumulatedRewards = 0n;
   const baselineEpoch = stakeObject.stakeActivationEpoch - 1;
   let baselineExchangeRate = stakeObject.exchangeRatesByEpoch[baselineEpoch];
@@ -2693,7 +2693,47 @@ function createInputOnlyStakeObject(stakeObjects, address, input, epochId) {
     existing.lastEpoch = epochId;
   }
 }
-function determineActionDetails(input, output, idCreated, idDeleted, digest, targetAddress, currentEpoch, epochId, existing, coinObjects, timelockObjects, txStakeObjects, address) {
+async function calculateRewardsFromExchangeRates(poolId, principalAmount, stakeActivationEpoch, currentEpoch) {
+  try {
+    const baselineEpoch = stakeActivationEpoch;
+    let baselineExchangeRate;
+    let currentExchangeRate;
+    const cacheEntry = exchangeRateCache.get(poolId);
+    if (cacheEntry && cacheEntry.epochData) {
+      const baselineData = cacheEntry.epochData[baselineEpoch];
+      const currentData = cacheEntry.epochData[currentEpoch];
+      if (baselineData) {
+        baselineExchangeRate = {
+          iota_amount: baselineData.iota,
+          pool_token_amount: baselineData.pool
+        };
+      } else {
+        baselineExchangeRate = {
+          iota_amount: "1",
+          pool_token_amount: "1"
+        };
+      }
+      if (currentData) {
+        currentExchangeRate = {
+          iota_amount: currentData.iota,
+          pool_token_amount: currentData.pool
+        };
+      } else {
+        return { totalRewards: 0n, success: false };
+      }
+    } else {
+      return { totalRewards: 0n, success: false };
+    }
+    const poolTokenAmount = getTokenAmount(baselineExchangeRate, principalAmount);
+    const totalIotaAmount = getIotaAmount(currentExchangeRate, poolTokenAmount);
+    const totalRewards = totalIotaAmount > principalAmount ? totalIotaAmount - principalAmount : 0n;
+    return { totalRewards, success: true };
+  } catch (error) {
+    console.warn("Failed to calculate rewards from exchange rates:", error);
+    return { totalRewards: 0n, success: false };
+  }
+}
+async function determineActionDetails(input, output, idCreated, idDeleted, digest, targetAddress, currentEpoch, epochId, existing, coinObjects, timelockObjects, txStakeObjects, address) {
   if (!input) {
     return { action: "Unknown", digest };
   }
@@ -2714,10 +2754,18 @@ function determineActionDetails(input, output, idCreated, idDeleted, digest, tar
       actionDetails.action = "Transfer";
       actionDetails.fromAddress = input.owner;
       actionDetails.toAddress = output.owner;
-      if (input.owner === targetAddress && output.owner !== targetAddress) {
+      console.log(`Transfer detected: epoch ${epochId}, from ${input.owner} to ${output.owner}, targetAddress: ${targetAddress}`);
+      console.log(`existing.wasOwnedByTargetAddress: ${existing.wasOwnedByTargetAddress}`);
+      if (existing.wasOwnedByTargetAddress && output.owner !== targetAddress) {
+        console.log(`Transfer away detected: epoch ${epochId}, setting lastEpoch from ${existing.lastEpoch} to ${epochId}`);
         existing.lastEpoch = epochId;
       } else if (output.owner === targetAddress) {
-        existing.lastEpoch = currentEpoch;
+        if (existing.lastEpoch < currentEpoch) {
+          console.log(`Transfer to target detected: epoch ${epochId}, setting lastEpoch to ${currentEpoch}`);
+          existing.lastEpoch = currentEpoch;
+        } else {
+          console.log(`Transfer to target detected: epoch ${epochId}, but lastEpoch (${existing.lastEpoch}) is already later than currentEpoch (${currentEpoch}), not changing`);
+        }
       }
     } else {
       const inputPrincipal = safeBigInt(input.principal);
@@ -2736,12 +2784,24 @@ function determineActionDetails(input, output, idCreated, idDeleted, digest, tar
       if (principalDecrease > 0n && ownerCoins.length > 0) {
         actionDetails.action = "Partial Unstake";
         actionDetails.amount = principalDecrease.toString();
-        if (totalTimelockAmount > 0n) {
-          actionDetails.totalRewards = totalCoinBalance.toString();
+        const exchangeRateResult = await calculateRewardsFromExchangeRates(
+          input.poolId,
+          principalDecrease,
+          // Use the unstaked amount for reward calculation
+          existing.stakeActivationEpoch,
+          epochId
+        );
+        if (exchangeRateResult.success) {
+          actionDetails.totalRewards = exchangeRateResult.totalRewards.toString();
         } else {
-          const rewards = totalCoinBalance - principalDecrease;
-          if (rewards > 0n) {
-            actionDetails.totalRewards = rewards.toString();
+          console.warn(`Exchange rate calculation failed for pool ${input.poolId}, falling back to coin-based calculation`);
+          if (totalTimelockAmount > 0n) {
+            actionDetails.totalRewards = totalCoinBalance.toString();
+          } else {
+            const rewards = totalCoinBalance - principalDecrease;
+            if (rewards > 0n) {
+              actionDetails.totalRewards = rewards.toString();
+            }
           }
         }
         actionDetails.principalChange = {
@@ -2784,13 +2844,18 @@ function determineActionDetails(input, output, idCreated, idDeleted, digest, tar
   }
   return actionDetails;
 }
-function processTransactions(transactions, currentEpoch, targetAddress) {
+async function processTransactions(transactions, currentEpoch, targetAddress) {
   const stakeObjects = /* @__PURE__ */ new Map();
-  transactions.forEach((transaction) => {
+  const sortedTransactions = transactions.sort((a, b) => {
+    const epochA = a.effects.epoch.epochId;
+    const epochB = b.effects.epoch.epochId;
+    return epochA - epochB;
+  });
+  for (const transaction of sortedTransactions) {
     const epochId = transaction.effects.epoch.epochId;
     const digest = transaction.digest;
     const { txStakeObjects, coinObjects, timelockObjects } = parseTransactionObjects(transaction);
-    txStakeObjects.forEach((stakeData, address) => {
+    for (const [address, stakeData] of txStakeObjects) {
       const { input, output, idCreated, idDeleted } = stakeData;
       const wasOwnedByTarget = input?.owner === targetAddress || output?.owner === targetAddress;
       if (output) {
@@ -2813,7 +2878,7 @@ function processTransactions(transactions, currentEpoch, targetAddress) {
           if (wasOwnedByTarget2) {
             existing.wasOwnedByTargetAddress = true;
           }
-          const actionDetails = determineActionDetails(
+          const actionDetails = await determineActionDetails(
             input,
             output,
             idCreated,
@@ -2832,8 +2897,8 @@ function processTransactions(transactions, currentEpoch, targetAddress) {
           existing.actionByEpoch[epochId] = actionDetails;
         }
       }
-    });
-  });
+    }
+  }
   return stakeObjects;
 }
 function filterOwnedStakeObjects(stakeObjects) {
@@ -2912,7 +2977,7 @@ async function processStakeTransactionsWithExchangeRates(transactions, currentEp
   const systemState = (await fetchSystemState())[0];
   const validatorMap = getCurrentActiveValidatorsExchangeRateIds(systemState);
   const validatorInfo = getValidatorInfo(systemState);
-  const stakeObjects = processTransactions(transactions, currentEpoch, targetAddress);
+  const stakeObjects = await processTransactions(transactions, currentEpoch, targetAddress);
   const { ownedStakeObjects, requiredPoolIds } = filterOwnedStakeObjects(stakeObjects);
   console.log(
     `Found ${ownedStakeObjects.size} owned stake objects (filtered from ${stakeObjects.size} total) requiring exchange rates for ${requiredPoolIds.size} pools`

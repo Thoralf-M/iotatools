@@ -1,6 +1,6 @@
-import { p as push, i as init, f as from_html, s as sibling, c as child, z as each, A as index, W as store_get, g as get, m as mutable_source, e as event, E as bind_value, k as append, l as pop, V as setup_stores, aD as sharedClientConfig, j as set, ac as activeAddress, ag as isValidIotaAddress, t as template_effect, d as set_text } from "/iota-utils/assets/index-DyxRZp83.js";
-import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-DF1L8ho3.js";
-import "/iota-utils/assets/transaction-view-BNShn8GZ.js";
+import { p as push, i as init, f as from_html, s as sibling, c as child, z as each, A as index, W as store_get, g as get, m as mutable_source, e as event, E as bind_value, k as append, l as pop, V as setup_stores, aD as sharedClientConfig, j as set, ac as activeAddress, ag as isValidIotaAddress, t as template_effect, d as set_text } from "/iota-utils/assets/index-BESuQFHp.js";
+import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-pZSPdhv3.js";
+import "/iota-utils/assets/transaction-view-DfnyB8X3.js";
 class FaucetRateLimitError extends Error {
 }
 async function faucetRequest({ host, path, body, headers, method }) {

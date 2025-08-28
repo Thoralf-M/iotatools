@@ -1,5 +1,5 @@
-import { p as push, r as prop, i as init, f as from_html, s as sibling, c as child, t as template_effect, C as untrack, x as deep_read_state, g as get, m as mutable_source, d as set_text, e as event, k as append, l as pop, j as set } from "/iota-utils/assets/index-DyxRZp83.js";
-import { R as Root, f as formatJsonWithCompactArrays } from "/iota-utils/assets/transaction-view-BNShn8GZ.js";
+import { p as push, r as prop, i as init, f as from_html, s as sibling, c as child, t as template_effect, C as untrack, x as deep_read_state, g as get, m as mutable_source, d as set_text, e as event, k as append, l as pop, j as set } from "/iota-utils/assets/index-BESuQFHp.js";
+import { R as Root, f as formatJsonWithCompactArrays } from "/iota-utils/assets/transaction-view-DfnyB8X3.js";
 var root = from_html(`<div class="value svelte-tyd1uw"><button class="svelte-tyd1uw">toggle JSON tree</button> <div><!></div> <pre class="svelte-tyd1uw"> </pre></div>`);
 function JsonToggleView($$anchor, $$props) {
   push($$props, false);

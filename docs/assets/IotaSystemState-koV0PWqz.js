@@ -1,7 +1,7 @@
-import { p as push, i as init, f as from_html, s as sibling, c as child, t as template_effect, g as get, m as mutable_source, a as invalidate_inner_signals, b as if_block, d as set_text, e as event, h as bind_select_value, j as set, k as append, l as pop, n as getClient, o as mutate } from "/iota-utils/assets/index-DyxRZp83.js";
-import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-DF1L8ho3.js";
-import { f as formatNumbersWithUnderscores } from "/iota-utils/assets/iota-nano-conversion-CloFfPVa.js";
-import "/iota-utils/assets/transaction-view-BNShn8GZ.js";
+import { p as push, i as init, f as from_html, s as sibling, c as child, t as template_effect, g as get, m as mutable_source, a as invalidate_inner_signals, b as if_block, d as set_text, e as event, h as bind_select_value, j as set, k as append, l as pop, n as getClient, o as mutate } from "/iota-utils/assets/index-BESuQFHp.js";
+import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-pZSPdhv3.js";
+import { f as formatNumbersWithUnderscores } from "/iota-utils/assets/iota-nano-conversion-QgSTib69.js";
+import "/iota-utils/assets/transaction-view-DfnyB8X3.js";
 var root_1 = from_html(`<div> </div>`);
 var root = from_html(`<main><button class="svelte-8fa537">get latest IOTA system state</button> <button class="svelte-8fa537">candidate validators</button> <button class="svelte-8fa537">pending validators</button> show full data (set before requesting): <select><option></option><option></option></select> <!> <!> <pre class="value" style="text-align: left"> </pre></main>`);
 function IotaSystemState($$anchor, $$props) {

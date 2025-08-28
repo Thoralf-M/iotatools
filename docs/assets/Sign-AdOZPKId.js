@@ -1,8 +1,8 @@
-import { p as push, i as init, f as from_html, s as sibling, c as child, b as if_block, g as get, m as mutable_source, e as event, k as append, l as pop, j as set, t as template_effect, d as set_text, ax as fromBase64, ay as TransactionDataBuilder, M as iotaBcs, o as mutate, az as get$1, ae as iota_wallets, ac as activeAddress, af as Transaction } from "/iota-utils/assets/index-DyxRZp83.js";
-import { b as bind_this } from "/iota-utils/assets/this-DoU-7r-F.js";
-import { T as TransactionView } from "/iota-utils/assets/TransactionView-B5wzXZc-.js";
-import "/iota-utils/assets/transaction-view-BNShn8GZ.js";
-import "/iota-utils/assets/iota-nano-conversion-CloFfPVa.js";
+import { p as push, i as init, f as from_html, s as sibling, c as child, b as if_block, g as get, m as mutable_source, e as event, k as append, l as pop, j as set, t as template_effect, d as set_text, ax as fromBase64, ay as TransactionDataBuilder, M as iotaBcs, o as mutate, az as get$1, ae as iota_wallets, ac as activeAddress, af as Transaction } from "/iota-utils/assets/index-BESuQFHp.js";
+import { b as bind_this } from "/iota-utils/assets/this-CeVDE1sA.js";
+import { T as TransactionView } from "/iota-utils/assets/TransactionView-CEcC1ubf.js";
+import "/iota-utils/assets/transaction-view-DfnyB8X3.js";
+import "/iota-utils/assets/iota-nano-conversion-QgSTib69.js";
 var root_1 = from_html(`<div style="margin: 20px 0; padding: 10px; border: 1px solid #e9ecef; border-radius: 4px;"><div style="margin-bottom: 6px; font-weight: bold;"> </div> <div> </div></div>`);
 var root_2 = from_html(`<div style="color: red; margin: 10px 0; padding: 10px; border: 1px solid #fcc; border-radius: 4px;"> </div>`);
 var root = from_html(`<main><div><div style="float: left; display: flex; align-items: center; gap: 10px;"><span>Tx bytes base64 encoded or message:</span> <button style="padding: 4px 8px; font-size: 12px;">Example tx</button></div> <div class="box"><textarea placeholder="base64 transaction bytes or message" class="svelte-j05z8l"></textarea></div></div> <div style="margin: 20px 0; display: flex; gap: 10px;"><button style="padding: 8px 16px; background: #007acc; color: white; border: none; border-radius: 4px; cursor: pointer;">Sign Transaction</button> <button style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Sign Personal Message</button></div> <!> <!> <!></main>`);
