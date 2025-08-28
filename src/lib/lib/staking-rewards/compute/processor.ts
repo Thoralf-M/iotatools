@@ -7,7 +7,7 @@ import {
 } from '../graphql-requests';
 import { computeRewardsForStakeObject } from './rewards-calculator';
 import type { ActionDetails, ProcessStakeTransactionsResult, StakeObject } from './types';
-import { safeBigInt } from './utils';
+import { safeBigInt, getTokenAmount, getIotaAmount } from './utils';
 import { getCurrentActiveValidatorsExchangeRateIds, getValidatorInfo } from './validator-utils';
 
 // Types for internal processing
@@ -262,8 +262,72 @@ function createInputOnlyStakeObject(
     }
 }
 
+// Helper function to calculate rewards based on principal amount and exchange rates
+async function calculateRewardsFromExchangeRates(
+    poolId: string,
+    principalAmount: bigint,
+    stakeActivationEpoch: number,
+    currentEpoch: number,
+): Promise<{ totalRewards: bigint; success: boolean }> {
+    try {
+        // Get baseline exchange rate (from before staking started)
+        const baselineEpoch = stakeActivationEpoch;
+        let baselineExchangeRate;
+        let currentExchangeRate;
+
+        // Try to get exchange rates from cache
+        const cacheEntry = exchangeRateCache.get(poolId);
+
+        if (cacheEntry && cacheEntry.epochData) {
+            // Find baseline and current exchange rates
+            const baselineData = cacheEntry.epochData[baselineEpoch];
+            const currentData = cacheEntry.epochData[currentEpoch]; // Use previous epoch as "current"
+
+            if (baselineData) {
+                baselineExchangeRate = {
+                    iota_amount: baselineData.iota,
+                    pool_token_amount: baselineData.pool,
+                };
+            } else {
+                // Fallback to 1:1 ratio
+                baselineExchangeRate = {
+                    iota_amount: '1',
+                    pool_token_amount: '1',
+                };
+            }
+
+            if (currentData) {
+                currentExchangeRate = {
+                    iota_amount: currentData.iota,
+                    pool_token_amount: currentData.pool,
+                };
+            } else {
+                // If no exchange rate available, we can't calculate rewards
+                return { totalRewards: 0n, success: false };
+            }
+        } else {
+            // If no cache entry available, we can't calculate rewards
+            return { totalRewards: 0n, success: false };
+        }
+
+        // Calculate pool token amount using baseline exchange rate
+        const poolTokenAmount = getTokenAmount(baselineExchangeRate, principalAmount);
+
+        // Calculate total IOTA amount using current exchange rate
+        const totalIotaAmount = getIotaAmount(currentExchangeRate, poolTokenAmount);
+
+        // Calculate rewards (total - principal)
+        const totalRewards = totalIotaAmount > principalAmount ? totalIotaAmount - principalAmount : 0n;
+
+        return { totalRewards, success: true };
+    } catch (error) {
+        console.warn('Failed to calculate rewards from exchange rates:', error);
+        return { totalRewards: 0n, success: false };
+    }
+}
+
 // Determine action details for a stake object transaction
-function determineActionDetails(
+async function determineActionDetails(
     input: StakeObjectData['input'],
     output: StakeObjectData['output'],
     idCreated: boolean,
@@ -277,7 +341,7 @@ function determineActionDetails(
     timelockObjects: TimelockObject[],
     txStakeObjects: Map<string, StakeObjectData>,
     address: string,
-): ActionDetails {
+): Promise<ActionDetails> {
     if (!input) {
         return { action: 'Unknown', digest };
     }
@@ -293,7 +357,7 @@ function determineActionDetails(
     } else if (idDeleted) {
         actionDetails.action = 'Unstaked';
         actionDetails.amount = input.principal;
-        // Calculate total rewards at this point (will be filled later after exchange rate processing)
+        // Total rewards will be calculated later in the rewards calculator using exchange rates
         actionDetails.totalRewards = '0'; // Placeholder
         existing.lastEpoch = epochId;
     } else if (!idCreated && !idDeleted) {
@@ -334,16 +398,30 @@ function determineActionDetails(
                 actionDetails.action = 'Partial Unstake';
                 actionDetails.amount = principalDecrease.toString(); // Amount unstaked
 
-                // Calculate rewards based on whether timelock objects were created
-                if (totalTimelockAmount > 0n) {
-                    // Timelocked staking scenario: coins contain only rewards,
-                    // unstaked principal goes into timelock
-                    actionDetails.totalRewards = totalCoinBalance.toString();
+                // Calculate rewards based on exchange rates
+                const exchangeRateResult = await calculateRewardsFromExchangeRates(
+                    input.poolId,
+                    principalDecrease, // Use the unstaked amount for reward calculation
+                    existing.stakeActivationEpoch,
+                    epochId,
+                );
+
+                if (exchangeRateResult.success) {
+                    actionDetails.totalRewards = exchangeRateResult.totalRewards.toString();
                 } else {
-                    // Normal staking scenario: coins contain principal + rewards
-                    const rewards = totalCoinBalance - principalDecrease;
-                    if (rewards > 0n) {
-                        actionDetails.totalRewards = rewards.toString();
+                    // Fallback to coin-based calculation if exchange rates are not available
+                    console.warn(`Exchange rate calculation failed for pool ${input.poolId}, falling back to coin-based calculation`);
+
+                    if (totalTimelockAmount > 0n) {
+                        // Timelocked staking scenario: coins contain only rewards,
+                        // unstaked principal goes into timelock
+                        actionDetails.totalRewards = totalCoinBalance.toString();
+                    } else {
+                        // Normal staking scenario: coins contain principal + rewards
+                        const rewards = totalCoinBalance - principalDecrease;
+                        if (rewards > 0n) {
+                            actionDetails.totalRewards = rewards.toString();
+                        }
                     }
                 }
 
@@ -399,14 +477,14 @@ function determineActionDetails(
 }
 
 // Process all transactions to build stake objects
-function processTransactions(
+async function processTransactions(
     transactions: Array<any>,
     currentEpoch: number,
     targetAddress: string,
-): Map<string, StakeObject> {
+): Promise<Map<string, StakeObject>> {
     const stakeObjects = new Map<string, StakeObject>();
 
-    transactions.forEach((transaction) => {
+    for (const transaction of transactions) {
         const epochId = transaction.effects.epoch.epochId;
         const digest = transaction.digest;
 
@@ -414,7 +492,7 @@ function processTransactions(
             parseTransactionObjects(transaction);
 
         // Second pass: process each stake object and determine detailed actions
-        txStakeObjects.forEach((stakeData, address) => {
+        for (const [address, stakeData] of txStakeObjects) {
             const { input, output, idCreated, idDeleted } = stakeData;
 
             // Check if this object was ever owned by the target address
@@ -452,7 +530,7 @@ function processTransactions(
                         existing.wasOwnedByTargetAddress = true;
                     }
 
-                    const actionDetails = determineActionDetails(
+                    const actionDetails = await determineActionDetails(
                         input,
                         output,
                         idCreated,
@@ -472,8 +550,8 @@ function processTransactions(
                     existing.actionByEpoch[epochId] = actionDetails;
                 }
             }
-        });
-    });
+        }
+    }
 
     return stakeObjects;
 }
@@ -605,7 +683,7 @@ export async function processStakeTransactionsWithExchangeRates(
     const validatorInfo = getValidatorInfo(systemState);
 
     // Process transactions to build stake objects
-    const stakeObjects = processTransactions(transactions, currentEpoch, targetAddress);
+    const stakeObjects = await processTransactions(transactions, currentEpoch, targetAddress);
 
     // Filter to only owned stake objects and get required pool IDs
     const { ownedStakeObjects, requiredPoolIds } = filterOwnedStakeObjects(stakeObjects);
