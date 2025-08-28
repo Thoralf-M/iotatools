@@ -7,9 +7,10 @@ export async function computeRewardsForStakeObject(
     stakeObject: StakeObject,
     exchangeRateId: string,
 ): Promise<void> {
-    // Get all epochs with exchange rates, sorted chronologically
+    // Get all epochs with exchange rates, sorted chronologically, but only up to lastEpoch
     const epochs = Object.keys(stakeObject.exchangeRatesByEpoch)
         .map(Number)
+        .filter(epoch => epoch <= stakeObject.lastEpoch)
         .sort((a, b) => a - b);
 
     let previousAccumulatedRewards = 0n;

@@ -214,6 +214,7 @@ function createOrUpdateStakeObject(
         if (epochId < existing.firstEpoch) {
             existing.firstEpoch = epochId;
         }
+        // Don't automatically update lastEpoch to currentEpoch - let transfer logic handle it
     }
 
     const obj = stakeObjects.get(address)!;
@@ -365,13 +366,24 @@ async function determineActionDetails(
             actionDetails.action = 'Transfer';
             actionDetails.fromAddress = input.owner;
             actionDetails.toAddress = output.owner;
-            // Only set lastEpoch if transferring AWAY from target address
-            // If transferring TO target address, keep tracking until current epoch
-            if (input.owner === targetAddress && output.owner !== targetAddress) {
+
+            console.log(`Transfer detected: epoch ${epochId}, from ${input.owner} to ${output.owner}, targetAddress: ${targetAddress}`);
+            console.log(`existing.wasOwnedByTargetAddress: ${existing.wasOwnedByTargetAddress}`);
+
+            // If this stake object was owned by target address and is being transferred to someone else,
+            // stop tracking rewards from this epoch onwards
+            if (existing.wasOwnedByTargetAddress && output.owner !== targetAddress) {
+                console.log(`Transfer away detected: epoch ${epochId}, setting lastEpoch from ${existing.lastEpoch} to ${epochId}`);
                 existing.lastEpoch = epochId;
             } else if (output.owner === targetAddress) {
-                // Transferring TO target address - continue tracking until current epoch
-                existing.lastEpoch = currentEpoch;
+                // Transferring TO target address - extend tracking until current epoch
+                // Only extend if current lastEpoch is earlier than currentEpoch (don't override later transfer-away epochs)
+                if (existing.lastEpoch < currentEpoch) {
+                    console.log(`Transfer to target detected: epoch ${epochId}, setting lastEpoch to ${currentEpoch}`);
+                    existing.lastEpoch = currentEpoch;
+                } else {
+                    console.log(`Transfer to target detected: epoch ${epochId}, but lastEpoch (${existing.lastEpoch}) is already later than currentEpoch (${currentEpoch}), not changing`);
+                }
             }
         } else {
             // Check if this is a partial unstake
@@ -484,7 +496,14 @@ async function processTransactions(
 ): Promise<Map<string, StakeObject>> {
     const stakeObjects = new Map<string, StakeObject>();
 
-    for (const transaction of transactions) {
+    // Sort transactions by epoch to ensure chronological processing
+    const sortedTransactions = transactions.sort((a, b) => {
+        const epochA = a.effects.epoch.epochId;
+        const epochB = b.effects.epoch.epochId;
+        return epochA - epochB;
+    });
+
+    for (const transaction of sortedTransactions) {
         const epochId = transaction.effects.epoch.epochId;
         const digest = transaction.digest;
 
