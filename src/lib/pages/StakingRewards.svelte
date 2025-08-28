@@ -4,7 +4,7 @@
     import { EpochPTBAnalyzer } from '../epoch-ptb-analyzer';
     import { activeAddress } from '../lib/signer-data';
     // @ts-ignore
-    import exchangeRateCacheBinary from '../lib/staking-rewards/exchange-rate-cache.bin?raw';
+    import exchangeRateCacheBinary from '../lib/staking-rewards/cache/exchange-rate-cache.bin?raw';
     import {
         fetchReceivedStakeTransactions,
         fetchStakeTransactions,
@@ -45,6 +45,81 @@
         }
     }
 
+    async function loadExampleData() {
+        error = '';
+        transactions = [];
+        stakeObjects = [];
+        validatorInfo = {};
+        loadingTxs = true;
+        loadingStep = 'Loading example data...';
+        try {
+            // Step 1: Fetch sent stake transactions from public folder
+            loadingStep = 'Loading sent transactions...';
+            const sentUrl = new URL('/example-sent.json', import.meta.url).href.replace(
+                'src/lib/pages/',
+                '',
+            );
+            console.log('Fetching from:', sentUrl);
+            const sentResponse = await fetch(sentUrl);
+            if (!sentResponse.ok) {
+                throw new Error(`Failed to fetch sent transactions: ${sentResponse.statusText}`);
+            }
+            const sentTxs = await sentResponse.json();
+            console.log('sentTxs:', sentTxs);
+
+            let receivedTxs: any[] = [];
+            if (fetchReceivedTxs) {
+                // Step 2: Fetch received stake transactions from public folder
+                loadingStep = 'Loading received transactions...';
+                const receivedUrl = new URL('/example-received.json', import.meta.url).href.replace(
+                    'src/lib/pages/',
+                    '',
+                );
+                console.log('Fetching from:', receivedUrl);
+                const receivedResponse = await fetch(receivedUrl);
+                if (!receivedResponse.ok) {
+                    throw new Error(
+                        `Failed to fetch received transactions: ${receivedResponse.statusText}`,
+                    );
+                }
+                receivedTxs = await receivedResponse.json();
+                console.log('receivedTxs:', receivedTxs);
+            }
+
+            // Step 3: Get current epoch and end timestamp
+            loadingStep = 'Fetching epoch info...';
+            await getCurrentEpochAndEndTimestamp();
+
+            // A tx can be in both sent and received lists
+            let uniqueTxs = [sentTxs, ...(fetchReceivedTxs ? receivedTxs : [])]
+                .flat()
+                .reduce((acc: any, tx: any) => {
+                    if (!acc.some((t: any) => t.digest === tx.digest)) {
+                        acc.push(tx);
+                    }
+                    return acc;
+                }, []);
+
+            // Step 4: Process transactions with exchange rates
+            loadingStep = 'Fetching exchange rates...';
+            const result = await processStakeTransactionsWithExchangeRates(
+                uniqueTxs,
+                epoch as number,
+                address,
+            );
+            stakeObjects = result.stakeObjects;
+            validatorInfo = result.validatorInfo;
+            console.log(stakeObjects);
+            transactions = uniqueTxs;
+
+            console.log('fetching txs complete');
+        } catch (err: any) {
+            error = err?.toString() ?? 'Error fetching transactions.';
+        } finally {
+            loadingTxs = false;
+            loadingStep = null;
+        }
+    }
     async function fetchTransactions() {
         error = '';
         transactions = [];
@@ -124,6 +199,8 @@
                 {fetchReceivedTxs ? 'Skip received txs' : 'Include received txs'}
             </button>
         </span>
+        <!-- only for development -->
+        <!-- <button type="button" onclick={loadExampleData}> load example data </button> -->
     </div>
     {#if loadingTxs}
         <div style="text-align: left;">

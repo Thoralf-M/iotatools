@@ -6,7 +6,7 @@ import {
     compressExchangeRateCache,
     decompressExchangeRateCache,
     getCompressionStats,
-} from './binary-cache';
+} from './cache/binary-cache';
 
 async function fetchStakeTransactionsByRole(address: string, role: 'signAddress' | 'recvAddress') {
     // Reusable objectChanges GraphQL section
@@ -316,9 +316,17 @@ function getMissingEpochs(
                 if (maxEpoch > maxCachedEpoch) maxCachedEpoch = maxEpoch;
             }
         }
-        // Find missing epochs for this pool from 0 to currentEpoch-1
+        // Find missing epochs for this pool, but only from the minimum known epoch onwards
+        // This avoids requesting data for epochs before the pool existed
         const missing = new Set<number>();
-        for (let epoch = 0; epoch < currentEpoch + 1; epoch++) {
+        let startEpoch = 0;
+
+        // If we have cached epochs, start from the minimum known epoch
+        if (cachedEpochs.size > 0) {
+            startEpoch = Math.min(...cachedEpochs);
+        }
+
+        for (let epoch = startEpoch; epoch < currentEpoch + 1; epoch++) {
             if (!cachedEpochs.has(epoch)) {
                 missing.add(epoch);
                 totalMissingEpochs++;
@@ -428,6 +436,7 @@ export async function fetchAllExchangeRates(
         await fetchMissingEpochsWithDynamicFields(missingEpochsPerPool);
         return;
     }
+    console.log('missingEpochsPerPool', missingEpochsPerPool);
 
     // If we already did a full fetch in this session, don't do it again
     if (allExchangeRatesFetched) {
