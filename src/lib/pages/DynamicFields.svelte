@@ -4,7 +4,7 @@
     import { writable } from 'svelte/store';
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
-    import { decodeBcs, layoutToBcs, type BcsDecodeResult } from '../dynamic-fields/bcs-conversion';
+    import { decodeBcs, layoutToBcs, type BcsDecodeResult } from '../lib/dynamic-fields/bcs-conversion';
     import {
         deriveDynamicFieldId,
         deriveDynamicFieldIdWithBcs,
@@ -15,11 +15,11 @@
         queryDynamicObjectField,
         type DynamicFieldsResult,
         type LayoutResult,
-    } from '../dynamic-fields/dynamic-fields-utils';
+    } from '../lib/dynamic-fields/dynamic-fields-utils';
     import {
         defaultStructDefinitions,
         type StructDefinition,
-    } from '../dynamic-fields/struct-definitions';
+    } from '../lib/dynamic-fields/struct-definitions';
     import { getSelectedNetworkConfig } from '../lib/client';
 
     let objectId = $state('0x35af1c0c5d8ee4878b2686a35639eba6a830c8a99e2e126df560265122bd6c9c');
