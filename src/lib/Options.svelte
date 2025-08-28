@@ -1,6 +1,37 @@
 <script lang="ts">
+    import { onMount } from 'svelte';
+
     import { sharedClientConfig } from './lib/local-storage-store';
+    import {
+        initQueryParamHandling,
+        QUERY_PARAM_KEYS,
+        queryAwareClientConfig,
+        setQueryParam,
+    } from './lib/query-param-store';
     import { sharedTransactionExecution, TransactionExecution } from './lib/shared-in-memory';
+
+    // Initialize query parameter handling
+    onMount(() => {
+        initQueryParamHandling();
+    });
+
+    // Use query-aware config that responds to URL parameters
+    let clientConfig = queryAwareClientConfig;
+
+    // Function to handle network selection changes
+    function handleNetworkChange(event: Event) {
+        const target = event.target as HTMLSelectElement;
+        const selectedNetwork = target.value;
+
+        // Update the local storage config
+        sharedClientConfig.update((config) => ({
+            ...config,
+            selected: selectedNetwork,
+        }));
+
+        // Also update the URL query parameter
+        setQueryParam(QUERY_PARAM_KEYS.NETWORK, selectedNetwork);
+    }
 </script>
 
 <main>
@@ -8,11 +39,12 @@
         <div class="option-group">
             <label class="option-label" for="network-select">Network:</label>
             <select
-                bind:value={$sharedClientConfig.selected}
+                bind:value={$clientConfig.selected}
+                on:change={handleNetworkChange}
                 class="select-input"
                 id="network-select"
             >
-                {#each $sharedClientConfig.networks as network}
+                {#each $clientConfig.networks as network}
                     <option value={network.name}>{network.name}</option>
                 {/each}
             </select>

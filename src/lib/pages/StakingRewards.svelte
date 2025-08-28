@@ -1,7 +1,8 @@
 <script lang="ts">
     import JsonToggleView from '../components/JsonToggleView.svelte';
     import StakingRewardsTable from '../components/StakingRewardsTable.svelte';
-    import { EpochPTBAnalyzer } from '../epoch-ptb-analyzer';
+    import { EpochPTBAnalyzer } from '../lib/epoch-ptb-analyzer';
+    import { updatePageQueryParams, usePageQueryParams } from '../lib/page-query-params';
     import { activeAddress } from '../lib/signer-data';
     // @ts-ignore
     import exchangeRateCacheBinary from '../lib/staking-rewards/cache/exchange-rate-cache.bin?raw';
@@ -14,7 +15,22 @@
         type ValidatorInfo,
     } from '../lib/staking-rewards/index';
 
-    let address = '0x1ee12dca0e798966a82f74c010c109e1bd0674f4f47517db6843f223bad5eb7c';
+    // Use query parameters for the address field
+    const queryParamValues = usePageQueryParams({
+        address: '0x1ee12dca0e798966a82f74c010c109e1bd0674f4f47517db6843f223bad5eb7c',
+    });
+
+    let address = '';
+
+    // Reactive assignment from query parameters
+    $: address = $queryParamValues.address;
+
+    // Function to update address and query parameter
+    function updateAddress(newAddress: string) {
+        address = newAddress;
+        updatePageQueryParams({ address: newAddress || null });
+    }
+
     let epoch: number | '' = '';
     let epochLoading = false;
     let error = '';
@@ -184,8 +200,13 @@
         </button>
         <span>
             address:
-            <input class="address-input" bind:value={address} placeholder="address" />
-            <button class="set-active-btn" onclick={() => (address = $activeAddress)}>
+            <input
+                class="address-input"
+                value={address}
+                oninput={(e) => updateAddress((e.target as HTMLInputElement)?.value || '')}
+                placeholder="address"
+            />
+            <button class="set-active-btn" onclick={() => updateAddress($activeAddress)}>
                 Set to active address
             </button>
         </span>

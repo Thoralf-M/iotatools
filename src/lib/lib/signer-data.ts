@@ -39,13 +39,13 @@ function setSigningWithPrivateKeyAccounts() {
     activeAddress.set(Object.keys(get(sharedPrivateKeyAccounts).accounts)[0]);
 }
 
-export class ForeignAddressWallet {
+export class ExternalAddressWallet {
     async signAndExecuteTransaction(
         params: IotaSignAndExecuteTransactionInput,
     ): Promise<IotaTransactionBlockResponse> {
         // @ts-ignore
         return {
-            errors: ['Foreign address wallet cannot sign and execute transactions.'],
+            errors: ['External address wallet cannot sign and execute transactions.'],
         };
     }
 
@@ -53,28 +53,28 @@ export class ForeignAddressWallet {
         transactionBytes: Uint8Array;
         account: { address: string };
     }): Promise<{ signature: string }> {
-        throw new Error('Foreign address wallet cannot sign transactions.');
+        throw new Error('External address wallet cannot sign transactions.');
     }
 
     async signPersonalMessage(params: {
         message: Uint8Array;
         account: { address: string };
     }): Promise<{ signature: string }> {
-        throw new Error('Foreign address wallet cannot sign messages.');
+        throw new Error('External address wallet cannot sign messages.');
     }
 }
 
-function setSigningWithForeignAddress(foreignAddress: string) {
-    if (!foreignAddress) {
-        foreignAddress = '0x0000000000000000000000000000000000000000000000000000000000000000';
+function setSigningWithExternalAddress(externalAddress: string) {
+    if (!externalAddress) {
+        externalAddress = '0x0000000000000000000000000000000000000000000000000000000000000000';
     }
     // @ts-ignore
-    iota_wallets.set([new ForeignAddressWallet()]);
-    activeAddress.set(foreignAddress);
+    iota_wallets.set([new ExternalAddressWallet()]);
+    activeAddress.set(externalAddress);
     iota_accounts.set([
         {
-            address: foreignAddress,
-            label: 'Foreign Address',
+            address: externalAddress,
+            label: 'External Address',
             publicKey: new Uint8Array([]),
             chains: ['iota:mainnet'],
             features: ['iota:signAndExecuteTransaction'],
@@ -82,7 +82,7 @@ function setSigningWithForeignAddress(foreignAddress: string) {
     ]);
 }
 
-export function updateSelectedSignerAccounts(foreignAddress?: string) {
+export function updateSelectedSignerAccounts(externalAddress?: string) {
     if (get(sharedSignerType) == SignerType.Localstorage) {
         setSigningWithPrivateKeyAccounts();
     }
@@ -92,7 +92,7 @@ export function updateSelectedSignerAccounts(foreignAddress?: string) {
         iota_accounts.set([]);
         connectWallet(true);
     }
-    if (get(sharedSignerType) == SignerType.ForeignAddress) {
-        setSigningWithForeignAddress(foreignAddress!);
+    if (get(sharedSignerType) == SignerType.ExternalAddress) {
+        setSigningWithExternalAddress(externalAddress!);
     }
 }

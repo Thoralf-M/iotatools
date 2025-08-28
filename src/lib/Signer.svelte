@@ -3,6 +3,7 @@
     import { onMount } from 'svelte';
 
     import { sharedSignerType, SignerType } from './lib/local-storage-store';
+    import { addressFromQuery, QUERY_PARAM_KEYS, setQueryParam } from './lib/query-param-store';
     import {
         activeAddress,
         iota_accounts,
@@ -11,14 +12,55 @@
     } from './lib/signer-data';
     import { connectWallet } from './lib/web-wallet';
 
-    let foreignAddress = '0x0000000000000000000000000000000000000000000000000000000000000000';
+    let externalAddress = '0x0000000000000000000000000000000000000000000000000000000000000000';
 
     onMount(() => {
-        updateSelectedSignerAccounts();
+        // Initialize external address from query parameter if provided
+        const addressFromURL = $addressFromQuery;
+        if (addressFromURL && isValidIotaAddress(addressFromURL)) {
+            externalAddress = addressFromURL;
+        }
+
+        updateSelectedSignerAccounts(externalAddress);
     });
 
+    // Function to handle signer type changes
+    function handleSignerChange(event: Event) {
+        const target = event.target as HTMLSelectElement;
+        const selectedSigner = target.value as SignerType;
+
+        // Update the local storage
+        sharedSignerType.set(selectedSigner);
+
+        // Update query parameter
+        setQueryParam(QUERY_PARAM_KEYS.SIGNER, selectedSigner);
+
+        // If switching away from ExternalAddress, remove the externalAddress parameter
+        if (selectedSigner !== SignerType.ExternalAddress) {
+            setQueryParam(QUERY_PARAM_KEYS.EXTERNAL_ADDRESS, null);
+        }
+
+        // Update accounts
+        updateSelectedSignerAccounts(externalAddress);
+    }
+
+    // Function to handle external address changes
+    function handleExternalAddressChange() {
+        // Only update query parameter if ExternalAddress signer is selected
+        if ($sharedSignerType === SignerType.ExternalAddress) {
+            if (isValidIotaAddress(externalAddress)) {
+                updateSelectedSignerAccounts(externalAddress);
+                // Update query parameter
+                setQueryParam(QUERY_PARAM_KEYS.EXTERNAL_ADDRESS, externalAddress);
+            } else {
+                // Clear query parameter if address is invalid
+                setQueryParam(QUERY_PARAM_KEYS.EXTERNAL_ADDRESS, null);
+            }
+        }
+    }
+
     $: isAddressValid = (() => {
-        return isValidIotaAddress(foreignAddress);
+        return isValidIotaAddress(externalAddress);
     })();
 </script>
 
@@ -31,7 +73,7 @@
                         <label class="control-label" for="signer-select">Signer:</label>
                         <select
                             bind:value={$sharedSignerType}
-                            onchange={() => updateSelectedSignerAccounts(foreignAddress)}
+                            onchange={handleSignerChange}
                             class="select-input"
                             id="signer-select"
                         >
@@ -44,23 +86,13 @@
                                 Connect
                             </button>
                         {/if}
-                        {#if $sharedSignerType == SignerType.ForeignAddress}
+                        {#if $sharedSignerType == SignerType.ExternalAddress}
                             <input
                                 type="string"
-                                class="foreign-address-input"
+                                class="external-address-input"
                                 class:invalid-address={!isAddressValid}
-                                bind:value={foreignAddress}
-                                oninput={() => {
-                                    console.log(
-                                        'Input changed:',
-                                        foreignAddress,
-                                        'Valid:',
-                                        isValidIotaAddress(foreignAddress),
-                                    );
-                                    if (isValidIotaAddress(foreignAddress)) {
-                                        updateSelectedSignerAccounts(foreignAddress);
-                                    }
-                                }}
+                                bind:value={externalAddress}
+                                oninput={handleExternalAddressChange}
                                 placeholder="any address, can't be used for signing"
                             />
                         {/if}
@@ -236,7 +268,7 @@
         box-shadow: 0 4px 8px rgba(99, 102, 241, 0.2);
     }
 
-    .foreign-address-input {
+    .external-address-input {
         width: 37rem;
         max-width: 100%;
         padding: 0.4rem 0.6rem;
@@ -251,14 +283,14 @@
         font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
     }
 
-    .foreign-address-input:focus {
+    .external-address-input:focus {
         outline: none;
         border-color: #3b82f6;
         box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
         background: rgba(55, 65, 81, 0.6);
     }
 
-    .foreign-address-input:hover {
+    .external-address-input:hover {
         border-color: rgba(156, 163, 175, 0.3);
         background: rgba(55, 65, 81, 0.5);
     }

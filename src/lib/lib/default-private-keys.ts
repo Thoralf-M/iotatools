@@ -1,4 +1,3 @@
-import { toBase64 } from '@iota/bcs';
 import type { IotaTransactionBlockResponse } from '@iota/iota-sdk/client';
 import { decodeIotaPrivateKey, Keypair } from '@iota/iota-sdk/cryptography';
 import { Ed25519Keypair } from '@iota/iota-sdk/keypairs/ed25519';
