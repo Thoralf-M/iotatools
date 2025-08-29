@@ -7,7 +7,14 @@ import type { IotaSignAndExecuteTransactionInput, WalletAccount } from '@iota/wa
 import { get, writable, type Writable } from 'svelte/store';
 
 import { PrivateKeyWallet, toWalletAccounts } from './default-private-keys';
-import { sharedPrivateKeyAccounts, sharedSignerType, SignerType } from './local-storage-store';
+import {
+    sharedExternalAddresses,
+    sharedPrivateKeyAccounts,
+    sharedSignerType,
+    SignerType,
+    type ExternalAddress,
+    type ExternalAddresses,
+} from './local-storage-store';
 import { connectWallet } from './web-wallet';
 
 interface TransactionOptions {
@@ -31,6 +38,75 @@ export abstract class WalletSigner {
 export let iota_wallets: Writable<WalletSigner[]> = writable([]);
 export let iota_accounts: Writable<WalletAccount[]> = writable([]);
 export let activeAddress: Writable<string> = writable('0x');
+
+// External address management functions
+export function addOrUpdateExternalAddress(address: string, alias?: string): void {
+    const currentAddresses = get(sharedExternalAddresses);
+    const existingIndex = currentAddresses.addresses.findIndex((addr) => addr.address === address);
+
+    if (existingIndex >= 0) {
+        // Update existing address
+        currentAddresses.addresses[existingIndex] = { address, alias };
+    } else {
+        // Add new address
+        currentAddresses.addresses.push({ address, alias });
+    }
+
+    // Set as selected address
+    currentAddresses.selectedAddress = address;
+    sharedExternalAddresses.set(currentAddresses);
+
+    // Refresh the accounts list if we're in ExternalAddress mode
+    if (get(sharedSignerType) === SignerType.ExternalAddress) {
+        setSigningWithExternalAddress(address);
+    }
+}
+
+export function removeExternalAddress(address: string): void {
+    const currentAddresses = get(sharedExternalAddresses);
+    const filteredAddresses = currentAddresses.addresses.filter((addr) => addr.address !== address);
+
+    let newSelectedAddress = currentAddresses.selectedAddress;
+    if (currentAddresses.selectedAddress === address) {
+        newSelectedAddress =
+            filteredAddresses.length > 0 ? filteredAddresses[0].address : undefined;
+    }
+
+    sharedExternalAddresses.set({
+        addresses: filteredAddresses,
+        selectedAddress: newSelectedAddress,
+    });
+
+    // Refresh the accounts list if we're in ExternalAddress mode
+    if (get(sharedSignerType) === SignerType.ExternalAddress) {
+        setSigningWithExternalAddress(newSelectedAddress);
+    }
+}
+
+export function selectExternalAddress(address: string): void {
+    const currentAddresses = get(sharedExternalAddresses);
+    const addressExists = currentAddresses.addresses.some((addr) => addr.address === address);
+
+    if (addressExists) {
+        sharedExternalAddresses.set({
+            ...currentAddresses,
+            selectedAddress: address,
+        });
+
+        // Refresh the accounts list if we're in ExternalAddress mode
+        if (get(sharedSignerType) === SignerType.ExternalAddress) {
+            setSigningWithExternalAddress(address);
+        }
+    }
+}
+
+export function getExternalAddresses(): ExternalAddress[] {
+    return get(sharedExternalAddresses).addresses;
+}
+
+export function getSelectedExternalAddress(): string | undefined {
+    return get(sharedExternalAddresses).selectedAddress;
+}
 
 function setSigningWithPrivateKeyAccounts() {
     // @ts-ignore
@@ -64,22 +140,57 @@ export class ExternalAddressWallet {
     }
 }
 
-function setSigningWithExternalAddress(externalAddress: string) {
-    if (!externalAddress) {
-        externalAddress = '0x0000000000000000000000000000000000000000000000000000000000000000';
+function setSigningWithExternalAddress(externalAddress?: string) {
+    const storedAddresses = get(sharedExternalAddresses);
+    let addressToUse = externalAddress || storedAddresses.selectedAddress;
+
+    if (!addressToUse && storedAddresses.addresses.length > 0) {
+        addressToUse = storedAddresses.addresses[0].address;
     }
+
+    if (!addressToUse) {
+        addressToUse = '0x0000000000000000000000000000000000000000000000000000000000000000';
+    }
+
     // @ts-ignore
     iota_wallets.set([new ExternalAddressWallet()]);
-    activeAddress.set(externalAddress);
-    iota_accounts.set([
-        {
+    activeAddress.set(addressToUse);
+
+    // Create accounts from all stored external addresses
+    const accounts: WalletAccount[] = storedAddresses.addresses.map((addr) => ({
+        address: addr.address,
+        label: addr.alias || 'External Address',
+        publicKey: new Uint8Array([]),
+        chains: ['iota:mainnet'],
+        features: ['iota:signAndExecuteTransaction'],
+    }));
+
+    // If there's a current external address that's not in the stored addresses, add it temporarily
+    if (
+        externalAddress &&
+        !storedAddresses.addresses.some((addr) => addr.address === externalAddress)
+    ) {
+        accounts.push({
             address: externalAddress,
+            label: '(not saved)',
+            publicKey: new Uint8Array([]),
+            chains: ['iota:mainnet'],
+            features: ['iota:signAndExecuteTransaction'],
+        });
+    }
+
+    // If no accounts exist, create a default one
+    if (accounts.length === 0) {
+        accounts.push({
+            address: addressToUse,
             label: 'External Address',
             publicKey: new Uint8Array([]),
             chains: ['iota:mainnet'],
             features: ['iota:signAndExecuteTransaction'],
-        },
-    ]);
+        });
+    }
+
+    iota_accounts.set(accounts);
 }
 
 export function updateSelectedSignerAccounts(externalAddress?: string) {
@@ -93,6 +204,6 @@ export function updateSelectedSignerAccounts(externalAddress?: string) {
         connectWallet(true);
     }
     if (get(sharedSignerType) == SignerType.ExternalAddress) {
-        setSigningWithExternalAddress(externalAddress!);
+        setSigningWithExternalAddress(externalAddress);
     }
 }

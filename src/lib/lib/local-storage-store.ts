@@ -11,9 +11,55 @@ import {
     type PrivateKeyAccounts,
 } from './default-private-keys';
 
+export interface ExternalAddress {
+    address: string;
+    alias?: string;
+}
+
+export interface ExternalAddresses {
+    addresses: ExternalAddress[];
+    selectedAddress?: string;
+}
+
+function defaultExternalAddresses(): ExternalAddresses {
+    return {
+        addresses: [],
+        selectedAddress: undefined,
+    };
+}
+
+function verifyExternalAddresses(value: any): boolean {
+    if (!value || typeof value !== 'object') {
+        throw new Error('External addresses must be an object');
+    }
+
+    if (!Array.isArray(value.addresses)) {
+        throw new Error('External addresses must contain an array of addresses');
+    }
+
+    for (const addr of value.addresses) {
+        if (!addr || typeof addr !== 'object') {
+            throw new Error('Each external address must be an object');
+        }
+        if (!addr.address || typeof addr.address !== 'string') {
+            throw new Error('Each external address must have a valid address string');
+        }
+        if (addr.alias !== undefined && typeof addr.alias !== 'string') {
+            throw new Error('External address alias must be a string if provided');
+        }
+    }
+
+    if (value.selectedAddress !== undefined && typeof value.selectedAddress !== 'string') {
+        throw new Error('Selected address must be a string if provided');
+    }
+
+    return true;
+}
+
 const CLIENT_CONFIG_KEY = 'clientConfig';
 const PRIVATE_KEY_ACCOUNTS_KEY = 'privateKeyAccounts';
 const SELECTED_SIGNER_TYPE_KEY = 'selectedSignerType';
+const EXTERNAL_ADDRESSES_KEY = 'externalAddresses';
 
 export const clientConfigErrorMsg = writable<string>('');
 export const sharedClientConfig: Writable<ClientConfig> = persistentWritableStore(
@@ -49,6 +95,13 @@ export const sharedSignerType: Writable<SignerType> = persistentWritableStore(
     },
 );
 
+export const externalAddressesErrorMsg = writable<string>('');
+export const sharedExternalAddresses: Writable<ExternalAddresses> = persistentWritableStore(
+    EXTERNAL_ADDRESSES_KEY,
+    defaultExternalAddresses(),
+    verifyExternalAddresses,
+);
+
 // Custom store synced with localStorage
 export function persistentWritableStore(
     key: string,
@@ -69,6 +122,9 @@ export function persistentWritableStore(
                     if (key === PRIVATE_KEY_ACCOUNTS_KEY) {
                         privateKeysErrorMsg.set('');
                     }
+                    if (key === EXTERNAL_ADDRESSES_KEY) {
+                        externalAddressesErrorMsg.set('');
+                    }
                 }
             } catch (err: any) {
                 console.warn(`Invalid value for localStorage key "${key}":`, value, err);
@@ -77,6 +133,9 @@ export function persistentWritableStore(
                 }
                 if (key === PRIVATE_KEY_ACCOUNTS_KEY) {
                     privateKeysErrorMsg.set(err.message || String(err));
+                }
+                if (key === EXTERNAL_ADDRESSES_KEY) {
+                    externalAddressesErrorMsg.set(err.message || String(err));
                 }
             }
         }

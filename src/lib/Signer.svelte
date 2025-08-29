@@ -6,19 +6,38 @@
     import { addressFromQuery, QUERY_PARAM_KEYS, setQueryParam } from './lib/query-param-store';
     import {
         activeAddress,
+        addOrUpdateExternalAddress,
+        getExternalAddresses,
+        getSelectedExternalAddress,
         iota_accounts,
         iota_wallets,
+        removeExternalAddress,
+        selectExternalAddress,
         updateSelectedSignerAccounts,
     } from './lib/signer-data';
     import { connectWallet } from './lib/web-wallet';
 
     let externalAddress = '0x0000000000000000000000000000000000000000000000000000000000000000';
+    let externalAlias = '';
+    let isAddressValid = false;
 
     onMount(() => {
         // Initialize external address from query parameter if provided
         const addressFromURL = $addressFromQuery;
         if (addressFromURL && isValidIotaAddress(addressFromURL)) {
             externalAddress = addressFromURL;
+        } else {
+            // Load selected external address from storage
+            const selectedAddress = getSelectedExternalAddress();
+            if (selectedAddress) {
+                externalAddress = selectedAddress;
+                // Find alias for this address
+                const storedAddresses = getExternalAddresses();
+                const found = storedAddresses.find((addr) => addr.address === selectedAddress);
+                if (found?.alias) {
+                    externalAlias = found.alias;
+                }
+            }
         }
 
         updateSelectedSignerAccounts(externalAddress);
@@ -40,8 +59,12 @@
             setQueryParam(QUERY_PARAM_KEYS.EXTERNAL_ADDRESS, null);
         }
 
-        // Update accounts
-        updateSelectedSignerAccounts(externalAddress);
+        // Update accounts - for ExternalAddress, let it load stored addresses
+        if (selectedSigner === SignerType.ExternalAddress) {
+            updateSelectedSignerAccounts(); // Don't force the current input value
+        } else {
+            updateSelectedSignerAccounts(externalAddress);
+        }
     }
 
     // Function to handle external address changes
@@ -49,8 +72,7 @@
         // Only update query parameter if ExternalAddress signer is selected
         if ($sharedSignerType === SignerType.ExternalAddress) {
             if (isValidIotaAddress(externalAddress)) {
-                updateSelectedSignerAccounts(externalAddress);
-                // Update query parameter
+                // Update query parameter but don't update accounts yet (wait for user to save)
                 setQueryParam(QUERY_PARAM_KEYS.EXTERNAL_ADDRESS, externalAddress);
             } else {
                 // Clear query parameter if address is invalid
@@ -59,9 +81,72 @@
         }
     }
 
+    // Function to handle adding/updating external address
+    function handleAddUpdateExternalAddress() {
+        if (isValidIotaAddress(externalAddress)) {
+            addOrUpdateExternalAddress(externalAddress, externalAlias || undefined);
+            // The addOrUpdateExternalAddress function will automatically update accounts
+            // Update query parameter
+            setQueryParam(QUERY_PARAM_KEYS.EXTERNAL_ADDRESS, externalAddress);
+        }
+    }
+
+    // Function to handle removing external address
+    function handleRemoveExternalAddress() {
+        if (externalAddress) {
+            removeExternalAddress(externalAddress);
+            // The removeExternalAddress function will automatically update accounts
+            // Reset to default or first available address
+            const remainingAddresses = getExternalAddresses();
+            if (remainingAddresses.length > 0) {
+                externalAddress = remainingAddresses[0].address;
+                externalAlias = remainingAddresses[0].alias || '';
+            } else {
+                externalAddress =
+                    '0x0000000000000000000000000000000000000000000000000000000000000000';
+                externalAlias = '';
+            }
+            // Update query parameter
+            setQueryParam(QUERY_PARAM_KEYS.EXTERNAL_ADDRESS, externalAddress);
+        }
+    }
+
+    // Function to handle address selection from dropdown
+    function handleAddressSelection() {
+        if ($sharedSignerType === SignerType.ExternalAddress && $activeAddress) {
+            // Update the input fields to match the selected address
+            externalAddress = $activeAddress;
+            // Find alias for this address
+            const storedAddresses = getExternalAddresses();
+            const found = storedAddresses.find((addr) => addr.address === $activeAddress);
+            externalAlias = found?.alias || '';
+
+            // Update the selected address in storage
+            selectExternalAddress($activeAddress);
+            // Update query parameter
+            setQueryParam(QUERY_PARAM_KEYS.EXTERNAL_ADDRESS, $activeAddress);
+        }
+    }
+
     $: isAddressValid = (() => {
         return isValidIotaAddress(externalAddress);
     })();
+
+    // Format option text with proper alignment
+    function formatOptionText(account: any): string {
+        const label = account.label || 'Account';
+        const addressSnippet = `${account.address.slice(0, 8)}...${account.address.slice(-6)}`;
+
+        // Use a more reliable approach: truncate long labels and pad consistently
+        const maxDisplayLength = 20; // Maximum characters to show for label
+        const truncatedLabel =
+            label.length > maxDisplayLength ? label.slice(0, maxDisplayLength - 1) + '…' : label;
+
+        // Pad to a consistent width using non-breaking spaces
+        const paddedLabel = truncatedLabel.padEnd(maxDisplayLength + 1, '\u00A0');
+
+        return `${paddedLabel}${addressSnippet}`;
+    }
 </script>
 
 <main>
@@ -87,14 +172,34 @@
                             </button>
                         {/if}
                         {#if $sharedSignerType == SignerType.ExternalAddress}
-                            <input
-                                type="string"
-                                class="external-address-input"
-                                class:invalid-address={!isAddressValid}
-                                bind:value={externalAddress}
-                                oninput={handleExternalAddressChange}
-                                placeholder="any address, can't be used for signing"
-                            />
+                            <div class="external-address-wrapper">
+                                <div class="external-address-row">
+                                    <input
+                                        type="text"
+                                        class="external-address-input"
+                                        class:invalid-address={externalAddress && !isAddressValid}
+                                        bind:value={externalAddress}
+                                        oninput={handleExternalAddressChange}
+                                        placeholder="Paste or type any address (read-only)"
+                                    />
+                                    <input
+                                        type="text"
+                                        class="alias-input"
+                                        bind:value={externalAlias}
+                                        placeholder="Alias (optional)"
+                                    />
+                                    <button
+                                        class="add-update-btn"
+                                        disabled={!isAddressValid}
+                                        onclick={handleAddUpdateExternalAddress}>Save</button
+                                    >
+                                    <button
+                                        class="remove-btn"
+                                        onclick={handleRemoveExternalAddress}
+                                        title="Remove current external address">✕</button
+                                    >
+                                </div>
+                            </div>
                         {/if}
                     </div>
                 </div>
@@ -105,13 +210,13 @@
                         <div class="address-group">
                             <select
                                 bind:value={$activeAddress}
+                                onchange={handleAddressSelection}
                                 class="address-select"
                                 id="address-select"
                             >
                                 {#each $iota_accounts as account}
                                     <option value={account.address}>
-                                        {(account.label || 'Account').padEnd(15, '\u00A0')}
-                                        {account.address.slice(0, 8)}...{account.address.slice(-6)}
+                                        {formatOptionText(account)}
                                     </option>
                                 {/each}
                             </select>
@@ -197,7 +302,6 @@
         cursor: pointer;
         transition: all 0.2s ease;
         backdrop-filter: blur(3px);
-        min-width: 120px;
     }
 
     .select-input:focus,
@@ -281,6 +385,67 @@
         transition: all 0.2s ease;
         backdrop-filter: blur(3px);
         font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+    }
+
+    .external-address-wrapper {
+        width: 100%;
+    }
+    .external-address-row {
+        display: flex;
+        gap: 0.4rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .alias-input {
+        padding: 0.35rem 0.5rem;
+        border: 1px solid rgba(156, 163, 175, 0.2);
+        border-radius: 6px;
+        background: rgba(55, 65, 81, 0.4);
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.75rem;
+        min-width: 12rem;
+    }
+
+    .remove-btn {
+        padding: 0.35rem 0.55rem;
+        border: 1px solid rgba(156, 163, 175, 0.2);
+        border-radius: 6px;
+        background: rgba(55, 65, 81, 0.6);
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 0.7rem;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        line-height: 1;
+    }
+
+    .remove-btn:hover {
+        background: rgba(239, 68, 68, 0.2);
+        border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    .add-update-btn {
+        padding: 0.35rem 0.55rem;
+        border: 1px solid rgba(156, 163, 175, 0.2);
+        border-radius: 6px;
+        background: rgba(55, 65, 81, 0.6);
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 0.7rem;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        line-height: 1;
+    }
+    .add-update-btn:hover:not([disabled]) {
+        background: rgba(16, 185, 129, 0.25);
+        border-color: rgba(16, 185, 129, 0.45);
+    }
+    .add-update-btn[disabled] {
+        opacity: 0.4;
+        cursor: not-allowed;
     }
 
     .external-address-input:focus {
