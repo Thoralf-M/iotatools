@@ -3,7 +3,9 @@
 
     import TransactionChart from '../components/TransactionChart.svelte';
     import TransactionView from '../components/TransactionView.svelte';
+    import { getSelectedNetworkConfig } from '../lib/client';
     import { EpochPTBAnalyzer, type DisplayData } from '../lib/epoch-ptb-analyzer';
+    import { getAddressLink, getObjectLink, getTransactionLink } from '../lib/explorer-links';
 
     let epoch = '';
     let startCheckpoint = '';
@@ -699,10 +701,19 @@
                                 <div class="function-header">
                                     <div class="function-signature">
                                         <div class="function-parts">
-                                            <span class="package-id" title={func.package}
-                                                >{func.package}</span
-                                            ><span class="separator">::</span><span class="module"
-                                                >{func.module}</span
+                                            <a
+                                                href={getObjectLink(
+                                                    getSelectedNetworkConfig(),
+                                                    func.package,
+                                                )}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                class="package-id link-style"
+                                                title={func.package}
+                                            >
+                                                {func.package}
+                                            </a><span class="separator">::</span><span
+                                                class="module">{func.module}</span
                                             ><span class="separator">::</span><span
                                                 class="function-name">{func.function}</span
                                             >
@@ -740,9 +751,18 @@
                                     <div class="transaction-ids-list">
                                         {#each func.transactionIds as txId}
                                             <div class="transaction-id-item">
-                                                <span class="tx-id" title={txId}
-                                                    >{formatAddress(txId)}</span
+                                                <a
+                                                    href={getTransactionLink(
+                                                        getSelectedNetworkConfig(),
+                                                        txId,
+                                                    )}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    class="tx-id link-style"
+                                                    title={txId}
                                                 >
+                                                    {formatAddress(txId)}
+                                                </a>
                                                 <button
                                                     class="copy-btn"
                                                     style="padding: 4px 8px; align-self: center;"
@@ -768,7 +788,17 @@
                                 <div class="address-header">
                                     <div class="address-left">
                                         <div class="address-info">
-                                            <span>{sender.address}</span>
+                                            <a
+                                                href={getAddressLink(
+                                                    getSelectedNetworkConfig(),
+                                                    sender.address,
+                                                )}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                class="link-style"
+                                            >
+                                                {sender.address}
+                                            </a>
                                         </div>
                                         <button
                                             class="copy-btn"
@@ -801,7 +831,17 @@
                                 <div class="address-header">
                                     <div class="address-left">
                                         <div class="address-info">
-                                            <span>{pkg.package}</span>
+                                            <a
+                                                href={getObjectLink(
+                                                    getSelectedNetworkConfig(),
+                                                    pkg.package,
+                                                )}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                class="link-style"
+                                            >
+                                                {pkg.package}
+                                            </a>
                                         </div>
                                         <button
                                             class="copy-btn"
@@ -836,7 +876,17 @@
                                         <div class="package-info">
                                             <div class="package-id-row">
                                                 <span class="package-label">Package:</span>
-                                                <span class="package-id">{pkg.packageId}</span>
+                                                <a
+                                                    href={getObjectLink(
+                                                        getSelectedNetworkConfig(),
+                                                        pkg.packageId,
+                                                    )}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    class="package-id link-style"
+                                                >
+                                                    {pkg.packageId}
+                                                </a>
                                                 <button
                                                     class="copy-btn"
                                                     style="padding: 4px 8px; align-self: center;"
@@ -860,7 +910,17 @@
                                             {/if}
                                             <div class="sender-row">
                                                 <span class="sender-label">Sender:</span>
-                                                <span class="sender-address">{pkg.sender}</span>
+                                                <a
+                                                    href={getAddressLink(
+                                                        getSelectedNetworkConfig(),
+                                                        pkg.sender,
+                                                    )}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    class="sender-address link-style"
+                                                >
+                                                    {pkg.sender}
+                                                </a>
                                                 <button
                                                     class="copy-btn"
                                                     style="padding: 4px 8px; align-self: center;"
@@ -877,13 +937,18 @@
                                     <div class="version-info">
                                         <span class="version-label">v{pkg.version}</span>
                                     </div>
-                                    <button
-                                        class="copy-btn tx-btn"
-                                        on:click={() => copyToClipboard(pkg.txId)}
-                                        title="Copy transaction ID: {formatAddress(pkg.txId)}"
+                                    <a
+                                        href={getTransactionLink(
+                                            getSelectedNetworkConfig(),
+                                            pkg.txId,
+                                        )}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="copy-btn tx-btn link-style"
+                                        title="View transaction: {formatAddress(pkg.txId)}"
                                     >
                                         TX
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                         {/each}
@@ -932,9 +997,18 @@
                                         <div class="transaction-ids-list">
                                             {#each cmd.digests as txId}
                                                 <div class="transaction-id-item">
-                                                    <span class="tx-id" title={txId}
-                                                        >{formatAddress(txId)}</span
+                                                    <a
+                                                        href={getTransactionLink(
+                                                            getSelectedNetworkConfig(),
+                                                            txId,
+                                                        )}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        class="tx-id link-style"
+                                                        title={txId}
                                                     >
+                                                        {formatAddress(txId)}
+                                                    </a>
                                                     <button
                                                         class="copy-btn"
                                                         style="padding: 4px 8px; align-self: center;"
@@ -1455,6 +1529,17 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+
+    .link-style {
+        text-decoration: none;
+        transition: all 0.2s ease;
+        color: inherit;
+    }
+
+    .link-style:hover {
+        color: #3b82f6;
+        text-decoration: underline;
     }
 
     .address-info {

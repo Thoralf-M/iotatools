@@ -3,6 +3,7 @@ export interface NetworkConfig {
     node: string;
     indexer: string;
     graphql: string;
+    explorer: string;
     faucet?: string;
 }
 
@@ -19,12 +20,14 @@ export const defaultClientConfig: ClientConfig = {
             node: 'https://api.mainnet.iota.cafe',
             indexer: 'https://indexer.mainnet.iota.cafe',
             graphql: 'https://graphql.mainnet.iota.cafe',
+            explorer: 'https://explorer.iota.org',
         },
         {
             name: 'localnet',
             node: 'http://127.0.0.1:9000',
             indexer: 'http://127.0.0.1:9124',
             graphql: 'http://127.0.0.1:9125',
+            explorer: 'https://explorer.iota.org',
             faucet: 'http://127.0.0.1:9123/gas',
         },
         {
@@ -32,6 +35,7 @@ export const defaultClientConfig: ClientConfig = {
             node: 'https://api.testnet.iota.cafe',
             indexer: 'https://indexer.testnet.iota.cafe',
             graphql: 'https://graphql.testnet.iota.cafe',
+            explorer: 'https://explorer.iota.org',
             faucet: 'https://faucet.testnet.iota.cafe/gas',
         },
         {
@@ -39,6 +43,7 @@ export const defaultClientConfig: ClientConfig = {
             node: 'https://api.devnet.iota.cafe',
             indexer: 'https://indexer.devnet.iota.cafe',
             graphql: 'https://graphql.devnet.iota.cafe',
+            explorer: 'https://explorer.iota.org',
             faucet: 'https://faucet.devnet.iota.cafe/gas',
         },
         {
@@ -46,6 +51,7 @@ export const defaultClientConfig: ClientConfig = {
             node: 'https://api.iota-rebased-alphanet.iota.cafe',
             indexer: 'https://indexer.iota-rebased-alphanet.iota.cafe',
             graphql: 'https://graphql.iota-rebased-alphanet.iota.cafe',
+            explorer: 'https://explorer.iota.org',
             faucet: 'https://faucet.iota-rebased-alphanet.iota.cafe/gas',
         },
     ],
@@ -64,6 +70,8 @@ export function verifyClientConfig(value: any) {
             throw new Error(`Config.networks[${i}].indexer is not a string`);
         if (typeof network.graphql !== 'string')
             throw new Error(`Config.networks[${i}].graphql is not a string`);
+        if (typeof network.explorer !== 'string')
+            throw new Error(`Config.networks[${i}].explorer is not a string`);
         if (network.faucet && typeof network.faucet !== 'string')
             throw new Error(`Config.networks[${i}].faucet is not a string`);
     }
