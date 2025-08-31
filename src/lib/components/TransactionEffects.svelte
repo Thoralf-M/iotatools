@@ -1,5 +1,7 @@
 <script lang="ts">
+    import { getSelectedNetworkConfig } from '../lib/client';
     import { decodeBase64Bytes } from '../lib/converter';
+    import { getAddressLink, getObjectLink, getTransactionLink } from '../lib/explorer-links';
     import { formatNumberWithUnderscores, nanoToIota } from '../lib/iota-nano-conversion';
     import { formatJsonWithCompactArrays, removeKindFields } from '../lib/transaction-view';
 
@@ -134,9 +136,17 @@
         <!-- Top header line with transaction ID, status, checkpoint, time -->
         <div class="header-line">
             <span class="tx-header">Transaction</span>
-            <span class="tx-id-short" title={transactionData?.digest}
-                >{transactionData?.digest}</span
+            <a
+                href={transactionData?.digest
+                    ? getTransactionLink(getSelectedNetworkConfig(), transactionData.digest)
+                    : '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="tx-id-short"
+                title={transactionData?.digest}
             >
+                {transactionData?.digest}
+            </a>
             <span class="status" style="color: {getStatusColor(effects.status)}"
                 >{getStatusString(effects.status)}</span
             >
@@ -158,9 +168,19 @@
         <div class="sender-fee-line">
             <div class="sender-section">
                 <span class="field-label">Sender:</span>
-                <span class="field-value" title={transactionData?.sender}
-                    >{transactionData?.sender || 'N/A'}</span
-                >
+                {#if transactionData?.sender}
+                    <a
+                        href={getAddressLink(getSelectedNetworkConfig(), transactionData.sender)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="field-value link-style"
+                        title={transactionData.sender}
+                    >
+                        {transactionData.sender}
+                    </a>
+                {:else}
+                    <span class="field-value">N/A</span>
+                {/if}
             </div>
             <div class="fee-section">
                 {#if effects.gasEffects?.gasSummary}
@@ -194,9 +214,22 @@
                         <div class="balance-content">
                             {#each balanceChanges.filter( (change: any) => change.amount.startsWith('-'), ) as change}
                                 <div class="balance-box negative">
-                                    <div class="full-address" title={change.owner?.address}>
-                                        {change.owner?.address}
-                                    </div>
+                                    {#if change.owner?.address}
+                                        <a
+                                            href={getAddressLink(
+                                                getSelectedNetworkConfig(),
+                                                change.owner.address,
+                                            )}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="full-address link-style"
+                                            title={change.owner.address}
+                                        >
+                                            {change.owner.address}
+                                        </a>
+                                    {:else}
+                                        <div class="full-address">N/A</div>
+                                    {/if}
                                     <div class="amount-value">
                                         {formatAmount(change.amount, change.coinType)}
                                     </div>
@@ -213,9 +246,22 @@
                         <div class="balance-content">
                             {#each balanceChanges.filter((change: any) => !change.amount.startsWith('-')) as change}
                                 <div class="balance-box positive">
-                                    <div class="full-address" title={change.owner?.address}>
-                                        {change.owner?.address}
-                                    </div>
+                                    {#if change.owner?.address}
+                                        <a
+                                            href={getAddressLink(
+                                                getSelectedNetworkConfig(),
+                                                change.owner.address,
+                                            )}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="full-address link-style"
+                                            title={change.owner.address}
+                                        >
+                                            {change.owner.address}
+                                        </a>
+                                    {:else}
+                                        <div class="full-address">N/A</div>
+                                    {/if}
                                     <div class="amount-value">
                                         {formatAmount(change.amount, change.coinType)}
                                     </div>
@@ -242,7 +288,31 @@
                         <div class="object-content">
                             {#each deletedObjects as change}
                                 <div class="object-box deleted">
-                                    <div class="object-id">{change.objectId || change.address}</div>
+                                    {#if change.objectId}
+                                        <a
+                                            href={getObjectLink(
+                                                getSelectedNetworkConfig(),
+                                                change.objectId,
+                                            )}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="object-id link-style"
+                                        >
+                                            {change.objectId}
+                                        </a>
+                                    {:else if change.address}
+                                        <a
+                                            href={getAddressLink(
+                                                getSelectedNetworkConfig(),
+                                                change.address,
+                                            )}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="object-id link-style"
+                                        >
+                                            {change.address}
+                                        </a>
+                                    {/if}
                                     {#if change.objectType}
                                         <div class="object-type">
                                             {change.objectType}
@@ -285,9 +355,17 @@
                             {#each mutatedObjects as change}
                                 <div class="object-box mutated">
                                     {#if change.outputState?.asMoveObject?.contents?.json?.id}
-                                        <div class="object-id">
+                                        <a
+                                            href={getObjectLink(
+                                                getSelectedNetworkConfig(),
+                                                change.outputState.asMoveObject.contents.json.id,
+                                            )}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="object-id link-style"
+                                        >
                                             {change.outputState.asMoveObject.contents.json.id}
-                                        </div>
+                                        </a>
                                         {#if change.inputState?.asMoveObject?.contents?.json}
                                             <details class="state-collapsible">
                                                 <summary class="state-summary"
@@ -326,7 +404,17 @@
                                             </div>
                                         </details>
                                     {:else if change.objectId}
-                                        <div class="object-id">{change.objectId}</div>
+                                        <a
+                                            href={getObjectLink(
+                                                getSelectedNetworkConfig(),
+                                                change.objectId,
+                                            )}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="object-id link-style"
+                                        >
+                                            {change.objectId}
+                                        </a>
                                         {#if change.objectType}
                                             <div class="object-type">
                                                 {change.objectType}
@@ -348,7 +436,17 @@
                                             </div>
                                         {/if}
                                     {:else}
-                                        <div class="object-id">{change.address}</div>
+                                        <a
+                                            href={getAddressLink(
+                                                getSelectedNetworkConfig(),
+                                                change.address,
+                                            )}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="object-id link-style"
+                                        >
+                                            {change.address}
+                                        </a>
                                         {#if change.inputState?.asMoveObject?.contents?.json}
                                             <details class="state-collapsible">
                                                 <summary class="state-summary"
@@ -382,9 +480,17 @@
                             {#each createdObjects as change}
                                 <div class="object-box created">
                                     {#if change.outputState?.asMoveObject?.contents?.json?.id}
-                                        <div class="object-id">
+                                        <a
+                                            href={getObjectLink(
+                                                getSelectedNetworkConfig(),
+                                                change.outputState.asMoveObject.contents.json.id,
+                                            )}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="object-id link-style"
+                                        >
                                             {change.outputState.asMoveObject.contents.json.id}
-                                        </div>
+                                        </a>
                                         <details class="state-collapsible" open>
                                             <summary class="state-summary">Object State:</summary>
                                             <div class="object-json">
@@ -401,7 +507,17 @@
                                             </div>
                                         </details>
                                     {:else if change.objectId}
-                                        <div class="object-id">{change.objectId}</div>
+                                        <a
+                                            href={getObjectLink(
+                                                getSelectedNetworkConfig(),
+                                                change.objectId,
+                                            )}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="object-id link-style"
+                                        >
+                                            {change.objectId}
+                                        </a>
                                         {#if change.objectType}
                                             <div class="object-type">
                                                 {change.objectType}
@@ -418,7 +534,17 @@
                                             </div>
                                         {/if}
                                     {:else}
-                                        <div class="object-id">{change.address}</div>
+                                        <a
+                                            href={getAddressLink(
+                                                getSelectedNetworkConfig(),
+                                                change.address,
+                                            )}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="object-id link-style"
+                                        >
+                                            {change.address}
+                                        </a>
                                     {/if}
                                 </div>
                             {/each}
@@ -829,6 +955,14 @@
         border-radius: 4px;
         color: rgba(255, 255, 255, 0.85);
         font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .tx-id-short:hover {
+        background: rgba(59, 130, 246, 0.3);
+        color: #93c5fd;
+        text-decoration: underline;
     }
 
     .status {
@@ -867,6 +1001,16 @@
         color: rgba(255, 255, 255, 0.85);
         font-size: 0.85rem;
         word-break: break-all;
+    }
+
+    .link-style {
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .link-style:hover {
+        color: #93c5fd;
+        text-decoration: underline;
     }
 
     .gas-fee {
