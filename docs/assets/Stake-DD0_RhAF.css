@@ -1,0 +1,104 @@
+
+    button.svelte-1uqnf59 {
+        margin: 0.5rem;
+    }
+
+    .validator-item.svelte-1uqnf59 {
+        transition:
+            background-color 0.2s ease,
+            border-color 0.2s ease;
+    }
+
+    .validator-item.svelte-1uqnf59:hover {
+        background-color: #525252 !important;
+        border-color: #999 !important;
+    }
+
+    .section-header.svelte-1uqnf59 {
+        transition: background-color 0.2s ease;
+    }
+
+    .section-header.svelte-1uqnf59:hover {
+        background-color: #474747 !important;
+    }
+
+    .validator-selection.svelte-1uqnf59 {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin: 1rem 0;
+        padding: 1rem;
+    }
+
+    .validator-content.svelte-1uqnf59 {
+        font-size: 0.85em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .validator-address.svelte-1uqnf59 {
+        font-family: monospace;
+        flex-shrink: 0;
+        word-break: break-all;
+        overflow-wrap: break-word;
+        max-width: 50%;
+    }
+
+    .validator-status.svelte-1uqnf59 {
+        font-weight: bold;
+        font-size: 0.9em;
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+
+    .validator-name.svelte-1uqnf59 {
+        font-weight: bold;
+        flex-shrink: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+    }
+
+    .validator-stake.svelte-1uqnf59 {
+        font-size: 0.9em;
+        margin-left: auto;
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+
+    /* Responsive: wrap on small screens */
+    @media (max-width: 768px) {
+        .validator-content.svelte-1uqnf59 {
+            flex-wrap: wrap;
+            gap: 0.25rem;
+        }
+
+        .validator-address.svelte-1uqnf59 {
+            width: 100%;
+            margin-bottom: 0.25rem;
+            max-width: 100%;
+        }
+
+        .validator-stake.svelte-1uqnf59 {
+            margin-left: 0;
+        }
+    }
+
+    /* Input field styling to prevent overflow */
+    input[placeholder*='address'].svelte-1uqnf59,
+    input[placeholder*='object'].svelte-1uqnf59 {
+        max-width: 100%;
+        box-sizing: border-box;
+        word-break: break-all;
+    }
+
+    /* Responsive input sizing */
+    @media (max-width: 768px) {
+        span.svelte-1uqnf59 {
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+    }
