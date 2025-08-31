@@ -17,7 +17,7 @@
     import { activeAddress } from '../lib/signer-data';
     import { executeTransaction } from '../lib/transaction-execution';
 
-    let validatorAddress = '0x111111111504e9350e635d65cd38ccd2c029434c6a3a480d8947a9ba6a15b215';
+    let validatorAddress = '';
     const minStakeAmount = 2_000_000_000;
     let amount = minStakeAmount;
     // Will be updated with the result
@@ -25,12 +25,50 @@
     let devInspectValue = {};
     let stakedIotaObjectId = '0x';
 
+    interface ValidatorInfo {
+        address: string;
+        name: string;
+        status: 'Committee Member' | 'Active Validator' | 'Candidate';
+        stake: string;
+    }
+
+    // Validator selection variables
+    let validators: ValidatorInfo[] = [];
+    let loadingValidators = false;
+    let showValidatorSelection = false;
+    let selectedValidator: ValidatorInfo | null = null;
+    let showCommitteeMembers = true;
+    let showCandidates = true;
+
     interface StakeData {
         objectId: string;
         initialStakedAmount: string;
         rewards: string;
         totalUnstakeAmount: string;
     }
+
+    // Helper function to get committee member addresses from system state
+    const getCommitteeMemberAddresses = (systemState: any): Set<string> => {
+        const committeeMemberAddresses = new Set<string>();
+
+        if (systemState.committeeMembers && Array.isArray(systemState.committeeMembers)) {
+            systemState.committeeMembers.forEach((validator: any) => {
+                committeeMemberAddresses.add(validator.iotaAddress);
+            });
+        }
+
+        return committeeMemberAddresses;
+    };
+
+    // Helper function to determine if a validator is a committee member
+    const isValidatorCommitteeMember = (
+        validatorAddress: string,
+        committeeMemberAddresses: Set<string>,
+    ): boolean => {
+        return (
+            committeeMemberAddresses.has(validatorAddress) || committeeMemberAddresses.size === 0
+        );
+    };
 
     const stake = async () => {
         try {
@@ -326,6 +364,218 @@
         };
         return res;
     }
+
+    const loadValidators = async () => {
+        try {
+            loadingValidators = true;
+            validators = [];
+
+            const client = getClient();
+            const systemState = await client.getLatestIotaSystemState();
+
+            console.log('System state structure:', systemState);
+
+            const committeeMemberAddresses = getCommitteeMemberAddresses(systemState);
+
+            // Add active validators
+            for (const validator of systemState.activeValidators) {
+                // Check if this validator is a committee member
+                const isCommitteeMember = isValidatorCommitteeMember(
+                    validator.iotaAddress,
+                    committeeMemberAddresses,
+                );
+                validators.push({
+                    address: validator.iotaAddress,
+                    name: validator.name || 'Unknown',
+                    status: isCommitteeMember ? 'Committee Member' : 'Active Validator',
+                    stake: validator.stakingPoolIotaBalance,
+                });
+            }
+
+            // Add candidate validators
+            const validatorCandidatesId = systemState.validatorCandidatesId;
+            let hasNextPage = true;
+            let nextPageCursor;
+
+            while (hasNextPage) {
+                const candidateValidatorsPage = await client.getDynamicFields({
+                    parentId: validatorCandidatesId,
+                    cursor: nextPageCursor,
+                });
+
+                for (const candidateValidator of candidateValidatorsPage.data) {
+                    try {
+                        const validatorWrapper = await client.getDynamicFieldObject({
+                            parentId: validatorCandidatesId,
+                            name: candidateValidator.name,
+                        });
+
+                        const validatorV1 = await client.getDynamicFields({
+                            parentId:
+                                // @ts-ignore
+                                validatorWrapper.data?.content.fields.value.fields.inner.fields.id
+                                    .id,
+                        });
+
+                        const validatorObject = await client.getObject({
+                            id: validatorV1.data[0].objectId,
+                            options: { showContent: true },
+                        });
+
+                        const validator =
+                            // @ts-ignore
+                            validatorObject.data?.content.fields.value.fields;
+
+                        validators.push({
+                            address: validator.metadata.fields.iota_address,
+                            name: validator.metadata.fields.name || 'Unknown',
+                            status: 'Candidate',
+                            stake: validator.staking_pool.fields.iota_balance,
+                        });
+                    } catch (err) {
+                        console.warn('Failed to load candidate validator:', err);
+                    }
+                }
+
+                hasNextPage = candidateValidatorsPage.hasNextPage;
+                if (hasNextPage) {
+                    nextPageCursor = candidateValidatorsPage.nextCursor;
+                }
+            }
+
+            // Sort validators: Committee members first, then active validators, then candidates
+            validators.sort((a, b) => {
+                const statusOrder: Record<ValidatorInfo['status'], number> = {
+                    'Committee Member': 0,
+                    'Active Validator': 1,
+                    Candidate: 2,
+                };
+                return statusOrder[a.status] - statusOrder[b.status];
+            });
+        } catch (err: any) {
+            console.error('Failed to load validators:', err);
+            value = 'Failed to load validators: ' + err.toString();
+        } finally {
+            loadingValidators = false;
+        }
+    };
+
+    const selectValidator = (address: string) => {
+        validatorAddress = address;
+        selectedValidator = validators.find((v) => v.address === address) || null;
+        showValidatorSelection = false;
+    };
+
+    const findValidatorByAddress = (address: string) => {
+        if (validators.length === 0) return null;
+        return validators.find((v) => v.address === address) || null;
+    };
+
+    const fetchValidatorByAddress = async (address: string): Promise<ValidatorInfo | null> => {
+        if (!address || !isValidIotaAddress(address)) return null;
+
+        try {
+            const client = getClient();
+            const systemState = await client.getLatestIotaSystemState();
+
+            const committeeMemberAddresses = getCommitteeMemberAddresses(systemState);
+
+            // Check in active validators first
+            for (const validator of systemState.activeValidators) {
+                if (validator.iotaAddress === address) {
+                    const isCommitteeMember = isValidatorCommitteeMember(
+                        validator.iotaAddress,
+                        committeeMemberAddresses,
+                    );
+
+                    return {
+                        address: validator.iotaAddress,
+                        name: validator.name || 'Unknown',
+                        status: isCommitteeMember ? 'Committee Member' : 'Active Validator',
+                        stake: validator.stakingPoolIotaBalance,
+                    };
+                }
+            }
+
+            // Check in candidate validators
+            const validatorCandidatesId = systemState.validatorCandidatesId;
+            let hasNextPage = true;
+            let nextPageCursor;
+
+            while (hasNextPage) {
+                const candidateValidatorsPage = await client.getDynamicFields({
+                    parentId: validatorCandidatesId,
+                    cursor: nextPageCursor,
+                });
+
+                for (const candidateValidator of candidateValidatorsPage.data) {
+                    try {
+                        const validatorWrapper = await client.getDynamicFieldObject({
+                            parentId: validatorCandidatesId,
+                            name: candidateValidator.name,
+                        });
+
+                        const validatorV1 = await client.getDynamicFields({
+                            parentId:
+                                // @ts-ignore
+                                validatorWrapper.data?.content.fields.value.fields.inner.fields.id
+                                    .id,
+                        });
+
+                        const validatorObject = await client.getObject({
+                            id: validatorV1.data[0].objectId,
+                            options: { showContent: true },
+                        });
+
+                        const validator =
+                            // @ts-ignore
+                            validatorObject.data?.content.fields.value.fields;
+
+                        if (validator.metadata.fields.iota_address === address) {
+                            return {
+                                address: validator.metadata.fields.iota_address,
+                                name: validator.metadata.fields.name || 'Unknown',
+                                status: 'Candidate',
+                                stake: validator.staking_pool.fields.iota_balance,
+                            };
+                        }
+                    } catch (err) {
+                        console.warn('Failed to check candidate validator:', err);
+                    }
+                }
+
+                hasNextPage = candidateValidatorsPage.hasNextPage;
+                if (hasNextPage) {
+                    nextPageCursor = candidateValidatorsPage.nextCursor;
+                }
+            }
+
+            return null;
+        } catch (err) {
+            console.warn('Failed to fetch validator by address:', err);
+            return null;
+        }
+    };
+
+    // Update selected validator when address changes
+    $: {
+        if (validatorAddress && isValidIotaAddress(validatorAddress)) {
+            // First try to find in loaded validators
+            const foundValidator = findValidatorByAddress(validatorAddress);
+            if (foundValidator) {
+                selectedValidator = foundValidator;
+            } else {
+                // If not found in loaded validators, fetch it
+                fetchValidatorByAddress(validatorAddress).then((validator) => {
+                    if (validator && validatorAddress === validator.address) {
+                        selectedValidator = validator;
+                    }
+                });
+            }
+        } else {
+            selectedValidator = null;
+        }
+    }
     async function unstakeAll() {
         try {
             let staked = (await listStakedIota())!;
@@ -518,7 +768,7 @@
         <input
             bind:value={stakedIotaObjectId}
             placeholder="staked IOTA object id 0x..."
-            size="67"
+            style="width: min(74ch, 100%); max-width: 100%; box-sizing: border-box; font-family: monospace;"
         />
     </span>
     <button on:click={() => computeRewards(stakedIotaObjectId)}> compute real rewards </button>
@@ -536,8 +786,166 @@
     <br />
     <span>
         validator address:
-        <input bind:value={validatorAddress} placeholder="validator address 0x..." size="67" />
+        <input
+            bind:value={validatorAddress}
+            placeholder="validator address 0x..."
+            style="width: min(74ch, 100%); max-width: 100%; box-sizing: border-box; font-family: monospace;"
+        />
+        <button
+            on:click={() => {
+                showValidatorSelection = !showValidatorSelection;
+                if (showValidatorSelection) loadValidators();
+            }}
+        >
+            {showValidatorSelection ? 'Hide' : selectedValidator ? 'Change' : 'Select'} Validator
+        </button>
     </span>
+
+    {#if showValidatorSelection}
+        <div class="validator-selection">
+            {#if loadingValidators}
+                <p>Loading validators...</p>
+            {:else if validators.length === 0}
+                <button on:click={loadValidators}>Load Validators</button>
+            {:else}
+                <div>
+                    <strong>Select a validator:</strong>
+                </div>
+
+                <!-- Candidates Section -->
+                {#if validators.filter((v) => v.status === 'Candidate').length > 0}
+                    <div style="margin-bottom: 1rem;">
+                        <div
+                            class="section-header"
+                            style="font-weight: bold; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                            on:click={() => (showCandidates = !showCandidates)}
+                            on:keydown={(e) =>
+                                e.key === 'Enter' && (showCandidates = !showCandidates)}
+                            role="button"
+                            tabindex="0"
+                        >
+                            <span
+                                >Candidates ({validators.filter((v) => v.status === 'Candidate')
+                                    .length})</span
+                            >
+                            <span>{showCandidates ? '▼' : '▶'}</span>
+                        </div>
+                        {#if showCandidates}
+                            {#each validators.filter((v) => v.status === 'Candidate') as validator}
+                                <div
+                                    class="validator-item"
+                                    style="margin: 0.125rem 0; border: 1px solid grey; border-radius: 4px; cursor: pointer;"
+                                    on:click={() => selectValidator(validator.address)}
+                                    on:keydown={(e) =>
+                                        e.key === 'Enter' && selectValidator(validator.address)}
+                                    role="button"
+                                    tabindex="0"
+                                >
+                                    <div class="validator-content">
+                                        <span class="validator-address">{validator.address}</span>
+                                        <span class="validator-status" style="color: #c62828;"
+                                            >{validator.status}</span
+                                        >
+                                        <span class="validator-name">{validator.name}</span>
+                                        <span class="validator-stake"
+                                            >Current Stake: {formatNumberWithUnderscores(
+                                                validator.stake,
+                                            )} NANO</span
+                                        >
+                                    </div>
+                                </div>
+                            {/each}
+                        {/if}
+                    </div>
+                {/if}
+
+                <!-- Active Validators Section -->
+                {#if validators.filter((v) => v.status === 'Committee Member' || v.status === 'Active Validator').length > 0}
+                    <div>
+                        <div
+                            class="section-header"
+                            style="font-weight: bold; border: 1px solid grey; border-radius: 4px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                            on:click={() => (showCommitteeMembers = !showCommitteeMembers)}
+                            on:keydown={(e) =>
+                                e.key === 'Enter' && (showCommitteeMembers = !showCommitteeMembers)}
+                            role="button"
+                            tabindex="0"
+                        >
+                            <span
+                                >Active Validators ({validators.filter(
+                                    (v) =>
+                                        v.status === 'Committee Member' ||
+                                        v.status === 'Active Validator',
+                                ).length})</span
+                            >
+                            <span>{showCommitteeMembers ? '▼' : '▶'}</span>
+                        </div>
+                        {#if showCommitteeMembers}
+                            {#each validators.filter((v) => v.status === 'Committee Member' || v.status === 'Active Validator') as validator}
+                                <div
+                                    class="validator-item"
+                                    style="margin: 0.125rem 0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;"
+                                    on:click={() => selectValidator(validator.address)}
+                                    on:keydown={(e) =>
+                                        e.key === 'Enter' && selectValidator(validator.address)}
+                                    role="button"
+                                    tabindex="0"
+                                >
+                                    <div class="validator-content">
+                                        <span class="validator-address">{validator.address}</span>
+                                        <span
+                                            class="validator-status"
+                                            style="color: {validator.status === 'Committee Member'
+                                                ? '#2e7d32'
+                                                : '#f57f17'};">{validator.status}</span
+                                        >
+                                        <span class="validator-name">{validator.name}</span>
+                                        <span class="validator-stake"
+                                            >Current Stake: {formatNumberWithUnderscores(
+                                                validator.stake,
+                                            )} NANO</span
+                                        >
+                                    </div>
+                                </div>
+                            {/each}
+                        {/if}
+                    </div>
+                {/if}
+            {/if}
+        </div>
+    {:else if selectedValidator}
+        <div class="validator-selection">
+            <div>
+                <strong>Selected Validator:</strong>
+                <button
+                    on:click={() => {
+                        showValidatorSelection = true;
+                    }}
+                    style="margin-left: 1rem; font-size: 0.8em;">Change</button
+                >
+            </div>
+            <div
+                class="validator-item"
+                style="padding: 0.25rem 0.5rem; border: 1px solid #ddd; border-radius: 4px;"
+            >
+                <div class="validator-content">
+                    <span class="validator-address">{selectedValidator.address}</span>
+                    <span
+                        class="validator-status"
+                        style="color: {selectedValidator.status === 'Committee Member'
+                            ? '#2e7d32'
+                            : selectedValidator.status === 'Active Validator'
+                              ? '#f57f17'
+                              : '#c62828'};">{selectedValidator.status}</span
+                    >
+                    <span class="validator-name">{selectedValidator.name}</span>
+                    <span class="validator-stake"
+                        >Current Stake: {formatNumberWithUnderscores(selectedValidator.stake)} NANO</span
+                    >
+                </div>
+            </div>
+        </div>
+    {/if}
     <br />
     <span>
         amount (min 1 IOTA, to unstake with rewards even more):
@@ -595,5 +1003,105 @@
 <style>
     button {
         margin: 0.5rem;
+    }
+
+    .validator-item {
+        transition:
+            background-color 0.2s ease,
+            border-color 0.2s ease;
+    }
+
+    .validator-item:hover {
+        background-color: #525252 !important;
+        border-color: #999 !important;
+    }
+
+    .section-header {
+        transition: background-color 0.2s ease;
+    }
+
+    .section-header:hover {
+        background-color: #474747 !important;
+    }
+
+    .validator-selection {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin: 1rem 0;
+        padding: 1rem;
+    }
+
+    .validator-content {
+        font-size: 0.85em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .validator-address {
+        font-family: monospace;
+        flex-shrink: 0;
+        word-break: break-all;
+        overflow-wrap: break-word;
+        max-width: 50%;
+    }
+
+    .validator-status {
+        font-weight: bold;
+        font-size: 0.9em;
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+
+    .validator-name {
+        font-weight: bold;
+        flex-shrink: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+    }
+
+    .validator-stake {
+        font-size: 0.9em;
+        margin-left: auto;
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+
+    /* Responsive: wrap on small screens */
+    @media (max-width: 768px) {
+        .validator-content {
+            flex-wrap: wrap;
+            gap: 0.25rem;
+        }
+
+        .validator-address {
+            width: 100%;
+            margin-bottom: 0.25rem;
+            max-width: 100%;
+        }
+
+        .validator-stake {
+            margin-left: 0;
+        }
+    }
+
+    /* Input field styling to prevent overflow */
+    input[placeholder*='address'],
+    input[placeholder*='object'] {
+        max-width: 100%;
+        box-sizing: border-box;
+        word-break: break-all;
+    }
+
+    /* Responsive input sizing */
+    @media (max-width: 768px) {
+        span {
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
     }
 </style>
