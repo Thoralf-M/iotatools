@@ -16,8 +16,9 @@
     let address = '0x0000a4984bd495d4346fa208ddff4f5d5e5ad48c21dec631ddebc99809f16900';
     let nameName = 'name.iota';
     let bidPrice = 10000000;
-    let IOTA_NAMES_PACKAGE_ID =
-        '0xb9d617f24c84826bf660a2f4031951678cc80c264aebc4413459fb2a95ada9ba';
+    let DEVNET_PACKAGE_ID = '0xb9d617f24c84826bf660a2f4031951678cc80c264aebc4413459fb2a95ada9ba';
+    let TESTNET_PACKAGE_ID = '0x7fff6e95f385349bec98d17121ab2bfa3e134f2f0b1ccefc270313415f7835ea';
+    let IOTA_NAMES_PACKAGE_ID = TESTNET_PACKAGE_ID;
     let AUCTION_PACKAGE_ID = '';
     let AUCTION_HOUSE_OBJECT_ID = '';
     let COUPONS_PACKAGE_ID = '';
@@ -770,7 +771,7 @@
 
 <main>
     <span>
-        IotaNames package id (default for devnet):
+        IotaNames package id (default for testnet):
         <input
             bind:value={IOTA_NAMES_PACKAGE_ID}
             onchange={() => {
@@ -784,6 +785,28 @@
             placeholder="package id 0x..."
             size="67"
         />
+        <button
+            onclick={() => {
+                IOTA_NAMES_PACKAGE_ID = TESTNET_PACKAGE_ID;
+                IOTA_NAMES_OBJECT_ID = '';
+                PAYMENTS_PACKAGE_ID = '';
+                SUBNAME_PACKAGE_ID = '';
+                SUBNAME_PROXY_PACKAGE_ID = '';
+                AUCTION_PACKAGE_ID = '';
+                COUPONS_PACKAGE_ID = '';
+            }}>Testnet</button
+        >
+        <button
+            onclick={() => {
+                IOTA_NAMES_PACKAGE_ID = DEVNET_PACKAGE_ID;
+                IOTA_NAMES_OBJECT_ID = '';
+                PAYMENTS_PACKAGE_ID = '';
+                SUBNAME_PACKAGE_ID = '';
+                SUBNAME_PROXY_PACKAGE_ID = '';
+                AUCTION_PACKAGE_ID = '';
+                COUPONS_PACKAGE_ID = '';
+            }}>Devnet</button
+        >
     </span>
     <br />
     <br />

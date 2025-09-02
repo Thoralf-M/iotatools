@@ -6,7 +6,7 @@ import type { NetworkConfig } from './default-client-config';
 export function generateExplorerLink(
     network: NetworkConfig,
     type: 'txBlock' | 'object' | 'address',
-    id: string
+    id: string,
 ): string {
     const networkParam = encodeURIComponent(network.indexer);
     return `${network.explorer}/${type}/${id}?network=${networkParam}`;
