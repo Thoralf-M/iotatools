@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { toB64 } from '@iota/iota-sdk/utils';
-    import { untrack } from 'svelte';
+    import { isValidIotaAddress, normalizeIotaObjectId, toB64 } from '@iota/iota-sdk/utils';
     import { writable } from 'svelte/store';
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
@@ -25,8 +24,31 @@
         defaultStructDefinitions,
         type StructDefinition,
     } from '../lib/dynamic-fields/struct-definitions';
+    import { updatePageQueryParams, usePageQueryParams } from '../lib/page-query-params';
 
-    let objectId = $state('0x35af1c0c5d8ee4878b2686a35639eba6a830c8a99e2e126df560265122bd6c9c');
+    // Use query parameters for the objectId field
+    const queryParamValues = usePageQueryParams({
+        objectId: '0x5',
+    });
+
+    let objectId = $state('');
+    let objectIdError = $state('');
+
+    // Reactive assignment from query parameters
+    $effect(() => {
+        objectId = $queryParamValues.objectId;
+    });
+
+    // Function to update objectId and query parameter, with validation
+    function updateObjectId(newObjectId: string) {
+        objectId = newObjectId;
+        if (newObjectId && !isValidIotaAddress(normalizeIotaObjectId(newObjectId))) {
+            objectIdError = 'Invalid object id';
+        } else {
+            objectIdError = '';
+            updatePageQueryParams({ objectId: newObjectId || null });
+        }
+    }
     let dynamicFields: any = $state(null);
     let error: string = $state('');
     let loading = $state(false);
@@ -122,13 +144,27 @@
         try {
             const struct = getSelectedStruct();
             if (!struct) throw new Error('Unknown struct type');
-            const json = JSON.parse(struct.value);
+
+            // Handle the value properly - it might be a JSON string or a plain value
+            let json;
+            if (typeof struct.value === 'string') {
+                try {
+                    // Try to parse as JSON first
+                    json = JSON.parse(struct.value);
+                } catch {
+                    // If parsing fails, treat as a plain string value
+                    json = struct.value;
+                }
+            } else {
+                // Value is already parsed
+                json = struct.value;
+            }
 
             // Convert the JSON layout to BCS schema using layoutToBcs
             const bcsSchema = layoutToBcs(struct.layout);
             return toB64(bcsSchema.serialize(json).toBytes());
         } catch (e) {
-            fieldError = 'BCS serialization error: ' + e;
+            console.error('BCS serialization error:', e);
             return '';
         }
     }
@@ -145,7 +181,21 @@
             } else {
                 const struct = getSelectedStruct();
                 if (!struct) return '';
-                const json = JSON.parse(struct.value);
+
+                // Handle the value properly - it might be a JSON string or a plain value
+                let json;
+                if (typeof struct.value === 'string') {
+                    try {
+                        // Try to parse as JSON first
+                        json = JSON.parse(struct.value);
+                    } catch {
+                        // If parsing fails, treat as a plain string value
+                        json = struct.value;
+                    }
+                } else {
+                    // Value is already parsed
+                    json = struct.value;
+                }
 
                 // Convert the JSON layout to BCS schema using layoutToBcs
                 const bcsSchema = layoutToBcs(struct.layout);
@@ -326,43 +376,41 @@
     function updateStructFromJson() {
         if (!selectedStructJson.trim() || isUpdatingFromSelection) return;
 
-        untrack(() => {
-            try {
-                const parsed = JSON.parse(selectedStructJson);
-                if (parsed && parsed.name && parsed.value !== undefined) {
-                    // Update the selected struct in the definitions array
-                    const index = structDefinitions.findIndex((s) => s.name === parsed.name);
-                    if (index >= 0) {
-                        // Update existing struct - convert value back to JSON string
-                        structDefinitions[index] = {
-                            ...structDefinitions[index],
-                            fieldType: parsed.fieldType || structDefinitions[index].fieldType,
-                            layout: parsed.layout || structDefinitions[index].layout,
-                            value:
-                                typeof parsed.value === 'string'
-                                    ? parsed.value
-                                    : JSON.stringify(parsed.value),
-                        };
-                    } else {
-                        // Add new struct if it doesn't exist
-                        structDefinitions.push({
-                            name: parsed.name,
-                            fieldType: parsed.fieldType || '',
-                            layout: parsed.layout || { struct: { type: parsed.name, fields: [] } },
-                            value:
-                                typeof parsed.value === 'string'
-                                    ? parsed.value
-                                    : JSON.stringify(parsed.value),
-                        });
-                    }
-                    structsError = '';
+        try {
+            const parsed = JSON.parse(selectedStructJson);
+            if (parsed && parsed.name && parsed.value !== undefined) {
+                // Update the selected struct in the definitions array
+                const index = structDefinitions.findIndex((s) => s.name === parsed.name);
+                if (index >= 0) {
+                    // Update existing struct - convert value back to JSON string
+                    structDefinitions[index] = {
+                        ...structDefinitions[index],
+                        fieldType: parsed.fieldType || structDefinitions[index].fieldType,
+                        layout: parsed.layout || structDefinitions[index].layout,
+                        value:
+                            typeof parsed.value === 'string'
+                                ? parsed.value
+                                : JSON.stringify(parsed.value),
+                    };
                 } else {
-                    structsError = 'Struct definition must have name and value properties';
+                    // Add new struct if it doesn't exist
+                    structDefinitions.push({
+                        name: parsed.name,
+                        fieldType: parsed.fieldType || '',
+                        layout: parsed.layout || { struct: { type: parsed.name, fields: [] } },
+                        value:
+                            typeof parsed.value === 'string'
+                                ? parsed.value
+                                : JSON.stringify(parsed.value),
+                    });
                 }
-            } catch (e) {
-                structsError = 'Invalid JSON in struct definition';
+                structsError = '';
+            } else {
+                structsError = 'Struct definition must have name and value properties';
             }
-        });
+        } catch (e) {
+            structsError = 'Invalid JSON in struct definition';
+        }
     }
 
     function getSelectedStruct(): StructDefinition | null {
@@ -391,6 +439,51 @@
             decodeTimeout = setTimeout(() => {
                 decodeFieldBcs();
             }, 300); // 300ms debounce
+        }
+    });
+
+    // Add reactive effect with debounce to update struct when selectedStructJson changes
+    let updateStructTimeout: any;
+    $effect(() => {
+        if (selectedStructJson && !isUpdatingFromSelection) {
+            clearTimeout(updateStructTimeout);
+            updateStructTimeout = setTimeout(() => {
+                updateStructFromJson();
+            }, 500); // 500ms debounce for text input
+        }
+    });
+
+    // Add reactive effect to handle BCS errors
+    $effect(() => {
+        if (bcsInputMode === 'json') {
+            try {
+                const struct = getSelectedStruct();
+                if (struct) {
+                    // Handle the value properly - it might be a JSON string or a plain value
+                    let json;
+                    if (typeof struct.value === 'string') {
+                        try {
+                            // Try to parse as JSON first
+                            json = JSON.parse(struct.value);
+                        } catch {
+                            // If parsing fails, treat as a plain string value
+                            json = struct.value;
+                        }
+                    } else {
+                        // Value is already parsed
+                        json = struct.value;
+                    }
+
+                    const bcsSchema = layoutToBcs(struct.layout);
+                    bcsSchema.serialize(json).toBytes();
+                    // Clear error if BCS serialization succeeds
+                    if (fieldError.includes('BCS serialization error')) {
+                        fieldError = '';
+                    }
+                }
+            } catch (e) {
+                fieldError = 'BCS serialization error: ' + e;
+            }
         }
     });
 
@@ -448,8 +541,17 @@
     <div>
         <label>
             Object ID:
-            <input bind:value={objectId} placeholder="0x..." size="67" />
+            <input
+                value={objectId}
+                oninput={(e) => updateObjectId((e.target as HTMLInputElement)?.value || '')}
+                placeholder="0x..."
+                size="67"
+                style={objectIdError ? 'border-color: #d63031;' : ''}
+            />
         </label>
+        {#if objectIdError}
+            <div style="color: #d63031; margin-top: 0.25em;">{objectIdError}</div>
+        {/if}
         <br />
         <label style="margin-left:1em;">
             Page size:
@@ -573,11 +675,7 @@
             >
             <br />
 
-            <select
-                bind:value={fieldStructType}
-                style="margin-right:0.5em;"
-                onchange={updateSelectedStructJson}
-            >
+            <select bind:value={fieldStructType} style="margin-right:0.5em;">
                 {#each structDefinitions as structDef}
                     <option value={structDef.name}>{structDef.name}</option>
                 {/each}
@@ -602,7 +700,6 @@
                 {/if}
                 <textarea
                     bind:value={selectedStructJson}
-                    oninput={updateStructFromJson}
                     rows="12"
                     cols="130"
                     style="font-family: monospace;"

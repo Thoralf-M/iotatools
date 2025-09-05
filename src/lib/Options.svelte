@@ -39,7 +39,7 @@
         <div class="option-group">
             <label class="option-label" for="network-select">Network:</label>
             <select
-                bind:value={$clientConfig.selected}
+                value={$clientConfig.selected}
                 on:change={handleNetworkChange}
                 class="select-input"
                 id="network-select"
