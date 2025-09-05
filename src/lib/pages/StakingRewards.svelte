@@ -225,7 +225,7 @@
     </div>
     {#if loadingTxs}
         <div style="text-align: left;">
-            Loading can take over a minute, depending on the number of transactions/epochs.
+            Loading can take minutes, depending on the number of transactions/epochs.
         </div>
     {/if}
     {#if error}
