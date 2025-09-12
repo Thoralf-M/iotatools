@@ -1,10 +1,12 @@
 <script lang="ts">
-    import { fromB64, toB64 } from '@iota/bcs';
+    import { fromBase64 } from '@iota/bcs';
     import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
     import { Transaction, TransactionDataBuilder } from '@iota/iota-sdk/transactions';
     import { get } from 'svelte/store';
 
+    import JsonToggleView from '../components/JsonToggleView.svelte';
     import TransactionView from '../components/TransactionView.svelte';
+    import { getClient } from '../lib/client';
     import { updatePageQueryParams, usePageQueryParams } from '../lib/page-query-params';
     import { activeAddress, iota_wallets } from '../lib/signer-data';
 
@@ -16,11 +18,46 @@
     let error = '';
     let value: any;
     let signatureResult = '';
+    let signatureTextarea: HTMLTextAreaElement;
+    let submitResult: any = null;
     let signatureTypeLabel = '';
     let txBytesInput = '';
+    let dryRunResult: any;
+    // Dry run transaction function
+    async function dryRunTransaction() {
+        try {
+            error = '';
+            dryRunResult = '';
 
-    // Reactive assignment from query parameters
-    $: txBytesInput = $queryParamValues.tx;
+            const inputString = txBytesInput.trim();
+            if (!inputString) {
+                error = 'Please enter transaction bytes';
+                return;
+            }
+
+            // Parse transaction bytes
+            let txBytes: Uint8Array;
+            try {
+                txBytes = fromBase64(inputString);
+            } catch (e) {
+                error = 'Invalid base64 transaction bytes';
+                return;
+            }
+
+            const client = getClient();
+            const result = await client.dryRunTransactionBlock({
+                transactionBlock: txBytes,
+            });
+            dryRunResult = result;
+        } catch (e) {
+            error = `Error dry running transaction: ${e}`;
+        }
+    }
+
+    $: if ($queryParamValues.tx !== txBytesInput) {
+        txBytesInput = $queryParamValues.tx;
+        processTransactionBytes(txBytesInput);
+    }
 
     // Function to update transaction bytes and query parameter
     function updateTxBytes(newTxBytes: string) {
@@ -34,12 +71,12 @@
     // Function to process transaction bytes and update the value
     function processTransactionBytes(inputString: string) {
         try {
-            let txBytes = fromB64(inputString);
+            let txBytes = fromBase64(inputString);
             value = TransactionDataBuilder.fromBytes(txBytes);
         } catch (e) {
             console.log('error TransactionDataBuilder', e);
             try {
-                value = IotaBcs.SenderSignedData.parse(fromB64(inputString))[0];
+                value = IotaBcs.SenderSignedData.parse(fromBase64(inputString))[0];
             } catch (e) {
                 console.log('error SenderSignedData', e);
                 value = e;
@@ -83,7 +120,7 @@
             let transactionBytes: Uint8Array;
 
             try {
-                transactionBytes = fromB64(inputString);
+                transactionBytes = fromBase64(inputString);
             } catch (e) {
                 error = 'Invalid base64 transaction bytes';
                 return;
@@ -96,6 +133,10 @@
 
             signatureTypeLabel = 'Transaction Signature';
             signatureResult = result.signature;
+            // Also update the signature textarea if present
+            if (signatureTextarea) {
+                signatureTextarea.value = signatureResult;
+            }
         } catch (e) {
             error = `Error signing transaction: ${e}`;
             console.error('Error signing transaction:', e);
@@ -140,6 +181,55 @@
             error = `Error signing message: ${e}`;
         }
     }
+    async function submitSignedTx() {
+        try {
+            error = '';
+            submitResult = null;
+
+            const inputString = txBytesInput.trim();
+            const signatureString = signatureResult.trim();
+            if (!inputString) {
+                error = 'Please enter transaction bytes';
+                return;
+            }
+            if (!signatureString) {
+                error = 'Please enter a signature';
+                return;
+            }
+
+            let txBytes: Uint8Array;
+            try {
+                txBytes = fromBase64(inputString);
+            } catch (e) {
+                error = 'Invalid base64 transaction bytes';
+                return;
+            }
+
+            let bcsSignature: Uint8Array;
+            try {
+                bcsSignature = fromBase64(signatureString);
+            } catch (e) {
+                error = 'Invalid base64 signature';
+                return;
+            }
+
+            const client = getClient();
+            const result = await client.executeTransactionBlock({
+                transactionBlock: txBytes,
+                signature: signatureString,
+                options: {
+                    showBalanceChanges: true,
+                    showObjectChanges: true,
+                    showEffects: true,
+                    showInput: true,
+                },
+            });
+            console.log(result);
+            submitResult = result;
+        } catch (e) {
+            error = `Error submitting signed transaction: ${e}`;
+        }
+    }
 </script>
 
 <main>
@@ -174,13 +264,47 @@
         >
             Sign Personal Message
         </button>
+        <button
+            onclick={dryRunTransaction}
+            style="padding: 8px 16px; background: #ffc107; color: #333; border: none; border-radius: 4px; cursor: pointer;"
+        >
+            Dry Run Transaction
+        </button>
     </div>
+    {#if dryRunResult}
+        <div class="dry-run-result">
+            <button
+                class="dry-run-close"
+                onclick={() => (dryRunResult = undefined)}
+                aria-label="Close dry run result"
+                title="Close">&#10005;</button
+            >
+            <div class="dry-run-title">Dry Run Result</div>
+            <JsonToggleView value={dryRunResult} />
+        </div>
+    {/if}
 
-    <!-- Signature result -->
-    {#if signatureResult}
-        <div style="margin: 20px 0; padding: 10px; border: 1px solid #e9ecef; border-radius: 4px;">
-            <div style="margin-bottom: 6px; font-weight: bold;">{signatureTypeLabel}</div>
-            <div>{signatureResult}</div>
+    <div style="margin: 20px 0;">
+        <div style="margin-bottom: 6px; font-weight: bold;">
+            {signatureTypeLabel || 'Signature'}
+        </div>
+        <textarea
+            bind:this={signatureTextarea}
+            value={signatureResult}
+            oninput={(e) => (signatureResult = (e.target as HTMLTextAreaElement).value)}
+            placeholder="Signature (base64)"
+            style="width: 100%; height: 60px;"
+        ></textarea>
+        <button
+            onclick={submitSignedTx}
+            style="margin-top: 8px; padding: 8px 16px; background: #6c63ff; color: white; border: none; border-radius: 4px; cursor: pointer;"
+        >
+            Submit Signed Tx
+        </button>
+    </div>
+    {#if submitResult}
+        <div style="margin: 20px 0;">
+            <TransactionView value={submitResult} />
         </div>
     {/if}
     {#if error}
@@ -198,5 +322,23 @@
     textarea {
         width: 100%;
         height: 100px;
+    }
+
+    .dry-run-result {
+        margin: 20px 0;
+        padding: 10px;
+        border: 1px solid #c4ab5f6d;
+        border-radius: 4px;
+        position: relative;
+    }
+    .dry-run-close {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        color: #850804;
+        font-size: 22px;
+        cursor: pointer;
+        line-height: 1;
+        padding: 0.2rem;
     }
 </style>
