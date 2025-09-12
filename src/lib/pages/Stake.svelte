@@ -8,7 +8,7 @@
     import { Transaction } from '@iota/iota-sdk/transactions';
     import { IOTA_SYSTEM_STATE_OBJECT_ID, isValidIotaAddress } from '@iota/iota-sdk/utils';
 
-    import JsonToggleView from '../components/JsonToggleView.svelte';
+    import TransactionView from '../components/TransactionView.svelte';
     import { getClient } from '../lib/client';
     import {
         formatNumbersWithUnderscores,
@@ -997,7 +997,7 @@
     </button>
     <button on:click={() => stakeAllTimelockedObjects()}> stake all timelocked objects </button>
 
-    <JsonToggleView {value} />
+    <TransactionView {value} />
 </main>
 
 <style>

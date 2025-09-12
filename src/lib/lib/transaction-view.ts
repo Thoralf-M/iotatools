@@ -590,7 +590,7 @@ export function getTransactionData(data: any): any {
         const normalized = {
             ...data,
             digest: data.digest || data.effects?.transactionDigest,
-            sender: data.sender || data.input?.sender,
+            sender: data?.transaction?.data?.sender || data.sender || data.input?.sender,
             objectChanges: objectChanges,
             effects: {
                 // Selectively include effects properties, excluding created/mutated to avoid conflicts
