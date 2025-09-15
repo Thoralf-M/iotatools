@@ -26,6 +26,34 @@
     let loadingCheckpointTransactions = false;
     let stopRequested = false; // Track if user requested to stop fetching
 
+    // Substring filter for checkpoint transactions
+    let checkpointFilterSubstring = '';
+    let filteredCheckpointTransactions: any[] = [];
+
+    function filterCheckpointTransactions() {
+        if (!checkpointFilterSubstring) {
+            filteredCheckpointTransactions = [];
+            return;
+        }
+        const substr = checkpointFilterSubstring.toLowerCase();
+        // If substring is provided, filter all transactions from all checkpoints
+        let allTxs: any[] = [];
+        if (displayData.transactionsByCheckpoint && displayData.transactionsByCheckpoint.size > 0) {
+            for (const txArr of displayData.transactionsByCheckpoint.values()) {
+                if (Array.isArray(txArr)) allTxs = allTxs.concat(txArr);
+            }
+        } else {
+            allTxs = checkpointTransactions;
+        }
+        filteredCheckpointTransactions = allTxs.filter((tx) => {
+            try {
+                return JSON.stringify(tx).toLowerCase().includes(substr);
+            } catch {
+                return false;
+            }
+        });
+    }
+
     let displayData: DisplayData = {
         totalPTBs: 0,
         failedPTBs: 0,
@@ -350,6 +378,7 @@
     function fetchCheckpointTransactions(checkpoint: string) {
         if (!checkpoint || checkpoint.trim() === '') {
             checkpointTransactions = [];
+            filteredCheckpointTransactions = [];
             return;
         }
 
@@ -357,9 +386,13 @@
         try {
             const transactions = analyzer.getCheckpointTransactions(checkpoint, displayData);
             checkpointTransactions = transactions || [];
+            // Reset filter state on new fetch
+            filteredCheckpointTransactions = [];
+            checkpointFilterSubstring = '';
         } catch (err) {
             console.error('Error fetching checkpoint transactions:', err);
             checkpointTransactions = [];
+            filteredCheckpointTransactions = [];
         } finally {
             loadingCheckpointTransactions = false;
         }
@@ -371,6 +404,8 @@
             fetchCheckpointTransactions(checkpointStr);
         } else {
             checkpointTransactions = [];
+            filteredCheckpointTransactions = [];
+            checkpointFilterSubstring = '';
         }
     }
 
@@ -1054,14 +1089,50 @@
                                 on:click={() => {
                                     selectedCheckpoint = '';
                                     checkpointTransactions = [];
+                                    checkpointFilterSubstring = '';
+                                    filteredCheckpointTransactions = [];
                                 }}
                                 title="Clear checkpoint selection"
                             >
                                 ✕
                             </button>
                         {/if}
+                        <div
+                            class="checkpoint-filter-row"
+                            style="margin-top: 10px; display: flex; align-items: center; gap: 8px;"
+                        >
+                            <input
+                                id="checkpoint-filter-input"
+                                type="text"
+                                bind:value={checkpointFilterSubstring}
+                                placeholder="Filter transactions by substring (JSON)"
+                                style="width: 18rem; font-size: 12px;"
+                                disabled={loadingCheckpointTransactions || !selectedCheckpoint}
+                            />
+                            <button
+                                class="example-btn"
+                                on:click={() => (checkpointFilterSubstring = 'MoveCall')}
+                                disabled={loadingCheckpointTransactions || !selectedCheckpoint}
+                                title="Insert example substring"
+                            >
+                                Example
+                            </button>
+                            <button
+                                class="fetch-current-epoch-btn"
+                                on:click={filterCheckpointTransactions}
+                                disabled={loadingCheckpointTransactions ||
+                                    !selectedCheckpoint ||
+                                    !checkpointTransactions.length}
+                                title="Filter transactions by substring"
+                            >
+                                Filter
+                            </button>
+                        </div>
                         <h5>
-                            Transactions: {checkpointTransactions.length}
+                            Transactions: {filteredCheckpointTransactions.length > 0 ||
+                            checkpointFilterSubstring
+                                ? filteredCheckpointTransactions.length
+                                : checkpointTransactions.length}
                         </h5>
                     </div>
 
@@ -1069,10 +1140,10 @@
                         <div class="checkpoint-loading">
                             <p>Loading transactions for checkpoint {selectedCheckpoint}...</p>
                         </div>
-                    {:else if selectedCheckpoint && checkpointTransactions.length > 0}
+                    {:else if selectedCheckpoint && (filteredCheckpointTransactions.length > 0 || checkpointTransactions.length > 0)}
                         <div class="checkpoint-transactions">
                             <div class="transaction-list">
-                                {#each checkpointTransactions as tx, index}
+                                {#each filteredCheckpointTransactions.length > 0 || checkpointFilterSubstring ? filteredCheckpointTransactions : checkpointTransactions as tx, index}
                                     <details class="transaction-details">
                                         <summary class="transaction-summary">
                                             <span class="transaction-number"
