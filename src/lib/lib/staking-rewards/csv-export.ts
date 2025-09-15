@@ -4,6 +4,7 @@ import {
     getTotalAccumulatedRewardsForEpoch,
     getTotalAccumulatedUnstakeRewardsForEpoch,
     getTotalRewardsForEpoch,
+    getTotalStakedForEpoch,
     getTotalUnstakeRewardsForEpoch,
     getValidatorRewardsForEpoch,
     isActiveInEpoch,
@@ -35,6 +36,7 @@ export function exportTableToCSV(
     let headers = [
         'Epoch',
         'End Date',
+        'Staked',
         'Rewards',
         'Accumulated',
         'Unstake Rewards',
@@ -73,6 +75,9 @@ export function exportTableToCSV(
         row.push(
             epoch.toString(),
             epochEndDates[i] || '-',
+            epoch === currentEpoch
+                ? 'pending'
+                : getTotalStakedForEpoch(epoch, stakeObjects).replace(' IOTA', ''),
             epoch === currentEpoch
                 ? 'pending'
                 : getTotalRewardsForEpoch(epoch, epochData).replace(' IOTA', ''),

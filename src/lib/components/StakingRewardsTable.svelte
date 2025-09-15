@@ -28,6 +28,7 @@
         getTotalAccumulatedRewardsForEpoch,
         getTotalAccumulatedUnstakeRewardsForEpoch,
         getTotalRewardsForEpoch,
+        getTotalStakedForEpoch,
         getTotalUnstakeRewardsForEpoch,
         getValidatorAccumulatedRewardsForEpoch,
         getValidatorRewardsForEpoch,
@@ -386,6 +387,7 @@
             <div class="header-row">
                 <div class="header-cell epoch-header">Epoch</div>
                 <div class="header-cell end-date-header">End Date</div>
+                <div class="header-cell rewards-header">Staked</div>
                 <div class="header-cell rewards-header">Rewards</div>
                 <div class="header-cell rewards-header">Accumulated</div>
                 <div class="header-cell rewards-header">Unstake Rewards</div>
@@ -477,6 +479,11 @@
                             <div class="table-cell epoch-cell">{epochs[index]}</div>
                             <div class="table-cell end-date-cell">
                                 {epochEndDates[index] || '-'}
+                            </div>
+                            <div class="table-cell rewards-cell">
+                                {epochs[index] === currentEpoch
+                                    ? 'pending'
+                                    : getTotalStakedForEpoch(epochs[index], stakeObjects)}
                             </div>
                             <div class="table-cell rewards-cell">
                                 {epochs[index] === currentEpoch
@@ -761,7 +768,7 @@
     }
     .rewards-header,
     .rewards-cell {
-        width: 130px;
+        width: 140px;
         flex-shrink: 0;
         font-size: 1em !important;
     }

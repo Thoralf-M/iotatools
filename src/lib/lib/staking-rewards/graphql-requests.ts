@@ -8,7 +8,11 @@ import {
     getCompressionStats,
 } from './cache/binary-cache';
 
-async function fetchStakeTransactionsByRole(address: string, role: 'signAddress' | 'recvAddress') {
+async function fetchStakeTransactionsByRole(
+    address: string,
+    role: 'signAddress' | 'recvAddress',
+    batchSize = 1,
+) {
     // Reusable objectChanges GraphQL section
     const objectChangesSection = `
         pageInfo {
@@ -77,7 +81,7 @@ async function fetchStakeTransactionsByRole(address: string, role: 'signAddress'
                     filter: {
                         ${role}: $address
                     }
-                    ${cursorSection}
+                    first: ${batchSize}${cursorSection}
                 ) {
                     pageInfo {
                         hasNextPage
@@ -100,6 +104,9 @@ ${objectChangesSection}
 
         const variables = { address };
         const result = await gqlClient.query({ query, variables });
+        if (result.errors) {
+            throw new Error(`GraphQL query error: ${JSON.stringify(result.errors)}`);
+        }
         const txBlocks = result.data?.transactionBlocks;
         if (
             txBlocks &&
@@ -140,6 +147,9 @@ ${objectChangesSection}
                         query: objectChangesQuery,
                         variables: objectVariables,
                     });
+                    if (objectResult.errors) {
+                        throw new Error(`GraphQL query error: ${JSON.stringify(result.errors)}`);
+                    }
                     const transactionBlock = objectResult.data?.transactionBlock;
                     let nextObjectChanges = undefined;
                     if (
@@ -179,7 +189,7 @@ ${objectChangesSection}
                 ? (txBlocks as any).pageInfo.endCursor
                 : undefined;
         if (hasNextPage && endCursor) {
-            cursorSection = `after: \"${endCursor}\"`;
+            cursorSection = `,after: \"${endCursor}\"`;
         } else {
             break;
         }
@@ -190,6 +200,7 @@ ${objectChangesSection}
     ];
     // Filter transactions to only those that contain stake objects for the given address
     // but keep ALL objects in those transactions for proper analysis
+    console.log(`Total transactions fetched: ${allNodes.length}`);
     const filteredNodes = allNodes
         .map((tx) => {
             // @ts-ignore

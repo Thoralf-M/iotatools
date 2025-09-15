@@ -297,6 +297,27 @@ export function getTotalAccumulatedUnstakeRewardsForEpoch(
 }
 
 /**
+ * Get total staked amount for an epoch by summing all principal amounts
+ */
+export function getTotalStakedForEpoch(epoch: number, stakeObjects: StakeObject[]): string {
+    let total = 0n;
+
+    for (const stakeObject of stakeObjects) {
+        const principal = stakeObject.principalByEpoch[epoch];
+        if (principal && principal !== '0') {
+            try {
+                total += BigInt(principal);
+            } catch {
+                // Skip invalid principal values
+                continue;
+            }
+        }
+    }
+
+    return total === 0n ? '0' : (Number(total) / 1_000_000_000).toFixed(2) + ' IOTA';
+}
+
+/**
  * Get validator total principal formatted as IOTA string
  */
 export function getValidatorTotalPrincipal(
