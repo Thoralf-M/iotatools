@@ -9,7 +9,11 @@ import {
 import { computeRewardsForStakeObject } from './rewards-calculator';
 import type { ActionDetails, ProcessStakeTransactionsResult, StakeObject } from './types';
 import { getIotaAmount, getTokenAmount, safeBigInt } from './utils';
-import { getCurrentActiveValidatorsExchangeRateIds, getInactiveValidatorsExchangeRateIds, getValidatorInfo } from './validator-utils';
+import {
+    getCurrentActiveValidatorsExchangeRateIds,
+    getInactiveValidatorsExchangeRateIds,
+    getValidatorInfo,
+} from './validator-utils';
 
 // Types for internal processing
 type StakeObjectData = {
