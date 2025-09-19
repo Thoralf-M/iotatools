@@ -1,3 +1,4 @@
+import { getClient } from '../../client';
 import {
     exchangeRateCache,
     fetchAllExchangeRates,
@@ -8,7 +9,11 @@ import {
 import { computeRewardsForStakeObject } from './rewards-calculator';
 import type { ActionDetails, ProcessStakeTransactionsResult, StakeObject } from './types';
 import { getIotaAmount, getTokenAmount, safeBigInt } from './utils';
-import { getCurrentActiveValidatorsExchangeRateIds, getValidatorInfo } from './validator-utils';
+import {
+    getCurrentActiveValidatorsExchangeRateIds,
+    getInactiveValidatorsExchangeRateIds,
+    getValidatorInfo,
+} from './validator-utils';
 
 // Types for internal processing
 type StakeObjectData = {
@@ -708,8 +713,9 @@ export async function processStakeTransactionsWithExchangeRates(
 ): Promise<ProcessStakeTransactionsResult> {
     // Get system state to map pool IDs to exchange rate IDs
     const systemState = (await fetchSystemState())[0];
-    // TODO: handle inactive validators
     const validatorMap = getCurrentActiveValidatorsExchangeRateIds(systemState);
+    const inactiveValidatorsMap = await getInactiveValidatorsExchangeRateIds(systemState);
+    const allValidatorsMap = { ...validatorMap, ...inactiveValidatorsMap };
     const validatorInfo = getValidatorInfo(systemState);
 
     // Process transactions to build stake objects
@@ -728,7 +734,7 @@ export async function processStakeTransactionsWithExchangeRates(
     // Process stake objects with exchange rates and compute rewards
     const stakeObjectsArray = await processStakeObjectsWithExchangeRates(
         ownedStakeObjects,
-        validatorMap,
+        allValidatorsMap,
         currentEpoch,
     );
 
