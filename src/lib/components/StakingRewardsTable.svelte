@@ -14,6 +14,7 @@
     import {
         fetchEpochEndTimestamp,
         fetchEpochStartTimestamp,
+        fetchEpochTimestampsForDisplay,
     } from '../lib/staking-rewards/graphql-requests';
     import {
         fetchAllPrices as fetchAllPricesUtil,
@@ -164,41 +165,15 @@
         if (!epochs.length) {
             epochEndDates = [];
         } else {
-            // Fetch timestamps for each epoch
-            let promises: Promise<number | null>[] = [];
-            let fetchedEpochTimestamps: Record<number, number> = {};
-            for (let i = 0; i < epochs.length; i++) {
-                const epochNum = epochs[i];
-                // Use cache if mainnet and available
-                if (isMainnet && epochTimestampsCache[epochNum]) {
-                    promises.push(Promise.resolve(epochTimestampsCache[epochNum]));
-                } else {
-                    if (epochNum == currentEpoch) {
-                        promises.push(fetchEpochStartTimestamp(epochNum));
-                    } else {
-                        promises.push(fetchEpochEndTimestamp(epochNum));
-                    }
-                }
-            }
-            Promise.all(promises).then((timestamps) => {
-                epochEndDates = timestamps.map((ts, i) => {
-                    if (!ts) return '';
-                    // For current epoch, add 24 hours to start timestamp
-                    if (epochs[i] === currentEpoch) {
-                        return formatDate(new Date((ts + 24 * 60 * 60) * 1000));
-                    }
-                    return formatDate(new Date(ts * 1000));
-                });
-                // Build checkpoint object for cache
-                for (let i = 0; i < epochs.length; i++) {
-                    if (timestamps[i]) {
-                        fetchedEpochTimestamps[epochs[i]] = timestamps[i] as number;
-                    }
-                }
-                // Log for easy copy-paste into cache file
-                console.log('Copy this to mainnet-epoch-timestamps-cache.json:');
-                console.log(JSON.stringify(fetchedEpochTimestamps, null, 2));
-            });
+            // Fetch timestamps for each epoch using reusable function
+            fetchEpochTimestampsForDisplay(epochs, currentEpoch, epochTimestampsCache).then(
+                ({ epochEndDates: dates, fetchedEpochTimestamps }) => {
+                    epochEndDates = dates;
+                    // Log for easy copy-paste into cache file
+                    console.log('Copy this to mainnet-epoch-timestamps-cache.json:');
+                    console.log(JSON.stringify(fetchedEpochTimestamps, null, 2));
+                },
+            );
         }
     }
 

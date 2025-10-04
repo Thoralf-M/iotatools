@@ -144,6 +144,11 @@ export function persistentWritableStore(
 }
 
 function loadFromLocalStorage(key: string, initialValue: any, verificationFn: Function) {
+    // Check if localStorage is available (not available in Node.js)
+    if (typeof localStorage === 'undefined') {
+        return initialValue;
+    }
+
     const json = localStorage.getItem(key);
     try {
         let value = json ? JSON.parse(json) : initialValue;
