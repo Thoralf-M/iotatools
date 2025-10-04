@@ -7,6 +7,7 @@ import {
     decompressExchangeRateCache,
     getCompressionStats,
 } from './cache/binary-cache';
+import { formatDate } from './table-utils';
 
 async function fetchStakeTransactionsByRole(
     address: string,
@@ -849,4 +850,304 @@ export async function fetchEpochEndTimestamp(epochId: number): Promise<number | 
     return null;
 }
 
+/**
+ * Update timestamps cache with all historical epoch timestamps
+ */
+export async function updateTimestampsCache(
+    existingCache?: Record<string, number>,
+): Promise<Record<string, number>> {
+    console.log('Fetching all epoch timestamps...');
+
+    const gqlClient = new IotaGraphQLClient({
+        url: getSelectedNetworkConfig().graphql,
+    });
+
+    // Get current epoch
+    const epochQuery = `query { epoch { epochId } }`;
+    // @ts-ignore
+    const epochResult = await gqlClient.query({ query: epochQuery });
+    // @ts-ignore
+    const currentEpoch = epochResult.data?.epoch?.epochId || 1;
+
+    console.log(`Current epoch: ${currentEpoch}`);
+
+    // Start with existing cache or empty object
+    const timestamps: Record<string, number> = { ...(existingCache || {}) };
+
+    // Find missing epochs
+    const existingEpochs = Object.keys(timestamps).map((e) => parseInt(e));
+    const missingEpochs = [];
+    for (let epoch = 1; epoch <= currentEpoch; epoch++) {
+        if (!existingEpochs.includes(epoch)) {
+            missingEpochs.push(epoch);
+        }
+    }
+
+    if (missingEpochs.length === 0) {
+        console.log('All epochs already cached, no new data to fetch');
+        return timestamps;
+    }
+
+    console.log(`Fetching timestamps for ${missingEpochs.length} missing epochs...`);
+
+    // Fetch timestamps for missing epochs
+    for (const epoch of missingEpochs) {
+        try {
+            const timestamp = await fetchEpochEndTimestamp(epoch);
+            if (timestamp) {
+                timestamps[epoch.toString()] = timestamp;
+            }
+        } catch (e) {
+            console.warn(`Failed to fetch timestamp for epoch ${epoch}:`, e);
+        }
+    }
+
+    console.log(
+        `Timestamps cache updated with ${missingEpochs.length} new epochs (total: ${Object.keys(timestamps).length})`,
+    );
+    return timestamps;
+}
+
+/**
+ * Fetch timestamps for specific epochs and return formatted dates
+ * Reusable function for components that need epoch timestamps
+ */
+export async function fetchEpochTimestampsForDisplay(
+    epochs: number[],
+    currentEpoch: number,
+    epochTimestampsCache?: Record<number, number>,
+): Promise<{
+    epochEndDates: string[];
+    fetchedEpochTimestamps: Record<number, number>;
+}> {
+    const promises: Promise<number | null>[] = [];
+    const fetchedEpochTimestamps: Record<number, number> = {};
+
+    // Determine if mainnet is selected
+    let isMainnet = false;
+    try {
+        isMainnet = getSelectedNetworkConfig().name?.toLowerCase().includes('mainnet');
+    } catch {}
+
+    for (let i = 0; i < epochs.length; i++) {
+        const epochNum = epochs[i];
+        // Use cache if mainnet and available
+        if (isMainnet && epochTimestampsCache && epochTimestampsCache[epochNum]) {
+            promises.push(Promise.resolve(epochTimestampsCache[epochNum]));
+        } else {
+            if (epochNum == currentEpoch) {
+                promises.push(fetchEpochStartTimestamp(epochNum));
+            } else {
+                promises.push(fetchEpochEndTimestamp(epochNum));
+            }
+        }
+    }
+
+    const timestamps = await Promise.all(promises);
+
+    const epochEndDates = timestamps.map((ts, i) => {
+        if (!ts) return '';
+        // For current epoch, add 24 hours to start timestamp
+        if (epochs[i] === currentEpoch) {
+            return formatDate(new Date((ts + 24 * 60 * 60) * 1000));
+        }
+        return formatDate(new Date(ts * 1000));
+    });
+
+    // Build checkpoint object for cache
+    for (let i = 0; i < epochs.length; i++) {
+        if (timestamps[i]) {
+            fetchedEpochTimestamps[epochs[i]] = timestamps[i] as number;
+        }
+    }
+
+    return { epochEndDates, fetchedEpochTimestamps };
+}
+
 export { exchangeRateCache };
+
+/**
+ * Update exchange rates cache with all historical data for all validators
+ * This fetches complete data (not just missing entries) for cache initialization
+ */
+export async function updateExchangeRatesCache(): Promise<void> {
+    console.log('Fetching all exchange rates for all validators and epochs...');
+
+    const gqlClient = new IotaGraphQLClient({
+        url: getSelectedNetworkConfig().graphql,
+    });
+
+    // Get current epoch
+    const epochQuery = `query { epoch { epochId } }`;
+    // @ts-ignore
+    const epochResult = await gqlClient.query({ query: epochQuery });
+    // @ts-ignore
+    const currentEpoch = epochResult.data?.epoch?.epochId;
+
+    if (!currentEpoch) {
+        throw new Error('Could not fetch current epoch');
+    }
+
+    console.log(`Current epoch: ${currentEpoch}`);
+
+    // Clear existing cache for full refresh
+    exchangeRateCache.clear();
+
+    // Fetch all validators with pagination
+    let hasNextValidatorPage = true;
+    let validatorCursor = '';
+
+    while (hasNextValidatorPage) {
+        const validatorCursorSection = validatorCursor ? `(after: "${validatorCursor}")` : '';
+
+        const query = `query getAllExchangeRates($epochId: Int!) {
+            epoch(id: $epochId) {
+                epochId
+                validatorSet {
+                    activeValidators${validatorCursorSection} {
+                        pageInfo {
+                            endCursor
+                            hasNextPage
+                        }
+                        nodes {
+                            name
+                            address {
+                                address
+                            }
+                            stakingPoolId
+                            exchangeRatesTable {
+                                address
+                                dynamicFields {
+                                    pageInfo {
+                                        endCursor
+                                        hasNextPage
+                                    }
+                                    nodes {
+                                        name {
+                                            json
+                                        }
+                                        value {
+                                            ... on MoveValue {
+                                                data
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }`;
+
+        const variables = { epochId: currentEpoch };
+        // @ts-ignore
+        const result = await gqlClient.query({ query, variables });
+        // @ts-ignore
+        const activeValidators = result.data?.epoch?.validatorSet?.activeValidators;
+
+        if (!activeValidators?.nodes) break;
+
+        console.log(`Processing ${activeValidators.nodes.length} validators...`);
+
+        // Process each validator
+        for (const validator of activeValidators.nodes) {
+            const poolId = validator.stakingPoolId;
+            if (!poolId) continue;
+
+            console.log(`Processing validator: ${validator.name} (${validator.address.address})`);
+
+            // Initialize cache entry for this pool
+            let cacheEntry = exchangeRateCache.get(poolId);
+            if (!cacheEntry) {
+                cacheEntry = {
+                    poolId,
+                    exchangeRateId: validator.exchangeRatesTable?.address || '',
+                    epochData: {},
+                };
+                exchangeRateCache.set(poolId, cacheEntry);
+            }
+
+            // Fetch all exchange rates for this validator with pagination
+            let hasNextExchangeRatePage = true;
+            let exchangeRateCursor = '';
+            const exchangeRatesTable = validator.exchangeRatesTable?.dynamicFields;
+
+            if (exchangeRatesTable) {
+                // Process initial page
+                if (exchangeRatesTable.nodes) {
+                    for (const node of exchangeRatesTable.nodes) {
+                        const epochFromName = parseInt(node.name?.json);
+                        if (!isNaN(epochFromName) && node.value?.data) {
+                            const exchangeRateData = parseExchangeRateData(node.value.data);
+                            if (exchangeRateData) {
+                                cacheEntry.epochData[epochFromName] = exchangeRateData;
+                            }
+                        }
+                    }
+                }
+
+                // Check if there are more exchange rate pages for this validator
+                hasNextExchangeRatePage = exchangeRatesTable.pageInfo?.hasNextPage || false;
+                exchangeRateCursor = exchangeRatesTable.pageInfo?.endCursor || '';
+
+                // Fetch additional exchange rate pages for this validator
+                while (hasNextExchangeRatePage) {
+                    const exchangeRateQuery = `query getValidatorExchangeRates($exchangeRatesTableId: IotaAddress!, $cursor: String!) {
+                        owner(address: $exchangeRatesTableId) {
+                            dynamicFields(after: $cursor) {
+                                pageInfo {
+                                    endCursor
+                                    hasNextPage
+                                }
+                                nodes {
+                                    name {
+                                        json
+                                    }
+                                    value {
+                                        ... on MoveValue {
+                                            data
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }`;
+
+                    const exchangeRateVariables = {
+                        exchangeRatesTableId: validator.exchangeRatesTable?.address,
+                        cursor: exchangeRateCursor,
+                    };
+                    // @ts-ignore
+                    const exchangeRateResult = await gqlClient.query({
+                        query: exchangeRateQuery,
+                        variables: exchangeRateVariables,
+                    });
+                    // @ts-ignore
+                    const dynamicFields = exchangeRateResult.data?.owner?.dynamicFields;
+
+                    if (!dynamicFields?.nodes) break;
+
+                    // Process additional exchange rate nodes
+                    for (const node of dynamicFields.nodes) {
+                        const epochFromName = parseInt(node.name?.json);
+                        if (!isNaN(epochFromName) && node.value?.data) {
+                            const exchangeRateData = parseExchangeRateData(node.value.data);
+                            if (exchangeRateData) {
+                                cacheEntry.epochData[epochFromName] = exchangeRateData;
+                            }
+                        }
+                    }
+
+                    hasNextExchangeRatePage = dynamicFields.pageInfo?.hasNextPage || false;
+                    exchangeRateCursor = dynamicFields.pageInfo?.endCursor || '';
+                }
+            }
+        }
+
+        hasNextValidatorPage = activeValidators.pageInfo?.hasNextPage || false;
+        validatorCursor = activeValidators.pageInfo?.endCursor || '';
+    }
+
+    console.log(`Exchange rates cache updated with ${exchangeRateCache.size} pools`);
+}
