@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// npx tsx scripts/update-caches.ts --exchange-rates
+// npx tsx scripts/update-caches.ts --all
 // Mock localStorage for Node.js environment - must be set before any imports
 import fs from 'fs';
 import path from 'path';
@@ -71,7 +71,7 @@ Updates the staking rewards cache files.
 Usage: npx tsx scripts/update-caches.ts [options]
 
 Options:
-  --exchange-rates    Update exchange rates cache
+  --exchange-rates   Update exchange rates cache
   --prices           Update prices cache
   --timestamps       Update timestamps cache
   --all              Update all caches (default)
