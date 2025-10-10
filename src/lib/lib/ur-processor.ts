@@ -39,9 +39,9 @@ export interface ProcessorResult {
     devicePublicKey?: string;
     deviceChainCode?: string;
     accountAddress?: string;
+    accountAddressBip32Path?: string;
     fullMultiAccountsData?: string;
     keystoneAccountData?: any;
-    selectedAccountIndex?: number;
     needsMoreParts?: boolean;
 }
 
@@ -303,6 +303,26 @@ function processAccountData(type: string, cborHex: string): ProcessorResult {
                         : undefined;
                 // Derive address from keystoneAccountData.keys[n].key
                 let accountAddressDecoded = 'Error deriving address';
+
+                let bip32Key = "m/44'/4218'/0'/0'/0'";
+                try {
+                    const origin = firstAccount.getOrigin();
+                    if (origin) {
+                        const pathComponents = origin.getComponents();
+                        let pathString = 'm/';
+                        for (const comp of pathComponents) {
+                            pathString += comp.getIndex();
+                            if (comp.isHardened()) {
+                                pathString += "'";
+                            }
+                            pathString += '/';
+                        }
+                        pathString = pathString.slice(0, -1); // remove trailing /
+                        bip32Key = pathString;
+                    }
+                } catch (e) {
+                    // Keep default bip32Key
+                }
                 if (
                     keystoneAccountData.keys &&
                     keystoneAccountData.keys.length > 0 &&
@@ -323,9 +343,9 @@ function processAccountData(type: string, cborHex: string): ProcessorResult {
                     devicePublicKey,
                     deviceChainCode,
                     accountAddress: accountAddressDecoded,
+                    accountAddressBip32Path: bip32Key,
                     fullMultiAccountsData,
                     keystoneAccountData,
-                    selectedAccountIndex: 0,
                 };
             } else {
                 return {
@@ -335,9 +355,9 @@ function processAccountData(type: string, cborHex: string): ProcessorResult {
                     devicePublicKey: 'Successfully connected',
                     deviceChainCode: '',
                     accountAddress: '',
+                    accountAddressBip32Path: '',
                     fullMultiAccountsData,
                     keystoneAccountData,
-                    selectedAccountIndex: 0,
                 };
             }
         } catch (parseError) {

@@ -11,6 +11,7 @@
     // @ts-ignore - bc-ur-registry-iota doesn't have complete type definitions
     import {
         CryptoKeypath,
+        generateKeyDerivationCall,
         IotaSignature,
         IotaSignRequest,
         PathComponent,
@@ -39,7 +40,8 @@
     } from '../lib/ur-processor.js';
 
     // State variables
-    let activeStep: 'connect' | 'prepare' | 'scan-signature' | 'ur-decode' = 'connect';
+    let activeStep: 'connect' | 'prepare' | 'scan-signature' | 'ur-decode' | 'key-derivation' =
+        'connect';
     let scanResult = '';
     let scanError = '';
 
@@ -85,9 +87,32 @@
     let urDecodeError = '';
 
     // Transaction submission state
+
     let transactionResult: any = null;
     let submitting = false;
     let submitError = '';
+
+    // Key derivation section state
+    let derivePath = "m/44'/4218'/0'/0'/0'";
+    let deriveOrigin = walletOrigin;
+    let deriveResult = '';
+    let deriveError = '';
+
+    function handleDeriveKey() {
+        try {
+            const schemas = [{ path: derivePath }];
+            const ur = generateKeyDerivationCall({ schemas, origin: deriveOrigin });
+            deriveResult = JSON.stringify(
+                { type: ur.type, cborHex: ur.cbor.toString('hex') },
+                null,
+                2,
+            );
+            deriveError = '';
+        } catch (e) {
+            deriveError = e instanceof Error ? e.message : String(e);
+            deriveResult = '';
+        }
+    }
 
     /**
      * Handle scanned QR code result with multipart UR support
@@ -114,10 +139,29 @@
             // Update connection state from result
             if (result.connectedDevice) connectedDevice = result.connectedDevice;
             if (result.accountAddress) accountAddress = result.accountAddress;
+            if (result.accountAddressBip32Path) derivationPaths = result.accountAddressBip32Path;
             if (result.keystoneAccountData) {
                 keystoneAccountData = result.keystoneAccountData;
+                // Add path string to each key for display purposes
+                if (keystoneAccountData.keys) {
+                    for (const key of keystoneAccountData.keys) {
+                        if (key.origin && key.origin.components) {
+                            const pathComponents = key.origin.components;
+                            let pathString = 'm/';
+                            for (const comp of pathComponents) {
+                                pathString += comp.index;
+                                if (comp.hardened) {
+                                    pathString += "'";
+                                }
+                                pathString += '/';
+                            }
+                            pathString = pathString.slice(0, -1); // remove trailing /
+                            key.path = pathString;
+                        }
+                    }
+                }
+                console.log('Keystone account data:', JSON.stringify(keystoneAccountData, null, 2));
                 console.log('Keystone account data:', keystoneAccountData);
-                selectedAccountIndex = result.selectedAccountIndex || 0;
             }
             if (result.scanResult) scanResult = result.scanResult;
 
@@ -237,6 +281,7 @@
 
         const selectedAccount = keystoneAccountData.keys[selectedAccountIndex];
         if (selectedAccount) {
+            console.log('selectedAccount', selectedAccount);
             // Force Svelte reactivity by clearing and then setting
             derivationPaths = '';
             derivationPaths = selectedAccount.path + '';
@@ -368,7 +413,9 @@
         }
     }
 
-    function switchStep(step: 'connect' | 'prepare' | 'scan-signature' | 'ur-decode') {
+    function switchStep(
+        step: 'connect' | 'prepare' | 'scan-signature' | 'ur-decode' | 'key-derivation',
+    ) {
         activeStep = step;
         scanError = '';
         resetMultipartState();
@@ -433,9 +480,7 @@
             >
                 {#each keystoneAccountData.keys as account, index}
                     <option value={index}>
-                        Account {index} - {account.path} - {deriveIotaAddress(
-                            toHEX(account.getKey()),
-                        )}
+                        Account {account.path} - {deriveIotaAddress(toHEX(account.getKey()))}
                     </option>
                 {/each}
             </select>
@@ -487,6 +532,12 @@
             on:click={() => switchStep('ur-decode')}
         >
             UR Decode Tool
+        </button>
+        <button
+            class="step-btn {activeStep === 'key-derivation' ? 'active' : ''}"
+            on:click={() => switchStep('key-derivation')}
+        >
+            Address generation
         </button>
     </div>
 
@@ -626,6 +677,41 @@
                         <TransactionView value={transactionResult} />
                     {/if}
                 </div>
+            {/if}
+        </div>
+    {/if}
+
+    <!-- Key Derivation Tool -->
+    {#if activeStep === 'key-derivation'}
+        <div class="step-content">
+            <h2>Key Derivation Tool</h2>
+            <p>Derive a key using a specific path and generate a KeyDerivationCall UR.</p>
+            <div class="form-section">
+                <div class="form-row">
+                    <label for="derive-path">Derivation Path:</label>
+                    <input id="derive-path" bind:value={derivePath} />
+                </div>
+                <div class="form-row">
+                    <label for="derive-origin">Origin:</label>
+                    <input id="derive-origin" bind:value={deriveOrigin} />
+                </div>
+                <button on:click={handleDeriveKey}>Generate KeyDerivationCall UR</button>
+            </div>
+            {#if deriveResult}
+                <div class="result">
+                    <h3>KeyDerivationCall UR:</h3>
+                    <div class="qr-section">
+                        <h3>Scan this QR code with your Keystone device</h3>
+                        <QrGeneratorComponent
+                            cbor={JSON.parse(deriveResult).cborHex}
+                            urType={JSON.parse(deriveResult).type}
+                        />
+                    </div>
+                    <pre>{deriveResult}</pre>
+                </div>
+            {/if}
+            {#if deriveError}
+                <div class="error">{deriveError}</div>
             {/if}
         </div>
     {/if}

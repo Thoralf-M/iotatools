@@ -9,6 +9,7 @@ patchTags(
         .map((rt) => rt.getTag()) as number[],
 );
 
+export { generateKeyDerivationCall } from './IotaKeyDerivationCall';
 export { IotaSignRequest } from './IotaSignRequest';
 export { IotaSignature } from './IotaSignature';
 export { IotaSignHashRequest } from './IotaSignHashRequest';
