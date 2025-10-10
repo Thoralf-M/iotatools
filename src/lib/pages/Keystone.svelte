@@ -2,7 +2,7 @@
     import { Buffer } from 'buffer';
     // @ts-ignore - bc-ur doesn't have complete type definitions
     import { URDecoder } from '@gandlaf21/bc-ur';
-    import { toB64, toHEX } from '@iota/bcs';
+    import { toB64, toBase64, toHEX } from '@iota/bcs';
     import { messageWithIntent } from '@iota/iota-sdk/cryptography';
 
     import QrGeneratorComponent from '../components/QrGenerator.svelte';
@@ -355,7 +355,18 @@
                     };
                 } else if (type === UR_TYPES.IOTA_SIGNATURE) {
                     const signature = IotaSignature.fromCBOR(result.cbor);
+                    const signatureBytes = signature.getSignature()!;
+                    const publicKeyBytes = signature.getPublicKey()!;
+                    // BCS encoding: 0x00 (Ed25519) + signature + publicKey
+                    const bcsSignature = Buffer.concat([
+                        Buffer.from([0x00]),
+                        signatureBytes,
+                        publicKeyBytes,
+                    ]);
+                    let signatureBase64 = toBase64(bcsSignature);
+                    console.log('signaturebase64', signatureBase64);
                     decodedData.specific = {
+                        signatureBase64,
                         requestId: uuidStringify(signature.getRequestId()),
                         signature: Buffer.from(signature.getSignature()).toString('hex'),
                         publicKey: Buffer.from(signature.getPublicKey()).toString('hex'),
@@ -384,20 +395,15 @@
         try {
             // Extract transaction bytes and signature from scanResult
             const parsed = JSON.parse(scanResult);
+            console.log('rawTransactionBytes', rawTransactionBytes);
             const txBytes = new Uint8Array(Buffer.from(rawTransactionBytes, 'base64'));
-            const signatureHex = parsed.specific.signature;
-            const publicKeyHex = parsed.specific.key;
-            const signatureBytes = Buffer.from(signatureHex, 'hex');
-            const publicKeyBytes = Buffer.from(publicKeyHex, 'hex');
-            // BCS encoding: 0x00 (Ed25519) + signature + publicKey
-            const bcsSignature = Buffer.concat([
-                Buffer.from([0x00]),
-                signatureBytes,
-                publicKeyBytes,
-            ]);
+
+            const signatureBase64 = parsed.specific.signatureBase64;
+            console.log('signatureBase64', signatureBase64);
+
             const result = await getClient().executeTransactionBlock({
                 transactionBlock: txBytes,
-                signature: toB64(bcsSignature),
+                signature: signatureBase64,
                 options: {
                     showBalanceChanges: true,
                     showObjectChanges: true,

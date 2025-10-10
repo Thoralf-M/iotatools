@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 // @ts-ignore - bc-ur doesn't have complete type definitions
 import { URDecoder } from '@gandlaf21/bc-ur';
-import { fromHEX } from '@iota/bcs';
+import { fromHEX, toBase64 } from '@iota/bcs';
 import { Ed25519PublicKey } from '@iota/iota-sdk/keypairs/ed25519';
 
 // Use direct registry exports
@@ -235,10 +235,21 @@ export function processCompleteUR(
         // Handle different UR types
         if (type === UR_TYPES.IOTA_SIGNATURE) {
             const signature = IotaSignature.fromCBOR(Buffer.from(cborHex, 'hex'));
+            const signatureBytes = signature.getSignature()!;
+            const publicKeyBytes = signature.getPublicKey()!;
+            // BCS encoding: 0x00 (Ed25519) + signature + publicKey
+            const bcsSignature = Buffer.concat([
+                Buffer.from([0x00]),
+                signatureBytes,
+                publicKeyBytes,
+            ]);
+            let signatureBase64 = toBase64(bcsSignature);
+            console.log('signaturebase64', signatureBase64);
             const decodedData: any = {
                 type: type,
                 cborHex: cborHex,
                 specific: {
+                    signatureBase64,
                     requestId: uuidStringify(signature.getRequestId() ?? new Uint8Array()),
                     signature: Buffer.from(signature.getSignature() ?? new Uint8Array()).toString(
                         'hex',
