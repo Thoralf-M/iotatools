@@ -20,10 +20,10 @@
 
     let codeSnippets: CodeSnippets = $state(
         JSON.parse(localStorage.getItem('codeSnippets')!) || {
-            selected: 'default',
+            selected: 'example',
             snippets: [
                 {
-                    name: 'default',
+                    name: 'example',
                     code: `let tx = new Transaction();
 // Build you tx here...
 
@@ -43,6 +43,18 @@
 // Client is also in scope
 // const senderCoins = await client.getCoins({ owner: "0xee68634fb93502ec391e78ccc94568e9e179ef8ec37fe12daaac4d2c2af32d5c", limit: 10 });
 // console.log(senderCoins) // visible in the browser console
+`,
+                },
+                {
+                    name: 'burn stardust NFT',
+                    code: `let tx = new Transaction();
+
+tx.moveCall({
+   target: "0x107a::nft::destroy",
+   arguments: [
+     tx.object("0x0000_your_stardust_NFT_object_id_here")
+   ]
+});
 `,
                 },
             ],
@@ -87,32 +99,43 @@
     let value = $state({});
 
     async function devInspect() {
-        let tx = (await buildTransaction())!;
-        console.log('devInspect', tx);
-        let client = getClient();
-        const devInspectResult = await client.devInspectTransactionBlock({
-            sender:
-                $activeAddress ||
-                '0x0000000000000000000000000000000000000000000000000000000000000000',
-            transactionBlock: tx,
-        });
-        console.log(devInspectResult);
-        value = devInspectResult;
+        try {
+            let tx = (await buildTransaction())!;
+            console.log('devInspect', tx);
+            let client = getClient();
+            const devInspectResult = await client.devInspectTransactionBlock({
+                sender:
+                    $activeAddress ||
+                    '0x0000000000000000000000000000000000000000000000000000000000000000',
+                transactionBlock: tx,
+            });
+            console.log(devInspectResult);
+            value = devInspectResult;
+        } catch (err: any) {
+            value = err.toString();
+            console.error(err);
+        }
     }
 
     async function dryRun() {
-        let tx = (await buildTransaction())!;
-        console.log('dryRun', tx);
-        let client = getClient();
-        tx.setSender(
-            $activeAddress || '0x0000000000000000000000000000000000000000000000000000000000000000',
-        );
-        const bytes = await tx.build({ client });
-        const dryRunResult = await client.dryRunTransactionBlock({
-            transactionBlock: bytes,
-        });
-        console.log(dryRunResult);
-        value = dryRunResult;
+        try {
+            let tx = (await buildTransaction())!;
+            console.log('dryRun', tx);
+            let client = getClient();
+            tx.setSender(
+                $activeAddress ||
+                    '0x0000000000000000000000000000000000000000000000000000000000000000',
+            );
+            const bytes = await tx.build({ client });
+            const dryRunResult = await client.dryRunTransactionBlock({
+                transactionBlock: bytes,
+            });
+            console.log(dryRunResult);
+            value = dryRunResult;
+        } catch (err: any) {
+            value = err.toString();
+            console.error(err);
+        }
     }
 
     async function execute() {
