@@ -49,39 +49,56 @@ async function fetchCoinGeckoPrice(dateStr: string): Promise<{ usd: number; eur:
     const url = `https://api.coingecko.com/api/v3/coins/iota/history?date=${dateStr}`;
 
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-        const res = await fetch(url);
+        try {
+            const res = await fetch(url);
 
-        if (res.ok) {
-            const data = await res.json();
-            const usd = data?.market_data?.current_price?.['usd'];
-            const eur = data?.market_data?.current_price?.['eur'];
+            if (res.ok) {
+                const data = await res.json();
+                const usd = data?.market_data?.current_price?.['usd'];
+                const eur = data?.market_data?.current_price?.['eur'];
 
-            if (typeof usd === 'number' || typeof eur === 'number') {
-                return { usd, eur };
+                if (typeof usd === 'number' || typeof eur === 'number') {
+                    return { usd, eur };
+                }
+                return null;
             }
-            return null;
-        }
 
-        if (res.status === 429) {
-            // Rate limited - wait longer before retry
+            if (res.status === 429) {
+                // Rate limited - wait longer before retry
+                if (attempt < MAX_RETRIES) {
+                    const delay = RETRY_DELAY_MS * Math.pow(2, attempt); // Exponential backoff
+                    console.warn(
+                        `Rate limited for date ${dateStr}, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES + 1})`,
+                    );
+                    await applyRateLimit(delay);
+                    continue;
+                } else {
+                    console.warn(
+                        `Rate limit exceeded for date ${dateStr} after ${MAX_RETRIES + 1} attempts`,
+                    );
+                    return null;
+                }
+            }
+
+            // Other HTTP errors - don't retry
+            console.warn(`API error for date ${dateStr}: ${res.status}`);
+            return null;
+        } catch (error) {
+            // Network errors (timeouts, connection failures) - retry
             if (attempt < MAX_RETRIES) {
                 const delay = RETRY_DELAY_MS * Math.pow(2, attempt); // Exponential backoff
                 console.warn(
-                    `Rate limited for date ${dateStr}, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES + 1})`,
+                    `Network error for date ${dateStr}: ${error instanceof Error ? error.message : String(error)}, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES + 1})`,
                 );
                 await applyRateLimit(delay);
                 continue;
             } else {
                 console.warn(
-                    `Rate limit exceeded for date ${dateStr} after ${MAX_RETRIES + 1} attempts`,
+                    `Network error for date ${dateStr} after ${MAX_RETRIES + 1} attempts: ${error instanceof Error ? error.message : String(error)}`,
                 );
                 return null;
             }
         }
-
-        // Other errors - don't retry
-        console.warn(`API error for date ${dateStr}: ${res.status}`);
-        return null;
     }
 
     return null;
