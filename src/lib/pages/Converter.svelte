@@ -5,7 +5,15 @@
     import { onMount } from 'svelte';
 
     import TransactionView from '../components/TransactionView.svelte';
-    import { bcsBytesToInteger, bytesToUtf8, hexToBytes } from '../lib/converter';
+    import {
+        bcsBytesToInteger,
+        bech32ToTernary,
+        bytesToUtf8,
+        ed25519HexToTernary,
+        hexToBytes,
+        ternaryToBech32,
+        ternaryToEd25519Hex,
+    } from '../lib/converter';
     import { iotaToNano, nanoToIota } from '../lib/iota-nano-conversion';
     import { updatePageQueryParams, usePageQueryParams } from '../lib/page-query-params';
 
@@ -19,6 +27,9 @@
         nano: '',
         iota: '',
         txBytes: '',
+        addressHex: '',
+        addressBech32: '',
+        addressTernary: '',
     };
 
     const pageParams = usePageQueryParams(queryParamDefaults);
@@ -38,6 +49,11 @@
     let nanoWithUnderscore = '';
     let iota = '';
     let iotaWithUnderscore = '';
+
+    let addressHex = '';
+    let addressBech32 = '';
+    let addressTernary = '';
+    let addressError = '';
 
     let txBytesTextarea: HTMLTextAreaElement;
     const exampleTx =
@@ -76,6 +92,17 @@
             const event = new Event('input', { bubbles: true });
             txBytesTextarea.dispatchEvent(event);
         }
+
+        if (params.addressHex) {
+            addressHex = params.addressHex;
+            convertAddress(AddressSourceType.Hex);
+        } else if (params.addressBech32) {
+            addressBech32 = params.addressBech32;
+            convertAddress(AddressSourceType.Bech32);
+        } else if (params.addressTernary) {
+            addressTernary = params.addressTernary;
+            convertAddress(AddressSourceType.Ternary);
+        }
     });
 
     function insertExampleTx() {
@@ -96,6 +123,88 @@
         Base64,
         UTF8,
         BcsNumber,
+    }
+
+    enum AddressSourceType {
+        Hex,
+        Bech32,
+        Ternary,
+    }
+
+    function convertAddress(source: AddressSourceType) {
+        addressError = '';
+        try {
+            switch (+source) {
+                case AddressSourceType.Hex:
+                    if (addressHex) {
+                        // Normalize hex input - accept with or without 0x prefix
+                        let normalizedHex = addressHex.trim();
+                        if (!normalizedHex.startsWith('0x') && !normalizedHex.startsWith('0X')) {
+                            normalizedHex = '0x' + normalizedHex;
+                        }
+                        addressTernary = ed25519HexToTernary(normalizedHex);
+                        addressBech32 = ternaryToBech32(addressTernary);
+                        updatePageQueryParams({
+                            addressHex: addressHex,
+                            addressBech32: null,
+                            addressTernary: null,
+                        });
+                    } else {
+                        addressTernary = '';
+                        addressBech32 = '';
+                        updatePageQueryParams({
+                            addressHex: null,
+                            addressBech32: null,
+                            addressTernary: null,
+                        });
+                    }
+                    break;
+                case AddressSourceType.Bech32:
+                    if (addressBech32) {
+                        addressTernary = bech32ToTernary(addressBech32);
+                        const hexResult = ternaryToEd25519Hex(addressTernary);
+                        // Ensure the generated hex has 0x prefix
+                        addressHex = hexResult.startsWith('0x') ? hexResult : '0x' + hexResult;
+                        updatePageQueryParams({
+                            addressBech32: addressBech32,
+                            addressHex: null,
+                            addressTernary: null,
+                        });
+                    } else {
+                        addressTernary = '';
+                        addressHex = '';
+                        updatePageQueryParams({
+                            addressHex: null,
+                            addressBech32: null,
+                            addressTernary: null,
+                        });
+                    }
+                    break;
+                case AddressSourceType.Ternary:
+                    if (addressTernary) {
+                        const hexResult = ternaryToEd25519Hex(addressTernary);
+                        // Ensure the generated hex has 0x prefix
+                        addressHex = hexResult.startsWith('0x') ? hexResult : '0x' + hexResult;
+                        addressBech32 = ternaryToBech32(addressTernary);
+                        updatePageQueryParams({
+                            addressTernary: addressTernary,
+                            addressHex: null,
+                            addressBech32: null,
+                        });
+                    } else {
+                        addressHex = '';
+                        addressBech32 = '';
+                        updatePageQueryParams({
+                            addressHex: null,
+                            addressBech32: null,
+                            addressTernary: null,
+                        });
+                    }
+                    break;
+            }
+        } catch (err: any) {
+            addressError = err.message || err.toString();
+        }
     }
 
     function convert(source: SourceType) {
@@ -369,6 +478,46 @@
     <TransactionView {value} />
     <br />
     {error}
+
+    <span style="float:left"> Legacy address conversion: </span>
+    <br />
+    <div class="wrapper">
+        <div class="box">Address Hex:</div>
+        <div class="box">
+            <input
+                type="string"
+                style="width: 100%;"
+                bind:value={addressHex}
+                on:input={() => convertAddress(AddressSourceType.Hex)}
+                placeholder="0x6f9e8510b88b0ea4fbc684df90ba310540370a0403067b22cef4971fec3e8bb8"
+            />
+        </div>
+
+        <div class="box">Address Bech32:</div>
+        <div class="box">
+            <input
+                type="string"
+                style="width: 100%;"
+                bind:value={addressBech32}
+                on:input={() => convertAddress(AddressSourceType.Bech32)}
+                placeholder="iota1qpheapgshz9saf8mc6zdly96xyz5qdc2qspsv7ezem6fw8lv869mskn2049"
+            />
+        </div>
+
+        <div class="box">Legacy address (Ternary):</div>
+        <div class="box">
+            <input
+                type="string"
+                style="width: 100%;"
+                bind:value={addressTernary}
+                on:input={() => convertAddress(AddressSourceType.Ternary)}
+                placeholder="TRANSFERCDJWLVPAIXRWNAPXV9WYKVUZWWKXVBE9JBABJ9D9C9F9OEGADYO9CWDAGZHBRWIXLXG9MAJV9RJEOLXSJW"
+            />
+        </div>
+    </div>
+    {#if addressError}
+        <div style="color: red; margin-top: 10px;">Address conversion error: {addressError}</div>
+    {/if}
 </main>
 
 <style>
