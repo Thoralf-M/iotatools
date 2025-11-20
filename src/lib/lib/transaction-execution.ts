@@ -66,7 +66,7 @@ export async function executeTransaction(
     }
 }
 
-const calculateGasFee = async (transaction: Transaction) => {
+export const calculateGasFee = async (transaction: Transaction) => {
     const client = getClient();
     const txBytes = await transaction.build({ client });
     const txDryRun = await client.dryRunTransactionBlock({

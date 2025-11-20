@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { toBase64 } from '@iota/bcs';
     import { Transaction } from '@iota/iota-sdk/transactions';
     import { isValidIotaAddress } from '@iota/iota-sdk/utils';
     import { dragHandle, dragHandleZone, type DndEvent } from 'svelte-dnd-action';
@@ -7,6 +8,7 @@
     import { getClient } from '../lib/client';
     import { nanoToIota } from '../lib/iota-nano-conversion';
     import { iota_accounts, iota_wallets } from '../lib/signer-data';
+    import { calculateGasFee } from '../lib/transaction-execution';
 
     // Will be updated with the result
     let value = $state({});
@@ -302,6 +304,38 @@
         }
     }
 
+    async function prepareTxBytes() {
+        try {
+            const client = getClient();
+            let preparedTxs = await prepareTxs();
+
+            let results = [];
+            for (const preparedTx of preparedTxs) {
+                const { sender, recipients, transaction } = preparedTx;
+
+                let json = JSON.parse(await transaction.toJSON());
+
+                if (transaction.getData().gasData.price == 0) {
+                    let referenceGasPrice = await client.getReferenceGasPrice();
+                    transaction.setGasPrice(referenceGasPrice);
+                }
+                if (transaction.getData().gasData.budget == 0) {
+                    let gas = await calculateGasFee(transaction);
+                    transaction.setGasBudget(BigInt(gas!));
+                }
+
+                let transactionBytes = toBase64(await transaction.build({ client }));
+                // @ts-ignore
+                results.push({ sender, recipients, json, transactionBytes });
+            }
+
+            value = { txs: results.length, results };
+        } catch (err: any) {
+            value = err.toString();
+            console.error(err);
+        }
+    }
+
     let newAccountAddress = $state('');
     let newAccountError = $state('');
 
@@ -361,6 +395,7 @@
     <br />
     <button onclick={syncReset}> sync/reset </button>
     <button onclick={dryRun}> dry run </button>
+    <button onclick={prepareTxBytes}> prepare tx bytes </button>
     <button onclick={send}> send </button>
 
     <TransactionView {value} />
