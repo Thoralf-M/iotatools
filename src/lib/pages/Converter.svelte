@@ -457,9 +457,10 @@
                 on:input={(event) => {
                     // @ts-ignore
                     let inputString = event.target.value;
-                    try {
-                        // Check if input is JSON (starts with '{')
-                        if (inputString.trim().startsWith('{')) {
+                    
+                    // Check if input is JSON (starts with '{')
+                    if (inputString.trim().startsWith('{')) {
+                        try {
                             // Parse JSON input
                             const jsonData = JSON.parse(inputString);
                             // Serialize to bytes using IotaBcs.SenderSignedData.serialize
@@ -472,18 +473,25 @@
                             }
                             // Set value to parsed JSON for display
                             value = jsonData;
-                        } else {
-                            // Existing base64 decoding logic
+                            // Update query parameter with base64
+                            updatePageQueryParams({ txBytes: base64String });
+                        } catch (e) {
+                            console.log('error parsing/serializing JSON', e);
+                            value = e;
+                        }
+                    } else {
+                        // Base64 decoding logic
+                        try {
                             let txBytes = fromB64(inputString);
                             value = TransactionDataBuilder.fromBytes(txBytes);
-                        }
-                    } catch (e) {
-                        console.log('error TransactionDataBuilder', e);
-                        try {
-                            value = IotaBcs.SenderSignedData.parse(fromB64(inputString))[0];
                         } catch (e) {
-                            console.log('error SenderSignedData', e);
-                            value = e;
+                            console.log('error TransactionDataBuilder', e);
+                            try {
+                                value = IotaBcs.SenderSignedData.parse(fromB64(inputString))[0];
+                            } catch (e) {
+                                console.log('error SenderSignedData', e);
+                                value = e;
+                            }
                         }
                     }
                 }}
