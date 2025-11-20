@@ -1,10 +1,11 @@
 <script lang="ts">
-    import { bcs, fromB58, fromB64, toB58, toB64, toHEX } from '@iota/bcs';
+    import { bcs, fromBase58, fromBase64, toBase58, toBase64, toHex } from '@iota/bcs';
     import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
-    import { TransactionDataBuilder } from '@iota/iota-sdk/transactions';
+    import { Transaction, TransactionDataBuilder } from '@iota/iota-sdk/transactions';
     import { onMount } from 'svelte';
 
     import TransactionView from '../components/TransactionView.svelte';
+    import { getClient } from '../lib/client';
     import {
         bcsBytesToInteger,
         bech32ToTernary,
@@ -56,9 +57,10 @@
     let addressError = '';
 
     let txBytesTextarea: HTMLTextAreaElement;
-    const exampleTx =
+    const exampleSignedTx =
         'AQAAAAAABQAgAADITWzmvxDdFgAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAQOrTZ5H0khvmeaMM7Q+RqIE3kXhhUmg8Ye1x03DM1/oxo+fFQAAAAABAQC1UdUC/HAd21HmDkcdewfnQ/8ZyCdSznxVvhX2A+UdkhQ/8xUAAAAAIGvBzsOprOdLXmvbV4WNEAdCeVyxUQC4casadEmSiOz8AQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgEAAAAAAAAAAAEBVB+vemIenOWjJKPeaiUWCEN25jsEPmTpIlut31oacd9AaKkVAAAAAAEEAKBMDts1kJoNC+au685RIk/bcqEzZUlnLfnwjJpgx1omB2ZpeGVkMTgNZnJvbV9yYXdfdTI1NgABAQAAAHS7cwUfi9jmrdrHu2LvhWKLCdye6W294+RBZ4pEgCvbC21vY2tfc291cmNlCXNldF92YWx1ZQADAQEAAQIAAgAAAHS7cwUfi9jmrdrHu2LvhWKLCdye6W294+RBZ4pEgCvbC21vY2tfc291cmNlBXByaWNlAAIBAQABAwAADSboscHb0PENnJ/ZKPsb8EgfRLahSRbrPfEuFCT0XaoGbWFya2V0DHVwZGF0ZV9wcmljZQEHVk0OWNWfzsxej+coc1GWFdn7sceB009VRe4/PcHNRf0Gc3RhYmxlBlNUQUJMRQACAQQAAgIAKncQef3db67TtP+AYhEsoc86M8mLAnwGhbj7/3IK0mEBRfaRcZkkQl7YnEMWcsyOrUsBJtE2Di3bqK/2JiFVZP0UP/MVAAAAACDNN3mgas1+l1nWysvP0pprzh7yATGvFfv+hKdhxMIwiyp3EHn93W+u07T/gGIRLKHPOjPJiwJ8BoW4+/9yCtJh6AMAAAAAAACcxWVRAAAAAAABYQBuCFSJ1RJeUMmPez2iX78Kz4uLyOBFD+mUii8dqFUHgMeg+ioHP3cI/3LnNc+id/JHyjRpl1Lgc9tXdRpnPoADDR2pqxdjx19PH7B5MVEMS2PLUy97CDQNgDC1vbQqPXQ=';
-
+    const exampleTx =
+        'AAAEAAgAypo7AAAAAAAIAJQ1dwAAAAAAIAAApJhL1JXUNG+iCN3/T11eWtSMId7GMd3ryZgJ8WkAACAREXOhTD1ALAFUbFQmXDDMBEFMe37BcyQSuxkGbdSdEQMCAAIBAAABAQABAQMAAAAAAQIAAQEDAAABAAEDAAAApJhL1JXUNG+iCN3/T11eWtSMId7GMd3ryZgJ8WkAAgG17QdHZ+O2o4na/TneylcrvwY7XNDR98PK2ffE16W3cG9SHwAAAAAgOtvL1ilwL7CT/xBDvtdFWeLe23EYPsQOeWmBNM3rMLOOPbshjMcd4lpSlNYarN19Cibrg+b3QfX4zU263nR5UlzYIBoAAAAAIPWQ2HPkYb/8uoCU0bJ+nJUDnnxOrvSuydHPsgLOozz3AACkmEvUldQ0b6II3f9PXV5a1Iwh3sYx3evJmAnxaQDoAwAAAAAAAJBlSwAAAAAAAA==';
     // Initialize values from query parameters
     onMount(() => {
         const params = $pageParams;
@@ -104,6 +106,17 @@
             convertAddress(AddressSourceType.Ternary);
         }
     });
+
+    function insertExampleSignedTx() {
+        if (txBytesTextarea) {
+            txBytesTextarea.value = exampleSignedTx;
+            // Trigger the input event to process the transaction
+            const event = new Event('input', { bubbles: true });
+            txBytesTextarea.dispatchEvent(event);
+            // Update query params
+            updatePageQueryParams({ txBytes: exampleSignedTx });
+        }
+    }
 
     function insertExampleTx() {
         if (txBytesTextarea) {
@@ -229,10 +242,10 @@
                     sourceBytes = hexToBytesLocal(hex);
                     break;
                 case SourceType.Base58:
-                    sourceBytes = fromB58(base58);
+                    sourceBytes = fromBase58(base58);
                     break;
                 case SourceType.Base64:
-                    sourceBytes = fromB64(base64);
+                    sourceBytes = fromBase64(base64);
                     break;
                 case SourceType.UTF8:
                     sourceBytes = new TextEncoder().encode(utf8);
@@ -249,9 +262,9 @@
             if (source != SourceType.Bytes) {
                 bytes = sourceBytes;
             }
-            hex = toHEX(sourceBytes);
-            base58 = toB58(sourceBytes);
-            base64 = toB64(sourceBytes);
+            hex = toHex(sourceBytes);
+            base58 = toBase58(sourceBytes);
+            base64 = toBase64(sourceBytes);
             utf8 = bytesToUtf8(sourceBytes);
             const integerResult = bcsBytesToInteger(sourceBytes);
             bcsNumber = integerResult.value;
@@ -447,51 +460,67 @@
     <div>
         <div style="float: left; display: flex; align-items: center; gap: 10px;">
             <span>Tx bytes base64:</span>
+            <button on:click={insertExampleSignedTx} style="padding: 4px 8px; font-size: 12px;">
+                Example signed tx
+            </button>
             <button on:click={insertExampleTx} style="padding: 4px 8px; font-size: 12px;">
-                Example tx
+                Example unsigned tx
             </button>
         </div>
         <div class="box">
             <textarea
                 bind:this={txBytesTextarea}
-                on:input={(event) => {
+                on:input={async (event) => {
                     // @ts-ignore
                     let inputString = event.target.value;
-                    
                     // Check if input is JSON (starts with '{')
                     if (inputString.trim().startsWith('{')) {
                         try {
-                            // Parse JSON input
-                            const jsonData = JSON.parse(inputString);
-                            // Serialize to bytes using IotaBcs.SenderSignedData.serialize
-                            const serializedBytes = IotaBcs.SenderSignedData.serialize(jsonData).toBytes();
+                            // Try to deserialize using Transaction.from
+                            let deserializedTxnBuilder;
+                            try {
+                                deserializedTxnBuilder = Transaction.from(inputString);
+                            } catch {
+                                const jsonData = JSON.parse(inputString);
+                                deserializedTxnBuilder = Transaction.from(
+                                    // TODO: this is another representation and doesn't work this way:
+                                    // "value": {
+                                    //     "V1": {
+                                    //         "kind": {
+                                    //         "ProgrammableTransaction": {
+                                    jsonData.intentMessage.value,
+                                );
+                            }
+                            // Serialize to transaction bytes
+                            const txBytes = await deserializedTxnBuilder.build();
                             // Convert to base64
-                            const base64String = toB64(serializedBytes);
+                            const base64String = toBase64(txBytes);
                             // Update textarea value with base64
                             if (txBytesTextarea) {
                                 txBytesTextarea.value = base64String;
                             }
-                            // Set value to parsed JSON for display
-                            value = jsonData;
+                            // Set value to the deserialized builder for display
+                            value = deserializedTxnBuilder;
+                            inputString = base64String;
                             // Update query parameter with base64
                             updatePageQueryParams({ txBytes: base64String });
                         } catch (e) {
                             console.log('error parsing/serializing JSON', e);
                             value = e;
                         }
-                    } else {
-                        // Base64 decoding logic
+                    }
+
+                    // Base64 decoding logic
+                    try {
+                        let txBytes = fromBase64(inputString);
+                        value = TransactionDataBuilder.fromBytes(txBytes);
+                    } catch (e) {
+                        console.log('error TransactionDataBuilder', e);
                         try {
-                            let txBytes = fromB64(inputString);
-                            value = TransactionDataBuilder.fromBytes(txBytes);
+                            value = IotaBcs.SenderSignedData.parse(fromBase64(inputString))[0];
                         } catch (e) {
-                            console.log('error TransactionDataBuilder', e);
-                            try {
-                                value = IotaBcs.SenderSignedData.parse(fromB64(inputString))[0];
-                            } catch (e) {
-                                console.log('error SenderSignedData', e);
-                                value = e;
-                            }
+                            console.log('error SenderSignedData', e);
+                            value = e;
                         }
                     }
                 }}
