@@ -11,7 +11,7 @@ import type {
 import type { Transaction } from '@iota/iota-sdk/transactions';
 import { get } from 'svelte/store';
 
-import { getClient } from './client';
+import { getClient, getSelectedChain } from './client';
 import { sharedTransactionExecution, TransactionExecution } from './shared-in-memory';
 import { activeAddress, iota_wallets } from './signer-data';
 
@@ -44,6 +44,8 @@ export async function executeTransaction(
             return wallet[0].signAndExecuteTransaction({
                 transaction,
                 options,
+                // @ts-ignore
+                chain: getSelectedChain(),
                 account: { address: senderAddress },
             });
         case TransactionExecution.Prepare:

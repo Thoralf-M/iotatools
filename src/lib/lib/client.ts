@@ -35,3 +35,8 @@ export function getSelectedNetworkConfig(): NetworkConfig {
     let config = get(sharedClientConfig);
     return config.networks.find((network) => network.name == config.selected)!;
 }
+
+export function getSelectedChain(): string {
+    const networkConfig = getSelectedNetworkConfig();
+    return `iota:${networkConfig.name}`;
+}
