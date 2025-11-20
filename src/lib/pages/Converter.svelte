@@ -458,8 +458,25 @@
                     // @ts-ignore
                     let inputString = event.target.value;
                     try {
-                        let txBytes = fromB64(inputString);
-                        value = TransactionDataBuilder.fromBytes(txBytes);
+                        // Check if input is JSON (starts with '{')
+                        if (inputString.trim().startsWith('{')) {
+                            // Parse JSON input
+                            const jsonData = JSON.parse(inputString);
+                            // Serialize to bytes using IotaBcs.SenderSignedData.serialize
+                            const serializedBytes = IotaBcs.SenderSignedData.serialize(jsonData).toBytes();
+                            // Convert to base64
+                            const base64String = toB64(serializedBytes);
+                            // Update textarea value with base64
+                            if (txBytesTextarea) {
+                                txBytesTextarea.value = base64String;
+                            }
+                            // Set value to parsed JSON for display
+                            value = jsonData;
+                        } else {
+                            // Existing base64 decoding logic
+                            let txBytes = fromB64(inputString);
+                            value = TransactionDataBuilder.fromBytes(txBytes);
+                        }
                     } catch (e) {
                         console.log('error TransactionDataBuilder', e);
                         try {
@@ -470,7 +487,7 @@
                         }
                     }
                 }}
-                placeholder="base64 transaction bytes"
+                placeholder="base64 transaction bytes or JSON"
             ></textarea>
         </div>
     </div>
