@@ -297,7 +297,7 @@ export function getTotalAccumulatedUnstakeRewardsForEpoch(
 }
 
 /**
- * Get total staked amount for an epoch by summing all principal amounts
+ * Get total staked amount for an epoch by summing all principal amounts at the end of the epoch
  */
 export function getTotalStakedForEpoch(epoch: number, stakeObjects: StakeObject[]): string {
     let total = 0n;
@@ -306,7 +306,24 @@ export function getTotalStakedForEpoch(epoch: number, stakeObjects: StakeObject[
         const principal = stakeObject.principalByEpoch[epoch];
         if (principal && principal !== '0') {
             try {
-                total += BigInt(principal);
+                let endPrincipal = BigInt(principal);
+                // Subtract unstaked amounts in this epoch
+                if (stakeObject.actionByEpoch && stakeObject.actionByEpoch[epoch]) {
+                    const action = stakeObject.actionByEpoch[epoch];
+                    if (
+                        (action.action === 'Unstaked' || action.action === 'Partial Unstake') &&
+                        action.amount
+                    ) {
+                        try {
+                            endPrincipal -= BigInt(action.amount);
+                        } catch {
+                            // Skip invalid amount
+                        }
+                    }
+                }
+                if (endPrincipal > 0n) {
+                    total += endPrincipal;
+                }
             } catch {
                 // Skip invalid principal values
                 continue;
