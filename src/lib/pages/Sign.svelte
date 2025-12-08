@@ -2,6 +2,11 @@
     import { fromBase64 } from '@iota/bcs';
     import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
     import { Transaction, TransactionDataBuilder } from '@iota/iota-sdk/transactions';
+    import {
+        verifyTransactionSignature,
+        verifyPersonalMessageSignature,
+    } from '@iota/iota-sdk/verify';
+    import { parseSerializedSignature } from '@iota/iota-sdk/cryptography';
     import { get } from 'svelte/store';
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
@@ -23,6 +28,12 @@
     let signatureTypeLabel = '';
     let txBytesInput = '';
     let dryRunResult: any;
+
+    // Signature verification state
+    let signatureVerificationStatus: 'valid' | 'invalid' | 'checking' | null = null;
+    let signatureVerificationError = '';
+    let signaturePublicKey = '';
+    let signatureAddress = '';
     // Dry run transaction function
     async function dryRunTransaction() {
         try {
@@ -181,6 +192,87 @@
             error = `Error signing message: ${e}`;
         }
     }
+    async function verifySignature() {
+        signatureVerificationStatus = 'checking';
+        signatureVerificationError = '';
+        signaturePublicKey = '';
+        signatureAddress = '';
+
+        try {
+            const inputString = txBytesInput.trim();
+            const signatureString = signatureResult.trim();
+
+            if (!signatureString) {
+                signatureVerificationStatus = null;
+                return;
+            }
+
+            // Try to parse the signature to extract public key
+            try {
+                const parsed = parseSerializedSignature(signatureString);
+                
+                // Extract public key based on signature scheme
+                if (parsed.signatureScheme === 'MultiSig') {
+                    signatureVerificationError = 'MultiSig signature verification not yet supported in UI';
+                    signatureVerificationStatus = 'invalid';
+                    return;
+                } else if (parsed.signatureScheme === 'Passkey') {
+                    signaturePublicKey = Buffer.from(parsed.publicKey).toString('base64');
+                } else if (parsed.publicKey) {
+                    signaturePublicKey = Buffer.from(parsed.publicKey).toString('base64');
+                }
+            } catch (e) {
+                console.error('Error parsing signature:', e);
+            }
+
+            // Verify the signature based on what we're signing
+            let publicKey;
+            if (inputString) {
+                try {
+                    // Try as transaction first
+                    const txBytes = fromBase64(inputString);
+                    publicKey = await verifyTransactionSignature(txBytes, signatureString);
+                    signatureVerificationStatus = 'valid';
+                } catch (e) {
+                    // If transaction verification fails, try as personal message
+                    try {
+                        const messageBytes = new TextEncoder().encode(inputString);
+                        publicKey = await verifyPersonalMessageSignature(
+                            messageBytes,
+                            signatureString,
+                        );
+                        signatureVerificationStatus = 'valid';
+                    } catch (e2) {
+                        signatureVerificationStatus = 'invalid';
+                        signatureVerificationError = `Verification failed: ${e2}`;
+                        return;
+                    }
+                }
+
+                // Extract address from public key
+                if (publicKey) {
+                    signatureAddress = publicKey.toIotaAddress();
+                    if (!signaturePublicKey) {
+                        signaturePublicKey = publicKey.toBase64();
+                    }
+                }
+            } else {
+                // No input data, just show the public key if we can extract it
+                signatureVerificationStatus = null;
+            }
+        } catch (e) {
+            signatureVerificationStatus = 'invalid';
+            signatureVerificationError = `Verification error: ${e}`;
+        }
+    }
+
+    // Watch for changes to signature and trigger verification
+    $: {
+        signatureResult;
+        txBytesInput;
+        verifySignature();
+    }
+
     async function submitSignedTx() {
         try {
             error = '';
@@ -295,6 +387,50 @@
             placeholder="Signature (base64)"
             style="width: 100%; height: 60px;"
         ></textarea>
+
+        <!-- Signature Verification Status -->
+        {#if signatureVerificationStatus === 'checking'}
+            <div style="margin-top: 8px; padding: 8px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; color: #856404;">
+                🔍 Verifying signature...
+            </div>
+        {/if}
+
+        {#if signatureVerificationStatus === 'valid'}
+            <div style="margin-top: 8px; padding: 8px; background: #d4edda; border: 1px solid #28a745; border-radius: 4px; color: #155724;">
+                ✓ Signature is valid
+            </div>
+        {/if}
+
+        {#if signatureVerificationStatus === 'invalid'}
+            <div style="margin-top: 8px; padding: 8px; background: #f8d7da; border: 1px solid #dc3545; border-radius: 4px; color: #721c24;">
+                ✗ Invalid signature
+                {#if signatureVerificationError}
+                    <div style="margin-top: 4px; font-size: 12px;">
+                        {signatureVerificationError}
+                    </div>
+                {/if}
+            </div>
+        {/if}
+
+        <!-- Public Key and Address Display -->
+        {#if signaturePublicKey}
+            <div style="margin-top: 12px; padding: 10px; background: #e7f3ff; border: 1px solid #007acc; border-radius: 4px;">
+                <div style="font-weight: bold; margin-bottom: 6px;">Public Key:</div>
+                <div style="word-break: break-all; font-family: monospace; font-size: 12px;">
+                    {signaturePublicKey}
+                </div>
+            </div>
+        {/if}
+
+        {#if signatureAddress}
+            <div style="margin-top: 8px; padding: 10px; background: #e7f3ff; border: 1px solid #007acc; border-radius: 4px;">
+                <div style="font-weight: bold; margin-bottom: 6px;">Address:</div>
+                <div style="word-break: break-all; font-family: monospace; font-size: 12px;">
+                    {signatureAddress}
+                </div>
+            </div>
+        {/if}
+
         <button
             onclick={submitSignedTx}
             style="margin-top: 8px; padding: 8px 16px; background: #6c63ff; color: white; border: none; border-radius: 4px; cursor: pointer;"
