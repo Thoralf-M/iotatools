@@ -192,6 +192,8 @@
             error = `Error signing message: ${e}`;
         }
     }
+    let verificationTimeout: number;
+
     async function verifySignature() {
         signatureVerificationStatus = 'checking';
         signatureVerificationError = '';
@@ -213,7 +215,7 @@
                 
                 // Extract public key based on signature scheme
                 if (parsed.signatureScheme === 'MultiSig') {
-                    signatureVerificationError = 'MultiSig signature verification not yet supported in UI';
+                    signatureVerificationError = 'MultiSig signatures are not yet supported for verification in the UI';
                     signatureVerificationStatus = 'invalid';
                     return;
                 } else if (parsed.signatureScheme === 'Passkey') {
@@ -228,8 +230,8 @@
             // Verify the signature based on what we're signing
             let publicKey;
             if (inputString) {
+                // Try transaction verification first, fallback to message if it fails
                 try {
-                    // Try as transaction first
                     const txBytes = fromBase64(inputString);
                     publicKey = await verifyTransactionSignature(txBytes, signatureString);
                     signatureVerificationStatus = 'valid';
@@ -266,11 +268,18 @@
         }
     }
 
-    // Watch for changes to signature and trigger verification
+    // Watch for changes to signature and trigger verification with debouncing
     $: {
         signatureResult;
         txBytesInput;
-        verifySignature();
+        // Clear any pending verification
+        if (verificationTimeout) {
+            clearTimeout(verificationTimeout);
+        }
+        // Debounce verification to avoid excessive calls during typing
+        verificationTimeout = setTimeout(() => {
+            verifySignature();
+        }, 300) as unknown as number;
     }
 
     async function submitSignedTx() {
