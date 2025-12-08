@@ -192,7 +192,7 @@
             error = `Error signing message: ${e}`;
         }
     }
-    let verificationTimeout: number;
+    let verificationTimeout: number | undefined;
 
     async function verifySignature() {
         signatureVerificationStatus = 'checking';
@@ -276,10 +276,13 @@
         if (verificationTimeout) {
             clearTimeout(verificationTimeout);
         }
-        // Debounce verification to avoid excessive calls during typing
-        verificationTimeout = setTimeout(() => {
-            verifySignature();
-        }, 300) as unknown as number;
+        // Only verify if there's a signature to check
+        if (signatureResult.trim()) {
+            // Debounce verification to avoid excessive calls during typing
+            verificationTimeout = setTimeout(() => {
+                verifySignature();
+            }, 300);
+        }
     }
 
     async function submitSignedTx() {
