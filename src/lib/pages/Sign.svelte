@@ -1,14 +1,14 @@
 <script lang="ts">
     import { fromBase64 } from '@iota/bcs';
     import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
-    import { Transaction, TransactionDataBuilder } from '@iota/iota-sdk/transactions';
-    import {
-        verifyTransactionSignature,
-        verifyPersonalMessageSignature,
-        publicKeyFromRawBytes,
-    } from '@iota/iota-sdk/verify';
     import { parseSerializedSignature } from '@iota/iota-sdk/cryptography';
     import { parsePartialSignatures } from '@iota/iota-sdk/multisig';
+    import { Transaction, TransactionDataBuilder } from '@iota/iota-sdk/transactions';
+    import {
+        publicKeyFromRawBytes,
+        verifyPersonalMessageSignature,
+        verifyTransactionSignature,
+    } from '@iota/iota-sdk/verify';
     import { get } from 'svelte/store';
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
@@ -226,7 +226,7 @@
             // Try to parse the signature to extract public key
             try {
                 const parsed = parseSerializedSignature(signatureString);
-                
+
                 // Extract public key based on signature scheme
                 if (parsed.signatureScheme === 'MultiSig') {
                     // Parse partial signatures for MultiSig
@@ -240,11 +240,13 @@
                 } else {
                     // Single signature
                     const pubKey = publicKeyFromRawBytes(parsed.signatureScheme, parsed.publicKey);
-                    signaturePubkeyPairs = [{
-                        signatureScheme: parsed.signatureScheme,
-                        publicKey: pubKey,
-                        signature: parsed.signature,
-                    }];
+                    signaturePubkeyPairs = [
+                        {
+                            signatureScheme: parsed.signatureScheme,
+                            publicKey: pubKey,
+                            signature: parsed.signature,
+                        },
+                    ];
                 }
             } catch (e) {
                 console.error('Error parsing signature:', e);
@@ -259,7 +261,10 @@
                 try {
                     // Try transaction verification first, fallback to message if it fails
                     const txBytes = fromBase64(inputString);
-                    const verifiedPubKey = await verifyTransactionSignature(txBytes, signatureString);
+                    const verifiedPubKey = await verifyTransactionSignature(
+                        txBytes,
+                        signatureString,
+                    );
                     if (verifiedPubKey.toBase64() !== pair.publicKey.toBase64()) {
                         signatureVerificationStatus = 'invalid';
                         signatureVerificationError = 'Public key mismatch';
@@ -270,7 +275,10 @@
                     // If transaction verification fails, try as personal message
                     try {
                         const messageBytes = new TextEncoder().encode(inputString);
-                        const verifiedPubKey = await verifyPersonalMessageSignature(messageBytes, signatureString);
+                        const verifiedPubKey = await verifyPersonalMessageSignature(
+                            messageBytes,
+                            signatureString,
+                        );
                         if (verifiedPubKey.toBase64() !== pair.publicKey.toBase64()) {
                             signatureVerificationStatus = 'invalid';
                             signatureVerificationError = 'Public key mismatch';
@@ -430,19 +438,25 @@
 
         <!-- Signature Verification Status -->
         {#if signatureVerificationStatus === 'checking'}
-            <div style="margin-top: 8px; padding: 8px; border: 1px solid #ffc107; border-radius: 4px; color: #856404;">
+            <div
+                style="margin-top: 8px; padding: 8px; border: 1px solid #ffc107; border-radius: 4px; color: #856404;"
+            >
                 🔍 Verifying signature...
             </div>
         {/if}
 
         {#if signatureVerificationStatus === 'valid'}
-            <div style="margin-top: 8px; padding: 8px; background: #003300; border: 1px solid #28a745; border-radius: 4px; color: white;">
+            <div
+                style="margin-top: 8px; padding: 8px; background: #003300; border: 1px solid #28a745; border-radius: 4px; color: white;"
+            >
                 ✓ Signature is valid
             </div>
         {/if}
 
         {#if signatureVerificationStatus === 'invalid'}
-            <div style="margin-top: 8px; padding: 8px; background: #660000; border: 1px solid #dc3545; border-radius: 4px; color: white;">
+            <div
+                style="margin-top: 8px; padding: 8px; background: #660000; border: 1px solid #dc3545; border-radius: 4px; color: white;"
+            >
                 ✗ Invalid signature
                 {#if signatureVerificationError}
                     <div style="margin-top: 4px; font-size: 12px;">
@@ -457,27 +471,50 @@
             <div class="signature-details-container">
                 {#each signaturePubkeyPairs as pair, index}
                     <div class="signature-item">
-                        <div class="signature-header">Signature #{index + 1} ({pair.signatureScheme})</div>
+                        <div class="signature-header">
+                            Signature #{index + 1} ({pair.signatureScheme})
+                        </div>
                         <div class="signature-details">
                             <div class="detail-item">
                                 <span class="detail-label">Public key:</span>
                                 <span class="detail-value">{pair.publicKey.toBase64()}</span>
-                                <button class="copy-button" onclick={() => copyToClipboard(pair.publicKey.toBase64())}>Copy</button>
+                                <button
+                                    class="copy-button"
+                                    onclick={() => copyToClipboard(pair.publicKey.toBase64())}
+                                    >Copy</button
+                                >
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Public key with flag:</span>
                                 <span class="detail-value">{pair.publicKey.toIotaPublicKey()}</span>
-                                <button class="copy-button" onclick={() => copyToClipboard(pair.publicKey.toIotaPublicKey())}>Copy</button>
+                                <button
+                                    class="copy-button"
+                                    onclick={() =>
+                                        copyToClipboard(pair.publicKey.toIotaPublicKey())}
+                                    >Copy</button
+                                >
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Address:</span>
                                 <span class="detail-value">{pair.publicKey.toIotaAddress()}</span>
-                                <button class="copy-button" onclick={() => copyToClipboard(pair.publicKey.toIotaAddress())}>Copy</button>
+                                <button
+                                    class="copy-button"
+                                    onclick={() => copyToClipboard(pair.publicKey.toIotaAddress())}
+                                    >Copy</button
+                                >
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Signature:</span>
-                                <span class="detail-value">{Buffer.from(pair.signature).toString('base64')}</span>
-                                <button class="copy-button" onclick={() => copyToClipboard(Buffer.from(pair.signature).toString('base64'))}>Copy</button>
+                                <span class="detail-value"
+                                    >{Buffer.from(pair.signature).toString('base64')}</span
+                                >
+                                <button
+                                    class="copy-button"
+                                    onclick={() =>
+                                        copyToClipboard(
+                                            Buffer.from(pair.signature).toString('base64'),
+                                        )}>Copy</button
+                                >
                             </div>
                         </div>
                     </div>
