@@ -1,7 +1,14 @@
 <script lang="ts">
     import { fromBase64 } from '@iota/bcs';
     import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
+    import { parseSerializedSignature } from '@iota/iota-sdk/cryptography';
+    import { parsePartialSignatures } from '@iota/iota-sdk/multisig';
     import { Transaction, TransactionDataBuilder } from '@iota/iota-sdk/transactions';
+    import {
+        publicKeyFromRawBytes,
+        verifyPersonalMessageSignature,
+        verifyTransactionSignature,
+    } from '@iota/iota-sdk/verify';
     import { get } from 'svelte/store';
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
@@ -9,6 +16,12 @@
     import { getClient } from '../lib/client';
     import { updatePageQueryParams, usePageQueryParams } from '../lib/page-query-params';
     import { activeAddress, iota_wallets } from '../lib/signer-data';
+
+    interface SignaturePubkeyPair {
+        signatureScheme: string;
+        publicKey: any; // PublicKey type
+        signature: Uint8Array;
+    }
 
     // Use query parameters for the transaction bytes
     const queryParamValues = usePageQueryParams({
@@ -23,6 +36,11 @@
     let signatureTypeLabel = '';
     let txBytesInput = '';
     let dryRunResult: any;
+
+    // Signature verification state
+    let signatureVerificationStatus: 'valid' | 'invalid' | 'checking' | null = null;
+    let signatureVerificationError = '';
+    let signaturePubkeyPairs: SignaturePubkeyPair[] | null = null;
     // Dry run transaction function
     async function dryRunTransaction() {
         try {
@@ -181,6 +199,128 @@
             error = `Error signing message: ${e}`;
         }
     }
+    let verificationTimeout: ReturnType<typeof setTimeout> | undefined;
+
+    async function copyToClipboard(text: string) {
+        try {
+            await navigator.clipboard.writeText(text);
+        } catch (e) {
+            console.error('Failed to copy', e);
+        }
+    }
+
+    async function verifySignature() {
+        signatureVerificationStatus = 'checking';
+        signatureVerificationError = '';
+        signaturePubkeyPairs = null;
+
+        try {
+            const inputString = txBytesInput.trim();
+            const signatureString = signatureResult.trim();
+
+            if (!signatureString) {
+                signatureVerificationStatus = null;
+                return;
+            }
+
+            // Try to parse the signature to extract public key
+            try {
+                const parsed = parseSerializedSignature(signatureString);
+
+                // Extract public key based on signature scheme
+                if (parsed.signatureScheme === 'MultiSig') {
+                    // Parse partial signatures for MultiSig
+                    const partialSignatures = parsePartialSignatures(parsed.multisig);
+                    signaturePubkeyPairs = partialSignatures.map((sig) => ({
+                        signatureScheme: sig.signatureScheme,
+                        publicKey: sig.publicKey,
+                        signature: sig.signature,
+                    }));
+                    signatureVerificationStatus = 'valid'; // Assume valid if parsed successfully
+                } else {
+                    // Single signature
+                    const pubKey = publicKeyFromRawBytes(parsed.signatureScheme, parsed.publicKey);
+                    signaturePubkeyPairs = [
+                        {
+                            signatureScheme: parsed.signatureScheme,
+                            publicKey: pubKey,
+                            signature: parsed.signature,
+                        },
+                    ];
+                }
+            } catch (e) {
+                console.error('Error parsing signature:', e);
+                signatureVerificationStatus = 'invalid';
+                signatureVerificationError = `Parsing failed: ${e}`;
+                return;
+            }
+
+            // For single sig, verify the signature
+            if (signaturePubkeyPairs && signaturePubkeyPairs.length === 1 && inputString) {
+                const pair = signaturePubkeyPairs[0];
+                try {
+                    // Try transaction verification first, fallback to message if it fails
+                    const txBytes = fromBase64(inputString);
+                    const verifiedPubKey = await verifyTransactionSignature(
+                        txBytes,
+                        signatureString,
+                    );
+                    if (verifiedPubKey.toBase64() !== pair.publicKey.toBase64()) {
+                        signatureVerificationStatus = 'invalid';
+                        signatureVerificationError = 'Public key mismatch';
+                        return;
+                    }
+                    signatureVerificationStatus = 'valid';
+                } catch (e) {
+                    // If transaction verification fails, try as personal message
+                    try {
+                        const messageBytes = new TextEncoder().encode(inputString);
+                        const verifiedPubKey = await verifyPersonalMessageSignature(
+                            messageBytes,
+                            signatureString,
+                        );
+                        if (verifiedPubKey.toBase64() !== pair.publicKey.toBase64()) {
+                            signatureVerificationStatus = 'invalid';
+                            signatureVerificationError = 'Public key mismatch';
+                            return;
+                        }
+                        signatureVerificationStatus = 'valid';
+                    } catch (e2) {
+                        signatureVerificationStatus = 'invalid';
+                        signatureVerificationError = `Verification failed: ${e2}`;
+                        return;
+                    }
+                }
+            } else if (signaturePubkeyPairs && signaturePubkeyPairs.length > 1) {
+                // For MultiSig, we don't verify here, assume valid if parsed
+                signatureVerificationStatus = 'valid';
+            } else {
+                // No input data, just show the public key if we can extract it
+                signatureVerificationStatus = null;
+            }
+        } catch (e) {
+            signatureVerificationStatus = 'invalid';
+            signatureVerificationError = `Verification error: ${e}`;
+        }
+    }
+
+    // Watch for changes to signature and trigger verification with debouncing
+    $: {
+        if (signatureResult.trim() === '') {
+            signatureVerificationStatus = null;
+            signaturePubkeyPairs = null;
+        } else {
+            // Clear any pending verification
+            if (verificationTimeout) {
+                clearTimeout(verificationTimeout);
+            }
+            // Only verify if there's a signature to check
+            verificationTimeout = setTimeout(() => {
+                verifySignature();
+            }, 300);
+        }
+    }
+
     async function submitSignedTx() {
         try {
             error = '';
@@ -251,7 +391,7 @@
     </div>
 
     <!-- Signing buttons -->
-    <div style="margin: 20px 0; display: flex; gap: 10px;">
+    <div style="margin-top: 20px; display: flex; gap: 10px;">
         <button
             onclick={signTransaction}
             style="padding: 8px 16px; background: #007acc; color: white; border: none; border-radius: 4px; cursor: pointer;"
@@ -284,7 +424,7 @@
         </div>
     {/if}
 
-    <div style="margin: 20px 0;">
+    <div>
         <div style="margin-bottom: 6px; font-weight: bold;">
             {signatureTypeLabel || 'Signature'}
         </div>
@@ -293,8 +433,95 @@
             value={signatureResult}
             oninput={(e) => (signatureResult = (e.target as HTMLTextAreaElement).value)}
             placeholder="Signature (base64)"
-            style="width: 100%; height: 60px;"
+            class="signature-textarea"
         ></textarea>
+
+        <!-- Signature Verification Status -->
+        {#if signatureVerificationStatus === 'checking'}
+            <div
+                style="margin-top: 8px; padding: 8px; border: 1px solid #ffc107; border-radius: 4px; color: #856404;"
+            >
+                🔍 Verifying signature...
+            </div>
+        {/if}
+
+        {#if signatureVerificationStatus === 'valid'}
+            <div
+                style="margin-top: 8px; padding: 8px; background: #003300; border: 1px solid #28a745; border-radius: 4px; color: white;"
+            >
+                ✓ Signature is valid
+            </div>
+        {/if}
+
+        {#if signatureVerificationStatus === 'invalid'}
+            <div
+                style="margin-top: 8px; padding: 8px; background: #660000; border: 1px solid #dc3545; border-radius: 4px; color: white;"
+            >
+                ✗ Invalid signature
+                {#if signatureVerificationError}
+                    <div style="margin-top: 4px; font-size: 12px;">
+                        {signatureVerificationError}
+                    </div>
+                {/if}
+            </div>
+        {/if}
+
+        <!-- Public Key and Address Display -->
+        {#if signaturePubkeyPairs}
+            <div class="signature-details-container">
+                {#each signaturePubkeyPairs as pair, index}
+                    <div class="signature-item">
+                        <div class="signature-header">
+                            Signature #{index + 1} ({pair.signatureScheme})
+                        </div>
+                        <div class="signature-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Public key:</span>
+                                <span class="detail-value">{pair.publicKey.toBase64()}</span>
+                                <button
+                                    class="copy-button"
+                                    onclick={() => copyToClipboard(pair.publicKey.toBase64())}
+                                    >Copy</button
+                                >
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Public key with flag:</span>
+                                <span class="detail-value">{pair.publicKey.toIotaPublicKey()}</span>
+                                <button
+                                    class="copy-button"
+                                    onclick={() =>
+                                        copyToClipboard(pair.publicKey.toIotaPublicKey())}
+                                    >Copy</button
+                                >
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Address:</span>
+                                <span class="detail-value">{pair.publicKey.toIotaAddress()}</span>
+                                <button
+                                    class="copy-button"
+                                    onclick={() => copyToClipboard(pair.publicKey.toIotaAddress())}
+                                    >Copy</button
+                                >
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Signature:</span>
+                                <span class="detail-value"
+                                    >{Buffer.from(pair.signature).toString('base64')}</span
+                                >
+                                <button
+                                    class="copy-button"
+                                    onclick={() =>
+                                        copyToClipboard(
+                                            Buffer.from(pair.signature).toString('base64'),
+                                        )}>Copy</button
+                                >
+                            </div>
+                        </div>
+                    </div>
+                {/each}
+            </div>
+        {/if}
+
         <button
             onclick={submitSignedTx}
             style="margin-top: 8px; padding: 8px 16px; background: #6c63ff; color: white; border: none; border-radius: 4px; cursor: pointer;"
@@ -324,6 +551,11 @@
         height: 100px;
     }
 
+    .signature-textarea {
+        height: 40px;
+        min-height: 60px;
+    }
+
     .dry-run-result {
         margin: 20px 0;
         padding: 10px;
@@ -340,5 +572,66 @@
         cursor: pointer;
         line-height: 1;
         padding: 0.2rem;
+    }
+
+    .signature-details-container {
+        margin-top: 12px;
+        padding: 10px;
+        border: 1px solid #007acc;
+        border-radius: 4px;
+    }
+
+    .signature-item {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #444;
+    }
+
+    .signature-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .signature-header {
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .signature-details {
+        display: block;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 6px;
+    }
+
+    .detail-label {
+        font-weight: bold;
+        flex-shrink: 0;
+        width: 160px;
+        text-align: right;
+        padding-right: 8px;
+    }
+
+    .detail-value {
+        word-break: break-all;
+        font-family: monospace;
+        font-size: 12px;
+        flex-shrink: 0;
+    }
+
+    .copy-button {
+        flex-shrink: 0;
+        margin-left: 8px;
+        padding: 2px 6px;
+        font-size: 10px;
+        background: #333;
+        color: white;
+        border: 1px solid #666;
+        border-radius: 3px;
+        cursor: pointer;
     }
 </style>
