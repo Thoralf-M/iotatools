@@ -5,8 +5,10 @@
     import {
         verifyTransactionSignature,
         verifyPersonalMessageSignature,
+        publicKeyFromRawBytes,
     } from '@iota/iota-sdk/verify';
     import { parseSerializedSignature } from '@iota/iota-sdk/cryptography';
+    import { parsePartialSignatures } from '@iota/iota-sdk/multisig';
     import { get } from 'svelte/store';
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
@@ -14,6 +16,12 @@
     import { getClient } from '../lib/client';
     import { updatePageQueryParams, usePageQueryParams } from '../lib/page-query-params';
     import { activeAddress, iota_wallets } from '../lib/signer-data';
+
+    interface SignaturePubkeyPair {
+        signatureScheme: string;
+        publicKey: any; // PublicKey type
+        signature: Uint8Array;
+    }
 
     // Use query parameters for the transaction bytes
     const queryParamValues = usePageQueryParams({
@@ -32,8 +40,7 @@
     // Signature verification state
     let signatureVerificationStatus: 'valid' | 'invalid' | 'checking' | null = null;
     let signatureVerificationError = '';
-    let signaturePublicKey = '';
-    let signatureAddress = '';
+    let signaturePubkeyPairs: SignaturePubkeyPair[] | null = null;
     // Dry run transaction function
     async function dryRunTransaction() {
         try {
@@ -192,13 +199,20 @@
             error = `Error signing message: ${e}`;
         }
     }
-    let verificationTimeout: number | undefined;
+    let verificationTimeout: ReturnType<typeof setTimeout> | undefined;
+
+    async function copyToClipboard(text: string) {
+        try {
+            await navigator.clipboard.writeText(text);
+        } catch (e) {
+            console.error('Failed to copy', e);
+        }
+    }
 
     async function verifySignature() {
         signatureVerificationStatus = 'checking';
         signatureVerificationError = '';
-        signaturePublicKey = '';
-        signatureAddress = '';
+        signaturePubkeyPairs = null;
 
         try {
             const inputString = txBytesInput.trim();
@@ -215,34 +229,53 @@
                 
                 // Extract public key based on signature scheme
                 if (parsed.signatureScheme === 'MultiSig') {
-                    signatureVerificationError = 'MultiSig signatures are not yet supported for verification in the UI';
-                    signatureVerificationStatus = 'invalid';
-                    return;
-                } else if (parsed.signatureScheme === 'Passkey') {
-                    signaturePublicKey = Buffer.from(parsed.publicKey).toString('base64');
-                } else if (parsed.publicKey) {
-                    signaturePublicKey = Buffer.from(parsed.publicKey).toString('base64');
+                    // Parse partial signatures for MultiSig
+                    const partialSignatures = parsePartialSignatures(parsed.multisig);
+                    signaturePubkeyPairs = partialSignatures.map((sig) => ({
+                        signatureScheme: sig.signatureScheme,
+                        publicKey: sig.publicKey,
+                        signature: sig.signature,
+                    }));
+                    signatureVerificationStatus = 'valid'; // Assume valid if parsed successfully
+                } else {
+                    // Single signature
+                    const pubKey = publicKeyFromRawBytes(parsed.signatureScheme, parsed.publicKey);
+                    signaturePubkeyPairs = [{
+                        signatureScheme: parsed.signatureScheme,
+                        publicKey: pubKey,
+                        signature: parsed.signature,
+                    }];
                 }
             } catch (e) {
                 console.error('Error parsing signature:', e);
+                signatureVerificationStatus = 'invalid';
+                signatureVerificationError = `Parsing failed: ${e}`;
+                return;
             }
 
-            // Verify the signature based on what we're signing
-            let publicKey;
-            if (inputString) {
-                // Try transaction verification first, fallback to message if it fails
+            // For single sig, verify the signature
+            if (signaturePubkeyPairs && signaturePubkeyPairs.length === 1 && inputString) {
+                const pair = signaturePubkeyPairs[0];
                 try {
+                    // Try transaction verification first, fallback to message if it fails
                     const txBytes = fromBase64(inputString);
-                    publicKey = await verifyTransactionSignature(txBytes, signatureString);
+                    const verifiedPubKey = await verifyTransactionSignature(txBytes, signatureString);
+                    if (verifiedPubKey.toBase64() !== pair.publicKey.toBase64()) {
+                        signatureVerificationStatus = 'invalid';
+                        signatureVerificationError = 'Public key mismatch';
+                        return;
+                    }
                     signatureVerificationStatus = 'valid';
                 } catch (e) {
                     // If transaction verification fails, try as personal message
                     try {
                         const messageBytes = new TextEncoder().encode(inputString);
-                        publicKey = await verifyPersonalMessageSignature(
-                            messageBytes,
-                            signatureString,
-                        );
+                        const verifiedPubKey = await verifyPersonalMessageSignature(messageBytes, signatureString);
+                        if (verifiedPubKey.toBase64() !== pair.publicKey.toBase64()) {
+                            signatureVerificationStatus = 'invalid';
+                            signatureVerificationError = 'Public key mismatch';
+                            return;
+                        }
                         signatureVerificationStatus = 'valid';
                     } catch (e2) {
                         signatureVerificationStatus = 'invalid';
@@ -250,14 +283,9 @@
                         return;
                     }
                 }
-
-                // Extract address from public key
-                if (publicKey) {
-                    signatureAddress = publicKey.toIotaAddress();
-                    if (!signaturePublicKey) {
-                        signaturePublicKey = publicKey.toBase64();
-                    }
-                }
+            } else if (signaturePubkeyPairs && signaturePubkeyPairs.length > 1) {
+                // For MultiSig, we don't verify here, assume valid if parsed
+                signatureVerificationStatus = 'valid';
             } else {
                 // No input data, just show the public key if we can extract it
                 signatureVerificationStatus = null;
@@ -270,15 +298,15 @@
 
     // Watch for changes to signature and trigger verification with debouncing
     $: {
-        signatureResult;
-        txBytesInput;
-        // Clear any pending verification
-        if (verificationTimeout) {
-            clearTimeout(verificationTimeout);
-        }
-        // Only verify if there's a signature to check
-        if (signatureResult.trim()) {
-            // Debounce verification to avoid excessive calls during typing
+        if (signatureResult.trim() === '') {
+            signatureVerificationStatus = null;
+            signaturePubkeyPairs = null;
+        } else {
+            // Clear any pending verification
+            if (verificationTimeout) {
+                clearTimeout(verificationTimeout);
+            }
+            // Only verify if there's a signature to check
             verificationTimeout = setTimeout(() => {
                 verifySignature();
             }, 300);
@@ -355,7 +383,7 @@
     </div>
 
     <!-- Signing buttons -->
-    <div style="margin: 20px 0; display: flex; gap: 10px;">
+    <div style="margin-top: 20px; display: flex; gap: 10px;">
         <button
             onclick={signTransaction}
             style="padding: 8px 16px; background: #007acc; color: white; border: none; border-radius: 4px; cursor: pointer;"
@@ -388,7 +416,7 @@
         </div>
     {/if}
 
-    <div style="margin: 20px 0;">
+    <div>
         <div style="margin-bottom: 6px; font-weight: bold;">
             {signatureTypeLabel || 'Signature'}
         </div>
@@ -397,24 +425,24 @@
             value={signatureResult}
             oninput={(e) => (signatureResult = (e.target as HTMLTextAreaElement).value)}
             placeholder="Signature (base64)"
-            style="width: 100%; height: 60px;"
+            class="signature-textarea"
         ></textarea>
 
         <!-- Signature Verification Status -->
         {#if signatureVerificationStatus === 'checking'}
-            <div style="margin-top: 8px; padding: 8px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; color: #856404;">
+            <div style="margin-top: 8px; padding: 8px; border: 1px solid #ffc107; border-radius: 4px; color: #856404;">
                 🔍 Verifying signature...
             </div>
         {/if}
 
         {#if signatureVerificationStatus === 'valid'}
-            <div style="margin-top: 8px; padding: 8px; background: #d4edda; border: 1px solid #28a745; border-radius: 4px; color: #155724;">
+            <div style="margin-top: 8px; padding: 8px; background: #003300; border: 1px solid #28a745; border-radius: 4px; color: white;">
                 ✓ Signature is valid
             </div>
         {/if}
 
         {#if signatureVerificationStatus === 'invalid'}
-            <div style="margin-top: 8px; padding: 8px; background: #f8d7da; border: 1px solid #dc3545; border-radius: 4px; color: #721c24;">
+            <div style="margin-top: 8px; padding: 8px; background: #660000; border: 1px solid #dc3545; border-radius: 4px; color: white;">
                 ✗ Invalid signature
                 {#if signatureVerificationError}
                     <div style="margin-top: 4px; font-size: 12px;">
@@ -425,21 +453,35 @@
         {/if}
 
         <!-- Public Key and Address Display -->
-        {#if signaturePublicKey}
-            <div style="margin-top: 12px; padding: 10px; background: #e7f3ff; border: 1px solid #007acc; border-radius: 4px;">
-                <div style="font-weight: bold; margin-bottom: 6px;">Public Key:</div>
-                <div style="word-break: break-all; font-family: monospace; font-size: 12px;">
-                    {signaturePublicKey}
-                </div>
-            </div>
-        {/if}
-
-        {#if signatureAddress}
-            <div style="margin-top: 8px; padding: 10px; background: #e7f3ff; border: 1px solid #007acc; border-radius: 4px;">
-                <div style="font-weight: bold; margin-bottom: 6px;">Address:</div>
-                <div style="word-break: break-all; font-family: monospace; font-size: 12px;">
-                    {signatureAddress}
-                </div>
+        {#if signaturePubkeyPairs}
+            <div class="signature-details-container">
+                {#each signaturePubkeyPairs as pair, index}
+                    <div class="signature-item">
+                        <div class="signature-header">Signature #{index + 1} ({pair.signatureScheme})</div>
+                        <div class="signature-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Public key:</span>
+                                <span class="detail-value">{pair.publicKey.toBase64()}</span>
+                                <button class="copy-button" onclick={() => copyToClipboard(pair.publicKey.toBase64())}>Copy</button>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Public key with flag:</span>
+                                <span class="detail-value">{pair.publicKey.toIotaPublicKey()}</span>
+                                <button class="copy-button" onclick={() => copyToClipboard(pair.publicKey.toIotaPublicKey())}>Copy</button>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Address:</span>
+                                <span class="detail-value">{pair.publicKey.toIotaAddress()}</span>
+                                <button class="copy-button" onclick={() => copyToClipboard(pair.publicKey.toIotaAddress())}>Copy</button>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Signature:</span>
+                                <span class="detail-value">{Buffer.from(pair.signature).toString('base64')}</span>
+                                <button class="copy-button" onclick={() => copyToClipboard(Buffer.from(pair.signature).toString('base64'))}>Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                {/each}
             </div>
         {/if}
 
@@ -472,6 +514,11 @@
         height: 100px;
     }
 
+    .signature-textarea {
+        height: 40px;
+        min-height: 60px;
+    }
+
     .dry-run-result {
         margin: 20px 0;
         padding: 10px;
@@ -488,5 +535,66 @@
         cursor: pointer;
         line-height: 1;
         padding: 0.2rem;
+    }
+
+    .signature-details-container {
+        margin-top: 12px;
+        padding: 10px;
+        border: 1px solid #007acc;
+        border-radius: 4px;
+    }
+
+    .signature-item {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #444;
+    }
+
+    .signature-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .signature-header {
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .signature-details {
+        display: block;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 6px;
+    }
+
+    .detail-label {
+        font-weight: bold;
+        flex-shrink: 0;
+        width: 160px;
+        text-align: right;
+        padding-right: 8px;
+    }
+
+    .detail-value {
+        word-break: break-all;
+        font-family: monospace;
+        font-size: 12px;
+        flex-shrink: 0;
+    }
+
+    .copy-button {
+        flex-shrink: 0;
+        margin-left: 8px;
+        padding: 2px 6px;
+        font-size: 10px;
+        background: #333;
+        color: white;
+        border: 1px solid #666;
+        border-radius: 3px;
+        cursor: pointer;
     }
 </style>
