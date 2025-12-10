@@ -8,6 +8,7 @@
     import { getClient } from '../lib/client';
     import { nanoToIota } from '../lib/iota-nano-conversion';
     import { iota_accounts, iota_wallets } from '../lib/signer-data';
+    import { computeStakingRewards } from '../lib/staking-utils';
     import { calculateGasFee } from '../lib/transaction-execution';
 
     // Will be updated with the result
@@ -19,6 +20,7 @@
         label: string | undefined;
         objects: ExtendedObject[];
         timelockedObjects: ExtendedObject[];
+        stakingRewards: number;
     }
 
     interface ExtendedObject {
@@ -30,6 +32,7 @@
 
     let extendedAccounts: ExtendedAccount[] = $state([]);
     let allAccountsTotalBalance = $state(0);
+    let allAccountsTotalRewards = $state(0);
 
     const syncReset = async () => {
         try {
@@ -45,11 +48,14 @@
                     label: account.label,
                     objects: [],
                     timelockedObjects: [],
+                    stakingRewards: 0,
                 };
             });
             extendedAccounts = [...iotaAccounts, ...externalAccounts];
             await getObjects();
+            await computeAllStakingRewards();
             allAccountsTotalBalance = 0;
+            allAccountsTotalRewards = 0;
             for (let account of extendedAccounts) {
                 allAccountsTotalBalance += account.objects.reduce((acc, obj) => {
                     let amountToAdd = 0;
@@ -72,6 +78,10 @@
                     }
                     return acc + amountToAdd;
                 }, 0);
+
+                // Add staking rewards to balance
+                allAccountsTotalBalance += account.stakingRewards;
+                allAccountsTotalRewards += account.stakingRewards;
             }
         } catch (err: any) {
             value = err.toString();
@@ -101,6 +111,63 @@
                 { ...extendedAccounts[idx], objects: uniqueItems },
                 ...extendedAccounts.slice(idx + 1),
             ];
+        }
+    }
+
+    async function computeAllStakingRewards() {
+        try {
+            const client = getClient();
+            const updatedAccounts = await Promise.all(
+                extendedAccounts.map(async (account) => {
+                    let totalRewards = 0;
+
+                    // Calculate rewards for StakedIota objects
+                    const stakedIotaObjects = account.objects.filter(
+                        (obj) => obj.label === 'StakedIota',
+                    );
+                    for (const obj of stakedIotaObjects) {
+                        try {
+                            const stakeData = await computeStakingRewards(
+                                client,
+                                obj.id,
+                                account.address,
+                            );
+                            totalRewards += Number(nanoToIota(stakeData.rewards));
+                        } catch (err) {
+                            console.warn(
+                                `Failed to compute rewards for StakedIota ${obj.id}:`,
+                                err,
+                            );
+                        }
+                    }
+
+                    // Calculate rewards for TimelockedStakedIota objects
+                    const timelockedStakedIotaObjects = account.timelockedObjects.filter(
+                        (obj) => obj.label === 'TimelockedStakedIota',
+                    );
+                    for (const obj of timelockedStakedIotaObjects) {
+                        try {
+                            const stakeData = await computeStakingRewards(
+                                client,
+                                obj.id,
+                                account.address,
+                            );
+                            totalRewards += Number(nanoToIota(stakeData.rewards));
+                        } catch (err) {
+                            console.warn(
+                                `Failed to compute rewards for TimelockedStakedIota ${obj.id}:`,
+                                err,
+                            );
+                        }
+                    }
+
+                    return { ...account, stakingRewards: totalRewards };
+                }),
+            );
+            extendedAccounts = updatedAccounts;
+        } catch (err: any) {
+            value = err.toString();
+            console.error(err);
         }
     }
 
@@ -366,6 +433,7 @@
                 label: 'External: ' + address.slice(0, 6) + '...' + address.slice(-4),
                 objects: [],
                 timelockedObjects: [],
+                stakingRewards: 0,
             },
         ];
         newAccountAddress = '';
@@ -401,7 +469,14 @@
     <TransactionView {value} />
 
     <br />
-    <div style="text-align:left">Balance of all accounts: {allAccountsTotalBalance} IOTA</div>
+    <div style="text-align:left">
+        Balance of all accounts: {allAccountsTotalBalance} IOTA
+        {#if allAccountsTotalRewards > 0}
+            <span style="color: #00d084;"> (includes {allAccountsTotalRewards.toFixed(
+                    9,
+                )} IOTA staking rewards)</span>
+        {/if}
+    </div>
 
     <div class="grid">
         {#each extendedAccounts as account (account.id)}
@@ -433,7 +508,13 @@
                             }
                             return acc + amountToAdd;
                         }, 0) +
+                        account.stakingRewards +
                         ' IOTA'}
+                    {#if account.stakingRewards > 0}
+                        <span style="color: #00d084; font-size: 0.85em;">
+                            (+{account.stakingRewards.toFixed(9)} rewards)
+                        </span>
+                    {/if}
                 </div>
 
                 {#if !$iota_accounts.some((acc) => acc.address === account.address)}

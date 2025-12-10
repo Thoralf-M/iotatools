@@ -15,6 +15,7 @@
         formatNumberWithUnderscores,
     } from '../lib/iota-nano-conversion';
     import { activeAddress } from '../lib/signer-data';
+    import { computeStakingRewards, type StakeData } from '../lib/staking-utils';
     import { executeTransaction } from '../lib/transaction-execution';
 
     let validatorAddress = '';
@@ -39,13 +40,6 @@
     let selectedValidator: ValidatorInfo | null = null;
     let showCommitteeMembers = true;
     let showCandidates = true;
-
-    interface StakeData {
-        objectId: string;
-        initialStakedAmount: string;
-        rewards: string;
-        totalUnstakeAmount: string;
-    }
 
     // Helper function to get committee member addresses from system state
     const getCommitteeMemberAddresses = (systemState: any): Set<string> => {
@@ -309,60 +303,7 @@
     }
     async function devInspectStakedObject(stakedIotaObjectId: string): Promise<StakeData> {
         const client = getClient();
-        let obj = await client.getObject({
-            id: stakedIotaObjectId,
-            options: { showContent: true },
-        });
-        let target;
-        let timelocked = false;
-        // @ts-ignore
-        if (obj.data?.content?.type === '0x3::staking_pool::StakedIota') {
-            target = '0x3::iota_system::request_withdraw_stake_non_entry';
-        }
-        // @ts-ignore
-        if (obj.data?.content?.type === '0x3::timelocked_staking::TimelockedStakedIota') {
-            target = '0x3::timelocked_staking::request_withdraw_stake_non_entry';
-            timelocked = true;
-        }
-
-        if (!target) {
-            throw new Error('No staked IOTA object: ' + stakedIotaObjectId);
-        }
-
-        const tx = new Transaction();
-        tx.moveCall({
-            target,
-            arguments: [tx.object('0x5'), tx.object(stakedIotaObjectId)],
-        });
-
-        const devInspectResult = await client.devInspectTransactionBlock({
-            sender: $activeAddress,
-            transactionBlock: tx,
-        });
-
-        let index = timelocked ? 1 : 0;
-        // @ts-ignore
-        let amountBytes = devInspectResult.results[0].returnValues[index][0];
-        let amountString = bcs.u64().parse(new Uint8Array(amountBytes));
-        let totalUnstakeAmount = BigInt(amountString);
-
-        let initialStakedAmount = BigInt(
-            timelocked
-                ? // @ts-ignore
-                  obj.data!.content!.fields!.staked_iota!.fields.principal
-                : // @ts-ignore
-                  obj.data!.content!.fields!.principal,
-        );
-        let res = {
-            objectId: stakedIotaObjectId,
-            initialStakedAmount: initialStakedAmount.toString(),
-            rewards: (timelocked
-                ? totalUnstakeAmount
-                : totalUnstakeAmount - initialStakedAmount
-            ).toString(),
-            totalUnstakeAmount: totalUnstakeAmount.toString(),
-        };
-        return res;
+        return computeStakingRewards(client, stakedIotaObjectId, $activeAddress);
     }
 
     const loadValidators = async () => {
