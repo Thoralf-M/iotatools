@@ -119,47 +119,35 @@
             const client = getClient();
             const updatedAccounts = await Promise.all(
                 extendedAccounts.map(async (account) => {
-                    let totalRewards = 0;
-
-                    // Calculate rewards for StakedIota objects
+                    // Collect all staked objects (both regular and timelocked)
                     const stakedIotaObjects = account.objects.filter(
                         (obj) => obj.label === 'StakedIota',
                     );
-                    for (const obj of stakedIotaObjects) {
-                        try {
-                            const stakeData = await computeStakingRewards(
-                                client,
-                                obj.id,
-                                account.address,
-                            );
-                            totalRewards += Number(nanoToIota(stakeData.rewards));
-                        } catch (err) {
-                            console.warn(
-                                `Failed to compute rewards for StakedIota ${obj.id}:`,
-                                err,
-                            );
-                        }
-                    }
-
-                    // Calculate rewards for TimelockedStakedIota objects
                     const timelockedStakedIotaObjects = account.timelockedObjects.filter(
                         (obj) => obj.label === 'TimelockedStakedIota',
                     );
-                    for (const obj of timelockedStakedIotaObjects) {
+                    const allStakedObjects = [...stakedIotaObjects, ...timelockedStakedIotaObjects];
+
+                    // Calculate rewards in parallel for all staked objects
+                    const rewardsPromises = allStakedObjects.map(async (obj) => {
                         try {
                             const stakeData = await computeStakingRewards(
                                 client,
                                 obj.id,
                                 account.address,
                             );
-                            totalRewards += Number(nanoToIota(stakeData.rewards));
+                            return Number(nanoToIota(stakeData.rewards));
                         } catch (err) {
                             console.warn(
-                                `Failed to compute rewards for TimelockedStakedIota ${obj.id}:`,
+                                `Failed to compute rewards for ${obj.label} ${obj.id}:`,
                                 err,
                             );
+                            return 0;
                         }
-                    }
+                    });
+
+                    const rewards = await Promise.all(rewardsPromises);
+                    const totalRewards = rewards.reduce((sum, reward) => sum + reward, 0);
 
                     return { ...account, stakingRewards: totalRewards };
                 }),
