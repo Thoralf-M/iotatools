@@ -483,6 +483,13 @@
     function removeAccount(address: string) {
         extendedAccounts = extendedAccounts.filter((acc) => acc.address !== address);
     }
+
+    function getAccountDisplayName(address: string): string {
+        const acc = extendedAccounts.find((a) => a.address === address);
+        return acc
+            ? acc.label || address.slice(0, 6) + '...' + address.slice(-4)
+            : address.slice(0, 6) + '...' + address.slice(-4);
+    }
 </script>
 
 <main class="container">
@@ -693,10 +700,7 @@
                                     <div
                                         style="position: absolute; left: 0; top: 0; height: 1.2rem; display: flex; align-items: center; font-size: 0.7rem; color: #f59e0b; pointer-events: none;"
                                     >
-                                        From: {item.currentOwner.slice(
-                                            0,
-                                            6,
-                                        )}...{item.currentOwner.slice(-4)}
+                                        From: {getAccountDisplayName(item.currentOwner)}
                                     </div>
                                 {/if}
                                 <details class="object-details">
