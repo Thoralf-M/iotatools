@@ -8,6 +8,7 @@
     import { getClient } from '../lib/client';
     import { nanoToIota } from '../lib/iota-nano-conversion';
     import { iota_accounts, iota_wallets } from '../lib/signer-data';
+    import { fetchCurrentPrice } from '../lib/staking-rewards/price-fetching';
     import { computeStakingRewards } from '../lib/staking-utils';
     import { calculateGasFee } from '../lib/transaction-execution';
 
@@ -20,7 +21,7 @@
         label: string | undefined;
         objects: ExtendedObject[];
         timelockedObjects: ExtendedObject[];
-        stakingRewards: number;
+        stakingRewards: bigint;
     }
 
     interface ExtendedObject {
@@ -31,8 +32,12 @@
     }
 
     let extendedAccounts: ExtendedAccount[] = $state([]);
-    let allAccountsTotalBalance = $state(0);
-    let allAccountsTotalRewards = $state(0);
+    let allAccountsTotalBalance = $state(BigInt(0));
+    let allAccountsTotalRewards = $state(BigInt(0));
+    let allAccountsTotalIotaCoins = $state(BigInt(0));
+    let allAccountsTotalStaked = $state(BigInt(0));
+    let selectedCurrency = $state('USD');
+    let currentPrice = $state<{ usd: number; eur: number } | null>(null);
 
     const syncReset = async () => {
         try {
@@ -48,36 +53,74 @@
                     label: account.label,
                     objects: [],
                     timelockedObjects: [],
-                    stakingRewards: 0,
+                    stakingRewards: BigInt(0),
                 };
             });
             extendedAccounts = [...iotaAccounts, ...externalAccounts];
             await getObjects();
             await computeAllStakingRewards();
-            allAccountsTotalBalance = 0;
-            allAccountsTotalRewards = 0;
+            allAccountsTotalBalance = BigInt(0);
+            allAccountsTotalRewards = BigInt(0);
+            allAccountsTotalIotaCoins = BigInt(0);
+            allAccountsTotalStaked = BigInt(0);
             for (let account of extendedAccounts) {
-                allAccountsTotalBalance += account.objects.reduce((acc, obj) => {
-                    let amountToAdd = 0;
-                    if (obj.data.content.fields?.balance) {
-                        amountToAdd = Number(nanoToIota(obj.data.content.fields.balance));
-                    } else if (obj.data.content.fields?.principal) {
-                        amountToAdd = Number(nanoToIota(obj.data.content.fields.principal));
+                // IOTA Coins: balance from regular objects + locked from timelocked objects
+                allAccountsTotalIotaCoins += account.objects.reduce((acc, obj) => {
+                    let amountToAdd = BigInt(0);
+                    if (
+                        obj.data.content.fields?.balance &&
+                        obj.data.content.type === '0x2::coin::Coin<0x2::iota::IOTA>'
+                    ) {
+                        amountToAdd = BigInt(obj.data.content.fields.balance);
                     }
                     return acc + amountToAdd;
-                }, 0);
+                }, BigInt(0));
+
+                allAccountsTotalIotaCoins += account.timelockedObjects.reduce((acc, obj) => {
+                    let amountToAdd = BigInt(0);
+                    if (obj.data.content.fields?.locked) {
+                        amountToAdd = BigInt(obj.data.content.fields.locked);
+                    }
+                    return acc + amountToAdd;
+                }, BigInt(0));
+
+                // Staked IOTAs: principal from regular staked + timelocked staked
+                allAccountsTotalStaked += account.objects.reduce((acc, obj) => {
+                    let amountToAdd = BigInt(0);
+                    if (obj.data.content.fields?.principal && obj.label === 'StakedIota') {
+                        amountToAdd = BigInt(obj.data.content.fields.principal);
+                    }
+                    return acc + amountToAdd;
+                }, BigInt(0));
+
+                allAccountsTotalStaked += account.timelockedObjects.reduce((acc, obj) => {
+                    let amountToAdd = BigInt(0);
+                    if (obj.data.content.fields?.staked_iota?.fields?.principal) {
+                        amountToAdd = BigInt(obj.data.content.fields.staked_iota.fields.principal);
+                    }
+                    return acc + amountToAdd;
+                }, BigInt(0));
+
+                // Total balance includes everything
+                allAccountsTotalBalance += account.objects.reduce((acc, obj) => {
+                    let amountToAdd = BigInt(0);
+                    if (obj.data.content.fields?.balance) {
+                        amountToAdd = BigInt(obj.data.content.fields.balance);
+                    } else if (obj.data.content.fields?.principal) {
+                        amountToAdd = BigInt(obj.data.content.fields.principal);
+                    }
+                    return acc + amountToAdd;
+                }, BigInt(0));
 
                 allAccountsTotalBalance += account.timelockedObjects.reduce((acc, obj) => {
-                    let amountToAdd = 0;
+                    let amountToAdd = BigInt(0);
                     if (obj.data.content.fields?.locked) {
-                        amountToAdd = Number(nanoToIota(obj.data.content.fields?.locked));
+                        amountToAdd = BigInt(obj.data.content.fields?.locked);
                     } else if (obj.data.content.fields?.staked_iota?.fields?.principal) {
-                        amountToAdd = Number(
-                            nanoToIota(obj.data.content.fields.staked_iota.fields.principal),
-                        );
+                        amountToAdd = BigInt(obj.data.content.fields.staked_iota.fields.principal);
                     }
                     return acc + amountToAdd;
-                }, 0);
+                }, BigInt(0));
 
                 // Add staking rewards to balance
                 allAccountsTotalBalance += account.stakingRewards;
@@ -136,18 +179,18 @@
                                 obj.id,
                                 account.address,
                             );
-                            return Number(nanoToIota(stakeData.rewards));
+                            return BigInt(stakeData.rewards);
                         } catch (err) {
                             console.warn(
                                 `Failed to compute rewards for ${obj.label} ${obj.id}:`,
                                 err,
                             );
-                            return 0;
+                            return BigInt(0);
                         }
                     });
 
                     const rewards = await Promise.all(rewardsPromises);
-                    const totalRewards = rewards.reduce((sum, reward) => sum + reward, 0);
+                    const totalRewards = rewards.reduce((sum, reward) => sum + reward, BigInt(0));
 
                     return { ...account, stakingRewards: totalRewards };
                 }),
@@ -255,12 +298,13 @@
                         .filter(
                             (obj) => obj.data.content.type === '0x2::coin::Coin<0x2::iota::IOTA>',
                         )
-                        .sort((a, b) =>
-                            Number(
-                                BigInt(b.data.content.fields.balance) -
-                                    BigInt(a.data.content.fields.balance),
-                            ),
-                        )[0];
+                        .sort((a, b) => {
+                            const aBal = BigInt(a.data.content.fields.balance);
+                            const bBal = BigInt(b.data.content.fields.balance);
+                            if (bBal > aBal) return 1;
+                            if (bBal < aBal) return -1;
+                            return 0;
+                        })[0];
                     if (!gasCoin) {
                         throw new Error(
                             `No gas coin found for sender ${senderAddress}. Please ensure the account has IOTA coins.`,
@@ -421,7 +465,7 @@
                 label: 'External: ' + address.slice(0, 6) + '...' + address.slice(-4),
                 objects: [],
                 timelockedObjects: [],
-                stakingRewards: 0,
+                stakingRewards: BigInt(0),
             },
         ];
         newAccountAddress = '';
@@ -457,13 +501,82 @@
     <TransactionView {value} />
 
     <br />
-    <div style="text-align:left">
-        Balance of all accounts: {allAccountsTotalBalance} IOTA
-        {#if allAccountsTotalRewards > 0}
-            <span style="color: #00d084;"> (includes {allAccountsTotalRewards.toFixed(
-                    9,
-                )} IOTA staking rewards)</span>
-        {/if}
+    <div class="balance-breakdown">
+        <div class="balance-header">
+            <h3>Balance Breakdown for All Accounts</h3>
+            <div class="price-controls">
+                <select bind:value={selectedCurrency}>
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                </select>
+                <button onclick={() => fetchCurrentPrice().then((price) => (currentPrice = price))}
+                    >Fetch price from CoinGecko</button
+                >
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Amount (IOTA)</th>
+                    <th>Value ({selectedCurrency})</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="total-row">
+                    <td><strong>Total IOTA Amount</strong></td>
+                    <td><strong>{nanoToIota(allAccountsTotalBalance.toString())}</strong></td>
+                    <td
+                        ><strong
+                            >{currentPrice
+                                ? (
+                                      parseFloat(nanoToIota(allAccountsTotalBalance.toString())) *
+                                      (selectedCurrency === 'USD'
+                                          ? currentPrice.usd
+                                          : currentPrice.eur)
+                                  ).toFixed(2)
+                                : '-'}</strong
+                        ></td
+                    >
+                </tr>
+                <tr>
+                    <td>IOTA Coins</td>
+                    <td>{nanoToIota(allAccountsTotalIotaCoins.toString())}</td>
+                    <td
+                        >{currentPrice
+                            ? (
+                                  parseFloat(nanoToIota(allAccountsTotalIotaCoins.toString())) *
+                                  (selectedCurrency === 'USD' ? currentPrice.usd : currentPrice.eur)
+                              ).toFixed(2)
+                            : '-'}</td
+                    >
+                </tr>
+                <tr>
+                    <td>Staked IOTAs</td>
+                    <td>{nanoToIota(allAccountsTotalStaked.toString())}</td>
+                    <td
+                        >{currentPrice
+                            ? (
+                                  parseFloat(nanoToIota(allAccountsTotalStaked.toString())) *
+                                  (selectedCurrency === 'USD' ? currentPrice.usd : currentPrice.eur)
+                              ).toFixed(2)
+                            : '-'}</td
+                    >
+                </tr>
+                <tr>
+                    <td>Staking Rewards</td>
+                    <td>{nanoToIota(allAccountsTotalRewards.toString())}</td>
+                    <td
+                        >{currentPrice
+                            ? (
+                                  parseFloat(nanoToIota(allAccountsTotalRewards.toString())) *
+                                  (selectedCurrency === 'USD' ? currentPrice.usd : currentPrice.eur)
+                              ).toFixed(2)
+                            : '-'}</td
+                    >
+                </tr>
+            </tbody>
+        </table>
     </div>
 
     <div class="grid">
@@ -471,36 +584,36 @@
             <div class="account">
                 <div class="accountHeader">
                     {account.label ||
-                        account.address.slice(0, 6) + '...' + account.address.slice(-4)}: {account.objects.reduce(
-                        (acc, obj) => {
-                            let amountToAdd = 0;
-                            if (obj.data.content.fields?.balance) {
-                                amountToAdd = Number(nanoToIota(obj.data.content.fields.balance));
-                            } else if (obj.data.content.fields?.principal) {
-                                amountToAdd = Number(nanoToIota(obj.data.content.fields.principal));
-                            }
-                            return acc + amountToAdd;
-                        },
-                        0,
-                    ) +
-                        account.timelockedObjects.reduce((acc, obj) => {
-                            let amountToAdd = 0;
-                            if (obj.data.content.fields?.locked) {
-                                amountToAdd = Number(nanoToIota(obj.data.content.fields?.locked));
-                            } else if (obj.data.content.fields?.staked_iota?.fields?.principal) {
-                                amountToAdd = Number(
-                                    nanoToIota(
+                        account.address.slice(0, 6) + '...' + account.address.slice(-4)}: {nanoToIota(
+                        (
+                            account.objects.reduce((acc, obj) => {
+                                let amountToAdd = BigInt(0);
+                                if (obj.data.content.fields?.balance) {
+                                    amountToAdd = BigInt(obj.data.content.fields.balance);
+                                } else if (obj.data.content.fields?.principal) {
+                                    amountToAdd = BigInt(obj.data.content.fields.principal);
+                                }
+                                return acc + amountToAdd;
+                            }, BigInt(0)) +
+                            account.timelockedObjects.reduce((acc, obj) => {
+                                let amountToAdd = BigInt(0);
+                                if (obj.data.content.fields?.locked) {
+                                    amountToAdd = BigInt(obj.data.content.fields?.locked);
+                                } else if (
+                                    obj.data.content.fields?.staked_iota?.fields?.principal
+                                ) {
+                                    amountToAdd = BigInt(
                                         obj.data.content.fields.staked_iota.fields.principal,
-                                    ),
-                                );
-                            }
-                            return acc + amountToAdd;
-                        }, 0) +
-                        account.stakingRewards +
-                        ' IOTA'}
-                    {#if account.stakingRewards > 0}
+                                    );
+                                }
+                                return acc + amountToAdd;
+                            }, BigInt(0)) +
+                            account.stakingRewards
+                        ).toString(),
+                    )} IOTA
+                    {#if account.stakingRewards > BigInt(0)}
                         <span style="color: #00d084; font-size: 0.85em;">
-                            (+{account.stakingRewards.toFixed(9)} rewards)
+                            (+{nanoToIota(account.stakingRewards.toString())} rewards)
                         </span>
                     {/if}
                 </div>
@@ -656,8 +769,72 @@
         color: #ffffff;
         background-color: rgb(36, 47, 77);
     }
-    .handle {
+    .balance-breakdown {
+        margin: 0.5rem 0;
+        padding: 0.5rem;
+        background-color: #1b2021;
+        border: 1px solid #535353;
+        border-radius: 8px;
+    }
+    .balance-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    .balance-header h3 {
+        margin: 0;
+        color: #ffffff;
+        font-size: 1rem;
+    }
+    .price-controls {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    .price-controls select {
+        padding: 0.25rem;
         background-color: #232324;
-        overflow-wrap: anywhere;
+        color: #ffffff;
+        border: 1px solid #535353;
+        border-radius: 4px;
+        font-size: 0.85rem;
+    }
+    .price-controls button {
+        padding: 0.25rem 0.5rem;
+        background-color: rgb(36, 47, 77);
+        color: #ffffff;
+        border: 1px solid #535353;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
+    .price-controls button:hover {
+        background-color: rgb(46, 57, 87);
+    }
+    .balance-breakdown table {
+        width: 100%;
+        border-collapse: collapse;
+        color: #ffffff;
+        font-size: 0.9rem;
+    }
+    .balance-breakdown th,
+    .balance-breakdown td {
+        padding: 0.25rem 0.5rem;
+        text-align: left;
+        border-bottom: 1px solid #535353;
+    }
+    .balance-breakdown th {
+        background-color: rgb(36, 47, 77);
+        font-weight: bold;
+        font-size: 0.85rem;
+    }
+    .balance-breakdown .total-row {
+        background-color: rgba(0, 208, 132, 0.1);
+        border-top: 2px solid #00d084;
+    }
+    .balance-breakdown .total-row td {
+        font-weight: bold;
+        color: #00d084;
     }
 </style>

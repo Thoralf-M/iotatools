@@ -45,7 +45,7 @@ function applyRateLimit(delayMs: number): Promise<void> {
 }
 
 // Helper: fetch price data from CoinGecko for a specific date
-async function fetchCoinGeckoPrice(dateStr: string): Promise<{ usd: number; eur: number } | null> {
+export async function fetchCoinGeckoPrice(dateStr: string): Promise<{ usd: number; eur: number } | null> {
     const url = `https://api.coingecko.com/api/v3/coins/iota/history?date=${dateStr}`;
 
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
@@ -293,4 +293,29 @@ export async function updatePricesCache(
         `Prices cache updated with ${successCount} new dates (total: ${Object.keys(updatedCache).length})`,
     );
     return updatedCache;
+}
+
+// Fetch current IOTA price from CoinGecko
+export async function fetchCurrentPrice(): Promise<{ usd: number; eur: number } | null> {
+    try {
+        const url = 'https://api.coingecko.com/api/v3/coins/iota';
+        const res = await fetch(url);
+
+        if (res.ok) {
+            const data = await res.json();
+            const usd = data?.market_data?.current_price?.usd;
+            const eur = data?.market_data?.current_price?.eur;
+
+            if (typeof usd === 'number' || typeof eur === 'number') {
+                return { usd, eur };
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    } catch (err) {
+        console.error('Failed to fetch current price:', err);
+        return null;
+    }
 }
