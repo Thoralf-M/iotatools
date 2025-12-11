@@ -1,0 +1,20 @@
+
+    button.svelte-kvrbts {
+        margin: 0.5rem;
+    }
+
+    .faucet-input.svelte-kvrbts,
+    .address-input.svelte-kvrbts {
+        max-width: 100%;
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    @media (min-width: 769px) {
+        .faucet-input.svelte-kvrbts {
+            width: 60ch;
+        }
+        .address-input.svelte-kvrbts {
+            width: 67ch;
+        }
+    }

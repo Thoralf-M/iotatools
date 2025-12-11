@@ -22,6 +22,7 @@
         objects: ExtendedObject[];
         timelockedObjects: ExtendedObject[];
         stakingRewards: bigint;
+        isCollapsed: boolean;
     }
 
     interface ExtendedObject {
@@ -133,6 +134,7 @@
                     objects: [],
                     timelockedObjects: [],
                     stakingRewards: BigInt(0),
+                    isCollapsed: false,
                 };
             });
             extendedAccounts = [...iotaAccounts, ...externalAccounts];
@@ -475,6 +477,7 @@
                 objects: [],
                 timelockedObjects: [],
                 stakingRewards: BigInt(0),
+                isCollapsed: false,
             },
         ];
         newAccountAddress = '';
@@ -490,11 +493,26 @@
             ? acc.label || address.slice(0, 6) + '...' + address.slice(-4)
             : address.slice(0, 6) + '...' + address.slice(-4);
     }
+
+    function toggleCollapse(accountId: string) {
+        const idx = extendedAccounts.findIndex((acc) => acc.id === accountId);
+        if (idx !== -1) {
+            extendedAccounts[idx] = {
+                ...extendedAccounts[idx],
+                isCollapsed: !extendedAccounts[idx].isCollapsed,
+            };
+        }
+    }
 </script>
 
 <main class="container">
     <div class="toolbar">
-        <div style="display: flex; align-items: center; gap: 0.5rem; flex-grow: 1;">
+        <div style="display: flex; gap: 0.5rem;">
+            <button onclick={syncReset}>Sync/Reset</button>
+        </div>
+        <div
+            style="display: flex; align-items: center; gap: 0.5rem; flex-grow: 1; flex-wrap: wrap;"
+        >
             <input
                 type="text"
                 placeholder="Enter external address (0x...)"
@@ -504,7 +522,6 @@
         </div>
 
         <div style="display: flex; gap: 0.5rem;">
-            <button onclick={syncReset}>Sync/Reset</button>
             <button onclick={dryRun}>Dry Run</button>
             <button onclick={prepareTxBytes}>Prepare Tx Bytes</button>
             <button onclick={send} style="background: #059669;">Send</button>
@@ -515,7 +532,7 @@
         <div style="color: #ef4444; padding: 0 0.5rem;">{newAccountError}</div>
     {/if}
 
-    <TransactionView {value} />
+    <TransactionView bind:value />
 
     <div class="summary-section">
         <div class="summary-header">
@@ -530,69 +547,79 @@
                 </button>
             </div>
         </div>
-        <table class="summary-table">
-            <thead>
-                <tr>
-                    <th>Category</th>
-                    <th>Amount (IOTA)</th>
-                    <th>Value ({selectedCurrency})</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="total-row" style="background: rgba(16, 185, 129, 0.1);">
-                    <td><strong>Total</strong></td>
-                    <td><strong>{nanoToIota(allAccountsTotalBalance.toString())}</strong></td>
-                    <td>
-                        <strong>
+        <div class="table-wrapper">
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Amount (IOTA)</th>
+                        <th>Value ({selectedCurrency})</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="total-row" style="background: rgba(16, 185, 129, 0.1);">
+                        <td><strong>Total</strong></td>
+                        <td><strong>{nanoToIota(allAccountsTotalBalance.toString())}</strong></td>
+                        <td>
+                            <strong>
+                                {currentPrice
+                                    ? (
+                                          parseFloat(
+                                              nanoToIota(allAccountsTotalBalance.toString()),
+                                          ) *
+                                          (selectedCurrency === 'USD'
+                                              ? currentPrice.usd
+                                              : currentPrice.eur)
+                                      ).toFixed(2)
+                                    : '-'}
+                            </strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>IOTA Coins</td>
+                        <td>{nanoToIota(allAccountsTotalIotaCoins.toString())}</td>
+                        <td>
                             {currentPrice
                                 ? (
-                                      parseFloat(nanoToIota(allAccountsTotalBalance.toString())) *
+                                      parseFloat(nanoToIota(allAccountsTotalIotaCoins.toString())) *
                                       (selectedCurrency === 'USD'
                                           ? currentPrice.usd
                                           : currentPrice.eur)
                                   ).toFixed(2)
                                 : '-'}
-                        </strong>
-                    </td>
-                </tr>
-                <tr>
-                    <td>IOTA Coins</td>
-                    <td>{nanoToIota(allAccountsTotalIotaCoins.toString())}</td>
-                    <td>
-                        {currentPrice
-                            ? (
-                                  parseFloat(nanoToIota(allAccountsTotalIotaCoins.toString())) *
-                                  (selectedCurrency === 'USD' ? currentPrice.usd : currentPrice.eur)
-                              ).toFixed(2)
-                            : '-'}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Staked</td>
-                    <td>{nanoToIota(allAccountsTotalStaked.toString())}</td>
-                    <td>
-                        {currentPrice
-                            ? (
-                                  parseFloat(nanoToIota(allAccountsTotalStaked.toString())) *
-                                  (selectedCurrency === 'USD' ? currentPrice.usd : currentPrice.eur)
-                              ).toFixed(2)
-                            : '-'}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Staking Rewards</td>
-                    <td>{nanoToIota(allAccountsTotalRewards.toString())}</td>
-                    <td>
-                        {currentPrice
-                            ? (
-                                  parseFloat(nanoToIota(allAccountsTotalRewards.toString())) *
-                                  (selectedCurrency === 'USD' ? currentPrice.usd : currentPrice.eur)
-                              ).toFixed(2)
-                            : '-'}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Staked</td>
+                        <td>{nanoToIota(allAccountsTotalStaked.toString())}</td>
+                        <td>
+                            {currentPrice
+                                ? (
+                                      parseFloat(nanoToIota(allAccountsTotalStaked.toString())) *
+                                      (selectedCurrency === 'USD'
+                                          ? currentPrice.usd
+                                          : currentPrice.eur)
+                                  ).toFixed(2)
+                                : '-'}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Staking Rewards</td>
+                        <td>{nanoToIota(allAccountsTotalRewards.toString())}</td>
+                        <td>
+                            {currentPrice
+                                ? (
+                                      parseFloat(nanoToIota(allAccountsTotalRewards.toString())) *
+                                      (selectedCurrency === 'USD'
+                                          ? currentPrice.usd
+                                          : currentPrice.eur)
+                                  ).toFixed(2)
+                                : '-'}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="accounts-grid">
@@ -600,27 +627,41 @@
             <div class="account-card">
                 <div class="account-header">
                     <div style="display: flex; flex-direction: column;">
-                        <span class="account-title" title={account.address}>
-                            {account.label ||
-                                account.address.slice(0, 6) + '...' + account.address.slice(-4)}
-                        </span>
-                        <div style="display: flex; gap: 0.5rem; margin-top: 0.2rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="account-title" title={account.address}>
+                                {account.label ||
+                                    account.address.slice(0, 6) + '...' + account.address.slice(-4)}
+                            </span>
                             <button
-                                style="font-size: 0.7rem; padding: 0.1rem 0.3rem; width: fit-content; background: var(--secondary-color);"
+                                style="font-size: 0.7rem; padding: 0.1rem 0.3rem; width: fit-content; background: var(--secondary-color); border-radius: 3px;"
                                 onclick={() => navigator.clipboard.writeText(account.address)}
                             >
                                 Copy Address
                             </button>
+                        </div>
+                        <div
+                            class="account-buttons"
+                            style="display: flex; gap: 0.5rem; margin-top: 0.2rem;"
+                        >
                             <button
-                                class="danger"
-                                style="font-size: 0.7rem; padding: 0.1rem 0.3rem; width: fit-content;"
-                                onclick={() => removeAccount(account.address)}
+                                style="font-size: 0.7rem; padding: 0.1rem 0.3rem; width: fit-content; border-radius: 3px;"
+                                onclick={() => toggleCollapse(account.id)}
                             >
-                                Remove
+                                {account.isCollapsed ? '▶ Expand' : '▼ Collapse'} ({account.objects
+                                    .length + account.timelockedObjects.length})
                             </button>
                         </div>
                     </div>
-                    <div style="text-align: right;">
+                    <div
+                        style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 0.2rem;"
+                    >
+                        <button
+                            class="danger"
+                            style="font-size: 0.7rem; padding: 0.1rem 0.3rem; width: fit-content; border-radius: 3px;"
+                            onclick={() => removeAccount(account.address)}
+                        >
+                            Remove
+                        </button>
                         <div class="account-balance">
                             {nanoToIota(
                                 (
@@ -652,110 +693,110 @@
                             )}
                             <span style="font-size: 0.8em; color: var(--text-muted);">IOTA</span>
                         </div>
-                        {#if account.stakingRewards > BigInt(0)}
-                            <div style="color: #10b981; font-size: 0.75em;">
-                                +{nanoToIota(account.stakingRewards.toString())} rewards
-                            </div>
-                        {/if}
                     </div>
                 </div>
 
-                <div
-                    use:dragHandleZone={{
-                        items: account.objects,
-                        flipDurationMs: 200,
-                    }}
-                    onconsider={(e) => handleDnd(e, account.id)}
-                    onfinalize={(e) => handleDnd(e, account.id)}
-                    class="object-list"
-                >
-                    {#each account.objects as item (item.id)}
-                        <div
-                            class="object-item"
-                            class:foreign={account.address !== item.currentOwner}
-                        >
-                            <div use:dragHandle class="object-header">
-                                <span class="object-type" title={item.label}>
-                                    {#if item.label.startsWith('Coin<0x2::iota::IOTA>')}
-                                        IOTA Coin
-                                    {:else}
-                                        {item.label}
+                {#if !account.isCollapsed}
+                    <div
+                        use:dragHandleZone={{
+                            items: account.objects,
+                            flipDurationMs: 200,
+                        }}
+                        onconsider={(e) => handleDnd(e, account.id)}
+                        onfinalize={(e) => handleDnd(e, account.id)}
+                        class="object-list"
+                    >
+                        {#each account.objects as item (item.id)}
+                            <div
+                                class="object-item"
+                                class:foreign={account.address !== item.currentOwner}
+                            >
+                                <div use:dragHandle class="object-header">
+                                    <span class="object-type" title={item.label}>
+                                        {#if item.label.startsWith('Coin<0x2::iota::IOTA>')}
+                                            IOTA Coin
+                                        {:else}
+                                            {item.label}
+                                        {/if}
+                                    </span>
+                                    <span class="object-amount">
+                                        {#if item.label.startsWith('Coin<0x2::iota::IOTA>')}
+                                            {nanoToIota(item.data?.content.fields?.balance)}
+                                        {:else if item.label == 'StakedIota'}
+                                            {nanoToIota(item.data?.content.fields?.principal)}
+                                        {:else if item.label == 'TimelockedStakedIota'}
+                                            {nanoToIota(
+                                                item.data.content.fields.staked_iota.fields
+                                                    .principal,
+                                            )}
+                                        {/if}
+                                    </span>
+                                </div>
+
+                                <div style="position: relative;">
+                                    {#if account.address !== item.currentOwner}
+                                        <div
+                                            style="position: absolute; left: 0; top: 0; height: 1.2rem; display: flex; align-items: center; font-size: 0.7rem; color: #f59e0b; pointer-events: none;"
+                                        >
+                                            From: {getAccountDisplayName(item.currentOwner)}
+                                        </div>
                                     {/if}
-                                </span>
-                                <span class="object-amount">
-                                    {#if item.label.startsWith('Coin<0x2::iota::IOTA>')}
-                                        {nanoToIota(item.data?.content.fields?.balance)}
-                                    {:else if item.label == 'StakedIota'}
-                                        {nanoToIota(item.data?.content.fields?.principal)}
-                                    {:else if item.label == 'TimelockedStakedIota'}
-                                        {nanoToIota(
-                                            item.data.content.fields.staked_iota.fields.principal,
-                                        )}
-                                    {/if}
-                                </span>
-                            </div>
-
-                            <div style="position: relative;">
-                                {#if account.address !== item.currentOwner}
-                                    <div
-                                        style="position: absolute; left: 0; top: 0; height: 1.2rem; display: flex; align-items: center; font-size: 0.7rem; color: #f59e0b; pointer-events: none;"
-                                    >
-                                        From: {getAccountDisplayName(item.currentOwner)}
-                                    </div>
-                                {/if}
-                                <details class="object-details">
-                                    <summary
-                                        style="text-align: center; list-style-position: inside;"
-                                        >Data</summary
-                                    >
-                                    <pre>{JSON.stringify(item, null, 2)}</pre>
-                                </details>
-                            </div>
-                        </div>
-                    {/each}
-
-                    {#if account.objects.length === 0 && account.timelockedObjects.length === 0}
-                        <div
-                            style="text-align: center; color: var(--text-muted); padding: 1rem; font-size: 0.8rem;"
-                        >
-                            No objects
-                        </div>
-                    {/if}
-
-                    {#if account.timelockedObjects.length != 0}
-                        <div
-                            style="margin-top: 0.5rem; border-top: 1px solid var(--border-color); padding-top: 0.5rem;"
-                        >
-                            <div style="font-size: 0.8rem; color: #f87171; margin-bottom: 0.25rem;">
-                                Timelocked
-                            </div>
-                            {#each account.timelockedObjects as item (item.id)}
-                                <div
-                                    class="object-item"
-                                    style="border-color: rgba(248, 113, 113, 0.3);"
-                                >
-                                    <div class="object-header">
-                                        <span class="object-type">{item.label}</span>
-                                        <span class="object-amount">
-                                            {#if item.label == 'TimelockedStakedIota'}
-                                                {nanoToIota(
-                                                    item.data.content.fields.staked_iota.fields
-                                                        .principal,
-                                                )}
-                                            {:else if item.label.startsWith('Coin<0x2::iota::IOTA>')}
-                                                {nanoToIota(item.data?.content.fields?.balance)}
-                                            {/if}
-                                        </span>
-                                    </div>
                                     <details class="object-details">
-                                        <summary>Data</summary>
+                                        <summary
+                                            style="text-align: center; list-style-position: inside;"
+                                            >Data</summary
+                                        >
                                         <pre>{JSON.stringify(item, null, 2)}</pre>
                                     </details>
                                 </div>
-                            {/each}
-                        </div>
-                    {/if}
-                </div>
+                            </div>
+                        {/each}
+
+                        {#if account.objects.length === 0 && account.timelockedObjects.length === 0}
+                            <div
+                                style="text-align: center; color: var(--text-muted); padding: 1rem; font-size: 0.8rem;"
+                            >
+                                No objects
+                            </div>
+                        {/if}
+
+                        {#if account.timelockedObjects.length != 0}
+                            <div
+                                style="margin-top: 0.5rem; border-top: 1px solid var(--border-color); padding-top: 0.5rem;"
+                            >
+                                <div
+                                    style="font-size: 0.8rem; color: #f87171; margin-bottom: 0.25rem;"
+                                >
+                                    Timelocked
+                                </div>
+                                {#each account.timelockedObjects as item (item.id)}
+                                    <div
+                                        class="object-item"
+                                        style="border-color: rgba(248, 113, 113, 0.3);"
+                                    >
+                                        <div class="object-header">
+                                            <span class="object-type">{item.label}</span>
+                                            <span class="object-amount">
+                                                {#if item.label == 'TimelockedStakedIota'}
+                                                    {nanoToIota(
+                                                        item.data.content.fields.staked_iota.fields
+                                                            .principal,
+                                                    )}
+                                                {:else if item.label.startsWith('Coin<0x2::iota::IOTA>')}
+                                                    {nanoToIota(item.data?.content.fields?.balance)}
+                                                {/if}
+                                            </span>
+                                        </div>
+                                        <details class="object-details">
+                                            <summary>Data</summary>
+                                            <pre>{JSON.stringify(item, null, 2)}</pre>
+                                        </details>
+                                    </div>
+                                {/each}
+                            </div>
+                        {/if}
+                    </div>
+                {/if}
             </div>
         {/each}
     </div>
@@ -771,9 +812,15 @@
         display: flex;
         flex-direction: column;
         gap: 1rem;
-        padding: 1rem;
+        padding: 0;
         height: 100%;
         box-sizing: border-box;
+    }
+
+    @media (min-width: 768px) {
+        .container {
+            padding: 1rem;
+        }
     }
 
     .toolbar {
@@ -830,6 +877,12 @@
         padding: 0.75rem;
     }
 
+    @media (max-width: 767px) {
+        .summary-section {
+            padding: 0.25rem;
+        }
+    }
+
     .summary-header {
         display: flex;
         justify-content: space-between;
@@ -869,6 +922,7 @@
     }
 
     .summary-table {
+        margin-left: 0;
         width: 100%;
         border-collapse: collapse;
         font-size: 0.9rem;
@@ -898,8 +952,9 @@
 
     .accounts-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         gap: 1rem;
+        padding-bottom: 0.5rem;
     }
 
     .account-card {
@@ -923,6 +978,11 @@
     .account-title {
         font-weight: 600;
         font-size: 0.95rem;
+    }
+
+    .account-buttons {
+        display: flex;
+        gap: 0.5rem;
     }
 
     .account-balance {

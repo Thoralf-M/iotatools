@@ -1,0 +1,30 @@
+
+    button.svelte-1ak88x7 {
+        margin: 0.5rem;
+    }
+
+    textarea.svelte-1ak88x7 {
+        font-family: monospace;
+        font-size: 14px;
+        padding: 0.5rem;
+
+        border: 1px solid #cccccc;
+        max-width: 100%;
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    @media (min-width: 769px) {
+        textarea.svelte-1ak88x7 {
+            width: 120ch;
+        }
+    }
+
+    textarea.error.svelte-1ak88x7 {
+        border-color: #ff4444;
+    }
+
+    textarea.error.svelte-1ak88x7:focus {
+        border-color: #ff4444;
+        outline: none;
+    }

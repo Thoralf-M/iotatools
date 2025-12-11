@@ -6,113 +6,122 @@
         formatJsonWithCompactArrays,
         getTransactionData,
         isTransactionData,
-        normalizeOwner,
     } from '../lib/transaction-view';
     import TransactionEffects from './TransactionEffects.svelte';
 
-    export let value: any;
+    let { value = $bindable() } = $props();
 
-    let viewMode: 'formatted' | 'json' | 'tree' | 'txbytes' = 'formatted';
-    let showTxBytes = false;
-    let prevViewMode: 'formatted' | 'json' | 'tree' = 'formatted';
+    let viewMode = $state('formatted');
+    let showTxBytes = $state(false);
+    let prevViewMode = $state('formatted');
+    let hidden = $derived(!value || !Object.keys(value || {}).length);
 
-    // Set default view mode based on data type when value changes
-    $: if (value) {
-        // If the data is transaction data, use formatted view, otherwise use json view
-        if (isTransactionData(value)) {
-            viewMode = 'formatted';
-            prevViewMode = 'formatted';
-        } else {
-            viewMode = 'json';
-            prevViewMode = 'json';
+    let hasTxBytes = $derived(
+        value && typeof value === 'object' && 'transactionBytes' in value && value.transactionBytes,
+    );
+
+    $effect(() => {
+        if (value) {
+            // If the data is transaction data, use formatted view, otherwise use json view
+            if (isTransactionData(value)) {
+                viewMode = 'formatted';
+                prevViewMode = 'formatted';
+            } else {
+                viewMode = 'json';
+                prevViewMode = 'json';
+            }
+            showTxBytes = false; // reset when value changes
         }
-        showTxBytes = false; // reset when value changes
-    }
+    });
 
-    $: if (showTxBytes) {
-        if (viewMode !== 'txbytes') {
-            prevViewMode = viewMode;
-            viewMode = 'txbytes';
+    $effect(() => {
+        if (showTxBytes) {
+            if (viewMode !== 'txbytes') {
+                prevViewMode = viewMode;
+                viewMode = 'txbytes';
+            }
+        } else if (viewMode === 'txbytes') {
+            viewMode = prevViewMode;
         }
-    } else if (viewMode === 'txbytes') {
-        viewMode = prevViewMode;
-    }
-
-    $: hasTxBytes =
-        value && typeof value === 'object' && 'transactionBytes' in value && value.transactionBytes;
+    });
 </script>
 
-<div class="transaction-view ultra-compact" hidden={!value || Object.keys(value).length === 0}>
-    <div class="view-controls">
-        {#if isTransactionData(value)}
+{#if !hidden}
+    <div class="transaction-view ultra-compact">
+        <div class="view-controls">
+            {#if isTransactionData(value)}
+                <button
+                    class:active={viewMode === 'formatted'}
+                    onclick={() => {
+                        showTxBytes = false;
+                        viewMode = 'formatted';
+                    }}
+                >
+                    Formatted View
+                </button>
+            {/if}
             <button
-                class:active={viewMode === 'formatted'}
-                on:click={() => {
+                class:active={viewMode === 'json'}
+                onclick={() => {
                     showTxBytes = false;
-                    viewMode = 'formatted';
+                    viewMode = 'json';
                 }}
             >
-                Formatted View
+                Raw JSON
             </button>
-        {/if}
-        <button
-            class:active={viewMode === 'json'}
-            on:click={() => {
-                showTxBytes = false;
-                viewMode = 'json';
-            }}
-        >
-            Raw JSON
-        </button>
-        <button
-            class:active={viewMode === 'tree'}
-            on:click={() => {
-                showTxBytes = false;
-                viewMode = 'tree';
-            }}
-        >
-            JSON Tree
-        </button>
-        {#if hasTxBytes}
             <button
-                class:active={showTxBytes}
-                on:click={() => {
-                    showTxBytes = !showTxBytes;
-                    if (!showTxBytes) {
-                        // restore previous viewMode if leaving txbytes
-                        viewMode = prevViewMode;
-                    }
+                class:active={viewMode === 'tree'}
+                onclick={() => {
+                    showTxBytes = false;
+                    viewMode = 'tree';
                 }}
             >
-                Tx Bytes
+                JSON Tree
             </button>
+            {#if hasTxBytes}
+                <button
+                    class:active={showTxBytes}
+                    onclick={() => {
+                        showTxBytes = !showTxBytes;
+                        if (!showTxBytes) {
+                            // restore previous viewMode if leaving txbytes
+                            viewMode = prevViewMode;
+                        }
+                    }}
+                >
+                    Tx Bytes
+                </button>
+            {/if}
+            <button class="close-btn" style="margin-left: auto;" onclick={() => (value = null)}>
+                ×
+            </button>
+        </div>
+
+        {#if showTxBytes && hasTxBytes}
+            <div class="tx-bytes-view">
+                <button
+                    class="copy-btn"
+                    onclick={() => navigator.clipboard.writeText(value.transactionBytes)}
+                >
+                    Copy Bytes
+                </button>
+                <pre class="wrap-bytes">{value.transactionBytes}</pre>
+            </div>
+        {:else if viewMode === 'formatted' && isTransactionData(value)}
+            <div class="formatted-view">
+                <TransactionEffects transactionData={getTransactionData(value)} />
+            </div>
+        {:else if viewMode === 'tree'}
+            <div class="tree-view">
+                <JSONTree {value} defaultExpandedLevel={1} />
+            </div>
+        {:else}
+            <div class="json-view">
+                <pre>{formatJsonWithCompactArrays(value)}</pre>
+            </div>
         {/if}
     </div>
-
-    {#if showTxBytes && hasTxBytes}
-        <div class="tx-bytes-view">
-            <button
-                class="copy-btn"
-                on:click={() => navigator.clipboard.writeText(value.transactionBytes)}
-            >
-                Copy Bytes
-            </button>
-            <pre class="wrap-bytes">{value.transactionBytes}</pre>
-        </div>
-    {:else if viewMode === 'formatted' && isTransactionData(value)}
-        <div class="formatted-view">
-            <TransactionEffects transactionData={getTransactionData(value)} />
-        </div>
-    {:else if viewMode === 'tree'}
-        <div class="tree-view">
-            <JSONTree {value} defaultExpandedLevel={1} />
-        </div>
-    {:else}
-        <div class="json-view">
-            <pre>{formatJsonWithCompactArrays(value)}</pre>
-        </div>
-    {/if}
-</div>
+{/if}
 
 <style>
     .transaction-view {
@@ -120,12 +129,22 @@
         word-break: break-all;
         white-space: pre-wrap;
         overflow-wrap: anywhere;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
     }
 
     .view-controls {
         display: flex;
         gap: 0.4rem;
         flex-wrap: wrap;
+        margin-bottom: 0;
+    }
+
+    .view-controls button {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+        border-radius: 4px;
     }
 
     .view-controls button:disabled {
@@ -138,6 +157,25 @@
         color: white;
     }
 
+    .view-controls .close-btn {
+        background: #911a26;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        width: 1.6rem;
+        height: 1.6rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .view-controls .close-btn:hover {
+        background: #6e0e18;
+    }
+
     .formatted-view {
         display: flex;
         flex-direction: column;
@@ -145,6 +183,7 @@
     }
 
     .json-view pre {
+        margin: 0;
         background: var(--background-light);
         backdrop-filter: blur(10px);
         padding: 0.75rem;
