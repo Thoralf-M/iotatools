@@ -1,0 +1,105 @@
+
+    main.svelte-12gcxyk {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1em;
+    }
+
+    .text-input-container.svelte-12gcxyk {
+        margin-bottom: 1em;
+    }
+
+    .text-input.svelte-12gcxyk {
+        width: 98%;
+        height: 150px;
+        font-family: monospace;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 0.5em;
+        resize: vertical;
+        box-sizing: border-box;
+        margin: 0;
+        outline: none;
+    }
+
+    .controls.svelte-12gcxyk {
+        display: flex;
+        align-items: center;
+        gap: 1em;
+        margin-top: 0.5em;
+    }
+
+    .limit-input.svelte-12gcxyk {
+        width: 80px;
+        padding: 0.25em;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .repeat-button.svelte-12gcxyk {
+        padding: 0.25em 0.5em;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9em;
+        white-space: nowrap;
+    }
+
+    .repeat-button.svelte-12gcxyk:hover:not(:disabled) {
+        background: #e9ecef;
+    }
+
+    .repeat-button.svelte-12gcxyk:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .preview-text.svelte-12gcxyk {
+        font-family: monospace;
+        background-color: rgba(55, 65, 81, 0.5);
+        padding: 0.25em 0.5em;
+        border-radius: 4px;
+        word-break: break-all;
+        flex: 1;
+    }
+
+    .highlighted-text.svelte-12gcxyk {
+        color: rgba(59, 130, 246, 1);
+    }
+
+    .remaining-text.svelte-12gcxyk {
+        color: #666;
+    }
+
+    .status-missing.svelte-12gcxyk {
+        color: #ff6b6b;
+        font-size: 0.9em;
+    }
+
+    .status-more.svelte-12gcxyk {
+        color: #4ade80;
+        font-size: 0.9em;
+    }
+
+    .metrics-grid.svelte-12gcxyk {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1em;
+        margin-top: 1em;
+    }
+
+    .metric-box.svelte-12gcxyk {
+        border: 1px solid #545454;
+        border-radius: 8px;
+        padding: 1em;
+        margin-top: 1em;
+    }
+
+    .metric-title.svelte-12gcxyk {
+        margin: 0 0 0.5em 0;
+        color: #818181;
+    }
+
+    .metric-content.svelte-12gcxyk {
+        font-family: monospace;
+    }

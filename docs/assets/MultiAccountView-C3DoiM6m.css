@@ -1,0 +1,96 @@
+
+    .value.svelte-mif7l5,
+    pre.svelte-mif7l5 {
+        text-align: left;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+    button.svelte-mif7l5 {
+        margin: 0.5rem;
+    }
+
+    .grid.svelte-mif7l5 {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    .account.svelte-mif7l5 {
+        border: 2px solid #535353;
+        border-radius: 12px;
+        background-color: #1b2021;
+        max-width: 500px;
+    }
+    .accountHeader.svelte-mif7l5 {
+        border-radius: 12px 12px 0 0;
+        font-weight: bold;
+        color: #ffffff;
+        background-color: rgb(36, 47, 77);
+    }
+    .balance-breakdown.svelte-mif7l5 {
+        margin: 0.5rem 0;
+        padding: 0.5rem;
+        background-color: #1b2021;
+        border: 1px solid #535353;
+        border-radius: 8px;
+    }
+    .balance-header.svelte-mif7l5 {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    .balance-header.svelte-mif7l5 h3:where(.svelte-mif7l5) {
+        margin: 0;
+        color: #ffffff;
+        font-size: 1rem;
+    }
+    .price-controls.svelte-mif7l5 {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    .price-controls.svelte-mif7l5 select:where(.svelte-mif7l5) {
+        padding: 0.25rem;
+        background-color: #232324;
+        color: #ffffff;
+        border: 1px solid #535353;
+        border-radius: 4px;
+        font-size: 0.85rem;
+    }
+    .price-controls.svelte-mif7l5 button:where(.svelte-mif7l5) {
+        padding: 0.25rem 0.5rem;
+        background-color: rgb(36, 47, 77);
+        color: #ffffff;
+        border: 1px solid #535353;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
+    .price-controls.svelte-mif7l5 button:where(.svelte-mif7l5):hover {
+        background-color: rgb(46, 57, 87);
+    }
+    .balance-breakdown.svelte-mif7l5 table:where(.svelte-mif7l5) {
+        width: 100%;
+        border-collapse: collapse;
+        color: #ffffff;
+        font-size: 0.9rem;
+    }
+    .balance-breakdown.svelte-mif7l5 th:where(.svelte-mif7l5),
+    .balance-breakdown.svelte-mif7l5 td:where(.svelte-mif7l5) {
+        padding: 0.25rem 0.5rem;
+        text-align: left;
+        border-bottom: 1px solid #535353;
+    }
+    .balance-breakdown.svelte-mif7l5 th:where(.svelte-mif7l5) {
+        background-color: rgb(36, 47, 77);
+        font-weight: bold;
+        font-size: 0.85rem;
+    }
+    .balance-breakdown.svelte-mif7l5 .total-row:where(.svelte-mif7l5) {
+        background-color: rgba(0, 208, 132, 0.1);
+        border-top: 2px solid #00d084;
+    }
+    .balance-breakdown.svelte-mif7l5 .total-row:where(.svelte-mif7l5) td:where(.svelte-mif7l5) {
+        font-weight: bold;
+        color: #00d084;
+    }

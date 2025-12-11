@@ -1,0 +1,12 @@
+
+    .wrapper.svelte-xku9c2 {
+        display: grid;
+        grid-template-columns: repeat(2, auto);
+        text-align: left;
+        grid-template-columns: auto 1fr; /* label auto, input takes remaining space */
+    }
+
+    textarea.svelte-xku9c2 {
+        width: 100%;
+        height: 100px;
+    }

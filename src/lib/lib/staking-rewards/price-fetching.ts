@@ -45,7 +45,9 @@ function applyRateLimit(delayMs: number): Promise<void> {
 }
 
 // Helper: fetch price data from CoinGecko for a specific date
-export async function fetchCoinGeckoPrice(dateStr: string): Promise<{ usd: number; eur: number } | null> {
+export async function fetchCoinGeckoPrice(
+    dateStr: string,
+): Promise<{ usd: number; eur: number } | null> {
     const url = `https://api.coingecko.com/api/v3/coins/iota/history?date=${dateStr}`;
 
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
