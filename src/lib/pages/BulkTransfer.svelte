@@ -15,6 +15,7 @@
     let availableCoins: Array<{ coinType: string; totalBalance: string; symbol: string }> = []; // Store fetched coins
     let fetchingCoins = false; // Loading state
     let fetchError = ''; // Error message for fetching
+    let hasFetched = false; // Track if fetch has been attempted
 
     // Update coin symbol when coin type changes
     $: {
@@ -43,6 +44,7 @@
                     symbol: extractSymbolFromCoinType(balance.coinType),
                 }));
 
+            hasFetched = true;
             console.log('Available coins:', availableCoins);
         } catch (err: any) {
             fetchError = err.toString();
@@ -378,6 +380,10 @@
                         Selected Token: {coinSymbol}
                     </div>
                 </div>
+            {:else if hasFetched}
+                <div style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+                    No coins available
+                </div>
             {/if}
         </div>
 
@@ -414,7 +420,6 @@
                     bind:value={transfersJson}
                     oninput={handleJsonChange}
                     rows="15"
-                    cols="120"
                     class:error={!!errorMsg}
                     placeholder="Enter transfers in JSON, CSV, or space-separated format"
                 ></textarea>
@@ -458,6 +463,15 @@
         padding: 0.5rem;
 
         border: 1px solid #cccccc;
+        max-width: 100%;
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    @media (min-width: 769px) {
+        textarea {
+            width: 120ch;
+        }
     }
 
     textarea.error {

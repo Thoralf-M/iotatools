@@ -103,7 +103,7 @@
     }
 
     .pageBox {
-        padding: 2rem;
+        padding: 0.2rem;
         background: rgba(24, 29, 37, 0.8);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(156, 163, 175, 0.2);
@@ -112,6 +112,13 @@
             0 4px 6px -1px rgba(0, 0, 0, 0.2),
             0 2px 4px -1px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    @media (min-width: 768px) {
+        .pageBox {
+            padding: 1.5rem;
+        }
     }
 
     .pageBox:hover {

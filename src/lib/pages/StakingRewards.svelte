@@ -199,8 +199,9 @@
             {loadingTxs ? (loadingStep ?? 'Loading...') : 'Fetch data'}
         </button>
         <span>
-            address:
+            <label for="address-input">address:</label>
             <input
+                id="address-input"
                 class="address-input"
                 value={address}
                 oninput={(e) => updateAddress((e.target as HTMLInputElement)?.value || '')}
@@ -217,7 +218,9 @@
                 disabled={loadingTxs}
                 class="toggle-received-btn"
             >
-                {fetchReceivedTxs ? 'Skip received txs' : 'Include received txs'}
+                {fetchReceivedTxs
+                    ? 'Skip received txs (faster, but would miss received staked iotas)'
+                    : 'Include received txs'}
             </button>
         </span>
         <!-- only for development -->
@@ -282,6 +285,14 @@
         .input-row > span,
         .input-row > button {
             width: 100%;
+        }
+        .input-row span {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.25rem;
+        }
+        .input-row span label {
+            margin-bottom: 0.25rem;
         }
         .address-input {
             width: 100%;

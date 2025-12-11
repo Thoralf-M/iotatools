@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from 'svelte';
     import { List } from 'svelte-virtual';
 
     import { getSelectedNetworkConfig } from '../lib/client';
@@ -11,11 +12,7 @@
     import pricesCache from '../lib/staking-rewards/cache/iota-prices-coingecko.json';
     import epochTimestampsCacheJson from '../lib/staking-rewards/cache/mainnet-epoch-timestamps-cache.json';
     import { exportTableToCSV, type ExportOptions } from '../lib/staking-rewards/csv-export';
-    import {
-        fetchEpochEndTimestamp,
-        fetchEpochStartTimestamp,
-        fetchEpochTimestampsForDisplay,
-    } from '../lib/staking-rewards/graphql-requests';
+    import { fetchEpochTimestampsForDisplay } from '../lib/staking-rewards/graphql-requests';
     import {
         fetchAllPrices as fetchAllPricesUtil,
         reloadFromCoinGeckoCache,
@@ -23,7 +20,6 @@
     import {
         computeEpochData,
         formatActionDetails,
-        formatDate,
         formatPrincipal,
         getFirstPrincipal,
         getTotalAccumulatedRewardsForEpoch,
@@ -38,39 +34,38 @@
         isPreActivationInEpoch,
     } from '../lib/staking-rewards/table-utils';
 
-    export let currentEpoch: number = 0;
-    export let stakeObjects: StakeObject[] = [];
-    export let validatorInfo: Record<string, ValidatorInfo> = {};
+    let { currentEpoch = 0, stakeObjects = [], validatorInfo = {} } = $props();
+
+    let height = $state(800);
+
+    onMount(() => {
+        const updateHeight = () => {
+            height = window.innerWidth < 768 ? 600 : 800;
+        };
+        updateHeight();
+        window.addEventListener('resize', updateHeight);
+        return () => window.removeEventListener('resize', updateHeight);
+    });
 
     function copyToClipboard(text: string) {
         navigator.clipboard.writeText(text);
     }
 
     // Toggle state for columns
-    let showPriceColumns = true;
-    let showValidatorColumns = true;
+    let showPriceColumns = $state(true);
+    let showValidatorColumns = $state(true);
 
     // Computed table data
-    let tableData: TableComputationResult = {
-        minEpoch: 0,
-        uniqueValidators: [],
-        epochData: {},
-        validatorPrincipal: {},
-        epochs: [],
-    };
-
-    $: {
-        tableData = computeEpochData(stakeObjects, validatorInfo, currentEpoch);
-    }
+    let tableData = $derived.by(() => computeEpochData(stakeObjects, validatorInfo, currentEpoch));
 
     // Destructure for easy access
-    $: ({ minEpoch, uniqueValidators, epochData, validatorPrincipal, epochs } = tableData);
+    let { minEpoch, uniqueValidators, epochData, validatorPrincipal, epochs } = $derived(tableData);
 
     // Elements for scroll synchronization
-    let headerElement: HTMLElement;
-    let listElement: any; // Reference to the List component
-    let isScrolling = false;
-    let virtualListContainer: HTMLElement | null = null;
+    let headerElement = $state<HTMLElement>();
+    let listElement = $state<any>(null); // Reference to the List component
+    let isScrolling = $state(false);
+    let virtualListContainer = $state<HTMLElement | null>(null);
 
     // Synchronize horizontal scroll between header and virtual list
     function syncHeaderScroll(event: Event) {
@@ -137,31 +132,30 @@
         };
     }
 
-    let selectedStakeObject: StakeObject | null = null;
-    let selectedValidator: ValidatorInfo | null = null;
-    let selectedAction: {
+    let selectedStakeObject = $state<StakeObject | null>(null);
+    let selectedValidator = $state<ValidatorInfo | null>(null);
+    let selectedAction = $state<{
         action: ActionDetails;
         epoch: number;
         stakeObjectId: string;
-    } | null = null;
+    } | null>(null);
 
-    let epochEndDates: string[] = [];
-    let epochTimestampsCache: Record<number, number> = {};
-    let isMainnet = false;
-
-    $: {
-        // Determine if mainnet is selected
+    let epochEndDates = $state<string[]>([]);
+    let isMainnet = $derived.by(() => {
         try {
-            isMainnet = getSelectedNetworkConfig().name?.toLowerCase().includes('mainnet');
-        } catch {}
-        if (isMainnet && Object.keys(epochTimestampsCacheJson).length > 0) {
-            epochTimestampsCache = { ...epochTimestampsCacheJson };
-        } else {
-            epochTimestampsCache = {};
+            return getSelectedNetworkConfig().name?.toLowerCase().includes('mainnet');
+        } catch {
+            return false;
         }
-    }
+    });
 
-    $: {
+    let epochTimestampsCache = $derived.by(() =>
+        isMainnet && Object.keys(epochTimestampsCacheJson).length > 0
+            ? { ...epochTimestampsCacheJson }
+            : {},
+    );
+
+    $effect(() => {
         if (!epochs.length) {
             epochEndDates = [];
         } else {
@@ -175,10 +169,10 @@
                 },
             );
         }
-    }
+    });
 
-    let selectedCurrency: 'usd' | 'eur' = 'usd';
-    let previousCurrency: 'usd' | 'eur' = selectedCurrency;
+    let selectedCurrency = $state<'usd' | 'eur'>('usd');
+    let previousCurrency = $state<'usd' | 'eur'>('usd');
     function reloadPricesFromCache() {
         epochPrices = reloadFromCoinGeckoCache({
             epochs,
@@ -188,14 +182,16 @@
         });
     }
 
-    $: if (!isFetchingPrice && selectedCurrency !== previousCurrency) {
-        previousCurrency = selectedCurrency;
-        reloadPricesFromCache();
-    }
-    let isFetchingPrice = false;
-    let priceError: string = '';
-    let epochPrices: Record<number, number> = {};
-    let loadedCache: Record<string, { usd: number; eur: number }> = pricesCache;
+    $effect(() => {
+        if (!isFetchingPrice && selectedCurrency !== previousCurrency) {
+            previousCurrency = selectedCurrency;
+            reloadPricesFromCache();
+        }
+    });
+    let isFetchingPrice = $state(false);
+    let priceError = $state<string>('');
+    let epochPrices = $state<Record<number, number>>({});
+    let loadedCache = $state<Record<string, { usd: number; eur: number }>>(pricesCache);
 
     // Export table data to CSV
     function handleExportCSV() {
@@ -249,7 +245,7 @@
         <button
             class="close-hover"
             aria-label="Close address info"
-            on:click={() => (selectedStakeObject = null)}>×</button
+            onclick={() => (selectedStakeObject = null)}>×</button
         >
         <div class="full-address">{selectedStakeObject.objectId}</div>
         <div class="principal">{formatPrincipal(getFirstPrincipal(selectedStakeObject))}</div>
@@ -266,7 +262,7 @@
         <button
             class="close-hover"
             aria-label="Close validator info"
-            on:click={() => (selectedValidator = null)}>×</button
+            onclick={() => (selectedValidator = null)}>×</button
         >
         <div class="validator-display-name">{selectedValidator.name}</div>
         <div class="validator-display-pool-id">
@@ -274,7 +270,7 @@
             <button
                 class="copy-btn validator-copy-btn"
                 title="Copy pool ID"
-                on:click={(e) => {
+                onclick={(e) => {
                     e.stopPropagation();
                     if (selectedValidator?.poolId) {
                         copyToClipboard(selectedValidator.poolId);
@@ -304,7 +300,7 @@
         <button
             class="close-hover"
             aria-label="Close action info"
-            on:click={() => (selectedAction = null)}>×</button
+            onclick={() => (selectedAction = null)}>×</button
         >
         <div class="action-title">
             Epoch {selectedAction.epoch} - {selectedAction.action.action}
@@ -333,7 +329,7 @@
                 <option value="eur">EUR</option>
             </select>
         </label>
-        <button on:click={fetchAllPrices} disabled={isFetchingPrice}>
+        <button onclick={fetchAllPrices} disabled={isFetchingPrice}>
             {isFetchingPrice ? 'Fetching... (rate limited)' : 'Fetch prices from coingecko'}
         </button>
         {#if priceError}
@@ -344,21 +340,21 @@
                 >Prices loaded for {Object.keys(epochPrices).length} epochs</span
             >
         {/if}
-        <button on:click={() => (showPriceColumns = !showPriceColumns)}>
+        <button onclick={() => (showPriceColumns = !showPriceColumns)}>
             {showPriceColumns ? 'Hide' : 'Show'} Price Columns
         </button>
-        <button on:click={() => (showValidatorColumns = !showValidatorColumns)}>
+        <button onclick={() => (showValidatorColumns = !showValidatorColumns)}>
             {showValidatorColumns ? 'Hide' : 'Show'} Validator Columns
         </button>
     </div>
     <div style="margin-left: auto;">
-        <button on:click={handleExportCSV} style="min-width: 120px;"> Export table to CSV </button>
+        <button onclick={handleExportCSV} style="min-width: 120px;"> Export table to CSV </button>
     </div>
 </div>
 <div class="table-container">
     <div class="virtual-table">
         <!-- Fixed header that scrolls horizontally -->
-        <div class="table-header" bind:this={headerElement} on:scroll={syncHeaderScroll}>
+        <div class="table-header" bind:this={headerElement} onscroll={syncHeaderScroll}>
             <div class="header-row">
                 <div class="header-cell epoch-header">Epoch</div>
                 <div class="header-cell end-date-header">End Date</div>
@@ -386,13 +382,13 @@
                                     class="validator-name clickable-validator"
                                     role="button"
                                     tabindex="0"
-                                    on:click={() => {
+                                    onclick={() => {
                                         selectedValidator =
                                             selectedValidator?.poolId === validator.poolId
                                                 ? null
                                                 : validator;
                                     }}
-                                    on:keydown={(e) => {
+                                    onkeydown={(e) => {
                                         if (e.key === 'Enter' || e.key === ' ') {
                                             selectedValidator =
                                                 selectedValidator?.poolId === validator.poolId
@@ -415,10 +411,10 @@
                                     class="address"
                                     role="button"
                                     tabindex="0"
-                                    on:click={() => {
+                                    onclick={() => {
                                         selectedStakeObject = stakeObject;
                                     }}
-                                    on:keydown={(e) => {
+                                    onkeydown={(e) => {
                                         if (e.key === 'Enter' || e.key === ' ') {
                                             selectedStakeObject = stakeObject;
                                         }
@@ -430,7 +426,7 @@
                                     <button
                                         class="copy-btn"
                                         title="Copy full address"
-                                        on:click={(e) => {
+                                        onclick={(e) => {
                                             e.stopPropagation();
                                             copyToClipboard(stakeObject.objectId);
                                         }}
@@ -448,7 +444,7 @@
         <!-- Virtual scrolling body -->
         <div class="table-body" use:setupScrollSync>
             {#key epochData}
-                <List bind:this={listElement} itemCount={epochs.length} itemSize={50} height={800}>
+                <List bind:this={listElement} itemCount={epochs.length} itemSize={50} {height}>
                     <div slot="item" let:index let:style {style} class="table-row">
                         <div class="data-row">
                             <div class="table-cell epoch-cell">{epochs[index]}</div>
@@ -612,7 +608,7 @@
                                             <button
                                                 class="action-indicator clickable-action"
                                                 type="button"
-                                                on:click={() => {
+                                                onclick={() => {
                                                     const actionData =
                                                         stakeObject.actionByEpoch?.[epochs[index]];
                                                     if (actionData) {

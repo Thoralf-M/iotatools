@@ -60,12 +60,19 @@ const CLIENT_CONFIG_KEY = 'clientConfig';
 const PRIVATE_KEY_ACCOUNTS_KEY = 'privateKeyAccounts';
 const SELECTED_SIGNER_TYPE_KEY = 'selectedSignerType';
 const EXTERNAL_ADDRESSES_KEY = 'externalAddresses';
+const IS_PRO_MODE_KEY = 'isProMode';
 
 export const clientConfigErrorMsg = writable<string>('');
 export const sharedClientConfig: Writable<ClientConfig> = persistentWritableStore(
     CLIENT_CONFIG_KEY,
     defaultClientConfig,
     verifyClientConfig,
+);
+
+export const isProMode: Writable<boolean> = persistentWritableStore(
+    IS_PRO_MODE_KEY,
+    false,
+    (value: any) => typeof value === 'boolean',
 );
 
 export const privateKeysErrorMsg = writable<string>('');

@@ -89,7 +89,7 @@
         <input
             type="string"
             list="faucetUrls"
-            size="60"
+            class="faucet-input"
             bind:value={faucetUrl}
             placeholder="faucet URL, like http://127.0.0.1:9123/gas"
         />
@@ -102,7 +102,7 @@
     <br />
     <span>
         address:
-        <input bind:value={address} placeholder="address" size="67" />
+        <input bind:value={address} placeholder="address" class="address-input" />
     </span>
     <br />
     <span>
@@ -128,5 +128,21 @@
 <style>
     button {
         margin: 0.5rem;
+    }
+
+    .faucet-input,
+    .address-input {
+        max-width: 100%;
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    @media (min-width: 769px) {
+        .faucet-input {
+            width: 60ch;
+        }
+        .address-input {
+            width: 67ch;
+        }
     }
 </style>

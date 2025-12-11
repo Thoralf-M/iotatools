@@ -2,6 +2,7 @@
     import Router from 'svelte-spa-router';
     import { wrap } from 'svelte-spa-router/wrap';
 
+    import { isProMode } from './lib/lib/local-storage-store';
     import Options from './lib/Options.svelte';
     import Signer from './lib/Signer.svelte';
     import Tabs from './lib/Tabs.svelte';
@@ -59,7 +60,7 @@
     };
 
     // Tab items with route paths
-    let items = [
+    const allItems = [
         { label: 'IOTA System State', route: '/iota-system-state', group: 'Info' },
         { label: 'PTBs', route: '/ptbs', group: 'Info' },
         { label: 'Dynamic Fields', route: '/dynamic-fields', group: 'Info' },
@@ -80,17 +81,35 @@
         { label: 'Address generation', route: '/address-generation', group: 'Utilities' },
         { label: 'IOTA-Names', route: '/iota-names', group: 'Other' },
         { label: '⚙ Settings', route: '/settings', group: 'Other' },
-    ].map((e, index) => {
-        e.value = index;
-        return e;
-    });
+    ];
+
+    $: items = $isProMode
+        ? allItems.map((e, index) => ({ ...e, value: index }))
+        : allItems
+              .filter((e) =>
+                  [
+                      'Staking Rewards',
+                      'Multi Account View',
+                      'Sign',
+                      'Split Merge Coins',
+                      'Bulk Transfer',
+                  ].includes(e.label),
+              )
+              .map((e, index) => ({ ...e, value: index, group: '' }));
 </script>
 
 <main>
     <header class="app-header">
         <div class="header-row">
             <div class="warning-banner">Experimental website, use at your own risk.</div>
-            <Options />
+            <div class="header-controls">
+                <Options />
+                <div class="pro-toggle">
+                    <button class="pro-mode-btn" onclick={() => ($isProMode = !$isProMode)}>
+                        {$isProMode ? 'Disable Pro Mode' : 'Enable Pro Mode'}
+                    </button>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -143,6 +162,7 @@
         display: flex;
         flex-direction: column;
         position: relative;
+        width: 100%;
     }
 
     .app-header {
@@ -151,20 +171,60 @@
 
     .header-row {
         display: flex;
+        align-items: center;
+    }
+
+    .header-controls {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .warning-banner {
         color: rgba(255, 255, 255, 0.7);
         font-weight: 400;
         font-size: 0.85rem;
-        flex: 1;
+        flex: 0 0 auto;
         text-align: left;
+        max-width: 25%;
+    }
+
+    .pro-toggle {
+        display: flex;
+        align-items: center;
+        margin-right: 0;
+    }
+
+    .pro-mode-btn {
+        padding: 0.4rem 0.8rem;
+        margin-left: 0.5rem;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        color: white;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.75rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        white-space: nowrap;
+        background: rgba(55, 65, 81, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 32px;
+    }
+
+    .pro-mode-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(16, 185, 129, 0.2);
     }
 
     .app-content {
         flex: 1;
         display: flex;
         flex-direction: column;
+        width: 100%;
     }
 
     .app-footer {
@@ -200,13 +260,29 @@
 
     @media (max-width: 768px) {
         .header-row {
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-controls {
+            margin-left: 0;
+            width: 100%;
             flex-direction: column;
             align-items: flex-start;
             gap: 0.5rem;
         }
 
+        .pro-mode-btn {
+            margin-left: 0;
+        }
+
         .warning-banner {
             font-size: 0.8rem;
+            width: 100%;
+            max-width: 100%;
+            margin-bottom: 0.5rem;
         }
 
         .github-link {

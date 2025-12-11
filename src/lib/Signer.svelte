@@ -2,7 +2,7 @@
     import { isValidIotaAddress } from '@iota/iota-sdk/utils';
     import { onMount } from 'svelte';
 
-    import { sharedSignerType, SignerType } from './lib/local-storage-store';
+    import { isProMode, sharedSignerType, SignerType } from './lib/local-storage-store';
     import { addressFromQuery, QUERY_PARAM_KEYS, setQueryParam } from './lib/query-param-store';
     import {
         activeAddress,
@@ -74,6 +74,11 @@
             if (isValidIotaAddress(externalAddress)) {
                 // Update query parameter but don't update accounts yet (wait for user to save)
                 setQueryParam(QUERY_PARAM_KEYS.EXTERNAL_ADDRESS, externalAddress);
+                // Also update accounts immediately for better UX in non-pro mode
+                if (!$isProMode) {
+                    addOrUpdateExternalAddress(externalAddress, externalAlias || undefined);
+                    updateSelectedSignerAccounts(externalAddress);
+                }
             } else {
                 // Clear query parameter if address is invalid
                 setQueryParam(QUERY_PARAM_KEYS.EXTERNAL_ADDRESS, null);
@@ -150,96 +155,106 @@
 </script>
 
 <main>
-    <div class="signer-container">
-        <div class="signer-controls">
-            <div class="control-row">
-                <div class="control-group">
-                    <div class="control-inline">
-                        <label class="control-label" for="signer-select">Signer:</label>
-                        <select
-                            bind:value={$sharedSignerType}
-                            onchange={handleSignerChange}
-                            class="select-input"
-                            id="signer-select"
-                        >
-                            {#each Object.values(SignerType) as signer}
-                                <option value={signer}>{signer}</option>
-                            {/each}
-                        </select>
-                        {#if $sharedSignerType == SignerType.WebWallet && $iota_accounts.length == 0}
-                            <button onclick={() => connectWallet(false)} class="connect-btn">
-                                Connect
-                            </button>
-                        {/if}
-                        {#if $sharedSignerType == SignerType.ExternalAddress}
-                            <div class="external-address-wrapper">
-                                <div class="external-address-row">
-                                    <input
-                                        type="text"
-                                        class="external-address-input"
-                                        class:invalid-address={externalAddress && !isAddressValid}
-                                        bind:value={externalAddress}
-                                        oninput={handleExternalAddressChange}
-                                        placeholder="Paste or type any address (read-only)"
-                                    />
-                                    <input
-                                        type="text"
-                                        class="alias-input"
-                                        bind:value={externalAlias}
-                                        placeholder="Alias (optional)"
-                                    />
+    {#if $isProMode}
+        <div class="signer-container">
+            <div class="signer-controls">
+                <div class="control-row">
+                    {#if $isProMode}
+                        <div class="control-group">
+                            <div class="control-inline">
+                                <label class="control-label" for="signer-select">Signer:</label>
+                                <select
+                                    bind:value={$sharedSignerType}
+                                    onchange={handleSignerChange}
+                                    class="select-input"
+                                    id="signer-select"
+                                >
+                                    {#each Object.values(SignerType) as signer}
+                                        <option value={signer}>{signer}</option>
+                                    {/each}
+                                </select>
+                                {#if $sharedSignerType == SignerType.WebWallet && $iota_accounts.length == 0}
                                     <button
-                                        class="add-update-btn"
-                                        disabled={!isAddressValid}
-                                        onclick={handleAddUpdateExternalAddress}>Save</button
+                                        onclick={() => connectWallet(false)}
+                                        class="connect-btn"
                                     >
+                                        Connect
+                                    </button>
+                                {/if}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {#if $sharedSignerType == SignerType.ExternalAddress}
+                        <div class="external-address-wrapper">
+                            <div class="external-address-row">
+                                <input
+                                    type="text"
+                                    class="external-address-input"
+                                    class:invalid-address={externalAddress && !isAddressValid}
+                                    bind:value={externalAddress}
+                                    oninput={handleExternalAddressChange}
+                                    placeholder="Paste or type any address (read-only)"
+                                />
+                                <input
+                                    type="text"
+                                    class="alias-input"
+                                    bind:value={externalAlias}
+                                    placeholder="Alias (optional)"
+                                />
+                                <button
+                                    class="add-update-btn"
+                                    disabled={!isAddressValid}
+                                    onclick={handleAddUpdateExternalAddress}>Save</button
+                                >
+                                <button
+                                    class="remove-btn"
+                                    onclick={handleRemoveExternalAddress}
+                                    title="Remove current external address">✕</button
+                                >
+                            </div>
+                        </div>
+                    {/if}
+
+                    {#if $isProMode}
+                        <div class="control-group">
+                            <div class="control-inline">
+                                <label class="control-label" for="address-select">Address:</label>
+                                <div class="address-group">
+                                    <select
+                                        bind:value={$activeAddress}
+                                        onchange={handleAddressSelection}
+                                        class="address-select"
+                                        id="address-select"
+                                    >
+                                        {#each $iota_accounts as account}
+                                            <option value={account.address}>
+                                                {formatOptionText(account)}
+                                            </option>
+                                        {/each}
+                                    </select>
+                                    <span
+                                        style="font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace; font-size: 0.8em;"
+                                    >
+                                        {$activeAddress}
+                                    </span>
                                     <button
-                                        class="remove-btn"
-                                        onclick={handleRemoveExternalAddress}
-                                        title="Remove current external address">✕</button
+                                        onclick={() => {
+                                            navigator.clipboard.writeText($activeAddress);
+                                        }}
+                                        class="copy-btn"
+                                        title="Copy active address"
                                     >
+                                        📋
+                                    </button>
                                 </div>
                             </div>
-                        {/if}
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <div class="control-inline">
-                        <label class="control-label" for="address-select">Address:</label>
-                        <div class="address-group">
-                            <select
-                                bind:value={$activeAddress}
-                                onchange={handleAddressSelection}
-                                class="address-select"
-                                id="address-select"
-                            >
-                                {#each $iota_accounts as account}
-                                    <option value={account.address}>
-                                        {formatOptionText(account)}
-                                    </option>
-                                {/each}
-                            </select>
-                            <span
-                                style="font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace; font-size: 0.8em;"
-                            >
-                                {$activeAddress}
-                            </span>
-                            <button
-                                onclick={() => {
-                                    navigator.clipboard.writeText($activeAddress);
-                                }}
-                                class="copy-btn"
-                                title="Copy active address"
-                            >
-                                📋
-                            </button>
                         </div>
-                    </div>
+                    {/if}
                 </div>
             </div>
         </div>
-    </div>
+    {/if}
 </main>
 
 <style>
