@@ -1,6 +1,7 @@
 import { getWallets, isWalletWithRequiredFeatureSet } from '@iota/wallet-standard';
 import { get } from 'svelte/store';
 
+import { sharedSelectedAddress, SignerType } from './local-storage-store';
 import { activeAddress, iota_accounts, iota_wallets } from './signer-data';
 
 const features = {
@@ -102,5 +103,15 @@ export const connectWallet = async (silent: boolean) => {
     }
     console.log('Web wallet accounts:', connectResult);
     iota_accounts.set(connectResult.accounts);
-    activeAddress.set(connectResult.accounts[0].address);
+    const currentActive = get(activeAddress);
+    const accountAddresses = connectResult.accounts.map((a) => a.address);
+    const persisted = get(sharedSelectedAddress)[SignerType.WebWallet];
+    let addressToUse =
+        persisted && accountAddresses.includes(persisted)
+            ? persisted
+            : accountAddresses.includes(currentActive)
+              ? currentActive
+              : connectResult.accounts[0].address;
+    activeAddress.set(addressToUse);
+    sharedSelectedAddress.update((obj) => ({ ...obj, [SignerType.WebWallet]: addressToUse }));
 };

@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { onMount } from 'svelte';
+
     import JsonToggleView from '../components/JsonToggleView.svelte';
     import StakingRewardsTable from '../components/StakingRewardsTable.svelte';
     import { EpochPTBAnalyzer } from '../lib/epoch-ptb-analyzer';
@@ -17,18 +19,28 @@
 
     // Use query parameters for the address field
     const queryParamValues = usePageQueryParams({
-        address: '0x5caab122e732ae3e00c374b7653f7d01b840891467cc157ca3f6b776b64c3fc1',
+        address:
+            $activeAddress || '0x5caab122e732ae3e00c374b7653f7d01b840891467cc157ca3f6b776b64c3fc1',
     });
 
     let address = '';
 
+    let initialActiveAddress = '';
+
+    $: if (!initialActiveAddress) initialActiveAddress = $activeAddress;
+
     // Reactive assignment from query parameters
     $: address = $queryParamValues.address;
+
+    // Automatically update address when activeAddress changes after initial load and from initial
+    $: if ($activeAddress !== initialActiveAddress && $activeAddress && address !== $activeAddress)
+        updateAddress($activeAddress);
 
     // Function to update address and query parameter
     function updateAddress(newAddress: string) {
         address = newAddress;
         updatePageQueryParams({ address: newAddress || null });
+        $activeAddress = newAddress;
     }
 
     let epoch: number | '' = '';
@@ -39,7 +51,9 @@
     let validatorInfo: Record<string, ValidatorInfo> = {};
     let loadingTxs = false;
     let loadingStep: string | null = null;
-    let fetchReceivedTxs = true;
+    let fetchReceivedTxs = false;
+    let showPriceColumns = true;
+    let showValidatorColumns = true;
 
     // Initialize exchange rate cache on component load
     setInitialExchangeRateCacheFromBinary(exchangeRateCacheBinary);
@@ -193,50 +207,68 @@
     }
 </script>
 
-<main>
-    <div class="input-row">
-        <button onclick={fetchTransactions} disabled={loadingTxs}>
-            {loadingTxs ? (loadingStep ?? 'Loading...') : 'Fetch data'}
-        </button>
-        <span>
-            <label for="address-input">address:</label>
+<main class="container">
+    <div class="toolbar">
+        <div
+            style="display: flex; align-items: center; gap: 0.5rem; flex-grow: 1; flex-wrap: wrap;"
+        >
             <input
                 id="address-input"
-                class="address-input"
+                type="text"
                 value={address}
                 oninput={(e) => updateAddress((e.target as HTMLInputElement)?.value || '')}
-                placeholder="address"
+                placeholder="Enter address (0x...)"
             />
-            <button class="set-active-btn" onclick={() => updateAddress($activeAddress)}>
-                Set to active address
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <label class="toggle-row">
+                <div class="toggle-switch">
+                    <input type="checkbox" bind:checked={fetchReceivedTxs} disabled={loadingTxs} />
+                    <span class="slider"></span>
+                </div>
+                <div style="display: flex; flex-direction: column; line-height: 1.2;">
+                    <div style="display: flex; align-items: center; gap: 0.25rem;">
+                        <span class="toggle-label"> Include received </span>
+                        <div class="tooltip-container">
+                            <span class="info-icon">ⓘ</span>
+                            <div class="tooltip">
+                                If staking normal, this is not needed, but if StakedIota objects
+                                were transferred in a tx like validators get for their rewards, then
+                                received txs must be included to find these StakedIota objects.
+                            </div>
+                        </div>
+                    </div>
+                    <span style="font-size: 0.75rem; opacity: 0.7;"
+                        >Slower, checks received transactions</span
+                    >
+                </div>
+            </label>
+
+            <button onclick={fetchTransactions} disabled={loadingTxs} style="background: #059669;">
+                {loadingTxs ? (loadingStep ?? 'Loading...') : 'Fetch Data'}
             </button>
-        </span>
-        <span>
-            <button
-                type="button"
-                onclick={() => (fetchReceivedTxs = !fetchReceivedTxs)}
-                disabled={loadingTxs}
-                class="toggle-received-btn"
-            >
-                {fetchReceivedTxs
-                    ? 'Skip received txs (faster, but would miss received staked iotas)'
-                    : 'Include received txs'}
-            </button>
-        </span>
+        </div>
         <!-- only for development -->
         <!-- <button type="button" onclick={loadExampleData}> load example data </button> -->
     </div>
+
     {#if loadingTxs}
-        <div style="text-align: left;">
+        <div class="loading-message">
             Loading can take minutes, depending on the number of transactions/epochs.
         </div>
     {/if}
     {#if error}
         <div class="error-message">{error}</div>
     {/if}
-    <div>
-        <h3>Staking Rewards:</h3>
-        <StakingRewardsTable currentEpoch={epoch || 1} {stakeObjects} {validatorInfo} />
+    <div class="summary-section">
+        <StakingRewardsTable
+            currentEpoch={epoch || 1}
+            {stakeObjects}
+            {validatorInfo}
+            bind:showPriceColumns
+            bind:showValidatorColumns
+        />
     </div>
     <details>
         <summary>Stake objects:</summary>
@@ -249,62 +281,206 @@
 </main>
 
 <style>
-    .input-row {
-        margin-bottom: 1rem;
+    :global(body) {
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
         display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-    .input-row span {
-        display: flex;
-        align-items: center;
-    }
-    .input-row button {
-        margin-left: 0.5rem;
-    }
-    .error-message {
-        color: #d63031;
-        margin-bottom: 1rem;
-    }
-    .address-input {
-        max-width: 100%;
-        width: 40rem; /* large enough on desktop */
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0;
+        height: 100%;
         box-sizing: border-box;
     }
-    /* Prevent horizontal overflow due to fixed button margins */
-    .input-row {
-        flex-wrap: wrap;
+
+    @media (min-width: 768px) {
+        .container {
+            padding: 1rem;
+        }
     }
-    /* Mobile adjustments */
-    @media (max-width: 700px) {
-        .input-row {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 0.5rem;
-        }
-        .input-row > span,
-        .input-row > button {
-            width: 100%;
-        }
-        .input-row span {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 0.25rem;
-        }
-        .input-row span label {
-            margin-bottom: 0.25rem;
-        }
-        .address-input {
-            width: 100%;
-        }
-        .input-row button,
-        .set-active-btn,
-        .toggle-received-btn {
-            margin-left: 0; /* reset desktop margin */
-            width: 100%;
-        }
-        .toggle-received-btn {
-            order: 3; /* ensure visibility; comes after address controls */
-        }
+
+    .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+        background: var(--background-card);
+        padding: 0.75rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+    }
+
+    .toolbar input {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border-color);
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        flex-grow: 1;
+        min-width: 200px;
+    }
+
+    .toolbar button {
+        background: var(--primary-color);
+        border: 1px solid var(--border-color);
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .toolbar button:hover {
+        background: var(--primary-hover);
+        border-color: var(--accent-color);
+    }
+
+    .toolbar button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .summary-section {
+        background: var(--background-card);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 0.75rem;
+    }
+
+    .summary-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .summary-header h3 {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--text-muted);
+    }
+
+    .error-message {
+        color: #ef4444;
+        padding: 0 0.5rem;
+    }
+
+    .loading-message {
+        padding: 0 0.5rem;
+        font-style: italic;
+        opacity: 0.8;
+    }
+
+    .toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        user-select: none;
+        font-size: 0.9rem;
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 36px;
+        height: 20px;
+        flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #475569;
+        transition: 0.4s;
+        border-radius: 20px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: '';
+        height: 16px;
+        width: 16px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: #059669;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #059669;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(16px);
+    }
+
+    .tooltip-container {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        cursor: help;
+    }
+
+    .info-icon {
+        font-size: 0.85rem;
+        opacity: 0.7;
+    }
+
+    .tooltip {
+        visibility: hidden;
+        width: 250px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 8px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -125px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 0.8rem;
+        line-height: 1.4;
+        pointer-events: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #333 transparent transparent transparent;
+    }
+
+    .tooltip-container:hover .tooltip {
+        visibility: visible;
+        opacity: 1;
     }
 </style>

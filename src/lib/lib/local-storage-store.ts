@@ -61,6 +61,7 @@ const PRIVATE_KEY_ACCOUNTS_KEY = 'privateKeyAccounts';
 const SELECTED_SIGNER_TYPE_KEY = 'selectedSignerType';
 const EXTERNAL_ADDRESSES_KEY = 'externalAddresses';
 const IS_PRO_MODE_KEY = 'isProMode';
+const SELECTED_ADDRESS_KEY = 'selectedAddress';
 
 export const clientConfigErrorMsg = writable<string>('');
 export const sharedClientConfig: Writable<ClientConfig> = persistentWritableStore(
@@ -107,6 +108,23 @@ export const sharedExternalAddresses: Writable<ExternalAddresses> = persistentWr
     EXTERNAL_ADDRESSES_KEY,
     defaultExternalAddresses(),
     verifyExternalAddresses,
+);
+
+export const selectedAddressErrorMsg = writable<string>('');
+export const sharedSelectedAddress: Writable<Record<string, string>> = persistentWritableStore(
+    SELECTED_ADDRESS_KEY,
+    {},
+    (value: any) => {
+        if (typeof value !== 'object') {
+            throw new Error('Selected address must be an object');
+        }
+        for (const key in value) {
+            if (typeof value[key] !== 'string') {
+                throw new Error('Selected address values must be strings');
+            }
+        }
+        return true;
+    },
 );
 
 // Custom store synced with localStorage
