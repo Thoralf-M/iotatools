@@ -133,6 +133,8 @@
 
     {#if isTransactionResult}
         <TransactionView {value} />
+    {:else if Array.isArray(value) && value.length === 0}
+        <div>No coins available</div>
     {:else}
         <JsonToggleView {value} />
     {/if}

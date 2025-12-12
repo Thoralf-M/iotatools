@@ -508,7 +508,7 @@
 <main class="container">
     <div class="toolbar">
         <div style="display: flex; gap: 0.5rem;">
-            <button onclick={syncReset}>Sync/Reset</button>
+            <button onclick={syncReset} style="background: #059669;">Sync/Reset</button>
         </div>
         <div
             style="display: flex; align-items: center; gap: 0.5rem; flex-grow: 1; flex-wrap: wrap;"
@@ -524,7 +524,7 @@
         <div style="display: flex; gap: 0.5rem;">
             <button onclick={dryRun}>Dry Run</button>
             <button onclick={prepareTxBytes}>Prepare Tx Bytes</button>
-            <button onclick={send} style="background: #059669;">Send</button>
+            <button onclick={send}>Send</button>
         </div>
     </div>
 

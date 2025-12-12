@@ -34,10 +34,12 @@
             const addressFromURL = $addressFromQuery;
             if (addressFromURL && isValidIotaAddress(addressFromURL)) {
                 externalAddressInput = addressFromURL;
+                addOrUpdateExternalAddress(addressFromURL);
             } else {
                 const selectedAddress = getSelectedExternalAddress();
                 if (selectedAddress) {
                     externalAddressInput = selectedAddress;
+                    updateSelectedSignerAccounts(selectedAddress);
                 }
             }
         }
@@ -88,18 +90,6 @@
         }
     }
 
-    function handleExternalAddressInput(event: Event) {
-        const target = event.target as HTMLInputElement;
-        const value = target.value;
-        externalAddressInput = value;
-
-        if (isValidIotaAddress(value)) {
-            addOrUpdateExternalAddress(value);
-            setQueryParam(QUERY_PARAM_KEYS.EXTERNAL_ADDRESS, value);
-            updateSelectedSignerAccounts(value);
-        }
-    }
-
     function clearExternalAddress() {
         externalAddressInput = '';
         $sharedSignerType = SignerType.WebWallet; // Or any default state to show buttons again
@@ -140,8 +130,16 @@
                         type="text"
                         class="external-address-input-small"
                         placeholder="Address 0x..."
-                        bind:value={externalAddressInput}
-                        oninput={handleExternalAddressInput}
+                        value={externalAddressInput}
+                        oninput={(e) => {
+                            const value = (e.target as HTMLInputElement).value;
+                            externalAddressInput = value;
+                            if (isValidIotaAddress(value)) {
+                                addOrUpdateExternalAddress(value);
+                                setQueryParam(QUERY_PARAM_KEYS.EXTERNAL_ADDRESS, value);
+                                updateSelectedSignerAccounts(value);
+                            }
+                        }}
                     />
                     <button class="remove-btn-small" onclick={clearExternalAddress}>✕</button>
                 </div>

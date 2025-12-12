@@ -392,24 +392,9 @@
 
     <!-- Signing buttons -->
     <div style="margin-top: 20px; display: flex; gap: 10px;">
-        <button
-            onclick={signTransaction}
-            style="padding: 8px 16px; background: #007acc; color: white; border: none; border-radius: 4px; cursor: pointer;"
-        >
-            Sign Transaction
-        </button>
-        <button
-            onclick={signPersonalMessage}
-            style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;"
-        >
-            Sign Personal Message
-        </button>
-        <button
-            onclick={dryRunTransaction}
-            style="padding: 8px 16px; background: #ffc107; color: #333; border: none; border-radius: 4px; cursor: pointer;"
-        >
-            Dry Run Transaction
-        </button>
+        <button onclick={signTransaction}> Sign Tx </button>
+        <button onclick={signPersonalMessage}> Sign Message </button>
+        <button onclick={dryRunTransaction}> Dry Run </button>
     </div>
     {#if dryRunResult}
         <div class="dry-run-result">
@@ -438,25 +423,19 @@
 
         <!-- Signature Verification Status -->
         {#if signatureVerificationStatus === 'checking'}
-            <div
-                style="margin-top: 8px; padding: 8px; border: 1px solid #ffc107; border-radius: 4px; color: #856404;"
-            >
+            <div style="margin-top: 8px; padding: 8px; border-radius: 4px;">
                 🔍 Verifying signature...
             </div>
         {/if}
 
         {#if signatureVerificationStatus === 'valid'}
-            <div
-                style="margin-top: 8px; padding: 8px; background: #003300; border: 1px solid #28a745; border-radius: 4px; color: white;"
-            >
+            <div style="margin-top: 8px; padding: 8px; border-radius: 4px;">
                 ✓ Signature is valid
             </div>
         {/if}
 
         {#if signatureVerificationStatus === 'invalid'}
-            <div
-                style="margin-top: 8px; padding: 8px; background: #660000; border: 1px solid #dc3545; border-radius: 4px; color: white;"
-            >
+            <div style="margin-top: 8px; padding: 8px; border-radius: 4px;">
                 ✗ Invalid signature
                 {#if signatureVerificationError}
                     <div style="margin-top: 4px; font-size: 12px;">
@@ -522,12 +501,7 @@
             </div>
         {/if}
 
-        <button
-            onclick={submitSignedTx}
-            style="margin-top: 8px; padding: 8px 16px; background: #6c63ff; color: white; border: none; border-radius: 4px; cursor: pointer;"
-        >
-            Submit Signed Tx
-        </button>
+        <button onclick={submitSignedTx}> Submit Signed Tx </button>
     </div>
     {#if submitResult}
         <div style="margin: 20px 0;">
@@ -535,9 +509,7 @@
         </div>
     {/if}
     {#if error}
-        <div
-            style="color: red; margin: 10px 0; padding: 10px; border: 1px solid #fcc; border-radius: 4px;"
-        >
+        <div style="color: #ef4444; margin: 10px 0;">
             {error}
         </div>
     {/if}
@@ -577,14 +549,14 @@
     .signature-details-container {
         margin-top: 12px;
         padding: 10px;
-        border: 1px solid #007acc;
+        border: 1px solid var(--border-color);
         border-radius: 4px;
     }
 
     .signature-item {
         margin-bottom: 15px;
         padding-bottom: 10px;
-        border-bottom: 1px solid #444;
+        border-bottom: 1px solid var(--border-color);
     }
 
     .signature-item:last-child {
@@ -631,7 +603,11 @@
         background: #333;
         color: white;
         border: 1px solid #666;
-        border-radius: 3px;
+        border-radius: 4px;
         cursor: pointer;
+    }
+
+    button {
+        border-radius: 4px;
     }
 </style>

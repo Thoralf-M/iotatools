@@ -34,7 +34,13 @@
         isPreActivationInEpoch,
     } from '../lib/staking-rewards/table-utils';
 
-    let { currentEpoch = 0, stakeObjects = [], validatorInfo = {} } = $props();
+    let {
+        currentEpoch = 0,
+        stakeObjects = [],
+        validatorInfo = {},
+        showPriceColumns = $bindable(true),
+        showValidatorColumns = $bindable(true),
+    } = $props();
 
     let height = $state(800);
 
@@ -50,10 +56,6 @@
     function copyToClipboard(text: string) {
         navigator.clipboard.writeText(text);
     }
-
-    // Toggle state for columns
-    let showPriceColumns = $state(true);
-    let showValidatorColumns = $state(true);
 
     // Computed table data
     let tableData = $derived.by(() => computeEpochData(stakeObjects, validatorInfo, currentEpoch));
@@ -320,16 +322,16 @@
     Values are estimates due to rounding. Epochs before the first transaction are hidden.
 </div>
 
-<div style="margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
-    <div style="display: flex; flex: 1; align-items: center; gap: 12px; flex-wrap: wrap;">
-        <label>
+<div class="table-controls">
+    <div class="controls-left">
+        <label class="control-item">
             Currency:
             <select bind:value={selectedCurrency}>
                 <option value="usd">USD</option>
                 <option value="eur">EUR</option>
             </select>
         </label>
-        <button onclick={fetchAllPrices} disabled={isFetchingPrice}>
+        <button class="control-item" onclick={fetchAllPrices} disabled={isFetchingPrice}>
             {isFetchingPrice ? 'Fetching... (rate limited)' : 'Fetch prices from coingecko'}
         </button>
         {#if priceError}
@@ -340,14 +342,24 @@
                 >Prices loaded for {Object.keys(epochPrices).length} epochs</span
             >
         {/if}
-        <button onclick={() => (showPriceColumns = !showPriceColumns)}>
-            {showPriceColumns ? 'Hide' : 'Show'} Price Columns
-        </button>
-        <button onclick={() => (showValidatorColumns = !showValidatorColumns)}>
-            {showValidatorColumns ? 'Hide' : 'Show'} Validator Columns
-        </button>
+
+        <label class="toggle-row control-item">
+            <div class="toggle-switch">
+                <input type="checkbox" bind:checked={showPriceColumns} />
+                <span class="slider"></span>
+            </div>
+            <span class="toggle-label"> Show Prices </span>
+        </label>
+
+        <label class="toggle-row control-item">
+            <div class="toggle-switch">
+                <input type="checkbox" bind:checked={showValidatorColumns} />
+                <span class="slider"></span>
+            </div>
+            <span class="toggle-label"> Show Validators </span>
+        </label>
     </div>
-    <div style="margin-left: auto;">
+    <div class="controls-right">
         <button onclick={handleExportCSV} style="min-width: 120px;"> Export table to CSV </button>
     </div>
 </div>
@@ -1099,5 +1111,128 @@
         font-size: 0.9em;
         white-space: pre-line;
         line-height: 1.4;
+    }
+
+    .toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        user-select: none;
+        font-size: 0.9rem;
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 36px;
+        height: 20px;
+        flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #475569;
+        transition: 0.4s;
+        border-radius: 20px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: '';
+        height: 16px;
+        width: 16px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: #059669;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #059669;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(16px);
+    }
+
+    .table-controls {
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .controls-left {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        min-width: 0;
+    }
+
+    .controls-right {
+        margin-left: auto;
+    }
+
+    @media (max-width: 768px) {
+        .table-controls {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 1rem;
+        }
+
+        .controls-left {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.75rem;
+        }
+
+        .controls-right {
+            margin-left: 0;
+            width: 100%;
+        }
+
+        .controls-right button {
+            width: 100%;
+        }
+
+        .control-item {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Ensure buttons in control-item take full width if they are the item */
+        button.control-item {
+            justify-content: center;
+        }
+
+        .toggle-row {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
     }
 </style>
