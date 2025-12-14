@@ -55,9 +55,6 @@
         return [...new Set(addresses)];
     })();
 
-    // Debug: Log when addresses change
-    $: console.log('All addresses to fetch:', allAddresses);
-
     function addAddress() {
         additionalAddresses = [...additionalAddresses, ''];
     }
