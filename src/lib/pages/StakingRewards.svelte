@@ -5,7 +5,7 @@
     import StakingRewardsTable from '../components/StakingRewardsTable.svelte';
     import { EpochPTBAnalyzer } from '../lib/epoch-ptb-analyzer';
     import { updatePageQueryParams, usePageQueryParams } from '../lib/page-query-params';
-    import { activeAddress } from '../lib/signer-data';
+    import { activeAddress, iota_accounts } from '../lib/signer-data';
     // @ts-ignore
     import exchangeRateCacheBinary from '../lib/staking-rewards/cache/exchange-rate-cache.bin?raw';
     import {
@@ -24,6 +24,8 @@
     });
 
     let address = '';
+    let additionalAddresses: string[] = [];
+    let useAllWalletAddresses = false;
 
     let initialActiveAddress = '';
 
@@ -41,6 +43,32 @@
         address = newAddress;
         updatePageQueryParams({ address: newAddress || null });
         $activeAddress = newAddress;
+    }
+
+    // Get all addresses to fetch (main + additional)
+    $: allAddresses = (() => {
+        if (useAllWalletAddresses && $iota_accounts.length > 0) {
+            // Use all wallet addresses
+            return $iota_accounts.map((acc) => acc.address).filter((addr) => addr && addr !== '0x');
+        } else {
+            // Use main address + any manually added addresses
+            const addresses = [address, ...additionalAddresses].filter((addr) => addr && addr.trim() !== '');
+            // Remove duplicates
+            return [...new Set(addresses)];
+        }
+    })();
+
+    function addAddress() {
+        additionalAddresses = [...additionalAddresses, ''];
+    }
+
+    function removeAddress(index: number) {
+        additionalAddresses = additionalAddresses.filter((_, i) => i !== index);
+    }
+
+    function updateAdditionalAddress(index: number, value: string) {
+        additionalAddresses[index] = value;
+        additionalAddresses = [...additionalAddresses];
     }
 
     let epoch: number | '' = '';
@@ -135,7 +163,7 @@
             const result = await processStakeTransactionsWithExchangeRates(
                 uniqueTxs,
                 epoch as number,
-                address,
+                allAddresses,
             );
             stakeObjects = result.stakeObjects;
             validatorInfo = result.validatorInfo;
@@ -158,43 +186,49 @@
         loadingTxs = true;
         loadingStep = 'Fetching stake txs...';
         try {
-            // Step 1: Fetch sent stake transactions
-            loadingStep = 'Fetching stake txs...';
-            const sentTxs = await fetchStakeTransactions(address);
-            console.log('sentTxs:', sentTxs);
+            // Fetch transactions for all addresses
+            const allTxsPromises = allAddresses.map(async (addr, index) => {
+                loadingStep = `Fetching stake txs for address ${index + 1}/${allAddresses.length}...`;
+                const sentTxs = await fetchStakeTransactions(addr);
+                
+                let receivedTxs: any[] = [];
+                if (fetchReceivedTxs) {
+                    loadingStep = `Fetching received txs for address ${index + 1}/${allAddresses.length}...`;
+                    receivedTxs = await fetchReceivedStakeTransactions(addr);
+                }
+                
+                return { sentTxs, receivedTxs, address: addr };
+            });
+            
+            const allTxsResults = await Promise.all(allTxsPromises);
+            console.log('All transactions fetched:', allTxsResults);
 
-            let receivedTxs: any[] = [];
-            if (fetchReceivedTxs) {
-                // Step 2: Fetch received stake transactions
-                loadingStep = 'Fetching received txs...';
-                receivedTxs = await fetchReceivedStakeTransactions(address);
-                console.log('receivedTxs:', receivedTxs);
-            }
-
-            // Step 3: Get current epoch and end timestamp
+            // Step 2: Get current epoch and end timestamp
             loadingStep = 'Fetching epoch info...';
             await getCurrentEpochAndEndTimestamp();
 
-            // A tx can be in both sent and received lists
-            let uniqueTxs = [sentTxs, ...(fetchReceivedTxs ? receivedTxs : [])]
-                .flat()
-                .reduce((acc: any, tx: any) => {
-                    if (!acc.some((t: any) => t.digest === tx.digest)) {
-                        acc.push(tx);
-                    }
-                    return acc;
-                }, []);
+            // Step 3: Combine and deduplicate transactions
+            const allTxs = allTxsResults.flatMap(result => 
+                [result.sentTxs, ...(fetchReceivedTxs ? result.receivedTxs : [])]
+            ).flat();
+            
+            let uniqueTxs = allTxs.reduce((acc: any, tx: any) => {
+                if (!acc.some((t: any) => t.digest === tx.digest)) {
+                    acc.push(tx);
+                }
+                return acc;
+            }, []);
 
-            // Step 4: Process transactions with exchange rates
+            // Step 4: Process transactions with exchange rates for all addresses
             loadingStep = 'Fetching exchange rates...';
             const result = await processStakeTransactionsWithExchangeRates(
                 uniqueTxs,
                 epoch as number,
-                address,
+                allAddresses,
             );
             stakeObjects = result.stakeObjects;
             validatorInfo = result.validatorInfo;
-            console.log(stakeObjects);
+            console.log('Processed stake objects:', stakeObjects);
             transactions = uniqueTxs;
 
             console.log('fetching txs complete');
@@ -217,11 +251,26 @@
                 type="text"
                 value={address}
                 oninput={(e) => updateAddress((e.target as HTMLInputElement)?.value || '')}
-                placeholder="Enter address (0x...)"
+                placeholder="Enter primary address (0x...)"
             />
         </div>
 
         <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <label class="toggle-row">
+                <div class="toggle-switch">
+                    <input type="checkbox" bind:checked={useAllWalletAddresses} disabled={loadingTxs} />
+                    <span class="slider"></span>
+                </div>
+                <div style="display: flex; flex-direction: column; line-height: 1.2;">
+                    <div style="display: flex; align-items: center; gap: 0.25rem;">
+                        <span class="toggle-label"> Use all wallet addresses </span>
+                    </div>
+                    <span style="font-size: 0.75rem; opacity: 0.7;"
+                        >Fetch data for all connected wallet addresses</span
+                    >
+                </div>
+            </label>
+
             <label class="toggle-row">
                 <div class="toggle-switch">
                     <input type="checkbox" bind:checked={fetchReceivedTxs} disabled={loadingTxs} />
@@ -252,6 +301,35 @@
         <!-- only for development -->
         <!-- <button type="button" onclick={loadExampleData}> load example data </button> -->
     </div>
+
+    {#if !useAllWalletAddresses && !loadingTxs}
+        <details class="address-management">
+            <summary>Manage additional addresses</summary>
+            <div class="address-list">
+                {#each additionalAddresses as addr, index}
+                    <div class="address-item">
+                        <input
+                            type="text"
+                            value={addr}
+                            oninput={(e) => updateAdditionalAddress(index, (e.target as HTMLInputElement)?.value || '')}
+                            placeholder="Enter additional address (0x...)"
+                        />
+                        <button onclick={() => removeAddress(index)} class="remove-btn">Remove</button>
+                    </div>
+                {/each}
+                <button onclick={addAddress} class="add-btn">Add Address</button>
+            </div>
+        </details>
+    {/if}
+
+    {#if allAddresses.length > 1}
+        <div class="info-message">
+            Fetching data for {allAddresses.length} addresses: {allAddresses.slice(0, 3).map(a => a.slice(0, 8) + '...').join(', ')}
+            {#if allAddresses.length > 3}
+                and {allAddresses.length - 3} more
+            {/if}
+        </div>
+    {/if}
 
     {#if loadingTxs}
         <div class="loading-message">
@@ -482,5 +560,83 @@
     .tooltip-container:hover .tooltip {
         visibility: visible;
         opacity: 1;
+    }
+
+    .address-management {
+        background: var(--background-card);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .address-management summary {
+        cursor: pointer;
+        user-select: none;
+        font-weight: 500;
+        padding: 0.25rem 0;
+    }
+
+    .address-management summary:hover {
+        color: var(--accent-color);
+    }
+
+    .address-list {
+        margin-top: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .address-item {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .address-item input {
+        flex: 1;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border-color);
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+    }
+
+    .remove-btn {
+        background: #ef4444;
+        border: 1px solid var(--border-color);
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .remove-btn:hover {
+        background: #dc2626;
+    }
+
+    .add-btn {
+        background: var(--primary-color);
+        border: 1px solid var(--border-color);
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        cursor: pointer;
+        align-self: flex-start;
+    }
+
+    .add-btn:hover {
+        background: var(--primary-hover);
+    }
+
+    .info-message {
+        background: rgba(5, 150, 105, 0.1);
+        border: 1px solid rgba(5, 150, 105, 0.3);
+        border-radius: 8px;
+        padding: 0.75rem;
+        color: #10b981;
+        font-size: 0.9rem;
     }
 </style>

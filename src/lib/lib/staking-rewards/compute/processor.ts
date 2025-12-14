@@ -709,8 +709,11 @@ async function processStakeObjectsWithExchangeRates(
 export async function processStakeTransactionsWithExchangeRates(
     transactions: Array<any>,
     currentEpoch: number,
-    targetAddress: string,
+    targetAddresses: string | string[],
 ): Promise<ProcessStakeTransactionsResult> {
+    // Normalize targetAddresses to always be an array
+    const addressArray = Array.isArray(targetAddresses) ? targetAddresses : [targetAddresses];
+
     // Get system state to map pool IDs to exchange rate IDs
     const systemState = (await fetchSystemState())[0];
     const validatorMap = getCurrentActiveValidatorsExchangeRateIds(systemState);
@@ -718,14 +721,23 @@ export async function processStakeTransactionsWithExchangeRates(
     const allValidatorsMap = { ...validatorMap, ...inactiveValidatorsMap };
     const validatorInfo = getValidatorInfo(systemState);
 
-    // Process transactions to build stake objects
-    const stakeObjects = await processTransactions(transactions, currentEpoch, targetAddress);
+    // Process transactions to build stake objects for each address and merge them
+    const allStakeObjects = new Map<string, StakeObject>();
+    
+    for (const targetAddress of addressArray) {
+        const stakeObjects = await processTransactions(transactions, currentEpoch, targetAddress);
+        
+        // Merge stake objects from this address into the combined map
+        stakeObjects.forEach((stakeObject, key) => {
+            allStakeObjects.set(key, stakeObject);
+        });
+    }
 
     // Filter to only owned stake objects and get required pool IDs
-    const { ownedStakeObjects, requiredPoolIds } = filterOwnedStakeObjects(stakeObjects);
+    const { ownedStakeObjects, requiredPoolIds } = filterOwnedStakeObjects(allStakeObjects);
 
     console.log(
-        `Found ${ownedStakeObjects.size} owned stake objects (filtered from ${stakeObjects.size} total) requiring exchange rates for ${requiredPoolIds.size} pools`,
+        `Found ${ownedStakeObjects.size} owned stake objects (filtered from ${allStakeObjects.size} total) requiring exchange rates for ${requiredPoolIds.size} pools`,
     );
 
     // Fetch exchange rates for the required pools
