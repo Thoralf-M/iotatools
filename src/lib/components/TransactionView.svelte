@@ -64,15 +64,6 @@
 
             const dryRunResult = await client.dryRunTransactionBlock({
                 transactionBlock: txBytes,
-                options: {
-                    showInput: true,
-                    showRawInput: true,
-                    showEffects: true,
-                    showEvents: true,
-                    showObjectChanges: true,
-                    showBalanceChanges: true,
-                    showRawEffects: true,
-                },
             });
 
             // Update the transaction data with dry run effects
