@@ -2,28 +2,24 @@
  * Tests for transaction-view utility functions
  */
 
-import { describe, it, expect } from 'vitest';
-import {
-    removeKindFields,
-    normalizeOwner,
-    isTransactionData,
-    getTransactionData,
-} from './transaction-view';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { fromBase64 } from '@iota/bcs';
+import { describe, expect, it } from 'vitest';
+
+import {
+    getTransactionData,
+    isTransactionData,
+    normalizeOwner,
+    removeKindFields,
+} from './transaction-view';
 
 // Load fixtures
-const graphqlTx = JSON.parse(
-    readFileSync(join(__dirname, 'tx-fixtures/graphql-tx.json'), 'utf-8'),
-);
+const graphqlTx = JSON.parse(readFileSync(join(__dirname, 'tx-fixtures/graphql-tx.json'), 'utf-8'));
 const jsonRpcTx = JSON.parse(
     readFileSync(join(__dirname, 'tx-fixtures/json-rpc-tx.json'), 'utf-8'),
 );
-const signedTxBase64 = readFileSync(
-    join(__dirname, 'tx-fixtures/signed-tx.txt'),
-    'utf-8',
-).trim();
+const signedTxBase64 = readFileSync(join(__dirname, 'tx-fixtures/signed-tx.txt'), 'utf-8').trim();
 const unsignedTxBase64 = readFileSync(
     join(__dirname, 'tx-fixtures/unsigned-tx.txt'),
     'utf-8',
@@ -311,7 +307,9 @@ describe('getTransactionData - JSON-RPC format', () => {
         expect(normalized.effects.checkpoint.timestamp).toBe(1765741040123);
         expect(normalized.effects.executedEpoch).toBe('392');
         // Verify checkpoint is different from executedEpoch
-        expect(normalized.effects.checkpoint.sequenceNumber).not.toBe(normalized.effects.executedEpoch);
+        expect(normalized.effects.checkpoint.sequenceNumber).not.toBe(
+            normalized.effects.executedEpoch,
+        );
     });
 
     it('should handle JSON-RPC with checkpoint as number', () => {
@@ -506,7 +504,9 @@ describe('getTransactionData - Checkpoint handling', () => {
 
         // Verify executedEpoch is different
         expect(normalized.effects.executedEpoch).toBe(500);
-        expect(normalized.effects.checkpoint.sequenceNumber).not.toBe(normalized.effects.executedEpoch);
+        expect(normalized.effects.checkpoint.sequenceNumber).not.toBe(
+            normalized.effects.executedEpoch,
+        );
     });
 });
 
@@ -600,7 +600,9 @@ describe('getTransactionData - Fixture file parsing', () => {
 
         // Checkpoint should match raw value, timestamp should be converted to number
         expect(normalized.effects.checkpoint.sequenceNumber).toBe(jsonRpcTx.result.checkpoint);
-        expect(normalized.effects.checkpoint.timestamp).toBe(parseInt(jsonRpcTx.result.timestampMs));
+        expect(normalized.effects.checkpoint.timestamp).toBe(
+            parseInt(jsonRpcTx.result.timestampMs),
+        );
     });
 
     it('should extract the same transaction digest from both fixtures', () => {
@@ -644,7 +646,7 @@ describe('getTransactionData - Fixture file parsing', () => {
 
         // JSON-RPC: executedEpoch and checkpoint should be different values
         expect(jsonRpcNormalized.effects.executedEpoch).not.toBe(
-            jsonRpcNormalized.effects.checkpoint.sequenceNumber
+            jsonRpcNormalized.effects.checkpoint.sequenceNumber,
         );
 
         // Verify actual values
@@ -652,7 +654,11 @@ describe('getTransactionData - Fixture file parsing', () => {
         expect(jsonRpcNormalized.effects.checkpoint.sequenceNumber).toBe('152236900');
 
         console.log('GraphQL checkpoint:', graphqlNormalized.effects.checkpoint.sequenceNumber);
-        console.log('JSON-RPC - executedEpoch:', jsonRpcNormalized.effects.executedEpoch,
-            'checkpoint:', jsonRpcNormalized.effects.checkpoint.sequenceNumber);
+        console.log(
+            'JSON-RPC - executedEpoch:',
+            jsonRpcNormalized.effects.executedEpoch,
+            'checkpoint:',
+            jsonRpcNormalized.effects.checkpoint.sequenceNumber,
+        );
     });
 });

@@ -7,8 +7,8 @@
 
     import TransactionView from '../components/TransactionView.svelte';
     import { getClient, getSelectedNetworkConfig } from '../lib/client';
-    import { getTransactionData } from '../lib/transaction-view';
     import { updatePageQueryParams, usePageQueryParams } from '../lib/page-query-params';
+    import { getTransactionData } from '../lib/transaction-view';
 
     // Query parameter integration
     const queryParamDefaults = {
@@ -146,7 +146,10 @@
                     inputType = 'base64';
                     decoded = true;
                 } catch (e1) {
-                    console.log('TransactionDataBuilder failed, trying JSON then SenderSignedData:', e1);
+                    console.log(
+                        'TransactionDataBuilder failed, trying JSON then SenderSignedData:',
+                        e1,
+                    );
 
                     // Second try: Check if it's a JSON string containing signed transaction data
                     try {

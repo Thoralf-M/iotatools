@@ -276,7 +276,10 @@ export function getTransactionData(data: any): any {
         }
 
         // Extract checkpoint data - can be at top level or nested in effects
-        const checkpointSeqNum = typeof data.checkpoint === 'number' ? data.checkpoint : data.effects.checkpoint?.sequenceNumber;
+        const checkpointSeqNum =
+            typeof data.checkpoint === 'number'
+                ? data.checkpoint
+                : data.effects.checkpoint?.sequenceNumber;
         const checkpointTimestamp = data.timestampMs || data.effects.checkpoint?.timestamp;
 
         const normalized = {
@@ -482,7 +485,11 @@ export function getTransactionData(data: any): any {
                     dependencies: result.effects?.dependencies,
                     checkpoint: {
                         sequenceNumber: result.checkpoint?.sequenceNumber || null,
-                        timestamp: result.timestampMs ? (typeof result.timestampMs === 'string' ? parseInt(result.timestampMs) : result.timestampMs) : null,
+                        timestamp: result.timestampMs
+                            ? typeof result.timestampMs === 'string'
+                                ? parseInt(result.timestampMs)
+                                : result.timestampMs
+                            : null,
                     },
                     // Map gas structure
                     gasEffects: {
@@ -529,10 +536,16 @@ export function getTransactionData(data: any): any {
                 sharedObjects: result.effects?.sharedObjects,
                 dependencies: result.effects?.dependencies,
                 checkpoint: {
-                    sequenceNumber: typeof result.checkpoint === 'string' || typeof result.checkpoint === 'number'
-                        ? result.checkpoint
-                        : result.checkpoint?.sequenceNumber || null,
-                    timestamp: result.timestampMs ? (typeof result.timestampMs === 'string' ? parseInt(result.timestampMs) : result.timestampMs) : null,
+                    sequenceNumber:
+                        typeof result.checkpoint === 'string' ||
+                        typeof result.checkpoint === 'number'
+                            ? result.checkpoint
+                            : result.checkpoint?.sequenceNumber || null,
+                    timestamp: result.timestampMs
+                        ? typeof result.timestampMs === 'string'
+                            ? parseInt(result.timestampMs)
+                            : result.timestampMs
+                        : null,
                 },
                 // Map gas structure
                 gasEffects: {
@@ -613,10 +626,15 @@ export function getTransactionData(data: any): any {
                 gasObject: data.effects?.gasObject,
                 eventsDigest: data.effects?.eventsDigest,
                 checkpoint: {
-                    sequenceNumber: typeof data.checkpoint === 'string' || typeof data.checkpoint === 'number'
-                        ? data.checkpoint
-                        : data.effects.checkpoint?.sequenceNumber || null,
-                    timestamp: data.timestampMs ? (typeof data.timestampMs === 'string' ? parseInt(data.timestampMs) : data.timestampMs) : (data.effects.checkpoint?.timestamp || null),
+                    sequenceNumber:
+                        typeof data.checkpoint === 'string' || typeof data.checkpoint === 'number'
+                            ? data.checkpoint
+                            : data.effects.checkpoint?.sequenceNumber || null,
+                    timestamp: data.timestampMs
+                        ? typeof data.timestampMs === 'string'
+                            ? parseInt(data.timestampMs)
+                            : data.timestampMs
+                        : data.effects.checkpoint?.timestamp || null,
                 },
                 gasEffects: data.effects.gasEffects || {
                     gasSummary: data.effects?.gasUsed,
