@@ -90,7 +90,31 @@
             transactionData = tx;
             // If the API response includes rawTransaction, extract it for dry run functionality
             if (tx.rawTransaction) {
-                transactionData.transactionBytes = tx.rawTransaction;
+                // Try to parse as signed transaction first
+                try {
+                    const signedBytes = fromBase64(tx.rawTransaction);
+                    const signedData = bcs.SenderSignedData.parse(signedBytes);
+                    // Extract the transaction part from the signed data for dry run
+                    const v1Data = signedData[0].intentMessage.value.V1;
+                    if (v1Data.kind && v1Data.kind.ProgrammableTransaction) {
+                        const normalizedTxData = {
+                            version: 2 as const,
+                            sender: v1Data.sender,
+                            inputs: v1Data.kind.ProgrammableTransaction.inputs,
+                            commands: v1Data.kind.ProgrammableTransaction.commands,
+                            gasData: v1Data.gasData,
+                            expiration: v1Data.expiration,
+                        };
+                        const txDataBuilder = new TransactionDataBuilder(normalizedTxData);
+                        transactionData.transactionBytes = toBase64(txDataBuilder.build());
+                    } else {
+                        // Fallback to raw transaction if parsing fails
+                        transactionData.transactionBytes = tx.rawTransaction;
+                    }
+                } catch (e) {
+                    // If parsing as signed transaction fails, assume it's already unsigned
+                    transactionData.transactionBytes = tx.rawTransaction;
+                }
             }
             inputType = 'base58';
 
