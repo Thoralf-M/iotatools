@@ -44,18 +44,19 @@
         $activeAddress = newAddress;
     }
 
-    // Collect all addresses to fetch based on current settings
-    function collectAllAddresses(): string[] {
+    // Get all addresses to fetch (main + additional)
+    // Use inline reactive statement to ensure proper dependency tracking
+    $: allAddresses = (() => {
         // Use main address + any manually added addresses
         const addresses = [address, ...additionalAddresses].filter(
             (addr) => addr && addr.trim() !== '',
         );
         // Remove duplicates
         return [...new Set(addresses)];
-    }
+    })();
 
-    // Get all addresses to fetch (main + additional)
-    $: allAddresses = collectAllAddresses();
+    // Debug: Log when addresses change
+    $: console.log('All addresses to fetch:', allAddresses);
 
     function addAddress() {
         additionalAddresses = [...additionalAddresses, ''];
