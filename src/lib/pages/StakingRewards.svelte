@@ -45,8 +45,8 @@
         $activeAddress = newAddress;
     }
 
-    // Get all addresses to fetch (main + additional)
-    $: allAddresses = (() => {
+    // Collect all addresses to fetch based on current settings
+    function collectAllAddresses(): string[] {
         if (useAllWalletAddresses && $iota_accounts.length > 0) {
             // Use all wallet addresses
             return $iota_accounts.map((acc) => acc.address).filter((addr) => addr && addr !== '0x');
@@ -58,7 +58,10 @@
             // Remove duplicates
             return [...new Set(addresses)];
         }
-    })();
+    }
+
+    // Get all addresses to fetch (main + additional)
+    $: allAddresses = collectAllAddresses();
 
     function addAddress() {
         additionalAddresses = [...additionalAddresses, ''];
@@ -188,21 +191,35 @@
         loadingTxs = true;
         loadingStep = 'Fetching stake txs...';
         try {
-            // Fetch transactions for all addresses
+            // Fetch transactions for all addresses in parallel
             const allTxsPromises = allAddresses.map(async (addr, index) => {
-                loadingStep = `Fetching stake txs for address ${index + 1}/${allAddresses.length}...`;
-                const sentTxs = await fetchStakeTransactions(addr);
+                try {
+                    loadingStep = `Fetching stake txs for address ${index + 1}/${allAddresses.length}...`;
+                    const sentTxs = await fetchStakeTransactions(addr);
 
-                let receivedTxs: any[] = [];
-                if (fetchReceivedTxs) {
-                    loadingStep = `Fetching received txs for address ${index + 1}/${allAddresses.length}...`;
-                    receivedTxs = await fetchReceivedStakeTransactions(addr);
+                    let receivedTxs: any[] = [];
+                    if (fetchReceivedTxs) {
+                        loadingStep = `Fetching received txs for address ${index + 1}/${allAddresses.length}...`;
+                        receivedTxs = await fetchReceivedStakeTransactions(addr);
+                    }
+
+                    return { sentTxs, receivedTxs, address: addr, error: null };
+                } catch (err) {
+                    console.error(`Failed to fetch transactions for address ${addr}:`, err);
+                    return { sentTxs: [], receivedTxs: [], address: addr, error: err };
                 }
-
-                return { sentTxs, receivedTxs, address: addr };
             });
 
             const allTxsResults = await Promise.all(allTxsPromises);
+
+            // Check if any addresses had errors
+            const failedAddresses = allTxsResults.filter((r) => r.error);
+            if (failedAddresses.length > 0) {
+                console.warn(
+                    `Failed to fetch transactions for ${failedAddresses.length} address(es)`,
+                );
+            }
+
             console.log('All transactions fetched:', allTxsResults);
 
             // Step 2: Get current epoch and end timestamp

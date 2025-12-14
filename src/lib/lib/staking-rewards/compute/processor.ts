@@ -722,6 +722,9 @@ export async function processStakeTransactionsWithExchangeRates(
     const validatorInfo = getValidatorInfo(systemState);
 
     // Process transactions to build stake objects for each address and merge them
+    // Note: Stake object keys are unique object IDs on the blockchain, so if a stake object
+    // appears in transactions for multiple addresses (e.g., was transferred), the later
+    // processing will update the wasOwnedByTargetAddress flag to true, which is correct behavior.
     const allStakeObjects = new Map<string, StakeObject>();
 
     for (const targetAddress of addressArray) {
@@ -729,7 +732,16 @@ export async function processStakeTransactionsWithExchangeRates(
 
         // Merge stake objects from this address into the combined map
         stakeObjects.forEach((stakeObject, key) => {
-            allStakeObjects.set(key, stakeObject);
+            // If the object already exists, it means it was transferred between addresses we're tracking
+            // We keep it and mark that it was owned by the target address
+            if (allStakeObjects.has(key)) {
+                const existing = allStakeObjects.get(key)!;
+                if (stakeObject.wasOwnedByTargetAddress) {
+                    existing.wasOwnedByTargetAddress = true;
+                }
+            } else {
+                allStakeObjects.set(key, stakeObject);
+            }
         });
     }
 
