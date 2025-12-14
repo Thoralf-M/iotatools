@@ -52,7 +52,9 @@
             return $iota_accounts.map((acc) => acc.address).filter((addr) => addr && addr !== '0x');
         } else {
             // Use main address + any manually added addresses
-            const addresses = [address, ...additionalAddresses].filter((addr) => addr && addr.trim() !== '');
+            const addresses = [address, ...additionalAddresses].filter(
+                (addr) => addr && addr.trim() !== '',
+            );
             // Remove duplicates
             return [...new Set(addresses)];
         }
@@ -190,16 +192,16 @@
             const allTxsPromises = allAddresses.map(async (addr, index) => {
                 loadingStep = `Fetching stake txs for address ${index + 1}/${allAddresses.length}...`;
                 const sentTxs = await fetchStakeTransactions(addr);
-                
+
                 let receivedTxs: any[] = [];
                 if (fetchReceivedTxs) {
                     loadingStep = `Fetching received txs for address ${index + 1}/${allAddresses.length}...`;
                     receivedTxs = await fetchReceivedStakeTransactions(addr);
                 }
-                
+
                 return { sentTxs, receivedTxs, address: addr };
             });
-            
+
             const allTxsResults = await Promise.all(allTxsPromises);
             console.log('All transactions fetched:', allTxsResults);
 
@@ -208,10 +210,13 @@
             await getCurrentEpochAndEndTimestamp();
 
             // Step 3: Combine and deduplicate transactions
-            const allTxs = allTxsResults.flatMap(result => 
-                [result.sentTxs, ...(fetchReceivedTxs ? result.receivedTxs : [])]
-            ).flat();
-            
+            const allTxs = allTxsResults
+                .flatMap((result) => [
+                    result.sentTxs,
+                    ...(fetchReceivedTxs ? result.receivedTxs : []),
+                ])
+                .flat();
+
             let uniqueTxs = allTxs.reduce((acc: any, tx: any) => {
                 if (!acc.some((t: any) => t.digest === tx.digest)) {
                     acc.push(tx);
@@ -258,7 +263,11 @@
         <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
             <label class="toggle-row">
                 <div class="toggle-switch">
-                    <input type="checkbox" bind:checked={useAllWalletAddresses} disabled={loadingTxs} />
+                    <input
+                        type="checkbox"
+                        bind:checked={useAllWalletAddresses}
+                        disabled={loadingTxs}
+                    />
                     <span class="slider"></span>
                 </div>
                 <div style="display: flex; flex-direction: column; line-height: 1.2;">
@@ -311,10 +320,16 @@
                         <input
                             type="text"
                             value={addr}
-                            oninput={(e) => updateAdditionalAddress(index, (e.target as HTMLInputElement)?.value || '')}
+                            oninput={(e) =>
+                                updateAdditionalAddress(
+                                    index,
+                                    (e.target as HTMLInputElement)?.value || '',
+                                )}
                             placeholder="Enter additional address (0x...)"
                         />
-                        <button onclick={() => removeAddress(index)} class="remove-btn">Remove</button>
+                        <button onclick={() => removeAddress(index)} class="remove-btn"
+                            >Remove</button
+                        >
                     </div>
                 {/each}
                 <button onclick={addAddress} class="add-btn">Add Address</button>
@@ -324,7 +339,10 @@
 
     {#if allAddresses.length > 1}
         <div class="info-message">
-            Fetching data for {allAddresses.length} addresses: {allAddresses.slice(0, 3).map(a => a.slice(0, 8) + '...').join(', ')}
+            Fetching data for {allAddresses.length} addresses: {allAddresses
+                .slice(0, 3)
+                .map((a) => a.slice(0, 8) + '...')
+                .join(', ')}
             {#if allAddresses.length > 3}
                 and {allAddresses.length - 3} more
             {/if}

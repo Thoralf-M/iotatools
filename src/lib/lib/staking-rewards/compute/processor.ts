@@ -723,10 +723,10 @@ export async function processStakeTransactionsWithExchangeRates(
 
     // Process transactions to build stake objects for each address and merge them
     const allStakeObjects = new Map<string, StakeObject>();
-    
+
     for (const targetAddress of addressArray) {
         const stakeObjects = await processTransactions(transactions, currentEpoch, targetAddress);
-        
+
         // Merge stake objects from this address into the combined map
         stakeObjects.forEach((stakeObject, key) => {
             allStakeObjects.set(key, stakeObject);
