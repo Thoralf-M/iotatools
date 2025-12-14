@@ -25,7 +25,6 @@
 
     let address = '';
     let additionalAddresses: string[] = [];
-    let useAllWalletAddresses = false;
 
     let initialActiveAddress = '';
 
@@ -47,17 +46,12 @@
 
     // Collect all addresses to fetch based on current settings
     function collectAllAddresses(): string[] {
-        if (useAllWalletAddresses && $iota_accounts.length > 0) {
-            // Use all wallet addresses
-            return $iota_accounts.map((acc) => acc.address).filter((addr) => addr && addr !== '0x');
-        } else {
-            // Use main address + any manually added addresses
-            const addresses = [address, ...additionalAddresses].filter(
-                (addr) => addr && addr.trim() !== '',
-            );
-            // Remove duplicates
-            return [...new Set(addresses)];
-        }
+        // Use main address + any manually added addresses
+        const addresses = [address, ...additionalAddresses].filter(
+            (addr) => addr && addr.trim() !== '',
+        );
+        // Remove duplicates
+        return [...new Set(addresses)];
     }
 
     // Get all addresses to fetch (main + additional)
@@ -74,6 +68,20 @@
     function updateAdditionalAddress(index: number, value: string) {
         additionalAddresses[index] = value;
         additionalAddresses = [...additionalAddresses];
+    }
+
+    function addAllWalletAddresses() {
+        // Get all wallet addresses that are not already in the list
+        const walletAddresses = $iota_accounts
+            .map((acc) => acc.address)
+            .filter((addr) => addr && addr !== '0x');
+
+        const existingAddresses = new Set([address, ...additionalAddresses]);
+        const newAddresses = walletAddresses.filter((addr) => !existingAddresses.has(addr));
+
+        if (newAddresses.length > 0) {
+            additionalAddresses = [...additionalAddresses, ...newAddresses];
+        }
     }
 
     let epoch: number | '' = '';
@@ -280,25 +288,6 @@
         <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
             <label class="toggle-row">
                 <div class="toggle-switch">
-                    <input
-                        type="checkbox"
-                        bind:checked={useAllWalletAddresses}
-                        disabled={loadingTxs}
-                    />
-                    <span class="slider"></span>
-                </div>
-                <div style="display: flex; flex-direction: column; line-height: 1.2;">
-                    <div style="display: flex; align-items: center; gap: 0.25rem;">
-                        <span class="toggle-label"> Use all wallet addresses </span>
-                    </div>
-                    <span style="font-size: 0.75rem; opacity: 0.7;"
-                        >Fetch data for all connected wallet addresses</span
-                    >
-                </div>
-            </label>
-
-            <label class="toggle-row">
-                <div class="toggle-switch">
                     <input type="checkbox" bind:checked={fetchReceivedTxs} disabled={loadingTxs} />
                     <span class="slider"></span>
                 </div>
@@ -328,7 +317,7 @@
         <!-- <button type="button" onclick={loadExampleData}> load example data </button> -->
     </div>
 
-    {#if !useAllWalletAddresses && !loadingTxs}
+    {#if !loadingTxs}
         <details class="address-management">
             <summary>Manage additional addresses</summary>
             <div class="address-list">
@@ -349,7 +338,14 @@
                         >
                     </div>
                 {/each}
-                <button onclick={addAddress} class="add-btn">Add Address</button>
+                <div class="address-buttons">
+                    <button onclick={addAddress} class="add-btn">Add Address</button>
+                    {#if $iota_accounts.length > 0}
+                        <button onclick={addAllWalletAddresses} class="add-btn">
+                            Add All Wallet Addresses
+                        </button>
+                    {/if}
+                </div>
             </div>
         </details>
     {/if}
@@ -652,6 +648,12 @@
         background: #dc2626;
     }
 
+    .address-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
     .add-btn {
         background: var(--primary-color);
         border: 1px solid var(--border-color);
@@ -659,7 +661,6 @@
         padding: 0.4rem 0.8rem;
         border-radius: 4px;
         cursor: pointer;
-        align-self: flex-start;
     }
 
     .add-btn:hover {
