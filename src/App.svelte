@@ -10,6 +10,7 @@
     // Lazy-load page components using dynamic imports
     const pageImports = {
         IotaSystemState: () => import('./lib/pages/IotaSystemState.svelte'),
+        Transaction: () => import('./lib/pages/Transaction.svelte'),
         PTBs: () => import('./lib/pages/PTBs.svelte'),
         DynamicFields: () => import('./lib/pages/DynamicFields.svelte'),
         StakingRewards: () => import('./lib/pages/StakingRewards.svelte'),
@@ -36,6 +37,7 @@
     const routes = {
         '/': wrap({ asyncComponent: pageImports['IotaSystemState'] }),
         '/iota-system-state': wrap({ asyncComponent: pageImports['IotaSystemState'] }),
+        '/transaction': wrap({ asyncComponent: pageImports['Transaction'] }),
         '/ptbs': wrap({ asyncComponent: pageImports['PTBs'] }),
         '/dynamic-fields': wrap({ asyncComponent: pageImports['DynamicFields'] }),
         '/staking-rewards': wrap({ asyncComponent: pageImports['StakingRewards'] }),
@@ -62,6 +64,7 @@
     // Tab items with route paths
     const allItems = [
         { label: 'IOTA System State', route: '/iota-system-state', group: 'Info' },
+        { label: 'Transaction', route: '/transaction', group: 'Info' },
         { label: 'PTBs', route: '/ptbs', group: 'Info' },
         { label: 'Dynamic Fields', route: '/dynamic-fields', group: 'Info' },
         { label: 'Staking Rewards', route: '/staking-rewards', group: 'Info' },
@@ -88,6 +91,7 @@
         : allItems
               .filter((e) =>
                   [
+                      'Transaction',
                       'Staking Rewards',
                       'Multi Account View',
                       'Sign',
@@ -119,6 +123,7 @@
             {items}
             tabComponents={{
                 '/iota-system-state': pageImports.IotaSystemState,
+                '/transaction': pageImports.Transaction,
                 '/ptbs': pageImports.PTBs,
                 '/dynamic-fields': pageImports.DynamicFields,
                 '/staking-rewards': pageImports.StakingRewards,
