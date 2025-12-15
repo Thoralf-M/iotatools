@@ -198,8 +198,8 @@ function createOrUpdateStakeObject(
         const stakeActivationEpoch = output.stakeActivationEpoch
             ? parseInt(output.stakeActivationEpoch)
             : input?.stakeActivationEpoch
-                ? parseInt(input.stakeActivationEpoch)
-                : epochId;
+              ? parseInt(input.stakeActivationEpoch)
+              : epochId;
         stakeObjects.set(address, {
             objectId: address,
             wasOwnedByTargetAddress: wasOwnedByTarget,

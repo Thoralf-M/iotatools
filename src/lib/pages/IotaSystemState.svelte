@@ -51,9 +51,9 @@
                 });
                 for (const candidateValidator of candidateValidatorsPage.data) {
                     const validatorWrapper = await client.getDynamicFieldObject({
-                        parentId: validatorCandidatesId,
+                        objectId: validatorCandidatesId,
                         name: candidateValidator.name,
-                    });
+                    } as any);
                     const validatorV1 = await client.getDynamicFields({
                         parentId:
                             // @ts-ignore

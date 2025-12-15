@@ -105,9 +105,8 @@ async function main() {
         if (options.exchangeRates) {
             tasks.push(
                 updateExchangeRatesCache().then(async () => {
-                    const module = await import(
-                        '../src/lib/lib/staking-rewards/graphql-requests.js'
-                    );
+                    const module =
+                        await import('../src/lib/lib/staking-rewards/graphql-requests.js');
                     const cacheArray = Array.from(module.exchangeRateCache.values());
                     fs.writeFileSync(EXCHANGE_RATE_CACHE_FILE, JSON.stringify(cacheArray, null, 4));
                     console.log(

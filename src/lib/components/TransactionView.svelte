@@ -2,7 +2,8 @@
     // @ts-ignore - Module resolution issue with svelte-json-tree
     import JSONTree from '@sveltejs/svelte-json-tree';
 
-    import { getClient } from '../lib/client';
+    import { getClient, getSelectedNetworkConfig } from '../lib/client';
+    import { getTransactionLink } from '../lib/explorer-links';
     import {
         formatJsonWithCompactArrays,
         getTransactionData,
@@ -28,16 +29,29 @@
         value && typeof value === 'object' && 'effects' in value && value.effects,
     );
 
+    let transactionData = $derived(getTransactionData(value));
+
     $effect(() => {
         if (value) {
-            // If the data is transaction data, use formatted view, otherwise use json view
-            if (isTransactionData(value)) {
-                viewMode = 'formatted';
-                prevViewMode = 'formatted';
-            } else {
-                viewMode = 'json';
-                prevViewMode = 'json';
+            const isTxData = isTransactionData(value);
+            const hasBytes = hasTxBytes;
+
+            // Define valid modes
+            const validModes = isTxData
+                ? ['formatted', 'commands', 'json', 'tree']
+                : ['json', 'tree'];
+            if (hasBytes) validModes.push('txbytes');
+
+            // If current viewMode is not valid for this data, set default
+            if (!validModes.includes(viewMode)) {
+                viewMode = isTxData ? 'formatted' : 'json';
             }
+
+            // Update prevViewMode if it's not valid
+            if (!validModes.includes(prevViewMode)) {
+                prevViewMode = viewMode;
+            }
+
             showTxBytes = false; // reset when value changes
             dryRunError = ''; // clear any previous errors
         }
@@ -92,6 +106,20 @@
 
 {#if !hidden}
     <div class="transaction-view ultra-compact">
+        <div class="header-line">
+            <span class="tx-header">Transaction</span>
+            <a
+                href={transactionData?.digest
+                    ? getTransactionLink(getSelectedNetworkConfig(), transactionData.digest)
+                    : '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="tx-id-short"
+                title={transactionData?.digest}
+            >
+                {transactionData?.digest}
+            </a>
+        </div>
         <div class="view-controls">
             {#if isTransactionData(value)}
                 <button
@@ -102,6 +130,17 @@
                     }}
                 >
                     Formatted View
+                </button>
+            {/if}
+            {#if isTransactionData(value)}
+                <button
+                    class:active={viewMode === 'commands'}
+                    onclick={() => {
+                        showTxBytes = false;
+                        viewMode = 'commands';
+                    }}
+                >
+                    PTB Commands
                 </button>
             {/if}
             <button
@@ -122,17 +161,7 @@
             >
                 JSON Tree
             </button>
-            {#if isTransactionData(value)}
-                <button
-                    class:active={viewMode === 'commands'}
-                    onclick={() => {
-                        showTxBytes = false;
-                        viewMode = 'commands';
-                    }}
-                >
-                    PTB Commands
-                </button>
-            {/if}
+
             {#if hasTxBytes}
                 <button
                     class:active={showTxBytes}
@@ -337,5 +366,39 @@
         overflow-x: hidden;
         overflow-y: auto;
         max-height: 60vh;
+    }
+
+    .header-line {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.375rem;
+        background: var(--background-light);
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .tx-header {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1rem;
+    }
+
+    .tx-id-short {
+        font-family: 'JetBrains Mono', monospace;
+        background: rgba(0, 0, 0, 0.3);
+        padding: 3px 6px;
+        border-radius: 4px;
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .tx-id-short:hover {
+        background: rgba(59, 130, 246, 0.3);
+        color: #93c5fd;
+        text-decoration: underline;
     }
 </style>

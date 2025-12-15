@@ -342,8 +342,8 @@
                 if (type === UR_TYPES.IOTA_SIGN_REQUEST) {
                     const signRequest = IotaSignRequest.fromCBOR(result.cbor);
                     decodedData.specific = {
-                        requestId: uuidStringify(signRequest.getRequestId()),
-                        intentMessage: Buffer.from(signRequest.getIntentMessage()).toString('hex'),
+                        requestId: uuidStringify(signRequest.getRequestId()!),
+                        intentMessage: Buffer.from(signRequest.getIntentMessage()!).toString('hex'),
                         derivationPaths: signRequest
                             .getDerivationPaths()
                             .map((p: any) => p.getPath()),
@@ -367,9 +367,9 @@
                     console.log('signaturebase64', signatureBase64);
                     decodedData.specific = {
                         signatureBase64,
-                        requestId: uuidStringify(signature.getRequestId()),
-                        signature: Buffer.from(signature.getSignature()).toString('hex'),
-                        publicKey: Buffer.from(signature.getPublicKey()).toString('hex'),
+                        requestId: uuidStringify(signature.getRequestId()!),
+                        signature: Buffer.from(signature.getSignature()!).toString('hex'),
+                        publicKey: Buffer.from(signature.getPublicKey()!).toString('hex'),
                     };
                 }
 

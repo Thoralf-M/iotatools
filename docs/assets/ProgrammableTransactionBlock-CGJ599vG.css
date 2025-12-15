@@ -1,0 +1,11 @@
+
+    button.svelte-i5h08g {
+        margin: 0.2rem;
+    }
+    .codemirror-wrapper.svelte-i5h08g {
+        text-align: left;
+    }
+    div.active.svelte-i5h08g > button:where(.svelte-i5h08g) {
+        background-color: #525252;
+        border-color: #c3c3c3;
+    }

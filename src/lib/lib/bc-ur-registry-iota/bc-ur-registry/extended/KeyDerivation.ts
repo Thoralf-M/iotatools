@@ -30,7 +30,7 @@ export class KeyDerivation extends RegistryItem {
 
     public static fromDataItem = (dataItem: DataItem): KeyDerivation => {
         const map = dataItem.getData();
-        const schemas = map[Keys.schemas].map((keypath) =>
+        const schemas = map[Keys.schemas].map((keypath: any) =>
             KeyDerivationSchema.fromDataItem(keypath),
         );
         return new KeyDerivation(schemas);

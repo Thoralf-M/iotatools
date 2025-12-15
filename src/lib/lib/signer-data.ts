@@ -36,7 +36,7 @@ export abstract class WalletSigner {
     }): Promise<{ signature: string }>;
 }
 
-export let iota_wallets: Writable<WalletSigner[]> = writable([]);
+export let iota_wallets: Writable<any[]> = writable([]);
 export let iota_accounts: Writable<WalletAccount[]> = writable([]);
 export let activeAddress: Writable<string> = writable('0x');
 

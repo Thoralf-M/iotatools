@@ -492,7 +492,40 @@
             if (input.type === 'pure' && input.value) {
                 // If input has valueType, the value is already decoded - just display it
                 if (input.valueType) {
-                    segments.push({ type: 'text', value: `Pure(${input.value})` });
+                    if (input.valueType === 'vector<u8>') {
+                        // Try to decode as ASCII
+                        try {
+                            const uint8Array = new Uint8Array(input.value);
+                            const str = new TextDecoder().decode(uint8Array);
+                            // Check if it's printable ASCII (including spaces, newlines, tabs)
+                            if (/^[\x20-\x7E\n\r\t]*$/.test(str)) {
+                                const displayStr = full
+                                    ? `"${str}"`
+                                    : `"${str.slice(0, 10)}${str.length > 10 ? '...' : ''}"`;
+                                segments.push({ type: 'text', value: `Pure(${displayStr})` });
+                            } else {
+                                // Display as byte array
+                                const byteStr = JSON.stringify(input.value);
+                                const val = full
+                                    ? byteStr
+                                    : `[${input.value.slice(0, 5).join(', ')}${input.value.length > 5 ? ', ...' : ''}]`;
+                                segments.push({ type: 'text', value: `Pure(${val})` });
+                            }
+                        } catch (e) {
+                            // Fallback to JSON stringify
+                            const valueStr = JSON.stringify(input.value);
+                            const val = full ? valueStr : `${valueStr.slice(0, 10)}...`;
+                            segments.push({ type: 'text', value: `Pure(${val})` });
+                        }
+                    } else {
+                        // For other types, just display as is
+                        const valueStr =
+                            typeof input.value === 'string'
+                                ? input.value
+                                : JSON.stringify(input.value);
+                        const val = full ? valueStr : `${valueStr.slice(0, 10)}...`;
+                        segments.push({ type: 'text', value: `Pure(${val})` });
+                    }
                 } else {
                     // Use paramType for decoding base64 bytes
                     const decodedValue = paramType ? decodePureValue(input.value, paramType) : null;
@@ -970,8 +1003,9 @@
                 segments.push({ type: 'text', value: '])' });
             }
         } else if (kind === 'MakeMoveVec') {
-            const type = data.type || 'Unknown';
-            const elements = data.elements || [];
+            // Handle both object format {type: ..., elements: [...]} and array format [type, [...]]
+            const type = Array.isArray(data) ? data[0] : data.type || 'Unknown';
+            const elements = Array.isArray(data) ? data[1] : data.elements || [];
 
             segments.push({ type: 'text', value: 'MakeMoveVec<' });
             segments.push(...formatType(type, full));
@@ -992,6 +1026,17 @@
                 });
                 segments.push({ type: 'text', value: '])' });
             }
+
+            // Add result information for MakeMoveVec
+            segments.push({ type: 'text', value: ' -> ' });
+            segments.push({
+                type: 'result-def',
+                value: `Result(${index})`,
+                id: `result:${index}`,
+            });
+            segments.push({ type: 'text', value: ': vector<' });
+            segments.push(...formatType(type, full, true));
+            segments.push({ type: 'text', value: '>' });
         } else if (kind === 'Upgrade') {
             segments.push({ type: 'text', value: 'Upgrade(...)' });
         } else {
@@ -1107,7 +1152,9 @@
                                     class:highlighted={isHighlighted(segment.id, hoveredId)}
                                     title={packageId}
                                     onmouseover={() => (hoveredId = segment.id ?? null)}
-                                    onmouseout={() => (hoveredId = null)}>{segment.value}</a
+                                    onmouseout={() => (hoveredId = null)}
+                                    onfocus={() => (hoveredId = segment.id ?? null)}
+                                    onblur={() => (hoveredId = null)}>{segment.value}</a
                                 >
                             {:else if segment.type === 'object-id'}
                                 <!-- svelte-ignore a11y_mouse_events_have_key_events -->
@@ -1120,7 +1167,9 @@
                                     class:highlighted={isHighlighted(segment.id, hoveredId)}
                                     title={`${segment.objectType || 'Object'}: ${objectId}`}
                                     onmouseover={() => (hoveredId = segment.id ?? null)}
-                                    onmouseout={() => (hoveredId = null)}>{segment.value}</a
+                                    onmouseout={() => (hoveredId = null)}
+                                    onfocus={() => (hoveredId = segment.id ?? null)}
+                                    onblur={() => (hoveredId = null)}>{segment.value}</a
                                 >
                             {:else}
                                 <!-- svelte-ignore a11y_mouse_events_have_key_events -->
@@ -1154,7 +1203,9 @@
                                         class:highlighted={isHighlighted(segment.id, hoveredId)}
                                         title={packageId}
                                         onmouseover={() => (hoveredId = segment.id ?? null)}
-                                        onmouseout={() => (hoveredId = null)}>{segment.value}</a
+                                        onmouseout={() => (hoveredId = null)}
+                                        onfocus={() => (hoveredId = segment.id ?? null)}
+                                        onblur={() => (hoveredId = null)}>{segment.value}</a
                                     >
                                 {:else if segment.type === 'object-id'}
                                     <!-- svelte-ignore a11y_mouse_events_have_key_events -->
@@ -1167,7 +1218,9 @@
                                         class:highlighted={isHighlighted(segment.id, hoveredId)}
                                         title={`${segment.objectType || 'Object'}: ${objectId}`}
                                         onmouseover={() => (hoveredId = segment.id ?? null)}
-                                        onmouseout={() => (hoveredId = null)}>{segment.value}</a
+                                        onmouseout={() => (hoveredId = null)}
+                                        onfocus={() => (hoveredId = segment.id ?? null)}
+                                        onblur={() => (hoveredId = null)}>{segment.value}</a
                                     >
                                 {:else}
                                     <!-- svelte-ignore a11y_mouse_events_have_key_events -->

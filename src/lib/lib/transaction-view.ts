@@ -243,6 +243,27 @@ export function isTransactionData(data: any): boolean {
  * that the TransactionEffects component can work with
  */
 export function getTransactionData(data: any): any {
+    // Handle JSON RPC transaction data format (with transaction.data.transaction)
+    if (
+        data &&
+        data.digest &&
+        data.transaction?.data?.transaction?.kind === 'ProgrammableTransaction'
+    ) {
+        const tx = data.transaction.data.transaction;
+        const normalized = {
+            sender: data.transaction.data.sender,
+            inputs: tx.inputs,
+            commands: tx.transactions, // transactions are the commands in this format
+            gasData: data.transaction.data.gasData,
+            digest: data.digest,
+            // Include signatures if available
+            signatures: data.transaction.txSignatures,
+            // Include other original data safely, but exclude transaction to avoid recursion
+            ...Object.fromEntries(Object.entries(data).filter(([k]) => k !== 'transaction')),
+        };
+        return getTransactionData(normalized);
+    }
+
     // Handle GraphQL response format (from graphql-fetcher.ts) first
     // GraphQL has checkpoint and timestampMs at top level as numbers
     if (
@@ -353,17 +374,25 @@ export function getTransactionData(data: any): any {
     if (data && data.sender && data.inputs && data.commands && data.gasData) {
         // This is a raw transaction data format - normalize it
         let txDigest = null;
-        try {
-            let txData = new TransactionDataBuilder(data);
-            let txBytes = txData.build();
-            txDigest = TransactionDataBuilder.getDigestFromBytes(txBytes);
-        } catch (e) {
+        // Only try to build digest if commands are in BCS format (have $kind)
+        if (
+            data.commands &&
+            data.commands.length > 0 &&
+            data.commands[0] &&
+            '$kind' in data.commands[0]
+        ) {
             try {
                 let txData = new TransactionDataBuilder(data);
                 let txBytes = txData.build();
                 txDigest = TransactionDataBuilder.getDigestFromBytes(txBytes);
             } catch (e) {
-                console.log('error SenderSignedData', e);
+                try {
+                    let txData = new TransactionDataBuilder(data);
+                    let txBytes = txData.build();
+                    txDigest = TransactionDataBuilder.getDigestFromBytes(txBytes);
+                } catch (e) {
+                    console.log('error SenderSignedData', e);
+                }
             }
         }
 
@@ -398,22 +427,27 @@ export function getTransactionData(data: any): any {
                     inputs: data.inputs,
                     transactions: data.commands, // commands are called transactions in this path
                 },
+                gasData: data.gasData,
             },
-            // Also map to decodedBCS format for consistency
-            decodedBCS: {
-                intentMessage: {
-                    value: {
-                        V1: {
-                            kind: {
-                                ProgrammableTransaction: {
-                                    inputs: data.inputs,
-                                    commands: data.commands,
-                                },
-                            },
-                        },
-                    },
-                },
-            },
+            // Also map to decodedBCS format for consistency, if commands have $kind
+            ...(data.commands && data.commands[0] && data.commands[0].$kind
+                ? {
+                      decodedBCS: {
+                          intentMessage: {
+                              value: {
+                                  V1: {
+                                      kind: {
+                                          ProgrammableTransaction: {
+                                              inputs: data.inputs,
+                                              commands: data.commands,
+                                          },
+                                      },
+                                  },
+                              },
+                          },
+                      },
+                  }
+                : {}),
             // Include transaction data details
             transactionData: {
                 version: data.version,

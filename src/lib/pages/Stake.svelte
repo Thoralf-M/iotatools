@@ -347,9 +347,9 @@
                 for (const candidateValidator of candidateValidatorsPage.data) {
                     try {
                         const validatorWrapper = await client.getDynamicFieldObject({
-                            parentId: validatorCandidatesId,
+                            objectId: validatorCandidatesId,
                             name: candidateValidator.name,
-                        });
+                        } as any);
 
                         const validatorV1 = await client.getDynamicFields({
                             parentId:
@@ -452,9 +452,9 @@
                 for (const candidateValidator of candidateValidatorsPage.data) {
                     try {
                         const validatorWrapper = await client.getDynamicFieldObject({
-                            parentId: validatorCandidatesId,
+                            objectId: validatorCandidatesId,
                             name: candidateValidator.name,
-                        });
+                        } as any);
 
                         const validatorV1 = await client.getDynamicFields({
                             parentId:

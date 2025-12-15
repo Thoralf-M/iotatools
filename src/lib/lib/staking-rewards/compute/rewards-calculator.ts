@@ -50,7 +50,9 @@ export async function computeRewardsForStakeObject(
         }
     }
 
-    const accumulatedAtFirst = safeBigInt(stakeObject.accumulatedRewards[stakeObject.firstEpoch] || '0');
+    const accumulatedAtFirst = safeBigInt(
+        stakeObject.accumulatedRewards[stakeObject.firstEpoch] || '0',
+    );
 
     // For each epoch where we have exchange rates, compute rewards
     let previousPrincipal = 0n;
