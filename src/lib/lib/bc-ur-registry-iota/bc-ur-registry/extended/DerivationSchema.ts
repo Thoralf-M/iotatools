@@ -28,7 +28,7 @@ export class KeyDerivationSchema extends RegistryItem {
         private keypath: CryptoKeypath,
         private curve: Curve = Curve.secp256k1,
         private algo: DerivationAlgorithm = DerivationAlgorithm.slip10,
-        private chainType?: String,
+        private chainType?: string,
     ) {
         super();
     }
@@ -36,7 +36,7 @@ export class KeyDerivationSchema extends RegistryItem {
     public getKeypath = (): CryptoKeypath => this.keypath;
     public getCurve = (): Curve => this.curve;
     public getAlgo = (): DerivationAlgorithm => this.algo;
-    public getChainType = (): String => this.chainType;
+    public getChainType = (): string => this.chainType || '';
 
     public toDataItem = (): DataItem => {
         const map: DataItemMap = {};

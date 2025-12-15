@@ -18,7 +18,7 @@ export function toShortTypeString<T extends string | null | undefined>(type?: T)
 /**
  * Convert MoveTypeLayout to BCS schema
  */
-export function layoutToBcs(layout: MoveTypeLayout): BcsType<any> {
+export function layoutToBcs(layout: MoveTypeLayout): any {
     switch (layout) {
         case 'address':
             return bcs.Address;
@@ -72,14 +72,14 @@ export function layoutToBcs(layout: MoveTypeLayout): BcsType<any> {
             fields[name] = layoutToBcs(field);
         }
 
-        let struct = bcs.struct(layout.struct.type, fields);
+        let struct: any = bcs.struct(layout.struct.type, fields as any);
 
         const structName = toShortTypeString(layout.struct.type);
 
         if (structName === '0x2::object::ID') {
             struct = struct.transform({
                 input: (id: any) => (typeof id === 'string' ? { bytes: id } : id) as never,
-                output: (id) => id.id,
+                output: (id: any) => id.id,
             });
         }
 
@@ -87,7 +87,7 @@ export function layoutToBcs(layout: MoveTypeLayout): BcsType<any> {
         if (structName === '0x1::string::String') {
             struct = struct.transform({
                 input: (str: any) => (typeof str === 'string' ? { bytes: str } : str) as never,
-                output: (obj) => obj.bytes,
+                output: (obj: any) => obj.bytes,
             });
         }
 

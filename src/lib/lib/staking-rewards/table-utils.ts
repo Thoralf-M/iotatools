@@ -160,9 +160,9 @@ export function computeEpochData(
             const prevAccum =
                 i > 0
                     ? BigInt(
-                        epochData[epochRange[i - 1]].stakeAccumulated[stakeObject.objectId] ||
-                        '0',
-                    )
+                          epochData[epochRange[i - 1]].stakeAccumulated[stakeObject.objectId] ||
+                              '0',
+                      )
                     : 0n;
             const currAccum =
                 (stakeRewards && stakeRewards !== '0' ? BigInt(stakeRewards) : 0n) + prevAccum;

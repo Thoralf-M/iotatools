@@ -60,7 +60,7 @@ export class QRHardwareCall extends RegistryItem {
     public static fromDataItem = (dataItem: DataItem): QRHardwareCall => {
         const map = dataItem.getData();
         const type = map[Keys.type] || QRHardwareCallType.KeyDerivation;
-        let params;
+        let params: KeyDerivation | undefined;
 
         switch (type) {
             case QRHardwareCallType.KeyDerivation:
@@ -68,7 +68,7 @@ export class QRHardwareCall extends RegistryItem {
         }
         const origin = map[Keys.origin];
         const version = map[Keys.version];
-        return new QRHardwareCall(type, params, origin, version);
+        return new QRHardwareCall(type, params!, origin, version);
     };
 
     public static fromCBOR = (_cborPayload: Buffer): QRHardwareCall => {

@@ -458,19 +458,6 @@
         padding: 0.75rem;
     }
 
-    .summary-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-    }
-
-    .summary-header h3 {
-        margin: 0;
-        font-size: 1rem;
-        color: var(--text-muted);
-    }
-
     .error-message {
         color: #ef4444;
         padding: 0 0.5rem;

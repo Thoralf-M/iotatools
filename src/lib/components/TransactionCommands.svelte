@@ -1152,7 +1152,9 @@
                                     class:highlighted={isHighlighted(segment.id, hoveredId)}
                                     title={packageId}
                                     onmouseover={() => (hoveredId = segment.id ?? null)}
-                                    onmouseout={() => (hoveredId = null)}>{segment.value}</a
+                                    onmouseout={() => (hoveredId = null)}
+                                    onfocus={() => (hoveredId = segment.id ?? null)}
+                                    onblur={() => (hoveredId = null)}>{segment.value}</a
                                 >
                             {:else if segment.type === 'object-id'}
                                 <!-- svelte-ignore a11y_mouse_events_have_key_events -->
@@ -1165,7 +1167,9 @@
                                     class:highlighted={isHighlighted(segment.id, hoveredId)}
                                     title={`${segment.objectType || 'Object'}: ${objectId}`}
                                     onmouseover={() => (hoveredId = segment.id ?? null)}
-                                    onmouseout={() => (hoveredId = null)}>{segment.value}</a
+                                    onmouseout={() => (hoveredId = null)}
+                                    onfocus={() => (hoveredId = segment.id ?? null)}
+                                    onblur={() => (hoveredId = null)}>{segment.value}</a
                                 >
                             {:else}
                                 <!-- svelte-ignore a11y_mouse_events_have_key_events -->
@@ -1199,7 +1203,9 @@
                                         class:highlighted={isHighlighted(segment.id, hoveredId)}
                                         title={packageId}
                                         onmouseover={() => (hoveredId = segment.id ?? null)}
-                                        onmouseout={() => (hoveredId = null)}>{segment.value}</a
+                                        onmouseout={() => (hoveredId = null)}
+                                        onfocus={() => (hoveredId = segment.id ?? null)}
+                                        onblur={() => (hoveredId = null)}>{segment.value}</a
                                     >
                                 {:else if segment.type === 'object-id'}
                                     <!-- svelte-ignore a11y_mouse_events_have_key_events -->
@@ -1212,7 +1218,9 @@
                                         class:highlighted={isHighlighted(segment.id, hoveredId)}
                                         title={`${segment.objectType || 'Object'}: ${objectId}`}
                                         onmouseover={() => (hoveredId = segment.id ?? null)}
-                                        onmouseout={() => (hoveredId = null)}>{segment.value}</a
+                                        onmouseout={() => (hoveredId = null)}
+                                        onfocus={() => (hoveredId = segment.id ?? null)}
+                                        onblur={() => (hoveredId = null)}>{segment.value}</a
                                     >
                                 {:else}
                                     <!-- svelte-ignore a11y_mouse_events_have_key_events -->

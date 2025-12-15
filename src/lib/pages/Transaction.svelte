@@ -278,8 +278,8 @@
                 },
             });
 
-            const nodes = result.data?.transactionBlocks?.nodes;
-            const pageInfo = result.data?.transactionBlocks?.pageInfo;
+            const nodes = (result.data as any)?.transactionBlocks?.nodes;
+            const pageInfo = (result.data as any)?.transactionBlocks?.pageInfo;
 
             if (!nodes || nodes.length === 0) {
                 error = 'No PTB transactions found';
@@ -340,8 +340,8 @@
                 },
             });
 
-            const nodes = result.data?.transactionBlocks?.nodes;
-            const pageInfo = result.data?.transactionBlocks?.pageInfo;
+            const nodes = (result.data as any)?.transactionBlocks?.nodes;
+            const pageInfo = (result.data as any)?.transactionBlocks?.pageInfo;
 
             if (!nodes || nodes.length === 0) {
                 error = 'No more PTB transactions found';
@@ -404,8 +404,8 @@
                 },
             });
 
-            const nodes = result.data?.transactionBlocks?.nodes;
-            const pageInfo = result.data?.transactionBlocks?.pageInfo;
+            const nodes = (result.data as any)?.transactionBlocks?.nodes;
+            const pageInfo = (result.data as any)?.transactionBlocks?.pageInfo;
 
             if (!nodes || nodes.length === 0) {
                 error = 'No more PTB transactions found';
@@ -686,19 +686,6 @@
         margin-top: 2rem;
     }
 
-    .result-header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .result-header h3 {
-        color: rgba(255, 255, 255, 0.9);
-        margin: 0;
-        font-size: 1.2rem;
-    }
-
     .examples-label {
         color: rgba(255, 255, 255, 0.7);
         font-weight: 500;
@@ -787,11 +774,6 @@
 
         button {
             width: 100%;
-        }
-
-        .examples-section {
-            flex-direction: column;
-            align-items: stretch;
         }
 
         .example-btn {
