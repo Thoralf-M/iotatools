@@ -2,11 +2,13 @@
     // @ts-ignore - Module resolution issue with svelte-json-tree
     import JSONTree from '@sveltejs/svelte-json-tree';
 
+    import { getClient } from '../lib/client';
     import {
         formatJsonWithCompactArrays,
         getTransactionData,
         isTransactionData,
     } from '../lib/transaction-view';
+    import TransactionCommands from './TransactionCommands.svelte';
     import TransactionEffects from './TransactionEffects.svelte';
 
     let { value = $bindable() } = $props();
@@ -15,9 +17,15 @@
     let showTxBytes = $state(false);
     let prevViewMode = $state('formatted');
     let hidden = $derived(!value || !Object.keys(value || {}).length);
+    let isDryRunning = $state(false);
+    let dryRunError = $state('');
 
     let hasTxBytes = $derived(
         value && typeof value === 'object' && 'transactionBytes' in value && value.transactionBytes,
+    );
+
+    let hasDryRunResults = $derived(
+        value && typeof value === 'object' && 'effects' in value && value.effects,
     );
 
     $effect(() => {
@@ -31,6 +39,7 @@
                 prevViewMode = 'json';
             }
             showTxBytes = false; // reset when value changes
+            dryRunError = ''; // clear any previous errors
         }
     });
 
@@ -44,6 +53,41 @@
             viewMode = prevViewMode;
         }
     });
+
+    async function performDryRun() {
+        if (!hasTxBytes || isDryRunning) return;
+
+        try {
+            isDryRunning = true;
+            const client = getClient();
+            const txBytes = value.transactionBytes;
+
+            const dryRunResult = await client.dryRunTransactionBlock({
+                transactionBlock: txBytes,
+            });
+
+            // Update the transaction data with dry run effects
+            // Dry run returns the same structure as a regular transaction response
+            // We want to merge the effects and other dry run data while preserving original metadata
+            const updatedData = {
+                ...value,
+                ...dryRunResult,
+                // Keep the original transactionBytes
+                transactionBytes: txBytes,
+                // Mark that this is from a dry run
+                isDryRun: true,
+                // Preserve any original metadata that might be important
+                originalDigest: value.digest || value.transactionDigest,
+            };
+
+            value = updatedData;
+        } catch (error) {
+            console.error('Dry run failed:', error);
+            dryRunError = `Dry run failed: ${error instanceof Error ? error.message : String(error)}`;
+        } finally {
+            isDryRunning = false;
+        }
+    }
 </script>
 
 {#if !hidden}
@@ -78,6 +122,17 @@
             >
                 JSON Tree
             </button>
+            {#if isTransactionData(value)}
+                <button
+                    class:active={viewMode === 'commands'}
+                    onclick={() => {
+                        showTxBytes = false;
+                        viewMode = 'commands';
+                    }}
+                >
+                    PTB Commands
+                </button>
+            {/if}
             {#if hasTxBytes}
                 <button
                     class:active={showTxBytes}
@@ -92,10 +147,22 @@
                     Tx Bytes
                 </button>
             {/if}
+            {#if hasTxBytes}
+                <button disabled={isDryRunning} onclick={performDryRun}>
+                    {isDryRunning ? 'Running...' : hasDryRunResults ? 'Re-run Dry' : 'Dry Run'}
+                </button>
+            {/if}
             <button class="close-btn" style="margin-left: auto;" onclick={() => (value = null)}>
                 ×
             </button>
         </div>
+
+        {#if dryRunError}
+            <div class="error-message">
+                {dryRunError}
+                <button onclick={() => (dryRunError = '')}>×</button>
+            </div>
+        {/if}
 
         {#if showTxBytes && hasTxBytes}
             <div class="tx-bytes-view">
@@ -114,6 +181,10 @@
         {:else if viewMode === 'tree'}
             <div class="tree-view">
                 <JSONTree {value} defaultExpandedLevel={1} />
+            </div>
+        {:else if viewMode === 'commands'}
+            <div class="commands-view-container">
+                <TransactionCommands transactionData={getTransactionData(value)} />
             </div>
         {:else}
             <div class="json-view">
@@ -176,6 +247,29 @@
         background: #6e0e18;
     }
 
+    .error-message {
+        background: #fee;
+        border: 1px solid #fcc;
+        color: #c33;
+        padding: 0.5rem;
+        border-radius: 4px;
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.9rem;
+    }
+
+    .error-message button {
+        background: none;
+        border: none;
+        color: #c33;
+        cursor: pointer;
+        font-size: 1.2rem;
+        padding: 0;
+        margin-left: 0.5rem;
+    }
+
     .formatted-view {
         display: flex;
         flex-direction: column;
@@ -196,6 +290,14 @@
     }
 
     .tree-view {
+        background: var(--background-light);
+        backdrop-filter: blur(10px);
+        padding: 0.75rem;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+    }
+
+    .commands-view-container {
         background: var(--background-light);
         backdrop-filter: blur(10px);
         padding: 0.75rem;
