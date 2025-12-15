@@ -735,9 +735,14 @@ export async function processStakeTransactionsWithExchangeRates(
             if (allStakeObjects.has(key)) {
                 const existing = allStakeObjects.get(key)!;
 
-                // Update ownership flag
+                // Update ownership flag - if any address owned it, mark as owned
                 if (stakeObject.wasOwnedByTargetAddress) {
                     existing.wasOwnedByTargetAddress = true;
+                }
+
+                // Merge firstEpoch: use the minimum (earliest appearance)
+                if (stakeObject.firstEpoch < existing.firstEpoch) {
+                    existing.firstEpoch = stakeObject.firstEpoch;
                 }
 
                 // Merge lastEpoch: use the minimum to ensure we stop tracking when transferred away
