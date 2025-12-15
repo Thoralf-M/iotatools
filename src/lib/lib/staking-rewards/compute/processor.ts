@@ -186,6 +186,7 @@ function parseTransactionObjects(transaction: any): {
 function createOrUpdateStakeObject(
     stakeObjects: Map<string, StakeObject>,
     address: string,
+    input: StakeObjectData['input'],
     output: StakeObjectData['output'],
     epochId: number,
     currentEpoch: number,
@@ -194,6 +195,11 @@ function createOrUpdateStakeObject(
     if (!output) return;
 
     if (!stakeObjects.has(address)) {
+        const stakeActivationEpoch = output.stakeActivationEpoch
+            ? parseInt(output.stakeActivationEpoch)
+            : input?.stakeActivationEpoch
+                ? parseInt(input.stakeActivationEpoch)
+                : epochId;
         stakeObjects.set(address, {
             objectId: address,
             wasOwnedByTargetAddress: wasOwnedByTarget,
@@ -205,9 +211,7 @@ function createOrUpdateStakeObject(
             actionByEpoch: {},
             firstEpoch: epochId,
             lastEpoch: currentEpoch,
-            stakeActivationEpoch: output.stakeActivationEpoch
-                ? parseInt(output.stakeActivationEpoch)
-                : epochId,
+            stakeActivationEpoch,
         });
     } else {
         // Update the flag if this transaction shows target ownership
@@ -230,6 +234,8 @@ function createOrUpdateStakeObject(
     // Update stakeActivationEpoch if we have the real value
     if (output.stakeActivationEpoch) {
         obj.stakeActivationEpoch = parseInt(output.stakeActivationEpoch);
+    } else if (input?.stakeActivationEpoch) {
+        obj.stakeActivationEpoch = parseInt(input.stakeActivationEpoch);
     }
 }
 
@@ -539,6 +545,7 @@ async function processTransactions(
                 createOrUpdateStakeObject(
                     stakeObjects,
                     address,
+                    input,
                     output,
                     epochId,
                     currentEpoch,
@@ -762,6 +769,21 @@ export async function processStakeTransactionsWithExchangeRates(
                     existing.lastEpoch = stakeObject.lastEpoch;
                 }
                 // If only existing was owned, keep existing.lastEpoch (do nothing)
+
+                // Merge the maps
+                Object.assign(existing.principalByEpoch, stakeObject.principalByEpoch);
+                Object.assign(existing.rewardsByEpoch, stakeObject.rewardsByEpoch);
+                Object.assign(existing.accumulatedRewards, stakeObject.accumulatedRewards);
+                Object.assign(existing.exchangeRatesByEpoch, stakeObject.exchangeRatesByEpoch);
+                if (stakeObject.actionByEpoch) {
+                    if (!existing.actionByEpoch) existing.actionByEpoch = {};
+                    Object.assign(existing.actionByEpoch, stakeObject.actionByEpoch);
+                }
+
+                // Ensure the earliest stakeActivationEpoch
+                if (stakeObject.stakeActivationEpoch < existing.stakeActivationEpoch) {
+                    existing.stakeActivationEpoch = stakeObject.stakeActivationEpoch;
+                }
             } else {
                 allStakeObjects.set(key, stakeObject);
             }

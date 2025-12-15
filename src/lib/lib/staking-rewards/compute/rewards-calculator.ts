@@ -50,6 +50,8 @@ export async function computeRewardsForStakeObject(
         }
     }
 
+    const accumulatedAtFirst = safeBigInt(stakeObject.accumulatedRewards[stakeObject.firstEpoch] || '0');
+
     // For each epoch where we have exchange rates, compute rewards
     let previousPrincipal = 0n;
     for (const epoch of epochs) {
@@ -69,10 +71,13 @@ export async function computeRewardsForStakeObject(
             const totalIotaWithdrawAmount = getIotaAmount(exchangeRate, poolTokenWithdrawAmount);
 
             // Step 3: Calculate total accumulated rewards (total - principal, but not less than 0)
-            const currentAccumulatedRewards =
+            let currentAccumulatedRewards =
                 totalIotaWithdrawAmount > principalAmount
                     ? totalIotaWithdrawAmount - principalAmount
                     : 0n;
+
+            // Adjust for net accumulated from firstEpoch
+            currentAccumulatedRewards -= accumulatedAtFirst;
 
             let newEpochRewards: bigint;
 
@@ -123,28 +128,32 @@ export async function computeRewardsForStakeObject(
 
             // Store both accumulated and epoch-specific rewards
             // If action for this epoch is 'Unstaked', set rewards to '0' but record total rewards
-            if (
-                stakeObject.actionByEpoch &&
-                stakeObject.actionByEpoch[epoch]?.action === 'Unstaked'
-            ) {
-                // Update the action with total rewards at unstaking, epoch -1 because there are only rewards for full epochs.
-                // So epoch in which the unstake tx is, will not receive rewards
-                stakeObject.actionByEpoch[epoch].totalRewards =
-                    stakeObject.accumulatedRewards[epoch - 1];
-                stakeObject.accumulatedRewards[epoch] = '0';
-                stakeObject.rewardsByEpoch[epoch] = '0';
-            } else {
-                stakeObject.accumulatedRewards[epoch] = currentAccumulatedRewards.toString();
-                stakeObject.rewardsByEpoch[epoch] = newEpochRewards.toString();
-            }
+            if (epoch >= stakeObject.firstEpoch) {
+                if (
+                    stakeObject.actionByEpoch &&
+                    stakeObject.actionByEpoch[epoch]?.action === 'Unstaked'
+                ) {
+                    // Update the action with total rewards at unstaking, epoch -1 because there are only rewards for full epochs.
+                    // So epoch in which the unstake tx is, will not receive rewards
+                    stakeObject.actionByEpoch[epoch].totalRewards =
+                        stakeObject.accumulatedRewards[epoch - 1];
+                    stakeObject.accumulatedRewards[epoch] = '0';
+                    stakeObject.rewardsByEpoch[epoch] = '0';
+                } else {
+                    stakeObject.accumulatedRewards[epoch] = currentAccumulatedRewards.toString();
+                    stakeObject.rewardsByEpoch[epoch] = newEpochRewards.toString();
+                }
 
-            // Update previous accumulated rewards for next iteration
-            previousAccumulatedRewards = currentAccumulatedRewards;
+                // Update previous accumulated rewards for next iteration
+                previousAccumulatedRewards = currentAccumulatedRewards;
+            }
             previousPrincipal = principalAmount;
         } catch (err) {
             console.error(`Error computing rewards for epoch ${epoch}:`, err);
-            stakeObject.accumulatedRewards[epoch] = previousAccumulatedRewards.toString();
-            stakeObject.rewardsByEpoch[epoch] = '0';
+            if (epoch >= stakeObject.firstEpoch) {
+                stakeObject.accumulatedRewards[epoch] = previousAccumulatedRewards.toString();
+                stakeObject.rewardsByEpoch[epoch] = '0';
+            }
         }
     }
 }
