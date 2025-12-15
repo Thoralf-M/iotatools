@@ -151,11 +151,6 @@ export function computeEpochData(
             if (rewards && rewards !== '0') {
                 epochData[epoch].validatorAccumulated[stakeObject.poolId] += BigInt(rewards);
             }
-            if (i > 0) {
-                const prevEpoch = epochRange[i - 1];
-                epochData[epoch].validatorAccumulated[stakeObject.poolId] +=
-                    epochData[prevEpoch].validatorAccumulated[stakeObject.poolId] || 0n;
-            }
 
             // Stake accumulated
             if (!epochData[epoch].stakeAccumulated[stakeObject.objectId]) {
@@ -165,14 +160,25 @@ export function computeEpochData(
             const prevAccum =
                 i > 0
                     ? BigInt(
-                          epochData[epochRange[i - 1]].stakeAccumulated[stakeObject.objectId] ||
-                              '0',
-                      )
+                        epochData[epochRange[i - 1]].stakeAccumulated[stakeObject.objectId] ||
+                        '0',
+                    )
                     : 0n;
             const currAccum =
                 (stakeRewards && stakeRewards !== '0' ? BigInt(stakeRewards) : 0n) + prevAccum;
             epochData[epoch].stakeAccumulated[stakeObject.objectId] = currAccum.toString();
         });
+    });
+
+    // Accumulate validatorAccumulated over epochs
+    epochRange.forEach((epoch, i) => {
+        if (i > 0) {
+            const prevEpoch = epochRange[i - 1];
+            Object.keys(epochData[epoch].validatorAccumulated).forEach((poolId) => {
+                epochData[epoch].validatorAccumulated[poolId] +=
+                    epochData[prevEpoch].validatorAccumulated[poolId] || 0n;
+            });
+        }
     });
 
     // Process unstake rewards

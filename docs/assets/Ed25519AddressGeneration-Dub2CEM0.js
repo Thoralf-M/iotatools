@@ -1,0 +1,2309 @@
+import { b0 as hmac, b1 as sha512, av as fromHEX, p as push, i as init, f as from_html, s as sibling, c as child, t as template_effect, g as get, m as mutable_source, a as invalidate_inner_signals, d as set_text, e as event, L as bind_value, h as bind_select_value, j as append, k as pop, l as set, b2 as generateMnemonic, b3 as entropyToMnemonic, ap as toHEX, b4 as mnemonicToEntropy, b5 as mnemonicToSeedSync, b6 as Ed25519Keypair, b7 as decodeIotaPrivateKey, ad as toB64, aj as fromB64, aw as Ed25519PublicKey } from "/iota-utils/assets/index-LSzG6O2x.js";
+const wordlist = `abandon
+ability
+able
+about
+above
+absent
+absorb
+abstract
+absurd
+abuse
+access
+accident
+account
+accuse
+achieve
+acid
+acoustic
+acquire
+across
+act
+action
+actor
+actress
+actual
+adapt
+add
+addict
+address
+adjust
+admit
+adult
+advance
+advice
+aerobic
+affair
+afford
+afraid
+again
+age
+agent
+agree
+ahead
+aim
+air
+airport
+aisle
+alarm
+album
+alcohol
+alert
+alien
+all
+alley
+allow
+almost
+alone
+alpha
+already
+also
+alter
+always
+amateur
+amazing
+among
+amount
+amused
+analyst
+anchor
+ancient
+anger
+angle
+angry
+animal
+ankle
+announce
+annual
+another
+answer
+antenna
+antique
+anxiety
+any
+apart
+apology
+appear
+apple
+approve
+april
+arch
+arctic
+area
+arena
+argue
+arm
+armed
+armor
+army
+around
+arrange
+arrest
+arrive
+arrow
+art
+artefact
+artist
+artwork
+ask
+aspect
+assault
+asset
+assist
+assume
+asthma
+athlete
+atom
+attack
+attend
+attitude
+attract
+auction
+audit
+august
+aunt
+author
+auto
+autumn
+average
+avocado
+avoid
+awake
+aware
+away
+awesome
+awful
+awkward
+axis
+baby
+bachelor
+bacon
+badge
+bag
+balance
+balcony
+ball
+bamboo
+banana
+banner
+bar
+barely
+bargain
+barrel
+base
+basic
+basket
+battle
+beach
+bean
+beauty
+because
+become
+beef
+before
+begin
+behave
+behind
+believe
+below
+belt
+bench
+benefit
+best
+betray
+better
+between
+beyond
+bicycle
+bid
+bike
+bind
+biology
+bird
+birth
+bitter
+black
+blade
+blame
+blanket
+blast
+bleak
+bless
+blind
+blood
+blossom
+blouse
+blue
+blur
+blush
+board
+boat
+body
+boil
+bomb
+bone
+bonus
+book
+boost
+border
+boring
+borrow
+boss
+bottom
+bounce
+box
+boy
+bracket
+brain
+brand
+brass
+brave
+bread
+breeze
+brick
+bridge
+brief
+bright
+bring
+brisk
+broccoli
+broken
+bronze
+broom
+brother
+brown
+brush
+bubble
+buddy
+budget
+buffalo
+build
+bulb
+bulk
+bullet
+bundle
+bunker
+burden
+burger
+burst
+bus
+business
+busy
+butter
+buyer
+buzz
+cabbage
+cabin
+cable
+cactus
+cage
+cake
+call
+calm
+camera
+camp
+can
+canal
+cancel
+candy
+cannon
+canoe
+canvas
+canyon
+capable
+capital
+captain
+car
+carbon
+card
+cargo
+carpet
+carry
+cart
+case
+cash
+casino
+castle
+casual
+cat
+catalog
+catch
+category
+cattle
+caught
+cause
+caution
+cave
+ceiling
+celery
+cement
+census
+century
+cereal
+certain
+chair
+chalk
+champion
+change
+chaos
+chapter
+charge
+chase
+chat
+cheap
+check
+cheese
+chef
+cherry
+chest
+chicken
+chief
+child
+chimney
+choice
+choose
+chronic
+chuckle
+chunk
+churn
+cigar
+cinnamon
+circle
+citizen
+city
+civil
+claim
+clap
+clarify
+claw
+clay
+clean
+clerk
+clever
+click
+client
+cliff
+climb
+clinic
+clip
+clock
+clog
+close
+cloth
+cloud
+clown
+club
+clump
+cluster
+clutch
+coach
+coast
+coconut
+code
+coffee
+coil
+coin
+collect
+color
+column
+combine
+come
+comfort
+comic
+common
+company
+concert
+conduct
+confirm
+congress
+connect
+consider
+control
+convince
+cook
+cool
+copper
+copy
+coral
+core
+corn
+correct
+cost
+cotton
+couch
+country
+couple
+course
+cousin
+cover
+coyote
+crack
+cradle
+craft
+cram
+crane
+crash
+crater
+crawl
+crazy
+cream
+credit
+creek
+crew
+cricket
+crime
+crisp
+critic
+crop
+cross
+crouch
+crowd
+crucial
+cruel
+cruise
+crumble
+crunch
+crush
+cry
+crystal
+cube
+culture
+cup
+cupboard
+curious
+current
+curtain
+curve
+cushion
+custom
+cute
+cycle
+dad
+damage
+damp
+dance
+danger
+daring
+dash
+daughter
+dawn
+day
+deal
+debate
+debris
+decade
+december
+decide
+decline
+decorate
+decrease
+deer
+defense
+define
+defy
+degree
+delay
+deliver
+demand
+demise
+denial
+dentist
+deny
+depart
+depend
+deposit
+depth
+deputy
+derive
+describe
+desert
+design
+desk
+despair
+destroy
+detail
+detect
+develop
+device
+devote
+diagram
+dial
+diamond
+diary
+dice
+diesel
+diet
+differ
+digital
+dignity
+dilemma
+dinner
+dinosaur
+direct
+dirt
+disagree
+discover
+disease
+dish
+dismiss
+disorder
+display
+distance
+divert
+divide
+divorce
+dizzy
+doctor
+document
+dog
+doll
+dolphin
+domain
+donate
+donkey
+donor
+door
+dose
+double
+dove
+draft
+dragon
+drama
+drastic
+draw
+dream
+dress
+drift
+drill
+drink
+drip
+drive
+drop
+drum
+dry
+duck
+dumb
+dune
+during
+dust
+dutch
+duty
+dwarf
+dynamic
+eager
+eagle
+early
+earn
+earth
+easily
+east
+easy
+echo
+ecology
+economy
+edge
+edit
+educate
+effort
+egg
+eight
+either
+elbow
+elder
+electric
+elegant
+element
+elephant
+elevator
+elite
+else
+embark
+embody
+embrace
+emerge
+emotion
+employ
+empower
+empty
+enable
+enact
+end
+endless
+endorse
+enemy
+energy
+enforce
+engage
+engine
+enhance
+enjoy
+enlist
+enough
+enrich
+enroll
+ensure
+enter
+entire
+entry
+envelope
+episode
+equal
+equip
+era
+erase
+erode
+erosion
+error
+erupt
+escape
+essay
+essence
+estate
+eternal
+ethics
+evidence
+evil
+evoke
+evolve
+exact
+example
+excess
+exchange
+excite
+exclude
+excuse
+execute
+exercise
+exhaust
+exhibit
+exile
+exist
+exit
+exotic
+expand
+expect
+expire
+explain
+expose
+express
+extend
+extra
+eye
+eyebrow
+fabric
+face
+faculty
+fade
+faint
+faith
+fall
+false
+fame
+family
+famous
+fan
+fancy
+fantasy
+farm
+fashion
+fat
+fatal
+father
+fatigue
+fault
+favorite
+feature
+february
+federal
+fee
+feed
+feel
+female
+fence
+festival
+fetch
+fever
+few
+fiber
+fiction
+field
+figure
+file
+film
+filter
+final
+find
+fine
+finger
+finish
+fire
+firm
+first
+fiscal
+fish
+fit
+fitness
+fix
+flag
+flame
+flash
+flat
+flavor
+flee
+flight
+flip
+float
+flock
+floor
+flower
+fluid
+flush
+fly
+foam
+focus
+fog
+foil
+fold
+follow
+food
+foot
+force
+forest
+forget
+fork
+fortune
+forum
+forward
+fossil
+foster
+found
+fox
+fragile
+frame
+frequent
+fresh
+friend
+fringe
+frog
+front
+frost
+frown
+frozen
+fruit
+fuel
+fun
+funny
+furnace
+fury
+future
+gadget
+gain
+galaxy
+gallery
+game
+gap
+garage
+garbage
+garden
+garlic
+garment
+gas
+gasp
+gate
+gather
+gauge
+gaze
+general
+genius
+genre
+gentle
+genuine
+gesture
+ghost
+giant
+gift
+giggle
+ginger
+giraffe
+girl
+give
+glad
+glance
+glare
+glass
+glide
+glimpse
+globe
+gloom
+glory
+glove
+glow
+glue
+goat
+goddess
+gold
+good
+goose
+gorilla
+gospel
+gossip
+govern
+gown
+grab
+grace
+grain
+grant
+grape
+grass
+gravity
+great
+green
+grid
+grief
+grit
+grocery
+group
+grow
+grunt
+guard
+guess
+guide
+guilt
+guitar
+gun
+gym
+habit
+hair
+half
+hammer
+hamster
+hand
+happy
+harbor
+hard
+harsh
+harvest
+hat
+have
+hawk
+hazard
+head
+health
+heart
+heavy
+hedgehog
+height
+hello
+helmet
+help
+hen
+hero
+hidden
+high
+hill
+hint
+hip
+hire
+history
+hobby
+hockey
+hold
+hole
+holiday
+hollow
+home
+honey
+hood
+hope
+horn
+horror
+horse
+hospital
+host
+hotel
+hour
+hover
+hub
+huge
+human
+humble
+humor
+hundred
+hungry
+hunt
+hurdle
+hurry
+hurt
+husband
+hybrid
+ice
+icon
+idea
+identify
+idle
+ignore
+ill
+illegal
+illness
+image
+imitate
+immense
+immune
+impact
+impose
+improve
+impulse
+inch
+include
+income
+increase
+index
+indicate
+indoor
+industry
+infant
+inflict
+inform
+inhale
+inherit
+initial
+inject
+injury
+inmate
+inner
+innocent
+input
+inquiry
+insane
+insect
+inside
+inspire
+install
+intact
+interest
+into
+invest
+invite
+involve
+iron
+island
+isolate
+issue
+item
+ivory
+jacket
+jaguar
+jar
+jazz
+jealous
+jeans
+jelly
+jewel
+job
+join
+joke
+journey
+joy
+judge
+juice
+jump
+jungle
+junior
+junk
+just
+kangaroo
+keen
+keep
+ketchup
+key
+kick
+kid
+kidney
+kind
+kingdom
+kiss
+kit
+kitchen
+kite
+kitten
+kiwi
+knee
+knife
+knock
+know
+lab
+label
+labor
+ladder
+lady
+lake
+lamp
+language
+laptop
+large
+later
+latin
+laugh
+laundry
+lava
+law
+lawn
+lawsuit
+layer
+lazy
+leader
+leaf
+learn
+leave
+lecture
+left
+leg
+legal
+legend
+leisure
+lemon
+lend
+length
+lens
+leopard
+lesson
+letter
+level
+liar
+liberty
+library
+license
+life
+lift
+light
+like
+limb
+limit
+link
+lion
+liquid
+list
+little
+live
+lizard
+load
+loan
+lobster
+local
+lock
+logic
+lonely
+long
+loop
+lottery
+loud
+lounge
+love
+loyal
+lucky
+luggage
+lumber
+lunar
+lunch
+luxury
+lyrics
+machine
+mad
+magic
+magnet
+maid
+mail
+main
+major
+make
+mammal
+man
+manage
+mandate
+mango
+mansion
+manual
+maple
+marble
+march
+margin
+marine
+market
+marriage
+mask
+mass
+master
+match
+material
+math
+matrix
+matter
+maximum
+maze
+meadow
+mean
+measure
+meat
+mechanic
+medal
+media
+melody
+melt
+member
+memory
+mention
+menu
+mercy
+merge
+merit
+merry
+mesh
+message
+metal
+method
+middle
+midnight
+milk
+million
+mimic
+mind
+minimum
+minor
+minute
+miracle
+mirror
+misery
+miss
+mistake
+mix
+mixed
+mixture
+mobile
+model
+modify
+mom
+moment
+monitor
+monkey
+monster
+month
+moon
+moral
+more
+morning
+mosquito
+mother
+motion
+motor
+mountain
+mouse
+move
+movie
+much
+muffin
+mule
+multiply
+muscle
+museum
+mushroom
+music
+must
+mutual
+myself
+mystery
+myth
+naive
+name
+napkin
+narrow
+nasty
+nation
+nature
+near
+neck
+need
+negative
+neglect
+neither
+nephew
+nerve
+nest
+net
+network
+neutral
+never
+news
+next
+nice
+night
+noble
+noise
+nominee
+noodle
+normal
+north
+nose
+notable
+note
+nothing
+notice
+novel
+now
+nuclear
+number
+nurse
+nut
+oak
+obey
+object
+oblige
+obscure
+observe
+obtain
+obvious
+occur
+ocean
+october
+odor
+off
+offer
+office
+often
+oil
+okay
+old
+olive
+olympic
+omit
+once
+one
+onion
+online
+only
+open
+opera
+opinion
+oppose
+option
+orange
+orbit
+orchard
+order
+ordinary
+organ
+orient
+original
+orphan
+ostrich
+other
+outdoor
+outer
+output
+outside
+oval
+oven
+over
+own
+owner
+oxygen
+oyster
+ozone
+pact
+paddle
+page
+pair
+palace
+palm
+panda
+panel
+panic
+panther
+paper
+parade
+parent
+park
+parrot
+party
+pass
+patch
+path
+patient
+patrol
+pattern
+pause
+pave
+payment
+peace
+peanut
+pear
+peasant
+pelican
+pen
+penalty
+pencil
+people
+pepper
+perfect
+permit
+person
+pet
+phone
+photo
+phrase
+physical
+piano
+picnic
+picture
+piece
+pig
+pigeon
+pill
+pilot
+pink
+pioneer
+pipe
+pistol
+pitch
+pizza
+place
+planet
+plastic
+plate
+play
+please
+pledge
+pluck
+plug
+plunge
+poem
+poet
+point
+polar
+pole
+police
+pond
+pony
+pool
+popular
+portion
+position
+possible
+post
+potato
+pottery
+poverty
+powder
+power
+practice
+praise
+predict
+prefer
+prepare
+present
+pretty
+prevent
+price
+pride
+primary
+print
+priority
+prison
+private
+prize
+problem
+process
+produce
+profit
+program
+project
+promote
+proof
+property
+prosper
+protect
+proud
+provide
+public
+pudding
+pull
+pulp
+pulse
+pumpkin
+punch
+pupil
+puppy
+purchase
+purity
+purpose
+purse
+push
+put
+puzzle
+pyramid
+quality
+quantum
+quarter
+question
+quick
+quit
+quiz
+quote
+rabbit
+raccoon
+race
+rack
+radar
+radio
+rail
+rain
+raise
+rally
+ramp
+ranch
+random
+range
+rapid
+rare
+rate
+rather
+raven
+raw
+razor
+ready
+real
+reason
+rebel
+rebuild
+recall
+receive
+recipe
+record
+recycle
+reduce
+reflect
+reform
+refuse
+region
+regret
+regular
+reject
+relax
+release
+relief
+rely
+remain
+remember
+remind
+remove
+render
+renew
+rent
+reopen
+repair
+repeat
+replace
+report
+require
+rescue
+resemble
+resist
+resource
+response
+result
+retire
+retreat
+return
+reunion
+reveal
+review
+reward
+rhythm
+rib
+ribbon
+rice
+rich
+ride
+ridge
+rifle
+right
+rigid
+ring
+riot
+ripple
+risk
+ritual
+rival
+river
+road
+roast
+robot
+robust
+rocket
+romance
+roof
+rookie
+room
+rose
+rotate
+rough
+round
+route
+royal
+rubber
+rude
+rug
+rule
+run
+runway
+rural
+sad
+saddle
+sadness
+safe
+sail
+salad
+salmon
+salon
+salt
+salute
+same
+sample
+sand
+satisfy
+satoshi
+sauce
+sausage
+save
+say
+scale
+scan
+scare
+scatter
+scene
+scheme
+school
+science
+scissors
+scorpion
+scout
+scrap
+screen
+script
+scrub
+sea
+search
+season
+seat
+second
+secret
+section
+security
+seed
+seek
+segment
+select
+sell
+seminar
+senior
+sense
+sentence
+series
+service
+session
+settle
+setup
+seven
+shadow
+shaft
+shallow
+share
+shed
+shell
+sheriff
+shield
+shift
+shine
+ship
+shiver
+shock
+shoe
+shoot
+shop
+short
+shoulder
+shove
+shrimp
+shrug
+shuffle
+shy
+sibling
+sick
+side
+siege
+sight
+sign
+silent
+silk
+silly
+silver
+similar
+simple
+since
+sing
+siren
+sister
+situate
+six
+size
+skate
+sketch
+ski
+skill
+skin
+skirt
+skull
+slab
+slam
+sleep
+slender
+slice
+slide
+slight
+slim
+slogan
+slot
+slow
+slush
+small
+smart
+smile
+smoke
+smooth
+snack
+snake
+snap
+sniff
+snow
+soap
+soccer
+social
+sock
+soda
+soft
+solar
+soldier
+solid
+solution
+solve
+someone
+song
+soon
+sorry
+sort
+soul
+sound
+soup
+source
+south
+space
+spare
+spatial
+spawn
+speak
+special
+speed
+spell
+spend
+sphere
+spice
+spider
+spike
+spin
+spirit
+split
+spoil
+sponsor
+spoon
+sport
+spot
+spray
+spread
+spring
+spy
+square
+squeeze
+squirrel
+stable
+stadium
+staff
+stage
+stairs
+stamp
+stand
+start
+state
+stay
+steak
+steel
+stem
+step
+stereo
+stick
+still
+sting
+stock
+stomach
+stone
+stool
+story
+stove
+strategy
+street
+strike
+strong
+struggle
+student
+stuff
+stumble
+style
+subject
+submit
+subway
+success
+such
+sudden
+suffer
+sugar
+suggest
+suit
+summer
+sun
+sunny
+sunset
+super
+supply
+supreme
+sure
+surface
+surge
+surprise
+surround
+survey
+suspect
+sustain
+swallow
+swamp
+swap
+swarm
+swear
+sweet
+swift
+swim
+swing
+switch
+sword
+symbol
+symptom
+syrup
+system
+table
+tackle
+tag
+tail
+talent
+talk
+tank
+tape
+target
+task
+taste
+tattoo
+taxi
+teach
+team
+tell
+ten
+tenant
+tennis
+tent
+term
+test
+text
+thank
+that
+theme
+then
+theory
+there
+they
+thing
+this
+thought
+three
+thrive
+throw
+thumb
+thunder
+ticket
+tide
+tiger
+tilt
+timber
+time
+tiny
+tip
+tired
+tissue
+title
+toast
+tobacco
+today
+toddler
+toe
+together
+toilet
+token
+tomato
+tomorrow
+tone
+tongue
+tonight
+tool
+tooth
+top
+topic
+topple
+torch
+tornado
+tortoise
+toss
+total
+tourist
+toward
+tower
+town
+toy
+track
+trade
+traffic
+tragic
+train
+transfer
+trap
+trash
+travel
+tray
+treat
+tree
+trend
+trial
+tribe
+trick
+trigger
+trim
+trip
+trophy
+trouble
+truck
+true
+truly
+trumpet
+trust
+truth
+try
+tube
+tuition
+tumble
+tuna
+tunnel
+turkey
+turn
+turtle
+twelve
+twenty
+twice
+twin
+twist
+two
+type
+typical
+ugly
+umbrella
+unable
+unaware
+uncle
+uncover
+under
+undo
+unfair
+unfold
+unhappy
+uniform
+unique
+unit
+universe
+unknown
+unlock
+until
+unusual
+unveil
+update
+upgrade
+uphold
+upon
+upper
+upset
+urban
+urge
+usage
+use
+used
+useful
+useless
+usual
+utility
+vacant
+vacuum
+vague
+valid
+valley
+valve
+van
+vanish
+vapor
+various
+vast
+vault
+vehicle
+velvet
+vendor
+venture
+venue
+verb
+verify
+version
+very
+vessel
+veteran
+viable
+vibrant
+vicious
+victory
+video
+view
+village
+vintage
+violin
+virtual
+virus
+visa
+visit
+visual
+vital
+vivid
+vocal
+voice
+void
+volcano
+volume
+vote
+voyage
+wage
+wagon
+wait
+walk
+wall
+walnut
+want
+warfare
+warm
+warrior
+wash
+wasp
+waste
+water
+wave
+way
+wealth
+weapon
+wear
+weasel
+weather
+web
+wedding
+weekend
+weird
+welcome
+west
+wet
+whale
+what
+wheat
+wheel
+when
+where
+whip
+whisper
+wide
+width
+wife
+wild
+will
+win
+window
+wine
+wing
+wink
+winner
+winter
+wire
+wisdom
+wise
+wish
+witness
+wolf
+woman
+wonder
+wood
+wool
+word
+work
+world
+worry
+worth
+wrap
+wreck
+wrestle
+wrist
+write
+wrong
+yard
+year
+yellow
+you
+young
+youth
+zebra
+zero
+zone
+zoo`.split("\n");
+const ED25519_CURVE = "ed25519 seed";
+const HARDENED_OFFSET = 2147483648;
+const pathRegex = new RegExp("^m(\\/[0-9]+')+$");
+const replaceDerive = (val) => val.replace("'", "");
+const getMasterKeyFromSeed = (seed) => {
+  const h = hmac.create(sha512, ED25519_CURVE);
+  const I = h.update(fromHEX(seed)).digest();
+  const IL = I.slice(0, 32);
+  const IR = I.slice(32);
+  return {
+    key: IL,
+    chainCode: IR
+  };
+};
+const CKDPriv = ({ key, chainCode }, index) => {
+  const indexBuffer = new ArrayBuffer(4);
+  const cv = new DataView(indexBuffer);
+  cv.setUint32(0, index);
+  const data = new Uint8Array(1 + key.length + indexBuffer.byteLength);
+  data.set(new Uint8Array(1).fill(0));
+  data.set(key, 1);
+  data.set(new Uint8Array(indexBuffer, 0, indexBuffer.byteLength), key.length + 1);
+  const I = hmac.create(sha512, chainCode).update(data).digest();
+  const IL = I.slice(0, 32);
+  const IR = I.slice(32);
+  return {
+    key: IL,
+    chainCode: IR
+  };
+};
+const isValidPath = (path) => {
+  if (!pathRegex.test(path)) {
+    return false;
+  }
+  return !path.split("/").slice(1).map(replaceDerive).some(
+    isNaN
+    /* ts T_T*/
+  );
+};
+const derivePath = (path, seed, offset = HARDENED_OFFSET) => {
+  if (!isValidPath(path)) {
+    throw new Error("Invalid derivation path");
+  }
+  const { key, chainCode } = getMasterKeyFromSeed(seed);
+  const segments = path.split("/").slice(1).map(replaceDerive).map((el) => parseInt(el, 10));
+  return segments.reduce((parentKeys, segment) => CKDPriv(parentKeys, segment + offset), {
+    key,
+    chainCode
+  });
+};
+var root = from_html(`<main class="svelte-1rwp9og"><div class="svelte-1rwp9og">For development purposes only, never use with real funds!</div> <br/> <button class="svelte-1rwp9og">Generate new</button> <button class="svelte-1rwp9og">Generate new short (&#60;130 chars)</button> <input id="mnemonic" type="string" size="140" placeholder="24 word BIP-39 mnemonic. For development purposes only, never use with real funds!" class="svelte-1rwp9og"/> <br/> BIP 44 path: <input id="coinType" type="number" list="coinTypes" placeholder="BIP-44 coin type" class="svelte-1rwp9og"/> <datalist id="coinTypes"><option>IOTA</option><option>Shimmer</option><option>Testnet</option></datalist> <input id="accountIndex" type="number" min="0" placeholder="account index" class="svelte-1rwp9og"/> <select id="change" class="svelte-1rwp9og"><option>0</option><option>1</option></select> <input id="addressIndex" type="number" width="1" min="0" placeholder="address index" class="svelte-1rwp9og"/> <br/> <div class="svelte-1rwp9og">Insert anything and it will generate/convert what's possible:</div> <div class="svelte-1rwp9og"><label for="mnemonicEntropy" class="svelte-1rwp9og">Mnemonic entropy:</label> <input id="mnemonicEntropy" type="string" size="70" placeholder="hex mnemonic entropy" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="seed" class="svelte-1rwp9og">Seed:</label> <input id="seed" type="string" size="130" placeholder="hex seed" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="privateKeyBech32" class="svelte-1rwp9og">Private key bech32:</label> <input id="privateKeyBech32" type="string" size="75" placeholder="bech32 iotaprivkey" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="privateKeyHex" class="svelte-1rwp9og">Private key hex:</label> <input id="privateKeyHex" type="string" size="70" placeholder="hex Ed25519 private key" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="publicKeyBase64" class="svelte-1rwp9og">Public key base64:</label> <input id="publicKeyBase64" type="string" size="70" placeholder="base64 Ed25519 public key" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><label for="publicKey" class="svelte-1rwp9og">Public key:</label> <input id="publicKey" type="string" size="70" placeholder="hex Ed25519 public key" class="svelte-1rwp9og"/></div> <div class="svelte-1rwp9og"><span class="label svelte-1rwp9og">Address:</span> <span style="text-align: left;" class="svelte-1rwp9og"> </span></div> <br/> </main>`);
+function Ed25519AddressGeneration($$anchor, $$props) {
+  push($$props, false);
+  const IOTA_BIP44_COIN_TYPE = 4218;
+  const SHIMMER_BIP44_COIN_TYPE = 4219;
+  const TESTNET_BIP44_COIN_TYPE = 1;
+  let coinType = mutable_source(IOTA_BIP44_COIN_TYPE);
+  let accountIndex = mutable_source(0);
+  let change = mutable_source(0);
+  let addressIndex = mutable_source(0);
+  let mnemonic = mutable_source("");
+  let mnemonicEntropy = mutable_source("");
+  let seed = mutable_source("");
+  let privateKeyBech32 = mutable_source("");
+  let privateKeyHex = mutable_source("");
+  let publicKeyBase64 = mutable_source("");
+  let publicKey = mutable_source("");
+  let address = mutable_source("");
+  let error = mutable_source("");
+  const generate = () => {
+    tryCatch(generateInner);
+  };
+  const generateInner = () => {
+    set(mnemonic, generateMnemonic(wordlist, 256));
+    generateAddressFromMnemonic();
+  };
+  const generateShort = () => {
+    tryCatch(generateShortInner);
+  };
+  const generateShortInner = () => {
+    set(mnemonic, "");
+    while (get(mnemonic).length == 0 || get(mnemonic).length > 129) {
+      set(mnemonic, generateMnemonic(wordlist, 256));
+    }
+    generateAddressFromMnemonic();
+  };
+  const generateFromEntropy = () => {
+    tryCatch(generateFromEntropyInner);
+  };
+  const generateFromEntropyInner = () => {
+    set(mnemonic, entropyToMnemonic(fromHEX(get(mnemonicEntropy)), wordlist));
+    generateSeedAndAddress();
+  };
+  const generateAddressFromMnemonic = () => {
+    tryCatch(generateAddressFromMnemonicInner);
+  };
+  const generateAddressFromMnemonicInner = () => {
+    set(mnemonicEntropy, toHEX(mnemonicToEntropy(get(mnemonic), wordlist)));
+    generateSeedAndAddress();
+  };
+  const generateSeedAndAddress = () => {
+    tryCatch(generateSeedAndAddressInner);
+  };
+  const generateSeedAndAddressInner = () => {
+    set(seed, toHEX(mnemonicToSeedSync(get(mnemonic), "")));
+    generateAddressFromSeed();
+  };
+  const generateAddressFromSeed = () => {
+    tryCatch(generateAddressFromSeedInner);
+  };
+  const generateAddressFromSeedInner = () => {
+    let keyPair = deriveKeypairFromSeed(get(seed), `m/44'/${get(coinType)}'/${get(accountIndex)}'/${get(change)}'/${get(addressIndex)}'`);
+    set(privateKeyBech32, keyPair.getSecretKey());
+    set(privateKeyHex, toHEX(keyPair.keypair.secretKey.slice(0, 32)));
+    generatePublicKey(keyPair);
+  };
+  const generateKeysFromHexPrivateKey = () => {
+    tryCatch(generateKeysFromHexPrivateKeyInner);
+  };
+  const generateKeysFromHexPrivateKeyInner = () => {
+    let keyPair = Ed25519Keypair.fromSecretKey(fromHEX(get(privateKeyHex)));
+    set(privateKeyBech32, keyPair.getSecretKey());
+    generatePublicKey(keyPair);
+  };
+  const generateKeysFromBech32PrivateKey = () => {
+    tryCatch(generateKeysFromBech32PrivateKeyInner);
+  };
+  const generateKeysFromBech32PrivateKeyInner = () => {
+    const { schema, secretKey } = decodeIotaPrivateKey(get(privateKeyBech32));
+    if (schema != "ED25519") {
+      throw "unsupported schema: " + schema;
+    }
+    const keyPair = Ed25519Keypair.fromSecretKey(secretKey);
+    set(privateKeyHex, toHEX(keyPair.keypair.secretKey.slice(0, 32)));
+    generatePublicKey(keyPair);
+  };
+  const generatePublicKey = (keyPair) => {
+    set(error, "");
+    try {
+      set(publicKeyBase64, toB64(keyPair.getPublicKey().toRawBytes()));
+      set(publicKey, toHEX(keyPair.getPublicKey().toRawBytes()));
+      set(address, keyPair.getPublicKey().toIotaAddress());
+    } catch (err) {
+      try {
+        set(error, JSON.stringify(JSON.parse(err.message).payload.error));
+      } catch (e) {
+        set(error, err);
+      }
+    }
+  };
+  const addressFromPublicKeyBase64 = () => {
+    tryCatch(addressFromPublicKeyBase64Inner);
+  };
+  const addressFromPublicKeyBase64Inner = () => {
+    let bytes = fromB64(get(publicKeyBase64));
+    if (bytes.length == 33) {
+      bytes = bytes.slice(1);
+    }
+    set(publicKey, toHEX(bytes));
+    set(address, new Ed25519PublicKey(bytes).toIotaAddress());
+  };
+  const addressFromPublicKey = () => {
+    tryCatch(addressFromPublicKeyInner);
+  };
+  const addressFromPublicKeyInner = () => {
+    let bytes = fromHEX(get(publicKey));
+    set(publicKeyBase64, toB64(bytes));
+    set(address, new Ed25519PublicKey(bytes).toIotaAddress());
+  };
+  const tryCatch = (fn) => {
+    set(error, "");
+    try {
+      fn();
+    } catch (err) {
+      try {
+        set(error, JSON.stringify(JSON.parse(err.message).payload.error));
+      } catch (e) {
+        set(error, err);
+      }
+    }
+  };
+  function deriveKeypairFromSeed(seedHex, path) {
+    const { key } = derivePath(path, seedHex);
+    return Ed25519Keypair.fromSecretKey(key);
+  }
+  init();
+  var main = root();
+  var button = sibling(child(main), 4);
+  var button_1 = sibling(button, 2);
+  var input = sibling(button_1, 2);
+  var input_1 = sibling(input, 4);
+  var datalist = sibling(input_1, 2);
+  var option = child(datalist);
+  option.value = option.__value = IOTA_BIP44_COIN_TYPE;
+  var option_1 = sibling(option);
+  option_1.value = option_1.__value = SHIMMER_BIP44_COIN_TYPE;
+  var option_2 = sibling(option_1);
+  option_2.value = option_2.__value = TESTNET_BIP44_COIN_TYPE;
+  var input_2 = sibling(datalist, 2);
+  var select = sibling(input_2, 2);
+  template_effect(() => {
+    get(change);
+    invalidate_inner_signals(() => {
+    });
+  });
+  var option_3 = child(select);
+  option_3.value = option_3.__value = 0;
+  var option_4 = sibling(option_3);
+  option_4.value = option_4.__value = 1;
+  var input_3 = sibling(select, 2);
+  var div = sibling(input_3, 6);
+  var input_4 = sibling(child(div), 2);
+  var div_1 = sibling(div, 2);
+  var input_5 = sibling(child(div_1), 2);
+  var div_2 = sibling(div_1, 2);
+  var input_6 = sibling(child(div_2), 2);
+  var div_3 = sibling(div_2, 2);
+  var input_7 = sibling(child(div_3), 2);
+  var div_4 = sibling(div_3, 2);
+  var input_8 = sibling(child(div_4), 2);
+  var div_5 = sibling(div_4, 2);
+  var input_9 = sibling(child(div_5), 2);
+  var div_6 = sibling(div_5, 2);
+  var span = sibling(child(div_6), 2);
+  var text = child(span);
+  var text_1 = sibling(div_6, 3);
+  template_effect(() => {
+    set_text(text, ` ${get(address) ?? ""}`);
+    set_text(text_1, ` ${get(error) ?? ""}`);
+  });
+  event("click", button, () => generate());
+  event("click", button_1, () => generateShort());
+  bind_value(input, () => get(mnemonic), ($$value) => set(mnemonic, $$value));
+  event("input", input, () => generateAddressFromMnemonic());
+  bind_value(input_1, () => get(coinType), ($$value) => set(coinType, $$value));
+  event("input", input_1, () => generateAddressFromSeed());
+  bind_value(input_2, () => get(accountIndex), ($$value) => set(accountIndex, $$value));
+  event("input", input_2, () => generateAddressFromSeed());
+  bind_select_value(select, () => get(change), ($$value) => set(change, $$value));
+  event("input", select, () => generateAddressFromSeed());
+  bind_value(input_3, () => get(addressIndex), ($$value) => set(addressIndex, $$value));
+  event("input", input_3, () => generateAddressFromSeed());
+  bind_value(input_4, () => get(mnemonicEntropy), ($$value) => set(mnemonicEntropy, $$value));
+  event("input", input_4, () => generateFromEntropy());
+  bind_value(input_5, () => get(seed), ($$value) => set(seed, $$value));
+  event("input", input_5, () => generateAddressFromSeed());
+  bind_value(input_6, () => get(privateKeyBech32), ($$value) => set(privateKeyBech32, $$value));
+  event("input", input_6, () => generateKeysFromBech32PrivateKey());
+  bind_value(input_7, () => get(privateKeyHex), ($$value) => set(privateKeyHex, $$value));
+  event("input", input_7, () => generateKeysFromHexPrivateKey());
+  bind_value(input_8, () => get(publicKeyBase64), ($$value) => set(publicKeyBase64, $$value));
+  event("input", input_8, () => addressFromPublicKeyBase64());
+  bind_value(input_9, () => get(publicKey), ($$value) => set(publicKey, $$value));
+  event("input", input_9, () => addressFromPublicKey());
+  append($$anchor, main);
+  pop();
+}
+export {
+  Ed25519AddressGeneration as default
+};
