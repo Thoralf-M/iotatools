@@ -732,12 +732,18 @@ export async function processStakeTransactionsWithExchangeRates(
 
         // Merge stake objects from this address into the combined map
         stakeObjects.forEach((stakeObject, key) => {
-            // If the object already exists, it means it was transferred between addresses we're tracking
-            // We keep it and mark that it was owned by the target address
             if (allStakeObjects.has(key)) {
                 const existing = allStakeObjects.get(key)!;
+
+                // Update ownership flag
                 if (stakeObject.wasOwnedByTargetAddress) {
                     existing.wasOwnedByTargetAddress = true;
+                }
+
+                // Merge lastEpoch: use the minimum to ensure we stop tracking when transferred away
+                // If one address detected a transfer away (lastEpoch < currentEpoch), respect that
+                if (stakeObject.lastEpoch < existing.lastEpoch) {
+                    existing.lastEpoch = stakeObject.lastEpoch;
                 }
             } else {
                 allStakeObjects.set(key, stakeObject);
