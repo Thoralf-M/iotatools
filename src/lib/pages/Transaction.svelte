@@ -22,13 +22,34 @@
     let transactionData: any = null;
     let error = '';
     let loading = false;
-    let inputType: 'base64' | 'base58' | 'json' | null = null;
 
     // GraphQL pagination
     let currentCursor: string | null = null;
-    let hasNextPage = false;
+    let hasPrevious = false;
+    let hasNext = false;
     let loadingLatest = false;
     let loadingPrevious = false;
+    let loadingNext = false;
+
+    // Filter options
+    let showFilters = false;
+    let inputObjectFilter = '';
+    let functionFilter = '';
+
+    function buildFilter() {
+        const filter: any = { kind: 'PROGRAMMABLE_TX' };
+        if (inputObjectFilter.trim()) {
+            filter.inputObject = inputObjectFilter.trim();
+        }
+        if (functionFilter.trim()) {
+            filter.function = functionFilter.trim();
+        }
+        return filter;
+    }
+
+    function hasFilters() {
+        return inputObjectFilter.trim() || functionFilter.trim();
+    }
 
     // Initialize from query parameters
     onMount(() => {
@@ -71,7 +92,6 @@
         try {
             loading = true;
             error = '';
-            transactionData = null;
 
             const client = getClient();
             const tx = await client.getTransactionBlock({
@@ -116,7 +136,6 @@
                     transactionData.transactionBytes = tx.rawTransaction;
                 }
             }
-            inputType = 'base58';
 
             // Update query parameters with the digest
             updatePageQueryParams({ txInput: digest });
@@ -151,12 +170,10 @@
         try {
             loading = true;
             error = '';
-            transactionData = null;
 
             if (type === 'json') {
                 const parsed = JSON.parse(input);
                 transactionData = parsed;
-                inputType = 'json';
             } else if (type === 'base64') {
                 // Try multiple decoding methods like in Converter page
                 let decoded = false;
@@ -167,7 +184,6 @@
                     transactionData = TransactionDataBuilder.fromBytes(txBytes);
                     // Add the original transaction bytes for dry run functionality
                     transactionData.transactionBytes = input;
-                    inputType = 'base64';
                     decoded = true;
                 } catch (e1) {
                     console.log(
@@ -181,7 +197,6 @@
                         if (jsonData && jsonData.intentMessage && jsonData.txSignatures) {
                             // This is a JSON signed transaction format
                             transactionData = getTransactionData(jsonData);
-                            inputType = 'json';
                             decoded = true;
                         } else {
                             throw new Error('Not a signed transaction JSON format');
@@ -212,7 +227,6 @@
                             } else {
                                 throw new Error('Unsupported transaction kind');
                             }
-                            inputType = 'base64';
                             decoded = true;
                         } catch (e3) {
                             console.log('SenderSignedData failed:', e3);
@@ -245,8 +259,8 @@
 
             const result = await graphqlClient.query({
                 query: `
-                    query {
-                        transactionBlocks(last: 1, filter: {kind: PROGRAMMABLE_TX}) {
+                    query($filter: TransactionBlockFilter) {
+                        transactionBlocks(last: 1, filter: $filter${hasFilters() ? ', scanLimit: 100000000' : ''}) {
                             nodes {
                                 digest
                             }
@@ -259,6 +273,9 @@
                         }
                     }
                 `,
+                variables: {
+                    filter: buildFilter(),
+                },
             });
 
             const nodes = result.data?.transactionBlocks?.nodes;
@@ -271,7 +288,8 @@
 
             const digest = nodes[0].digest;
             currentCursor = pageInfo?.startCursor || null;
-            hasNextPage = pageInfo?.hasPreviousPage || false;
+            hasPrevious = pageInfo?.hasPreviousPage || false;
+            hasNext = false;
             // Update textarea with the digest
             txInput = digest;
             if (txBytesTextarea) {
@@ -302,8 +320,8 @@
 
             const result = await graphqlClient.query({
                 query: `
-                    query {
-                        transactionBlocks(before: "${currentCursor}", last: 1, filter: {kind: PROGRAMMABLE_TX}) {
+                    query($cursor: String!, $filter: TransactionBlockFilter) {
+                        transactionBlocks(before: $cursor, last: 1, filter: $filter${hasFilters() ? ', scanLimit: 100000000' : ''}) {
                             nodes {
                                 digest
                             }
@@ -316,6 +334,10 @@
                         }
                     }
                 `,
+                variables: {
+                    cursor: currentCursor,
+                    filter: buildFilter(),
+                },
             });
 
             const nodes = result.data?.transactionBlocks?.nodes;
@@ -328,7 +350,8 @@
 
             const digest = nodes[0].digest;
             currentCursor = pageInfo?.startCursor || null;
-            hasNextPage = pageInfo?.hasPreviousPage || false;
+            hasPrevious = pageInfo?.hasPreviousPage || false;
+            hasNext = pageInfo?.hasNextPage || false;
 
             // Update textarea with the digest
             txInput = digest;
@@ -341,6 +364,70 @@
             error = `Failed to fetch previous PTB: ${e.message || e}`;
         } finally {
             loadingPrevious = false;
+        }
+    }
+
+    async function fetchNextPTB() {
+        if (!currentCursor) {
+            error = 'No cursor available for pagination';
+            return;
+        }
+
+        try {
+            loadingNext = true;
+            error = '';
+
+            const config = getSelectedNetworkConfig();
+            const graphqlClient = new IotaGraphQLClient({
+                url: config.graphql,
+            });
+
+            const result = await graphqlClient.query({
+                query: `
+                    query($cursor: String!, $filter: TransactionBlockFilter) {
+                        transactionBlocks(after: $cursor, first: 1, filter: $filter${hasFilters() ? ', scanLimit: 100000000' : ''}) {
+                            nodes {
+                                digest
+                            }
+                            pageInfo {
+                                startCursor
+                                endCursor
+                                hasNextPage
+                                hasPreviousPage
+                            }
+                        }
+                    }
+                `,
+                variables: {
+                    cursor: currentCursor,
+                    filter: buildFilter(),
+                },
+            });
+
+            const nodes = result.data?.transactionBlocks?.nodes;
+            const pageInfo = result.data?.transactionBlocks?.pageInfo;
+
+            if (!nodes || nodes.length === 0) {
+                error = 'No more PTB transactions found';
+                return;
+            }
+
+            const digest = nodes[0].digest;
+            currentCursor = pageInfo?.startCursor || null;
+            hasPrevious = pageInfo?.hasPreviousPage || false;
+            hasNext = pageInfo?.hasNextPage || false;
+
+            // Update textarea with the digest
+            txInput = digest;
+            if (txBytesTextarea) {
+                txBytesTextarea.value = digest;
+            }
+
+            await fetchTransactionByDigest(digest);
+        } catch (e: any) {
+            error = `Failed to fetch next PTB: ${e.message || e}`;
+        } finally {
+            loadingNext = false;
         }
     }
 
@@ -404,9 +491,15 @@
                 {loadingLatest ? 'Loading...' : 'Fetch Latest PTB'}
             </button>
 
-            <button onclick={fetchPreviousPTB} disabled={loadingPrevious || !hasNextPage}>
+            <button onclick={fetchPreviousPTB} disabled={loadingPrevious || !hasPrevious}>
                 {loadingPrevious ? 'Loading...' : 'Previous PTB'}
             </button>
+
+            <button onclick={fetchNextPTB} disabled={loadingNext || !hasNext}>
+                {loadingNext ? 'Loading...' : 'Next PTB'}
+            </button>
+
+            <button onclick={() => (showFilters = !showFilters)}> Filter options </button>
 
             <div class="divider"></div>
 
@@ -418,14 +511,36 @@
                 Example Signed Tx (base64)
             </button>
         </div>
-    </div>
 
-    {#if loading}
-        <div class="loading-message">
-            <div class="spinner"></div>
-            <span>Loading transaction...</span>
-        </div>
-    {/if}
+        {#if showFilters}
+            <div class="filter-section">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label for="input-object-filter">Input Object:</label>
+                        <input
+                            id="input-object-filter"
+                            type="text"
+                            bind:value={inputObjectFilter}
+                            placeholder="0x... object ID"
+                            disabled={loading}
+                        />
+                    </div>
+                    <div class="filter-group">
+                        <label for="function-filter"
+                            >Function (package, package::module, or package::module::function):</label
+                        >
+                        <input
+                            id="function-filter"
+                            type="text"
+                            bind:value={functionFilter}
+                            placeholder="package::module::function"
+                            disabled={loading}
+                        />
+                    </div>
+                </div>
+            </div>
+        {/if}
+    </div>
 
     {#if error}
         <div class="error-message">
@@ -434,15 +549,17 @@
         </div>
     {/if}
 
-    {#if transactionData && !loading}
+    {#if transactionData || loading}
         <div class="transaction-result">
-            <div class="result-header">
-                <h3>Transaction Data</h3>
-                {#if inputType}
-                    <span class="input-type-badge">{inputType}</span>
-                {/if}
-            </div>
-            <TransactionView value={transactionData} />
+            {#if loading}
+                <div class="loading-message">
+                    <div class="spinner"></div>
+                    <span>Loading transaction...</span>
+                </div>
+            {/if}
+            {#if transactionData}
+                <TransactionView value={transactionData} />
+            {/if}
         </div>
     {/if}
 </div>
@@ -453,6 +570,7 @@
         max-width: 1200px;
         margin: 0 auto;
         padding: 1rem;
+        min-height: 120vh;
     }
 
     h2 {
@@ -581,17 +699,6 @@
         font-size: 1.2rem;
     }
 
-    .input-type-badge {
-        padding: 0.25rem 0.75rem;
-        background: rgba(59, 130, 246, 0.2);
-        border: 1px solid rgba(59, 130, 246, 0.3);
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: rgba(59, 130, 246, 1);
-        text-transform: uppercase;
-    }
-
     .examples-label {
         color: rgba(255, 255, 255, 0.7);
         font-weight: 500;
@@ -614,6 +721,50 @@
         background: rgba(16, 185, 129, 0.25);
         border-color: rgba(16, 185, 129, 0.5);
         transform: translateY(-1px);
+    }
+
+    .filter-section {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(30, 30, 40, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+    }
+
+    .filter-row {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filter-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: rgba(255, 255, 255, 0.85);
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .filter-group input {
+        width: 100%;
+        padding: 0.5rem;
+        background: rgba(30, 30, 40, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        color: rgba(255, 255, 255, 0.9);
+        font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+        font-size: 0.85rem;
+    }
+
+    .filter-group input:focus {
+        outline: none;
+        border-color: rgba(59, 130, 246, 0.5);
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
     }
 
     @media (max-width: 768px) {
@@ -645,6 +796,14 @@
 
         .example-btn {
             width: 100%;
+        }
+
+        .filter-row {
+            flex-direction: column;
+        }
+
+        .filter-group {
+            min-width: unset;
         }
     }
 </style>

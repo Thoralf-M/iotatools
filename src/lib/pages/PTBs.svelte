@@ -409,6 +409,50 @@
         }
     }
 
+    function hasPreviousCheckpoint() {
+        if (!selectedCheckpoint) return false;
+        const current = parseInt(selectedCheckpoint);
+        return displayData.checkpointData.some(
+            (cp) => cp.transactionCount > 0 && cp.sequenceNumber < current,
+        );
+    }
+
+    function hasNextCheckpoint() {
+        if (!selectedCheckpoint) return false;
+        const current = parseInt(selectedCheckpoint);
+        return displayData.checkpointData.some(
+            (cp) => cp.transactionCount > 0 && cp.sequenceNumber > current,
+        );
+    }
+
+    function previousCheckpoint() {
+        if (!selectedCheckpoint) return;
+        const current = parseInt(selectedCheckpoint);
+        const checkpointsWithTxs = displayData.checkpointData
+            .filter((cp) => cp.transactionCount > 0)
+            .map((cp) => cp.sequenceNumber)
+            .sort((a, b) => a - b);
+        const lower = checkpointsWithTxs.filter((num) => num < current).pop();
+        if (lower !== undefined) {
+            selectedCheckpoint = lower.toString();
+            fetchCheckpointTransactions(selectedCheckpoint);
+        }
+    }
+
+    function nextCheckpoint() {
+        if (!selectedCheckpoint) return;
+        const current = parseInt(selectedCheckpoint);
+        const checkpointsWithTxs = displayData.checkpointData
+            .filter((cp) => cp.transactionCount > 0)
+            .map((cp) => cp.sequenceNumber)
+            .sort((a, b) => a - b);
+        const higher = checkpointsWithTxs.find((num) => num > current);
+        if (higher !== undefined) {
+            selectedCheckpoint = higher.toString();
+            fetchCheckpointTransactions(selectedCheckpoint);
+        }
+    }
+
     function toggleTransactionIds(event: Event) {
         const detailsElement = event.target as HTMLDetailsElement;
         const functionItem =
@@ -1074,15 +1118,27 @@
                     <h4>Checkpoint Inspector</h4>
                     <div class="checkpoint-input-section">
                         <label for="checkpoint-input">Checkpoint Number:</label>
-                        <input
-                            id="checkpoint-input"
-                            type="number"
-                            bind:value={selectedCheckpoint}
-                            on:input={onCheckpointInputChange}
-                            placeholder="Enter checkpoint number or click on chart"
-                            min="0"
-                            disabled={loadingCheckpointTransactions}
-                        />
+                        <div class="checkpoint-input-container">
+                            <button
+                                on:click={previousCheckpoint}
+                                disabled={!selectedCheckpoint || !hasPreviousCheckpoint()}
+                                >&lt;</button
+                            >
+                            <input
+                                id="checkpoint-input"
+                                type="number"
+                                bind:value={selectedCheckpoint}
+                                on:input={onCheckpointInputChange}
+                                placeholder="Enter checkpoint number or click on chart"
+                                min="0"
+                                disabled={loadingCheckpointTransactions}
+                                style="width: 8rem;"
+                            />
+                            <button
+                                on:click={nextCheckpoint}
+                                disabled={!selectedCheckpoint || !hasNextCheckpoint()}>&gt;</button
+                            >
+                        </div>
                         {#if selectedCheckpoint}
                             <button
                                 class="clear-checkpoint-btn"
@@ -1777,6 +1833,31 @@
     .checkpoint-input-section label {
         font-weight: bold;
         min-width: 140px;
+    }
+
+    .checkpoint-input-container {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .checkpoint-input-container button {
+        padding: 4px 8px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        background-color: #444c54;
+        cursor: pointer;
+        font-size: 14px;
+        min-width: 30px;
+    }
+
+    .checkpoint-input-container button:hover:not(:disabled) {
+        background-color: #e9ecef;
+    }
+
+    .checkpoint-input-container button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
     .checkpoint-input-section input {
