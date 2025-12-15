@@ -1,0 +1,11 @@
+
+    textarea.svelte-chp9cy {
+        border: 1px solid #cccccc;
+    }
+    textarea.error.svelte-chp9cy {
+        border-color: #ff0000;
+    }
+    textarea.error.svelte-chp9cy:focus {
+        outline: #ff0000 solid 1px;
+        border-radius: 4px;
+    }

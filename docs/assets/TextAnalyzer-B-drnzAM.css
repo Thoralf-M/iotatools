@@ -1,0 +1,105 @@
+
+    main.svelte-1eo1h63 {
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 1em;
+    }
+
+    .text-input-container.svelte-1eo1h63 {
+        margin-bottom: 1em;
+    }
+
+    .text-input.svelte-1eo1h63 {
+        width: 98%;
+        height: 150px;
+        font-family: monospace;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 0.5em;
+        resize: vertical;
+        box-sizing: border-box;
+        margin: 0;
+        outline: none;
+    }
+
+    .controls.svelte-1eo1h63 {
+        display: flex;
+        align-items: center;
+        gap: 1em;
+        margin-top: 0.5em;
+    }
+
+    .limit-input.svelte-1eo1h63 {
+        width: 80px;
+        padding: 0.25em;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .repeat-button.svelte-1eo1h63 {
+        padding: 0.25em 0.5em;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9em;
+        white-space: nowrap;
+    }
+
+    .repeat-button.svelte-1eo1h63:hover:not(:disabled) {
+        background: #e9ecef;
+    }
+
+    .repeat-button.svelte-1eo1h63:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .preview-text.svelte-1eo1h63 {
+        font-family: monospace;
+        background-color: rgba(55, 65, 81, 0.5);
+        padding: 0.25em 0.5em;
+        border-radius: 4px;
+        word-break: break-all;
+        flex: 1;
+    }
+
+    .highlighted-text.svelte-1eo1h63 {
+        color: rgba(59, 130, 246, 1);
+    }
+
+    .remaining-text.svelte-1eo1h63 {
+        color: #666;
+    }
+
+    .status-missing.svelte-1eo1h63 {
+        color: #ff6b6b;
+        font-size: 0.9em;
+    }
+
+    .status-more.svelte-1eo1h63 {
+        color: #4ade80;
+        font-size: 0.9em;
+    }
+
+    .metrics-grid.svelte-1eo1h63 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1em;
+        margin-top: 1em;
+    }
+
+    .metric-box.svelte-1eo1h63 {
+        border: 1px solid #545454;
+        border-radius: 8px;
+        padding: 1em;
+        margin-top: 1em;
+    }
+
+    .metric-title.svelte-1eo1h63 {
+        margin: 0 0 0.5em 0;
+        color: #818181;
+    }
+
+    .metric-content.svelte-1eo1h63 {
+        font-family: monospace;
+    }
