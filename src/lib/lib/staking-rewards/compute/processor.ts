@@ -745,11 +745,23 @@ export async function processStakeTransactionsWithExchangeRates(
                     existing.firstEpoch = stakeObject.firstEpoch;
                 }
 
-                // Merge lastEpoch: use the minimum to ensure we stop tracking when transferred away
-                // If one address detected a transfer away (lastEpoch < currentEpoch), respect that
-                if (stakeObject.lastEpoch < existing.lastEpoch) {
+                // Merge lastEpoch with smart logic:
+                // - Only consider lastEpoch from objects that were actually owned (wasOwnedByTargetAddress = true)
+                // - If both owned: use maximum to handle transfers between tracked addresses
+                // - If only one owned: use that one's lastEpoch
+                // - If neither owned (shouldn't happen after filtering): use minimum as fallback
+                if (stakeObject.wasOwnedByTargetAddress && existing.wasOwnedByTargetAddress) {
+                    // Both addresses owned this object at some point - use maximum
+                    // This handles transfers between tracked addresses correctly
+                    existing.lastEpoch = Math.max(stakeObject.lastEpoch, existing.lastEpoch);
+                } else if (
+                    stakeObject.wasOwnedByTargetAddress &&
+                    !existing.wasOwnedByTargetAddress
+                ) {
+                    // Only the new object was owned, use its lastEpoch
                     existing.lastEpoch = stakeObject.lastEpoch;
                 }
+                // If only existing was owned, keep existing.lastEpoch (do nothing)
             } else {
                 allStakeObjects.set(key, stakeObject);
             }
