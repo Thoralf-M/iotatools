@@ -81,6 +81,7 @@
     let packageErrors = $state<Record<string, string>>({});
     let shortPackageIds = $state(true);
     let showTypeInfo = $state(true);
+    let hasAutoFetched = $state(false);
 
     type Segment = {
         type:
@@ -1073,6 +1074,23 @@
             await fetchPackageInfo(pkg);
         }
     }
+
+    // Reset auto-fetch flag when transaction data changes
+    $effect(() => {
+        // Reference transactionData to make this effect reactive to changes in the prop.
+        // When transactionData changes (e.g., viewing a different transaction),
+        // this effect runs and resets hasAutoFetched to enable auto-fetch for the new transaction.
+        transactionData;
+        hasAutoFetched = false;
+    });
+
+    // Automatically fetch type info when the component loads
+    $effect(() => {
+        if (commands.length > 0 && !hasAutoFetched && !hasPackagesCached()) {
+            hasAutoFetched = true;
+            loadAllPackages();
+        }
+    });
 </script>
 
 {#if commands.length > 0}
