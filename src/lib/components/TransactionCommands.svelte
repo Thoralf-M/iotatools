@@ -81,6 +81,7 @@
     let packageErrors = $state<Record<string, string>>({});
     let shortPackageIds = $state(true);
     let showTypeInfo = $state(true);
+    let hasAutoFetched = $state(false);
 
     type Segment = {
         type:
@@ -1073,6 +1074,14 @@
             await fetchPackageInfo(pkg);
         }
     }
+
+    // Automatically fetch type info when the component loads
+    $effect(() => {
+        if (commands.length > 0 && !hasAutoFetched && !hasPackagesCached()) {
+            hasAutoFetched = true;
+            loadAllPackages();
+        }
+    });
 </script>
 
 {#if commands.length > 0}
