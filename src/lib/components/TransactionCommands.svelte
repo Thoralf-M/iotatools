@@ -1077,7 +1077,9 @@
 
     // Reset auto-fetch flag when transaction data changes
     $effect(() => {
-        // Track transactionData to reset the flag on change
+        // Reference transactionData to make this effect reactive to changes in the prop.
+        // When transactionData changes (e.g., viewing a different transaction),
+        // this effect runs and resets hasAutoFetched to enable auto-fetch for the new transaction.
         transactionData;
         hasAutoFetched = false;
     });
