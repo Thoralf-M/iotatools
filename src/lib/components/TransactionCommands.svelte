@@ -442,7 +442,7 @@
 
         // Add parameter type if available
         if (paramType) {
-            segments.push(...formatType(paramType, full, true));
+            segments.push(...formatType(paramType, full, true, []));
             segments.push({ type: 'text', value: ': ' });
         }
 
@@ -650,7 +650,19 @@
         return segments;
     }
 
-    function formatType(type: string, full: boolean, interactive: boolean = true): Segment[] {
+    function substituteTypeArgs(typeStr: string, typeArgs: string[]): string {
+        return typeStr.replace(/\$(\d+)/g, (match, index) => {
+            const idx = parseInt(index);
+            return typeArgs[idx] || match;
+        });
+    }
+
+    function formatType(
+        type: string,
+        full: boolean,
+        interactive: boolean = true,
+        typeArgs: string[] = [],
+    ): Segment[] {
         const segments: Segment[] = [];
 
         // Handle reference types like &mut or &
@@ -672,7 +684,7 @@
         const genericMatch = remainingType.match(/^([^<]+)<(.+)>$/);
         if (genericMatch) {
             const [_, baseType, innerTypes] = genericMatch;
-            segments.push(...formatType(baseType, full, interactive));
+            segments.push(...formatType(baseType, full, interactive, typeArgs));
             segments.push({ type: 'text', value: '<' });
 
             // Parse inner types (handle nested generics and multiple type parameters)
@@ -695,7 +707,7 @@
 
             typeParams.forEach((param, idx) => {
                 if (idx > 0) segments.push({ type: 'text', value: ', ' });
-                segments.push(...formatType(param, full, interactive));
+                segments.push(...formatType(param, full, interactive, typeArgs));
             });
 
             segments.push({ type: 'text', value: '>' });
@@ -743,7 +755,7 @@
             const pkg = data.package;
             const mod = data.module;
             const fun = data.function;
-            const typeArgs = data.typeArguments || [];
+            const typeArgs = data.type_arguments || [];
             const args = data.arguments || [];
 
             let displayPkg = trimAddress(pkg);
@@ -773,7 +785,7 @@
                 segments.push({ type: 'text', value: '<' });
                 typeArgs.forEach((typeArg: string, i: number) => {
                     if (i > 0) segments.push({ type: 'text', value: ', ' });
-                    segments.push(...formatType(typeArg, full));
+                    segments.push(...formatType(typeArg, full, true, typeArgs));
                 });
                 segments.push({ type: 'text', value: '>' });
             }
@@ -788,14 +800,18 @@
                 segments.push({ type: 'text', value: '\n    ' });
                 args.forEach((arg: any, i: number) => {
                     if (i > 0) segments.push({ type: 'text', value: ',\n    ' });
-                    const paramType = paramTypes[i]?.repr || null;
+                    const paramType = paramTypes[i]?.repr
+                        ? substituteTypeArgs(paramTypes[i].repr, typeArgs)
+                        : null;
                     segments.push(...resolveArgument(arg, full, paramType));
                 });
                 segments.push({ type: 'text', value: '\n)' });
             } else {
                 args.forEach((arg: any, i: number) => {
                     if (i > 0) segments.push({ type: 'text', value: ', ' });
-                    const paramType = paramTypes[i]?.repr || null;
+                    const paramType = paramTypes[i]?.repr
+                        ? substituteTypeArgs(paramTypes[i].repr, typeArgs)
+                        : null;
                     segments.push(...resolveArgument(arg, full, paramType));
                 });
                 segments.push({ type: 'text', value: ')' });
@@ -805,7 +821,7 @@
             if (funcInfo?.return) {
                 const returnTypes = funcInfo.return;
                 if (Array.isArray(returnTypes) && returnTypes.length > 0) {
-                    segments.push({ type: 'text', value: ' -> ' });
+                    segments.push({ type: 'text', value: '-> ' });
 
                     // Check if this has nested results
                     const usage = getUsage(index, commands);
@@ -820,12 +836,9 @@
                                 return;
                             }
                             if (seg.type === 'result-def') {
-                                if (
-                                    idx > 0 &&
-                                    usage[idx - 1].value !== '(' &&
-                                    !usage[idx - 1].value.includes('->')
-                                )
-                                    segments.push({ type: 'text', value: ' ' });
+                                let indent = '  ';
+                                if (idx === 1) indent = '';
+                                segments.push({ type: 'text', value: indent });
                                 segments.push(seg); // Keep the Result(X) or Result(X, Y)
                                 // Add type annotation
                                 const resultMatch = seg.value.match(/Result\((\d+)(?:, (\d+))?\)/);
@@ -839,11 +852,24 @@
                                             : returnTypes[0];
                                     if (typeInfo?.repr) {
                                         segments.push({ type: 'text', value: ': ' });
-                                        segments.push(...formatType(typeInfo.repr, full, true));
+                                        const typeSegments = formatType(
+                                            substituteTypeArgs(typeInfo.repr, typeArgs),
+                                            full,
+                                            true,
+                                            typeArgs,
+                                        );
+                                        typeSegments.forEach((s) => {
+                                            s.id = seg.id;
+                                        });
+                                        segments.push(...typeSegments);
                                     }
                                 }
                             } else {
-                                segments.push(seg);
+                                if (seg.type === 'text' && seg.value === ', ') {
+                                    segments.push({ type: 'text', value: ',\n  ' });
+                                } else {
+                                    segments.push(seg);
+                                }
                             }
                         });
                     } else {
@@ -855,14 +881,26 @@
                         });
                         segments.push({ type: 'text', value: ': ' });
                         if (returnTypes.length === 1) {
-                            segments.push(
-                                ...formatType(returnTypes[0].repr || 'unknown', full, true),
+                            const typeSegments = formatType(
+                                substituteTypeArgs(returnTypes[0].repr || 'unknown', typeArgs),
+                                full,
+                                true,
+                                typeArgs,
                             );
+                            typeSegments.forEach((s) => (s.id = `result:${index}`));
+                            segments.push(...typeSegments);
                         } else {
                             segments.push({ type: 'text', value: '(' });
                             returnTypes.forEach((ret: any, i: number) => {
                                 if (i > 0) segments.push({ type: 'text', value: ', ' });
-                                segments.push(...formatType(ret.repr || 'unknown', full, true));
+                                const typeSegments = formatType(
+                                    substituteTypeArgs(ret.repr || 'unknown', typeArgs),
+                                    full,
+                                    true,
+                                    typeArgs,
+                                );
+                                typeSegments.forEach((s) => (s.id = `result:${index}`));
+                                segments.push(...typeSegments);
                             });
                             segments.push({ type: 'text', value: ')' });
                         }
@@ -1009,7 +1047,7 @@
             const elements = Array.isArray(data) ? data[1] : data.elements || [];
 
             segments.push({ type: 'text', value: 'MakeMoveVec<' });
-            segments.push(...formatType(type, full));
+            segments.push(...formatType(type, full, true, []));
             segments.push({ type: 'text', value: '>(' });
 
             if (full && elements.length > 0) {
@@ -1036,7 +1074,7 @@
                 id: `result:${index}`,
             });
             segments.push({ type: 'text', value: ': vector<' });
-            segments.push(...formatType(type, full, true));
+            segments.push(...formatType(type, full, true, []));
             segments.push({ type: 'text', value: '>' });
         } else if (kind === 'Upgrade') {
             segments.push({ type: 'text', value: 'Upgrade(...)' });

@@ -567,7 +567,6 @@
 <style>
     .transaction-page {
         width: 100%;
-        max-width: 1200px;
         margin: 0 auto;
         padding: 1rem;
         min-height: 120vh;
