@@ -1075,6 +1075,13 @@
         }
     }
 
+    // Reset auto-fetch flag when transaction data changes
+    $effect(() => {
+        // Track transactionData to reset the flag on change
+        transactionData;
+        hasAutoFetched = false;
+    });
+
     // Automatically fetch type info when the component loads
     $effect(() => {
         if (commands.length > 0 && !hasAutoFetched && !hasPackagesCached()) {
