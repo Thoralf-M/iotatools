@@ -11,6 +11,7 @@
     const pageImports = {
         IotaSystemState: () => import('./lib/pages/IotaSystemState.svelte'),
         Transaction: () => import('./lib/pages/Transaction.svelte'),
+        Object: () => import('./lib/pages/Object.svelte'),
         PTBs: () => import('./lib/pages/PTBs.svelte'),
         DynamicFields: () => import('./lib/pages/DynamicFields.svelte'),
         StakingRewards: () => import('./lib/pages/StakingRewards.svelte'),
@@ -38,6 +39,7 @@
         '/': wrap({ asyncComponent: pageImports['IotaSystemState'] }),
         '/iota-system-state': wrap({ asyncComponent: pageImports['IotaSystemState'] }),
         '/transaction': wrap({ asyncComponent: pageImports['Transaction'] }),
+        '/object': wrap({ asyncComponent: pageImports['Object'] }),
         '/ptbs': wrap({ asyncComponent: pageImports['PTBs'] }),
         '/dynamic-fields': wrap({ asyncComponent: pageImports['DynamicFields'] }),
         '/staking-rewards': wrap({ asyncComponent: pageImports['StakingRewards'] }),
@@ -65,6 +67,7 @@
     const allItems = [
         { label: 'IOTA System State', route: '/iota-system-state', group: 'Info' },
         { label: 'Transaction', route: '/transaction', group: 'Info' },
+        { label: 'Object', route: '/object', group: 'Info' },
         { label: 'PTBs', route: '/ptbs', group: 'Info' },
         { label: 'Dynamic Fields', route: '/dynamic-fields', group: 'Info' },
         { label: 'Staking Rewards', route: '/staking-rewards', group: 'Info' },
@@ -124,6 +127,7 @@
             tabComponents={{
                 '/iota-system-state': pageImports.IotaSystemState,
                 '/transaction': pageImports.Transaction,
+                '/object': pageImports.Object,
                 '/ptbs': pageImports.PTBs,
                 '/dynamic-fields': pageImports.DynamicFields,
                 '/staking-rewards': pageImports.StakingRewards,
