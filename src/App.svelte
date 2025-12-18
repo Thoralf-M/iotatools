@@ -32,6 +32,7 @@
         Ed25519AddressGeneration: () => import('./lib/pages/Ed25519AddressGeneration.svelte'),
         IotaNames: () => import('./lib/pages/IotaNames.svelte'),
         Settings: () => import('./lib/pages/Settings.svelte'),
+        Txs: () => import('./lib/pages/Txs.svelte'),
     };
 
     // Route definitions: map route paths to lazy-loaded components using wrap
@@ -61,6 +62,7 @@
         '/address-generation': wrap({ asyncComponent: pageImports['Ed25519AddressGeneration'] }),
         '/iota-names': wrap({ asyncComponent: pageImports['IotaNames'] }),
         '/settings': wrap({ asyncComponent: pageImports['Settings'] }),
+        '/txs': wrap({ asyncComponent: pageImports['Txs'] }),
     };
 
     // Tab items with route paths
@@ -71,6 +73,7 @@
         { label: 'PTBs', route: '/ptbs', group: 'Info' },
         { label: 'Dynamic Fields', route: '/dynamic-fields', group: 'Info' },
         { label: 'Staking Rewards', route: '/staking-rewards', group: 'Info' },
+        { label: 'Txs', route: '/txs', group: 'Info' },
         { label: 'Multi Account View', route: '/multi-account-view', group: 'Wallet' },
         { label: 'Accounts List', route: '/accounts-list', group: 'Wallet' },
         { label: 'Keystone', route: '/keystone', group: 'Wallet' },
@@ -147,6 +150,7 @@
                 '/address-generation': pageImports.Ed25519AddressGeneration,
                 '/iota-names': pageImports.IotaNames,
                 '/settings': pageImports.Settings,
+                '/txs': pageImports.Txs,
             }}
         />
     </div>
