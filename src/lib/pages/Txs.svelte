@@ -1,7 +1,11 @@
 <script lang="ts">
     import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
     import { onMount } from 'svelte';
-    import * as d3 from 'd3';
+    import cytoscape from 'cytoscape';
+    // @ts-ignore
+    import cytoscapeDagre from 'cytoscape-dagre';
+
+    cytoscape.use(cytoscapeDagre);
 
     import ObjectView from '../components/ObjectView.svelte';
     import TransactionView from '../components/TransactionView.svelte';
@@ -52,7 +56,7 @@
 
     // Graph elements
     let graphContainer = $state<HTMLDivElement>();
-    let svgElement = $state<SVGSVGElement>();
+    let graphElement = $state<HTMLElement>();
 
     // Transaction data
     interface CreatedObject {
@@ -99,8 +103,10 @@
     let showTransactionPopup = $state(false);
     let showObjectPopup = $state(false);
 
+    let cyInstance: any;
+
     // Hover state for highlighting
-    let hoveredObjectId = $state<string | null>(null);
+    let hoveredObjectId: string | null = null;
 
     // Expanded objects inline (not popup) - uses composite key "txDigest:objectId"
     let expandedCreatedObjects = $state<Set<string>>(new Set());
@@ -840,6 +846,22 @@
         return `${id.slice(0, chars)}...${id.slice(-chars)}`;
     }
 
+    function centerGraph() {
+        cyInstance?.center();
+    }
+
+    function zoomIn() {
+        cyInstance?.zoom(cyInstance.zoom() * 1.2);
+    }
+
+    function zoomOut() {
+        cyInstance?.zoom(cyInstance.zoom() / 1.2);
+    }
+
+    function resetZoom() {
+        cyInstance?.fit();
+    }
+
     function shortenType(type: string): string {
         // Extract just the struct name from a full type like "0x2::coin::Coin<0x2::iota::IOTA>"
         const match = type.match(/::([^:]+?)(?:<|$)/);
@@ -848,25 +870,21 @@
     }
 
     function renderGraph() {
-        if (!svgElement || !graphContainer || viewMode !== 'graph' || sortedTransactions.length === 0) return;
+        if (!graphElement || !graphContainer || viewMode !== 'graph' || sortedTransactions.length === 0) return;
 
         // Clear previous graph
-        d3.select(svgElement).selectAll('*').remove();
+        graphElement.innerHTML = '';
 
         const width = graphContainer.clientWidth;
         const height = graphContainer.clientHeight || 600;
 
-        const svg = d3.select(svgElement)
-            .attr('width', width)
-            .attr('height', height);
-
         // Prepare nodes and links
-        const nodes: (d3.SimulationNodeDatum & { id: string; tx: TransactionNode })[] = sortedTransactions.map(tx => ({
+        const nodes: { id: string; tx: TransactionNode }[] = sortedTransactions.map(tx => ({
             id: tx.digest,
             tx,
         }));
 
-        const links: (d3.SimulationLinkDatum<d3.SimulationNodeDatum & { id: string; tx: TransactionNode }> & { objectId: string })[] = [];
+        const links: { source: string; target: string; objectId: string }[] = [];
 
         const txIds = new Set(sortedTransactions.map(tx => tx.digest));
         const txMap = new Map(sortedTransactions.map(tx => [tx.digest, tx]));
@@ -961,124 +979,91 @@
             }
         }
 
-        // Group nodes by checkpoint for layered layout
-        const checkpointGroups = new Map<number, typeof nodes>();
-        for (const node of nodes) {
-            const cp = node.tx.checkpoint;
-            if (!checkpointGroups.has(cp)) checkpointGroups.set(cp, []);
-            checkpointGroups.get(cp)!.push(node);
+        // Prepare Cytoscape elements
+        const elements: any[] = [];
+
+        for (const tx of sortedTransactions) {
+            elements.push({
+                data: {
+                    id: tx.digest,
+                    label: shortenId(tx.digest, 8),
+                    rank: tx.checkpoint
+                }
+            });
         }
 
-        // Sort checkpoints
-        const sortedCheckpoints = Array.from(checkpointGroups.keys()).sort((a, b) => a - b);
-
-        // Assign y positions to layers
-        const layerHeight = height / (sortedCheckpoints.length * 1.5 + 1);
-        sortedCheckpoints.forEach((cp, index) => {
-            const layerNodes = checkpointGroups.get(cp)!;
-            const y = layerHeight * (index + 1);
-            layerNodes.forEach(node => {
-                (node as any).fy = y;
+        for (const link of links) {
+            elements.push({
+                data: {
+                    source: link.source,
+                    target: link.target
+                }
             });
+        }
+
+        // CRITICAL: Set explicit pixel dimensions on the container BEFORE Cytoscape init
+        // Use the already-calculated width/height from clientWidth/clientHeight
+        graphElement.style.width = width + 'px';
+        graphElement.style.height = height + 'px';
+        
+        const cy = cytoscape({
+            container: graphElement,
+            elements: [],
+            wheelSensitivity: 0.1,
+            style: [
+                {
+                    selector: 'node',
+                    style: {
+                        'background-color': '#3b82f6',
+                        'border-color': '#1e40af',
+                        'border-width': 2,
+                        'label': 'data(label)',
+                        'text-valign': 'top',
+                        'text-halign': 'center',
+                        'font-size': '10px',
+                        'color': '#fff',
+                        'width': 40,
+                        'height': 40
+                    }
+                },
+                {
+                    selector: 'edge',
+                    style: {
+                        'width': 3,
+                        'line-color': '#999',
+                        'target-arrow-color': '#999',
+                        'target-arrow-shape': 'triangle',
+                        'curve-style': 'bezier'
+                    }
+                }
+            ],
+            userZoomingEnabled: true,
+            userPanningEnabled: true,
+            boxSelectionEnabled: false
         });
+        
+        cyInstance = cy;
 
-        // Create force simulation with layered y positions
-        const simulation = d3.forceSimulation(nodes)
-            .force('link', d3.forceLink<d3.SimulationNodeDatum & { id: string; tx: TransactionNode }, d3.SimulationLinkDatum<d3.SimulationNodeDatum & { id: string; tx: TransactionNode }>>(links).id(d => d.id).distance(100))
-            .force('charge', d3.forceManyBody().strength(-300))
-            .force('x', d3.forceX(width / 2).strength(0.1))
-            .force('y', d3.forceY().strength(1).y(d => (d as any).fy));
+        cy.add(elements);
 
-        // Add zoom behavior
-        const zoom = d3.zoom<SVGSVGElement, unknown>()
-            .scaleExtent([0.1, 4])
-            .on('zoom', (event) => {
-                g.attr('transform', event.transform);
-            });
+        cy.layout({
+            name: 'dagre',
+            rankdir: 'TB',
+            nodesep: 50,
+            edgesep: 10,
+            ranksep: 100,
+            fit: false,
+            padding: 0,
+            align: 'UL'
+        } as any).run();
+        
+        // After layout, fit and resize
+        cy.resize();
+        cy.fit(undefined, 20);
 
-        svg.call(zoom);
-
-        const g = svg.append('g');
-
-        // Add arrow marker
-        svg.append('defs').append('marker')
-            .attr('id', 'arrowhead')
-            .attr('viewBox', '-0 -5 10 10')
-            .attr('refX', 25)
-            .attr('refY', 0)
-            .attr('orient', 'auto')
-            .attr('markerWidth', 6)
-            .attr('markerHeight', 6)
-            .attr('xoverflow', 'visible')
-            .append('svg:path')
-            .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-            .attr('fill', '#999')
-            .attr('stroke', 'none');
-
-        // Draw links
-        const link = g.append('g')
-            .attr('class', 'links')
-            .selectAll('line')
-            .data(links)
-            .enter().append('line')
-            .attr('stroke', '#999')
-            .attr('stroke-opacity', 0.8)
-            .attr('stroke-width', 3)
-            .attr('marker-end', 'url(#arrowhead)');
-
-        // Draw nodes
-        const node = g.append('g')
-            .attr('class', 'nodes')
-            .selectAll('circle')
-            .data(nodes)
-            .enter().append('circle')
-            .attr('r', 15)
-            .attr('fill', '#3b82f6')
-            .attr('stroke', '#1e40af')
-            .attr('stroke-width', 2)
-            .on('click', (event, d) => openTransactionPopup(d.tx.digest))
-            .call(d3.drag<SVGCircleElement, d3.SimulationNodeDatum & { id: string; tx: TransactionNode }>()
-                .on('start', (event, d) => {
-                    if (!event.active) simulation.alphaTarget(0.3).restart();
-                    (d as any).fx = d.x;
-                    (d as any).fy = (d as any).fy; // Keep y fixed to layer
-                })
-                .on('drag', (event, d) => {
-                    (d as any).fx = event.x;
-                    // Prevent y dragging to maintain layers
-                })
-                .on('end', (event, d) => {
-                    if (!event.active) simulation.alphaTarget(0);
-                    (d as any).fx = null;
-                }));
-
-        // Add labels
-        const labels = g.append('g')
-            .attr('class', 'labels')
-            .selectAll('text')
-            .data(nodes)
-            .enter().append('text')
-            .attr('dy', -20)
-            .attr('text-anchor', 'middle')
-            .attr('font-size', '10px')
-            .attr('fill', '#fff')
-            .text(d => shortenId(d.tx.digest, 8));
-
-        // Update positions
-        simulation.on('tick', () => {
-            link
-                .attr('x1', d => (d.source as any).x)
-                .attr('y1', d => (d.source as any).y)
-                .attr('x2', d => (d.target as any).x)
-                .attr('y2', d => (d.target as any).y);
-
-            node
-                .attr('cx', d => d.x!)
-                .attr('cy', d => d.y!);
-
-            labels
-                .attr('x', d => d.x!)
-                .attr('y', d => d.y!);
+        cy.on('click', 'node', function(evt) {
+            const node = evt.target;
+            openTransactionPopup(node.id());
         });
     }
 
@@ -1553,7 +1538,13 @@
                             No transactions to display. Enter transaction IDs, object IDs, or addresses above.
                         </div>
                     {:else}
-                        <svg class="graph-svg" bind:this={svgElement}></svg>
+                        <div class="cytoscape-container" bind:this={graphElement}></div>
+                        <div class="graph-controls">
+                            <button onclick={zoomIn} title="Zoom In">+</button>
+                            <button onclick={zoomOut} title="Zoom Out">-</button>
+                            <button onclick={resetZoom} title="Fit to View">🔍</button>
+                            <button onclick={centerGraph} title="Center Graph">🎯</button>
+                        </div>
                     {/if}
                 </div>
             {/if}
@@ -1854,13 +1845,59 @@
         height: 600px;
         background: rgba(30, 30, 40, 0.6);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+        box-sizing: border-box;
     }
 
-    .graph-svg {
+    .cytoscape-container {
         width: 100%;
         height: 100%;
-        background: rgba(30, 30, 40, 0.6);
+        display: block;
+        margin: 0;
+        padding: 0;
+        border: none;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    
+    /* Ensure Cytoscape's internal container doesn't center content */
+    .cytoscape-container :global(div) {
+        margin: 0;
+        padding: 0;
+    }
+    
+    /* Ensure canvas is positioned at top-left */
+    .cytoscape-container :global(canvas) {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+    }
+
+    .graph-controls {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        z-index: 10;
+        pointer-events: auto;
+    }
+
+    .graph-controls button {
+        padding: 8px 12px;
+        background: rgba(30, 30, 40, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        color: white;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .graph-controls button:hover {
+        background: rgba(59, 130, 246, 0.8);
     }
 
     .loading-message,
