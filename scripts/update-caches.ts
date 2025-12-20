@@ -15,7 +15,7 @@ import { updatePricesCache } from '../src/lib/lib/staking-rewards/price-fetching
 
 global.localStorage = {
     getItem: (key) => {
-        if (key === 'iota-utils-client-config') {
+        if (key === 'iota-tools-client-config') {
             return JSON.stringify({
                 selected: 'mainnet',
                 networks: [

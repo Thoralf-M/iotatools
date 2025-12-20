@@ -154,7 +154,7 @@
     <footer class="app-footer">
         <div class="footer-content">
             <a
-                href="https://github.com/Thoralf-M/iota-utils"
+                href="https://github.com/Thoralf-M/iotatools"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="github-link"
