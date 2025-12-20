@@ -235,6 +235,20 @@ export function isTransactionData(data: any): boolean {
         return true;
     }
 
+    // Handle web wallet signing response format (with base64 encoded bytes and effects)
+    if (
+        data &&
+        typeof data === 'object' &&
+        data.digest &&
+        data.signature &&
+        data.bytes &&
+        data.effects &&
+        typeof data.bytes === 'string' &&
+        typeof data.effects === 'string'
+    ) {
+        return true;
+    }
+
     return false;
 }
 
@@ -262,6 +276,114 @@ export function getTransactionData(data: any): any {
             ...Object.fromEntries(Object.entries(data).filter(([k]) => k !== 'transaction')),
         };
         return getTransactionData(normalized);
+    }
+
+    // Handle web wallet signing response format (with base64 encoded bytes and effects)
+    if (
+        data &&
+        typeof data === 'object' &&
+        data.digest &&
+        data.signature &&
+        data.bytes &&
+        data.effects &&
+        typeof data.bytes === 'string' &&
+        typeof data.effects === 'string'
+    ) {
+        // Decode the transaction bytes
+        let decodedTransaction: any = null;
+        try {
+            const txBytes = fromB64(data.bytes);
+            decodedTransaction = TransactionDataBuilder.fromBytes(txBytes);
+        } catch (e) {
+            console.warn('Failed to decode transaction bytes from web wallet response:', e);
+        }
+
+        // Decode the effects
+        let decodedEffects: any = null;
+        try {
+            decodedEffects = IotaBcs.TransactionEffects.parse(fromB64(data.effects));
+        } catch (e) {
+            console.warn('Failed to decode effects from web wallet response:', e);
+        }
+
+        // Build a normalized structure similar to other transaction formats
+        const normalized = {
+            digest: data.digest,
+            sender: decodedTransaction?.sender || null,
+            timestamp: null, // Web wallet response doesn't include timestamp
+            signatures: [data.signature],
+            effects: decodedEffects
+                ? {
+                      transactionDigest: data.digest,
+                      status: decodedEffects.status || { status: 'success' },
+                      executedEpoch: decodedEffects.executedEpoch,
+                      gasUsed: decodedEffects.gasUsed,
+                      modifiedAtVersions: decodedEffects.modifiedAtVersions,
+                      sharedObjects: decodedEffects.sharedObjects,
+                      dependencies: decodedEffects.dependencies,
+                      checkpoint: {
+                          sequenceNumber: null,
+                          timestamp: null,
+                      },
+                      gasEffects: {
+                          gasSummary: decodedEffects.gasUsed,
+                      },
+                      balanceChanges: {
+                          nodes: [],
+                      },
+                      objectChanges: {
+                          nodes: [],
+                      },
+                      events: {
+                          nodes: [],
+                      },
+                  }
+                : {
+                      status: { status: 'unknown' },
+                      gasUsed: {
+                          computationCost: '0',
+                          storageCost: '0',
+                          storageRebate: '0',
+                          nonRefundableStorageFee: '0',
+                      },
+                      checkpoint: { sequenceNumber: null, timestamp: null },
+                      gasEffects: { gasSummary: {} },
+                      balanceChanges: { nodes: [] },
+                      objectChanges: { nodes: [] },
+                      events: { nodes: [] },
+                  },
+            // Include decoded transaction data if available
+            ...(decodedTransaction
+                ? {
+                      input: {
+                          transaction: {
+                              inputs: decodedTransaction.inputs,
+                              transactions: decodedTransaction.commands,
+                          },
+                          gasData: decodedTransaction.gasData,
+                      },
+                      decodedBCS: {
+                          intentMessage: {
+                              value: {
+                                  V1: {
+                                      kind: {
+                                          ProgrammableTransaction: {
+                                              inputs: decodedTransaction.inputs,
+                                              commands: decodedTransaction.commands,
+                                          },
+                                      },
+                                  },
+                              },
+                          },
+                      },
+                      transactionData: decodedTransaction,
+                  }
+                : {}),
+            // Include original web wallet response
+            webWalletResponse: data,
+        };
+
+        return normalized;
     }
 
     // Handle GraphQL response format (from graphql-fetcher.ts) first
