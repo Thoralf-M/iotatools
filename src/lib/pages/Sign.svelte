@@ -13,7 +13,7 @@
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
     import TransactionView from '../components/TransactionView.svelte';
-    import { getClient } from '../lib/client';
+    import { getClient, getSelectedChain } from '../lib/client';
     import { updatePageQueryParams, usePageQueryParams } from '../lib/page-query-params';
     import { activeAddress, iota_wallets } from '../lib/signer-data';
 
@@ -147,6 +147,8 @@
             const result = await wallets[0].signTransaction({
                 transaction: Transaction.from(transactionBytes),
                 account: { address: senderAddress },
+                // @ts-ignore
+                chain: getSelectedChain(),
             });
 
             signatureTypeLabel = 'Transaction Signature';

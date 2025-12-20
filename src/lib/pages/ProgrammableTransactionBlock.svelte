@@ -6,7 +6,7 @@
     import { onMount } from 'svelte';
 
     import TransactionView from '../components/TransactionView.svelte';
-    import { getClient } from '../lib/client';
+    import { getClient, getSelectedChain } from '../lib/client';
     import { activeAddress, iota_wallets } from '../lib/signer-data';
 
     interface CodeSnippets {
@@ -150,6 +150,8 @@ tx.moveCall({
                     showBalanceChanges: true,
                 },
                 account: { address: $activeAddress },
+                // @ts-ignore
+                chain: getSelectedChain(),
             });
             console.log(txResult);
             value = txResult;
