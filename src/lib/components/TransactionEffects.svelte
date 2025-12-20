@@ -150,11 +150,16 @@
             <span class="status" style="color: {getStatusColor(effects.status)}"
                 >{getStatusString(effects.status)}</span
             >
-            <span class="checkpoint-info"
-                >Checkpoint: {formatNumberWithUnderscores(
-                    effects.checkpoint?.sequenceNumber || '',
-                )}</span
-            >
+            {#if effects.checkpoint?.sequenceNumber}
+                <span class="checkpoint-info"
+                    >Checkpoint: {formatNumberWithUnderscores(
+                        effects.checkpoint.sequenceNumber,
+                    )}</span
+                >
+            {/if}
+            {#if effects.executedEpoch !== undefined}
+                <span class="epoch-info">Epoch: {effects.executedEpoch}</span>
+            {/if}
             {#if effects.checkpoint?.timestamp || transactionData?.timestamp}
                 <span class="time-info"
                     >{new Date(
@@ -975,6 +980,7 @@
     }
 
     .checkpoint-info,
+    .epoch-info,
     .time-info {
         color: rgba(255, 255, 255, 0.8);
         font-size: 0.85rem;

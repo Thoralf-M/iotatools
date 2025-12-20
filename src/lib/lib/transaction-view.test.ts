@@ -662,3 +662,77 @@ describe('getTransactionData - Fixture file parsing', () => {
         );
     });
 });
+
+describe('getTransactionData - Web wallet signing response format', () => {
+    it('should detect web wallet signing response format', () => {
+        const webWalletResponse = {
+            digest: 'DddXtUXiWUsAJ4U6yYKLmajBMRDEs1D9gsYgBheT6xqJ',
+            signature:
+                'AMgWvLAwnLiZATP9VBHicoSI0eQ2m4he5ZQRU5sCZjsg0InvrZxXjS9KbxXvHaK4OP5tSKkeRdCXMisdh4E5TgwPwHSrpd40OAcXRZriYZN9j6dmgdBXKgxWikQeaGQWCw==',
+            bytes: 'AAACAAgAypo7AAAAAAAgAACkmEvUldQ0b6II3f9PXV5a1Iwh3sYx3evJmAnxaQACAgABAQAAAQEDAAAAAAEBAAAApJhL1JXUNG+iCN3/T11eWtSMId7GMd3ryZgJ8WkAAQG17QdHZ+O2o4na/TneylcrvwY7XNDR98PK2ffE16W3cW9SHwAAAAAg00UI3Ph0MV8bua5XFkA8k2D3zx1Z8HeTsDLuWHqLL5kAAKSYS9SV1DRvogjd/09dXlrUjCHexjHd68mYCfFpAOgDAAAAAAAA4G88AAAAAAAA',
+            effects:
+                'AACOAQAAAAAAAEBCDwAAAAAAQEIPAAAAAABg6x0AAAAAALD1DgAAAAAAAAAAAAAAAAAgu651sEZViTrawOk5wIHyYsPnVKwHRcTnuQd5j6zbJDUBAAAAAAABIGtPiVyN2vFvX2AchpfXec2AUv+F8yDyc9VEhnQCTsxHcm9SHwAAAAACAbXtB0dn47ajidr9Od7KVyu/Bjtc0NH3w8rZ98TXpbcBcW9SHwAAAAAg00UI3Ph0MV8bua5XFkA8k2D3zx1Z8HeTsDLuWHqLL5kAAACkmEvUldQ0b6II3f9PXV5a1Iwh3sYx3evJmAnxaQABIOLuUIx6a4RDRdoKNTMRLrK5Glt9miFkgWU0C5EKGpYLAAAApJhL1JXUNG+iCN3/T11eWtSMId7GMd3ryZgJ8WkAADc+ZzVKoosv1i8EKM+lB65hD0kBP+Daz1vvM4iQfqtWAAEgp4Pgw4VFt6vTwMsx30HKNphIRjtfh7uD3XgNPELv/ngAAACkmEvUldQ0b6II3f9PXV5a1Iwh3sYx3evJmAnxaQABAAA=',
+        };
+
+        expect(isTransactionData(webWalletResponse)).toBe(true);
+    });
+
+    it('should decode and normalize web wallet signing response', () => {
+        const webWalletResponse = {
+            digest: 'DddXtUXiWUsAJ4U6yYKLmajBMRDEs1D9gsYgBheT6xqJ',
+            signature:
+                'AMgWvLAwnLiZATP9VBHicoSI0eQ2m4he5ZQRU5sCZjsg0InvrZxXjS9KbxXvHaK4OP5tSKkeRdCXMisdh4E5TgwPwHSrpd40OAcXRZriYZN9j6dmgdBXKgxWikQeaGQWCw==',
+            bytes: 'AAACAAgAypo7AAAAAAAgAACkmEvUldQ0b6II3f9PXV5a1Iwh3sYx3evJmAnxaQACAgABAQAAAQEDAAAAAAEBAAAApJhL1JXUNG+iCN3/T11eWtSMId7GMd3ryZgJ8WkAAQG17QdHZ+O2o4na/TneylcrvwY7XNDR98PK2ffE16W3cW9SHwAAAAAg00UI3Ph0MV8bua5XFkA8k2D3zx1Z8HeTsDLuWHqLL5kAAKSYS9SV1DRvogjd/09dXlrUjCHexjHd68mYCfFpAOgDAAAAAAAA4G88AAAAAAAA',
+            effects:
+                'AACOAQAAAAAAAEBCDwAAAAAAQEIPAAAAAABg6x0AAAAAALD1DgAAAAAAAAAAAAAAAAAgu651sEZViTrawOk5wIHyYsPnVKwHRcTnuQd5j6zbJDUBAAAAAAABIGtPiVyN2vFvX2AchpfXec2AUv+F8yDyc9VEhnQCTsxHcm9SHwAAAAACAbXtB0dn47ajidr9Od7KVyu/Bjtc0NH3w8rZ98TXpbcBcW9SHwAAAAAg00UI3Ph0MV8bua5XFkA8k2D3zx1Z8HeTsDLuWHqLL5kAAACkmEvUldQ0b6II3f9PXV5a1Iwh3sYx3evJmAnxaQABIOLuUIx6a4RDRdoKNTMRLrK5Glt9miFkgWU0C5EKGpYLAAAApJhL1JXUNG+iCN3/T11eWtSMId7GMd3ryZgJ8WkAADc+ZzVKoosv1i8EKM+lB65hD0kBP+Daz1vvM4iQfqtWAAEgp4Pgw4VFt6vTwMsx30HKNphIRjtfh7uD3XgNPELv/ngAAACkmEvUldQ0b6II3f9PXV5a1Iwh3sYx3evJmAnxaQABAAA=',
+        };
+
+        const normalized = getTransactionData(webWalletResponse);
+
+        // Should have basic transaction fields
+        expect(normalized.digest).toBe('DddXtUXiWUsAJ4U6yYKLmajBMRDEs1D9gsYgBheT6xqJ');
+        expect(normalized.sender).toBeDefined();
+        expect(normalized.signatures).toEqual([webWalletResponse.signature]);
+
+        // Should have effects structure
+        expect(normalized.effects).toBeDefined();
+        expect(normalized.effects.transactionDigest).toBe(
+            'DddXtUXiWUsAJ4U6yYKLmajBMRDEs1D9gsYgBheT6xqJ',
+        );
+        expect(normalized.effects.status).toBeDefined();
+
+        // Should have decoded transaction data
+        expect(normalized.transactionData).toBeDefined();
+        expect(normalized.transactionData.inputs).toBeDefined();
+        expect(normalized.transactionData.commands).toBeDefined();
+
+        // Should have decodedBCS for PTB commands display
+        expect(normalized.decodedBCS).toBeDefined();
+        expect(
+            normalized.decodedBCS.intentMessage.value.V1.kind.ProgrammableTransaction,
+        ).toBeDefined();
+
+        // Should preserve original web wallet response
+        expect(normalized.webWalletResponse).toEqual(webWalletResponse);
+    });
+
+    it('should handle web wallet response with invalid bytes gracefully', () => {
+        const webWalletResponse = {
+            digest: 'TestDigest',
+            signature: 'TestSignature',
+            bytes: 'invalid-base64!!!',
+            effects: 'invalid-base64!!!',
+        };
+
+        const normalized = getTransactionData(webWalletResponse);
+
+        // Should still create a normalized structure
+        expect(normalized.digest).toBe('TestDigest');
+        expect(normalized.signatures).toEqual(['TestSignature']);
+        expect(normalized.effects).toBeDefined();
+
+        // But should not have decoded data
+        expect(normalized.transactionData).toBeUndefined();
+        expect(normalized.decodedBCS).toBeUndefined();
+    });
+});

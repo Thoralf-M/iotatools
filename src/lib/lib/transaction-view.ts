@@ -162,6 +162,24 @@ function convertGraphQLObjectChanges(graphqlObjectChanges: any[]): any[] {
 }
 
 /**
+ * Checks if data is a web wallet signing response format
+ */
+function isWebWalletSigningResponse(data: any): boolean {
+    return (
+        data &&
+        typeof data === 'object' &&
+        data.digest &&
+        data.signature &&
+        data.bytes &&
+        data.effects &&
+        typeof data.digest === 'string' &&
+        typeof data.signature === 'string' &&
+        typeof data.bytes === 'string' &&
+        typeof data.effects === 'string'
+    );
+}
+
+/**
  * Determines if the provided data represents transaction data in any of the supported formats
  */
 export function isTransactionData(data: any): boolean {
@@ -235,6 +253,11 @@ export function isTransactionData(data: any): boolean {
         return true;
     }
 
+    // Handle web wallet signing response format (with base64 encoded bytes and effects)
+    if (isWebWalletSigningResponse(data)) {
+        return true;
+    }
+
     return false;
 }
 
@@ -262,6 +285,108 @@ export function getTransactionData(data: any): any {
             ...Object.fromEntries(Object.entries(data).filter(([k]) => k !== 'transaction')),
         };
         return getTransactionData(normalized);
+    }
+
+    // Handle web wallet signing response format (with base64 encoded bytes and effects)
+    if (isWebWalletSigningResponse(data)) {
+        // Decode the transaction bytes
+        let decodedTransaction: any = null;
+        try {
+            const txBytes = fromB64(data.bytes);
+            decodedTransaction = TransactionDataBuilder.fromBytes(txBytes);
+        } catch (e) {
+            console.warn('Failed to decode transaction bytes from web wallet response:', e);
+        }
+
+        // Decode the effects
+        let decodedEffects: any = null;
+        try {
+            decodedEffects = IotaBcs.TransactionEffects.parse(fromB64(data.effects));
+            console.log('Decoded effects from web wallet response:', decodedEffects);
+        } catch (e) {
+            console.warn('Failed to decode effects from web wallet response:', e);
+        }
+
+        // Build a normalized structure similar to other transaction formats
+        const normalized = {
+            digest: data.digest,
+            sender: decodedTransaction?.sender || null,
+            timestamp: null, // Web wallet response doesn't include timestamp
+            signatures: [data.signature],
+            effects: decodedEffects
+                ? {
+                      transactionDigest: data.digest,
+                      status: decodedEffects.V1?.status
+                          ? { status: decodedEffects.V1.status.$kind.toLowerCase() }
+                          : { status: 'unknown' },
+                      executedEpoch: decodedEffects.V1?.executedEpoch,
+                      gasUsed: decodedEffects.V1?.gasUsed,
+                      modifiedAtVersions: decodedEffects.V1?.modifiedAtVersions,
+                      sharedObjects: decodedEffects.V1?.sharedObjects,
+                      dependencies: decodedEffects.V1?.dependencies,
+                      checkpoint: {
+                          sequenceNumber: null,
+                          timestamp: null,
+                      },
+                      gasEffects: {
+                          gasSummary: decodedEffects.V1?.gasUsed,
+                      },
+                      balanceChanges: {
+                          nodes: [],
+                      },
+                      objectChanges: {
+                          nodes: [],
+                      },
+                      events: {
+                          nodes: [],
+                      },
+                  }
+                : {
+                      status: { status: 'unknown' },
+                      gasUsed: {
+                          computationCost: '0',
+                          storageCost: '0',
+                          storageRebate: '0',
+                          nonRefundableStorageFee: '0',
+                      },
+                      checkpoint: { sequenceNumber: null, timestamp: null },
+                      gasEffects: { gasSummary: {} },
+                      balanceChanges: { nodes: [] },
+                      objectChanges: { nodes: [] },
+                      events: { nodes: [] },
+                  },
+            // Include decoded transaction data if available
+            ...(decodedTransaction
+                ? {
+                      input: {
+                          transaction: {
+                              inputs: decodedTransaction.inputs,
+                              transactions: decodedTransaction.commands,
+                          },
+                          gasData: decodedTransaction.gasData,
+                      },
+                      decodedBCS: {
+                          intentMessage: {
+                              value: {
+                                  V1: {
+                                      kind: {
+                                          ProgrammableTransaction: {
+                                              inputs: decodedTransaction.inputs,
+                                              commands: decodedTransaction.commands,
+                                          },
+                                      },
+                                  },
+                              },
+                          },
+                      },
+                      transactionData: decodedTransaction,
+                  }
+                : {}),
+            // Include original web wallet response
+            webWalletResponse: data,
+        };
+
+        return normalized;
     }
 
     // Handle GraphQL response format (from graphql-fetcher.ts) first
