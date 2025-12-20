@@ -1,10 +1,10 @@
-import { p as push, Z as user_effect, n as set, u as store_get, E as state, F as proxy, g as get, w as getSelectedNetworkConfig, f as from_html, s as sibling, c as child, b as if_block, t as template_effect, _ as set_value, X as set_style, e as set_text, x as bind_value, k as append, l as pop, v as setup_stores, $ as isValidIotaAddress, a0 as normalizeIotaObjectId, a1 as toB64, K as comment, J as first_child, H as each, I as index, j as bind_select_value, a2 as writable, a3 as user_derived, B as delegate } from "/iota-utils/assets/index-BLl4_Dc4.js";
-import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-EPjaGPAp.js";
-import { l as layoutToBcs, g as getMoveLayout, d as decodeBcs, a as deriveDynamicFieldIdWithBcs, b as deriveDynamicFieldId, q as queryDynamicFields, e as enhanceFieldsWithLayoutsAndBcs, c as queryDynamicField, f as queryDynamicObjectField } from "/iota-utils/assets/dynamic-fields-utils-CjCU_PgV.js";
-import { u as usePageQueryParams, a as updatePageQueryParams } from "/iota-utils/assets/page-query-params-B5woaHle.js";
-import "/iota-utils/assets/transaction-view-YEYpSRKm.js";
-import "/iota-utils/assets/client-DfgYIuj1.js";
-import "/iota-utils/assets/index-a-qIJzeT.js";
+import { p as push, Z as user_effect, n as set, u as store_get, E as state, F as proxy, g as get, w as getSelectedNetworkConfig, f as from_html, s as sibling, c as child, b as if_block, t as template_effect, _ as set_value, X as set_style, e as set_text, x as bind_value, k as append, l as pop, v as setup_stores, $ as isValidIotaAddress, a0 as normalizeIotaObjectId, a1 as toB64, K as comment, J as first_child, H as each, I as index, j as bind_select_value, a2 as writable, a3 as user_derived, B as delegate } from "./index-BLl4_Dc4.js";
+import { J as JsonToggleView } from "./JsonToggleView-EPjaGPAp.js";
+import { l as layoutToBcs, g as getMoveLayout, d as decodeBcs, a as deriveDynamicFieldIdWithBcs, b as deriveDynamicFieldId, q as queryDynamicFields, e as enhanceFieldsWithLayoutsAndBcs, c as queryDynamicField, f as queryDynamicObjectField } from "./dynamic-fields-utils-CjCU_PgV.js";
+import { u as usePageQueryParams, a as updatePageQueryParams } from "./page-query-params-B5woaHle.js";
+import "./transaction-view-YEYpSRKm.js";
+import "./client-DfgYIuj1.js";
+import "./index-a-qIJzeT.js";
 const defaultStructDefinitions = [
   {
     name: "VectorU8",

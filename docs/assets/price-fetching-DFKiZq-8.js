@@ -1,4 +1,4 @@
-import { a7 as effect, S as untrack, C as render_effect, Q as deep_read_state, ak as safe_not_equal } from "/iota-utils/assets/index-BLl4_Dc4.js";
+import { a7 as effect, S as untrack, C as render_effect, Q as deep_read_state, ak as safe_not_equal } from "./index-BLl4_Dc4.js";
 function action(dom, action2, get_value) {
   effect(() => {
     var payload = untrack(() => action2(dom, get_value?.()) || {});

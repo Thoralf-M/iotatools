@@ -1,4 +1,4 @@
-import { M as getDefaultExportFromCjs } from "/iota-utils/assets/index-BLl4_Dc4.js";
+import { M as getDefaultExportFromCjs } from "./index-BLl4_Dc4.js";
 var browser = { exports: {} };
 var hasRequiredBrowser;
 function requireBrowser() {

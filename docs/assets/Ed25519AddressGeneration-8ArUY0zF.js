@@ -1,4 +1,4 @@
-import { aV as hmac, aW as sha512, ar as fromHEX, p as push, i as init, f as from_html, s as sibling, c as child, t as template_effect, g as get, m as mutable_source, a as invalidate_inner_signals, e as set_text, h as event, x as bind_value, j as bind_select_value, k as append, l as pop, n as set, aX as generateMnemonic, aY as entropyToMnemonic, al as toHEX, aZ as mnemonicToEntropy, a_ as mnemonicToSeedSync, a$ as Ed25519Keypair, b0 as decodeIotaPrivateKey, a1 as toB64, ae as fromB64, as as Ed25519PublicKey } from "/iota-utils/assets/index-BLl4_Dc4.js";
+import { aV as hmac, aW as sha512, ar as fromHEX, p as push, i as init, f as from_html, s as sibling, c as child, t as template_effect, g as get, m as mutable_source, a as invalidate_inner_signals, e as set_text, h as event, x as bind_value, j as bind_select_value, k as append, l as pop, n as set, aX as generateMnemonic, aY as entropyToMnemonic, al as toHEX, aZ as mnemonicToEntropy, a_ as mnemonicToSeedSync, a$ as Ed25519Keypair, b0 as decodeIotaPrivateKey, a1 as toB64, ae as fromB64, as as Ed25519PublicKey } from "./index-BLl4_Dc4.js";
 const wordlist = `abandon
 ability
 able
