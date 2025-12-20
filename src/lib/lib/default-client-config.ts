@@ -46,14 +46,6 @@ export const defaultClientConfig: ClientConfig = {
             explorer: 'https://explorer.iota.org',
             faucet: 'https://faucet.devnet.iota.cafe/gas',
         },
-        {
-            name: 'alphanet',
-            node: 'https://api.iota-rebased-alphanet.iota.cafe',
-            indexer: 'https://indexer.iota-rebased-alphanet.iota.cafe',
-            graphql: 'https://graphql.iota-rebased-alphanet.iota.cafe',
-            explorer: 'https://explorer.iota.org',
-            faucet: 'https://faucet.iota-rebased-alphanet.iota.cafe/gas',
-        },
     ],
 };
 
