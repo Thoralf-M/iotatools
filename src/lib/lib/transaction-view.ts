@@ -302,6 +302,7 @@ export function getTransactionData(data: any): any {
         let decodedEffects: any = null;
         try {
             decodedEffects = IotaBcs.TransactionEffects.parse(fromB64(data.effects));
+            console.log('Decoded effects from web wallet response:', decodedEffects);
         } catch (e) {
             console.warn('Failed to decode effects from web wallet response:', e);
         }
@@ -315,18 +316,20 @@ export function getTransactionData(data: any): any {
             effects: decodedEffects
                 ? {
                       transactionDigest: data.digest,
-                      status: decodedEffects.status || { status: 'success' },
-                      executedEpoch: decodedEffects.executedEpoch,
-                      gasUsed: decodedEffects.gasUsed,
-                      modifiedAtVersions: decodedEffects.modifiedAtVersions,
-                      sharedObjects: decodedEffects.sharedObjects,
-                      dependencies: decodedEffects.dependencies,
+                      status: decodedEffects.V1?.status
+                          ? { status: decodedEffects.V1.status.$kind.toLowerCase() }
+                          : { status: 'unknown' },
+                      executedEpoch: decodedEffects.V1?.executedEpoch,
+                      gasUsed: decodedEffects.V1?.gasUsed,
+                      modifiedAtVersions: decodedEffects.V1?.modifiedAtVersions,
+                      sharedObjects: decodedEffects.V1?.sharedObjects,
+                      dependencies: decodedEffects.V1?.dependencies,
                       checkpoint: {
                           sequenceNumber: null,
                           timestamp: null,
                       },
                       gasEffects: {
-                          gasSummary: decodedEffects.gasUsed,
+                          gasSummary: decodedEffects.V1?.gasUsed,
                       },
                       balanceChanges: {
                           nodes: [],
