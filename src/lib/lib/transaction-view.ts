@@ -162,6 +162,24 @@ function convertGraphQLObjectChanges(graphqlObjectChanges: any[]): any[] {
 }
 
 /**
+ * Checks if data is a web wallet signing response format
+ */
+function isWebWalletSigningResponse(data: any): boolean {
+    return (
+        data &&
+        typeof data === 'object' &&
+        data.digest &&
+        data.signature &&
+        data.bytes &&
+        data.effects &&
+        typeof data.digest === 'string' &&
+        typeof data.signature === 'string' &&
+        typeof data.bytes === 'string' &&
+        typeof data.effects === 'string'
+    );
+}
+
+/**
  * Determines if the provided data represents transaction data in any of the supported formats
  */
 export function isTransactionData(data: any): boolean {
@@ -236,16 +254,7 @@ export function isTransactionData(data: any): boolean {
     }
 
     // Handle web wallet signing response format (with base64 encoded bytes and effects)
-    if (
-        data &&
-        typeof data === 'object' &&
-        data.digest &&
-        data.signature &&
-        data.bytes &&
-        data.effects &&
-        typeof data.bytes === 'string' &&
-        typeof data.effects === 'string'
-    ) {
+    if (isWebWalletSigningResponse(data)) {
         return true;
     }
 
@@ -279,16 +288,7 @@ export function getTransactionData(data: any): any {
     }
 
     // Handle web wallet signing response format (with base64 encoded bytes and effects)
-    if (
-        data &&
-        typeof data === 'object' &&
-        data.digest &&
-        data.signature &&
-        data.bytes &&
-        data.effects &&
-        typeof data.bytes === 'string' &&
-        typeof data.effects === 'string'
-    ) {
+    if (isWebWalletSigningResponse(data)) {
         // Decode the transaction bytes
         let decodedTransaction: any = null;
         try {
