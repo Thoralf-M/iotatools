@@ -1,6 +1,6 @@
-import { z as iotaBcs, ae as fromB64, w as getSelectedNetworkConfig } from "/iota-utils/assets/index-BLl4_Dc4.js";
-import { I as IotaGraphQLClient } from "/iota-utils/assets/client-DfgYIuj1.js";
-import { g as graphql } from "/iota-utils/assets/index-a-qIJzeT.js";
+import { z as iotaBcs, ae as fromB64, w as getSelectedNetworkConfig } from "./index-BLl4_Dc4.js";
+import { I as IotaGraphQLClient } from "./client-DfgYIuj1.js";
+import { g as graphql } from "./index-a-qIJzeT.js";
 class TransactionDataProcessor {
   transactionData;
   constructor() {

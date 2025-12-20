@@ -1,8 +1,8 @@
-import { M as getDefaultExportFromCjs, av as getAugmentedNamespace, p as push, E as state, F as proxy, f as from_html, c as child, s as sibling, n as set, g as get, H as each, J as first_child, b as if_block, t as template_effect, e as set_text, k as append, a3 as user_derived, I as index, x as bind_value, j as bind_select_value, l as pop, al as toHEX, aw as update, o as getClient, $ as isValidIotaAddress, ai as Transaction, at as messageWithIntent, ax as toSerializedSignature, as as Ed25519PublicKey, ay as to_array, B as delegate } from "/iota-utils/assets/index-BLl4_Dc4.js";
-import { b as bufferExports } from "/iota-utils/assets/index-CvJZrfk_.js";
-import { p as process } from "/iota-utils/assets/browser-BYIvZhEh.js";
-import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-EPjaGPAp.js";
-import "/iota-utils/assets/transaction-view-YEYpSRKm.js";
+import { M as getDefaultExportFromCjs, av as getAugmentedNamespace, p as push, E as state, F as proxy, f as from_html, c as child, s as sibling, n as set, g as get, H as each, J as first_child, b as if_block, t as template_effect, e as set_text, k as append, a3 as user_derived, I as index, x as bind_value, j as bind_select_value, l as pop, al as toHEX, aw as update, o as getClient, $ as isValidIotaAddress, ai as Transaction, at as messageWithIntent, ax as toSerializedSignature, as as Ed25519PublicKey, ay as to_array, B as delegate } from "./index-BLl4_Dc4.js";
+import { b as bufferExports } from "./index-CvJZrfk_.js";
+import { p as process } from "./browser-BYIvZhEh.js";
+import { J as JsonToggleView } from "./JsonToggleView-EPjaGPAp.js";
+import "./transaction-view-YEYpSRKm.js";
 var sha256$2 = { exports: {} };
 var sha256$1 = sha256$2.exports;
 var hasRequiredSha256;

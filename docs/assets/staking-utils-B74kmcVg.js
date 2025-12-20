@@ -1,4 +1,4 @@
-import { ai as Transaction, a9 as bcs } from "/iota-utils/assets/index-BLl4_Dc4.js";
+import { ai as Transaction, a9 as bcs } from "./index-BLl4_Dc4.js";
 async function computeStakingRewards(client, stakedIotaObjectId, senderAddress) {
   const obj = await client.getObject({
     id: stakedIotaObjectId,

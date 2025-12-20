@@ -1,6 +1,6 @@
-import { z as iotaBcs, a1 as toB64, ae as fromB64, af as blake2b, ag as bytesToHex } from "/iota-utils/assets/index-BLl4_Dc4.js";
-import { I as IotaGraphQLClient } from "/iota-utils/assets/client-DfgYIuj1.js";
-import { g as graphql } from "/iota-utils/assets/index-a-qIJzeT.js";
+import { z as iotaBcs, a1 as toB64, ae as fromB64, af as blake2b, ag as bytesToHex } from "./index-BLl4_Dc4.js";
+import { I as IotaGraphQLClient } from "./client-DfgYIuj1.js";
+import { g as graphql } from "./index-a-qIJzeT.js";
 function toShortTypeString(type) {
   return type?.replace(/0x0{31,}(\d)/g, "0x$1").replace(/,\b/g, ", ");
 }

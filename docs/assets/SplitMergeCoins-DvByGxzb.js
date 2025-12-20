@@ -1,11 +1,11 @@
-import { p as push, i as init, f as from_html, s as sibling, c as child, b as if_block, g as get, m as mutable_source, t as template_effect, e as set_text, h as event, x as bind_value, k as append, l as pop, v as setup_stores, K as comment, J as first_child, n as set, o as getClient, u as store_get, ai as Transaction, ab as activeAddress } from "/iota-utils/assets/index-BLl4_Dc4.js";
-import { J as JsonToggleView } from "/iota-utils/assets/JsonToggleView-EPjaGPAp.js";
-import { T as TransactionView } from "/iota-utils/assets/TransactionView-DT1zR-JM.js";
-import { e as executeTransaction } from "/iota-utils/assets/transaction-execution-CE0rGE-K.js";
-import "/iota-utils/assets/transaction-view-YEYpSRKm.js";
-import "/iota-utils/assets/explorer-links-Bx4a9wSX.js";
-import "/iota-utils/assets/client-DfgYIuj1.js";
-import "/iota-utils/assets/iota-nano-conversion-DAWjhY1n.js";
+import { p as push, i as init, f as from_html, s as sibling, c as child, b as if_block, g as get, m as mutable_source, t as template_effect, e as set_text, h as event, x as bind_value, k as append, l as pop, v as setup_stores, K as comment, J as first_child, n as set, o as getClient, u as store_get, ai as Transaction, ab as activeAddress } from "./index-BLl4_Dc4.js";
+import { J as JsonToggleView } from "./JsonToggleView-EPjaGPAp.js";
+import { T as TransactionView } from "./TransactionView-DT1zR-JM.js";
+import { e as executeTransaction } from "./transaction-execution-CE0rGE-K.js";
+import "./transaction-view-YEYpSRKm.js";
+import "./explorer-links-Bx4a9wSX.js";
+import "./client-DfgYIuj1.js";
+import "./iota-nano-conversion-DAWjhY1n.js";
 var root_3 = from_html(`<div>No coins available</div>`);
 var root = from_html(`<main><div> </div> <button class="svelte-13l3djg">List all IOTA coins</button> <br/> <button class="svelte-13l3djg">Merge all IOTA coins (max 2048 at once)</button> <br/> <span>object count: <input placeholder="0"/></span> <span>amount per object: <input placeholder="0"/></span> <br/> <button class="svelte-13l3djg">Split IOTA coins (max 2048)</button> <!></main>`);
 function SplitMergeCoins($$anchor, $$props) {

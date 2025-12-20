@@ -1,4 +1,4 @@
-import { aR as derived, aS as queryParams } from "/iota-utils/assets/index-BLl4_Dc4.js";
+import { aR as derived, aS as queryParams } from "./index-BLl4_Dc4.js";
 function usePageQueryParams(defaultValues, fieldMappings) {
   return derived(queryParams, ($params) => {
     const result = { ...defaultValues };

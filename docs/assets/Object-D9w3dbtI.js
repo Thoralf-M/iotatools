@@ -1,10 +1,10 @@
-import { C as render_effect, D as teardown, p as push, E as state, F as proxy, r as onMount, u as store_get, n as set, f as from_html, s as sibling, c as child, G as normalizeIotaAddress, b as if_block, g as get, k as append, l as pop, v as setup_stores, t as template_effect, e as set_text, w as getSelectedNetworkConfig, H as each, I as index, d as set_attribute, J as first_child, j as bind_select_value, K as comment, L as text, B as delegate } from "/iota-utils/assets/index-BLl4_Dc4.js";
-import { b as bind_this } from "/iota-utils/assets/this-DlNCwxKd.js";
-import { I as IotaGraphQLClient } from "/iota-utils/assets/client-DfgYIuj1.js";
-import { q as queryDynamicFields } from "/iota-utils/assets/dynamic-fields-utils-CjCU_PgV.js";
-import { g as getObjectLink, a as getTransactionLink, b as getAddressLink } from "/iota-utils/assets/explorer-links-Bx4a9wSX.js";
-import { u as usePageQueryParams, a as updatePageQueryParams } from "/iota-utils/assets/page-query-params-B5woaHle.js";
-import "/iota-utils/assets/index-a-qIJzeT.js";
+import { C as render_effect, D as teardown, p as push, E as state, F as proxy, r as onMount, u as store_get, n as set, f as from_html, s as sibling, c as child, G as normalizeIotaAddress, b as if_block, g as get, k as append, l as pop, v as setup_stores, t as template_effect, e as set_text, w as getSelectedNetworkConfig, H as each, I as index, d as set_attribute, J as first_child, j as bind_select_value, K as comment, L as text, B as delegate } from "./index-BLl4_Dc4.js";
+import { b as bind_this } from "./this-DlNCwxKd.js";
+import { I as IotaGraphQLClient } from "./client-DfgYIuj1.js";
+import { q as queryDynamicFields } from "./dynamic-fields-utils-CjCU_PgV.js";
+import { g as getObjectLink, a as getTransactionLink, b as getAddressLink } from "./explorer-links-Bx4a9wSX.js";
+import { u as usePageQueryParams, a as updatePageQueryParams } from "./page-query-params-B5woaHle.js";
+import "./index-a-qIJzeT.js";
 function bind_property(property, event_name, element, set2, get2) {
   var handler = () => {
     set2(element[property]);

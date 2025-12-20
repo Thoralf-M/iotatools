@@ -1,4 +1,4 @@
-import { b5 as print } from "/iota-utils/assets/index-BLl4_Dc4.js";
+import { b5 as print } from "./index-BLl4_Dc4.js";
 var __typeError = (msg) => {
   throw TypeError(msg);
 };

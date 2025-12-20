@@ -1,4 +1,4 @@
-import { a7 as effect, C as render_effect, S as untrack, aT as queue_micro_task, aU as STATE_SYMBOL } from "/iota-utils/assets/index-BLl4_Dc4.js";
+import { a7 as effect, C as render_effect, S as untrack, aT as queue_micro_task, aU as STATE_SYMBOL } from "./index-BLl4_Dc4.js";
 function is_bound_this(bound_value, element_or_component) {
   return bound_value === element_or_component || bound_value?.[STATE_SYMBOL] === element_or_component;
 }
