@@ -3,6 +3,7 @@
     import { wrap } from 'svelte-spa-router/wrap';
 
     import { isProMode } from './lib/lib/local-storage-store';
+    import { navigateWithGlobalParams } from './lib/lib/query-param-store';
     import Options from './lib/Options.svelte';
     import Signer from './lib/Signer.svelte';
     import Tabs from './lib/Tabs.svelte';
@@ -32,6 +33,8 @@
         Ed25519AddressGeneration: () => import('./lib/pages/Ed25519AddressGeneration.svelte'),
         IotaNames: () => import('./lib/pages/IotaNames.svelte'),
         Settings: () => import('./lib/pages/Settings.svelte'),
+        Impressum: () => import('./lib/pages/Impressum.svelte'),
+        Datenschutz: () => import('./lib/pages/Datenschutz.svelte'),
     };
 
     // Route definitions: map route paths to lazy-loaded components using wrap
@@ -61,6 +64,8 @@
         '/address-generation': wrap({ asyncComponent: pageImports['Ed25519AddressGeneration'] }),
         '/iota-names': wrap({ asyncComponent: pageImports['IotaNames'] }),
         '/settings': wrap({ asyncComponent: pageImports['Settings'] }),
+        '/impressum': wrap({ asyncComponent: pageImports['Impressum'] }),
+        '/datenschutz': wrap({ asyncComponent: pageImports['Datenschutz'] }),
     };
 
     // Tab items with route paths
@@ -147,6 +152,8 @@
                 '/address-generation': pageImports.Ed25519AddressGeneration,
                 '/iota-names': pageImports.IotaNames,
                 '/settings': pageImports.Settings,
+                '/impressum': pageImports.Impressum,
+                '/datenschutz': pageImports.Datenschutz,
             }}
         />
     </div>
@@ -161,6 +168,13 @@
             >
                 View on GitHub
             </a>
+            <button class="impressum-link" onclick={() => navigateWithGlobalParams('/impressum')}
+                >Impressum</button
+            >
+            <button
+                class="datenschutz-link"
+                onclick={() => navigateWithGlobalParams('/datenschutz')}>Datenschutz</button
+            >
         </div>
     </footer>
 </main>
@@ -245,6 +259,13 @@
         text-align: center;
     }
 
+    .footer-content {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        align-items: center;
+    }
+
     .github-link {
         align-items: center;
         gap: 0.5rem;
@@ -265,6 +286,28 @@
         color: rgba(255, 255, 255, 0.95);
         transform: translateY(-2px);
         box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+    }
+
+    .impressum-link {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .impressum-link:hover {
+        color: rgba(255, 255, 255, 0.95);
+    }
+
+    .datenschutz-link {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .datenschutz-link:hover {
+        color: rgba(255, 255, 255, 0.95);
     }
 
     @media (max-width: 768px) {
