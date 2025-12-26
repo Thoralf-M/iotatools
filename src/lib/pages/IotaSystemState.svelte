@@ -146,6 +146,75 @@
             console.error(err);
         }
     };
+    const getInactiveValidators = async () => {
+        try {
+            let client = getClient();
+            apiVersion = (await client.getRpcApiVersion()) || '';
+            const systemState = await client.getLatestIotaSystemState();
+            console.log('systemState summary:', systemState);
+            const size = systemState.inactivePoolsSize;
+            if (parseInt(size) === 0) {
+                value = 'No inactive validators';
+                return;
+            }
+
+            // @ts-ignore
+            const inactiveValidatorsId = systemState.inactivePoolsId;
+            console.log('inactiveValidatorsId:', inactiveValidatorsId);
+
+            let hasNextPage = true;
+            let nextPageCursor;
+            let inactiveValidatorsList = [];
+            while (hasNextPage) {
+                const inactiveValidatorsPage = await client.getDynamicFields({
+                    parentId: inactiveValidatorsId,
+                    cursor: nextPageCursor,
+                });
+                console.log('inactiveValidatorsPage:', inactiveValidatorsPage);
+                for (const inactiveValidator of inactiveValidatorsPage.data) {
+                    const inactiveValidatorsPage = await client.getDynamicFieldObjectV2({
+                        parentObjectId: inactiveValidatorsId,
+                        name: {
+                            type: '0x2::object::ID',
+                            value: inactiveValidator.name.value,
+                        },
+                        options: { showContent: true },
+                    });
+
+                    const validatorV1 = await client.getDynamicFields({
+                        parentId:
+                            // @ts-ignore
+                            inactiveValidatorsPage.data.content.fields.value.fields.inner.fields.id
+                                .id,
+                    });
+                    const validatorObject = await client.getObject({
+                        id: validatorV1.data[0].objectId,
+                        options: { showContent: true },
+                    });
+
+                    const validator =
+                        // @ts-ignore
+                        validatorObject.data?.content.fields.value.fields;
+
+                    if (!showAllValidatorData) {
+                        cleanupValidatorFields(validator);
+                    }
+                    inactiveValidatorsList.push(validator);
+                    value = formatNumbersWithUnderscores(inactiveValidatorsList);
+                }
+                hasNextPage = inactiveValidatorsPage.hasNextPage;
+                if (hasNextPage) {
+                    nextPageCursor = inactiveValidatorsPage.nextCursor;
+                }
+            }
+            if (inactiveValidatorsList.length == 0) {
+                value = 'No inactive validators';
+            }
+        } catch (err: any) {
+            value = err.toString();
+            console.error(err);
+        }
+    };
     function systemStateStake(stakeInfo: any, systemState: LatestIotaSystemStateSummary) {
         // @ts-ignore
         stakeInfo.totalSupply = parseInt(systemState.iotaTotalSupply);
@@ -186,7 +255,7 @@
         delete validator.staking_pool.type;
         delete validator.staking_pool.fields.exchange_rates;
         delete validator.staking_pool.fields.extra_fields;
-        delete validator.staking_pool.fields.id;
+        validator.staking_pool.fields.id = validator.staking_pool.fields.id.id;
     }
 </script>
 
@@ -194,6 +263,7 @@
     <button on:click={() => getLatestSystemState()}> get latest IOTA system state </button>
     <button on:click={() => getCandidateValidators()}> candidate validators </button>
     <button on:click={() => getPendingValidators()}> pending validators </button>
+    <button on:click={() => getInactiveValidators()}> inactive validators </button>
     show full data (set before requesting):
     <select bind:value={showAllValidatorData}>
         <option value={true}>{true}</option>
