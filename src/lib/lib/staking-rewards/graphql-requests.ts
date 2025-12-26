@@ -990,9 +990,6 @@ export async function updateExchangeRatesCache(): Promise<void> {
 
     console.log(`Current epoch: ${currentEpoch}`);
 
-    // Clear existing cache for full refresh
-    exchangeRateCache.clear();
-
     // Fetch all validators with pagination
     let hasNextValidatorPage = true;
     let validatorCursor = '';
@@ -1080,7 +1077,7 @@ export async function updateExchangeRatesCache(): Promise<void> {
                         const epochFromName = parseInt(node.name?.json);
                         if (!isNaN(epochFromName) && node.value?.data) {
                             const exchangeRateData = parseExchangeRateData(node.value.data);
-                            if (exchangeRateData) {
+                            if (exchangeRateData && !cacheEntry.epochData[epochFromName]) {
                                 cacheEntry.epochData[epochFromName] = exchangeRateData;
                             }
                         }
@@ -1133,7 +1130,7 @@ export async function updateExchangeRatesCache(): Promise<void> {
                         const epochFromName = parseInt(node.name?.json);
                         if (!isNaN(epochFromName) && node.value?.data) {
                             const exchangeRateData = parseExchangeRateData(node.value.data);
-                            if (exchangeRateData) {
+                            if (exchangeRateData && !cacheEntry.epochData[epochFromName]) {
                                 cacheEntry.epochData[epochFromName] = exchangeRateData;
                             }
                         }
