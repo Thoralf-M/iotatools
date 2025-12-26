@@ -7,6 +7,7 @@ import {
     decompressExchangeRateCache,
     getCompressionStats,
 } from './cache/binary-cache';
+import { getInactiveValidatorsWithDeactivationEpoch } from './compute/validator-utils';
 import { formatDate } from './table-utils';
 
 async function fetchStakeTransactionsByRole(
@@ -320,10 +321,12 @@ function getMissingEpochs(
         let entry = exchangeRateCache.get(poolId);
         // If not in cache, treat all epochs as missing
         let cachedEpochs: Set<number>;
+        let poolDeactivationEpoch: number | undefined;
         if (!entry) {
             cachedEpochs = new Set();
         } else {
             cachedEpochs = new Set<number>(Object.keys(entry.epochData).map(Number));
+            poolDeactivationEpoch = entry.deactivationEpoch;
             if (cachedEpochs.size > 0) {
                 const maxEpoch = Math.max(...cachedEpochs);
                 if (maxEpoch > maxCachedEpoch) maxCachedEpoch = maxEpoch;
@@ -339,7 +342,14 @@ function getMissingEpochs(
             startEpoch = Math.min(...cachedEpochs);
         }
 
-        for (let epoch = startEpoch; epoch < currentEpoch + 1; epoch++) {
+        // Determine the max epoch to check for this pool
+        // If the pool is deactivated, don't look for epochs after deactivation
+        const maxEpochToCheck =
+            poolDeactivationEpoch !== undefined
+                ? Math.min(poolDeactivationEpoch, currentEpoch)
+                : currentEpoch;
+
+        for (let epoch = startEpoch; epoch < maxEpochToCheck + 1; epoch++) {
             if (!cachedEpochs.has(epoch)) {
                 missing.add(epoch);
                 totalMissingEpochs++;
@@ -429,6 +439,55 @@ export async function fetchAllExchangeRates(
     currentEpoch: number,
     requiredPoolIds?: Set<string>,
 ): Promise<void> {
+    // First, check if any required pools might be inactive and need deactivationEpoch set
+    // This is important to avoid fetching epochs that don't exist for deactivated pools
+    if (requiredPoolIds && requiredPoolIds.size > 0) {
+        // Check if any required pools are missing deactivationEpoch info
+        const poolsMissingDeactivationInfo = Array.from(requiredPoolIds).filter((poolId) => {
+            const entry = exchangeRateCache.get(poolId);
+            // If entry doesn't exist or has no deactivationEpoch, we need to check
+            return !entry || entry.deactivationEpoch === undefined;
+        });
+
+        if (poolsMissingDeactivationInfo.length > 0) {
+            console.log(
+                `Checking inactive validators for ${poolsMissingDeactivationInfo.length} pools without deactivation info...`,
+            );
+            try {
+                const systemState = (await fetchSystemState())[0];
+                const inactiveValidators =
+                    await getInactiveValidatorsWithDeactivationEpoch(systemState);
+
+                for (const poolId of poolsMissingDeactivationInfo) {
+                    const inactiveInfo = inactiveValidators[poolId];
+                    if (inactiveInfo) {
+                        let cacheEntry = exchangeRateCache.get(poolId);
+                        if (!cacheEntry) {
+                            cacheEntry = {
+                                poolId,
+                                exchangeRateId: inactiveInfo.exchangeRateId,
+                                epochData: {},
+                                deactivationEpoch: inactiveInfo.deactivationEpoch,
+                            };
+                            exchangeRateCache.set(poolId, cacheEntry);
+                        } else {
+                            cacheEntry.deactivationEpoch = inactiveInfo.deactivationEpoch;
+                            // Also update exchangeRateId if it was empty
+                            if (!cacheEntry.exchangeRateId) {
+                                cacheEntry.exchangeRateId = inactiveInfo.exchangeRateId;
+                            }
+                        }
+                        console.log(
+                            `Set deactivation epoch ${inactiveInfo.deactivationEpoch} for inactive pool ${poolId}`,
+                        );
+                    }
+                }
+            } catch (error) {
+                console.warn('Failed to fetch inactive validators:', error);
+            }
+        }
+    }
+
     // Check what we're missing from cache (per pool)
     const { missingEpochsPerPool, maxCachedEpoch, shouldUseDynamicFieldFetch } = getMissingEpochs(
         currentEpoch,
@@ -697,6 +756,8 @@ export type ExchangeRateCacheEntry = {
     exchangeRateId: string;
     // Map of epoch -> exchange rate data with shorter field names
     epochData: Record<number, { iota: string; pool: string }>;
+    // Optional deactivation epoch - if set, no exchange rate data exists after this epoch
+    deactivationEpoch?: number;
 };
 
 // Cache for exchange rates: `poolId` -> ExchangeRateCacheEntry
@@ -1145,6 +1206,37 @@ export async function updateExchangeRatesCache(): Promise<void> {
 
         hasNextValidatorPage = activeValidators.pageInfo?.hasNextPage || false;
         validatorCursor = activeValidators.pageInfo?.endCursor || '';
+    }
+
+    // Fetch inactive validators to get their deactivation epochs
+    console.log('Fetching inactive validators to get deactivation epochs...');
+    try {
+        const systemState = (await fetchSystemState())[0];
+        const inactiveValidators = await getInactiveValidatorsWithDeactivationEpoch(systemState);
+
+        for (const [poolId, info] of Object.entries(inactiveValidators)) {
+            let cacheEntry = exchangeRateCache.get(poolId);
+            if (!cacheEntry) {
+                cacheEntry = {
+                    poolId,
+                    exchangeRateId: info.exchangeRateId,
+                    epochData: {},
+                    deactivationEpoch: info.deactivationEpoch,
+                };
+                exchangeRateCache.set(poolId, cacheEntry);
+            } else {
+                // Update deactivation epoch if not already set
+                if (cacheEntry.deactivationEpoch === undefined) {
+                    cacheEntry.deactivationEpoch = info.deactivationEpoch;
+                }
+            }
+            console.log(`Set deactivation epoch ${info.deactivationEpoch} for pool ${poolId}`);
+        }
+        console.log(
+            `Processed ${Object.keys(inactiveValidators).length} inactive validators with deactivation epochs`,
+        );
+    } catch (error) {
+        console.warn('Failed to fetch inactive validators:', error);
     }
 
     console.log(`Exchange rates cache updated with ${exchangeRateCache.size} pools`);

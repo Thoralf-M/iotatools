@@ -8,7 +8,7 @@
  *
  * Header (8 bytes):
  * - Magic number (4 bytes): 0x49455243 ("IERC" - Iota Exchange Rate Cache)
- * - Version (1 byte): Format version (currently 1)
+ * - Version (1 byte): Format version (currently 2)
  * - Pool count (3 bytes): Number of pools (24-bit unsigned integer, max 16.7M pools)
  *
  * String Table:
@@ -18,6 +18,7 @@
  * For each pool:
  * - Pool ID index (2 bytes): Index into string table for poolId
  * - Exchange Rate ID index (2 bytes): Index into string table for exchangeRateId
+ * - Deactivation epoch (2 bytes): 0xFFFF if not deactivated, otherwise the epoch number
  * - Epoch count (2 bytes): Number of epochs for this pool
  * - Epoch data entries (variable):
  *   - Epoch number (2 bytes): Epoch as 16-bit unsigned integer
@@ -31,7 +32,9 @@ import type { ExchangeRateCacheEntry } from '../graphql-requests';
 
 // Magic number for file format identification
 const MAGIC_NUMBER = 0x49455243; // "IERC"
-const FORMAT_VERSION = 1;
+const FORMAT_VERSION = 2; // Version 2 adds deactivationEpoch support
+const FORMAT_VERSION_1 = 1; // Legacy version without deactivationEpoch
+const NO_DEACTIVATION_EPOCH = 0xffff; // Sentinel value meaning no deactivation
 
 /**
  * Serializes exchange rate cache data to a binary format
@@ -84,7 +87,7 @@ export function serializeExchangeRateCache(cacheData: ExchangeRateCacheEntry[]):
     totalSize += stringTableSize; // String table
 
     for (const entry of cacheData) {
-        totalSize += 6; // Pool ID index + Exchange Rate ID index + Epoch count
+        totalSize += 8; // Pool ID index (2) + Exchange Rate ID index (2) + Deactivation epoch (2) + Epoch count (2)
         for (const [epoch, data] of Object.entries(entry.epochData)) {
             totalSize += 2; // Epoch number
             totalSize += 1 + stringTableEncoder.encode(data.iota).length; // IOTA amount
@@ -142,6 +145,21 @@ export function serializeExchangeRateCache(cacheData: ExchangeRateCacheEntry[]):
         offset += 2;
         view.setUint16(offset, exchangeRateIdIndex, false);
         offset += 2;
+
+        // Write deactivation epoch (0xFFFF if not set)
+        const deactivationEpoch =
+            entry.deactivationEpoch !== undefined ? entry.deactivationEpoch : NO_DEACTIVATION_EPOCH;
+        if (
+            entry.deactivationEpoch !== undefined &&
+            entry.deactivationEpoch >= NO_DEACTIVATION_EPOCH
+        ) {
+            throw new Error(
+                `Deactivation epoch too large: ${entry.deactivationEpoch} (max ${NO_DEACTIVATION_EPOCH - 1})`,
+            );
+        }
+        view.setUint16(offset, deactivationEpoch, false);
+        offset += 2;
+
         view.setUint16(offset, epochCount, false);
         offset += 2;
 
@@ -200,9 +218,10 @@ export function deserializeExchangeRateCache(binaryData: Uint8Array): ExchangeRa
 
     const version = view.getUint8(offset);
     offset += 1;
-    if (version !== FORMAT_VERSION) {
+    if (version !== FORMAT_VERSION && version !== FORMAT_VERSION_1) {
         throw new Error(`Unsupported format version: ${version}`);
     }
+    const hasDeactivationEpoch = version >= 2;
 
     // Read pool count (24-bit)
     const poolCount =
@@ -246,7 +265,8 @@ export function deserializeExchangeRateCache(binaryData: Uint8Array): ExchangeRa
     const result: ExchangeRateCacheEntry[] = [];
 
     for (let poolIndex = 0; poolIndex < poolCount; poolIndex++) {
-        if (offset + 6 > binaryData.length) {
+        const minPoolHeaderSize = hasDeactivationEpoch ? 8 : 6;
+        if (offset + minPoolHeaderSize > binaryData.length) {
             throw new Error('Invalid binary data: truncated pool data');
         }
 
@@ -254,6 +274,17 @@ export function deserializeExchangeRateCache(binaryData: Uint8Array): ExchangeRa
         offset += 2;
         const exchangeRateIdIndex = view.getUint16(offset, false);
         offset += 2;
+
+        // Read deactivation epoch if version >= 2
+        let deactivationEpoch: number | undefined;
+        if (hasDeactivationEpoch) {
+            const deactivationEpochRaw = view.getUint16(offset, false);
+            offset += 2;
+            if (deactivationEpochRaw !== NO_DEACTIVATION_EPOCH) {
+                deactivationEpoch = deactivationEpochRaw;
+            }
+        }
+
         const epochCount = view.getUint16(offset, false);
         offset += 2;
 
@@ -312,6 +343,7 @@ export function deserializeExchangeRateCache(binaryData: Uint8Array): ExchangeRa
             poolId,
             exchangeRateId,
             epochData,
+            ...(deactivationEpoch !== undefined && { deactivationEpoch }),
         });
     }
 
