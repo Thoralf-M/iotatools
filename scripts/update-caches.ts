@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 
 import { defaultClientConfig } from '../src/lib/lib/default-client-config.js';
 import {
+    setInitialExchangeRateCache,
     updateExchangeRatesCache,
     updateTimestampsCache,
 } from '../src/lib/lib/staking-rewards/graphql-requests.js';
@@ -101,6 +102,21 @@ async function main() {
         }
 
         const tasks = [];
+
+        // Load existing exchange rate cache if it exists
+        if (options.exchangeRates && fs.existsSync(EXCHANGE_RATE_CACHE_FILE)) {
+            try {
+                const existingCacheData = JSON.parse(
+                    fs.readFileSync(EXCHANGE_RATE_CACHE_FILE, 'utf8'),
+                );
+                setInitialExchangeRateCache(existingCacheData);
+                console.log(
+                    `Loaded existing exchange rates cache with ${existingCacheData.length} pools`,
+                );
+            } catch (e) {
+                console.warn('Failed to load existing exchange rates cache, starting fresh:', e);
+            }
+        }
 
         if (options.exchangeRates) {
             tasks.push(
