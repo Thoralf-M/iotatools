@@ -155,38 +155,48 @@ export function exportTableToCSV(
                 );
 
                 // Add action information
-                const action = stakeObject.actionByEpoch?.[epoch];
-                if (action) {
-                    row.push(action.action);
+                const actions = stakeObject.actionByEpoch?.[epoch];
+                if (actions && actions.length > 0) {
+                    // Combine all action names
+                    const actionNames = actions.map((a) => a.action).join(', ');
+                    row.push(actionNames);
 
-                    // Format action details for CSV
-                    let actionDetails = `TX: ${action.digest}`;
-                    if (action.amount) {
-                        const amount = (Number(action.amount) / 1_000_000_000).toFixed(2);
-                        actionDetails += ` | Amount: ${amount} IOTA`;
-                    }
-                    if (action.totalRewards) {
-                        const rewards = (Number(action.totalRewards) / 1_000_000_000).toFixed(2);
-                        actionDetails += ` | Rewards: ${rewards} IOTA`;
-                    }
-                    if (action.fromAddress && action.toAddress) {
-                        actionDetails += ` | From: ${action.fromAddress} To: ${action.toAddress}`;
-                    }
-                    if (action.principalChange) {
-                        const from = (Number(action.principalChange.from) / 1_000_000_000).toFixed(
-                            2,
-                        );
-                        const to = (Number(action.principalChange.to) / 1_000_000_000).toFixed(2);
-                        actionDetails += ` | Principal: ${from} → ${to} IOTA`;
-                    }
-                    if (action.mergedStakeObjects && action.mergedStakeObjects.length > 0) {
-                        actionDetails += ` | Merged: ${action.mergedStakeObjects.length} objects`;
-                    }
-                    if (action.splitStakeObjects && action.splitStakeObjects.length > 0) {
-                        actionDetails += ` | Split: ${action.splitStakeObjects.length} objects`;
+                    // Format action details for CSV - combine all actions
+                    const actionDetailsArr: string[] = [];
+                    for (const action of actions) {
+                        let details = `TX: ${action.digest}`;
+                        if (action.amount) {
+                            const amount = (Number(action.amount) / 1_000_000_000).toFixed(2);
+                            details += ` | Amount: ${amount} IOTA`;
+                        }
+                        if (action.totalRewards) {
+                            const rewards = (Number(action.totalRewards) / 1_000_000_000).toFixed(
+                                2,
+                            );
+                            details += ` | Rewards: ${rewards} IOTA`;
+                        }
+                        if (action.fromAddress && action.toAddress) {
+                            details += ` | From: ${action.fromAddress} To: ${action.toAddress}`;
+                        }
+                        if (action.principalChange) {
+                            const from = (
+                                Number(action.principalChange.from) / 1_000_000_000
+                            ).toFixed(2);
+                            const to = (Number(action.principalChange.to) / 1_000_000_000).toFixed(
+                                2,
+                            );
+                            details += ` | Principal: ${from} → ${to} IOTA`;
+                        }
+                        if (action.mergedStakeObjects && action.mergedStakeObjects.length > 0) {
+                            details += ` | Merged: ${action.mergedStakeObjects.length} objects`;
+                        }
+                        if (action.splitStakeObjects && action.splitStakeObjects.length > 0) {
+                            details += ` | Split: ${action.splitStakeObjects.length} objects`;
+                        }
+                        actionDetailsArr.push(details);
                     }
 
-                    row.push(actionDetails);
+                    row.push(actionDetailsArr.join(' ;; '));
                 } else {
                     row.push('', '');
                 }

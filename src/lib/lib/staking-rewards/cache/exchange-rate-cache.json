@@ -55728,5 +55728,313 @@
                 "pool": "14334393999060689"
             }
         }
+    },
+    {
+        "poolId": "0x1db934355765c6159e4af5777b6947ca615c45511ca074d8fce5ff0aaa1e0c71",
+        "exchangeRateId": "0x25fa04ad93aaff93aa2cd7339be34f574f59dce40257d9e576f932d13195a715",
+        "epochData": {
+            "2": {
+                "iota": "1",
+                "pool": "1"
+            }
+        },
+        "deactivationEpoch": 1
+    },
+    {
+        "poolId": "0x7b98f7553967e4bafca541b280243d4f607ccc92ab0a3dcb142a804317f03050",
+        "exchangeRateId": "0xbde5f0a3b35be8c45a5f4c3eeb45ae54a0658c68a751c2b31b23153191e9ac62",
+        "epochData": {},
+        "deactivationEpoch": 96
+    },
+    {
+        "poolId": "0xaa56fcaab24eff7d8b75bc56771bd1495fbe9a2d9c7617836f8bbad0d90a0257",
+        "exchangeRateId": "0xdb32a1c3bb64229800b7180510673f294c06cd4922c1dd5c720dcd37a12954e3",
+        "epochData": {},
+        "deactivationEpoch": 18
+    },
+    {
+        "poolId": "0x02fcf4d86ec4b6116a8b8e4f03a7bbfa8e760dda19d5f6cd5f2874101e40a55a",
+        "exchangeRateId": "0x49167100a979c0e6a66633edfe54921151d2a5da6f6d04387bc316af663c70c3",
+        "epochData": {},
+        "deactivationEpoch": 1
+    },
+    {
+        "poolId": "0xc3d648d4c339b74437b3efe09cb995a42b23ad01bc627570c5fc9854e3558728",
+        "exchangeRateId": "0x5fb8e623a426f3d32155cee51c7135f481f1497b53819d1053ab65f574d01e08",
+        "epochData": {},
+        "deactivationEpoch": 79
+    },
+    {
+        "poolId": "0xad3e2894dc016bd79f3f75ec79b29772d374c7ae7a783502e4a4535f7fc83214",
+        "exchangeRateId": "0x1d7f17534d8f4cc81f24fa74a0d6d9ac4d5debf5d47476b65e8ebfc12d9d8a3a",
+        "epochData": {},
+        "deactivationEpoch": 2
+    },
+    {
+        "poolId": "0xa4469635c9270952c6862f993796be5049b8eb88ae3f28e505c1c5f96108f5fd",
+        "exchangeRateId": "0x103df5938d5c7b2dd0405e3995540c9c418ac9339cc29e7a570ec30e74cb479d",
+        "epochData": {},
+        "deactivationEpoch": 28
+    },
+    {
+        "poolId": "0x45fa379cccb040ec2ed3cb1e3b0b694573a0e5baddbf04a7243eb9a39924aa16",
+        "exchangeRateId": "0xe1c482d3725a7ce403c1ad3c39d273726973dca6ef8d3e196ccb4d2af3646eb3",
+        "epochData": {
+            "156": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "157": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "158": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "159": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "160": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "161": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "162": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "163": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "164": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "165": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "166": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "167": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "168": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "169": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "170": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "171": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "172": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "173": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "174": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "175": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "176": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "177": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "178": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "179": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "180": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "181": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "182": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "183": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "184": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "185": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "186": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "187": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "188": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "189": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "190": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "191": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "192": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "193": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "194": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "195": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "196": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "197": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "198": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "199": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "200": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "201": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "202": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "203": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "204": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "205": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "206": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "207": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "208": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "209": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "210": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "211": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "212": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "213": {
+                "iota": "1",
+                "pool": "1"
+            },
+            "214": {
+                "iota": "1",
+                "pool": "1"
+            }
+        },
+        "deactivationEpoch": 214
+    },
+    {
+        "poolId": "0xe1c42ea0cb25493ff4ff60b71edf048c3553585849d8f055112585c5a3625e6d",
+        "exchangeRateId": "0xbcc6d724d9a8cf7a4fd1f12d51e7192afce5d7ec02bdef0813f6f7ee8b30b0f5",
+        "epochData": {},
+        "deactivationEpoch": 28
+    },
+    {
+        "poolId": "0x2151e8d4f4e2685d243b7c38d27169914a761b2f386c6ae20bfaf44b981f4cec",
+        "exchangeRateId": "0xee241293ea7e6a0dd226572234c6e60c1191a4faf7498a7585fa74c3b22f7b0e",
+        "epochData": {},
+        "deactivationEpoch": 94
+    },
+    {
+        "poolId": "0x5fe09c93507b4671fd0d74bf84c1a8721206cfa181c22bed0f71aa77877f8dcd",
+        "exchangeRateId": "0x694f28097589bcd351eaa5d2331fe71e176491f2d817108b1bd9f3a9c14203a9",
+        "epochData": {},
+        "deactivationEpoch": 38
     }
 ]

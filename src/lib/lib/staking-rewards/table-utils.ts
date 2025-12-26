@@ -184,19 +184,22 @@ export function computeEpochData(
     // Process unstake rewards
     stakeObjects.forEach((stakeObject) => {
         if (stakeObject.actionByEpoch) {
-            Object.entries(stakeObject.actionByEpoch).forEach(([epochStr, actionDetails]) => {
+            Object.entries(stakeObject.actionByEpoch).forEach(([epochStr, actions]) => {
                 const epoch = parseInt(epochStr);
-                if (
-                    epochRange.includes(epoch) &&
-                    (actionDetails.action === 'Unstaked' ||
-                        actionDetails.action === 'Partial Unstake') &&
-                    actionDetails.totalRewards
-                ) {
-                    try {
-                        const unstakeRewards = BigInt(actionDetails.totalRewards);
-                        epochData[epoch].totalUnstakeRewards += unstakeRewards;
-                    } catch {
-                        // Handle BigInt conversion errors silently
+                // Process each action in the epoch
+                for (const actionDetails of actions) {
+                    if (
+                        epochRange.includes(epoch) &&
+                        (actionDetails.action === 'Unstaked' ||
+                            actionDetails.action === 'Partial Unstake') &&
+                        actionDetails.totalRewards
+                    ) {
+                        try {
+                            const unstakeRewards = BigInt(actionDetails.totalRewards);
+                            epochData[epoch].totalUnstakeRewards += unstakeRewards;
+                        } catch {
+                            // Handle BigInt conversion errors silently
+                        }
                     }
                 }
             });
@@ -315,15 +318,18 @@ export function getTotalStakedForEpoch(epoch: number, stakeObjects: StakeObject[
                 let endPrincipal = BigInt(principal);
                 // Subtract unstaked amounts in this epoch
                 if (stakeObject.actionByEpoch && stakeObject.actionByEpoch[epoch]) {
-                    const action = stakeObject.actionByEpoch[epoch];
-                    if (
-                        (action.action === 'Unstaked' || action.action === 'Partial Unstake') &&
-                        action.amount
-                    ) {
-                        try {
-                            endPrincipal -= BigInt(action.amount);
-                        } catch {
-                            // Skip invalid amount
+                    const actions = stakeObject.actionByEpoch[epoch];
+                    // Sum up all unstaked amounts in this epoch
+                    for (const action of actions) {
+                        if (
+                            (action.action === 'Unstaked' || action.action === 'Partial Unstake') &&
+                            action.amount
+                        ) {
+                            try {
+                                endPrincipal -= BigInt(action.amount);
+                            } catch {
+                                // Skip invalid amount
+                            }
                         }
                     }
                 }
@@ -370,6 +376,10 @@ export function formatPrincipal(principal: string): string {
 export function formatActionDetails(action: ActionDetails): string {
     let details = `Action: ${action.action}\nTransaction: ${action.digest}`;
 
+    if (action.timestamp) {
+        details += `\nTime: ${action.timestamp}`;
+    }
+
     if (action.amount) {
         const iotaAmount = (Number(action.amount) / 1_000_000_000).toFixed(9);
         if (action.action === 'Partial Unstake') {
@@ -415,6 +425,37 @@ export function formatActionDetails(action: ActionDetails): string {
     }
 
     return details;
+}
+
+/**
+ * Format multiple action details for display
+ */
+export function formatMultipleActionDetails(actions: ActionDetails[]): string {
+    if (actions.length === 0) return '';
+    if (actions.length === 1) return formatActionDetails(actions[0]);
+
+    return actions
+        .map((action, index) => {
+            return `--- Action ${index + 1} ---\n${formatActionDetails(action)}`;
+        })
+        .join('\n\n');
+}
+
+/**
+ * Get combined action names for display
+ */
+export function getActionNames(actions: ActionDetails[]): string {
+    if (actions.length === 0) return '';
+    if (actions.length === 1) return actions[0].action;
+    return actions.map((a) => a.action).join(', ');
+}
+
+/**
+ * Check if any action in the array has a specific action type
+ */
+export function hasActionType(actions: ActionDetails[] | undefined, actionType: string): boolean {
+    if (!actions) return false;
+    return actions.some((a) => a.action === actionType);
 }
 
 /**
