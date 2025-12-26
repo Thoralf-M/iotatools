@@ -131,14 +131,41 @@ export async function computeRewardsForStakeObject(
             // Store both accumulated and epoch-specific rewards
             // If action for this epoch is 'Unstaked', set rewards to '0' but record total rewards
             if (epoch >= stakeObject.firstEpoch) {
-                if (
-                    stakeObject.actionByEpoch &&
-                    stakeObject.actionByEpoch[epoch]?.action === 'Unstaked'
-                ) {
-                    // Update the action with total rewards at unstaking, epoch -1 because there are only rewards for full epochs.
-                    // So epoch in which the unstake tx is, will not receive rewards
-                    stakeObject.actionByEpoch[epoch].totalRewards =
-                        stakeObject.accumulatedRewards[epoch - 1];
+                // Check if any action in this epoch is 'Unstaked'
+                const epochActions = stakeObject.actionByEpoch?.[epoch] || [];
+                const unstakeAction = epochActions.find((a) => a.action === 'Unstaked');
+                if (unstakeAction) {
+                    // Update the action with total rewards at unstaking.
+                    // Use epoch-1 accumulated rewards if available.
+                    // Important: When unstaking, you only receive rewards for complete epochs,
+                    // not for the epoch in which the unstake occurs.
+                    const prevEpochRewards = stakeObject.accumulatedRewards[epoch - 1];
+                    if (prevEpochRewards && prevEpochRewards !== '0') {
+                        unstakeAction.totalRewards = prevEpochRewards;
+                    } else {
+                        // No prior accumulated rewards tracked - calculate from exchange rates
+                        // using the PREVIOUS epoch's exchange rate, since you don't earn
+                        // rewards for the unstake epoch itself.
+                        const prevExchangeRate = stakeObject.exchangeRatesByEpoch[epoch - 1];
+                        if (prevExchangeRate) {
+                            const poolTokenAmount = getTokenAmount(
+                                baselineExchangeRate,
+                                principalAmount,
+                            );
+                            const totalIotaAmount = getIotaAmount(
+                                prevExchangeRate,
+                                poolTokenAmount,
+                            );
+                            const prevAccumulatedRewards =
+                                totalIotaAmount > principalAmount
+                                    ? totalIotaAmount - principalAmount
+                                    : 0n;
+                            unstakeAction.totalRewards = prevAccumulatedRewards.toString();
+                        } else {
+                            // No previous exchange rate available - rewards are 0
+                            unstakeAction.totalRewards = '0';
+                        }
+                    }
                     stakeObject.accumulatedRewards[epoch] = '0';
                     stakeObject.rewardsByEpoch[epoch] = '0';
                 } else {

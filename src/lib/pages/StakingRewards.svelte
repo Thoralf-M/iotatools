@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { isValidIotaAddress } from '@iota/iota-sdk/utils';
     import { onMount } from 'svelte';
 
     import JsonToggleView from '../components/JsonToggleView.svelte';
@@ -24,7 +25,10 @@
     });
 
     let address = '';
-    let additionalAddresses: string[] = [];
+    let textareaValue = '';
+    let useMultipleAddresses = false;
+    let hasAutoAddedPrimary = false;
+    let userHasEditedTextarea = false;
 
     let initialActiveAddress = '';
 
@@ -44,28 +48,46 @@
         $activeAddress = newAddress;
     }
 
-    // Get all addresses to fetch (main + additional)
-    // Use inline reactive statement to ensure proper dependency tracking
+    // Get all addresses to fetch
     $: allAddresses = (() => {
-        // Use main address + any manually added addresses
-        const addresses = [address, ...additionalAddresses].filter(
-            (addr) => addr && addr.trim() !== '',
-        );
-        // Remove duplicates
-        return [...new Set(addresses)];
+        const addresses = useMultipleAddresses ? additionalAddresses : address ? [address] : [];
+        return [...new Set(addresses.filter((addr) => addr && addr.trim() !== ''))];
     })();
 
-    function addAddress() {
-        additionalAddresses = [...additionalAddresses, ''];
+    function parseAddresses(value: string): string[] {
+        return value
+            .split(/[, \n]+/)
+            .map((s) => s.trim())
+            .filter((s) => s);
     }
 
-    function removeAddress(index: number) {
-        additionalAddresses = additionalAddresses.filter((_, i) => i !== index);
+    $: additionalAddresses = useMultipleAddresses ? parseAddresses(textareaValue) : [];
+    $: invalidAddresses = additionalAddresses.filter((addr) => !isValidIotaAddress(addr));
+    $: duplicateAddresses = additionalAddresses.filter(
+        (addr, index) => additionalAddresses.indexOf(addr) !== index,
+    );
+
+    // When address management is opened, add the primary address to the textarea if it's empty and user hasn't edited
+    $: if (
+        useMultipleAddresses &&
+        !hasAutoAddedPrimary &&
+        !userHasEditedTextarea &&
+        address &&
+        textareaValue.trim() === ''
+    ) {
+        textareaValue = address;
+        hasAutoAddedPrimary = true;
     }
 
-    function updateAdditionalAddress(index: number, value: string) {
-        additionalAddresses[index] = value;
-        additionalAddresses = [...additionalAddresses];
+    // Reset flags when closed
+    $: if (!useMultipleAddresses) {
+        hasAutoAddedPrimary = false;
+        userHasEditedTextarea = false;
+    }
+
+    function handleTextareaInput(e: Event) {
+        textareaValue = (e.target as HTMLTextAreaElement).value;
+        userHasEditedTextarea = true;
     }
 
     function addAllWalletAddresses() {
@@ -78,7 +100,7 @@
         const newAddresses = walletAddresses.filter((addr) => !existingAddresses.has(addr));
 
         if (newAddresses.length > 0) {
-            additionalAddresses = [...additionalAddresses, ...newAddresses];
+            textareaValue += (textareaValue ? '\n' : '') + newAddresses.join('\n');
         }
     }
 
@@ -270,20 +292,66 @@
 </script>
 
 <main class="container">
-    <div class="toolbar">
+    <div
+        class="toolbar"
+        style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-start;"
+    >
         <div
-            style="display: flex; align-items: center; gap: 0.5rem; flex-grow: 1; flex-wrap: wrap;"
+            class="address-section"
+            style="flex: 1; display: flex; flex-direction: column; gap: 0.5rem;"
         >
-            <input
-                id="address-input"
-                type="text"
-                value={address}
-                oninput={(e) => updateAddress((e.target as HTMLInputElement)?.value || '')}
-                placeholder="Enter primary address (0x...)"
-            />
+            <label class="toggle-row" style="margin-bottom: 0.5rem;">
+                <div class="toggle-switch">
+                    <input type="checkbox" bind:checked={useMultipleAddresses} />
+                    <span class="slider"></span>
+                </div>
+                <span>Multiple addresses</span>
+            </label>
+            {#if !useMultipleAddresses}
+                <input
+                    id="address-input"
+                    type="text"
+                    value={address}
+                    oninput={(e) => updateAddress((e.target as HTMLInputElement)?.value || '')}
+                    placeholder="Enter primary address (0x...)"
+                    style="width: 100%;"
+                />
+            {:else}
+                <p
+                    style="margin: 0 0 0.5rem 0; font-size: 0.9rem; opacity: 0.8; text-align: left !important;"
+                >
+                    Enter all addresses below, separated by comma, newline, or space:
+                </p>
+                <textarea
+                    value={textareaValue}
+                    placeholder="Enter addresses separated by comma, newline, or space (0x...)"
+                    rows="4"
+                    style="width: 100%; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-color); color: white; padding: 0.4rem 0.8rem; border-radius: 4px;"
+                    oninput={handleTextareaInput}
+                ></textarea>
+                {#if invalidAddresses.length > 0 || duplicateAddresses.length > 0}
+                    <div class="error-message">
+                        {#if invalidAddresses.length > 0}Invalid addresses: {invalidAddresses.join(
+                                ', ',
+                            )}{/if}
+                        {#if duplicateAddresses.length > 0}{invalidAddresses.length > 0
+                                ? '; '
+                                : ''}Duplicate addresses: {duplicateAddresses.join(', ')}{/if}
+                    </div>
+                {/if}
+                <div class="address-buttons">
+                    {#if $iota_accounts.length > 0}
+                        <button onclick={addAllWalletAddresses} class="add-btn">
+                            Add All Wallet Addresses
+                        </button>
+                    {/if}
+                </div>
+            {/if}
         </div>
-
-        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+        <div
+            class="options-section"
+            style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start;"
+        >
             <label class="toggle-row">
                 <div class="toggle-switch">
                     <input type="checkbox" bind:checked={fetchReceivedTxs} disabled={loadingTxs} />
@@ -306,47 +374,15 @@
                     >
                 </div>
             </label>
-
-            <button onclick={fetchTransactions} disabled={loadingTxs} style="background: #059669;">
+            <button
+                onclick={fetchTransactions}
+                disabled={loadingTxs}
+                style="background: #059669; margin: 0 auto;"
+            >
                 {loadingTxs ? (loadingStep ?? 'Loading...') : 'Fetch Data'}
             </button>
         </div>
-        <!-- only for development -->
-        <!-- <button type="button" onclick={loadExampleData}> load example data </button> -->
     </div>
-
-    {#if !loadingTxs}
-        <details class="address-management">
-            <summary>Manage additional addresses</summary>
-            <div class="address-list">
-                {#each additionalAddresses as addr, index}
-                    <div class="address-item">
-                        <input
-                            type="text"
-                            value={addr}
-                            oninput={(e) =>
-                                updateAdditionalAddress(
-                                    index,
-                                    (e.target as HTMLInputElement)?.value || '',
-                                )}
-                            placeholder="Enter additional address (0x...)"
-                        />
-                        <button onclick={() => removeAddress(index)} class="remove-btn"
-                            >Remove</button
-                        >
-                    </div>
-                {/each}
-                <div class="address-buttons">
-                    <button onclick={addAddress} class="add-btn">Add Address</button>
-                    {#if $iota_accounts.length > 0}
-                        <button onclick={addAllWalletAddresses} class="add-btn">
-                            Add All Wallet Addresses
-                        </button>
-                    {/if}
-                </div>
-            </div>
-        </details>
-    {/if}
 
     {#if allAddresses.length > 1}
         <div class="info-message">
@@ -417,6 +453,12 @@
         padding: 0.75rem;
         border-radius: 8px;
         border: 1px solid var(--border-color);
+    }
+
+    @media (max-width: 767px) {
+        .options-section {
+            width: 100%;
+        }
     }
 
     .toolbar input {
@@ -576,61 +618,6 @@
     .tooltip-container:hover .tooltip {
         visibility: visible;
         opacity: 1;
-    }
-
-    .address-management {
-        background: var(--background-card);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 0.75rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .address-management summary {
-        cursor: pointer;
-        user-select: none;
-        font-weight: 500;
-        padding: 0.25rem 0;
-    }
-
-    .address-management summary:hover {
-        color: var(--accent-color);
-    }
-
-    .address-list {
-        margin-top: 0.75rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .address-item {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-    }
-
-    .address-item input {
-        flex: 1;
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid var(--border-color);
-        color: white;
-        padding: 0.4rem 0.8rem;
-        border-radius: 4px;
-    }
-
-    .remove-btn {
-        background: #ef4444;
-        border: 1px solid var(--border-color);
-        color: white;
-        padding: 0.4rem 0.8rem;
-        border-radius: 4px;
-        cursor: pointer;
-        white-space: nowrap;
-    }
-
-    .remove-btn:hover {
-        background: #dc2626;
     }
 
     .address-buttons {

@@ -1,4 +1,3 @@
-import { getClient } from '../../client';
 import {
     exchangeRateCache,
     fetchAllExchangeRates,
@@ -346,6 +345,7 @@ async function determineActionDetails(
     idCreated: boolean,
     idDeleted: boolean,
     digest: string,
+    timestamp: string,
     targetAddress: string,
     currentEpoch: number,
     epochId: number,
@@ -356,12 +356,13 @@ async function determineActionDetails(
     address: string,
 ): Promise<ActionDetails> {
     if (!input) {
-        return { action: 'Unknown', digest };
+        return { action: 'Unknown', digest, timestamp };
     }
 
     let actionDetails: ActionDetails = {
         action: 'Unknown',
         digest,
+        timestamp,
     };
 
     if (idCreated) {
@@ -518,16 +519,23 @@ async function processTransactions(
 ): Promise<Map<string, StakeObject>> {
     const stakeObjects = new Map<string, StakeObject>();
 
-    // Sort transactions by epoch to ensure chronological processing
+    // Sort transactions by epoch and then by timestamp for correct chronological processing
     const sortedTransactions = transactions.sort((a, b) => {
         const epochA = a.effects.epoch.epochId;
         const epochB = b.effects.epoch.epochId;
-        return epochA - epochB;
+        if (epochA !== epochB) {
+            return epochA - epochB;
+        }
+        // Within same epoch, sort by timestamp
+        const timestampA = a.effects.timestamp || '';
+        const timestampB = b.effects.timestamp || '';
+        return timestampA.localeCompare(timestampB);
     });
 
     for (const transaction of sortedTransactions) {
         const epochId = transaction.effects.epoch.epochId;
         const digest = transaction.digest;
+        const timestamp = transaction.effects.timestamp || '';
 
         const { txStakeObjects, coinObjects, timelockObjects } =
             parseTransactionObjects(transaction);
@@ -578,6 +586,7 @@ async function processTransactions(
                         idCreated,
                         idDeleted,
                         digest,
+                        timestamp,
                         targetAddress,
                         currentEpoch,
                         epochId,
@@ -589,13 +598,53 @@ async function processTransactions(
                     );
 
                     existing.actionByEpoch = existing.actionByEpoch || {};
-                    existing.actionByEpoch[epochId] = actionDetails;
+                    if (!existing.actionByEpoch[epochId]) {
+                        existing.actionByEpoch[epochId] = [];
+                    }
+                    existing.actionByEpoch[epochId].push(actionDetails);
+
+                    // Sort actions by timestamp to ensure chronological order
+                    existing.actionByEpoch[epochId].sort((a, b) => {
+                        const tsA = a.timestamp || '';
+                        const tsB = b.timestamp || '';
+                        return tsA.localeCompare(tsB);
+                    });
                 }
             }
         }
     }
 
     return stakeObjects;
+}
+
+// Finalize lastEpoch for a stake object based on all collected actions
+// This is called after merging stake objects from all addresses to ensure
+// correct lastEpoch even when multiple actions happen in the same epoch
+function finalizeLastEpoch(stakeObject: StakeObject, currentEpoch: number): void {
+    if (!stakeObject.actionByEpoch) return;
+
+    // Get all epochs with actions, sorted
+    const epochsWithActions = Object.keys(stakeObject.actionByEpoch)
+        .map(Number)
+        .sort((a, b) => a - b);
+
+    if (epochsWithActions.length === 0) return;
+
+    // Check each epoch for unstake actions (full unstake takes priority)
+    for (const epoch of epochsWithActions) {
+        const actions = stakeObject.actionByEpoch[epoch];
+
+        // If there's an Unstaked action, that definitively ends the stake object
+        const hasUnstake = actions.some((a) => a.action === 'Unstaked');
+        if (hasUnstake) {
+            stakeObject.lastEpoch = epoch;
+            return; // No need to check further epochs - this object is gone
+        }
+    }
+
+    // If no unstake found, check for transfers to determine if we should track
+    // The lastEpoch should be the last epoch where the object was owned by a target address
+    // This is handled during processing, but we need to ensure consistency
 }
 
 // Filter stake objects to only include those owned by target address
@@ -777,7 +826,28 @@ export async function processStakeTransactionsWithExchangeRates(
                 Object.assign(existing.exchangeRatesByEpoch, stakeObject.exchangeRatesByEpoch);
                 if (stakeObject.actionByEpoch) {
                     if (!existing.actionByEpoch) existing.actionByEpoch = {};
-                    Object.assign(existing.actionByEpoch, stakeObject.actionByEpoch);
+                    // Merge action arrays for each epoch
+                    for (const [epochStr, actions] of Object.entries(stakeObject.actionByEpoch)) {
+                        const epoch = parseInt(epochStr);
+                        if (!existing.actionByEpoch[epoch]) {
+                            existing.actionByEpoch[epoch] = [];
+                        }
+                        // Add actions that don't already exist (by digest)
+                        for (const action of actions) {
+                            const exists = existing.actionByEpoch[epoch].some(
+                                (a) => a.digest === action.digest,
+                            );
+                            if (!exists) {
+                                existing.actionByEpoch[epoch].push(action);
+                            }
+                        }
+                        // Sort actions by timestamp to ensure chronological order
+                        existing.actionByEpoch[epoch].sort((a, b) => {
+                            const tsA = a.timestamp || '';
+                            const tsB = b.timestamp || '';
+                            return tsA.localeCompare(tsB);
+                        });
+                    }
                 }
 
                 // Ensure the earliest stakeActivationEpoch
@@ -789,6 +859,12 @@ export async function processStakeTransactionsWithExchangeRates(
             }
         });
     }
+
+    // Finalize lastEpoch for all stake objects based on their complete action history
+    // This ensures correct behavior when multiple actions happen in the same epoch
+    allStakeObjects.forEach((stakeObject) => {
+        finalizeLastEpoch(stakeObject, currentEpoch);
+    });
 
     // Filter to only owned stake objects and get required pool IDs
     const { ownedStakeObjects, requiredPoolIds } = filterOwnedStakeObjects(allStakeObjects);

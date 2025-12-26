@@ -91,6 +91,7 @@ async function fetchStakeTransactionsByRole(
                     nodes {
                         digest
                         effects {
+                            timestamp
                             epoch {
                                 epochId
                             }

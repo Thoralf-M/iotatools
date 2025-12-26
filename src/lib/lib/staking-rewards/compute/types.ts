@@ -1,6 +1,7 @@
 export type ActionDetails = {
     action: string;
     digest: string;
+    timestamp?: string; // ISO timestamp for ordering actions chronologically
     // For Staked and Unstaked actions
     amount?: string;
     totalRewards?: string;
@@ -28,8 +29,8 @@ export type StakeObject = {
     rewardsByEpoch: Record<number, string>;
     // Map of epoch -> total accumulated rewards since staking started
     accumulatedRewards: Record<number, string>;
-    // Map of epoch -> detailed action information
-    actionByEpoch?: Record<number, ActionDetails>;
+    // Map of epoch -> detailed action information (array to support multiple actions in same epoch)
+    actionByEpoch?: Record<number, ActionDetails[]>;
     firstEpoch: number;
     lastEpoch: number;
     stakeActivationEpoch: number;

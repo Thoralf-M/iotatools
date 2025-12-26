@@ -55728,5 +55728,15 @@
                 "pool": "14334393999060689"
             }
         }
+    },
+    {
+        "poolId": "0x1db934355765c6159e4af5777b6947ca615c45511ca074d8fce5ff0aaa1e0c71",
+        "exchangeRateId": "0x25fa04ad93aaff93aa2cd7339be34f574f59dce40257d9e576f932d13195a715",
+        "epochData": {
+            "2": {
+                "iota": "1",
+                "pool": "1"
+            }
+        }
     }
 ]
