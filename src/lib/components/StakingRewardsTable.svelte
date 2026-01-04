@@ -43,6 +43,7 @@
         validatorInfo = {},
         showPriceColumns = $bindable(true),
         showValidatorColumns = $bindable(true),
+        hideUnstaked = $bindable(false),
     } = $props();
 
     let height = $state(800);
@@ -358,6 +359,14 @@
             </div>
             <span class="toggle-label"> Show Validators </span>
         </label>
+
+        <label class="toggle-row control-item">
+            <div class="toggle-switch">
+                <input type="checkbox" bind:checked={hideUnstaked} />
+                <span class="slider"></span>
+            </div>
+            <span class="toggle-label"> Hide unstaked </span>
+        </label>
     </div>
     <div class="controls-right">
         <button onclick={handleExportCSV} style="min-width: 120px;"> Export table to CSV </button>
@@ -415,7 +424,7 @@
                         </div>
                     {/each}
                 {/if}
-                {#each stakeObjects as stakeObject}
+                {#each stakeObjects.filter((obj) => !hideUnstaked || obj.lastEpoch >= currentEpoch) as stakeObject}
                     <div class="header-cell stake-header-cell">
                         <div class="stake-header">
                             <div class="address-container">
@@ -571,7 +580,7 @@
                                     </div>
                                 {/each}
                             {/if}
-                            {#each stakeObjects as stakeObject}
+                            {#each stakeObjects.filter((obj) => !hideUnstaked || obj.lastEpoch >= currentEpoch) as stakeObject}
                                 <div class="table-cell stake-cell">
                                     <div class="stake-popup-container">
                                         {#if isPreActivationInEpoch(stakeObject, epochs[index], epochData)}
