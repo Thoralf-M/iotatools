@@ -5,7 +5,7 @@
     import { getSelectedNetworkConfig } from '../lib/client';
     import { getObjectLink } from '../lib/explorer-links';
 
-    let { transactionData } = $props();
+    let { transactionData, commandIndex = $bindable(), onCommandIndexChange } = $props();
 
     // Helper to safely access nested properties
     function getPTB(data: any) {
@@ -109,6 +109,19 @@
     function collapseAll() {
         expandedCommands = {};
     }
+
+    $effect(() => {
+        if (commandIndex !== null && commandIndex >= 0) {
+            const element = document.getElementById(`command-${commandIndex}`);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Also expand it if not expanded
+                if (!expandedCommands[commandIndex]) {
+                    expandedCommands[commandIndex] = true;
+                }
+            }
+        }
+    });
 
     function trimAddress(address: string): string {
         const addr = address.toLowerCase().replace(/^0x/, '');
@@ -1186,9 +1199,36 @@
             {@const arrowIndex = formattedSegments.findIndex(
                 (s) => s.type === 'text' && s.value.includes(' -> '),
             )}
-            <div class="command-item">
-                <span class="command-index">{i}</span>
-                <button class="expand-btn" onclick={() => toggle(i)}>
+            <div class="command-item" id="command-{i}" class:selected={i === commandIndex}>
+                <a
+                    class="command-index"
+                    href={(() => {
+                        const hashParts = window.location.hash.split('?');
+                        const path = hashParts[0];
+                        const params = new URLSearchParams(hashParts[1] || '');
+                        params.set('view', 'commands');
+                        params.set('commandIndex', i.toString());
+                        return window.location.origin + path + '?' + params.toString();
+                    })()}
+                    onclick={(e) => {
+                        e.preventDefault();
+                        const hashParts = window.location.hash.split('?');
+                        const path = hashParts[0];
+                        const params = new URLSearchParams(hashParts[1] || '');
+                        params.set('view', 'commands');
+                        params.set('commandIndex', i.toString());
+                        const fullUrl = window.location.origin + path + '?' + params.toString();
+                        navigator.clipboard.writeText(fullUrl);
+                        onCommandIndexChange(i);
+                    }}>{i}</a
+                >
+                <button
+                    class="expand-btn"
+                    onclick={() => {
+                        toggle(i);
+                        onCommandIndexChange(null);
+                    }}
+                >
                     {expandedCommands[i] ? '▼' : '▶'}
                 </button>
                 <div class="command-content">
@@ -1436,8 +1476,22 @@
         transition: background-color 0.2s;
     }
 
-    .command-result.highlighted-row {
-        background: rgba(167, 139, 250, 0.25);
+    .command-item.selected {
+        background: rgba(59, 130, 246, 0.1);
+        border-color: rgba(59, 130, 246, 0.5);
+    }
+
+    .command-index {
+        color: #a78bfa;
+        font-weight: 600;
+        min-width: 2rem;
+        text-align: right;
+        padding-right: 0.5rem;
+        border-right: 1px solid var(--border-color);
+        margin-right: 0.5rem;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.2s;
         border-radius: 3px;
         padding: 0 3px;
         margin: 0 -3px;

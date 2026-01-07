@@ -14,8 +14,15 @@
 
     let { value = $bindable() } = $props();
 
-    let viewMode = $state('formatted');
+    let viewMode = $state(
+        new URLSearchParams(window.location.hash.split('?')[1] || '').get('view') || 'formatted',
+    );
     let prevViewMode = $state('formatted');
+    let commandIndex = $state(
+        parseInt(
+            new URLSearchParams(window.location.hash.split('?')[1] || '').get('commandIndex') || '',
+        ) || null,
+    );
     let hidden = $derived(!value || !Object.keys(value || {}).length);
     let isDryRunning = $state(false);
     let dryRunError = $state('');
@@ -57,6 +64,24 @@
             }
 
             dryRunError = ''; // clear any previous errors
+        }
+    });
+
+    $effect(() => {
+        const hashParts = window.location.hash.split('?');
+        const path = hashParts[0];
+        const params = new URLSearchParams(hashParts[1] || '');
+        const currentView = params.get('view');
+        const currentCommandIndex = params.get('commandIndex');
+        const newCommandIndex = commandIndex !== null ? commandIndex.toString() : null;
+        if (currentView !== viewMode || currentCommandIndex !== newCommandIndex) {
+            params.set('view', viewMode);
+            if (commandIndex !== null) {
+                params.set('commandIndex', commandIndex.toString());
+            } else {
+                params.delete('commandIndex');
+            }
+            window.location.hash = path + '?' + params.toString();
         }
     });
 
@@ -199,7 +224,11 @@
             </div>
         {:else if viewMode === 'commands'}
             <div class="commands-view-container">
-                <TransactionCommands transactionData={getTransactionData(value)} />
+                <TransactionCommands
+                    transactionData={getTransactionData(value)}
+                    {commandIndex}
+                    onCommandIndexChange={(i) => (commandIndex = i)}
+                />
             </div>
         {:else}
             <div class="json-view">
