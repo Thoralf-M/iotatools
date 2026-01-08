@@ -1,0 +1,136 @@
+
+  .container.svelte-vunjc7 {
+    display: inline-block;
+    transform: translate(calc(0px - var(--li-identation)), -50%);
+    position: absolute;
+    top: 50%;
+    padding-right: 100%;
+  }
+  .arrow.svelte-vunjc7 {
+    transform-origin: 25% 50%;
+    position: relative;
+    line-height: 1.1em;
+    font-size: 0.75em;
+    margin-left: 0;
+    transition: 150ms;
+    color: var(--arrow-color);
+    user-select: none;
+    font-family: 'Courier New', Courier, monospace;
+    display: block;
+  }
+  .expanded.svelte-vunjc7 {
+    transform: rotateZ(90deg) translateX(-3px);
+  }
+
+  .root.svelte-1cs7qon {
+    display: inline-block;
+    position: relative;
+  }
+  .indent.svelte-1cs7qon {
+    padding-left: var(--li-identation);
+  }
+  .label.svelte-1cs7qon {
+    position: relative;
+  }
+
+  .comma.svelte-n33r32 {
+    margin-left: -0.5em;
+    margin-right: 0.5em;
+  }
+
+  .Date.svelte-1hiktm7 {
+    color: var(--date-color);
+  }
+  .BigInt.svelte-1hiktm7 {
+    color: var(--number-color);
+  }
+  .Number.svelte-1hiktm7 {
+    color: var(--number-color);
+  }
+  .Boolean.svelte-1hiktm7 {
+    color: var(--boolean-color);
+  }
+  .Null.svelte-1hiktm7 {
+    color: var(--null-color);
+  }
+  .Undefined.svelte-1hiktm7 {
+    color: var(--undefined-color);
+  }
+  .Symbol.svelte-1hiktm7 {
+    color: var(--symbol-color);
+  }
+
+  .indent.svelte-64r5jo {
+    padding-left: var(--li-identation);
+  }
+
+  span.svelte-10nkjh9 {
+    color: var(--string-color);
+    word-break: break-all;
+    word-wrap: break-word;
+  }
+
+  .i.svelte-cdp23s {
+    font-style: italic;
+  }
+  .fn.svelte-cdp23s,
+  .i.svelte-cdp23s {
+    color: var(--function-color);
+  }
+
+  .regex.svelte-1bb4w0z {
+    color: var(--regex-color);
+  }
+
+  span.svelte-m69a3i {
+    --string-color: var(--json-tree-string-color, #cb3f41);
+    --symbol-color: var(--json-tree-symbol-color, #cb3f41);
+    --boolean-color: var(--json-tree-boolean-color, #112aa7);
+    --function-color: var(--json-tree-function-color, #112aa7);
+    --number-color: var(--json-tree-number-color, #3029cf);
+    --label-color: var(--json-tree-label-color, #871d8f);
+    --property-color: var(--json-tree-property-color, #000000);
+    --arrow-color: var(--json-tree-arrow-color, #727272);
+    --operator-color: var(--json-tree-operator-color, #727272);
+    --null-color: var(--json-tree-null-color, #8d8d8d);
+    --undefined-color: var(--json-tree-undefined-color, #8d8d8d);
+    --date-color: var(--json-tree-date-color, #8d8d8d);
+    --internal-color: var(--json-tree-internal-color, grey);
+    --regex-color: var(--json-tree-regex-color, var(--string-color));
+    --li-identation: var(--json-tree-li-indentation, 1em);
+    --li-line-height: var(--json-tree-li-line-height, 1.3);
+    font-size: var(--json-tree-font-size, 12px);
+    font-family: var(--json-tree-font-family, 'Courier New', Courier, monospace);
+  }
+  span.svelte-m69a3i li {
+    line-height: var(--li-line-height);
+    display: var(--li-display, list-item);
+    list-style: none;
+  }
+  span.svelte-m69a3i,
+  span.svelte-m69a3i ul {
+    padding: 0;
+    margin: 0;
+  }
+
+  .expandable.svelte-m69a3i {
+    margin-left: var(--li-identation);
+  }
+  span.svelte-m69a3i {
+    cursor: default;
+  }
+  span.svelte-m69a3i .label {
+    color: var(--label-color);
+  }
+  span.svelte-m69a3i .property {
+    color: var(--property-color);
+  }
+  span.svelte-m69a3i .internal {
+    color: var(--internal-color);
+  }
+  span.svelte-m69a3i .operator {
+    color: var(--operator-color);
+  }
+  span.svelte-m69a3i > span:where(.svelte-m69a3i) {
+    white-space: pre-wrap;
+  }
