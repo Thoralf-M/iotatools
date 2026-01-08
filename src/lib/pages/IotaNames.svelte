@@ -143,6 +143,17 @@
             console.error(err);
         }
     };
+    const getRegistryEntry = async () => {
+        try {
+            let client = getClient();
+            let result = await client.iotaNamesLookup({ name: nameName });
+            console.log(result);
+            value = result || 'No registry entry found';
+        } catch (err: any) {
+            value = err.toString();
+            console.error(err);
+        }
+    };
     async function queryIotaNamesObjectId() {
         const gqlClient = new IotaGraphQLClient({
             url: getSelectedNetworkConfig().graphql,
@@ -844,8 +855,9 @@
     <button onclick={getDynamicFields}> get dynamic fields </button>
     <hr />
     Resolver:
-    <button onclick={resolveAddress}> resolve address (by name) </button>
+    <button onclick={getRegistryEntry}> get registry entry (by name) </button>
     <button onclick={resolveName}> resolve name (by address) </button>
+    <button onclick={resolveAddress}> resolve address (by name) </button>
     <hr />
     Tx actions:
     <button onclick={registerName}> register name </button>
