@@ -15,7 +15,8 @@
     import TransactionView from '../components/TransactionView.svelte';
     import { getClient, getSelectedChain } from '../lib/client';
     import { updatePageQueryParams, usePageQueryParams } from '../lib/page-query-params';
-    import { activeAddress, iota_wallets } from '../lib/signer-data';
+    import { activeAddress } from '../lib/signer-data';
+    import { getActiveWallet } from '../lib/web-wallet';
 
     interface SignaturePubkeyPair {
         signatureScheme: string;
@@ -121,15 +122,15 @@
                 return;
             }
 
-            const wallets = get(iota_wallets);
+            const wallet = getActiveWallet();
             const senderAddress = get(activeAddress);
 
-            if (!wallets || wallets.length === 0) {
+            if (!wallet) {
                 error = 'No wallet available';
                 return;
             }
 
-            if (!wallets[0].signTransaction) {
+            if (!wallet.signTransaction) {
                 error = 'Current wallet does not support transaction signing';
                 return;
             }
@@ -144,7 +145,7 @@
                 return;
             }
 
-            const result = await wallets[0].signTransaction({
+            const result = await wallet.signTransaction({
                 transaction: Transaction.from(transactionBytes),
                 account: { address: senderAddress },
                 // @ts-ignore
@@ -174,15 +175,15 @@
                 return;
             }
 
-            const wallets = get(iota_wallets);
+            const wallet = getActiveWallet();
             const senderAddress = get(activeAddress);
 
-            if (!wallets || wallets.length === 0) {
+            if (!wallet) {
                 error = 'No wallet available';
                 return;
             }
 
-            if (!wallets[0].signPersonalMessage) {
+            if (!wallet.signPersonalMessage) {
                 error = 'Current wallet does not support message signing';
                 return;
             }
@@ -190,7 +191,7 @@
             // Convert string to bytes
             const messageBytes = new TextEncoder().encode(inputString);
 
-            const result = await wallets[0].signPersonalMessage({
+            const result = await wallet.signPersonalMessage({
                 message: messageBytes,
                 account: { address: senderAddress },
             });

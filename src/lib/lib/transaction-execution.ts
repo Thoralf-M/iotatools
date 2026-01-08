@@ -13,7 +13,8 @@ import { get } from 'svelte/store';
 
 import { getClient, getSelectedChain } from './client';
 import { sharedTransactionExecution, TransactionExecution } from './shared-in-memory';
-import { activeAddress, iota_wallets } from './signer-data';
+import { activeAddress } from './signer-data';
+import { getActiveWallet } from './web-wallet';
 
 // Execute the transaction based on the selected execution mode and sender address
 export async function executeTransaction(
@@ -27,7 +28,6 @@ export async function executeTransaction(
     const client = getClient();
     const executionMode = get(sharedTransactionExecution);
     const senderAddress = get(activeAddress);
-    const wallet = get(iota_wallets);
 
     transaction.setSenderIfNotSet(senderAddress);
 
@@ -41,7 +41,11 @@ export async function executeTransaction(
             let transactionBlock = await transaction.build({ client });
             return client.dryRunTransactionBlock({ transactionBlock });
         case TransactionExecution.Send:
-            return wallet[0].signAndExecuteTransaction({
+            const wallet = getActiveWallet();
+            if (!wallet) {
+                throw new Error('No active wallet available');
+            }
+            return wallet.signAndExecuteTransaction({
                 transaction,
                 options,
                 // @ts-ignore
