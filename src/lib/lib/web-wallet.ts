@@ -155,4 +155,7 @@ export const disconnectWallet = () => {
     iota_accounts.set([]);
     activeAddress.set('');
     selectedWalletIndex.set(0);
+    if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('selectedWalletName');
+    }
 };

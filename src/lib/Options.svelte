@@ -100,10 +100,6 @@
     function closeWalletSelector() {
         showWalletSelector = false;
     }
-
-    function handleWalletSelected(walletIndex: number) {
-        // Wallet connection is handled in the modal
-    }
 </script>
 
 <div class="options-container">
@@ -206,7 +202,7 @@
 <WalletSelectorModal
     isOpen={showWalletSelector}
     onClose={closeWalletSelector}
-    onWalletSelected={handleWalletSelected}
+    onWalletSelected={() => {}}
 />
 
 <style>
