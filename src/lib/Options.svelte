@@ -2,6 +2,7 @@
     import { isValidIotaAddress } from '@iota/iota-sdk/utils';
     import { onMount } from 'svelte';
 
+    import WalletSelectorModal from './components/WalletSelectorModal.svelte';
     import {
         isProMode,
         sharedClientConfig,
@@ -23,7 +24,9 @@
         iota_accounts,
         updateSelectedSignerAccounts,
     } from './lib/signer-data';
-    import { connectWallet } from './lib/web-wallet';
+    import { connectWallet, disconnectWallet } from './lib/web-wallet';
+
+    let showWalletSelector = $state(false);
 
     // Initialize query parameter handling
     onMount(() => {
@@ -48,7 +51,7 @@
     // Use query-aware config that responds to URL parameters
     let clientConfig = queryAwareClientConfig;
 
-    let externalAddressInput = '';
+    let externalAddressInput = $state('');
 
     // Function to handle network selection changes
     function handleNetworkChange(event: Event) {
@@ -76,15 +79,7 @@
         const value = target.value;
 
         if (value === '__disconnect__') {
-            // Disconnect logic
-            $iota_accounts = [];
-            $activeAddress = '';
-            // Reset signer type to default or just clear state?
-            // If we want to go back to "Connect" button state, we just need iota_accounts to be empty.
-            // But we might also want to reset sharedSignerType if it was WebWallet?
-            // Actually, if we disconnect, we probably stay in WebWallet mode but disconnected?
-            // Or maybe switch to Localstorage?
-            // Let's just clear accounts for now, which will show the Connect button again.
+            disconnectWallet();
         } else {
             $activeAddress = value;
         }
@@ -92,23 +87,22 @@
 
     function clearExternalAddress() {
         externalAddressInput = '';
-        $sharedSignerType = SignerType.WebWallet; // Or any default state to show buttons again
-        // Actually, if we clear, we want to show the buttons again.
-        // The buttons are shown if NOT (WebWallet && accounts > 0) AND NOT (ExternalAddress)
-        // So we should probably switch away from ExternalAddress mode or just clear the input?
-        // If we switch away from ExternalAddress, the buttons will show up.
-        // Let's switch to Localstorage or just reset.
-        // But wait, the buttons logic is:
-        // if WebWallet && accounts > 0 -> dropdown
-        // else if ExternalAddress -> input
-        // else -> buttons
-
-        // So to show buttons, we need to NOT be in ExternalAddress mode.
-        // Let's switch to Localstorage as a "neutral" state or WebWallet (disconnected).
         $sharedSignerType = SignerType.Localstorage;
         setQueryParam(QUERY_PARAM_KEYS.SIGNER, null);
         setQueryParam(QUERY_PARAM_KEYS.EXTERNAL_ADDRESS, null);
         updateSelectedSignerAccounts();
+    }
+
+    function openWalletSelector() {
+        showWalletSelector = true;
+    }
+
+    function closeWalletSelector() {
+        showWalletSelector = false;
+    }
+
+    function handleWalletSelected(walletIndex: number) {
+        // Wallet connection is handled in the modal
     }
 </script>
 
@@ -150,7 +144,7 @@
                         setQueryParam(QUERY_PARAM_KEYS.SIGNER, SignerType.WebWallet);
                         setQueryParam(QUERY_PARAM_KEYS.EXTERNAL_ADDRESS, null);
                         updateSelectedSignerAccounts();
-                        connectWallet(false);
+                        openWalletSelector();
                     }}
                     class="connect-btn"
                 >
@@ -208,6 +202,12 @@
         </div>
     {/if}
 </div>
+
+<WalletSelectorModal
+    isOpen={showWalletSelector}
+    onClose={closeWalletSelector}
+    onWalletSelected={handleWalletSelected}
+/>
 
 <style>
     .options-container {

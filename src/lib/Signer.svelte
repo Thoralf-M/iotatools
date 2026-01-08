@@ -2,6 +2,7 @@
     import { isValidIotaAddress } from '@iota/iota-sdk/utils';
     import { onMount } from 'svelte';
 
+    import WalletSelectorModal from './components/WalletSelectorModal.svelte';
     import { isProMode, sharedSignerType, SignerType } from './lib/local-storage-store';
     import { addressFromQuery, QUERY_PARAM_KEYS, setQueryParam } from './lib/query-param-store';
     import {
@@ -15,11 +16,11 @@
         selectExternalAddress,
         updateSelectedSignerAccounts,
     } from './lib/signer-data';
-    import { connectWallet } from './lib/web-wallet';
+    import { connectWallet, disconnectWallet } from './lib/web-wallet';
 
-    let externalAddress = '0x0000000000000000000000000000000000000000000000000000000000000000';
-    let externalAlias = '';
-    let isAddressValid = false;
+    let externalAddress = $state('0x0000000000000000000000000000000000000000000000000000000000000000');
+    let externalAlias = $state('');
+    let showWalletSelector = $state(false);
 
     onMount(() => {
         // Initialize external address from query parameter if provided
@@ -133,9 +134,7 @@
         }
     }
 
-    $: isAddressValid = (() => {
-        return isValidIotaAddress(externalAddress);
-    })();
+    let isAddressValid = $derived(isValidIotaAddress(externalAddress));
 
     // Format option text with proper alignment
     function formatOptionText(account: any): string {
@@ -152,6 +151,23 @@
 
         return `${paddedLabel}${addressSnippet}`;
     }
+
+    function handleDisconnectWallet() {
+        disconnectWallet();
+    }
+
+    function openWalletSelector() {
+        showWalletSelector = true;
+    }
+
+    function closeWalletSelector() {
+        showWalletSelector = false;
+    }
+
+    function handleWalletSelected(walletIndex: number) {
+        // Wallet connection is handled in the modal
+    }
+
 </script>
 
 <main>
@@ -174,11 +190,13 @@
                                     {/each}
                                 </select>
                                 {#if $sharedSignerType == SignerType.WebWallet && $iota_accounts.length == 0}
-                                    <button
-                                        onclick={() => connectWallet(false)}
-                                        class="connect-btn"
-                                    >
+                                    <button onclick={openWalletSelector} class="connect-btn">
                                         Connect
+                                    </button>
+                                {/if}
+                                {#if $sharedSignerType == SignerType.WebWallet && $iota_accounts.length > 0}
+                                    <button onclick={handleDisconnectWallet} class="disconnect-btn">
+                                        Disconnect
                                     </button>
                                 {/if}
                             </div>
@@ -256,6 +274,12 @@
         </div>
     {/if}
 </main>
+
+<WalletSelectorModal
+    isOpen={showWalletSelector}
+    onClose={closeWalletSelector}
+    onWalletSelected={handleWalletSelected}
+/>
 
 <style>
     .signer-container {
@@ -385,6 +409,31 @@
 
     .copy-btn:hover {
         box-shadow: 0 4px 8px rgba(99, 102, 241, 0.2);
+    }
+
+    .disconnect-btn {
+        padding: 0.4rem 0.8rem;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        color: white;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.75rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        white-space: nowrap;
+        background: rgba(239, 68, 68, 0.6);
+        padding: 0.4rem 0.6rem;
+        min-width: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .disconnect-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+        background: rgba(239, 68, 68, 0.7);
     }
 
     .external-address-input {
