@@ -1,12 +1,14 @@
 <script lang="ts">
-    import { get } from 'svelte/store';
-
     import { iota_wallets } from '../lib/signer-data';
     import { connectWallet, setSelectedWallet } from '../lib/web-wallet';
 
-    let { isOpen = $bindable(false), onClose, onWalletSelected }: { 
-        isOpen?: boolean; 
-        onClose: () => void; 
+    let {
+        isOpen = $bindable(false),
+        onClose,
+        onWalletSelected,
+    }: {
+        isOpen?: boolean;
+        onClose: () => void;
         onWalletSelected: (walletIndex: number) => void;
     } = $props();
 
@@ -29,20 +31,15 @@
             </div>
             <div class="modal-body">
                 {#if $iota_wallets.length === 0}
-                    <p class="no-wallets">No IOTA wallets detected. Please install a wallet extension.</p>
+                    <p class="no-wallets">
+                        No IOTA wallets detected. Please install a wallet extension.
+                    </p>
                 {:else}
                     <div class="wallet-list">
                         {#each $iota_wallets as wallet, index}
-                            <button
-                                class="wallet-item"
-                                onclick={() => handleWalletClick(index)}
-                            >
+                            <button class="wallet-item" onclick={() => handleWalletClick(index)}>
                                 {#if wallet.icon}
-                                    <img
-                                        src={wallet.icon}
-                                        alt={wallet.name}
-                                        class="wallet-icon"
-                                    />
+                                    <img src={wallet.icon} alt={wallet.name} class="wallet-icon" />
                                 {/if}
                                 <div class="wallet-info">
                                     <div class="wallet-name">{wallet.name}</div>

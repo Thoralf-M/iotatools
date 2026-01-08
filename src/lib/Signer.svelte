@@ -18,7 +18,9 @@
     } from './lib/signer-data';
     import { connectWallet, disconnectWallet } from './lib/web-wallet';
 
-    let externalAddress = $state('0x0000000000000000000000000000000000000000000000000000000000000000');
+    let externalAddress = $state(
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+    );
     let externalAlias = $state('');
     let showWalletSelector = $state(false);
 
@@ -163,7 +165,6 @@
     function closeWalletSelector() {
         showWalletSelector = false;
     }
-
 </script>
 
 <main>
