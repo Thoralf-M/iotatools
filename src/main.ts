@@ -3,7 +3,7 @@ import './app.css';
 import { mount } from 'svelte';
 
 import App from './App.svelte';
-import { initQueryParamHandling } from './lib/lib/query-param-store';
+import { initQueryParamHandling } from './lib/utils/query-param-store';
 
 // Initialize query parameter handling
 initQueryParamHandling();

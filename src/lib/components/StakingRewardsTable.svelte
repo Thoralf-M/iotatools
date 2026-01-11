@@ -2,24 +2,17 @@
     import { onMount } from 'svelte';
     import { List } from 'svelte-virtual';
 
-    import { getSelectedNetworkConfig } from '../lib/client';
-    import type {
-        ActionDetails,
-        StakeObject,
-        TableComputationResult,
-        ValidatorInfo,
-    } from '../lib/staking-rewards/';
-    import pricesCache from '../lib/staking-rewards/cache/iota-prices-coingecko.json';
-    import epochTimestampsCacheJson from '../lib/staking-rewards/cache/mainnet-epoch-timestamps-cache.json';
-    import { exportTableToCSV, type ExportOptions } from '../lib/staking-rewards/csv-export';
-    import { fetchEpochTimestampsForDisplay } from '../lib/staking-rewards/graphql-requests';
+    import type { ActionDetails, StakeObject, ValidatorInfo } from '../pages/staking-rewards/';
+    import pricesCache from '../pages/staking-rewards/cache/iota-prices-coingecko.json';
+    import epochTimestampsCacheJson from '../pages/staking-rewards/cache/mainnet-epoch-timestamps-cache.json';
+    import { exportTableToCSV, type ExportOptions } from '../pages/staking-rewards/csv-export';
+    import { fetchEpochTimestampsForDisplay } from '../pages/staking-rewards/graphql-requests';
     import {
         fetchAllPrices as fetchAllPricesUtil,
         reloadFromCoinGeckoCache,
-    } from '../lib/staking-rewards/price-fetching';
+    } from '../pages/staking-rewards/price-fetching';
     import {
         computeEpochData,
-        formatActionDetails,
         formatMultipleActionDetails,
         formatPrincipal,
         getActionNames,
@@ -35,7 +28,9 @@
         hasActionType,
         isActiveInEpoch,
         isPreActivationInEpoch,
-    } from '../lib/staking-rewards/table-utils';
+    } from '../pages/staking-rewards/table-utils';
+    import { getSelectedNetworkConfig } from '../utils/client';
+    import { copyToClipboard } from '../utils/formatting';
 
     let {
         currentEpoch = 0,
@@ -56,10 +51,6 @@
         window.addEventListener('resize', updateHeight);
         return () => window.removeEventListener('resize', updateHeight);
     });
-
-    function copyToClipboard(text: string) {
-        navigator.clipboard.writeText(text);
-    }
 
     // Computed table data
     let tableData = $derived.by(() => computeEpochData(stakeObjects, validatorInfo, currentEpoch));
@@ -273,10 +264,10 @@
             <button
                 class="copy-btn validator-copy-btn"
                 title="Copy pool ID"
-                onclick={(e) => {
+                onclick={async (e) => {
                     e.stopPropagation();
                     if (selectedValidator?.poolId) {
-                        copyToClipboard(selectedValidator.poolId);
+                        await copyToClipboard(selectedValidator.poolId);
                     }
                 }}
             >
@@ -447,9 +438,9 @@
                                     <button
                                         class="copy-btn"
                                         title="Copy full address"
-                                        onclick={(e) => {
+                                        onclick={async (e) => {
                                             e.stopPropagation();
-                                            copyToClipboard(stakeObject.objectId);
+                                            await copyToClipboard(stakeObject.objectId);
                                         }}
                                     >
                                         📋

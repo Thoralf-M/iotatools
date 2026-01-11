@@ -2,40 +2,41 @@
     import Router from 'svelte-spa-router';
     import { wrap } from 'svelte-spa-router/wrap';
 
-    import { isProMode } from './lib/lib/local-storage-store';
-    import { navigateWithGlobalParams } from './lib/lib/query-param-store';
-    import Options from './lib/Options.svelte';
-    import Signer from './lib/Signer.svelte';
-    import Tabs from './lib/Tabs.svelte';
+    import Options from './lib/components/Options.svelte';
+    import Signer from './lib/components/Signer.svelte';
+    import Tabs from './lib/components/Tabs.svelte';
+    import { isProMode } from './lib/utils/local-storage-store';
+    import { navigateWithGlobalParams } from './lib/utils/query-param-store';
 
     // Lazy-load page components using dynamic imports
     const pageImports = {
-        IotaSystemState: () => import('./lib/pages/IotaSystemState.svelte'),
-        Transaction: () => import('./lib/pages/Transaction.svelte'),
-        Object: () => import('./lib/pages/Object.svelte'),
-        PTBs: () => import('./lib/pages/PTBs.svelte'),
-        DynamicFields: () => import('./lib/pages/DynamicFields.svelte'),
-        StakingRewards: () => import('./lib/pages/StakingRewards.svelte'),
-        MultiAccountView: () => import('./lib/pages/MultiAccountView.svelte'),
-        AccountsList: () => import('./lib/pages/AccountsList.svelte'),
-        Keystone: () => import('./lib/pages/Keystone.svelte'),
-        LedgerNano: () => import('./lib/pages/LedgerNano.svelte'),
-        Sign: () => import('./lib/pages/Sign.svelte'),
-        PublishData: () => import('./lib/pages/PublishData.svelte'),
-        SplitMergeCoins: () => import('./lib/pages/SplitMergeCoins.svelte'),
+        IotaSystemState: () => import('./lib/pages/iota-system-state/IotaSystemState.svelte'),
+        Transaction: () => import('./lib/pages/transaction/Transaction.svelte'),
+        Object: () => import('./lib/pages/object/Object.svelte'),
+        PTBs: () => import('./lib/pages/ptbs/PTBs.svelte'),
+        DynamicFields: () => import('./lib/pages/dynamic-fields/DynamicFields.svelte'),
+        StakingRewards: () => import('./lib/pages/staking-rewards/StakingRewards.svelte'),
+        MultiAccountView: () => import('./lib/pages/multi-account-view/MultiAccountView.svelte'),
+        AccountsList: () => import('./lib/pages/accounts-list/AccountsList.svelte'),
+        Keystone: () => import('./lib/pages/keystone/Keystone.svelte'),
+        LedgerNano: () => import('./lib/pages/ledger-nano/LedgerNano.svelte'),
+        Sign: () => import('./lib/pages/sign/Sign.svelte'),
+        PublishData: () => import('./lib/pages/publish-data/PublishData.svelte'),
+        SplitMergeCoins: () => import('./lib/pages/split-merge-coins/SplitMergeCoins.svelte'),
         ProgrammableTransactionBlock: () =>
-            import('./lib/pages/ProgrammableTransactionBlock.svelte'),
-        BulkTransfer: () => import('./lib/pages/BulkTransfer.svelte'),
-        Stake: () => import('./lib/pages/Stake.svelte'),
-        Faucet: () => import('./lib/pages/Faucet.svelte'),
-        Converter: () => import('./lib/pages/Converter.svelte'),
-        TextAnalyzer: () => import('./lib/pages/TextAnalyzer.svelte'),
-        Ed25519AddressGeneration: () => import('./lib/pages/Ed25519AddressGeneration.svelte'),
-        IotaNames: () => import('./lib/pages/IotaNames.svelte'),
-        Settings: () => import('./lib/pages/Settings.svelte'),
-        Txs: () => import('./lib/pages/Txs.svelte'),
-        Impressum: () => import('./lib/pages/Impressum.svelte'),
-        Datenschutz: () => import('./lib/pages/Datenschutz.svelte'),
+            import('./lib/pages/programmable-transaction-block/ProgrammableTransactionBlock.svelte'),
+        BulkTransfer: () => import('./lib/pages/bulk-transfer/BulkTransfer.svelte'),
+        Stake: () => import('./lib/pages/stake/Stake.svelte'),
+        Faucet: () => import('./lib/pages/faucet/Faucet.svelte'),
+        Converter: () => import('./lib/pages/converter/Converter.svelte'),
+        TextAnalyzer: () => import('./lib/pages/text-analyzer/TextAnalyzer.svelte'),
+        Ed25519AddressGeneration: () =>
+            import('./lib/pages/ed25519-address-generation/Ed25519AddressGeneration.svelte'),
+        IotaNames: () => import('./lib/pages/iota-names/IotaNames.svelte'),
+        Settings: () => import('./lib/pages/settings/Settings.svelte'),
+        Txs: () => import('./lib/pages/txs/Txs.svelte'),
+        Impressum: () => import('./lib/pages/impressum/Impressum.svelte'),
+        Datenschutz: () => import('./lib/pages/datenschutz/Datenschutz.svelte'),
     };
 
     // Route definitions: map route paths to lazy-loaded components using wrap

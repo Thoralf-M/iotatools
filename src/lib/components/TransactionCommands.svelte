@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { bcs, fromB64 } from '@iota/bcs';
+    import { bcs, fromBase64 } from '@iota/bcs';
     import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
 
-    import { getSelectedNetworkConfig } from '../lib/client';
-    import { getObjectLink } from '../lib/explorer-links';
+    import { getSelectedNetworkConfig } from '../utils/client';
+    import { getObjectLink } from '../utils/explorer-links';
 
     let { transactionData, commandIndex = $bindable(), onCommandIndexChange } = $props();
 
@@ -133,7 +133,7 @@
         if (!type) return null;
 
         try {
-            const bytes = fromB64(base64Bytes);
+            const bytes = fromBase64(base64Bytes);
             const uint8Array = new Uint8Array(bytes as any);
 
             // Extract the base type without references

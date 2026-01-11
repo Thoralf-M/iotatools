@@ -2,7 +2,7 @@
     // @ts-ignore - Module resolution issue with svelte-json-tree
     import JSONTree from '@sveltejs/svelte-json-tree';
 
-    import { formatJsonWithCompactArrays } from '../lib/transaction-view';
+    import { formatJsonWithCompactArrays } from '../components/transaction-view';
 
     export let value: any = {};
     let showJsonTree = false;
