@@ -7,9 +7,12 @@
     import ObjectView from '../../components/ObjectView.svelte';
     import { getTransactionData } from '../../components/transaction-view';
     import TransactionCommands from '../../components/TransactionCommands.svelte';
+    import TransactionView from '../../components/TransactionView.svelte';
     import { getClient, getSelectedNetworkConfig } from '../../utils/client';
     import { getAddressLink } from '../../utils/explorer-links';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
+    import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
+    import { graphql } from '@iota/iota-sdk/graphql/schemas/2025.2';
     import {
         fetchTransactionByDigest,
         fetchTransactionsForAddress,
@@ -17,9 +20,6 @@
         fetchTransactionsByFunction,
         fetchRecentTransactions,
         type TransactionNode,
-        type CreatedObject,
-        type InputObject,
-        type MutatedObject
     } from './fetchTransactions';
 
     cytoscape.use(cytoscapeDagre);
@@ -584,28 +584,55 @@
             // Get current epoch
             const epochQuery = `query { epoch { epochId } }`;
             // @ts-ignore
-            const epochResult = await gqlClient.query({ query: epochQuery, variables: {} });
+            const epochResult = await gqlClient.query({ query: graphql(epochQuery), variables: {} });
+            // @ts-ignore
+            if (epochResult.errors) {
+                throw new Error(`GraphQL errors: ${JSON.stringify(epochResult.errors)}`);
+            }
             // @ts-ignore
             const currentEpoch = epochResult.data?.epoch?.epochId;
 
             if (currentEpoch) {
                 // Get checkpoint range for the epoch
-                const checkpointQuery = `query ($epochId: Int!) { epoch(id: $epochId) { firstCheckpointSequenceNumber, lastCheckpointSequenceNumber } }`;
+                const checkpointQuery = `query ($epochId: UInt53!) {
+                    epoch(id: $epochId) {
+                        checkpoints(first: 1) {
+                            nodes {
+                                sequenceNumber
+                            }
+                        }
+                        lastCheckpoints: checkpoints(last: 1) {
+                            nodes {
+                                sequenceNumber
+                            }
+                        }
+                    }
+                }`;
                 // @ts-ignore
                 const checkpointResult = await gqlClient.query({
-                    query: checkpointQuery,
+                    query: graphql(checkpointQuery),
                     variables: { epochId: parseInt(currentEpoch) },
                 });
                 // @ts-ignore
-                const range = checkpointResult.data?.epoch;
-
-                if (range) {
-                    // @ts-ignore
-                    afterCheckpoint = range.firstCheckpointSequenceNumber.toString();
-                    // @ts-ignore
-                    beforeCheckpoint = range.lastCheckpointSequenceNumber.toString();
-                    updateQueryParams();
+                if (checkpointResult.errors) {
+                    throw new Error(`GraphQL errors: ${JSON.stringify(checkpointResult.errors)}`);
                 }
+                // @ts-ignore
+                const epochData = checkpointResult.data?.epoch;
+                // @ts-ignore
+                const firstCheckpoint = epochData?.checkpoints?.nodes?.[0]?.sequenceNumber;
+                // @ts-ignore
+                const lastCheckpoint = epochData?.lastCheckpoints?.nodes?.[0]?.sequenceNumber;
+
+                if (firstCheckpoint && lastCheckpoint) {
+                    afterCheckpoint = firstCheckpoint.toString();
+                    beforeCheckpoint = lastCheckpoint.toString();
+                    updateQueryParams();
+                } else {
+                    error = 'No checkpoint range found for current epoch';
+                }
+            } else {
+                error = 'Unable to fetch current epoch';
             }
         } catch (e: any) {
             error = `Error getting epoch range: ${e.message || e}`;
@@ -1091,7 +1118,7 @@
         cy.resize();
         cy.fit(undefined, 20);
 
-        cy.on('click', 'node', function (evt) {
+        cy.on('click', 'node', function (evt: any) {
             // @ts-ignore
             const node = evt.target;
             openTransactionPopup(node.id());
