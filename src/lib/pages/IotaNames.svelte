@@ -18,6 +18,7 @@
     let bidPrice = 10000000;
     let DEVNET_PACKAGE_ID = '0xb9d617f24c84826bf660a2f4031951678cc80c264aebc4413459fb2a95ada9ba';
     let TESTNET_PACKAGE_ID = '0x7fff6e95f385349bec98d17121ab2bfa3e134f2f0b1ccefc270313415f7835ea';
+    let MAINNET_PACKAGE_ID = '0x6d2c743607ef275bd6934fe5c2a7e5179cca6fbd2049cfa79de2310b74f3cf83';
     let IOTA_NAMES_PACKAGE_ID = TESTNET_PACKAGE_ID;
     let AUCTION_PACKAGE_ID = '';
     let AUCTION_HOUSE_OBJECT_ID = '';
@@ -817,6 +818,17 @@
                 AUCTION_PACKAGE_ID = '';
                 COUPONS_PACKAGE_ID = '';
             }}>Devnet</button
+        >
+        <button
+            onclick={() => {
+                IOTA_NAMES_PACKAGE_ID = MAINNET_PACKAGE_ID;
+                IOTA_NAMES_OBJECT_ID = '';
+                PAYMENTS_PACKAGE_ID = '';
+                SUBNAME_PACKAGE_ID = '';
+                SUBNAME_PROXY_PACKAGE_ID = '';
+                AUCTION_PACKAGE_ID = '';
+                COUPONS_PACKAGE_ID = '';
+            }}>Mainnet</button
         >
     </span>
     <br />

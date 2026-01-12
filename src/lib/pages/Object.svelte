@@ -471,6 +471,14 @@
                     >
                         IOTA-Names testnet
                     </button>
+                    <button
+                        onclick={() =>
+                            loadExample(
+                                '0x6d2c743607ef275bd6934fe5c2a7e5179cca6fbd2049cfa79de2310b74f3cf83',
+                            )}
+                    >
+                        IOTA-Names mainnet
+                    </button>
                 </div>
             </div>
         </div>
