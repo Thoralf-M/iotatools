@@ -1,0 +1,11 @@
+
+    button.svelte-hlojhh {
+        margin: 0.2rem;
+    }
+    .codemirror-wrapper.svelte-hlojhh {
+        text-align: left;
+    }
+    div.active.svelte-hlojhh > button:where(.svelte-hlojhh) {
+        background-color: #525252;
+        border-color: #c3c3c3;
+    }
