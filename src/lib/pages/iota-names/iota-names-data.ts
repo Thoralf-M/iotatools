@@ -23,7 +23,12 @@ export async function queryIotaNamesObjectId() {
     }`;
     let object = await queryGraphQl(gqlClient, objectQuery, {});
     // @ts-ignore
-    config.IOTA_NAMES_OBJECT_ID = object.data.objects.edges[0].node.address;
+    if (object.data.objects.edges.length > 0) {
+        // @ts-ignore
+        config.IOTA_NAMES_OBJECT_ID = object.data.objects.edges[0].node.address;
+    } else {
+        config.IOTA_NAMES_OBJECT_ID = 'Not found';
+    }
 }
 
 /**
@@ -54,6 +59,10 @@ export async function queryDynamicFields() {
 
     if (config.IOTA_NAMES_OBJECT_ID.length == 0) {
         await queryIotaNamesObjectId();
+    }
+
+    if (config.IOTA_NAMES_OBJECT_ID == 'Not found') {
+        throw new Error('IOTA Names object not found on this network');
     }
 
     const objectQuery = `query ($address: IotaAddress!) {

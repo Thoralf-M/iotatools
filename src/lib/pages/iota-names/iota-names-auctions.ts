@@ -194,6 +194,18 @@ export async function listAuctions() {
             }
         }
 
+        // Sort auctions by end time, lowest first
+        // @ts-ignore
+        res.auctions.sort((a, b) => Number(a.value.end_timestamp_ms) - Number(b.value.end_timestamp_ms));
+        // @ts-ignore
+        res.unclaimedAuctions.sort((a, b) => Number(a.value.end_timestamp_ms) - Number(b.value.end_timestamp_ms));
+
+        // Rebuild the names arrays in sorted order
+        // @ts-ignore
+        res.auctionNames = res.auctions.map(auction => auction.value.nft.name_str + ' ' + auction.endsIn);
+        // @ts-ignore
+        res.unclaimedAuctionNames = res.unclaimedAuctions.map(auction => auction.value.nft.name_str + ' ' + auction.value.winner);
+
         return res;
     } catch (err: any) {
         console.error(err);

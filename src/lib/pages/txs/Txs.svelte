@@ -6,6 +6,8 @@
     import { onMount } from 'svelte';
 
     import ObjectView from '../../components/ObjectView.svelte';
+    import { getTransactionData } from '../../components/transaction-view';
+    import TransactionCommands from '../../components/TransactionCommands.svelte';
     import TransactionView from '../../components/TransactionView.svelte';
     import { getClient, getSelectedNetworkConfig } from '../../utils/client';
     import { getAddressLink } from '../../utils/explorer-links';
@@ -22,6 +24,7 @@
         afterCheckpoint: '',
         beforeCheckpoint: '',
         substringFilter: '',
+        displayMode: 'objects',
     };
 
     const pageParams = usePageQueryParams(queryParamDefaults);
@@ -40,7 +43,7 @@
 
     // Tracked addresses with enable/disable state and tx count
     let trackedAddresses = $state<
-        Map<string, { enabled: boolean; label: string; txCount: number }>
+        Map<string, { enabled: boolean; label: string; txCount: number; isUserProvided: boolean }>
     >(new Map());
 
     // Filter state
@@ -54,6 +57,16 @@
 
     // View mode: 'list' or 'graph'
     let viewMode = $state<'list' | 'graph'>('list');
+
+    // Display mode for transactions: 'objects' or 'commands'
+    let displayMode = $derived<'objects' | 'commands'>(
+        $pageParams.displayMode === 'commands' ? 'commands' : 'objects',
+    );
+
+    // Commands display settings
+    let showTypeInfo = $state(true);
+    let shortPackageIds = $state(true);
+    let sharedExpandedCommands = $state<Record<string, Record<number, boolean>>>({});
 
     // Graph elements
     let graphContainer = $state<HTMLDivElement>();
@@ -95,6 +108,9 @@
 
     let transactions = $state<Map<string, TransactionNode>>(new Map());
 
+    // Full transaction data for commands view
+    let fullTransactionData = $state<Map<string, any>>(new Map());
+
     // Object to transaction mapping (which transactions use/create each object)
     let objectTransactionMap = $state<
         Map<string, { created?: string; used: string[]; type?: string }>
@@ -105,6 +121,9 @@
     let selectedObjectId = $state<string | null>(null);
     let showTransactionPopup = $state(false);
     let showObjectPopup = $state(false);
+
+    // Expanded transaction element for scrolling
+    let expandedTxElement = $state<HTMLDivElement | null>(null);
 
     let cyInstance: any;
 
@@ -230,12 +249,38 @@
 
     // Cursor tracking for pagination
     let addressCursors = $state<Map<string, string | null>>(new Map());
+    let objectCursors = $state<Map<string, string | null>>(new Map());
 
     function parseInputList(input: string): string[] {
         return input
             .split(/[\n,;]+/)
             .map((s) => s.trim())
             .filter((s) => s.length > 0);
+    }
+
+    // Helper to safely access PTB data from transaction data
+    function getPTB(data: any) {
+        // Node API format: transaction.data.transaction
+        if (data?.transaction?.data?.transaction?.kind === 'ProgrammableTransaction') {
+            return data.transaction.data.transaction;
+        }
+
+        // Decoded BCS format
+        if (data?.decodedBCS?.intentMessage?.value?.V1?.kind?.ProgrammableTransaction) {
+            return data.decodedBCS.intentMessage.value.V1.kind.ProgrammableTransaction;
+        }
+
+        // Direct transaction format
+        if (data?.input?.transaction) {
+            return data.input.transaction;
+        }
+
+        // Direct PTB format
+        if (data?.kind === 'ProgrammableTransaction') {
+            return data;
+        }
+
+        return null;
     }
 
     async function fetchTransactionByDigest(digest: string): Promise<TransactionNode | null> {
@@ -402,8 +447,10 @@
         });
 
         const data = result.data as any;
-        const digests =
+        const allDigests =
             data?.transactionBlocks?.nodes?.map((n: any) => n.digest).filter(Boolean) || [];
+        // Limit to the requested number to ensure we don't fetch more than intended
+        const digests = allDigests.slice(0, limit);
         const hasMore = data?.transactionBlocks?.pageInfo?.hasNextPage || false;
         const endCursor = data?.transactionBlocks?.pageInfo?.endCursor || null;
 
@@ -417,7 +464,11 @@
         return { txs, endCursor, hasMore };
     }
 
-    async function fetchTransactionsByInputObject(objectId: string): Promise<TransactionNode[]> {
+    async function fetchTransactionsByInputObject(
+        objectId: string,
+        limit: number,
+        afterCursor?: string | null,
+    ): Promise<{ txs: TransactionNode[]; endCursor: string | null; hasMore: boolean }> {
         const config = getSelectedNetworkConfig();
         const graphqlClient = new IotaGraphQLClient({
             url: config.graphql,
@@ -433,13 +484,19 @@
         }
         const filterStr = `{ ${filterParts.join(', ')} }`;
 
+        const cursorSection = afterCursor ? `, after: "${afterCursor}"` : '';
+
         const result = await graphqlClient.query({
             query: `
-                query GetTransactionsByObject($objectId: IotaAddress!) {
+                query GetTransactionsByObject($objectId: IotaAddress!, $limit: Int!) {
                     transactionBlocks(
                         filter: ${filterStr}
-                        first: 50
+                        first: $limit${cursorSection}
                     ) {
+                        pageInfo {
+                            hasNextPage
+                            endCursor
+                        }
                         nodes {
                             digest
                         }
@@ -448,22 +505,26 @@
             `,
             variables: {
                 objectId,
+                limit,
             },
         });
 
         const data = result.data as any;
-        const digests =
+        const allDigests =
             data?.transactionBlocks?.nodes?.map((n: any) => n.digest).filter(Boolean) || [];
+        // Limit to the requested number to ensure we don't fetch more than intended
+        const digests = allDigests.slice(0, limit);
+        const hasMore = data?.transactionBlocks?.pageInfo?.hasNextPage || false;
+        const endCursor = data?.transactionBlocks?.pageInfo?.endCursor || null;
 
+        // Fetch full transaction details
         const txs: TransactionNode[] = [];
         for (const digest of digests) {
-            if (!transactions.has(digest)) {
-                const tx = await fetchTransactionByDigest(digest);
-                if (tx) txs.push(tx);
-            }
+            const tx = await fetchTransactionByDigest(digest);
+            if (tx) txs.push(tx);
         }
 
-        return txs;
+        return { txs, endCursor, hasMore };
     }
 
     function addTransaction(tx: TransactionNode) {
@@ -521,12 +582,13 @@
         trackedAddresses = new Map(trackedAddresses);
     }
 
-    function addAddress(address: string, enabled: boolean = true) {
+    function addAddress(address: string, enabled: boolean = true, isUserProvided: boolean = false) {
         if (!trackedAddresses.has(address)) {
             trackedAddresses.set(address, {
                 enabled,
                 label: `${address.slice(0, 8)}...${address.slice(-6)}`,
                 txCount: 0,
+                isUserProvided,
             });
             trackedAddresses = new Map(trackedAddresses);
         }
@@ -553,21 +615,22 @@
 
             // Add provided addresses
             for (const addr of addresses) {
-                addAddress(addr);
+                addAddress(addr, true, true);
             }
 
             // Fetch transactions for object IDs
             for (const objId of objectIds) {
-                const txs = await fetchTransactionsByInputObject(objId);
+                const { txs, endCursor } = await fetchTransactionsByInputObject(objId, limit);
                 for (const tx of txs) {
                     addTransaction(tx);
                     addAddress(tx.sender);
                 }
+                objectCursors.set(objId, endCursor);
             }
 
-            // Fetch transactions for all addresses
+            // Fetch transactions for user-provided addresses only
             for (const [addr, state] of trackedAddresses) {
-                if (state.enabled) {
+                if (state.enabled && state.isUserProvided) {
                     const { txs, endCursor } = await fetchTransactionsForAddress(addr, limit);
                     for (const tx of txs) {
                         addTransaction(tx);
@@ -604,8 +667,9 @@
         try {
             const limit = parseInt(fetchSize) || 5;
 
+            // Fetch more transactions for user-provided addresses
             for (const [addr, state] of trackedAddresses) {
-                if (state.enabled) {
+                if (state.enabled && state.isUserProvided) {
                     const cursor = addressCursors.get(addr);
                     const { txs, endCursor } = await fetchTransactionsForAddress(
                         addr,
@@ -617,6 +681,22 @@
                     }
                     addressCursors.set(addr, endCursor);
                 }
+            }
+
+            // Fetch more transactions for provided object IDs
+            const objectIds = parseInputList(objectIdsInput);
+            for (const objId of objectIds) {
+                const cursor = objectCursors.get(objId);
+                const { txs, endCursor } = await fetchTransactionsByInputObject(
+                    objId,
+                    limit,
+                    cursor,
+                );
+                for (const tx of txs) {
+                    addTransaction(tx);
+                    addAddress(tx.sender);
+                }
+                objectCursors.set(objId, endCursor);
             }
 
             // Discover new addresses
@@ -776,13 +856,38 @@
     }
 
     // Toggle expand/collapse for a single transaction
-    function toggleTransactionExpand(digest: string) {
+    async function toggleTransactionExpansion(digest: string) {
         if (expandedTransactions.has(digest)) {
             expandedTransactions.delete(digest);
+            expandedTransactions = new Set(expandedTransactions);
         } else {
+            // Collapse all others first
+            expandedTransactions.clear();
+            // Load full transaction data if not already loaded
+            if (!selectedTransaction || selectedTransaction.digest !== digest) {
+                const client = getClient();
+                const tx = await client.getTransactionBlock({
+                    digest,
+                    options: {
+                        showInput: true,
+                        showRawInput: true,
+                        showEffects: true,
+                        showEvents: true,
+                        showObjectChanges: true,
+                        showBalanceChanges: true,
+                    },
+                });
+                selectedTransaction = tx;
+            }
             expandedTransactions.add(digest);
+            expandedTransactions = new Set(expandedTransactions);
+            // Scroll to center the expanded transaction
+            setTimeout(() => {
+                if (expandedTxElement) {
+                    expandedTxElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100); // Small delay to allow rendering
         }
-        expandedTransactions = new Set(expandedTransactions);
     }
 
     // Expand all objects in a transaction
@@ -1153,6 +1258,49 @@
             setTimeout(renderGraph, 100);
         }
     });
+
+    // Collapse expanded transactions when selectedTransaction is cleared (e.g., by close button)
+    $effect(() => {
+        if (!selectedTransaction && expandedTransactions.size > 0) {
+            expandedTransactions.clear();
+            expandedTransactions = new Set(expandedTransactions);
+        }
+    });
+
+    // Load full transaction data when switching to commands mode
+    $effect(() => {
+        if (displayMode === 'commands' && sortedTransactions.length > 0) {
+            for (const tx of sortedTransactions) {
+                if (!fullTransactionData.has(tx.digest) && tx.rawData) {
+                    // Use existing raw data instead of refetching
+                    fullTransactionData.set(tx.digest, tx.rawData);
+                    fullTransactionData = new Map(fullTransactionData);
+                } else if (!fullTransactionData.has(tx.digest)) {
+                    // Fallback: Load full data asynchronously if rawData is not available
+                    (async () => {
+                        try {
+                            const client = getClient();
+                            const fullTx = await client.getTransactionBlock({
+                                digest: tx.digest,
+                                options: {
+                                    showInput: true,
+                                    showRawInput: true,
+                                    showEffects: true,
+                                    showEvents: true,
+                                    showObjectChanges: true,
+                                    showBalanceChanges: true,
+                                },
+                            });
+                            fullTransactionData.set(tx.digest, fullTx);
+                            fullTransactionData = new Map(fullTransactionData);
+                        } catch (error) {
+                            console.error('Failed to load full data for', tx.digest, error);
+                        }
+                    })();
+                }
+            }
+        }
+    });
 </script>
 
 <div class="history-page">
@@ -1346,6 +1494,78 @@
                         above.
                     </div>
                 {:else}
+                    <div class="display-mode-toggle">
+                        <button
+                            onclick={() => {
+                                const newMode = displayMode === 'objects' ? 'commands' : 'objects';
+                                updatePageQueryParams({ displayMode: newMode });
+                            }}
+                        >
+                            {displayMode === 'objects' ? '🔧 Show Commands' : '📦 Show Objects'}
+                        </button>
+                    </div>
+                    {#if displayMode === 'commands'}
+                        <div class="commands-controls">
+                            <div class="controls-group">
+                                <button
+                                    onclick={() => {
+                                        // Expand all transactions and their commands
+                                        sortedTransactions.forEach((tx) => {
+                                            if (!expandedTransactions.has(tx.digest)) {
+                                                expandedTransactions.add(tx.digest);
+                                            }
+                                            // Expand all commands for this transaction
+                                            if (fullTransactionData.has(tx.digest)) {
+                                                const txData = getTransactionData(
+                                                    fullTransactionData.get(tx.digest),
+                                                );
+                                                const ptb = getPTB(txData);
+                                                const commands =
+                                                    ptb?.commands || ptb?.transactions || [];
+                                                const expandedCmds: Record<number, boolean> = {};
+                                                commands.forEach((_: any, i: number) => {
+                                                    expandedCmds[i] = true;
+                                                });
+                                                sharedExpandedCommands[tx.digest] = expandedCmds;
+                                            }
+                                        });
+                                        expandedTransactions = new Set(expandedTransactions);
+                                        sharedExpandedCommands = { ...sharedExpandedCommands };
+                                    }}>Expand All</button
+                                >
+                                <button
+                                    onclick={() => {
+                                        expandedTransactions.clear();
+                                        expandedTransactions = new Set(expandedTransactions);
+                                        // Collapse all commands
+                                        sharedExpandedCommands = {};
+                                        // Collapse all object expansions
+                                        expandedInputObjects.clear();
+                                        expandedCreatedObjects.clear();
+                                        expandedMutatedObjects.clear();
+                                        expandedInputObjects = new Set(expandedInputObjects);
+                                        expandedCreatedObjects = new Set(expandedCreatedObjects);
+                                        expandedMutatedObjects = new Set(expandedMutatedObjects);
+                                    }}>Collapse All</button
+                                >
+
+                                <label class="toggle-row">
+                                    <span class="toggle-label">Show Types</span>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" bind:checked={showTypeInfo} />
+                                        <span class="slider"></span>
+                                    </div>
+                                </label>
+                                <label class="toggle-row">
+                                    <span class="toggle-label">Short IDs</span>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" bind:checked={shortPackageIds} />
+                                        <span class="slider"></span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    {/if}
                     <div class="timeline">
                         {#each sortedTransactions as tx, index}
                             {@const prevTx = index > 0 ? sortedTransactions[index - 1] : null}
@@ -1375,10 +1595,10 @@
                                         <span
                                             class="tx-digest"
                                             title={tx.digest}
-                                            onclick={() => openTransactionPopup(tx.digest)}
+                                            onclick={() => toggleTransactionExpansion(tx.digest)}
                                             onkeydown={(e) =>
                                                 e.key === 'Enter' &&
-                                                openTransactionPopup(tx.digest)}
+                                                toggleTransactionExpansion(tx.digest)}
                                             role="button"
                                             tabindex="0"
                                         >
@@ -1391,413 +1611,448 @@
                                         <span class="checkpoint-badge">#{tx.checkpoint}</span>
                                     </div>
 
-                                    <!-- Right panel: Objects -->
-                                    <div class="tx-right-panel">
-                                        {#if tx.inputObjects.length > 0}
-                                            {@const allInputsExpanded = areAllInSectionExpanded(
-                                                tx,
-                                                'inputs',
-                                            )}
-                                            <div class="tx-section inputs-section">
-                                                <button
-                                                    class="section-toggle"
-                                                    onclick={(e) => {
-                                                        e.stopPropagation();
-                                                        toggleAllInSection(tx, 'inputs');
-                                                    }}
-                                                    title={allInputsExpanded
-                                                        ? 'Collapse all inputs'
-                                                        : 'Expand all inputs'}
-                                                >
-                                                    {allInputsExpanded ? '▼' : '▶'}
-                                                </button>
-                                                <span class="section-label"
-                                                    >Inputs({tx.inputObjects.length}):</span
-                                                >
-                                                <div class="objects-inline">
-                                                    {#each tx.inputObjects as obj}
-                                                        {@const connections = getObjectConnections(
-                                                            obj.objectId,
-                                                        )}
-                                                        {@const objExpanded =
-                                                            expandedInputObjects.has(
-                                                                makeExpandKey(
-                                                                    tx.digest,
-                                                                    obj.objectId,
-                                                                ),
-                                                            )}
-                                                        <div class="object-item">
-                                                            <div
-                                                                class="object-chip input-chip"
-                                                                class:connected={connections.length >
-                                                                    1}
-                                                                class:highlighted={isObjectHighlighted(
-                                                                    obj.objectId,
-                                                                )}
-                                                                role="presentation"
-                                                                onmouseenter={() =>
-                                                                    (hoveredObjectId =
-                                                                        obj.objectId)}
-                                                                onmouseleave={() =>
-                                                                    (hoveredObjectId = null)}
-                                                            >
-                                                                <button
-                                                                    class="expand-btn"
-                                                                    onclick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        toggleExpandInput(
-                                                                            tx.digest,
-                                                                            obj.objectId,
-                                                                        );
-                                                                    }}
-                                                                    title={objExpanded
-                                                                        ? 'Collapse'
-                                                                        : 'Expand'}
-                                                                >
-                                                                    {objExpanded ? '▼' : '▶'}
-                                                                </button>
-                                                                <span class="obj-type"
-                                                                    >{shortenType(
-                                                                        obj.objectType,
-                                                                    )}</span
-                                                                >
-                                                                <span class="obj-id"
-                                                                    >{shortenId(
+                                    <!-- Right panel: Objects or Commands -->
+                                    {#if displayMode === 'objects'}
+                                        <div class="tx-right-panel">
+                                            {#if tx.inputObjects.length > 0}
+                                                {@const allInputsExpanded = areAllInSectionExpanded(
+                                                    tx,
+                                                    'inputs',
+                                                )}
+                                                <div class="tx-section inputs-section">
+                                                    <button
+                                                        class="section-toggle"
+                                                        onclick={(e) => {
+                                                            e.stopPropagation();
+                                                            toggleAllInSection(tx, 'inputs');
+                                                        }}
+                                                        title={allInputsExpanded
+                                                            ? 'Collapse all inputs'
+                                                            : 'Expand all inputs'}
+                                                    >
+                                                        {allInputsExpanded ? '▼' : '▶'}
+                                                    </button>
+                                                    <span class="section-label"
+                                                        >Inputs({tx.inputObjects.length}):</span
+                                                    >
+                                                    <div class="objects-inline">
+                                                        {#each tx.inputObjects as obj}
+                                                            {@const connections =
+                                                                getObjectConnections(obj.objectId)}
+                                                            {@const objExpanded =
+                                                                expandedInputObjects.has(
+                                                                    makeExpandKey(
+                                                                        tx.digest,
                                                                         obj.objectId,
-                                                                        4,
-                                                                    )}</span
-                                                                >
-                                                                {#if connections.length > 1}
-                                                                    <span
-                                                                        class="connection-indicator"
-                                                                        >🔗{connections.length}</span
-                                                                    >
-                                                                {/if}
-                                                                <button
-                                                                    class="filter-obj-btn"
-                                                                    class:active={filterByObjectId ===
-                                                                        obj.objectId}
-                                                                    onclick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        setObjectFilter(
-                                                                            obj.objectId,
-                                                                        );
-                                                                    }}
-                                                                    title="Filter by this object"
-                                                                >
-                                                                    🔍
-                                                                </button>
-                                                            </div>
-                                                            {#if objExpanded}
-                                                                <div
-                                                                    class="expanded-object"
-                                                                    role="button"
-                                                                    tabindex="0"
-                                                                    onclick={(e) =>
-                                                                        e.stopPropagation()}
-                                                                    onkeydown={(e) => {
-                                                                        if (
-                                                                            e.key === 'Enter' ||
-                                                                            e.key === ' '
-                                                                        ) {
-                                                                            e.preventDefault();
-                                                                            e.currentTarget.click();
-                                                                        }
-                                                                    }}
-                                                                >
-                                                                    <ObjectView
-                                                                        objectId={obj.objectId}
-                                                                    />
-                                                                </div>
-                                                            {/if}
-                                                        </div>
-                                                    {/each}
-                                                </div>
-                                            </div>
-                                        {/if}
-
-                                        <!-- Outputs Section: Created -->
-                                        {#if tx.createdObjects.length > 0}
-                                            {@const allCreatedExpanded = areAllInSectionExpanded(
-                                                tx,
-                                                'created',
-                                            )}
-                                            <div class="tx-section outputs-section">
-                                                <button
-                                                    class="section-toggle"
-                                                    onclick={(e) => {
-                                                        e.stopPropagation();
-                                                        toggleAllInSection(tx, 'created');
-                                                    }}
-                                                    title={allCreatedExpanded
-                                                        ? 'Collapse all created'
-                                                        : 'Expand all created'}
-                                                >
-                                                    {allCreatedExpanded ? '▼' : '▶'}
-                                                </button>
-                                                <span class="section-label"
-                                                    >Created({tx.createdObjects.length}):</span
-                                                >
-                                                <div class="objects-inline">
-                                                    {#each tx.createdObjects as obj}
-                                                        {@const connections = getObjectConnections(
-                                                            obj.objectId,
-                                                        )}
-                                                        {@const objExpanded =
-                                                            expandedCreatedObjects.has(
-                                                                makeExpandKey(
-                                                                    tx.digest,
-                                                                    obj.objectId,
-                                                                ),
-                                                            )}
-                                                        <div class="object-item">
-                                                            <div
-                                                                class="object-chip created-chip"
-                                                                class:connected={connections.length >
-                                                                    1}
-                                                                class:highlighted={isObjectHighlighted(
-                                                                    obj.objectId,
+                                                                    ),
                                                                 )}
-                                                                role="presentation"
-                                                                onmouseenter={() =>
-                                                                    (hoveredObjectId =
-                                                                        obj.objectId)}
-                                                                onmouseleave={() =>
-                                                                    (hoveredObjectId = null)}
-                                                            >
-                                                                <button
-                                                                    class="expand-btn"
-                                                                    onclick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        toggleExpandCreated(
-                                                                            tx.digest,
-                                                                            obj.objectId,
-                                                                        );
-                                                                    }}
-                                                                    title={objExpanded
-                                                                        ? 'Collapse'
-                                                                        : 'Expand'}
-                                                                >
-                                                                    {objExpanded ? '▼' : '▶'}
-                                                                </button>
-                                                                <span class="obj-type"
-                                                                    >{shortenType(
-                                                                        obj.objectType,
-                                                                    )}</span
-                                                                >
-                                                                <span class="obj-id"
-                                                                    >{shortenId(
-                                                                        obj.objectId,
-                                                                        4,
-                                                                    )}</span
-                                                                >
-                                                                {#if connections.length > 1}
-                                                                    <span
-                                                                        class="connection-indicator"
-                                                                        >🔗{connections.length}</span
-                                                                    >
-                                                                {/if}
-                                                                <button
-                                                                    class="filter-obj-btn"
-                                                                    class:active={filterByObjectId ===
-                                                                        obj.objectId}
-                                                                    onclick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        setObjectFilter(
-                                                                            obj.objectId,
-                                                                        );
-                                                                    }}
-                                                                    title="Filter by this object"
-                                                                >
-                                                                    🔍
-                                                                </button>
-                                                            </div>
-                                                            {#if objExpanded}
+                                                            <div class="object-item">
                                                                 <div
-                                                                    class="expanded-object"
-                                                                    role="button"
-                                                                    tabindex="0"
-                                                                    onclick={(e) =>
-                                                                        e.stopPropagation()}
-                                                                    onkeydown={(e) => {
-                                                                        if (
-                                                                            e.key === 'Enter' ||
-                                                                            e.key === ' '
-                                                                        ) {
-                                                                            e.preventDefault();
-                                                                            e.currentTarget.click();
-                                                                        }
-                                                                    }}
+                                                                    class="object-chip input-chip"
+                                                                    class:connected={connections.length >
+                                                                        1}
+                                                                    class:highlighted={isObjectHighlighted(
+                                                                        obj.objectId,
+                                                                    )}
+                                                                    role="presentation"
+                                                                    onmouseenter={() =>
+                                                                        (hoveredObjectId =
+                                                                            obj.objectId)}
+                                                                    onmouseleave={() =>
+                                                                        (hoveredObjectId = null)}
                                                                 >
-                                                                    <ObjectView
-                                                                        objectId={obj.objectId}
-                                                                    />
+                                                                    <button
+                                                                        class="expand-btn"
+                                                                        onclick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            toggleExpandInput(
+                                                                                tx.digest,
+                                                                                obj.objectId,
+                                                                            );
+                                                                        }}
+                                                                        title={objExpanded
+                                                                            ? 'Collapse'
+                                                                            : 'Expand'}
+                                                                    >
+                                                                        {objExpanded ? '▼' : '▶'}
+                                                                    </button>
+                                                                    <span class="obj-type"
+                                                                        >{shortenType(
+                                                                            obj.objectType,
+                                                                        )}</span
+                                                                    >
+                                                                    <span class="obj-id"
+                                                                        >{shortenId(
+                                                                            obj.objectId,
+                                                                            4,
+                                                                        )}</span
+                                                                    >
+                                                                    {#if connections.length > 1}
+                                                                        <span
+                                                                            class="connection-indicator"
+                                                                            >🔗{connections.length}</span
+                                                                        >
+                                                                    {/if}
+                                                                    <button
+                                                                        class="filter-obj-btn"
+                                                                        class:active={filterByObjectId ===
+                                                                            obj.objectId}
+                                                                        onclick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            setObjectFilter(
+                                                                                obj.objectId,
+                                                                            );
+                                                                        }}
+                                                                        title="Filter by this object"
+                                                                    >
+                                                                        🔍
+                                                                    </button>
                                                                 </div>
-                                                            {/if}
-                                                        </div>
-                                                    {/each}
+                                                                {#if objExpanded}
+                                                                    <div
+                                                                        class="expanded-object"
+                                                                        role="button"
+                                                                        tabindex="0"
+                                                                        onclick={(e) =>
+                                                                            e.stopPropagation()}
+                                                                        onkeydown={(e) => {
+                                                                            if (
+                                                                                e.key === 'Enter' ||
+                                                                                e.key === ' '
+                                                                            ) {
+                                                                                e.preventDefault();
+                                                                                e.currentTarget.click();
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        <ObjectView
+                                                                            objectId={obj.objectId}
+                                                                        />
+                                                                    </div>
+                                                                {/if}
+                                                            </div>
+                                                        {/each}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        {/if}
+                                            {/if}
 
-                                        <!-- Outputs Section: Mutated -->
-                                        {#if tx.mutatedObjects.length > 0}
-                                            {@const allMutatedExpanded = areAllInSectionExpanded(
-                                                tx,
-                                                'mutated',
-                                            )}
-                                            <div class="tx-section outputs-section">
-                                                <button
-                                                    class="section-toggle"
-                                                    onclick={(e) => {
-                                                        e.stopPropagation();
-                                                        toggleAllInSection(tx, 'mutated');
-                                                    }}
-                                                    title={allMutatedExpanded
-                                                        ? 'Collapse all mutated'
-                                                        : 'Expand all mutated'}
-                                                >
-                                                    {allMutatedExpanded ? '▼' : '▶'}
-                                                </button>
-                                                <span class="section-label"
-                                                    >Mutated({tx.mutatedObjects.length}):</span
-                                                >
-                                                <div class="objects-inline">
-                                                    {#each tx.mutatedObjects as obj}
-                                                        {@const connections = getObjectConnections(
-                                                            obj.objectId,
-                                                        )}
-                                                        {@const objExpanded =
-                                                            expandedMutatedObjects.has(
-                                                                makeExpandKey(
-                                                                    tx.digest,
-                                                                    obj.objectId,
-                                                                ),
-                                                            )}
-                                                        <div class="object-item">
-                                                            <div
-                                                                class="object-chip mutated-chip"
-                                                                class:connected={connections.length >
-                                                                    1}
-                                                                class:highlighted={isObjectHighlighted(
-                                                                    obj.objectId,
+                                            <!-- Outputs Section: Created -->
+                                            {#if tx.createdObjects.length > 0}
+                                                {@const allCreatedExpanded =
+                                                    areAllInSectionExpanded(tx, 'created')}
+                                                <div class="tx-section outputs-section">
+                                                    <button
+                                                        class="section-toggle"
+                                                        onclick={(e) => {
+                                                            e.stopPropagation();
+                                                            toggleAllInSection(tx, 'created');
+                                                        }}
+                                                        title={allCreatedExpanded
+                                                            ? 'Collapse all created'
+                                                            : 'Expand all created'}
+                                                    >
+                                                        {allCreatedExpanded ? '▼' : '▶'}
+                                                    </button>
+                                                    <span class="section-label"
+                                                        >Created({tx.createdObjects.length}):</span
+                                                    >
+                                                    <div class="objects-inline">
+                                                        {#each tx.createdObjects as obj}
+                                                            {@const connections =
+                                                                getObjectConnections(obj.objectId)}
+                                                            {@const objExpanded =
+                                                                expandedCreatedObjects.has(
+                                                                    makeExpandKey(
+                                                                        tx.digest,
+                                                                        obj.objectId,
+                                                                    ),
                                                                 )}
-                                                                role="presentation"
-                                                                onmouseenter={() =>
-                                                                    (hoveredObjectId =
-                                                                        obj.objectId)}
-                                                                onmouseleave={() =>
-                                                                    (hoveredObjectId = null)}
-                                                            >
-                                                                <button
-                                                                    class="expand-btn"
-                                                                    onclick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        toggleExpandMutated(
-                                                                            tx.digest,
-                                                                            obj.objectId,
-                                                                        );
-                                                                    }}
-                                                                    title={objExpanded
-                                                                        ? 'Collapse'
-                                                                        : 'Expand'}
-                                                                >
-                                                                    {objExpanded ? '▼' : '▶'}
-                                                                </button>
-                                                                <span class="obj-type"
-                                                                    >{shortenType(
-                                                                        obj.objectType,
-                                                                    )}</span
-                                                                >
-                                                                <span class="obj-id"
-                                                                    >{shortenId(
-                                                                        obj.objectId,
-                                                                        4,
-                                                                    )}</span
-                                                                >
-                                                                {#if connections.length > 1}
-                                                                    <span
-                                                                        class="connection-indicator"
-                                                                        >🔗{connections.length}</span
-                                                                    >
-                                                                {/if}
-                                                                <button
-                                                                    class="filter-obj-btn"
-                                                                    class:active={filterByObjectId ===
-                                                                        obj.objectId}
-                                                                    onclick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        setObjectFilter(
-                                                                            obj.objectId,
-                                                                        );
-                                                                    }}
-                                                                    title="Filter by this object"
-                                                                >
-                                                                    🔍
-                                                                </button>
-                                                            </div>
-                                                            {#if objExpanded}
+                                                            <div class="object-item">
                                                                 <div
-                                                                    class="expanded-object"
-                                                                    role="button"
-                                                                    tabindex="0"
-                                                                    onclick={(e) =>
-                                                                        e.stopPropagation()}
-                                                                    onkeydown={(e) => {
-                                                                        if (
-                                                                            e.key === 'Enter' ||
-                                                                            e.key === ' '
-                                                                        ) {
-                                                                            e.preventDefault();
-                                                                            e.currentTarget.click();
-                                                                        }
-                                                                    }}
+                                                                    class="object-chip created-chip"
+                                                                    class:connected={connections.length >
+                                                                        1}
+                                                                    class:highlighted={isObjectHighlighted(
+                                                                        obj.objectId,
+                                                                    )}
+                                                                    role="presentation"
+                                                                    onmouseenter={() =>
+                                                                        (hoveredObjectId =
+                                                                            obj.objectId)}
+                                                                    onmouseleave={() =>
+                                                                        (hoveredObjectId = null)}
                                                                 >
-                                                                    <ObjectView
-                                                                        objectId={obj.objectId}
-                                                                    />
+                                                                    <button
+                                                                        class="expand-btn"
+                                                                        onclick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            toggleExpandCreated(
+                                                                                tx.digest,
+                                                                                obj.objectId,
+                                                                            );
+                                                                        }}
+                                                                        title={objExpanded
+                                                                            ? 'Collapse'
+                                                                            : 'Expand'}
+                                                                    >
+                                                                        {objExpanded ? '▼' : '▶'}
+                                                                    </button>
+                                                                    <span class="obj-type"
+                                                                        >{shortenType(
+                                                                            obj.objectType,
+                                                                        )}</span
+                                                                    >
+                                                                    <span class="obj-id"
+                                                                        >{shortenId(
+                                                                            obj.objectId,
+                                                                            4,
+                                                                        )}</span
+                                                                    >
+                                                                    {#if connections.length > 1}
+                                                                        <span
+                                                                            class="connection-indicator"
+                                                                            >🔗{connections.length}</span
+                                                                        >
+                                                                    {/if}
+                                                                    <button
+                                                                        class="filter-obj-btn"
+                                                                        class:active={filterByObjectId ===
+                                                                            obj.objectId}
+                                                                        onclick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            setObjectFilter(
+                                                                                obj.objectId,
+                                                                            );
+                                                                        }}
+                                                                        title="Filter by this object"
+                                                                    >
+                                                                        🔍
+                                                                    </button>
                                                                 </div>
-                                                            {/if}
-                                                        </div>
-                                                    {/each}
-                                                </div>
-                                            </div>
-                                        {/if}
-
-                                        <!-- Outputs Section: Deleted -->
-                                        {#if tx.deletedObjects.length > 0}
-                                            <div class="tx-section outputs-section">
-                                                <span class="section-label-plain"
-                                                    >Deleted({tx.deletedObjects.length}):</span
-                                                >
-                                                <div class="objects-inline">
-                                                    {#each tx.deletedObjects as objId}
-                                                        <div class="object-item">
-                                                            <div class="object-chip deleted-chip">
-                                                                <span class="obj-id"
-                                                                    >{shortenId(objId, 6)}</span
-                                                                >
-                                                                <button
-                                                                    class="filter-obj-btn"
-                                                                    class:active={filterByObjectId ===
-                                                                        objId}
-                                                                    onclick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        setObjectFilter(objId);
-                                                                    }}
-                                                                    title="Filter by this object"
-                                                                >
-                                                                    🔍
-                                                                </button>
+                                                                {#if objExpanded}
+                                                                    <div
+                                                                        class="expanded-object"
+                                                                        role="button"
+                                                                        tabindex="0"
+                                                                        onclick={(e) =>
+                                                                            e.stopPropagation()}
+                                                                        onkeydown={(e) => {
+                                                                            if (
+                                                                                e.key === 'Enter' ||
+                                                                                e.key === ' '
+                                                                            ) {
+                                                                                e.preventDefault();
+                                                                                e.currentTarget.click();
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        <ObjectView
+                                                                            objectId={obj.objectId}
+                                                                        />
+                                                                    </div>
+                                                                {/if}
                                                             </div>
-                                                        </div>
-                                                    {/each}
+                                                        {/each}
+                                                    </div>
                                                 </div>
+                                            {/if}
+
+                                            <!-- Outputs Section: Mutated -->
+                                            {#if tx.mutatedObjects.length > 0}
+                                                {@const allMutatedExpanded =
+                                                    areAllInSectionExpanded(tx, 'mutated')}
+                                                <div class="tx-section outputs-section">
+                                                    <button
+                                                        class="section-toggle"
+                                                        onclick={(e) => {
+                                                            e.stopPropagation();
+                                                            toggleAllInSection(tx, 'mutated');
+                                                        }}
+                                                        title={allMutatedExpanded
+                                                            ? 'Collapse all mutated'
+                                                            : 'Expand all mutated'}
+                                                    >
+                                                        {allMutatedExpanded ? '▼' : '▶'}
+                                                    </button>
+                                                    <span class="section-label"
+                                                        >Mutated({tx.mutatedObjects.length}):</span
+                                                    >
+                                                    <div class="objects-inline">
+                                                        {#each tx.mutatedObjects as obj}
+                                                            {@const connections =
+                                                                getObjectConnections(obj.objectId)}
+                                                            {@const objExpanded =
+                                                                expandedMutatedObjects.has(
+                                                                    makeExpandKey(
+                                                                        tx.digest,
+                                                                        obj.objectId,
+                                                                    ),
+                                                                )}
+                                                            <div class="object-item">
+                                                                <div
+                                                                    class="object-chip mutated-chip"
+                                                                    class:connected={connections.length >
+                                                                        1}
+                                                                    class:highlighted={isObjectHighlighted(
+                                                                        obj.objectId,
+                                                                    )}
+                                                                    role="presentation"
+                                                                    onmouseenter={() =>
+                                                                        (hoveredObjectId =
+                                                                            obj.objectId)}
+                                                                    onmouseleave={() =>
+                                                                        (hoveredObjectId = null)}
+                                                                >
+                                                                    <button
+                                                                        class="expand-btn"
+                                                                        onclick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            toggleExpandMutated(
+                                                                                tx.digest,
+                                                                                obj.objectId,
+                                                                            );
+                                                                        }}
+                                                                        title={objExpanded
+                                                                            ? 'Collapse'
+                                                                            : 'Expand'}
+                                                                    >
+                                                                        {objExpanded ? '▼' : '▶'}
+                                                                    </button>
+                                                                    <span class="obj-type"
+                                                                        >{shortenType(
+                                                                            obj.objectType,
+                                                                        )}</span
+                                                                    >
+                                                                    <span class="obj-id"
+                                                                        >{shortenId(
+                                                                            obj.objectId,
+                                                                            4,
+                                                                        )}</span
+                                                                    >
+                                                                    {#if connections.length > 1}
+                                                                        <span
+                                                                            class="connection-indicator"
+                                                                            >🔗{connections.length}</span
+                                                                        >
+                                                                    {/if}
+                                                                    <button
+                                                                        class="filter-obj-btn"
+                                                                        class:active={filterByObjectId ===
+                                                                            obj.objectId}
+                                                                        onclick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            setObjectFilter(
+                                                                                obj.objectId,
+                                                                            );
+                                                                        }}
+                                                                        title="Filter by this object"
+                                                                    >
+                                                                        🔍
+                                                                    </button>
+                                                                </div>
+                                                                {#if objExpanded}
+                                                                    <div
+                                                                        class="expanded-object"
+                                                                        role="button"
+                                                                        tabindex="0"
+                                                                        onclick={(e) =>
+                                                                            e.stopPropagation()}
+                                                                        onkeydown={(e) => {
+                                                                            if (
+                                                                                e.key === 'Enter' ||
+                                                                                e.key === ' '
+                                                                            ) {
+                                                                                e.preventDefault();
+                                                                                e.currentTarget.click();
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        <ObjectView
+                                                                            objectId={obj.objectId}
+                                                                        />
+                                                                    </div>
+                                                                {/if}
+                                                            </div>
+                                                        {/each}
+                                                    </div>
+                                                </div>
+                                            {/if}
+
+                                            <!-- Outputs Section: Deleted -->
+                                            {#if tx.deletedObjects.length > 0}
+                                                <div class="tx-section outputs-section">
+                                                    <span class="section-label-plain"
+                                                        >Deleted({tx.deletedObjects.length}):</span
+                                                    >
+                                                    <div class="objects-inline">
+                                                        {#each tx.deletedObjects as objId}
+                                                            <div class="object-item">
+                                                                <div
+                                                                    class="object-chip deleted-chip"
+                                                                >
+                                                                    <span class="obj-id"
+                                                                        >{shortenId(objId, 6)}</span
+                                                                    >
+                                                                    <button
+                                                                        class="filter-obj-btn"
+                                                                        class:active={filterByObjectId ===
+                                                                            objId}
+                                                                        onclick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            setObjectFilter(objId);
+                                                                        }}
+                                                                        title="Filter by this object"
+                                                                    >
+                                                                        🔍
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        {/each}
+                                                    </div>
+                                                </div>
+                                            {/if}
+                                        </div>
+                                    {:else}
+                                        <div class="tx-commands-panel">
+                                            {#if fullTransactionData.has(tx.digest)}
+                                                <TransactionCommands
+                                                    transactionData={getTransactionData(
+                                                        fullTransactionData.get(tx.digest),
+                                                    )}
+                                                    commandIndex={null}
+                                                    onCommandIndexChange={() => {}}
+                                                    showControls={false}
+                                                    {showTypeInfo}
+                                                    {shortPackageIds}
+                                                    expandedCommands={sharedExpandedCommands[
+                                                        tx.digest
+                                                    ]}
+                                                />
+                                            {:else}
+                                                <div class="loading-commands">
+                                                    Loading commands...
+                                                </div>
+                                            {/if}
+                                        </div>
+                                    {/if}
+                                    <!-- end tx-right-panel -->
+                                </div>
+
+                                {#if isExpanded}
+                                    <div class="expanded-transaction" bind:this={expandedTxElement}>
+                                        {#if selectedTransaction && selectedTransaction.digest === tx.digest}
+                                            <TransactionView
+                                                bind:value={selectedTransaction}
+                                                {showTypeInfo}
+                                                {shortPackageIds}
+                                            />
+                                        {:else}
+                                            <div class="loading-expanded">
+                                                Loading transaction details...
                                             </div>
                                         {/if}
                                     </div>
-                                    <!-- end tx-right-panel -->
-                                </div>
+                                {/if}
 
                                 <!-- Connection line to next transaction -->
                                 {#if hasConnection}
@@ -1845,7 +2100,11 @@
                 role="dialog"
                 tabindex="-1"
             >
-                <TransactionView bind:value={selectedTransaction} />
+                <TransactionView
+                    bind:value={selectedTransaction}
+                    {showTypeInfo}
+                    {shortPackageIds}
+                />
             </div>
         </div>
     {/if}
@@ -2030,6 +2289,23 @@
     button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+    }
+
+    .display-mode-toggle {
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    .display-mode-toggle button {
+        background: rgba(30, 30, 40, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .display-mode-toggle button:hover {
+        background: rgba(59, 130, 246, 0.2);
+        border-color: rgba(59, 130, 246, 0.5);
     }
 
     .error-message {
@@ -2298,6 +2574,21 @@
         min-width: 0;
     }
 
+    .tx-commands-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        max-height: 400px;
+        overflow: auto;
+    }
+
+    .loading-commands {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.7);
+        padding: 2rem;
+    }
+
     .tx-digest {
         font-family: 'JetBrains Mono', monospace;
         font-size: 0.75rem;
@@ -2455,6 +2746,22 @@
         padding-left: 0.5rem;
     }
 
+    .expanded-transaction {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(30, 30, 40, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        max-height: 80vh;
+        overflow: auto;
+    }
+
+    .loading-expanded {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.7);
+        padding: 2rem;
+    }
+
     .obj-type {
         color: rgba(16, 185, 129, 1);
         font-weight: 500;
@@ -2560,6 +2867,92 @@
 
     .clear-filters-btn:hover {
         background: rgba(220, 38, 38, 0.3);
+    }
+
+    .commands-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        align-items: flex-start;
+    }
+
+    .commands-controls .controls-group {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .commands-controls button {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+        border-radius: 4px;
+        background: var(--background-light);
+        border: 1px solid var(--border-color);
+        color: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+    }
+
+    .commands-controls button:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .commands-controls button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .commands-controls .toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        user-select: none;
+        font-size: 0.8rem;
+    }
+
+    .commands-controls .toggle-switch {
+        position: relative;
+        width: 36px;
+        height: 20px;
+    }
+
+    .commands-controls .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .commands-controls .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.2);
+        transition: 0.3s;
+        border-radius: 20px;
+    }
+
+    .commands-controls .slider:before {
+        position: absolute;
+        content: '';
+        height: 14px;
+        width: 14px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.3s;
+        border-radius: 50%;
+    }
+
+    .commands-controls input:checked + .slider {
+        background-color: rgba(59, 130, 246, 0.8);
+    }
+
+    .commands-controls input:checked + .slider:before {
+        transform: translateX(16px);
     }
 
     @media (max-width: 768px) {
