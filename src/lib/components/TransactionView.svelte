@@ -2,13 +2,13 @@
     // @ts-ignore - Module resolution issue with svelte-json-tree
     import JSONTree from '@sveltejs/svelte-json-tree';
 
-    import { getClient, getSelectedNetworkConfig } from '../lib/client';
-    import { getTransactionLink } from '../lib/explorer-links';
+    import { getClient, getSelectedNetworkConfig } from '../utils/client';
+    import { getTransactionLink } from '../utils/explorer-links';
     import {
         formatJsonWithCompactArrays,
         getTransactionData,
         isTransactionData,
-    } from '../lib/transaction-view';
+    } from './transaction-view';
     import TransactionCommands from './TransactionCommands.svelte';
     import TransactionEffects from './TransactionEffects.svelte';
 
@@ -227,7 +227,7 @@
                 <TransactionCommands
                     transactionData={getTransactionData(value)}
                     {commandIndex}
-                    onCommandIndexChange={(i) => (commandIndex = i)}
+                    onCommandIndexChange={(i: number) => (commandIndex = i)}
                 />
             </div>
         {:else}

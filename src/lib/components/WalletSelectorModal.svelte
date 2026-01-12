@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { iota_wallets } from '../lib/signer-data';
-    import { connectWallet, setSelectedWallet } from '../lib/web-wallet';
+    import { iota_wallets } from '../utils/signer-data';
+    import { connectWallet, setSelectedWallet } from '../utils/web-wallet';
 
     let {
         isOpen = $bindable(false),

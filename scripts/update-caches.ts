@@ -6,13 +6,13 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { defaultClientConfig } from '../src/lib/lib/default-client-config.js';
+import { defaultClientConfig } from '../src/lib/utils/default-client-config.js';
 import {
     setInitialExchangeRateCache,
     updateExchangeRatesCache,
     updateTimestampsCache,
-} from '../src/lib/lib/staking-rewards/graphql-requests.js';
-import { updatePricesCache } from '../src/lib/lib/staking-rewards/price-fetching.js';
+} from '../src/lib/pages/staking-rewards/graphql-requests.js';
+import { updatePricesCache } from '../src/lib/pages/staking-rewards/price-fetching.js';
 
 global.localStorage = {
     getItem: (key) => {
@@ -32,9 +32,9 @@ global.localStorage = {
         }
         return null;
     },
-    setItem: () => {},
-    removeItem: () => {},
-    clear: () => {},
+    setItem: () => { },
+    removeItem: () => { },
+    clear: () => { },
     get length() {
         return 0;
     },
@@ -44,7 +44,7 @@ global.localStorage = {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const CACHE_DIR = path.join(__dirname, '..', 'src', 'lib', 'lib', 'staking-rewards', 'cache');
+const CACHE_DIR = path.join(__dirname, '..', 'src', 'lib', 'pages', 'staking-rewards', 'cache');
 const EXCHANGE_RATE_CACHE_FILE = path.join(CACHE_DIR, 'exchange-rate-cache.json');
 const PRICES_CACHE_FILE = path.join(CACHE_DIR, 'iota-prices-coingecko.json');
 const TIMESTAMPS_CACHE_FILE = path.join(CACHE_DIR, 'mainnet-epoch-timestamps-cache.json');
@@ -122,7 +122,7 @@ async function main() {
             tasks.push(
                 updateExchangeRatesCache().then(async () => {
                     const module =
-                        await import('../src/lib/lib/staking-rewards/graphql-requests.js');
+                        await import('../src/lib/pages/staking-rewards/graphql-requests.js');
                     const cacheArray = Array.from(module.exchangeRateCache.values());
                     fs.writeFileSync(EXCHANGE_RATE_CACHE_FILE, JSON.stringify(cacheArray, null, 4));
                     console.log(
@@ -136,7 +136,7 @@ async function main() {
                         'npx',
                         [
                             'tsx',
-                            'src/lib/lib/staking-rewards/cache/convert-cache.ts',
+                            'src/lib/pages/staking-rewards/cache/convert-cache.ts',
                             EXCHANGE_RATE_CACHE_FILE,
                             EXCHANGE_RATE_CACHE_FILE.replace('.json', '.bin'),
                         ],

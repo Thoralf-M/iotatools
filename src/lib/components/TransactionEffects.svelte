@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { getSelectedNetworkConfig } from '../lib/client';
-    import { decodeBase64Bytes } from '../lib/converter';
-    import { getAddressLink, getObjectLink, getTransactionLink } from '../lib/explorer-links';
-    import { formatNumberWithUnderscores, nanoToIota } from '../lib/iota-nano-conversion';
-    import { formatJsonWithCompactArrays, removeKindFields } from '../lib/transaction-view';
+    import { formatJsonWithCompactArrays, removeKindFields } from '../components/transaction-view';
+    import { getSelectedNetworkConfig } from '../utils/client';
+    import { decodeBase64Bytes } from '../utils/converter';
+    import { getAddressLink, getObjectLink, getTransactionLink } from '../utils/explorer-links';
+    import { formatNumberWithUnderscores, nanoToIota } from '../utils/iota-nano-conversion';
 
     export let transactionData: any;
 

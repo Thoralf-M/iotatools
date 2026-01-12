@@ -1,12 +1,9 @@
 <script lang="ts">
     import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
 
-    import { getSelectedNetworkConfig } from '../lib/client';
-    import {
-        queryDynamicFields,
-        type DynamicFieldsResult,
-    } from '../lib/dynamic-fields/dynamic-fields-utils';
-    import { getAddressLink, getObjectLink, getTransactionLink } from '../lib/explorer-links';
+    import { getSelectedNetworkConfig } from '../utils/client';
+    import { queryDynamicFields, type DynamicFieldsResult } from '../utils/dynamic-fields';
+    import { getAddressLink, getObjectLink, getTransactionLink } from '../utils/explorer-links';
 
     interface Props {
         objectId: string;

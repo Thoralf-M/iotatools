@@ -1,0 +1,20 @@
+
+    button.svelte-1fjps7p {
+        margin: 0.5rem;
+    }
+
+    .faucet-input.svelte-1fjps7p,
+    .address-input.svelte-1fjps7p {
+        max-width: 100%;
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    @media (min-width: 769px) {
+        .faucet-input.svelte-1fjps7p {
+            width: 60ch;
+        }
+        .address-input.svelte-1fjps7p {
+            width: 67ch;
+        }
+    }

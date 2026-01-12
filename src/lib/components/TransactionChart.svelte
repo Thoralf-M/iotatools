@@ -5,7 +5,7 @@
 
     import 'chartjs-adapter-date-fns';
 
-    import type { CheckpointData } from '../lib/epoch-ptb-analyzer';
+    import type { CheckpointData } from '../pages/programmable-transaction-block';
 
     Chart.register(zoomPlugin);
 
