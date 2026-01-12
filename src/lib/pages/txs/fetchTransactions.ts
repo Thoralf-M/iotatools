@@ -94,7 +94,7 @@ export async function fetchTransactionByDigest(digest: string): Promise<Transact
             for (const gasCoin of tx.transaction.data.gasData.payment) {
                 inputObjects.push({
                     objectId: gasCoin.objectId,
-                    objectType: gasCoin.objectType || objectTypeMap.get(gasCoin.objectId) || 'Unknown',
+                    objectType: objectTypeMap.get(gasCoin.objectId) || 'Unknown',
                     version: gasCoin.version || '',
                     isGas: true,
                 });
