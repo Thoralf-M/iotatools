@@ -4,8 +4,21 @@
 
     import { getSelectedNetworkConfig } from '../utils/client';
     import { getObjectLink } from '../utils/explorer-links';
+    import {
+        sharedLoadingPackages,
+        sharedPackageCache,
+        sharedPackageErrors,
+    } from '../utils/shared-caches';
 
-    let { transactionData, commandIndex = $bindable(), onCommandIndexChange } = $props();
+    let {
+        transactionData,
+        commandIndex = $bindable(),
+        onCommandIndexChange,
+        showControls = true,
+        showTypeInfo: externalShowTypeInfo,
+        shortPackageIds: externalShortPackageIds,
+        expandedCommands: externalExpandedCommands = undefined,
+    } = $props();
 
     // Helper to safely access nested properties
     function getPTB(data: any) {
@@ -76,12 +89,14 @@
 
     let expandedCommands = $state<Record<number, boolean>>({});
     let hoveredId = $state<string | null>(null);
-    let packageCache = $state<Record<string, any>>({});
-    let loadingPackages = $state<Record<string, boolean>>({});
-    let packageErrors = $state<Record<string, string>>({});
-    let shortPackageIds = $state(true);
-    let showTypeInfo = $state(true);
+    let shortPackageIds = $derived(externalShortPackageIds ?? true);
+    let showTypeInfo = $derived(externalShowTypeInfo ?? true);
     let hasAutoFetched = $state(false);
+
+    // Update expandedCommands when external prop changes
+    $effect(() => {
+        expandedCommands = externalExpandedCommands ? { ...externalExpandedCommands } : {};
+    });
 
     type Segment = {
         type:
@@ -223,14 +238,14 @@
     }
 
     async function fetchPackageInfo(packageId: string) {
-        if (packageCache[packageId] || loadingPackages[packageId]) {
+        if (sharedPackageCache[packageId] || sharedLoadingPackages[packageId]) {
             console.log('Skipping package (cached or loading):', packageId);
             return;
         }
 
         console.log('Fetching package info for:', packageId);
-        loadingPackages[packageId] = true;
-        packageErrors[packageId] = '';
+        sharedLoadingPackages[packageId] = true;
+        sharedPackageErrors[packageId] = '';
 
         try {
             const gqlClient = new IotaGraphQLClient({
@@ -282,7 +297,7 @@
                 });
 
                 if (!result.data?.package) {
-                    packageErrors[packageId] = 'Package not found';
+                    sharedPackageErrors[packageId] = 'Package not found';
                     console.error('Package not found:', packageId);
                     break;
                 }
@@ -316,25 +331,25 @@
                 }
 
                 if (!hasMorePages) {
-                    packageCache[packageId] = {
+                    sharedPackageCache[packageId] = {
                         address: result.data.package.address,
                         modules: { nodes: allModules },
                     };
-                    console.log('Package data fetched:', packageId, packageCache[packageId]);
+                    console.log('Package data fetched:', packageId, sharedPackageCache[packageId]);
                 }
             }
         } catch (error: any) {
             console.error('Error fetching package:', packageId, error);
-            packageErrors[packageId] = error.message || 'Failed to fetch package info';
+            sharedPackageErrors[packageId] = error.message || 'Failed to fetch package info';
         } finally {
-            loadingPackages[packageId] = false;
+            sharedLoadingPackages[packageId] = false;
         }
     }
 
     function getFunctionInfo(packageId: string, moduleName: string, functionName: string) {
         if (!showTypeInfo) return null;
 
-        const pkg = packageCache[packageId];
+        const pkg = sharedPackageCache[packageId];
         if (!pkg) return null;
 
         const module = pkg.modules?.nodes?.find((m: any) => m.name === moduleName);
@@ -1115,7 +1130,7 @@
 
     function hasPackagesCached(): boolean {
         const packages = getUniquePackages();
-        return packages.length > 0 && packages.every((pkg) => packageCache[pkg]);
+        return packages.length > 0 && packages.every((pkg) => sharedPackageCache[pkg]);
     }
 
     async function loadAllPackages() {
@@ -1146,47 +1161,50 @@
 
 {#if commands.length > 0}
     <div class="ptb-view">
-        <div class="ptb-controls">
-            <div class="controls-group">
-                <button onclick={expandAll}>Expand All</button>
-                <button onclick={collapseAll}>Collapse All</button>
+        {#if showControls}
+            <div class="ptb-controls">
+                <div class="controls-group">
+                    <button onclick={expandAll}>Expand All</button>
+                    <button onclick={collapseAll}>Collapse All</button>
+                </div>
+                <div class="controls-divider"></div>
+                <div class="controls-group">
+                    <button
+                        onclick={loadAllPackages}
+                        disabled={Object.keys(sharedLoadingPackages).some(
+                            (k) => sharedLoadingPackages[k],
+                        ) || hasPackagesCached()}
+                    >
+                        {#if Object.keys(sharedLoadingPackages).some((k) => sharedLoadingPackages[k])}
+                            Loading...
+                        {:else if hasPackagesCached()}
+                            Type info fetched ✓
+                        {:else}
+                            Fetch Type Info
+                        {/if}
+                    </button>
+                    <label class="toggle-row">
+                        <span class="toggle-label">Show Types</span>
+                        <div class="toggle-switch">
+                            <input type="checkbox" bind:checked={showTypeInfo} />
+                            <span class="slider"></span>
+                        </div>
+                    </label>
+                    <label class="toggle-row">
+                        <span class="toggle-label">Short IDs</span>
+                        <div class="toggle-switch">
+                            <input type="checkbox" bind:checked={shortPackageIds} />
+                            <span class="slider"></span>
+                        </div>
+                    </label>
+                </div>
             </div>
-            <div class="controls-divider"></div>
-            <div class="controls-group">
-                <button
-                    onclick={loadAllPackages}
-                    disabled={Object.keys(loadingPackages).some((k) => loadingPackages[k]) ||
-                        hasPackagesCached()}
-                >
-                    {#if Object.keys(loadingPackages).some((k) => loadingPackages[k])}
-                        Loading...
-                    {:else if hasPackagesCached()}
-                        Type info fetched ✓
-                    {:else}
-                        Fetch Type Info
-                    {/if}
-                </button>
-                <label class="toggle-row">
-                    <span class="toggle-label">Show Types</span>
-                    <div class="toggle-switch">
-                        <input type="checkbox" bind:checked={showTypeInfo} />
-                        <span class="slider"></span>
-                    </div>
-                </label>
-                <label class="toggle-row">
-                    <span class="toggle-label">Short IDs</span>
-                    <div class="toggle-switch">
-                        <input type="checkbox" bind:checked={shortPackageIds} />
-                        <span class="slider"></span>
-                    </div>
-                </label>
-            </div>
-        </div>
+        {/if}
 
-        {#if Object.keys(packageErrors).some((k) => packageErrors[k])}
+        {#if Object.keys(sharedPackageErrors).some((k) => sharedPackageErrors[k])}
             <div class="error-banner">
                 <strong>Package fetch errors:</strong>
-                {#each Object.entries(packageErrors).filter(([_, err]) => err) as [pkg, err]}
+                {#each Object.entries(sharedPackageErrors).filter(([_, err]) => err) as [pkg, err]}
                     <div class="error-item">
                         {pkg}: {err}
                     </div>
@@ -1346,6 +1364,7 @@
         gap: 0.5rem;
         font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
         font-size: 0.85rem;
+        text-align: left;
     }
 
     .ptb-controls {

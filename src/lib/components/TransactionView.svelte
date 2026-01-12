@@ -12,7 +12,7 @@
     import TransactionCommands from './TransactionCommands.svelte';
     import TransactionEffects from './TransactionEffects.svelte';
 
-    let { value = $bindable() } = $props();
+    let { value = $bindable(), showTypeInfo = true, shortPackageIds = true } = $props();
 
     let viewMode = $state(
         new URLSearchParams(window.location.hash.split('?')[1] || '').get('view') || 'formatted',
@@ -228,6 +228,8 @@
                     transactionData={getTransactionData(value)}
                     {commandIndex}
                     onCommandIndexChange={(i: number) => (commandIndex = i)}
+                    {showTypeInfo}
+                    {shortPackageIds}
                 />
             </div>
         {:else}

@@ -6,23 +6,27 @@
 export function timeAgo(timestamp: number): string {
     const now = new Date().getTime();
     const diff = now - timestamp;
+    const isFuture = diff < 0;
+    const absDiff = Math.abs(diff);
 
-    if (diff < 0) {
-        return 'in the future';
-    }
-
-    const seconds = Math.floor(diff / 1000);
+    const seconds = Math.floor(absDiff / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
 
+    let timeString = '';
     if (days > 0) {
-        return `${days} day${days > 1 ? 's' : ''} ago`;
+        const remainingHours = hours % 24;
+        timeString = `${days} day${days > 1 ? 's' : ''} ${remainingHours} hour${remainingHours !== 1 ? 's' : ''}`;
     } else if (hours > 0) {
-        return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+        const remainingMinutes = minutes % 60;
+        timeString = `${hours} hour${hours > 1 ? 's' : ''} ${remainingMinutes} minute${remainingMinutes !== 1 ? 's' : ''}`;
     } else if (minutes > 0) {
-        return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+        const remainingSeconds = seconds % 60;
+        timeString = `${minutes} minute${minutes > 1 ? 's' : ''} ${remainingSeconds} second${remainingSeconds !== 1 ? 's' : ''}`;
     } else {
-        return `${seconds} second${seconds > 1 ? 's' : ''} ago`;
+        timeString = `${seconds} second${seconds !== 1 ? 's' : ''}`;
     }
+
+    return isFuture ? `in ${timeString}` : `${timeString} ago`;
 }

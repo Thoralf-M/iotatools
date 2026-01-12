@@ -13,6 +13,8 @@
     // Query parameter integration
     const queryParamDefaults = {
         txInput: '',
+        inputObjectFilter: '',
+        functionFilter: '',
     };
 
     const pageParams = usePageQueryParams(queryParamDefaults);
@@ -59,6 +61,8 @@
             const event = new Event('input', { bubbles: true });
             txBytesTextarea.dispatchEvent(event);
         }
+        inputObjectFilter = params.inputObjectFilter || '';
+        functionFilter = params.functionFilter || '';
     });
 
     function detectInputType(input: string): 'base64' | 'base58' | 'json' | null {
@@ -138,7 +142,7 @@
             }
 
             // Update query parameters with the digest
-            updatePageQueryParams({ txInput: digest });
+            updatePageQueryParams({ txInput: digest, inputObjectFilter, functionFilter });
         } catch (e: any) {
             error = `Failed to fetch transaction: ${e.message || e}`;
             transactionData = null;
@@ -238,7 +242,7 @@
                 }
             }
 
-            updatePageQueryParams({ txInput: input });
+            updatePageQueryParams({ txInput: input, inputObjectFilter, functionFilter });
         } catch (e: any) {
             error = `Failed to process transaction: ${e.message || e}`;
             transactionData = null;
@@ -436,7 +440,7 @@
     function handleInput(event: Event) {
         const target = event.target as HTMLTextAreaElement;
         txInput = target.value;
-        updatePageQueryParams({ txInput: txInput });
+        updatePageQueryParams({ txInput: txInput, inputObjectFilter, functionFilter });
 
         // Clear existing timeout
         if (inputTimeout) {
@@ -464,7 +468,7 @@
         if (txBytesTextarea) {
             txBytesTextarea.value = example;
             txInput = example;
-            updatePageQueryParams({ txInput: example });
+            updatePageQueryParams({ txInput: example, inputObjectFilter, functionFilter });
             // Automatically process the example
             processInput();
         }

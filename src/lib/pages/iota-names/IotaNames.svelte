@@ -1,21 +1,19 @@
 <script lang="ts">
+    import { onMount } from 'svelte';
+
     import TransactionView from '../../components/TransactionView.svelte';
+    import { getSelectedNetworkConfig } from '../../utils/client';
+    import { sharedClientConfig } from '../../utils/local-storage-store';
     import { activeAddress } from '../../utils/signer-data';
     import {
-        AUCTION_PACKAGE_ID,
         claim,
-        COUPONS_PACKAGE_ID,
-        DEVNET_PACKAGE_ID,
+        config,
         getDynamicFields,
         getPackageIds,
         getRegistryEntry,
         getReverseRegisteredAddresses,
-        IOTA_NAMES_OBJECT_ID,
-        IOTA_NAMES_PACKAGE_ID,
         listAuctions,
         listRegisteredNames,
-        MAINNET_PACKAGE_ID,
-        PAYMENTS_PACKAGE_ID,
         placeBid,
         registerName,
         resolveAddress,
@@ -27,9 +25,6 @@
         setTargetAddress,
         setTestnetPackageId,
         startAuctionAndPlaceBid,
-        SUBNAME_PACKAGE_ID,
-        SUBNAME_PROXY_PACKAGE_ID,
-        TESTNET_PACKAGE_ID,
     } from './iota-names-service';
 
     let address = '0x0000a4984bd495d4346fa208ddff4f5d5e5ad48c21dec631ddebc99809f16900';
@@ -43,7 +38,30 @@
     let abortController: AbortController | null = null;
 
     // Local copies of service variables for binding
-    let localIotaNamesPackageId = IOTA_NAMES_PACKAGE_ID;
+    let localIotaNamesPackageId = config.IOTA_NAMES_PACKAGE_ID;
+    let packageIds = { ...config };
+
+    function updatePackageIdForNetwork() {
+        const network = getSelectedNetworkConfig();
+        if (network.name === 'mainnet') {
+            setMainnetPackageId();
+        } else if (network.name === 'testnet') {
+            setTestnetPackageId();
+        } else if (network.name === 'devnet') {
+            setDevnetPackageId();
+        } else if (network.name === 'localnet') {
+            setCustomPackageId('');
+        }
+        localIotaNamesPackageId = config.IOTA_NAMES_PACKAGE_ID;
+        packageIds = { ...config };
+    }
+
+    onMount(() => {
+        updatePackageIdForNetwork();
+    });
+
+    // React to network changes
+    $: ($sharedClientConfig.selected, updatePackageIdForNetwork());
 
     // Wrapper functions to handle UI state updates
     const handleResolveAddress = async () => {
@@ -122,7 +140,14 @@
 
     const handleToggleIotaNamesIds = async () => {
         showIotaNamesIds = true;
-        await getPackageIds();
+        try {
+            await getPackageIds();
+            packageIds = { ...config };
+            console.log('Package IDs loaded:', config);
+        } catch (err: any) {
+            value = 'Error loading package IDs: ' + err.toString();
+            console.error('Error in getPackageIds:', err);
+        }
         // open the details element
         document.querySelector('details')?.setAttribute('open', 'true');
     };
@@ -192,7 +217,7 @@
 
 <main>
     <span>
-        IotaNames package id (default for testnet):
+        IotaNames package id:
         <input
             bind:value={localIotaNamesPackageId}
             onchange={() => {
@@ -201,24 +226,6 @@
             placeholder="package id 0x..."
             size="67"
         />
-        <button
-            onclick={() => {
-                localIotaNamesPackageId = MAINNET_PACKAGE_ID;
-                setMainnetPackageId();
-            }}>Mainnet</button
-        >
-        <button
-            onclick={() => {
-                localIotaNamesPackageId = TESTNET_PACKAGE_ID;
-                setTestnetPackageId();
-            }}>Testnet</button
-        >
-        <button
-            onclick={() => {
-                localIotaNamesPackageId = DEVNET_PACKAGE_ID;
-                setDevnetPackageId();
-            }}>Devnet</button
-        >
     </span>
     <br />
     <br />
@@ -237,10 +244,10 @@
         <details>
             <summary>IOTA-Names IDs</summary>
             <div>
-                IotaNames Object ID: {IOTA_NAMES_OBJECT_ID}
+                IotaNames Object ID: {packageIds.IOTA_NAMES_OBJECT_ID}
                 <br />
-                {#each [['Payments', PAYMENTS_PACKAGE_ID], ['Subname', SUBNAME_PACKAGE_ID], ['Subname Proxy', SUBNAME_PROXY_PACKAGE_ID], ['Auction', AUCTION_PACKAGE_ID], ['Coupons', COUPONS_PACKAGE_ID]] as item}
-                    {#if item[1].length != 0}
+                {#each [['Payments', packageIds.PAYMENTS_PACKAGE_ID], ['Subname', packageIds.SUBNAME_PACKAGE_ID], ['Subname Proxy', packageIds.SUBNAME_PROXY_PACKAGE_ID], ['Auction', packageIds.AUCTION_PACKAGE_ID], ['Coupons', packageIds.COUPONS_PACKAGE_ID]] as item}
+                    {#if item[1] && item[1].length != 0}
                         {item[0]} Package ID: {item[1]}
                         <br />
                     {/if}
