@@ -5,7 +5,7 @@
     import { dragHandle, dragHandleZone, type DndEvent } from 'svelte-dnd-action';
 
     import TransactionView from '../components/TransactionView.svelte';
-    import { getClient } from '../lib/client';
+    import { getClient, getSelectedChain } from '../lib/client';
     import { nanoToIota } from '../lib/iota-nano-conversion';
     import { iota_accounts, iota_wallets } from '../lib/signer-data';
     import { fetchCurrentPrice } from '../lib/staking-rewards/price-fetching';
@@ -396,11 +396,11 @@
                 let txResult = await $iota_wallets[0].signAndExecuteTransaction({
                     transaction,
                     options: {
-                        showEffects: true,
-                        showObjectChanges: true,
                         showBalanceChanges: true,
                     },
                     account: { address: sender },
+                    // @ts-ignore
+                    chain: getSelectedChain(),
                 });
                 txResult.sender = sender;
                 txResult.recipients = recipients;

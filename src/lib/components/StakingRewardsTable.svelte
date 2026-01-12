@@ -20,7 +20,9 @@
     import {
         computeEpochData,
         formatActionDetails,
+        formatMultipleActionDetails,
         formatPrincipal,
+        getActionNames,
         getFirstPrincipal,
         getTotalAccumulatedRewardsForEpoch,
         getTotalAccumulatedUnstakeRewardsForEpoch,
@@ -30,6 +32,7 @@
         getValidatorAccumulatedRewardsForEpoch,
         getValidatorRewardsForEpoch,
         getValidatorTotalPrincipal,
+        hasActionType,
         isActiveInEpoch,
         isPreActivationInEpoch,
     } from '../lib/staking-rewards/table-utils';
@@ -40,6 +43,7 @@
         validatorInfo = {},
         showPriceColumns = $bindable(true),
         showValidatorColumns = $bindable(true),
+        hideUnstaked = $bindable(false),
     } = $props();
 
     let height = $state(800);
@@ -137,7 +141,7 @@
     let selectedStakeObject = $state<StakeObject | null>(null);
     let selectedValidator = $state<ValidatorInfo | null>(null);
     let selectedAction = $state<{
-        action: ActionDetails;
+        actions: ActionDetails[];
         epoch: number;
         stakeObjectId: string;
     } | null>(null);
@@ -163,11 +167,8 @@
         } else {
             // Fetch timestamps for each epoch using reusable function
             fetchEpochTimestampsForDisplay(epochs, currentEpoch, epochTimestampsCache).then(
-                ({ epochEndDates: dates, fetchedEpochTimestamps }) => {
+                ({ epochEndDates: dates }) => {
                     epochEndDates = dates;
-                    // Log for easy copy-paste into cache file
-                    console.log('Copy this to mainnet-epoch-timestamps-cache.json:');
-                    console.log(JSON.stringify(fetchedEpochTimestamps, null, 2));
                 },
             );
         }
@@ -305,13 +306,13 @@
             onclick={() => (selectedAction = null)}>×</button
         >
         <div class="action-title">
-            Epoch {selectedAction.epoch} - {selectedAction.action.action}
+            Epoch {selectedAction.epoch} - {getActionNames(selectedAction.actions)}
         </div>
         <div class="action-stake-object">
             Stake Object: {selectedAction.stakeObjectId}
         </div>
         <div class="action-details">
-            {formatActionDetails(selectedAction.action)}
+            {formatMultipleActionDetails(selectedAction.actions)}
         </div>
     </div>
 {/if}
@@ -357,6 +358,14 @@
                 <span class="slider"></span>
             </div>
             <span class="toggle-label"> Show Validators </span>
+        </label>
+
+        <label class="toggle-row control-item">
+            <div class="toggle-switch">
+                <input type="checkbox" bind:checked={hideUnstaked} />
+                <span class="slider"></span>
+            </div>
+            <span class="toggle-label"> Hide unstaked </span>
         </label>
     </div>
     <div class="controls-right">
@@ -415,7 +424,7 @@
                         </div>
                     {/each}
                 {/if}
-                {#each stakeObjects as stakeObject}
+                {#each stakeObjects.filter((obj) => !hideUnstaked || obj.lastEpoch >= currentEpoch) as stakeObject}
                     <div class="header-cell stake-header-cell">
                         <div class="stake-header">
                             <div class="address-container">
@@ -571,12 +580,12 @@
                                     </div>
                                 {/each}
                             {/if}
-                            {#each stakeObjects as stakeObject}
+                            {#each stakeObjects.filter((obj) => !hideUnstaked || obj.lastEpoch >= currentEpoch) as stakeObject}
                                 <div class="table-cell stake-cell">
                                     <div class="stake-popup-container">
                                         {#if isPreActivationInEpoch(stakeObject, epochs[index], epochData)}
                                             <div class="pre-active-indicator">pre-active</div>
-                                        {:else if isActiveInEpoch(stakeObject, epochs[index], epochData) && epochs[index] >= stakeObject.firstEpoch && epochs[index] !== currentEpoch && (!stakeObject.actionByEpoch || (stakeObject.actionByEpoch && stakeObject.actionByEpoch[epochs[index]]?.action !== 'Unstaked'))}
+                                        {:else if isActiveInEpoch(stakeObject, epochs[index], epochData) && epochs[index] >= stakeObject.firstEpoch && epochs[index] !== currentEpoch && !hasActionType(stakeObject.actionByEpoch?.[epochs[index]], 'Unstaked')}
                                             <div class="stake-cell-content">
                                                 <span class="stake-value">
                                                     {stakeObject.rewardsByEpoch[epochs[index]] ===
@@ -611,27 +620,29 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                        {:else if isActiveInEpoch(stakeObject, epochs[index - 1], epochData) && epochs[index] === currentEpoch && (!stakeObject.actionByEpoch || (stakeObject.actionByEpoch && !stakeObject.actionByEpoch[epochs[index]]))}
+                                        {:else if isActiveInEpoch(stakeObject, epochs[index - 1], epochData) && epochs[index] === currentEpoch && (!stakeObject.actionByEpoch || !stakeObject.actionByEpoch[epochs[index]] || stakeObject.actionByEpoch[epochs[index]].length === 0)}
                                             pending
-                                        {:else if !stakeObject.actionByEpoch || !stakeObject.actionByEpoch[epochs[index]]}
+                                        {:else if !stakeObject.actionByEpoch || !stakeObject.actionByEpoch[epochs[index]] || stakeObject.actionByEpoch[epochs[index]].length === 0}
                                             <div class="inactive-indicator">-</div>
                                         {/if}
-                                        {#if stakeObject.actionByEpoch && stakeObject.actionByEpoch[epochs[index]]}
+                                        {#if stakeObject.actionByEpoch && stakeObject.actionByEpoch[epochs[index]] && stakeObject.actionByEpoch[epochs[index]].length > 0}
                                             <button
                                                 class="action-indicator clickable-action"
                                                 type="button"
                                                 onclick={() => {
-                                                    const actionData =
+                                                    const actionsData =
                                                         stakeObject.actionByEpoch?.[epochs[index]];
-                                                    if (actionData) {
+                                                    if (actionsData && actionsData.length > 0) {
                                                         selectedAction = {
-                                                            action: actionData,
+                                                            actions: actionsData,
                                                             epoch: epochs[index],
                                                             stakeObjectId: stakeObject.objectId,
                                                         };
                                                     }
                                                 }}
-                                                >{stakeObject.actionByEpoch[epochs[index]].action}
+                                                >{getActionNames(
+                                                    stakeObject.actionByEpoch[epochs[index]],
+                                                )}
 
                                                 {#if stakeObject.principalByEpoch[epochs[index]] && stakeObject.principalByEpoch[epochs[index - 1]] && stakeObject.principalByEpoch[epochs[index]] !== stakeObject.principalByEpoch[epochs[index - 1]]}
                                                     <span class="principal-change-tooltip">

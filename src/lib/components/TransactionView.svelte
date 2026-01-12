@@ -14,16 +14,27 @@
 
     let { value = $bindable() } = $props();
 
-    let viewMode = $state('formatted');
-    let showTxBytes = $state(false);
+    let viewMode = $state(
+        new URLSearchParams(window.location.hash.split('?')[1] || '').get('view') || 'formatted',
+    );
     let prevViewMode = $state('formatted');
+    let commandIndex = $state(
+        parseInt(
+            new URLSearchParams(window.location.hash.split('?')[1] || '').get('commandIndex') || '',
+        ) || null,
+    );
     let hidden = $derived(!value || !Object.keys(value || {}).length);
     let isDryRunning = $state(false);
     let dryRunError = $state('');
 
     let hasTxBytes = $derived(
-        value && typeof value === 'object' && 'transactionBytes' in value && value.transactionBytes,
+        value &&
+            typeof value === 'object' &&
+            (('transactionBytes' in value && value.transactionBytes) ||
+                ('bytes' in value && value.bytes)),
     );
+
+    let txBytes = $derived(value.transactionBytes || value.bytes);
 
     let hasDryRunResults = $derived(
         value && typeof value === 'object' && 'effects' in value && value.effects,
@@ -52,19 +63,25 @@
                 prevViewMode = viewMode;
             }
 
-            showTxBytes = false; // reset when value changes
             dryRunError = ''; // clear any previous errors
         }
     });
 
     $effect(() => {
-        if (showTxBytes) {
-            if (viewMode !== 'txbytes') {
-                prevViewMode = viewMode;
-                viewMode = 'txbytes';
+        const hashParts = window.location.hash.split('?');
+        const path = hashParts[0];
+        const params = new URLSearchParams(hashParts[1] || '');
+        const currentView = params.get('view');
+        const currentCommandIndex = params.get('commandIndex');
+        const newCommandIndex = commandIndex !== null ? commandIndex.toString() : null;
+        if (currentView !== viewMode || currentCommandIndex !== newCommandIndex) {
+            params.set('view', viewMode);
+            if (commandIndex !== null) {
+                params.set('commandIndex', commandIndex.toString());
+            } else {
+                params.delete('commandIndex');
             }
-        } else if (viewMode === 'txbytes') {
-            viewMode = prevViewMode;
+            window.location.hash = path + '?' + params.toString();
         }
     });
 
@@ -74,10 +91,10 @@
         try {
             isDryRunning = true;
             const client = getClient();
-            const txBytes = value.transactionBytes;
+            const txBytesValue = txBytes;
 
             const dryRunResult = await client.dryRunTransactionBlock({
-                transactionBlock: txBytes,
+                transactionBlock: txBytesValue,
             });
 
             // Update the transaction data with dry run effects
@@ -87,7 +104,7 @@
                 ...value,
                 ...dryRunResult,
                 // Keep the original transactionBytes
-                transactionBytes: txBytes,
+                transactionBytes: txBytesValue,
                 // Mark that this is from a dry run
                 isDryRun: true,
                 // Preserve any original metadata that might be important
@@ -125,7 +142,6 @@
                 <button
                     class:active={viewMode === 'formatted'}
                     onclick={() => {
-                        showTxBytes = false;
                         viewMode = 'formatted';
                     }}
                 >
@@ -136,7 +152,6 @@
                 <button
                     class:active={viewMode === 'commands'}
                     onclick={() => {
-                        showTxBytes = false;
                         viewMode = 'commands';
                     }}
                 >
@@ -146,7 +161,6 @@
             <button
                 class:active={viewMode === 'json'}
                 onclick={() => {
-                    showTxBytes = false;
                     viewMode = 'json';
                 }}
             >
@@ -155,7 +169,6 @@
             <button
                 class:active={viewMode === 'tree'}
                 onclick={() => {
-                    showTxBytes = false;
                     viewMode = 'tree';
                 }}
             >
@@ -164,12 +177,13 @@
 
             {#if hasTxBytes}
                 <button
-                    class:active={showTxBytes}
+                    class:active={viewMode === 'txbytes'}
                     onclick={() => {
-                        showTxBytes = !showTxBytes;
-                        if (!showTxBytes) {
-                            // restore previous viewMode if leaving txbytes
+                        if (viewMode === 'txbytes') {
                             viewMode = prevViewMode;
+                        } else {
+                            prevViewMode = viewMode;
+                            viewMode = 'txbytes';
                         }
                     }}
                 >
@@ -193,15 +207,12 @@
             </div>
         {/if}
 
-        {#if showTxBytes && hasTxBytes}
+        {#if viewMode === 'txbytes' && hasTxBytes}
             <div class="tx-bytes-view">
-                <button
-                    class="copy-btn"
-                    onclick={() => navigator.clipboard.writeText(value.transactionBytes)}
-                >
+                <button class="copy-btn" onclick={() => navigator.clipboard.writeText(txBytes)}>
                     Copy Bytes
                 </button>
-                <pre class="wrap-bytes">{value.transactionBytes}</pre>
+                <pre class="wrap-bytes">{txBytes}</pre>
             </div>
         {:else if viewMode === 'formatted' && isTransactionData(value)}
             <div class="formatted-view">
@@ -213,7 +224,11 @@
             </div>
         {:else if viewMode === 'commands'}
             <div class="commands-view-container">
-                <TransactionCommands transactionData={getTransactionData(value)} />
+                <TransactionCommands
+                    transactionData={getTransactionData(value)}
+                    {commandIndex}
+                    onCommandIndexChange={(i) => (commandIndex = i)}
+                />
             </div>
         {:else}
             <div class="json-view">

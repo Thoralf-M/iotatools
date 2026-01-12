@@ -3,6 +3,7 @@
     import { wrap } from 'svelte-spa-router/wrap';
 
     import { isProMode } from './lib/lib/local-storage-store';
+    import { navigateWithGlobalParams } from './lib/lib/query-param-store';
     import Options from './lib/Options.svelte';
     import Signer from './lib/Signer.svelte';
     import Tabs from './lib/Tabs.svelte';
@@ -33,6 +34,8 @@
         IotaNames: () => import('./lib/pages/IotaNames.svelte'),
         Settings: () => import('./lib/pages/Settings.svelte'),
         Txs: () => import('./lib/pages/Txs.svelte'),
+        Impressum: () => import('./lib/pages/Impressum.svelte'),
+        Datenschutz: () => import('./lib/pages/Datenschutz.svelte'),
     };
 
     // Route definitions: map route paths to lazy-loaded components using wrap
@@ -63,6 +66,8 @@
         '/iota-names': wrap({ asyncComponent: pageImports['IotaNames'] }),
         '/settings': wrap({ asyncComponent: pageImports['Settings'] }),
         '/txs': wrap({ asyncComponent: pageImports['Txs'] }),
+        '/impressum': wrap({ asyncComponent: pageImports['Impressum'] }),
+        '/datenschutz': wrap({ asyncComponent: pageImports['Datenschutz'] }),
     };
 
     // Tab items with route paths
@@ -151,6 +156,8 @@
                 '/iota-names': pageImports.IotaNames,
                 '/settings': pageImports.Settings,
                 '/txs': pageImports.Txs,
+                '/impressum': pageImports.Impressum,
+                '/datenschutz': pageImports.Datenschutz,
             }}
         />
     </div>
@@ -158,13 +165,20 @@
     <footer class="app-footer">
         <div class="footer-content">
             <a
-                href="https://github.com/Thoralf-M/iota-utils"
+                href="https://github.com/Thoralf-M/iotatools"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="github-link"
             >
                 View on GitHub
             </a>
+            <button class="impressum-link" onclick={() => navigateWithGlobalParams('/impressum')}
+                >Impressum</button
+            >
+            <button
+                class="datenschutz-link"
+                onclick={() => navigateWithGlobalParams('/datenschutz')}>Datenschutz</button
+            >
         </div>
     </footer>
 </main>
@@ -249,6 +263,13 @@
         text-align: center;
     }
 
+    .footer-content {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        align-items: center;
+    }
+
     .github-link {
         align-items: center;
         gap: 0.5rem;
@@ -269,6 +290,28 @@
         color: rgba(255, 255, 255, 0.95);
         transform: translateY(-2px);
         box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+    }
+
+    .impressum-link {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .impressum-link:hover {
+        color: rgba(255, 255, 255, 0.95);
+    }
+
+    .datenschutz-link {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .datenschutz-link:hover {
+        color: rgba(255, 255, 255, 0.95);
     }
 
     @media (max-width: 768px) {
