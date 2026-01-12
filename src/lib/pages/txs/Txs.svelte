@@ -25,6 +25,7 @@
         beforeCheckpoint: '',
         substringFilter: '',
         displayMode: 'objects',
+        orderBy: 'newest',
     };
 
     const pageParams = usePageQueryParams(queryParamDefaults);
@@ -36,6 +37,7 @@
     let fetchSize = $state('5');
     let afterCheckpoint = $state('');
     let beforeCheckpoint = $state('');
+    let orderBy = $state<'newest' | 'oldest'>('newest');
 
     // State
     let loading = $state(false);
@@ -404,14 +406,17 @@
     async function fetchTransactionsForAddress(
         address: string,
         limit: number,
-        afterCursor?: string | null,
-    ): Promise<{ txs: TransactionNode[]; endCursor: string | null; hasMore: boolean }> {
+        cursor?: string | null,
+    ): Promise<{ txs: TransactionNode[]; nextCursor: string | null; hasMore: boolean }> {
         const config = getSelectedNetworkConfig();
         const graphqlClient = new IotaGraphQLClient({
             url: config.graphql,
         });
 
-        const cursorSection = afterCursor ? `, after: "${afterCursor}"` : '';
+        const isNewest = orderBy === 'newest';
+        const direction = isNewest ? 'last' : 'first';
+        const cursorParam = isNewest ? 'before' : 'after';
+        const cursorSection = cursor ? `, ${cursorParam}: "${cursor}"` : '';
 
         // Build filter object
         const filterParts = [`signAddress: $address`];
@@ -428,11 +433,11 @@
                 query GetTransactions($address: IotaAddress!, $limit: Int!) {
                     transactionBlocks(
                         filter: ${filterStr}
-                        first: $limit${cursorSection}
+                        ${direction}: $limit${cursorSection}
                     ) {
                         pageInfo {
-                            hasNextPage
-                            endCursor
+                            ${isNewest ? 'hasPreviousPage' : 'hasNextPage'}
+                            ${isNewest ? 'startCursor' : 'endCursor'}
                         }
                         nodes {
                             digest
@@ -451,8 +456,11 @@
             data?.transactionBlocks?.nodes?.map((n: any) => n.digest).filter(Boolean) || [];
         // Limit to the requested number to ensure we don't fetch more than intended
         const digests = allDigests.slice(0, limit);
-        const hasMore = data?.transactionBlocks?.pageInfo?.hasNextPage || false;
-        const endCursor = data?.transactionBlocks?.pageInfo?.endCursor || null;
+        const hasMore =
+            data?.transactionBlocks?.pageInfo?.[isNewest ? 'hasPreviousPage' : 'hasNextPage'] ||
+            false;
+        const nextCursor =
+            data?.transactionBlocks?.pageInfo?.[isNewest ? 'startCursor' : 'endCursor'] || null;
 
         // Fetch full transaction details
         const txs: TransactionNode[] = [];
@@ -461,14 +469,14 @@
             if (tx) txs.push(tx);
         }
 
-        return { txs, endCursor, hasMore };
+        return { txs, nextCursor, hasMore };
     }
 
     async function fetchTransactionsByInputObject(
         objectId: string,
         limit: number,
-        afterCursor?: string | null,
-    ): Promise<{ txs: TransactionNode[]; endCursor: string | null; hasMore: boolean }> {
+        cursor?: string | null,
+    ): Promise<{ txs: TransactionNode[]; nextCursor: string | null; hasMore: boolean }> {
         const config = getSelectedNetworkConfig();
         const graphqlClient = new IotaGraphQLClient({
             url: config.graphql,
@@ -484,18 +492,21 @@
         }
         const filterStr = `{ ${filterParts.join(', ')} }`;
 
-        const cursorSection = afterCursor ? `, after: "${afterCursor}"` : '';
+        const isNewest = orderBy === 'newest';
+        const direction = isNewest ? 'last' : 'first';
+        const cursorParam = isNewest ? 'before' : 'after';
+        const cursorSection = cursor ? `, ${cursorParam}: "${cursor}"` : '';
 
         const result = await graphqlClient.query({
             query: `
                 query GetTransactionsByObject($objectId: IotaAddress!, $limit: Int!) {
                     transactionBlocks(
                         filter: ${filterStr}
-                        first: $limit${cursorSection}
+                        ${direction}: $limit${cursorSection}
                     ) {
                         pageInfo {
-                            hasNextPage
-                            endCursor
+                            ${isNewest ? 'hasPreviousPage' : 'hasNextPage'}
+                            ${isNewest ? 'startCursor' : 'endCursor'}
                         }
                         nodes {
                             digest
@@ -514,8 +525,11 @@
             data?.transactionBlocks?.nodes?.map((n: any) => n.digest).filter(Boolean) || [];
         // Limit to the requested number to ensure we don't fetch more than intended
         const digests = allDigests.slice(0, limit);
-        const hasMore = data?.transactionBlocks?.pageInfo?.hasNextPage || false;
-        const endCursor = data?.transactionBlocks?.pageInfo?.endCursor || null;
+        const hasMore =
+            data?.transactionBlocks?.pageInfo?.[isNewest ? 'hasPreviousPage' : 'hasNextPage'] ||
+            false;
+        const nextCursor =
+            data?.transactionBlocks?.pageInfo?.[isNewest ? 'startCursor' : 'endCursor'] || null;
 
         // Fetch full transaction details
         const txs: TransactionNode[] = [];
@@ -524,7 +538,7 @@
             if (tx) txs.push(tx);
         }
 
-        return { txs, endCursor, hasMore };
+        return { txs, nextCursor, hasMore };
     }
 
     function addTransaction(tx: TransactionNode) {
@@ -620,22 +634,22 @@
 
             // Fetch transactions for object IDs
             for (const objId of objectIds) {
-                const { txs, endCursor } = await fetchTransactionsByInputObject(objId, limit);
+                const { txs, nextCursor } = await fetchTransactionsByInputObject(objId, limit);
                 for (const tx of txs) {
                     addTransaction(tx);
                     addAddress(tx.sender);
                 }
-                objectCursors.set(objId, endCursor);
+                objectCursors.set(objId, nextCursor);
             }
 
             // Fetch transactions for user-provided addresses only
             for (const [addr, state] of trackedAddresses) {
                 if (state.enabled && state.isUserProvided) {
-                    const { txs, endCursor } = await fetchTransactionsForAddress(addr, limit);
+                    const { txs, nextCursor } = await fetchTransactionsForAddress(addr, limit);
                     for (const tx of txs) {
                         addTransaction(tx);
                     }
-                    addressCursors.set(addr, endCursor);
+                    addressCursors.set(addr, nextCursor);
                 }
             }
 
@@ -671,7 +685,7 @@
             for (const [addr, state] of trackedAddresses) {
                 if (state.enabled && state.isUserProvided) {
                     const cursor = addressCursors.get(addr);
-                    const { txs, endCursor } = await fetchTransactionsForAddress(
+                    const { txs, nextCursor } = await fetchTransactionsForAddress(
                         addr,
                         limit,
                         cursor,
@@ -679,7 +693,7 @@
                     for (const tx of txs) {
                         addTransaction(tx);
                     }
-                    addressCursors.set(addr, endCursor);
+                    addressCursors.set(addr, nextCursor);
                 }
             }
 
@@ -687,7 +701,7 @@
             const objectIds = parseInputList(objectIdsInput);
             for (const objId of objectIds) {
                 const cursor = objectCursors.get(objId);
-                const { txs, endCursor } = await fetchTransactionsByInputObject(
+                const { txs, nextCursor } = await fetchTransactionsByInputObject(
                     objId,
                     limit,
                     cursor,
@@ -696,7 +710,7 @@
                     addTransaction(tx);
                     addAddress(tx.sender);
                 }
-                objectCursors.set(objId, endCursor);
+                objectCursors.set(objId, nextCursor);
             }
 
             // Discover new addresses
@@ -762,10 +776,11 @@
             afterCheckpoint: afterCheckpoint || null,
             beforeCheckpoint: beforeCheckpoint || null,
             substringFilter: substringFilter || null,
+            orderBy: orderBy || null,
         });
     }
 
-    // Sort transactions by checkpoint (descending = most recent first at top)
+    // Sort transactions by checkpoint (descending = most recent first at top, or ascending for oldest first)
     let sortedTransactions = $derived(
         Array.from(transactions.values())
             .filter((tx) => {
@@ -805,7 +820,9 @@
 
                 return true;
             })
-            .sort((a, b) => b.checkpoint - a.checkpoint),
+            .sort((a, b) =>
+                orderBy === 'newest' ? b.checkpoint - a.checkpoint : a.checkpoint - b.checkpoint,
+            ),
     );
 
     // Get objects that are shared between multiple transactions
@@ -1244,6 +1261,7 @@
         if (params.afterCheckpoint) afterCheckpoint = params.afterCheckpoint;
         if (params.beforeCheckpoint) beforeCheckpoint = params.beforeCheckpoint;
         if (params.substringFilter) substringFilter = params.substringFilter;
+        if (params.orderBy) orderBy = params.orderBy as 'newest' | 'oldest';
 
         // Auto-process if any input is provided
         if (params.txIds || params.objectIds || params.addresses) {
@@ -1351,6 +1369,14 @@
                 </select>
             </div>
 
+            <div class="order-control">
+                <label for="order-by">Order:</label>
+                <select id="order-by" bind:value={orderBy} onchange={() => updateQueryParams()}>
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                </select>
+            </div>
+
             <button onclick={fetchMoreTransactions} disabled={loading || transactions.size === 0}>
                 {loading ? 'Loading...' : 'More'}
             </button>
@@ -1386,17 +1412,6 @@
             </div>
 
             <button onclick={setCurrentEpochRange} disabled={loading}> Current Epoch </button>
-
-            <div class="search-control">
-                <label for="substring-filter">🔍</label>
-                <input
-                    type="text"
-                    id="substring-filter"
-                    bind:value={substringFilter}
-                    oninput={() => updateQueryParams()}
-                    placeholder="Filter by substring..."
-                />
-            </div>
         </div>
     </div>
 
@@ -1483,6 +1498,40 @@
         <!-- Transaction Graph -->
         <div class="graph-container">
             {#if viewMode === 'list'}
+                <div style="display: flex; justify-content: center; margin-bottom: 10px;">
+                    <div
+                        class="list-controls"
+                        style="display: flex; align-items: center; gap: 10px;"
+                    >
+                        <button
+                            onclick={() => {
+                                const newMode = displayMode === 'objects' ? 'commands' : 'objects';
+                                updatePageQueryParams({ displayMode: newMode });
+                            }}
+                            style="height: 32px; margin: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 1px solid #999; font-size: 14px; background: transparent; color: inherit; cursor: pointer;"
+                        >
+                            {displayMode === 'objects' ? '🔧 Show Commands' : '📦 Show Objects'}
+                        </button>
+                        <div
+                            class="search-control"
+                            style="display: flex; align-items: center; height: 32px;"
+                        >
+                            <label
+                                for="substring-filter"
+                                style="margin: 0 5px 0 0; font-size: 14px; display: flex; align-items: center; height: 100%; cursor: pointer;"
+                                >🔍</label
+                            >
+                            <input
+                                type="text"
+                                id="substring-filter"
+                                bind:value={substringFilter}
+                                oninput={() => updateQueryParams()}
+                                placeholder="Filter by substring..."
+                                style="height: 32px; margin: 0; padding: 0 8px; box-sizing: border-box; border: 1px solid #999; font-size: 14px; background: transparent; color: inherit;"
+                            />
+                        </div>
+                    </div>
+                </div>
                 {#if loading && transactions.size === 0}
                     <div class="loading-message">
                         <div class="spinner"></div>
@@ -1494,16 +1543,6 @@
                         above.
                     </div>
                 {:else}
-                    <div class="display-mode-toggle">
-                        <button
-                            onclick={() => {
-                                const newMode = displayMode === 'objects' ? 'commands' : 'objects';
-                                updatePageQueryParams({ displayMode: newMode });
-                            }}
-                        >
-                            {displayMode === 'objects' ? '🔧 Show Commands' : '📦 Show Objects'}
-                        </button>
-                    </div>
                     {#if displayMode === 'commands'}
                         <div class="commands-controls">
                             <div class="controls-group">
@@ -2289,23 +2328,6 @@
     button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
-    }
-
-    .display-mode-toggle {
-        margin-bottom: 1rem;
-        text-align: center;
-    }
-
-    .display-mode-toggle button {
-        background: rgba(30, 30, 40, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
-    }
-
-    .display-mode-toggle button:hover {
-        background: rgba(59, 130, 246, 0.2);
-        border-color: rgba(59, 130, 246, 0.5);
     }
 
     .error-message {
