@@ -40,7 +40,7 @@ html {
     background: linear-gradient(135deg, rgb(5, 8, 14) 0%, rgb(12, 17, 28) 100%);
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
+    overflow-x: visible;
     max-width: none !important;
 }
 

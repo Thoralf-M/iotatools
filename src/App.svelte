@@ -33,6 +33,7 @@
         Ed25519AddressGeneration: () => import('./lib/pages/Ed25519AddressGeneration.svelte'),
         IotaNames: () => import('./lib/pages/IotaNames.svelte'),
         Settings: () => import('./lib/pages/Settings.svelte'),
+        Txs: () => import('./lib/pages/Txs.svelte'),
         Impressum: () => import('./lib/pages/Impressum.svelte'),
         Datenschutz: () => import('./lib/pages/Datenschutz.svelte'),
     };
@@ -64,6 +65,7 @@
         '/address-generation': wrap({ asyncComponent: pageImports['Ed25519AddressGeneration'] }),
         '/iota-names': wrap({ asyncComponent: pageImports['IotaNames'] }),
         '/settings': wrap({ asyncComponent: pageImports['Settings'] }),
+        '/txs': wrap({ asyncComponent: pageImports['Txs'] }),
         '/impressum': wrap({ asyncComponent: pageImports['Impressum'] }),
         '/datenschutz': wrap({ asyncComponent: pageImports['Datenschutz'] }),
     };
@@ -76,6 +78,7 @@
         { label: 'PTBs', route: '/ptbs', group: 'Info' },
         { label: 'Dynamic Fields', route: '/dynamic-fields', group: 'Info' },
         { label: 'Staking Rewards', route: '/staking-rewards', group: 'Info' },
+        { label: 'Txs', route: '/txs', group: 'Info' },
         { label: 'Multi Account View', route: '/multi-account-view', group: 'Wallet' },
         { label: 'Accounts List', route: '/accounts-list', group: 'Wallet' },
         { label: 'Keystone', route: '/keystone', group: 'Wallet' },
@@ -152,6 +155,7 @@
                 '/address-generation': pageImports.Ed25519AddressGeneration,
                 '/iota-names': pageImports.IotaNames,
                 '/settings': pageImports.Settings,
+                '/txs': pageImports.Txs,
                 '/impressum': pageImports.Impressum,
                 '/datenschutz': pageImports.Datenschutz,
             }}
