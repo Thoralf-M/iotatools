@@ -679,6 +679,7 @@
     }
 
     function substituteTypeArgs(typeStr: string, typeArgs: string[]): string {
+        if (!typeStr) return 'unknown';
         return typeStr.replace(/\$(\d+)/g, (match, index) => {
             const idx = parseInt(index);
             return typeArgs[idx] || match;
@@ -692,6 +693,12 @@
         typeArgs: string[] = [],
     ): Segment[] {
         const segments: Segment[] = [];
+
+        // Handle null/undefined types
+        if (!type) {
+            segments.push({ type: 'text', value: 'unknown' });
+            return segments;
+        }
 
         // Handle reference types like &mut or &
         let refPrefix = '';

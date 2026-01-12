@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
     import cytoscape from 'cytoscape';
     // @ts-ignore
     import cytoscapeDagre from 'cytoscape-dagre';
@@ -8,10 +7,20 @@
     import ObjectView from '../../components/ObjectView.svelte';
     import { getTransactionData } from '../../components/transaction-view';
     import TransactionCommands from '../../components/TransactionCommands.svelte';
-    import TransactionView from '../../components/TransactionView.svelte';
     import { getClient, getSelectedNetworkConfig } from '../../utils/client';
     import { getAddressLink } from '../../utils/explorer-links';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
+    import {
+        fetchTransactionByDigest,
+        fetchTransactionsForAddress,
+        fetchTransactionsByInputObject,
+        fetchTransactionsByFunction,
+        fetchRecentTransactions,
+        type TransactionNode,
+        type CreatedObject,
+        type InputObject,
+        type MutatedObject
+    } from './fetchTransactions';
 
     cytoscape.use(cytoscapeDagre);
 
@@ -24,8 +33,10 @@
         afterCheckpoint: '',
         beforeCheckpoint: '',
         substringFilter: '',
-        displayMode: 'objects',
+        displayMode: 'commands',
         orderBy: 'newest',
+        functionFilter: '',
+        combineFunctionFilter: 'false',
     };
 
     const pageParams = usePageQueryParams(queryParamDefaults);
@@ -52,6 +63,8 @@
     let filterByObjectId = $state<string | null>(null);
     let filterByAddress = $state<string | null>(null);
     let substringFilter = $state('');
+    let functionFilter = $state('');
+    let combineFunctionFilter = $state(false);
 
     // Expand/collapse all state
     let allExpanded = $state(false);
@@ -75,38 +88,6 @@
     let graphElement = $state<HTMLElement>();
 
     // Transaction data
-    interface CreatedObject {
-        objectId: string;
-        objectType: string;
-        version: string;
-    }
-
-    interface InputObject {
-        objectId: string;
-        objectType: string;
-        version: string;
-        isGas?: boolean;
-    }
-
-    interface MutatedObject {
-        objectId: string;
-        objectType: string;
-        previousVersion: string;
-        version: string;
-    }
-
-    interface TransactionNode {
-        digest: string;
-        sender: string;
-        checkpoint: number;
-        timestamp: string;
-        createdObjects: CreatedObject[];
-        mutatedObjects: MutatedObject[];
-        deletedObjects: string[];
-        inputObjects: InputObject[];
-        recipients: string[]; // Addresses that received objects
-        rawData?: any; // Store raw tx data for substring search
-    }
 
     let transactions = $state<Map<string, TransactionNode>>(new Map());
 
@@ -252,6 +233,8 @@
     // Cursor tracking for pagination
     let addressCursors = $state<Map<string, string | null>>(new Map());
     let objectCursors = $state<Map<string, string | null>>(new Map());
+    let functionCursor = $state<string | null>(null);
+    let recentCursor = $state<string | null>(null);
 
     function parseInputList(input: string): string[] {
         return input
@@ -285,261 +268,8 @@
         return null;
     }
 
-    async function fetchTransactionByDigest(digest: string): Promise<TransactionNode | null> {
-        try {
-            const client = getClient();
-            const tx = await client.getTransactionBlock({
-                digest,
-                options: {
-                    showInput: true,
-                    showRawInput: true,
-                    showEffects: true,
-                    showObjectChanges: true,
-                },
-            });
 
-            if (!tx) return null;
 
-            const checkpoint = tx.checkpoint ? parseInt(tx.checkpoint) : 0;
-            const timestamp = tx.timestampMs || '';
-            const sender = tx.transaction?.data?.sender || '';
-
-            // Extract created objects
-            const createdObjects: CreatedObject[] = [];
-            const mutatedObjects: MutatedObject[] = [];
-            const deletedObjects: string[] = [];
-            const inputObjects: InputObject[] = [];
-            const recipients: string[] = [];
-
-            // Build a map of object types from objectChanges
-            const objectTypeMap = new Map<string, string>();
-            if (tx.objectChanges) {
-                for (const change of tx.objectChanges) {
-                    if ('objectId' in change && 'objectType' in change) {
-                        objectTypeMap.set(change.objectId, change.objectType || 'Unknown');
-                    }
-                    if (change.type === 'created') {
-                        createdObjects.push({
-                            objectId: change.objectId,
-                            objectType: change.objectType || 'Unknown',
-                            version: change.version || '',
-                        });
-                        // Track recipient if different from sender
-                        if ('owner' in change && typeof change.owner === 'object') {
-                            const owner = change.owner as any;
-                            if (owner.AddressOwner && owner.AddressOwner !== sender) {
-                                recipients.push(owner.AddressOwner);
-                            }
-                        }
-                    } else if (change.type === 'mutated') {
-                        mutatedObjects.push({
-                            objectId: change.objectId,
-                            objectType: change.objectType || 'Unknown',
-                            previousVersion: change.previousVersion || '',
-                            version: change.version || '',
-                        });
-                        // Track recipient if ownership changed
-                        if ('owner' in change && typeof change.owner === 'object') {
-                            const owner = change.owner as any;
-                            if (owner.AddressOwner && owner.AddressOwner !== sender) {
-                                recipients.push(owner.AddressOwner);
-                            }
-                        }
-                    } else if (change.type === 'deleted') {
-                        deletedObjects.push(change.objectId);
-                    }
-                }
-            }
-
-            // Extract input objects from transaction data
-            if (tx.transaction?.data?.transaction) {
-                const txData = tx.transaction.data.transaction as any;
-                if (txData.inputs) {
-                    for (const input of txData.inputs) {
-                        if (input.type === 'object' && input.objectId) {
-                            const objType = objectTypeMap.get(input.objectId) || 'Unknown';
-                            inputObjects.push({
-                                objectId: input.objectId,
-                                objectType: objType,
-                                version: String(input.version) || '',
-                            });
-                        }
-                    }
-                }
-            }
-
-            // Extract gas payment objects
-            if (tx.transaction?.data?.gasData?.payment) {
-                for (const gasCoin of tx.transaction.data.gasData.payment) {
-                    if (gasCoin.objectId) {
-                        const objType =
-                            objectTypeMap.get(gasCoin.objectId) ||
-                            '0x2::coin::Coin<0x2::iota::IOTA>';
-                        inputObjects.push({
-                            objectId: gasCoin.objectId,
-                            objectType: objType,
-                            version: String(gasCoin.version) || '',
-                            isGas: true,
-                        });
-                    }
-                }
-            }
-
-            return {
-                digest,
-                sender,
-                checkpoint,
-                timestamp,
-                createdObjects,
-                mutatedObjects,
-                deletedObjects,
-                inputObjects,
-                recipients: [...new Set(recipients)],
-                rawData: tx,
-            };
-        } catch (e: any) {
-            console.error(`Failed to fetch transaction ${digest}:`, e);
-            return null;
-        }
-    }
-
-    async function fetchTransactionsForAddress(
-        address: string,
-        limit: number,
-        cursor?: string | null,
-    ): Promise<{ txs: TransactionNode[]; nextCursor: string | null; hasMore: boolean }> {
-        const config = getSelectedNetworkConfig();
-        const graphqlClient = new IotaGraphQLClient({
-            url: config.graphql,
-        });
-
-        const isNewest = orderBy === 'newest';
-        const direction = isNewest ? 'last' : 'first';
-        const cursorParam = isNewest ? 'before' : 'after';
-        const cursorSection = cursor ? `, ${cursorParam}: "${cursor}"` : '';
-
-        // Build filter object
-        const filterParts = [`signAddress: $address`];
-        if (afterCheckpoint && afterCheckpoint.trim()) {
-            filterParts.push(`afterCheckpoint: ${parseInt(afterCheckpoint)}`);
-        }
-        if (beforeCheckpoint && beforeCheckpoint.trim()) {
-            filterParts.push(`beforeCheckpoint: ${parseInt(beforeCheckpoint)}`);
-        }
-        const filterStr = `{ ${filterParts.join(', ')} }`;
-
-        const result = await graphqlClient.query({
-            query: `
-                query GetTransactions($address: IotaAddress!, $limit: Int!) {
-                    transactionBlocks(
-                        filter: ${filterStr}
-                        ${direction}: $limit${cursorSection}
-                    ) {
-                        pageInfo {
-                            ${isNewest ? 'hasPreviousPage' : 'hasNextPage'}
-                            ${isNewest ? 'startCursor' : 'endCursor'}
-                        }
-                        nodes {
-                            digest
-                        }
-                    }
-                }
-            `,
-            variables: {
-                address,
-                limit,
-            },
-        });
-
-        const data = result.data as any;
-        const allDigests =
-            data?.transactionBlocks?.nodes?.map((n: any) => n.digest).filter(Boolean) || [];
-        // Limit to the requested number to ensure we don't fetch more than intended
-        const digests = allDigests.slice(0, limit);
-        const hasMore =
-            data?.transactionBlocks?.pageInfo?.[isNewest ? 'hasPreviousPage' : 'hasNextPage'] ||
-            false;
-        const nextCursor =
-            data?.transactionBlocks?.pageInfo?.[isNewest ? 'startCursor' : 'endCursor'] || null;
-
-        // Fetch full transaction details
-        const txs: TransactionNode[] = [];
-        for (const digest of digests) {
-            const tx = await fetchTransactionByDigest(digest);
-            if (tx) txs.push(tx);
-        }
-
-        return { txs, nextCursor, hasMore };
-    }
-
-    async function fetchTransactionsByInputObject(
-        objectId: string,
-        limit: number,
-        cursor?: string | null,
-    ): Promise<{ txs: TransactionNode[]; nextCursor: string | null; hasMore: boolean }> {
-        const config = getSelectedNetworkConfig();
-        const graphqlClient = new IotaGraphQLClient({
-            url: config.graphql,
-        });
-
-        // Build filter object
-        const filterParts = [`inputObject: $objectId`];
-        if (afterCheckpoint && afterCheckpoint.trim()) {
-            filterParts.push(`afterCheckpoint: ${parseInt(afterCheckpoint)}`);
-        }
-        if (beforeCheckpoint && beforeCheckpoint.trim()) {
-            filterParts.push(`beforeCheckpoint: ${parseInt(beforeCheckpoint)}`);
-        }
-        const filterStr = `{ ${filterParts.join(', ')} }`;
-
-        const isNewest = orderBy === 'newest';
-        const direction = isNewest ? 'last' : 'first';
-        const cursorParam = isNewest ? 'before' : 'after';
-        const cursorSection = cursor ? `, ${cursorParam}: "${cursor}"` : '';
-
-        const result = await graphqlClient.query({
-            query: `
-                query GetTransactionsByObject($objectId: IotaAddress!, $limit: Int!) {
-                    transactionBlocks(
-                        filter: ${filterStr}
-                        ${direction}: $limit${cursorSection}
-                    ) {
-                        pageInfo {
-                            ${isNewest ? 'hasPreviousPage' : 'hasNextPage'}
-                            ${isNewest ? 'startCursor' : 'endCursor'}
-                        }
-                        nodes {
-                            digest
-                        }
-                    }
-                }
-            `,
-            variables: {
-                objectId,
-                limit,
-            },
-        });
-
-        const data = result.data as any;
-        const allDigests =
-            data?.transactionBlocks?.nodes?.map((n: any) => n.digest).filter(Boolean) || [];
-        // Limit to the requested number to ensure we don't fetch more than intended
-        const digests = allDigests.slice(0, limit);
-        const hasMore =
-            data?.transactionBlocks?.pageInfo?.[isNewest ? 'hasPreviousPage' : 'hasNextPage'] ||
-            false;
-        const nextCursor =
-            data?.transactionBlocks?.pageInfo?.[isNewest ? 'startCursor' : 'endCursor'] || null;
-
-        // Fetch full transaction details
-        const txs: TransactionNode[] = [];
-        for (const digest of digests) {
-            const tx = await fetchTransactionByDigest(digest);
-            if (tx) txs.push(tx);
-        }
-
-        return { txs, nextCursor, hasMore };
-    }
 
     function addTransaction(tx: TransactionNode) {
         if (transactions.has(tx.digest)) return;
@@ -618,6 +348,21 @@
             const addresses = parseInputList(addressesInput);
             const limit = parseInt(fetchSize) || 5;
 
+            // If all input fields are empty, fetch recent transactions without any filter
+            if (txIds.length === 0 && objectIds.length === 0 && addresses.length === 0 && (!functionFilter || functionFilter.trim() === '')) {
+                const { txs, nextCursor } = await fetchRecentTransactions({
+                    limit,
+                    orderBy,
+                    afterCheckpoint,
+                    beforeCheckpoint
+                });
+                for (const tx of txs) {
+                    addTransaction(tx);
+                    addAddress(tx.sender);
+                }
+                recentCursor = nextCursor;
+            }
+
             // First, fetch provided transaction IDs and extract sender addresses
             for (const txId of txIds) {
                 const tx = await fetchTransactionByDigest(txId);
@@ -634,7 +379,14 @@
 
             // Fetch transactions for object IDs
             for (const objId of objectIds) {
-                const { txs, nextCursor } = await fetchTransactionsByInputObject(objId, limit);
+                const { txs, nextCursor } = await fetchTransactionsByInputObject(objId, {
+                    limit,
+                    orderBy,
+                    afterCheckpoint,
+                    beforeCheckpoint,
+                    combineFunctionFilter,
+                    functionFilter
+                });
                 for (const tx of txs) {
                     addTransaction(tx);
                     addAddress(tx.sender);
@@ -645,12 +397,35 @@
             // Fetch transactions for user-provided addresses only
             for (const [addr, state] of trackedAddresses) {
                 if (state.enabled && state.isUserProvided) {
-                    const { txs, nextCursor } = await fetchTransactionsForAddress(addr, limit);
+                    const { txs, nextCursor } = await fetchTransactionsForAddress(addr, {
+                        limit,
+                        orderBy,
+                        afterCheckpoint,
+                        beforeCheckpoint,
+                        combineFunctionFilter,
+                        functionFilter
+                    });
                     for (const tx of txs) {
                         addTransaction(tx);
                     }
                     addressCursors.set(addr, nextCursor);
                 }
+            }
+
+            // Fetch transactions by function filter if not combined and filter is provided
+            if (!combineFunctionFilter && functionFilter && functionFilter.trim()) {
+                const { txs, nextCursor } = await fetchTransactionsByFunction({
+                    limit,
+                    orderBy,
+                    afterCheckpoint,
+                    beforeCheckpoint,
+                    functionFilter
+                });
+                for (const tx of txs) {
+                    addTransaction(tx);
+                    addAddress(tx.sender);
+                }
+                functionCursor = nextCursor;
             }
 
             // Discover new addresses from recipients
@@ -681,15 +456,35 @@
         try {
             const limit = parseInt(fetchSize) || 5;
 
+            // Fetch more recent transactions if no specific filters were provided initially
+            if (recentCursor !== null) {
+                const { txs, nextCursor } = await fetchRecentTransactions({
+                    limit,
+                    cursor: recentCursor,
+                    orderBy,
+                    afterCheckpoint,
+                    beforeCheckpoint
+                });
+                for (const tx of txs) {
+                    addTransaction(tx);
+                    addAddress(tx.sender);
+                }
+                recentCursor = nextCursor;
+            }
+
             // Fetch more transactions for user-provided addresses
             for (const [addr, state] of trackedAddresses) {
                 if (state.enabled && state.isUserProvided) {
                     const cursor = addressCursors.get(addr);
-                    const { txs, nextCursor } = await fetchTransactionsForAddress(
-                        addr,
+                    const { txs, nextCursor } = await fetchTransactionsForAddress(addr, {
                         limit,
                         cursor,
-                    );
+                        orderBy,
+                        afterCheckpoint,
+                        beforeCheckpoint,
+                        combineFunctionFilter,
+                        functionFilter
+                    });
                     for (const tx of txs) {
                         addTransaction(tx);
                     }
@@ -701,16 +496,37 @@
             const objectIds = parseInputList(objectIdsInput);
             for (const objId of objectIds) {
                 const cursor = objectCursors.get(objId);
-                const { txs, nextCursor } = await fetchTransactionsByInputObject(
-                    objId,
+                const { txs, nextCursor } = await fetchTransactionsByInputObject(objId, {
                     limit,
                     cursor,
-                );
+                    orderBy,
+                    afterCheckpoint,
+                    beforeCheckpoint,
+                    combineFunctionFilter,
+                    functionFilter
+                });
                 for (const tx of txs) {
                     addTransaction(tx);
                     addAddress(tx.sender);
                 }
                 objectCursors.set(objId, nextCursor);
+            }
+
+            // Fetch more transactions by function filter if not combined
+            if (!combineFunctionFilter && functionFilter && functionFilter.trim()) {
+                const { txs, nextCursor } = await fetchTransactionsByFunction({
+                    limit,
+                    cursor: functionCursor,
+                    orderBy,
+                    afterCheckpoint,
+                    beforeCheckpoint,
+                    functionFilter
+                });
+                for (const tx of txs) {
+                    addTransaction(tx);
+                    addAddress(tx.sender);
+                }
+                functionCursor = nextCursor;
             }
 
             // Discover new addresses
@@ -720,6 +536,35 @@
         } finally {
             loading = false;
         }
+    }
+
+    function clearTransactions() {
+        transactions = new Map();
+        fullTransactionData = new Map();
+        objectTransactionMap = new Map();
+        trackedAddresses = new Map();
+        addressCursors = new Map();
+        objectCursors = new Map();
+        functionCursor = null;
+        recentCursor = null;
+        expandedTransactions = new Set();
+        expandedCreatedObjects = new Set();
+        expandedInputObjects = new Set();
+        expandedMutatedObjects = new Set();
+        allExpanded = false;
+        selectedTransaction = null;
+        selectedObjectId = null;
+        showTransactionPopup = false;
+        showObjectPopup = false;
+        hoveredObjectId = null;
+        sharedExpandedCommands = {};
+        error = '';
+        // Clear graph if it exists
+        if (cyInstance) {
+            cyInstance.destroy();
+            cyInstance = null;
+        }
+        // Note: Keeping filters and input settings intact
     }
 
     function toggleAddress(address: string) {
@@ -776,6 +621,8 @@
             afterCheckpoint: afterCheckpoint || null,
             beforeCheckpoint: beforeCheckpoint || null,
             substringFilter: substringFilter || null,
+            functionFilter: functionFilter || null,
+            combineFunctionFilter: combineFunctionFilter.toString(),
             orderBy: orderBy || null,
         });
     }
@@ -1261,6 +1108,8 @@
         if (params.afterCheckpoint) afterCheckpoint = params.afterCheckpoint;
         if (params.beforeCheckpoint) beforeCheckpoint = params.beforeCheckpoint;
         if (params.substringFilter) substringFilter = params.substringFilter;
+        if (params.functionFilter) functionFilter = params.functionFilter;
+        if (params.combineFunctionFilter !== undefined) combineFunctionFilter = params.combineFunctionFilter === 'true';
         if (params.orderBy) orderBy = params.orderBy as 'newest' | 'oldest';
 
         // Auto-process if any input is provided
@@ -1329,6 +1178,7 @@
                 type="text"
                 id="tx-ids"
                 bind:value={txIdsInput}
+                oninput={() => updateQueryParams()}
                 placeholder="Transaction digests (comma or newline separated)"
             />
         </div>
@@ -1339,6 +1189,7 @@
                 type="text"
                 id="object-ids"
                 bind:value={objectIdsInput}
+                oninput={() => updateQueryParams()}
                 placeholder="Object IDs to find transactions"
             />
         </div>
@@ -1349,9 +1200,34 @@
                 type="text"
                 id="addresses"
                 bind:value={addressesInput}
+                oninput={() => updateQueryParams()}
                 placeholder="Addresses to fetch transactions"
             />
         </div>
+
+        <div class="input-row">
+            <label for="function-filter"
+                >Function:</label
+            >
+            <input
+                type="text"
+                id="function-filter"
+                bind:value={functionFilter}
+                oninput={() => updateQueryParams()}
+                placeholder="e.g., 0x2::coin or 0x2::coin::split"
+            />
+        </div>
+
+        <div style="float: left;">
+            <label class="toggle-row">
+                <span class="toggle-label">Combine function filter with address/objects filter</span>
+                <div class="toggle-switch">
+                    <input type="checkbox" bind:checked={combineFunctionFilter} onchange={() => updateQueryParams()} />
+                    <span class="slider"></span>
+                </div>
+            </label>
+        </div>
+        <br/>
 
         <div class="controls-row">
             <button onclick={processInitialInputs} disabled={loading}>
@@ -1379,6 +1255,10 @@
 
             <button onclick={fetchMoreTransactions} disabled={loading || transactions.size === 0}>
                 {loading ? 'Loading...' : 'More'}
+            </button>
+
+            <button onclick={clearTransactions} disabled={transactions.size === 0}>
+                Clear
             </button>
 
             <button onclick={toggleExpandAll} disabled={sortedTransactions.length === 0}>
@@ -2352,7 +2232,7 @@
         background: rgba(30, 30, 40, 0.4);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 8px;
-        max-height: calc(100vh - 300px);
+        max-height: calc(100vh - 100px);
         overflow-y: auto;
     }
 
@@ -2931,6 +2811,61 @@
         cursor: pointer;
         user-select: none;
         font-size: 0.8rem;
+    }
+
+    .toggle-switch {
+        position: relative;
+        width: 36px;
+        height: 20px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-switch .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.2);
+        transition: 0.3s;
+        border-radius: 20px;
+    }
+
+    .toggle-switch .slider:before {
+        position: absolute;
+        content: '';
+        height: 14px;
+        width: 14px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.3s;
+        border-radius: 50%;
+    }
+
+    .toggle-switch input:checked + .slider {
+        background-color: rgba(59, 130, 246, 0.8);
+    }
+
+    .toggle-switch input:checked + .slider:before {
+        transform: translateX(16px);
+    }
+
+    .toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+    }
+
+    .toggle-label {
+        flex: 1;
     }
 
     .commands-controls .toggle-switch {
