@@ -325,7 +325,6 @@
     .json-view pre {
         margin: 0;
         background: var(--background-light);
-        backdrop-filter: blur(10px);
         padding: 0.75rem;
         border-radius: 6px;
         border: 1px solid var(--border-color);
@@ -337,7 +336,6 @@
 
     .tree-view {
         background: var(--background-light);
-        backdrop-filter: blur(10px);
         padding: 0.75rem;
         border-radius: 6px;
         border: 1px solid var(--border-color);
@@ -345,7 +343,6 @@
 
     .commands-view-container {
         background: var(--background-light);
-        backdrop-filter: blur(10px);
         padding: 0.75rem;
         border-radius: 6px;
         border: 1px solid var(--border-color);
@@ -371,7 +368,6 @@
     }
     .tx-bytes-view .wrap-bytes {
         background: var(--background-light);
-        backdrop-filter: blur(10px);
         padding: 0.75rem;
         border-radius: 6px;
         border: 1px solid var(--border-color);

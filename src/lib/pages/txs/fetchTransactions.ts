@@ -1,4 +1,5 @@
 import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
+
 import { getClient, getSelectedNetworkConfig } from '../../utils/client';
 
 // Transaction data interfaces
@@ -65,7 +66,11 @@ export async function fetchTransactionByDigest(digest: string): Promise<Transact
         const objectTypeMap = new Map<string, string>();
         if (tx.objectChanges) {
             for (const change of tx.objectChanges) {
-                if ((change.type === 'created' || change.type === 'mutated') && 'objectId' in change && 'objectType' in change) {
+                if (
+                    (change.type === 'created' || change.type === 'mutated') &&
+                    'objectId' in change &&
+                    'objectType' in change
+                ) {
                     objectTypeMap.set(change.objectId, change.objectType);
                 }
             }
@@ -80,7 +85,8 @@ export async function fetchTransactionByDigest(digest: string): Promise<Transact
                         const obj = input.Object.ImmOrOwnedObject;
                         inputObjects.push({
                             objectId: obj.objectId,
-                            objectType: obj.objectType || objectTypeMap.get(obj.objectId) || 'Unknown',
+                            objectType:
+                                obj.objectType || objectTypeMap.get(obj.objectId) || 'Unknown',
                             version: obj.version || '',
                             isGas: false,
                         });
@@ -113,7 +119,11 @@ export async function fetchTransactionByDigest(digest: string): Promise<Transact
                     if ((change as any).recipient && (change as any).recipient !== sender) {
                         recipients.push((change as any).recipient);
                     }
-                } else if (change.type === 'mutated' && 'objectId' in change && 'objectType' in change) {
+                } else if (
+                    change.type === 'mutated' &&
+                    'objectId' in change &&
+                    'objectType' in change
+                ) {
                     mutatedObjects.push({
                         objectId: change.objectId,
                         objectType: change.objectType,
@@ -158,7 +168,7 @@ async function fetchTransactionsWithFilter(
     filterParts: string[],
     variables: Record<string, any>,
     options: FetchTransactionsOptions,
-    scanLimit?: number
+    scanLimit?: number,
 ): Promise<{ txs: TransactionNode[]; nextCursor: string | null; hasMore: boolean }> {
     const config = getSelectedNetworkConfig();
     const graphqlClient = new IotaGraphQLClient({
@@ -202,8 +212,7 @@ async function fetchTransactionsWithFilter(
     // Limit to the requested number to ensure we don't fetch more than intended
     const digests = allDigests.slice(0, options.limit);
     const hasMore =
-        data?.transactionBlocks?.pageInfo?.[isNewest ? 'hasPreviousPage' : 'hasNextPage'] ||
-        false;
+        data?.transactionBlocks?.pageInfo?.[isNewest ? 'hasPreviousPage' : 'hasNextPage'] || false;
     const nextCursor =
         data?.transactionBlocks?.pageInfo?.[isNewest ? 'startCursor' : 'endCursor'] || null;
 
@@ -219,7 +228,7 @@ async function fetchTransactionsWithFilter(
 
 export async function fetchTransactionsForAddress(
     address: string,
-    options: FetchTransactionsOptions
+    options: FetchTransactionsOptions,
 ): Promise<{ txs: TransactionNode[]; nextCursor: string | null; hasMore: boolean }> {
     const filterParts = [`signAddress: $address`];
 
@@ -233,19 +242,17 @@ export async function fetchTransactionsForAddress(
         filterParts.push(`function: "${options.functionFilter.trim()}"`);
     }
 
-    const scanLimit = options.combineFunctionFilter && options.functionFilter && options.functionFilter.trim() ? 100000000 : undefined;
+    const scanLimit =
+        options.combineFunctionFilter && options.functionFilter && options.functionFilter.trim()
+            ? 100000000
+            : undefined;
 
-    return fetchTransactionsWithFilter(
-        filterParts,
-        { address },
-        options,
-        scanLimit
-    );
+    return fetchTransactionsWithFilter(filterParts, { address }, options, scanLimit);
 }
 
 export async function fetchTransactionsByInputObject(
     objectId: string,
-    options: FetchTransactionsOptions
+    options: FetchTransactionsOptions,
 ): Promise<{ txs: TransactionNode[]; nextCursor: string | null; hasMore: boolean }> {
     const filterParts = [`inputObject: $objectId`];
 
@@ -259,18 +266,16 @@ export async function fetchTransactionsByInputObject(
         filterParts.push(`function: "${options.functionFilter.trim()}"`);
     }
 
-    const scanLimit = options.combineFunctionFilter && options.functionFilter && options.functionFilter.trim() ? 100000000 : undefined;
+    const scanLimit =
+        options.combineFunctionFilter && options.functionFilter && options.functionFilter.trim()
+            ? 100000000
+            : undefined;
 
-    return fetchTransactionsWithFilter(
-        filterParts,
-        { objectId },
-        options,
-        scanLimit
-    );
+    return fetchTransactionsWithFilter(filterParts, { objectId }, options, scanLimit);
 }
 
 export async function fetchTransactionsByFunction(
-    options: FetchTransactionsOptions
+    options: FetchTransactionsOptions,
 ): Promise<{ txs: TransactionNode[]; nextCursor: string | null; hasMore: boolean }> {
     const filterParts = [`kind: PROGRAMMABLE_TX`, `function: "${options.functionFilter!.trim()}"`];
 
@@ -281,16 +286,11 @@ export async function fetchTransactionsByFunction(
         filterParts.push(`beforeCheckpoint: ${parseInt(options.beforeCheckpoint)}`);
     }
 
-    return fetchTransactionsWithFilter(
-        filterParts,
-        {},
-        options,
-        100000000
-    );
+    return fetchTransactionsWithFilter(filterParts, {}, options, 100000000);
 }
 
 export async function fetchRecentTransactions(
-    options: FetchTransactionsOptions
+    options: FetchTransactionsOptions,
 ): Promise<{ txs: TransactionNode[]; nextCursor: string | null; hasMore: boolean }> {
     const filterParts = [`kind: PROGRAMMABLE_TX`];
 
@@ -301,9 +301,5 @@ export async function fetchRecentTransactions(
         filterParts.push(`beforeCheckpoint: ${parseInt(options.beforeCheckpoint)}`);
     }
 
-    return fetchTransactionsWithFilter(
-        filterParts,
-        {},
-        options
-    );
+    return fetchTransactionsWithFilter(filterParts, {}, options);
 }

@@ -282,7 +282,6 @@
         text-decoration: none;
         font-weight: 500;
         transition: all 0.3s ease;
-        backdrop-filter: blur(5px);
     }
 
     .github-link:hover {

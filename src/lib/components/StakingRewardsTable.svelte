@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { List } from 'svelte-virtual';
+    import List from 'svelte-virtual/list';
 
     import type { ActionDetails, StakeObject, ValidatorInfo } from '../pages/staking-rewards/';
     import pricesCache from '../pages/staking-rewards/cache/iota-prices-coingecko.json';
@@ -455,9 +455,9 @@
 
         <!-- Virtual scrolling body -->
         <div class="table-body" use:setupScrollSync>
-            {#key epochData}
-                <List bind:this={listElement} itemCount={epochs.length} itemSize={50} {height}>
-                    <div slot="item" let:index let:style {style} class="table-row">
+            <List bind:this={listElement} itemCount={epochs.length} itemSize={50} {height}>
+                {#snippet item({ index, style })}
+                    <div {style} class="table-row">
                         <div class="data-row">
                             <div class="table-cell epoch-cell">{epochs[index]}</div>
                             <div class="table-cell end-date-cell">
@@ -665,8 +665,8 @@
                             {/each}
                         </div>
                     </div>
-                </List>
-            {/key}
+                {/snippet}
+            </List>
         </div>
     </div>
 </div>

@@ -235,7 +235,6 @@
         font-weight: 400;
         cursor: pointer;
         transition: all 0.2s ease;
-        backdrop-filter: blur(3px);
         min-width: 120px;
         height: 32px;
     }
@@ -281,7 +280,6 @@
         font-weight: 400;
         width: 100%;
         transition: all 0.2s ease;
-        backdrop-filter: blur(3px);
         height: 100%;
     }
 

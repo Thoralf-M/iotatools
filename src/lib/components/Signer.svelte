@@ -280,7 +280,6 @@
 <style>
     .signer-container {
         background: rgba(31, 41, 55, 0.6);
-        backdrop-filter: blur(5px);
         border: 1px solid rgba(156, 163, 175, 0.15);
         border-radius: 8px;
         padding: 0.5rem 0.75rem;
@@ -336,7 +335,6 @@
         font-weight: 400;
         cursor: pointer;
         transition: all 0.2s ease;
-        backdrop-filter: blur(3px);
     }
 
     .select-input:focus,
@@ -443,7 +441,6 @@
         font-size: 0.8rem;
         font-weight: 400;
         transition: all 0.2s ease;
-        backdrop-filter: blur(3px);
         font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
     }
 
