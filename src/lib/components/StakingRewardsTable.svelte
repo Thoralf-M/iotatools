@@ -455,8 +455,8 @@
 
         <!-- Virtual scrolling body -->
         <div class="table-body" use:setupScrollSync>
-                <List bind:this={listElement} itemCount={epochs.length} itemSize={50} {height}>
-                    {#snippet item({ index, style })}
+            <List bind:this={listElement} itemCount={epochs.length} itemSize={50} {height}>
+                {#snippet item({ index, style })}
                     <div {style} class="table-row">
                         <div class="data-row">
                             <div class="table-cell epoch-cell">{epochs[index]}</div>
@@ -665,9 +665,9 @@
                             {/each}
                         </div>
                     </div>
-                    {/snippet}
-                </List>
-            </div>
+                {/snippet}
+            </List>
+        </div>
     </div>
 </div>
 
