@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
+    import { graphql } from '@iota/iota-sdk/graphql/schemas/2025.2';
     import cytoscape from 'cytoscape';
     // @ts-ignore
     import cytoscapeDagre from 'cytoscape-dagre';
@@ -11,14 +13,12 @@
     import { getClient, getSelectedNetworkConfig } from '../../utils/client';
     import { getAddressLink } from '../../utils/explorer-links';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
-    import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
-    import { graphql } from '@iota/iota-sdk/graphql/schemas/2025.2';
     import {
-        fetchTransactionByDigest,
-        fetchTransactionsForAddress,
-        fetchTransactionsByInputObject,
-        fetchTransactionsByFunction,
         fetchRecentTransactions,
+        fetchTransactionByDigest,
+        fetchTransactionsByFunction,
+        fetchTransactionsByInputObject,
+        fetchTransactionsForAddress,
         type TransactionNode,
     } from './fetchTransactions';
 
@@ -268,9 +268,6 @@
         return null;
     }
 
-
-
-
     function addTransaction(tx: TransactionNode) {
         if (transactions.has(tx.digest)) return;
 
@@ -349,12 +346,17 @@
             const limit = parseInt(fetchSize) || 5;
 
             // If all input fields are empty, fetch recent transactions without any filter
-            if (txIds.length === 0 && objectIds.length === 0 && addresses.length === 0 && (!functionFilter || functionFilter.trim() === '')) {
+            if (
+                txIds.length === 0 &&
+                objectIds.length === 0 &&
+                addresses.length === 0 &&
+                (!functionFilter || functionFilter.trim() === '')
+            ) {
                 const { txs, nextCursor } = await fetchRecentTransactions({
                     limit,
                     orderBy,
                     afterCheckpoint,
-                    beforeCheckpoint
+                    beforeCheckpoint,
                 });
                 for (const tx of txs) {
                     addTransaction(tx);
@@ -385,7 +387,7 @@
                     afterCheckpoint,
                     beforeCheckpoint,
                     combineFunctionFilter,
-                    functionFilter
+                    functionFilter,
                 });
                 for (const tx of txs) {
                     addTransaction(tx);
@@ -403,7 +405,7 @@
                         afterCheckpoint,
                         beforeCheckpoint,
                         combineFunctionFilter,
-                        functionFilter
+                        functionFilter,
                     });
                     for (const tx of txs) {
                         addTransaction(tx);
@@ -419,7 +421,7 @@
                     orderBy,
                     afterCheckpoint,
                     beforeCheckpoint,
-                    functionFilter
+                    functionFilter,
                 });
                 for (const tx of txs) {
                     addTransaction(tx);
@@ -463,7 +465,7 @@
                     cursor: recentCursor,
                     orderBy,
                     afterCheckpoint,
-                    beforeCheckpoint
+                    beforeCheckpoint,
                 });
                 for (const tx of txs) {
                     addTransaction(tx);
@@ -483,7 +485,7 @@
                         afterCheckpoint,
                         beforeCheckpoint,
                         combineFunctionFilter,
-                        functionFilter
+                        functionFilter,
                     });
                     for (const tx of txs) {
                         addTransaction(tx);
@@ -503,7 +505,7 @@
                     afterCheckpoint,
                     beforeCheckpoint,
                     combineFunctionFilter,
-                    functionFilter
+                    functionFilter,
                 });
                 for (const tx of txs) {
                     addTransaction(tx);
@@ -520,7 +522,7 @@
                     orderBy,
                     afterCheckpoint,
                     beforeCheckpoint,
-                    functionFilter
+                    functionFilter,
                 });
                 for (const tx of txs) {
                     addTransaction(tx);
@@ -584,7 +586,10 @@
             // Get current epoch
             const epochQuery = `query { epoch { epochId } }`;
             // @ts-ignore
-            const epochResult = await gqlClient.query({ query: graphql(epochQuery), variables: {} });
+            const epochResult = await gqlClient.query({
+                query: graphql(epochQuery),
+                variables: {},
+            });
             // @ts-ignore
             if (epochResult.errors) {
                 throw new Error(`GraphQL errors: ${JSON.stringify(epochResult.errors)}`);
@@ -1136,7 +1141,8 @@
         if (params.beforeCheckpoint) beforeCheckpoint = params.beforeCheckpoint;
         if (params.substringFilter) substringFilter = params.substringFilter;
         if (params.functionFilter) functionFilter = params.functionFilter;
-        if (params.combineFunctionFilter !== undefined) combineFunctionFilter = params.combineFunctionFilter === 'true';
+        if (params.combineFunctionFilter !== undefined)
+            combineFunctionFilter = params.combineFunctionFilter === 'true';
         if (params.orderBy) orderBy = params.orderBy as 'newest' | 'oldest';
 
         // Auto-process if any input is provided
@@ -1233,9 +1239,7 @@
         </div>
 
         <div class="input-row">
-            <label for="function-filter"
-                >Function:</label
-            >
+            <label for="function-filter">Function:</label>
             <input
                 type="text"
                 id="function-filter"
@@ -1247,14 +1251,19 @@
 
         <div style="float: left;">
             <label class="toggle-row">
-                <span class="toggle-label">Combine function filter with address/objects filter</span>
+                <span class="toggle-label">Combine function filter with address/objects filter</span
+                >
                 <div class="toggle-switch">
-                    <input type="checkbox" bind:checked={combineFunctionFilter} onchange={() => updateQueryParams()} />
+                    <input
+                        type="checkbox"
+                        bind:checked={combineFunctionFilter}
+                        onchange={() => updateQueryParams()}
+                    />
                     <span class="slider"></span>
                 </div>
             </label>
         </div>
-        <br/>
+        <br />
 
         <div class="controls-row">
             <button onclick={processInitialInputs} disabled={loading}>
@@ -1284,9 +1293,7 @@
                 {loading ? 'Loading...' : 'More'}
             </button>
 
-            <button onclick={clearTransactions} disabled={transactions.size === 0}>
-                Clear
-            </button>
+            <button onclick={clearTransactions} disabled={transactions.size === 0}> Clear </button>
 
             <button onclick={toggleExpandAll} disabled={sortedTransactions.length === 0}>
                 {allExpanded ? '⊟ Collapse All' : '⊞ Expand All'}

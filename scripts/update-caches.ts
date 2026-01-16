@@ -6,13 +6,13 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { defaultClientConfig } from '../src/lib/utils/default-client-config.js';
 import {
     setInitialExchangeRateCache,
     updateExchangeRatesCache,
     updateTimestampsCache,
 } from '../src/lib/pages/staking-rewards/graphql-requests.js';
 import { updatePricesCache } from '../src/lib/pages/staking-rewards/price-fetching.js';
+import { defaultClientConfig } from '../src/lib/utils/default-client-config.js';
 
 global.localStorage = {
     getItem: (key) => {
@@ -32,9 +32,9 @@ global.localStorage = {
         }
         return null;
     },
-    setItem: () => { },
-    removeItem: () => { },
-    clear: () => { },
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {},
     get length() {
         return 0;
     },

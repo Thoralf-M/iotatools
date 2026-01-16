@@ -102,7 +102,6 @@
     .pageBox {
         padding: 0.2rem;
         background: rgba(24, 29, 37, 0.8);
-        backdrop-filter: blur(10px);
         border: 1px solid rgba(156, 163, 175, 0.2);
         border-radius: 16px16px 16px 16px;
         box-shadow:
@@ -136,7 +135,6 @@
         background: rgba(18, 23, 31, 0.8);
         color: rgba(255, 255, 255, 0.8);
         transition: all 0.3s ease;
-        backdrop-filter: blur(5px);
         position: relative;
         overflow: hidden;
         word-break: break-word;
