@@ -10,7 +10,6 @@ import { getClient } from './client';
 import {
     keypairFromBech32PrivateKey,
     toWalletAccounts,
-    type PrivateKeyAccounts,
 } from './default-private-keys';
 import {
     sharedExternalAddresses,

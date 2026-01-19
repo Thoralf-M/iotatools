@@ -89,10 +89,10 @@ export enum SignerType {
     ExternalAddress = 'ExternalAddress',
 }
 
-export const selectedSignerType = writable<SignerType>(SignerType.Localstorage);
+export const selectedSignerType = writable<SignerType>(SignerType.WebWallet);
 export const sharedSignerType: Writable<SignerType> = persistentWritableStore(
     SELECTED_SIGNER_TYPE_KEY,
-    SignerType.Localstorage,
+    SignerType.WebWallet,
     (value: any) => {
         if (typeof value !== 'string' || !Object.values(SignerType).includes(value as SignerType)) {
             throw new Error(
