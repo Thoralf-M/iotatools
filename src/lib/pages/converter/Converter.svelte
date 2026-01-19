@@ -19,6 +19,7 @@
 
     // Query parameter integration
     const queryParamDefaults = {
+        bytes: '',
         hex: '',
         base58: '',
         base64: '',
@@ -63,7 +64,10 @@
     // Initialize values from query parameters
     onMount(() => {
         const params = $pageParams;
-        if (params.hex) {
+        if (params.bytes) {
+            bytes = params.bytes;
+            convert(SourceType.Bytes);
+        } else if (params.hex) {
             hex = params.hex;
             convert(SourceType.Hex);
         } else if (params.base58) {
@@ -283,6 +287,7 @@
 
         // Update query parameters based on which field was the source
         const queryUpdates: Record<string, string | null> = {
+            bytes: null,
             hex: null,
             base58: null,
             base64: null,
@@ -291,6 +296,9 @@
         };
 
         switch (+source) {
+            case SourceType.Bytes:
+                if (bytes) queryUpdates.bytes = bytes;
+                break;
             case SourceType.Hex:
                 if (hex) queryUpdates.hex = hex;
                 break;
