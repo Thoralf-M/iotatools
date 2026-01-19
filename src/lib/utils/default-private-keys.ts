@@ -1,10 +1,8 @@
-import type { IotaTransactionBlockResponse } from '@iota/iota-sdk/client';
 import { decodeIotaPrivateKey, Keypair } from '@iota/iota-sdk/cryptography';
 import { Ed25519Keypair } from '@iota/iota-sdk/keypairs/ed25519';
 import { Secp256k1Keypair } from '@iota/iota-sdk/keypairs/secp256k1';
 import { Secp256r1Keypair } from '@iota/iota-sdk/keypairs/secp256r1';
-import type { Transaction } from '@iota/iota-sdk/transactions';
-import type { IotaSignAndExecuteTransactionInput, WalletAccount } from '@iota/wallet-standard';
+import type { WalletAccount } from '@iota/wallet-standard';
 
 export interface PrivateKeyAccounts {
     accounts: Record<string, PrivateKeyAccount>; // key is the address

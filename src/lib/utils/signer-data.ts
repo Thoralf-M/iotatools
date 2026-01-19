@@ -7,11 +7,7 @@ import type { IotaSignAndExecuteTransactionInput, WalletAccount } from '@iota/wa
 import { get, writable, type Writable } from 'svelte/store';
 
 import { getClient } from './client';
-import {
-    keypairFromBech32PrivateKey,
-    toWalletAccounts,
-    type PrivateKeyAccounts,
-} from './default-private-keys';
+import { keypairFromBech32PrivateKey, toWalletAccounts } from './default-private-keys';
 import {
     sharedExternalAddresses,
     sharedPrivateKeyAccounts,
