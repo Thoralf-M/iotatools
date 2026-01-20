@@ -183,9 +183,19 @@ async function fetchTransactionsWithFilter(
     const filterStr = `{ ${filterParts.join(', ')} }`;
     const scanLimitStr = scanLimit ? `, scanLimit: ${scanLimit}` : '';
 
+    // Build variable declarations for the GraphQL query
+    const variableDeclarations = ['$limit: Int!'];
+    if (variables.address !== undefined) {
+        variableDeclarations.push('$address: IotaAddress!');
+    }
+    if (variables.objectId !== undefined) {
+        variableDeclarations.push('$objectId: IotaAddress!');
+    }
+    const variableDeclarationsStr = variableDeclarations.join(', ');
+
     const result = await graphqlClient.query({
         query: `
-            query GetTransactions($limit: Int!) {
+            query GetTransactions(${variableDeclarationsStr}) {
                 transactionBlocks(
                     filter: ${filterStr}
                     ${direction}: $limit${cursorSection}${scanLimitStr}
