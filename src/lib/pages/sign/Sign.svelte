@@ -14,6 +14,9 @@
     import type { SignaturePubkeyPair } from './sign-utils';
     import { verifySignature } from './sign-utils';
 
+    // Constant for signature separator
+    const SIGNATURE_SEPARATOR = '\n';
+
     // Use query parameters for the transaction bytes
     const queryParamValues = usePageQueryParams({
         tx: '', // Query parameter for transaction bytes
@@ -94,8 +97,8 @@
                 
                 // Automatically extract and display signatures from signed transaction
                 if (parsedData && parsedData.txSignatures && parsedData.txSignatures.length > 0) {
-                    // Join multiple signatures with newlines for display
-                    signatureResult = parsedData.txSignatures.join('\n');
+                    // Join multiple signatures with separator for display
+                    signatureResult = parsedData.txSignatures.join(SIGNATURE_SEPARATOR);
                     signatureTypeLabel = 'Transaction Signature (from signed tx)';
                     
                     // Trigger signature verification

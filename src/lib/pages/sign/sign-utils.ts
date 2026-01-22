@@ -9,6 +9,9 @@ import {
     verifyTransactionSignature,
 } from '@iota/iota-sdk/verify';
 
+// Constant for signature separator
+const SIGNATURE_SEPARATOR = '\n';
+
 export interface SignaturePubkeyPair {
     signatureScheme: string;
     publicKey: any; // PublicKey type
@@ -20,6 +23,41 @@ export interface VerificationResult {
     status: 'valid' | 'invalid' | 'checking' | null;
     error: string;
     pubkeyPairs: SignaturePubkeyPair[] | null;
+}
+
+/**
+ * Determines the role of a signature based on address matching and position
+ */
+function determineSignatureRole(
+    signerAddress: string,
+    senderAddress: string | null,
+    gasSponsorAddress: string | null,
+    signatureIndex: number,
+    totalSignatures: number,
+): 'sender' | 'gas_sponsor' | 'unknown' {
+    // First try exact address matching
+    if (senderAddress && signerAddress === senderAddress) {
+        return 'sender';
+    }
+    if (gasSponsorAddress && signerAddress === gasSponsorAddress && gasSponsorAddress !== senderAddress) {
+        return 'gas_sponsor';
+    }
+    
+    // Fallback to position-based heuristics when addresses don't match
+    if (totalSignatures === 1) {
+        // Single signature is assumed to be sender
+        return 'sender';
+    }
+    if (signatureIndex === 0) {
+        // First signature is typically sender
+        return 'sender';
+    }
+    if (signatureIndex === 1) {
+        // Second signature is typically gas sponsor
+        return 'gas_sponsor';
+    }
+    
+    return 'unknown';
 }
 
 export async function verifySignature(
@@ -39,8 +77,8 @@ export async function verifySignature(
             return { status, error, pubkeyPairs };
         }
 
-        // Check if we have multiple signatures (separated by newlines)
-        const signatureLines = signatureString.split('\n').filter(line => line.trim());
+        // Check if we have multiple signatures (separated by SIGNATURE_SEPARATOR)
+        const signatureLines = signatureString.split(SIGNATURE_SEPARATOR).filter(line => line.trim());
         
         // Extract sender and gas sponsor addresses from transaction if available
         let senderAddress: string | null = null;
@@ -85,29 +123,21 @@ export async function verifySignature(
                         signatureScheme: sig.signatureScheme,
                         publicKey: sig.publicKey,
                         signature: sig.signature,
-                        role: 'unknown' as const,
+                        role: 'unknown' as 'sender' | 'gas_sponsor' | 'unknown',
                     })));
                 } else {
                     // Single signature
                     const pubKey = publicKeyFromRawBytes(parsed.signatureScheme, parsed.publicKey);
                     const address = pubKey.toIotaAddress();
                     
-                    // Determine role based on address matching
-                    let role: 'sender' | 'gas_sponsor' | 'unknown' = 'unknown';
-                    if (senderAddress && address === senderAddress) {
-                        role = 'sender';
-                    } else if (gasSponsorAddress && address === gasSponsorAddress && gasSponsorAddress !== senderAddress) {
-                        role = 'gas_sponsor';
-                    } else if (i === 0 && signatureLines.length === 1) {
-                        // If only one signature and we have no address info, assume sender
-                        role = 'sender';
-                    } else if (i === 0) {
-                        // First signature is typically sender
-                        role = 'sender';
-                    } else if (i === 1) {
-                        // Second signature is typically gas sponsor
-                        role = 'gas_sponsor';
-                    }
+                    // Determine role based on address matching and position
+                    const role = determineSignatureRole(
+                        address,
+                        senderAddress,
+                        gasSponsorAddress,
+                        i,
+                        signatureLines.length,
+                    );
                     
                     allPubkeyPairs.push({
                         signatureScheme: parsed.signatureScheme,
