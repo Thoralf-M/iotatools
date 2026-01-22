@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { fromBase64 } from '@iota/bcs';
+    import { fromBase64, toBase64 } from '@iota/bcs';
     import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
     import { Transaction, TransactionDataBuilder } from '@iota/iota-sdk/transactions';
     import { get } from 'svelte/store';
@@ -27,6 +27,7 @@
     let signatureTypeLabel = '';
     let txBytesInput = '';
     let dryRunResult: any;
+    let signedTxBytes = ''; // New: stores the combined signed transaction bytes
 
     // Signature verification state
     let signatureVerificationStatus: 'valid' | 'invalid' | 'checking' | null = null;
@@ -201,11 +202,59 @@
         signaturePubkeyPairs = result.pubkeyPairs;
     }
 
+    // Function to create signed transaction bytes by combining tx bytes with signature
+    function createSignedTxBytes() {
+        try {
+            if (!txBytesInput.trim() || !signatureResult.trim()) {
+                signedTxBytes = '';
+                return;
+            }
+
+            // Get the raw transaction bytes (unsigned)
+            const txBytes = fromBase64(txBytesInput.trim());
+            
+            // Create intent (3 bytes: scope=0, version=0, appId=0)
+            const intent = new Uint8Array([0, 0, 0]);
+            
+            // Get signature bytes
+            const signatureBytes = fromBase64(signatureResult.trim());
+            
+            // Build SenderSignedData manually:
+            // [intent (3 bytes)] + [txBytes] + [ULEB length] + [signature]
+            
+            // Calculate total size
+            const totalSize = intent.length + txBytes.length + 1 + 1 + signatureBytes.length;
+            const result = new Uint8Array(totalSize);
+            
+            let offset = 0;
+            
+            // Copy intent
+            result.set(intent, offset);
+            offset += intent.length;
+            
+            // Copy transaction bytes
+            result.set(txBytes, offset);
+            offset += txBytes.length;
+            
+            // Write number of signatures (ULEB128 - for 1 signature, just 0x01)
+            result[offset++] = 1;
+            
+            // Copy signature bytes
+            result.set(signatureBytes, offset);
+            
+            signedTxBytes = toBase64(result);
+        } catch (e) {
+            console.error('Error creating signed transaction bytes:', e);
+            signedTxBytes = '';
+        }
+    }
+
     // Watch for changes to signature and trigger verification with debouncing
     $: {
         if (signatureResult.trim() === '') {
             signatureVerificationStatus = null;
             signaturePubkeyPairs = null;
+            signedTxBytes = '';
         } else {
             // Clear any pending verification
             if (verificationTimeout) {
@@ -215,6 +264,8 @@
             verificationTimeout = setTimeout(() => {
                 verifySignatureLocal();
             }, 300);
+            // Create signed transaction bytes
+            createSignedTxBytes();
         }
     }
 
@@ -397,6 +448,32 @@
                         </div>
                     </div>
                 {/each}
+            </div>
+        {/if}
+
+        <!-- Signed Transaction Bytes Output -->
+        {#if signedTxBytes}
+            <div style="margin-top: 20px;">
+                <div style="margin-bottom: 6px; font-weight: bold; display: flex; align-items: center; gap: 10px;">
+                    Signed Transaction Bytes
+                    <button
+                        class="copy-button"
+                        onclick={async () => await copyToClipboard(signedTxBytes)}
+                        style="padding: 4px 10px; font-size: 12px;"
+                    >
+                        Copy
+                    </button>
+                </div>
+                <textarea
+                    value={signedTxBytes}
+                    readonly
+                    placeholder="Signed transaction bytes (base64)"
+                    class="signature-textarea"
+                    style="background: #f5f5f5; cursor: text;"
+                ></textarea>
+                <div style="margin-top: 4px; font-size: 12px; color: #666;">
+                    This combines the transaction bytes with the signature and can be submitted to the network.
+                </div>
             </div>
         {/if}
 
