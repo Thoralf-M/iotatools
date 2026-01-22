@@ -31,7 +31,7 @@
             gasSponsorAddress = transactionData.gasData?.owner;
         }
 
-        signatures.forEach((sigString, index) => {
+        signatures.forEach((sigString: string, index: number) => {
             try {
                 const parsed = parseSerializedSignature(sigString);
 
@@ -47,10 +47,7 @@
                         });
                     });
                 } else {
-                    const pubKey = publicKeyFromRawBytes(
-                        parsed.signatureScheme,
-                        parsed.publicKey,
-                    );
+                    const pubKey = publicKeyFromRawBytes(parsed.signatureScheme, parsed.publicKey);
                     const address = pubKey.toIotaAddress();
 
                     // Determine role
@@ -95,7 +92,9 @@
         {#each parsedSignatures as sig, index}
             <div class="signature-item">
                 <div class="signature-header">
-                    <span class="signature-title">Signature #{index + 1} ({sig.signatureScheme})</span>
+                    <span class="signature-title"
+                        >Signature #{index + 1} ({sig.signatureScheme})</span
+                    >
                     {#if sig.role === 'sender'}
                         <span class="role-badge sender">Sender</span>
                     {:else if sig.role === 'gas_sponsor'}
@@ -222,7 +221,7 @@
     .role-badge {
         font-size: 11px;
         padding: 3px 10px;
-        border-radius: 12px;
+        border-radius: 4px;
         font-weight: 500;
     }
 

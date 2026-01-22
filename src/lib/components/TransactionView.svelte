@@ -24,18 +24,28 @@
             new URLSearchParams(window.location.hash.split('?')[1] || '').get('commandIndex') || '',
         ) || null,
     );
-    let hidden = $derived(!value || !Object.keys(value || {}).length);
+    let hidden = $derived(
+        !value || (typeof value === 'object' && !Object.keys(value || {}).length),
+    );
     let isDryRunning = $state(false);
     let dryRunError = $state('');
 
     let hasTxBytes = $derived(
         value &&
-            typeof value === 'object' &&
-            (('transactionBytes' in value && value.transactionBytes) ||
-                ('bytes' in value && value.bytes)),
+            (typeof value === 'string' ||
+                (typeof value === 'object' &&
+                    (('transactionBytes' in value && value.transactionBytes) ||
+                        ('rawTransaction' in value && value.rawTransaction) ||
+                        ('bytes' in value && value.bytes) ||
+                        isTransactionData(value)))),
     );
 
-    let txBytes = $derived(value.transactionBytes || value.bytes);
+    // Derived values for transaction bytes display
+    let signedTxBytes = $derived(value?.rawTransaction || '');
+    let unsignedTxBytes = $derived(value?.transactionBytes || value?.bytes || '');
+    let txBytes = $derived(
+        unsignedTxBytes || signedTxBytes || (typeof value === 'string' ? value : ''),
+    );
 
     let hasDryRunResults = $derived(
         value && typeof value === 'object' && 'effects' in value && value.effects,
@@ -45,9 +55,9 @@
 
     // Check if transaction has signatures
     let hasSignatures = $derived(
-        transactionData?.signatures && 
-        Array.isArray(transactionData.signatures) && 
-        transactionData.signatures.length > 0
+        transactionData?.signatures &&
+            Array.isArray(transactionData.signatures) &&
+            transactionData.signatures.length > 0,
     );
 
     $effect(() => {
@@ -230,17 +240,78 @@
 
         {#if viewMode === 'txbytes' && hasTxBytes}
             <div class="tx-bytes-view">
-                <button class="copy-btn" onclick={() => navigator.clipboard.writeText(txBytes)}>
-                    Copy Bytes
-                </button>
-                <pre class="wrap-bytes">{txBytes}</pre>
+                {#if unsignedTxBytes}
+                    <div class="tx-bytes-section">
+                        <div class="tx-bytes-header">
+                            <strong>Unsigned Transaction (TransactionData)</strong>
+                            <button
+                                class="copy-btn"
+                                onclick={() => navigator.clipboard.writeText(unsignedTxBytes)}
+                            >
+                                Copy
+                            </button>
+                        </div>
+                        <pre class="wrap-bytes">{unsignedTxBytes}</pre>
+                    </div>
+                {:else if txBytes && !signedTxBytes}
+                    <div class="tx-bytes-section">
+                        <div class="tx-bytes-header">
+                            <strong>Transaction Bytes</strong>
+                            <button
+                                class="copy-btn"
+                                onclick={() => navigator.clipboard.writeText(txBytes)}
+                            >
+                                Copy
+                            </button>
+                        </div>
+                        <pre class="wrap-bytes">{txBytes}</pre>
+                    </div>
+                {/if}
+                {#if transactionData?.signatures && Array.isArray(transactionData.signatures) && transactionData.signatures.length > 0}
+                    <div class="tx-bytes-section">
+                        <div class="tx-bytes-header">
+                            <strong
+                                >Signature{transactionData.signatures.length > 1 ? 's' : ''} ({transactionData
+                                    .signatures.length})</strong
+                            >
+                            <button
+                                class="copy-btn"
+                                onclick={() =>
+                                    navigator.clipboard.writeText(
+                                        transactionData.signatures.join('\n'),
+                                    )}
+                            >
+                                Copy All
+                            </button>
+                        </div>
+                        {#each transactionData.signatures as sig, i}
+                            <div class="signature-item">
+                                {#if transactionData.signatures.length > 1}
+                                    <span class="signature-label">#{i + 1}</span>
+                                {/if}
+                                <pre class="wrap-bytes">{sig}</pre>
+                            </div>
+                        {/each}
+                    </div>
+                {/if}
+                {#if signedTxBytes}
+                    <div class="tx-bytes-section">
+                        <div class="tx-bytes-header">
+                            <strong>Signed Transaction (SenderSignedData)</strong>
+                            <button
+                                class="copy-btn"
+                                onclick={() => navigator.clipboard.writeText(signedTxBytes)}
+                            >
+                                Copy
+                            </button>
+                        </div>
+                        <pre class="wrap-bytes">{signedTxBytes}</pre>
+                    </div>
+                {/if}
             </div>
         {:else if viewMode === 'signatures' && hasSignatures}
             <div class="signatures-view">
-                <TransactionSignatures 
-                    signatures={transactionData.signatures} 
-                    {transactionData}
-                />
+                <TransactionSignatures signatures={transactionData.signatures} {transactionData} />
             </div>
         {:else if viewMode === 'formatted' && isTransactionData(value)}
             <div class="formatted-view">
@@ -379,6 +450,31 @@
     .tx-bytes-view {
         display: flex;
         flex-direction: column;
+        gap: 1rem;
+    }
+    .tx-bytes-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    .tx-bytes-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .signature-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    .signature-item .signature-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        min-width: 1.5rem;
+        padding-top: 0.75rem;
+    }
+    .signature-item .wrap-bytes {
+        flex: 1;
     }
     .tx-bytes-view .copy-btn {
         align-self: flex-start;
@@ -399,13 +495,6 @@
         padding: 0.75rem;
         border-radius: 6px;
 
-    .signatures-view {
-        background: var(--background-light);
-        padding: 0.75rem;
-        border-radius: 6px;
-        border: 1px solid var(--border-color);
-        overflow-x: auto;
-    }
         border: 1px solid var(--border-color);
         font-size: 0.75rem;
         color: #ffb86c;

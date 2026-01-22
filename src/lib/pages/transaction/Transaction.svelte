@@ -213,6 +213,8 @@
                             const txBytes = fromBase64(input);
                             const signedData = bcs.SenderSignedData.parse(txBytes);
                             transactionData = signedData[0];
+                            // Store the original signed transaction bytes
+                            transactionData.rawTransaction = input;
                             // For dry run, we need just the transaction bytes without signatures
                             // Extract the transaction part from the signed data and build it properly
                             const v1Data = signedData[0].intentMessage.value.V1;

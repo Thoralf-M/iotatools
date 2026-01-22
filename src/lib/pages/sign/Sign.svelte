@@ -80,13 +80,36 @@
 
     // Function to process transaction bytes and update the value
     function processTransactionBytes(inputString: string) {
+        if (!inputString) {
+            value = null;
+            return;
+        }
         try {
             let txBytes = fromBase64(inputString);
             value = TransactionDataBuilder.fromBytes(txBytes);
+            // Store the original transaction bytes for display
+            value.transactionBytes = inputString;
         } catch (e) {
             console.log('error TransactionDataBuilder', e);
             try {
-                value = IotaBcs.SenderSignedData.parse(fromBase64(inputString))[0];
+                const signedData = IotaBcs.SenderSignedData.parse(fromBase64(inputString));
+                value = signedData[0];
+                // Store the original signed transaction bytes
+                value.rawTransaction = inputString;
+                // Extract unsigned transaction bytes for display
+                const v1Data = signedData[0].intentMessage.value.V1;
+                if (v1Data.kind && v1Data.kind.ProgrammableTransaction) {
+                    const normalizedTxData = {
+                        version: 2 as const,
+                        sender: v1Data.sender,
+                        inputs: v1Data.kind.ProgrammableTransaction.inputs,
+                        commands: v1Data.kind.ProgrammableTransaction.commands,
+                        gasData: v1Data.gasData,
+                        expiration: v1Data.expiration,
+                    };
+                    const txDataBuilder = new TransactionDataBuilder(normalizedTxData);
+                    value.transactionBytes = toBase64(txDataBuilder.build());
+                }
             } catch (e) {
                 console.log('error SenderSignedData', e);
                 value = e;
@@ -210,39 +233,29 @@
                 return;
             }
 
-            // Get the raw transaction bytes (unsigned)
+            // Parse the transaction data from bytes
             const txBytes = fromBase64(txBytesInput.trim());
-            
-            // Create intent (3 bytes: scope=0, version=0, appId=0)
-            const intent = new Uint8Array([0, 0, 0]);
-            
-            // Get signature bytes
-            const signatureBytes = fromBase64(signatureResult.trim());
-            
-            // Build SenderSignedData manually:
-            // [intent (3 bytes)] + [txBytes] + [ULEB length] + [signature]
-            
-            // Calculate total size
-            const totalSize = intent.length + txBytes.length + 1 + 1 + signatureBytes.length;
-            const result = new Uint8Array(totalSize);
-            
-            let offset = 0;
-            
-            // Copy intent
-            result.set(intent, offset);
-            offset += intent.length;
-            
-            // Copy transaction bytes
-            result.set(txBytes, offset);
-            offset += txBytes.length;
-            
-            // Write number of signatures (ULEB128 - for 1 signature, just 0x01)
-            result[offset++] = 1;
-            
-            // Copy signature bytes
-            result.set(signatureBytes, offset);
-            
-            signedTxBytes = toBase64(result);
+            const transactionData = IotaBcs.TransactionData.parse(txBytes);
+
+            // Create the SenderSignedData structure
+            const senderSignedData = [
+                {
+                    intentMessage: {
+                        intent: {
+                            scope: { TransactionData: null },
+                            version: { V0: null },
+                            appId: { Iota: null },
+                        },
+                        value: transactionData,
+                    },
+                    txSignatures: [signatureResult.trim()], // signature is already base64 encoded
+                },
+            ];
+
+            // Serialize to BCS and encode as base64
+            const senderSignedDataBytes =
+                IotaBcs.SenderSignedData.serialize(senderSignedData).toBytes();
+            signedTxBytes = toBase64(senderSignedDataBytes);
         } catch (e) {
             console.error('Error creating signed transaction bytes:', e);
             signedTxBytes = '';
@@ -454,7 +467,9 @@
         <!-- Signed Transaction Bytes Output -->
         {#if signedTxBytes}
             <div style="margin-top: 20px;">
-                <div style="margin-bottom: 6px; font-weight: bold; display: flex; align-items: center; gap: 10px;">
+                <div
+                    style="margin-bottom: 6px; font-weight: bold; display: flex; align-items: center; gap: 10px;"
+                >
                     Signed Transaction Bytes
                     <button
                         class="copy-button"
@@ -469,10 +484,11 @@
                     readonly
                     placeholder="Signed transaction bytes (base64)"
                     class="signature-textarea"
-                    style="background: #f5f5f5; cursor: text;"
+                    style="height: 100px;"
                 ></textarea>
                 <div style="margin-top: 4px; font-size: 12px; color: #666;">
-                    This combines the transaction bytes with the signature and can be submitted to the network.
+                    This combines the transaction bytes with the signature and can be submitted to
+                    the network.
                 </div>
             </div>
         {/if}
