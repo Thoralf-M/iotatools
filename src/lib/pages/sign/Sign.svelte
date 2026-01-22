@@ -82,13 +82,31 @@
         try {
             let txBytes = fromBase64(inputString);
             value = TransactionDataBuilder.fromBytes(txBytes);
+            // Clear signatures if we have unsigned transaction
+            signatureResult = '';
+            signaturePubkeyPairs = null;
+            signatureVerificationStatus = null;
         } catch (e) {
             console.log('error TransactionDataBuilder', e);
             try {
-                value = IotaBcs.SenderSignedData.parse(fromBase64(inputString))[0];
+                const parsedData = IotaBcs.SenderSignedData.parse(fromBase64(inputString))[0];
+                value = parsedData;
+                
+                // Automatically extract and display signatures from signed transaction
+                if (parsedData && parsedData.txSignatures && parsedData.txSignatures.length > 0) {
+                    // Join multiple signatures with newlines for display
+                    signatureResult = parsedData.txSignatures.join('\n');
+                    signatureTypeLabel = 'Transaction Signature (from signed tx)';
+                    
+                    // Trigger signature verification
+                    verifySignatureLocal();
+                }
             } catch (e) {
                 console.log('error SenderSignedData', e);
                 value = e;
+                signatureResult = '';
+                signaturePubkeyPairs = null;
+                signatureVerificationStatus = null;
             }
         }
     }
@@ -349,6 +367,11 @@
                     <div class="signature-item">
                         <div class="signature-header">
                             Signature #{index + 1} ({pair.signatureScheme})
+                            {#if pair.role === 'sender'}
+                                <span class="role-badge sender">Sender</span>
+                            {:else if pair.role === 'gas_sponsor'}
+                                <span class="role-badge sponsor">Gas Sponsor</span>
+                            {/if}
                         </div>
                         <div class="signature-details">
                             <div class="detail-item">
@@ -467,6 +490,26 @@
     .signature-header {
         font-weight: bold;
         margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .role-badge {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-weight: normal;
+    }
+
+    .role-badge.sender {
+        background-color: #4ade80;
+        color: #14532d;
+    }
+
+    .role-badge.sponsor {
+        background-color: #60a5fa;
+        color: #1e3a8a;
     }
 
     .signature-details {
