@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { fromBase64 } from '@iota/bcs';
+    import { fromBase64, toBase64 } from '@iota/bcs';
     import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
     import { Transaction, TransactionDataBuilder } from '@iota/iota-sdk/transactions';
     import { get } from 'svelte/store';
@@ -27,6 +27,7 @@
     let signatureTypeLabel = '';
     let txBytesInput = '';
     let dryRunResult: any;
+    let signedTxBytes = ''; // New: stores the combined signed transaction bytes
 
     // Signature verification state
     let signatureVerificationStatus: 'valid' | 'invalid' | 'checking' | null = null;
@@ -79,13 +80,36 @@
 
     // Function to process transaction bytes and update the value
     function processTransactionBytes(inputString: string) {
+        if (!inputString) {
+            value = null;
+            return;
+        }
         try {
             let txBytes = fromBase64(inputString);
             value = TransactionDataBuilder.fromBytes(txBytes);
+            // Store the original transaction bytes for display
+            value.transactionBytes = inputString;
         } catch (e) {
             console.log('error TransactionDataBuilder', e);
             try {
-                value = IotaBcs.SenderSignedData.parse(fromBase64(inputString))[0];
+                const signedData = IotaBcs.SenderSignedData.parse(fromBase64(inputString));
+                value = signedData[0];
+                // Store the original signed transaction bytes
+                value.rawTransaction = inputString;
+                // Extract unsigned transaction bytes for display
+                const v1Data = signedData[0].intentMessage.value.V1;
+                if (v1Data.kind && v1Data.kind.ProgrammableTransaction) {
+                    const normalizedTxData = {
+                        version: 2 as const,
+                        sender: v1Data.sender,
+                        inputs: v1Data.kind.ProgrammableTransaction.inputs,
+                        commands: v1Data.kind.ProgrammableTransaction.commands,
+                        gasData: v1Data.gasData,
+                        expiration: v1Data.expiration,
+                    };
+                    const txDataBuilder = new TransactionDataBuilder(normalizedTxData);
+                    value.transactionBytes = toBase64(txDataBuilder.build());
+                }
             } catch (e) {
                 console.log('error SenderSignedData', e);
                 value = e;
@@ -201,11 +225,49 @@
         signaturePubkeyPairs = result.pubkeyPairs;
     }
 
+    // Function to create signed transaction bytes by combining tx bytes with signature
+    function createSignedTxBytes() {
+        try {
+            if (!txBytesInput.trim() || !signatureResult.trim()) {
+                signedTxBytes = '';
+                return;
+            }
+
+            // Parse the transaction data from bytes
+            const txBytes = fromBase64(txBytesInput.trim());
+            const transactionData = IotaBcs.TransactionData.parse(txBytes);
+
+            // Create the SenderSignedData structure
+            const senderSignedData = [
+                {
+                    intentMessage: {
+                        intent: {
+                            scope: { TransactionData: null },
+                            version: { V0: null },
+                            appId: { Iota: null },
+                        },
+                        value: transactionData,
+                    },
+                    txSignatures: [signatureResult.trim()], // signature is already base64 encoded
+                },
+            ];
+
+            // Serialize to BCS and encode as base64
+            const senderSignedDataBytes =
+                IotaBcs.SenderSignedData.serialize(senderSignedData).toBytes();
+            signedTxBytes = toBase64(senderSignedDataBytes);
+        } catch (e) {
+            console.error('Error creating signed transaction bytes:', e);
+            signedTxBytes = '';
+        }
+    }
+
     // Watch for changes to signature and trigger verification with debouncing
     $: {
         if (signatureResult.trim() === '') {
             signatureVerificationStatus = null;
             signaturePubkeyPairs = null;
+            signedTxBytes = '';
         } else {
             // Clear any pending verification
             if (verificationTimeout) {
@@ -215,6 +277,8 @@
             verificationTimeout = setTimeout(() => {
                 verifySignatureLocal();
             }, 300);
+            // Create signed transaction bytes
+            createSignedTxBytes();
         }
     }
 
@@ -397,6 +461,35 @@
                         </div>
                     </div>
                 {/each}
+            </div>
+        {/if}
+
+        <!-- Signed Transaction Bytes Output -->
+        {#if signedTxBytes}
+            <div style="margin-top: 20px;">
+                <div
+                    style="margin-bottom: 6px; font-weight: bold; display: flex; align-items: center; gap: 10px;"
+                >
+                    Signed Transaction Bytes
+                    <button
+                        class="copy-button"
+                        onclick={async () => await copyToClipboard(signedTxBytes)}
+                        style="padding: 4px 10px; font-size: 12px;"
+                    >
+                        Copy
+                    </button>
+                </div>
+                <textarea
+                    value={signedTxBytes}
+                    readonly
+                    placeholder="Signed transaction bytes (base64)"
+                    class="signature-textarea"
+                    style="height: 100px;"
+                ></textarea>
+                <div style="margin-top: 4px; font-size: 12px; color: #666;">
+                    This combines the transaction bytes with the signature and can be submitted to
+                    the network.
+                </div>
             </div>
         {/if}
 
