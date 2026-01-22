@@ -11,6 +11,7 @@
     } from './transaction-view';
     import TransactionCommands from './TransactionCommands.svelte';
     import TransactionEffects from './TransactionEffects.svelte';
+    import TransactionSignatures from './TransactionSignatures.svelte';
 
     let { value = $bindable(), showTypeInfo = true, shortPackageIds = true } = $props();
 
@@ -42,16 +43,25 @@
 
     let transactionData = $derived(getTransactionData(value));
 
+    // Check if transaction has signatures
+    let hasSignatures = $derived(
+        transactionData?.signatures && 
+        Array.isArray(transactionData.signatures) && 
+        transactionData.signatures.length > 0
+    );
+
     $effect(() => {
         if (value) {
             const isTxData = isTransactionData(value);
             const hasBytes = hasTxBytes;
+            const hasSigs = hasSignatures;
 
             // Define valid modes
             const validModes = isTxData
                 ? ['formatted', 'commands', 'json', 'tree']
                 : ['json', 'tree'];
             if (hasBytes) validModes.push('txbytes');
+            if (hasSigs) validModes.push('signatures');
 
             // If current viewMode is not valid for this data, set default
             if (!validModes.includes(viewMode)) {
@@ -175,6 +185,17 @@
                 JSON Tree
             </button>
 
+            {#if hasSignatures}
+                <button
+                    class:active={viewMode === 'signatures'}
+                    onclick={() => {
+                        viewMode = 'signatures';
+                    }}
+                >
+                    Signatures
+                </button>
+            {/if}
+
             {#if hasTxBytes}
                 <button
                     class:active={viewMode === 'txbytes'}
@@ -213,6 +234,13 @@
                     Copy Bytes
                 </button>
                 <pre class="wrap-bytes">{txBytes}</pre>
+            </div>
+        {:else if viewMode === 'signatures' && hasSignatures}
+            <div class="signatures-view">
+                <TransactionSignatures 
+                    signatures={transactionData.signatures} 
+                    {transactionData}
+                />
             </div>
         {:else if viewMode === 'formatted' && isTransactionData(value)}
             <div class="formatted-view">
@@ -370,6 +398,14 @@
         background: var(--background-light);
         padding: 0.75rem;
         border-radius: 6px;
+
+    .signatures-view {
+        background: var(--background-light);
+        padding: 0.75rem;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        overflow-x: auto;
+    }
         border: 1px solid var(--border-color);
         font-size: 0.75rem;
         color: #ffb86c;
