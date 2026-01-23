@@ -226,12 +226,10 @@ async function fetchTransactionsWithFilter(
     const nextCursor =
         data?.transactionBlocks?.pageInfo?.[isNewest ? 'startCursor' : 'endCursor'] || null;
 
-    // Fetch full transaction details
-    const txs: TransactionNode[] = [];
-    for (const digest of digests) {
-        const tx = await fetchTransactionByDigest(digest);
-        if (tx) txs.push(tx);
-    }
+    // Fetch full transaction details in parallel
+    const txPromises = digests.map((digest: string) => fetchTransactionByDigest(digest));
+    const txResults = await Promise.all(txPromises);
+    const txs = txResults.filter((tx): tx is TransactionNode => tx !== null);
 
     return { txs, nextCursor, hasMore };
 }

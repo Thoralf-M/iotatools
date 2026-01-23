@@ -46,6 +46,7 @@
     let objectIdsInput = $state('');
     let addressesInput = $state('');
     let fetchSize = $state('5');
+    let pagesToFetch = $state(1);
     let afterCheckpoint = $state('');
     let beforeCheckpoint = $state('');
     let orderBy = $state<'newest' | 'oldest'>('newest');
@@ -456,29 +457,50 @@
         error = '';
 
         try {
-            const limit = parseInt(fetchSize) || 5;
+            for (let page = 0; page < pagesToFetch; page++) {
+                const limit = parseInt(fetchSize) || 5;
 
-            // Fetch more recent transactions if no specific filters were provided initially
-            if (recentCursor !== null) {
-                const { txs, nextCursor } = await fetchRecentTransactions({
-                    limit,
-                    cursor: recentCursor,
-                    orderBy,
-                    afterCheckpoint,
-                    beforeCheckpoint,
-                });
-                for (const tx of txs) {
-                    addTransaction(tx);
-                    addAddress(tx.sender);
+                // Fetch more recent transactions if no specific filters were provided initially
+                if (recentCursor !== null) {
+                    const { txs, nextCursor } = await fetchRecentTransactions({
+                        limit,
+                        cursor: recentCursor,
+                        orderBy,
+                        afterCheckpoint,
+                        beforeCheckpoint,
+                    });
+                    for (const tx of txs) {
+                        addTransaction(tx);
+                        addAddress(tx.sender);
+                    }
+                    recentCursor = nextCursor;
                 }
-                recentCursor = nextCursor;
-            }
 
-            // Fetch more transactions for user-provided addresses
-            for (const [addr, state] of trackedAddresses) {
-                if (state.enabled && state.isUserProvided) {
-                    const cursor = addressCursors.get(addr);
-                    const { txs, nextCursor } = await fetchTransactionsForAddress(addr, {
+                // Fetch more transactions for user-provided addresses
+                for (const [addr, state] of trackedAddresses) {
+                    if (state.enabled && state.isUserProvided) {
+                        const cursor = addressCursors.get(addr);
+                        const { txs, nextCursor } = await fetchTransactionsForAddress(addr, {
+                            limit,
+                            cursor,
+                            orderBy,
+                            afterCheckpoint,
+                            beforeCheckpoint,
+                            combineFunctionFilter,
+                            functionFilter,
+                        });
+                        for (const tx of txs) {
+                            addTransaction(tx);
+                        }
+                        addressCursors.set(addr, nextCursor);
+                    }
+                }
+
+                // Fetch more transactions for provided object IDs
+                const objectIds = parseInputList(objectIdsInput);
+                for (const objId of objectIds) {
+                    const cursor = objectCursors.get(objId);
+                    const { txs, nextCursor } = await fetchTransactionsByInputObject(objId, {
                         limit,
                         cursor,
                         orderBy,
@@ -489,50 +511,31 @@
                     });
                     for (const tx of txs) {
                         addTransaction(tx);
+                        addAddress(tx.sender);
                     }
-                    addressCursors.set(addr, nextCursor);
+                    objectCursors.set(objId, nextCursor);
                 }
-            }
 
-            // Fetch more transactions for provided object IDs
-            const objectIds = parseInputList(objectIdsInput);
-            for (const objId of objectIds) {
-                const cursor = objectCursors.get(objId);
-                const { txs, nextCursor } = await fetchTransactionsByInputObject(objId, {
-                    limit,
-                    cursor,
-                    orderBy,
-                    afterCheckpoint,
-                    beforeCheckpoint,
-                    combineFunctionFilter,
-                    functionFilter,
-                });
-                for (const tx of txs) {
-                    addTransaction(tx);
-                    addAddress(tx.sender);
+                // Fetch more transactions by function filter if not combined
+                if (!combineFunctionFilter && functionFilter && functionFilter.trim()) {
+                    const { txs, nextCursor } = await fetchTransactionsByFunction({
+                        limit,
+                        cursor: functionCursor,
+                        orderBy,
+                        afterCheckpoint,
+                        beforeCheckpoint,
+                        functionFilter,
+                    });
+                    for (const tx of txs) {
+                        addTransaction(tx);
+                        addAddress(tx.sender);
+                    }
+                    functionCursor = nextCursor;
                 }
-                objectCursors.set(objId, nextCursor);
-            }
 
-            // Fetch more transactions by function filter if not combined
-            if (!combineFunctionFilter && functionFilter && functionFilter.trim()) {
-                const { txs, nextCursor } = await fetchTransactionsByFunction({
-                    limit,
-                    cursor: functionCursor,
-                    orderBy,
-                    afterCheckpoint,
-                    beforeCheckpoint,
-                    functionFilter,
-                });
-                for (const tx of txs) {
-                    addTransaction(tx);
-                    addAddress(tx.sender);
-                }
-                functionCursor = nextCursor;
+                // Discover new addresses after each page
+                discoverNewAddresses();
             }
-
-            // Discover new addresses
-            discoverNewAddresses();
         } catch (e: any) {
             error = `Error fetching more: ${e.message || e}`;
         } finally {
@@ -703,6 +706,23 @@
                 orderBy === 'newest' ? b.checkpoint - a.checkpoint : a.checkpoint - b.checkpoint,
             ),
     );
+
+    let checkpointRange = $derived.by(() => {
+        const allTxs = Array.from(transactions.values());
+        const validTxs = allTxs.filter((tx) => tx.timestamp != null);
+        if (validTxs.length === 0) return null;
+        const checkpoints = validTxs.map((tx) => tx.checkpoint);
+        const minCp = Math.min(...checkpoints);
+        const maxCp = Math.max(...checkpoints);
+        const minTx = validTxs.find((tx) => tx.checkpoint === minCp);
+        const maxTx = validTxs.find((tx) => tx.checkpoint === maxCp);
+        return {
+            min: minCp,
+            max: maxCp,
+            minTime: minTx?.timestamp ? String(minTx.timestamp) : undefined,
+            maxTime: maxTx?.timestamp ? String(maxTx.timestamp) : undefined,
+        };
+    });
 
     // Get objects that are shared between multiple transactions
     function getObjectConnections(objectId: string): string[] {
@@ -1266,8 +1286,12 @@
         <br />
 
         <div class="controls-row">
-            <button onclick={processInitialInputs} disabled={loading}>
-                {loading ? 'Loading...' : 'Load'}
+            <button
+                onclick={processInitialInputs}
+                disabled={loading}
+                title="Load initial transactions based on the inputs above"
+            >
+                {loading ? 'Loading...' : 'Load Transactions'}
             </button>
 
             <div class="fetch-size-control">
@@ -1289,8 +1313,23 @@
                 </select>
             </div>
 
-            <button onclick={fetchMoreTransactions} disabled={loading || transactions.size === 0}>
-                {loading ? 'Loading...' : 'More'}
+            <div class="fetch-pages-control">
+                <label for="pages-to-fetch">Pages:</label>
+                <input
+                    type="number"
+                    id="pages-to-fetch"
+                    bind:value={pagesToFetch}
+                    min="1"
+                    max="10"
+                />
+            </div>
+
+            <button
+                onclick={fetchMoreTransactions}
+                disabled={loading || transactions.size === 0}
+                title="Load additional pages of transactions"
+            >
+                {loading ? 'Loading...' : 'Load More'}
             </button>
 
             <button onclick={clearTransactions} disabled={transactions.size === 0}> Clear </button>
@@ -1361,6 +1400,16 @@
                 </span>
             {/if}
             <button class="clear-filters-btn" onclick={clearFilters}>Clear All</button>
+        </div>
+    {/if}
+
+    <!-- Checkpoint Range Display -->
+    {#if checkpointRange}
+        <div class="checkpoint-range">
+            Checkpoints: {checkpointRange.min} ({checkpointRange.minTime
+                ? formatTimestamp(checkpointRange.minTime)
+                : 'N/A'}) to {checkpointRange.max}
+            ({checkpointRange.maxTime ? formatTimestamp(checkpointRange.maxTime) : 'N/A'})
         </div>
     {/if}
 
@@ -2168,6 +2217,39 @@
         color: rgba(255, 255, 255, 0.9);
         font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
         font-size: 0.75rem;
+    }
+
+    .fetch-pages-control {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .fetch-pages-control label {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.85);
+        white-space: nowrap;
+    }
+
+    .fetch-pages-control input[type='number'] {
+        width: 50px;
+        padding: 0.3rem 0.4rem;
+        background: rgba(30, 30, 40, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        color: rgba(255, 255, 255, 0.9);
+        font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+        font-size: 0.75rem;
+    }
+
+    .checkpoint-range {
+        text-align: center;
+        margin: 10px 0;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.8);
+        background: rgba(31, 41, 55, 0.5);
+        padding: 5px 10px;
+        border-radius: 4px;
     }
 
     .checkpoint-control input[type='number']:focus {
