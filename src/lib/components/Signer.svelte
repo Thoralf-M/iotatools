@@ -416,7 +416,7 @@
         font-size: 0.75rem;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         white-space: nowrap;
-        background: rgba(239, 68, 68, 0.6);
+        background: rgba(157, 39, 39, 0.564);
         padding: 0.4rem 0.6rem;
         min-width: auto;
         display: flex;

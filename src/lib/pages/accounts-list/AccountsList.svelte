@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { toHEX } from '@iota/bcs';
+    import { toHex } from '@iota/bcs';
 
     import { iota_accounts } from '../../utils/signer-data';
 </script>
@@ -12,7 +12,7 @@
         {:else}
             <table class="accounts-table">
                 <tbody>
-                    {#each $iota_accounts as account, index}
+                    {#each $iota_accounts as account}
                         <tr class="account-block">
                             <td class="account-label" rowspan="2">
                                 <span class="account-label-text">{account.label || 'Account'}</span>
@@ -23,7 +23,7 @@
                         <tr class="account-block public-key-row">
                             <td class="account-key">Public Key:</td>
                             <td class="account-value"
-                                >{'0x' + toHEX(new Uint8Array(account.publicKey))}</td
+                                >{'0x' + toHex(new Uint8Array(account.publicKey))}</td
                             >
                         </tr>
                     {/each}
@@ -78,6 +78,10 @@
         word-break: break-all;
         color: #fff;
         text-align: left;
+    }
+
+    .public-key-row {
+        border-bottom: 3px solid #5778a1;
     }
 
     .public-key-row td {
