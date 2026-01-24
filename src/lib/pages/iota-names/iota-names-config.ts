@@ -1,4 +1,6 @@
 // IOTA Names configuration constants
+import { getSelectedNetworkConfig } from '../../utils/client';
+
 const DEVNET_PACKAGE_ID = '0xb9d617f24c84826bf660a2f4031951678cc80c264aebc4413459fb2a95ada9ba';
 const TESTNET_PACKAGE_ID = '0x7fff6e95f385349bec98d17121ab2bfa3e134f2f0b1ccefc270313415f7835ea';
 const MAINNET_PACKAGE_ID = '0x6d2c743607ef275bd6934fe5c2a7e5179cca6fbd2049cfa79de2310b74f3cf83';
@@ -57,4 +59,21 @@ export function setDevnetPackageId() {
 export function setCustomPackageId(packageId: string) {
     config.IOTA_NAMES_PACKAGE_ID = packageId;
     resetPackageIds();
+}
+
+/**
+ * Get the IOTA Names package ID based on the selected network
+ */
+export function getIotaNamesPackageId() {
+    const network = getSelectedNetworkConfig();
+    if (network.name === 'mainnet') {
+        setMainnetPackageId();
+    } else if (network.name === 'testnet') {
+        setTestnetPackageId();
+    } else if (network.name === 'devnet') {
+        setDevnetPackageId();
+    } else {
+        setCustomPackageId('');
+    }
+    return config.IOTA_NAMES_PACKAGE_ID;
 }

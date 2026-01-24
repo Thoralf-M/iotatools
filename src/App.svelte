@@ -186,7 +186,7 @@
 
 <style>
     main {
-        min-height: 92vh;
+        min-height: 94vh;
         display: flex;
         flex-direction: column;
         position: relative;

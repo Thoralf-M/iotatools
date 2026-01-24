@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
     import { normalizeIotaAddress } from '@iota/iota-sdk/utils';
     import { onMount } from 'svelte';
 
@@ -7,6 +6,7 @@
     import { queryDynamicFields, type DynamicFieldsResult } from '../../utils/dynamic-fields';
     import { getAddressLink, getObjectLink, getTransactionLink } from '../../utils/explorer-links';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
+    import { getIotaNamesPackageId } from '../iota-names/iota-names-config';
     import {
         detectInputType,
         fetchObjectsByTypeData,
@@ -149,10 +149,6 @@
             error = '';
 
             const config = getSelectedNetworkConfig();
-            const graphqlClient = new IotaGraphQLClient({
-                url: config.graphql,
-            });
-
             const types = await fetchPackageTypesData(packageId, config.graphql);
 
             packageTypes = types;
@@ -307,21 +303,8 @@
                     <button onclick={() => loadExample(normalizeIotaAddress('0x6'))}>
                         Clock Object
                     </button>
-                    <button
-                        onclick={() =>
-                            loadExample(
-                                '0x7fff6e95f385349bec98d17121ab2bfa3e134f2f0b1ccefc270313415f7835ea',
-                            )}
-                    >
-                        IOTA-Names testnet
-                    </button>
-                    <button
-                        onclick={() =>
-                            loadExample(
-                                '0x6d2c743607ef275bd6934fe5c2a7e5179cca6fbd2049cfa79de2310b74f3cf83',
-                            )}
-                    >
-                        IOTA-Names mainnet
+                    <button onclick={() => loadExample(getIotaNamesPackageId())}>
+                        IOTA-Names
                     </button>
                 </div>
             </div>

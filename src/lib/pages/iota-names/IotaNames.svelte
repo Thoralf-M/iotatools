@@ -1,15 +1,15 @@
 <script lang="ts">
     import { onMount } from 'svelte';
 
-    import TransactionView from '../../components/TransactionView.svelte';
     import IotaAmountInput from '../../components/IotaAmountInput.svelte';
-    import { getSelectedNetworkConfig } from '../../utils/client';
+    import TransactionView from '../../components/TransactionView.svelte';
     import { sharedClientConfig } from '../../utils/local-storage-store';
     import { activeAddress } from '../../utils/signer-data';
     import {
         claim,
         config,
         getDynamicFields,
+        getIotaNamesPackageId,
         getPackageIds,
         getRegistryEntry,
         getReverseRegisteredAddresses,
@@ -20,11 +20,8 @@
         resolveAddress,
         resolveName,
         setCustomPackageId,
-        setDevnetPackageId,
-        setMainnetPackageId,
         setReverseLookup,
         setTargetAddress,
-        setTestnetPackageId,
         startAuctionAndPlaceBid,
     } from './iota-names-service';
 
@@ -48,16 +45,7 @@
     let reverseRegistrySize = $state<number | null>(null);
 
     async function updatePackageIdForNetwork() {
-        const network = getSelectedNetworkConfig();
-        if (network.name === 'mainnet') {
-            setMainnetPackageId();
-        } else if (network.name === 'testnet') {
-            setTestnetPackageId();
-        } else if (network.name === 'devnet') {
-            setDevnetPackageId();
-        } else if (network.name === 'localnet') {
-            setCustomPackageId('');
-        }
+        getIotaNamesPackageId();
         localIotaNamesPackageId = config.IOTA_NAMES_PACKAGE_ID;
         packageIds = { ...config };
 
@@ -340,7 +328,12 @@
             <input id="name" bind:value={nameName} placeholder="name.iota" />
         </div>
         <div class="toolbar-group" style="min-width: 300px;">
-            <IotaAmountInput id="bid-price" label="Bid Price" bind:value={bidPrice} placeholder="0" />
+            <IotaAmountInput
+                id="bid-price"
+                label="Bid Price"
+                bind:value={bidPrice}
+                placeholder="0"
+            />
         </div>
     </div>
 
