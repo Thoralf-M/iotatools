@@ -1,0 +1,238 @@
+
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    button.danger.svelte-1dnveep {
+        background: rgba(220, 53, 69, 0.2);
+        border-color: rgba(220, 53, 69, 0.5);
+        color: #ffadad;
+    }
+
+    button.danger.svelte-1dnveep:hover {
+        background: rgba(220, 53, 69, 0.4);
+    }
+
+    .summary-header.svelte-1dnveep {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .summary-header.svelte-1dnveep h3:where(.svelte-1dnveep) {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--text-muted);
+    }
+
+    .price-controls.svelte-1dnveep {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .price-controls.svelte-1dnveep select:where(.svelte-1dnveep) {
+        padding: 0.25rem;
+        background-color: #232324;
+        color: #ffffff;
+        border: 1px solid #535353;
+        border-radius: 4px;
+        font-size: 0.85rem;
+    }
+
+    .price-controls.svelte-1dnveep button:where(.svelte-1dnveep) {
+        padding: 0.25rem 0.5rem;
+        background-color: rgb(36, 47, 77);
+        color: #ffffff;
+        border: 1px solid #535353;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
+
+    .summary-table.svelte-1dnveep {
+        margin-left: 0;
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+
+    .summary-table.svelte-1dnveep th:where(.svelte-1dnveep),
+    .summary-table.svelte-1dnveep td:where(.svelte-1dnveep) {
+        padding: 0.25rem 0.5rem;
+        text-align: right;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .summary-table.svelte-1dnveep th:where(.svelte-1dnveep):first-child,
+    .summary-table.svelte-1dnveep td:where(.svelte-1dnveep):first-child {
+        text-align: left;
+    }
+
+    .summary-table.svelte-1dnveep td:where(.svelte-1dnveep):not(:first-child) {
+        font-family: monospace;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .summary-table.svelte-1dnveep th:where(.svelte-1dnveep) {
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    .accounts-grid.svelte-1dnveep {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1rem;
+        padding-bottom: 0.5rem;
+    }
+
+    .account-card.svelte-1dnveep {
+        background: var(--background-card);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .account-header.svelte-1dnveep {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 0.5rem 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .account-title.svelte-1dnveep {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .account-buttons.svelte-1dnveep {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .account-balance.svelte-1dnveep {
+        font-family: monospace;
+        color: #4ade80; /* Greenish */
+    }
+
+    .object-list.svelte-1dnveep {
+        flex-grow: 1;
+        overflow-y: auto;
+        max-height: 300px;
+        padding: 0.5rem;
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    .object-item.svelte-1dnveep {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        margin-bottom: 0.25rem;
+        padding: 0.4rem;
+        font-size: 0.85rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .object-item.foreign.svelte-1dnveep {
+        border-left: 3px solid #f59e0b; /* Amber for foreign objects */
+    }
+
+    .object-header.svelte-1dnveep {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: grab;
+    }
+
+    .object-type.svelte-1dnveep {
+        font-weight: 500;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 70%;
+    }
+
+    .object-amount.svelte-1dnveep {
+        font-family: monospace;
+    }
+
+    .object-details.svelte-1dnveep {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .transactions-container.svelte-1dnveep {
+        margin-bottom: 0.5rem;
+    }
+
+    .transactions-tabs.svelte-1dnveep {
+        display: flex;
+        align-items: flex-end;
+        gap: 0.25rem;
+        flex-wrap: wrap;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 0;
+    }
+
+    .transactions-label.svelte-1dnveep {
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 0.5rem 0.5rem 0.5rem 0;
+        align-self: center;
+    }
+
+    .transaction-tab.svelte-1dnveep {
+        padding: 0.4rem 0.75rem;
+        border: 1px solid var(--border-color);
+        border-bottom: none;
+        border-radius: 6px 6px 0 0;
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text-muted);
+        cursor: pointer;
+        position: relative;
+        bottom: -1px;
+        transition:
+            background 0.15s,
+            color 0.15s;
+    }
+
+    .transaction-tab.svelte-1dnveep:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text-color);
+    }
+
+    .transaction-tab.active.svelte-1dnveep {
+        background: var(--background-card);
+        color: white;
+        font-weight: bold;
+        border-color: var(--border-color);
+        border-bottom: 1px solid var(--background-card);
+    }
+
+    .transaction-content.svelte-1dnveep {
+        background: var(--background-card);
+        border: 1px solid var(--border-color);
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        padding: 0.75rem;
+    }
+
+    pre.svelte-1dnveep {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+
+    details.svelte-1dnveep summary:where(.svelte-1dnveep) {
+        cursor: pointer;
+        color: var(--accent-color);
+    }
