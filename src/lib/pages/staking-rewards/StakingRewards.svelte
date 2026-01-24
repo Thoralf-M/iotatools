@@ -113,6 +113,7 @@
     let fetchReceivedTxs = false;
     let showPriceColumns = true;
     let showValidatorColumns = true;
+    let noTransactionsFound = false;
 
     // Initialize exchange rate cache on component load
     setInitialExchangeRateCacheFromBinary(exchangeRateCacheBinary);
@@ -136,6 +137,7 @@
         transactions = [];
         stakeObjects = [];
         validatorInfo = {};
+        noTransactionsFound = false;
         loadingTxs = true;
         loadingStep = 'Fetching stake txs...';
         try {
@@ -188,6 +190,13 @@
                 }
                 return acc;
             }, []);
+
+            if (uniqueTxs.length === 0) {
+                noTransactionsFound = true;
+                loadingTxs = false;
+                loadingStep = null;
+                return;
+            }
 
             // Step 4: Process transactions with exchange rates for all addresses
             loadingStep = 'Fetching exchange rates...';
@@ -331,6 +340,7 @@
             {validatorInfo}
             bind:showPriceColumns
             bind:showValidatorColumns
+            {noTransactionsFound}
         />
     </div>
     <details>
