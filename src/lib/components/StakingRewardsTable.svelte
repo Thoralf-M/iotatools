@@ -511,7 +511,11 @@
                     {height}
                 >
                     {#snippet item({ index, style })}
-                        <div {style} class="table-row" class:highlight-recent={index === filteredEpochs.length - 2}>
+                        <div
+                            {style}
+                            class="table-row"
+                            class:highlight-recent={index === filteredEpochs.length - 2}
+                        >
                             <div class="data-row">
                                 <div class="table-cell epoch-cell">{filteredEpochs[index]}</div>
                                 <div class="table-cell end-date-cell">
