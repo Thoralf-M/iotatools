@@ -332,7 +332,10 @@ export async function listRegisteredNames(
 /**
  * Get reverse registered addresses
  */
-export async function getReverseRegisteredAddresses() {
+export async function getReverseRegisteredAddresses(
+    onProgress?: (result: any) => void,
+    signal?: AbortSignal,
+) {
     try {
         const gqlClient = createGraphQLClient();
 
@@ -346,37 +349,69 @@ export async function getReverseRegisteredAddresses() {
             );
         let reverseRegistryId = registration.value.json.reverse_registry.id;
 
-        let query = `query ($address: IotaAddress) {
-            owner(address: $address) {
-                dynamicFields {
-                    nodes {
-                        name {
-                            json
+        let res: { total: number; reverseRegistry: { address: string; name: string }[] } = { total: 0, reverseRegistry: [] };
+
+        let cursorSection = '';
+        while (true) {
+            // Check if operation was cancelled
+            if (signal?.aborted) {
+                throw new Error('Operation cancelled');
+            }
+
+            let query = `query ($address: IotaAddress) {
+                owner(address: $address) {
+                    dynamicFields${cursorSection} {
+                        pageInfo{
+                            hasNextPage
+                            endCursor
                         }
-                        value {
-                            ... on MoveValue {
+                        nodes {
+                            name {
                                 json
+                            }
+                            value {
+                                ... on MoveValue {
+                                    json
+                                }
                             }
                         }
                     }
                 }
+            }`;
+
+            let object = await queryGraphQl(gqlClient, query, {
+                address: reverseRegistryId,
+            });
+
+            if (object.errors) {
+                break;
             }
-        }`;
 
-        let object = await queryGraphQl(gqlClient, query, {
-            address: reverseRegistryId,
-        });
+            // @ts-ignore
+            const newEntries = object.data.owner.dynamicFields.nodes.map((v: any) => {
+                return {
+                    address: v.name.json,
+                    name: v.value.json.labels.reverse().join('.'),
+                };
+            });
 
-        let res = {};
-        // @ts-ignore
-        res.total = object.data.owner.dynamicFields.nodes.length;
-        // @ts-ignore
-        res.reverseRegistry = object.data.owner.dynamicFields.nodes.map((v: any) => {
-            return {
-                address: v.name.json,
-                name: v.value.json.labels.reverse().join('.'),
-            };
-        });
+            res.total += newEntries.length;
+            res.reverseRegistry.push(...newEntries);
+
+            // Call progress callback if provided
+            if (onProgress) {
+                onProgress({ ...res });
+            }
+
+            // @ts-ignore
+            if (object.data.owner.dynamicFields.pageInfo.hasNextPage) {
+                // @ts-ignore
+                cursorSection = `(after: "${object.data.owner.dynamicFields.pageInfo.endCursor}")`;
+            } else {
+                break;
+            }
+        }
+
         return res;
     } catch (err: any) {
         console.error(err);

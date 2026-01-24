@@ -2,18 +2,25 @@
     import { IotaClient, type CoinStruct, type PaginatedCoins } from '@iota/iota-sdk/client';
     import { Transaction } from '@iota/iota-sdk/transactions';
 
+    import IotaAmountInput from '../../components/IotaAmountInput.svelte';
     import JsonToggleView from '../../components/JsonToggleView.svelte';
     import TransactionView from '../../components/TransactionView.svelte';
     import { getClient } from '../../utils/client';
     import { activeAddress } from '../../utils/signer-data';
     import { executeTransaction } from '../../utils/transaction-execution';
 
-    let objectCount = '1';
-    let amountPerObject = '1000000000';
+    let objectCount = $state('1');
+    let amountPerObject = $state('1000000000');
+    let amountPerObjectNumber = $state(1000000000);
     // Will be updated with the result
-    let value = {};
-    let iotaBalance = 0;
-    let isTransactionResult = false;
+    let value = $state({});
+    let iotaBalance = $state(0);
+    let isTransactionResult = $state(false);
+
+    // Keep string and number variables in sync
+    $effect(() => {
+        amountPerObject = amountPerObjectNumber.toString();
+    });
 
     const mergeAllIotaCoins = async () => {
         try {
@@ -115,10 +122,10 @@
 
 <main>
     <div>IOTA balance: {(iotaBalance / 1000_000_000).toFixed(9)}</div>
-    <button on:click={() => listAllIotaCoinObjects()}>List all IOTA coins</button>
+    <button onclick={() => listAllIotaCoinObjects()}>List all IOTA coins</button>
     <br />
 
-    <button on:click={() => mergeAllIotaCoins()}>Merge all IOTA coins (max 2048 at once)</button>
+    <button onclick={() => mergeAllIotaCoins()}>Merge all IOTA coins (max 2048 at once)</button>
     <br />
     <span>
         object count:
@@ -126,10 +133,17 @@
     </span>
     <span>
         amount per object:
-        <input bind:value={amountPerObject} placeholder="0" />
+        <div style="display: inline-block; vertical-align: top;">
+            <IotaAmountInput
+                id="amount-per-object"
+                label=""
+                bind:value={amountPerObjectNumber}
+                placeholder="1000000000"
+            />
+        </div>
     </span>
     <br />
-    <button on:click={() => splitIotaCoins()}>Split IOTA coins (max 2048)</button>
+    <button onclick={() => splitIotaCoins()}>Split IOTA coins (max 2048)</button>
 
     {#if isTransactionResult}
         <TransactionView {value} />
