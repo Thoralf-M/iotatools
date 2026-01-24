@@ -1,0 +1,50 @@
+
+    .iota-amount-input.svelte-1xg248d {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .input-container.svelte-1xg248d {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .nano-input.svelte-1xg248d {
+        width: 200px;
+        padding: 0.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background: var(--background-input);
+        color: var(--text);
+        font-family: monospace;
+    }
+
+    .nano-label.svelte-1xg248d {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .iota-display.svelte-1xg248d {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.25rem 0.5rem;
+        background: var(--background-card);
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 0.9rem;
+    }
+
+    .iota-value.svelte-1xg248d {
+        color: var(--text);
+        font-weight: 600;
+    }
+
+    .iota-label.svelte-1xg248d {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        font-weight: 500;
+    }

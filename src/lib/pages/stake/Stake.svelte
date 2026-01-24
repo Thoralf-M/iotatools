@@ -7,6 +7,7 @@
     import { Transaction } from '@iota/iota-sdk/transactions';
     import { IOTA_SYSTEM_STATE_OBJECT_ID, isValidIotaAddress } from '@iota/iota-sdk/utils';
 
+    import IotaAmountInput from '../../components/IotaAmountInput.svelte';
     import TransactionView from '../../components/TransactionView.svelte';
     import { getClient } from '../../utils/client';
     import {
@@ -573,27 +574,14 @@
         </div>
     {/if}
     <br />
-    <span>
-        amount (min 1 IOTA, to unstake with rewards even more):
-        <input
-            type="number"
+    <div style="margin-bottom: 1rem; display: flex; justify-content: center;">
+        <IotaAmountInput
+            id="stake-amount"
+            label="Amount (min 1 IOTA, to unstake with rewards even more)"
             bind:value={amount}
-            placeholder="amount in NANO"
-            min="1000000000"
-            style="width: 14rem;"
+            placeholder="1000000000"
         />
-        <input
-            type="number"
-            value={(amount / 1_000_000_000).toFixed(9)}
-            on:input={(e) => {
-                // @ts-ignore
-                amount = e.target.value * 1_000_000_000;
-            }}
-            placeholder="amount in IOTA"
-            min="1"
-            style="width: 14rem;"
-        />
-    </span>
+    </div>
     <br />
 
     <button on:click={() => stake()}> stake </button>

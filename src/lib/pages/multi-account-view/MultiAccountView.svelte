@@ -7,8 +7,10 @@
     import TransactionView from '../../components/TransactionView.svelte';
     import { getClient, getSelectedChain } from '../../utils/client';
     import { nanoToIota } from '../../utils/iota-nano-conversion';
+    import { sharedTransactionExecution, TransactionExecution } from '../../utils/shared-in-memory';
     import { iota_accounts, iota_wallets } from '../../utils/signer-data';
     import { calculateGasFee } from '../../utils/transaction-execution';
+    import { getActiveWallet } from '../../utils/web-wallet';
     import {
         computeAllStakingRewards,
         fetchCurrentPrice,
@@ -17,8 +19,10 @@
         type ExtendedObject,
     } from './multi-account-service';
 
-    // Will be updated with the result
-    let value = $state({});
+    // Will be updated with the result - array of results, one per transaction
+    let transactionResults: any[] = $state([]);
+    let currentResultIndex = $state(0);
+    let syncError = $state('');
 
     let extendedAccounts: ExtendedAccount[] = $state([]);
     let allAccountsTotalBalance = $derived.by(() => {
@@ -109,6 +113,7 @@
 
     const syncReset = async () => {
         try {
+            syncError = '';
             // Preserve external accounts (not in $iota_accounts)
             const externalAccounts = extendedAccounts.filter(
                 (acc) => !$iota_accounts.some((iotaAcc) => iotaAcc.address === acc.address),
@@ -129,17 +134,17 @@
             try {
                 extendedAccounts = await getObjectsForAccounts(extendedAccounts);
             } catch (err: any) {
-                value = err.toString();
+                syncError = err.toString();
                 console.error(err);
             }
             try {
                 extendedAccounts = await computeAllStakingRewards(extendedAccounts);
             } catch (err: any) {
-                value = err.toString();
+                syncError = err.toString();
                 console.error(err);
             }
         } catch (err: any) {
-            value = err.toString();
+            syncError = err.toString();
             console.error(err);
         }
     };
@@ -261,88 +266,79 @@
         }
         return preparedTxs;
     }
-    async function dryRun() {
+    // Number of pending transfers
+    let numTransfers = $derived.by(() => {
+        return getMovements().size;
+    });
+
+    async function executeTransfers() {
         try {
+            transactionResults = [];
+            currentResultIndex = 0;
             const client = getClient();
+            const executionMode = $sharedTransactionExecution;
             let preparedTxs = await prepareTxs();
 
-            let txResults = [];
             for (const preparedTx of preparedTxs) {
                 const { sender, recipients, transaction } = preparedTx;
-                console.log(`Dry run moving objects from ${sender} to:`, recipients.join(', '));
-                // Perform a dry run
-                let dryRunResult = (await client.dryRunTransactionBlock({
-                    transactionBlock: await transaction.build({ client }),
-                })) as any;
-                dryRunResult.sender = sender;
-                dryRunResult.recipients = recipients;
-                txResults.push(dryRunResult);
-            }
+                console.log(`Executing transfer from ${sender} to:`, recipients.join(', '));
 
-            value = { txs: txResults.length, txResults };
-        } catch (err: any) {
-            value = err.toString();
-            console.error(err);
-        }
-    }
-    async function send() {
-        try {
-            let preparedTxs = await prepareTxs();
+                let result: any;
 
-            let txResults = [];
-            for (const preparedTx of preparedTxs) {
-                const { sender, recipients, transaction } = preparedTx;
-                console.log(`Moving objects from ${sender} to:`, recipients.join(', '));
+                switch (executionMode) {
+                    case TransactionExecution.DevInspect:
+                        result = await client.devInspectTransactionBlock({
+                            sender: sender,
+                            transactionBlock: transaction,
+                        });
+                        break;
+                    case TransactionExecution.DryRun:
+                        result = await client.dryRunTransactionBlock({
+                            transactionBlock: await transaction.build({ client }),
+                        });
+                        break;
+                    case TransactionExecution.Send:
+                        const wallet = getActiveWallet();
+                        if (!wallet) {
+                            throw new Error('No active wallet available');
+                        }
+                        result = await wallet.signAndExecuteTransaction({
+                            transaction,
+                            options: {
+                                showEffects: true,
+                                showObjectChanges: true,
+                                showBalanceChanges: true,
+                            },
+                            account: { address: sender },
+                            // @ts-ignore
+                            chain: getSelectedChain(),
+                        });
+                        break;
+                    case TransactionExecution.Prepare:
+                        let json = JSON.parse(await transaction.toJSON());
 
-                let txResult = await $iota_wallets[0].signAndExecuteTransaction({
-                    transaction,
-                    options: {
-                        showBalanceChanges: true,
-                    },
-                    account: { address: sender },
-                    // @ts-ignore
-                    chain: getSelectedChain(),
-                });
-                txResult.sender = sender;
-                txResult.recipients = recipients;
-                txResults.push(txResult);
-            }
+                        if (transaction.getData().gasData.price == 0) {
+                            let referenceGasPrice = await client.getReferenceGasPrice();
+                            transaction.setGasPrice(referenceGasPrice);
+                        }
+                        if (transaction.getData().gasData.budget == 0) {
+                            let gas = await calculateGasFee(transaction);
+                            transaction.setGasBudget(BigInt(gas!));
+                        }
 
-            value = { txs: txResults.length, txResults };
-        } catch (err: any) {
-            value = err.toString();
-            console.error(err);
-        }
-    }
-
-    async function prepareTxBytes() {
-        try {
-            const client = getClient();
-            let preparedTxs = await prepareTxs();
-
-            let results = [];
-            for (const preparedTx of preparedTxs) {
-                const { sender, recipients, transaction } = preparedTx;
-
-                let json = JSON.parse(await transaction.toJSON());
-
-                if (transaction.getData().gasData.price == 0) {
-                    let referenceGasPrice = await client.getReferenceGasPrice();
-                    transaction.setGasPrice(referenceGasPrice);
-                }
-                if (transaction.getData().gasData.budget == 0) {
-                    let gas = await calculateGasFee(transaction);
-                    transaction.setGasBudget(BigInt(gas!));
+                        let transactionBytes = toBase64(await transaction.build({ client }));
+                        result = { json, transactionBytes };
+                        break;
+                    default:
+                        throw new Error(`Unknown transaction execution mode: ${executionMode}`);
                 }
 
-                let transactionBytes = toBase64(await transaction.build({ client }));
-                // @ts-ignore
-                results.push({ sender, recipients, json, transactionBytes });
+                result.sender = sender;
+                result.recipients = recipients;
+                transactionResults = [...transactionResults, result];
             }
-
-            value = { txs: results.length, results };
         } catch (err: any) {
-            value = err.toString();
+            transactionResults = [{ error: err.toString() }];
             console.error(err);
         }
     }
@@ -423,9 +419,9 @@
         </div>
 
         <div style="display: flex; gap: 0.5rem;">
-            <button onclick={dryRun}>Dry Run</button>
-            <button onclick={prepareTxBytes}>Prepare Tx Bytes</button>
-            <button onclick={send}>Send</button>
+            <button onclick={executeTransfers} disabled={numTransfers === 0}>
+                Execute ({numTransfers}) Transfer{numTransfers !== 1 ? 's' : ''}
+            </button>
         </div>
     </div>
 
@@ -433,7 +429,32 @@
         <div style="color: #ef4444; padding: 0 0.5rem;">{newAccountError}</div>
     {/if}
 
-    <TransactionView bind:value />
+    {#if syncError}
+        <div style="color: #ef4444; padding: 0 0.5rem;">{syncError}</div>
+    {/if}
+
+    {#if transactionResults.length > 0}
+        <div class="transactions-container">
+            <div class="transactions-tabs">
+                <span class="transactions-label">Transfers({transactionResults.length}):</span>
+                {#each transactionResults as result, i}
+                    {@const label = result.sender ? getAccountDisplayName(result.sender) : ''}
+                    <button
+                        onclick={() => (currentResultIndex = i)}
+                        class="transaction-tab {currentResultIndex === i ? 'active' : ''}"
+                        title={result.sender ? `From ${result.sender}` : ''}
+                    >
+                        {i + 1}
+                        {#if label}
+                            (from: {label}){/if}
+                    </button>
+                {/each}
+            </div>
+            <div class="transaction-content">
+                <TransactionView value={transactionResults[currentResultIndex]} />
+            </div>
+        </div>
+    {/if}
 
     <div class="summary-section">
         <div class="summary-header">
@@ -709,58 +730,6 @@
         padding: 0;
     }
 
-    .container {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        padding: 0;
-        height: 100%;
-        box-sizing: border-box;
-    }
-
-    @media (min-width: 768px) {
-        .container {
-            padding: 1rem;
-        }
-    }
-
-    .toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        align-items: center;
-        background: var(--background-card);
-        padding: 0.75rem;
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
-    }
-
-    .toolbar input {
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid var(--border-color);
-        color: white;
-        padding: 0.4rem 0.8rem;
-        border-radius: 4px;
-        flex-grow: 1;
-        min-width: 200px;
-    }
-
-    .toolbar button {
-        background: var(--primary-color);
-        border: 1px solid var(--border-color);
-        color: white;
-        padding: 0.4rem 0.8rem;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        transition: all 0.2s;
-    }
-
-    .toolbar button:hover {
-        background: var(--primary-hover);
-        border-color: var(--accent-color);
-    }
-
     button.danger {
         background: rgba(220, 53, 69, 0.2);
         border-color: rgba(220, 53, 69, 0.5);
@@ -769,19 +738,6 @@
 
     button.danger:hover {
         background: rgba(220, 53, 69, 0.4);
-    }
-
-    .summary-section {
-        background: var(--background-card);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 0.75rem;
-    }
-
-    @media (max-width: 767px) {
-        .summary-section {
-            padding: 0.25rem;
-        }
     }
 
     .summary-header {
@@ -938,6 +894,62 @@
     .object-details {
         font-size: 0.75rem;
         color: var(--text-muted);
+    }
+
+    .transactions-container {
+        margin-bottom: 0.5rem;
+    }
+
+    .transactions-tabs {
+        display: flex;
+        align-items: flex-end;
+        gap: 0.25rem;
+        flex-wrap: wrap;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 0;
+    }
+
+    .transactions-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 0.5rem 0.5rem 0.5rem 0;
+        align-self: center;
+    }
+
+    .transaction-tab {
+        padding: 0.4rem 0.75rem;
+        border: 1px solid var(--border-color);
+        border-bottom: none;
+        border-radius: 6px 6px 0 0;
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text-muted);
+        cursor: pointer;
+        position: relative;
+        bottom: -1px;
+        transition:
+            background 0.15s,
+            color 0.15s;
+    }
+
+    .transaction-tab:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text-color);
+    }
+
+    .transaction-tab.active {
+        background: var(--background-card);
+        color: white;
+        font-weight: bold;
+        border-color: var(--border-color);
+        border-bottom: 1px solid var(--background-card);
+    }
+
+    .transaction-content {
+        background: var(--background-card);
+        border: 1px solid var(--border-color);
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        padding: 0.75rem;
     }
 
     pre {

@@ -1,5 +1,7 @@
 <script lang="ts">
     // @ts-ignore - Module resolution issue with svelte-json-tree
+    import { fromBase64 } from '@iota/bcs';
+    import { TransactionDataBuilder } from '@iota/iota-sdk/transactions';
     import JSONTree from '@sveltejs/svelte-json-tree';
 
     import { getClient, getSelectedNetworkConfig } from '../utils/client';
@@ -30,9 +32,19 @@
     let isDryRunning = $state(false);
     let dryRunError = $state('');
 
+    function isValidTxBytes(str: string): boolean {
+        try {
+            const txBytes = fromBase64(str);
+            TransactionDataBuilder.fromBytes(txBytes);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
     let hasTxBytes = $derived(
         value &&
-            (typeof value === 'string' ||
+            ((typeof value === 'string' && isValidTxBytes(value)) ||
                 (typeof value === 'object' &&
                     (('transactionBytes' in value && value.transactionBytes) ||
                         ('rawTransaction' in value && value.rawTransaction) ||
@@ -49,6 +61,13 @@
 
     let hasDryRunResults = $derived(
         value && typeof value === 'object' && 'effects' in value && value.effects,
+    );
+
+    let isDryRunResult = $derived(
+        value &&
+            typeof value === 'object' &&
+            'effects' in value &&
+            !('transactionBytes' in value || 'rawTransaction' in value || 'bytes' in value),
     );
 
     let transactionData = $derived(getTransactionData(value));
@@ -143,20 +162,22 @@
 
 {#if !hidden}
     <div class="transaction-view ultra-compact">
-        <div class="header-line">
-            <span class="tx-header">Transaction</span>
-            <a
-                href={transactionData?.digest
-                    ? getTransactionLink(getSelectedNetworkConfig(), transactionData.digest)
-                    : '#'}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="tx-id-short"
-                title={transactionData?.digest}
-            >
-                {transactionData?.digest}
-            </a>
-        </div>
+        {#if transactionData?.digest}
+            <div class="header-line">
+                <span class="tx-header">Transaction</span>
+                <a
+                    href={transactionData?.digest
+                        ? getTransactionLink(getSelectedNetworkConfig(), transactionData.digest)
+                        : '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="tx-id-short"
+                    title={transactionData?.digest}
+                >
+                    {transactionData?.digest}
+                </a>
+            </div>
+        {/if}
         <div class="view-controls">
             {#if isTransactionData(value)}
                 <button
@@ -206,7 +227,7 @@
                 </button>
             {/if}
 
-            {#if hasTxBytes}
+            {#if hasTxBytes && !isDryRunResult}
                 <button
                     class:active={viewMode === 'txbytes'}
                     onclick={() => {
@@ -221,7 +242,7 @@
                     Tx Bytes
                 </button>
             {/if}
-            {#if hasTxBytes}
+            {#if hasTxBytes && !isDryRunResult}
                 <button disabled={isDryRunning} onclick={performDryRun}>
                     {isDryRunning ? 'Running...' : hasDryRunResults ? 'Re-run Dry' : 'Dry Run'}
                 </button>
@@ -319,7 +340,10 @@
             </div>
         {:else if viewMode === 'tree'}
             <div class="tree-view">
-                <JSONTree {value} defaultExpandedLevel={1} />
+                <JSONTree
+                    value={isTransactionData(value) ? transactionData : value}
+                    defaultExpandedLevel={1}
+                />
             </div>
         {:else if viewMode === 'commands'}
             <div class="commands-view-container">
@@ -333,7 +357,9 @@
             </div>
         {:else}
             <div class="json-view">
-                <pre>{formatJsonWithCompactArrays(value)}</pre>
+                <pre>{formatJsonWithCompactArrays(
+                        isTransactionData(value) ? transactionData : value,
+                    )}</pre>
             </div>
         {/if}
     </div>

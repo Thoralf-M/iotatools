@@ -195,6 +195,19 @@ export function isTransactionData(data: any): boolean {
         return true;
     }
 
+    // Handle prepared transaction bytes format
+    if (
+        data &&
+        typeof data === 'object' &&
+        data.json &&
+        data.json.sender &&
+        data.json.inputs &&
+        data.json.commands &&
+        data.json.gasData
+    ) {
+        return true;
+    }
+
     // Handle signed transaction format (Format 2)
     if (
         data &&
@@ -315,72 +328,72 @@ export function getTransactionData(data: any): any {
             signatures: [data.signature],
             effects: decodedEffects
                 ? {
-                      transactionDigest: data.digest,
-                      status: decodedEffects.V1?.status
-                          ? { status: decodedEffects.V1.status.$kind.toLowerCase() }
-                          : { status: 'unknown' },
-                      executedEpoch: decodedEffects.V1?.executedEpoch,
-                      gasUsed: decodedEffects.V1?.gasUsed,
-                      modifiedAtVersions: decodedEffects.V1?.modifiedAtVersions,
-                      sharedObjects: decodedEffects.V1?.sharedObjects,
-                      dependencies: decodedEffects.V1?.dependencies,
-                      checkpoint: {
-                          sequenceNumber: null,
-                          timestamp: null,
-                      },
-                      gasEffects: {
-                          gasSummary: decodedEffects.V1?.gasUsed,
-                      },
-                      balanceChanges: {
-                          nodes: [],
-                      },
-                      objectChanges: {
-                          nodes: [],
-                      },
-                      events: {
-                          nodes: [],
-                      },
-                  }
+                    transactionDigest: data.digest,
+                    status: decodedEffects.V1?.status
+                        ? { status: decodedEffects.V1.status.$kind.toLowerCase() }
+                        : { status: 'unknown' },
+                    executedEpoch: decodedEffects.V1?.executedEpoch,
+                    gasUsed: decodedEffects.V1?.gasUsed,
+                    modifiedAtVersions: decodedEffects.V1?.modifiedAtVersions,
+                    sharedObjects: decodedEffects.V1?.sharedObjects,
+                    dependencies: decodedEffects.V1?.dependencies,
+                    checkpoint: {
+                        sequenceNumber: null,
+                        timestamp: null,
+                    },
+                    gasEffects: {
+                        gasSummary: decodedEffects.V1?.gasUsed,
+                    },
+                    balanceChanges: {
+                        nodes: [],
+                    },
+                    objectChanges: {
+                        nodes: [],
+                    },
+                    events: {
+                        nodes: [],
+                    },
+                }
                 : {
-                      status: { status: 'unknown' },
-                      gasUsed: {
-                          computationCost: '0',
-                          storageCost: '0',
-                          storageRebate: '0',
-                          nonRefundableStorageFee: '0',
-                      },
-                      checkpoint: { sequenceNumber: null, timestamp: null },
-                      gasEffects: { gasSummary: {} },
-                      balanceChanges: { nodes: [] },
-                      objectChanges: { nodes: [] },
-                      events: { nodes: [] },
-                  },
+                    status: { status: 'unknown' },
+                    gasUsed: {
+                        computationCost: '0',
+                        storageCost: '0',
+                        storageRebate: '0',
+                        nonRefundableStorageFee: '0',
+                    },
+                    checkpoint: { sequenceNumber: null, timestamp: null },
+                    gasEffects: { gasSummary: {} },
+                    balanceChanges: { nodes: [] },
+                    objectChanges: { nodes: [] },
+                    events: { nodes: [] },
+                },
             // Include decoded transaction data if available
             ...(decodedTransaction
                 ? {
-                      input: {
-                          transaction: {
-                              inputs: decodedTransaction.inputs,
-                              transactions: decodedTransaction.commands,
-                          },
-                          gasData: decodedTransaction.gasData,
-                      },
-                      decodedBCS: {
-                          intentMessage: {
-                              value: {
-                                  V1: {
-                                      kind: {
-                                          ProgrammableTransaction: {
-                                              inputs: decodedTransaction.inputs,
-                                              commands: decodedTransaction.commands,
-                                          },
-                                      },
-                                  },
-                              },
-                          },
-                      },
-                      transactionData: decodedTransaction,
-                  }
+                    input: {
+                        transaction: {
+                            inputs: decodedTransaction.inputs,
+                            transactions: decodedTransaction.commands,
+                        },
+                        gasData: decodedTransaction.gasData,
+                    },
+                    decodedBCS: {
+                        intentMessage: {
+                            value: {
+                                V1: {
+                                    kind: {
+                                        ProgrammableTransaction: {
+                                            inputs: decodedTransaction.inputs,
+                                            commands: decodedTransaction.commands,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    transactionData: decodedTransaction,
+                }
                 : {}),
             // Include original web wallet response
             webWalletResponse: data,
@@ -495,30 +508,53 @@ export function getTransactionData(data: any): any {
         }
     }
 
+    // Handle prepared transaction bytes format
+    if (
+        data &&
+        typeof data === 'object' &&
+        data.json &&
+        data.json.sender &&
+        data.json.inputs &&
+        data.json.commands &&
+        data.json.gasData
+    ) {
+        let txDigest = null;
+        let decodedTransaction = null;
+        if (data.transactionBytes) {
+            try {
+                const txBytes = fromBase64(data.transactionBytes);
+                decodedTransaction = TransactionDataBuilder.fromBytes(txBytes);
+                txDigest = TransactionDataBuilder.getDigestFromBytes(txBytes);
+            } catch (e) {
+                console.log('Failed to decode transaction bytes:', e);
+            }
+        }
+        // Merge decoded data into json
+        const mergedJson = { ...data.json };
+        if (decodedTransaction) {
+            mergedJson.gasData = decodedTransaction.gasData;
+            mergedJson.expiration = decodedTransaction.expiration;
+        }
+        const normalizedJson = getTransactionData(mergedJson);
+        return {
+            ...normalizedJson,
+            digest: normalizedJson.digest || txDigest,
+            transactionBytes: data.transactionBytes,
+            sender: data.sender || normalizedJson.sender,
+            recipients: data.recipients,
+        };
+    }
+
     // Handle raw transaction data format (Format 1)
     if (data && data.sender && data.inputs && data.commands && data.gasData) {
         // This is a raw transaction data format - normalize it
         let txDigest = null;
-        // Only try to build digest if commands are in BCS format (have $kind)
-        if (
-            data.commands &&
-            data.commands.length > 0 &&
-            data.commands[0] &&
-            '$kind' in data.commands[0]
-        ) {
-            try {
-                let txData = new TransactionDataBuilder(data);
-                let txBytes = txData.build();
-                txDigest = TransactionDataBuilder.getDigestFromBytes(txBytes);
-            } catch (e) {
-                try {
-                    let txData = new TransactionDataBuilder(data);
-                    let txBytes = txData.build();
-                    txDigest = TransactionDataBuilder.getDigestFromBytes(txBytes);
-                } catch (e) {
-                    console.log('error SenderSignedData', e);
-                }
-            }
+        try {
+            let txData = new TransactionDataBuilder(data);
+            let txBytes = txData.build();
+            txDigest = TransactionDataBuilder.getDigestFromBytes(txBytes);
+        } catch (e) {
+            console.log('Failed to build transaction digest:', e);
         }
 
         const normalized = {
@@ -557,21 +593,21 @@ export function getTransactionData(data: any): any {
             // Also map to decodedBCS format for consistency, if commands have $kind
             ...(data.commands && data.commands[0] && data.commands[0].$kind
                 ? {
-                      decodedBCS: {
-                          intentMessage: {
-                              value: {
-                                  V1: {
-                                      kind: {
-                                          ProgrammableTransaction: {
-                                              inputs: data.inputs,
-                                              commands: data.commands,
-                                          },
-                                      },
-                                  },
-                              },
-                          },
-                      },
-                  }
+                    decodedBCS: {
+                        intentMessage: {
+                            value: {
+                                V1: {
+                                    kind: {
+                                        ProgrammableTransaction: {
+                                            inputs: data.inputs,
+                                            commands: data.commands,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                }
                 : {}),
             // Include transaction data details
             transactionData: {
@@ -697,7 +733,7 @@ export function getTransactionData(data: any): any {
                 checkpoint: {
                     sequenceNumber:
                         typeof result.checkpoint === 'string' ||
-                        typeof result.checkpoint === 'number'
+                            typeof result.checkpoint === 'number'
                             ? result.checkpoint
                             : result.checkpoint?.sequenceNumber || null,
                     timestamp: result.timestampMs
