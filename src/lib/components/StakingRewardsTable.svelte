@@ -39,6 +39,7 @@
         showPriceColumns = $bindable(true),
         showValidatorColumns = $bindable(true),
         hideUnstaked = $bindable(false),
+        showCompactView = $bindable(true),
         noTransactionsFound = false,
     } = $props();
 
@@ -58,6 +59,29 @@
 
     // Destructure for easy access
     let { minEpoch, uniqueValidators, epochData, validatorPrincipal, epochs } = $derived(tableData);
+
+    // Filtered epochs based on showCompactView
+    let filteredEpochs = $derived.by(() => {
+        if (!showCompactView) return epochs;
+        return epochs.filter((epoch) => {
+            if (epoch === currentEpoch || epoch === currentEpoch - 1) return true;
+            const hasPreActive = stakeObjects.some((stakeObject) =>
+                isPreActivationInEpoch(stakeObject, epoch, epochData),
+            );
+            if (hasPreActive) return true;
+            return stakeObjects.some(
+                (stakeObject) =>
+                    stakeObject.actionByEpoch &&
+                    stakeObject.actionByEpoch[epoch] &&
+                    stakeObject.actionByEpoch[epoch].length > 0,
+            );
+        });
+    });
+
+    let filteredEpochEndDates = $derived.by(() => {
+        if (!showCompactView) return epochEndDates;
+        return filteredEpochs.map((epoch) => epochEndDates[epochs.indexOf(epoch)]);
+    });
 
     // Elements for scroll synchronization
     let headerElement = $state<HTMLElement>();
@@ -198,8 +222,8 @@
         };
 
         exportTableToCSV(
-            epochs,
-            epochEndDates,
+            filteredEpochs,
+            filteredEpochEndDates,
             currentEpoch,
             stakeObjects,
             uniqueValidators,
@@ -363,6 +387,14 @@
             </div>
             <span class="toggle-label"> Hide unstaked </span>
         </label>
+
+        <label class="control-item toggle-row">
+            <div class="toggle-switch">
+                <input type="checkbox" bind:checked={showCompactView} />
+                <span class="slider"></span>
+            </div>
+            <span>Compact view</span>
+        </label>
     </div>
     <div class="controls-right">
         <button
@@ -472,79 +504,90 @@
 
             <!-- Virtual scrolling body -->
             <div class="table-body" use:setupScrollSync>
-                <List bind:this={listElement} itemCount={epochs.length} itemSize={50} {height}>
+                <List
+                    bind:this={listElement}
+                    itemCount={filteredEpochs.length}
+                    itemSize={50}
+                    {height}
+                >
                     {#snippet item({ index, style })}
-                        <div {style} class="table-row">
+                        <div {style} class="table-row" class:highlight-recent={index === filteredEpochs.length - 2}>
                             <div class="data-row">
-                                <div class="table-cell epoch-cell">{epochs[index]}</div>
+                                <div class="table-cell epoch-cell">{filteredEpochs[index]}</div>
                                 <div class="table-cell end-date-cell">
-                                    {epochEndDates[index] || '-'}
+                                    {filteredEpochEndDates[index] || '-'}
                                 </div>
                                 <div class="table-cell rewards-cell">
-                                    {epochs[index] === currentEpoch
+                                    {filteredEpochs[index] === currentEpoch
                                         ? 'pending'
-                                        : getTotalStakedForEpoch(epochs[index], stakeObjects)}
+                                        : getTotalStakedForEpoch(
+                                              filteredEpochs[index],
+                                              stakeObjects,
+                                          )}
                                 </div>
                                 <div class="table-cell rewards-cell">
-                                    {epochs[index] === currentEpoch
+                                    {filteredEpochs[index] === currentEpoch
                                         ? 'pending'
-                                        : getTotalRewardsForEpoch(epochs[index], epochData)}
+                                        : getTotalRewardsForEpoch(filteredEpochs[index], epochData)}
                                 </div>
                                 <div class="table-cell rewards-cell">
-                                    {epochs[index] === currentEpoch
+                                    {filteredEpochs[index] === currentEpoch
                                         ? 'pending'
                                         : getTotalAccumulatedRewardsForEpoch(
-                                              epochs[index],
+                                              filteredEpochs[index],
                                               epochData,
                                           )}
                                 </div>
                                 <div class="table-cell rewards-cell">
-                                    {epochs[index] === currentEpoch
+                                    {filteredEpochs[index] === currentEpoch
                                         ? 'pending'
-                                        : getTotalUnstakeRewardsForEpoch(epochs[index], epochData)}
+                                        : getTotalUnstakeRewardsForEpoch(
+                                              filteredEpochs[index],
+                                              epochData,
+                                          )}
                                 </div>
                                 <div class="table-cell rewards-cell">
-                                    {epochs[index] === currentEpoch
+                                    {filteredEpochs[index] === currentEpoch
                                         ? 'pending'
                                         : getTotalAccumulatedUnstakeRewardsForEpoch(
-                                              epochs[index],
+                                              filteredEpochs[index],
                                               epochData,
                                           )}
                                 </div>
                                 {#if Object.keys(epochPrices).length > 0}
                                     {#if showPriceColumns && Object.keys(epochPrices).length > 0}
                                         <div class="table-cell rewards-cell">
-                                            {epochs[index] === currentEpoch
+                                            {filteredEpochs[index] === currentEpoch
                                                 ? 'pending'
-                                                : epochPrices[epochs[index]]
-                                                  ? epochPrices[epochs[index]].toFixed(6)
+                                                : epochPrices[filteredEpochs[index]]
+                                                  ? epochPrices[filteredEpochs[index]].toFixed(6)
                                                   : 'no price'}
                                         </div>
                                         <div class="table-cell rewards-cell">
-                                            {epochs[index] === currentEpoch
+                                            {filteredEpochs[index] === currentEpoch
                                                 ? 'pending'
-                                                : epochPrices[epochs[index]]
+                                                : epochPrices[filteredEpochs[index]]
                                                   ? `${(
                                                         Number(
                                                             getTotalRewardsForEpoch(
-                                                                epochs[index],
+                                                                filteredEpochs[index],
                                                                 epochData,
                                                             ).replace(' IOTA', ''),
-                                                        ) * epochPrices[epochs[index]]
+                                                        ) * epochPrices[filteredEpochs[index]]
                                                     ).toFixed(2)} ${selectedCurrency.toUpperCase()}`
                                                   : 'no price'}
                                         </div>
                                         <div class="table-cell rewards-cell">
-                                            {epochs[index] === currentEpoch
+                                            {filteredEpochs[index] === currentEpoch
                                                 ? 'pending'
-                                                : epochPrices[epochs[index]]
+                                                : epochPrices[filteredEpochs[index]]
                                                   ? `${(
                                                         Number(
                                                             getTotalAccumulatedRewardsForEpoch(
-                                                                epochs[index],
+                                                                filteredEpochs[index],
                                                                 epochData,
                                                             ).replace(' IOTA', ''),
-                                                        ) * epochPrices[epochs[index]]
+                                                        ) * epochPrices[filteredEpochs[index]]
                                                     ).toFixed(2)} ${selectedCurrency.toUpperCase()}`
                                                   : 'no price'}
                                         </div>
@@ -554,13 +597,13 @@
                                     {#each uniqueValidators as validator}
                                         <div class="table-cell validator-cell">
                                             <div class="validator-popup-container">
-                                                {#if epochs[index] === currentEpoch}
+                                                {#if filteredEpochs[index] === currentEpoch}
                                                     pending
                                                 {:else}
                                                     <span class="validator-reward-value">
                                                         {getValidatorRewardsForEpoch(
                                                             validator.poolId,
-                                                            epochs[index],
+                                                            filteredEpochs[index],
                                                             epochData,
                                                         )}
                                                     </span>
@@ -574,14 +617,14 @@
                                                         <div>
                                                             Rewards this epoch: {getValidatorRewardsForEpoch(
                                                                 validator.poolId,
-                                                                epochs[index],
+                                                                filteredEpochs[index],
                                                                 epochData,
                                                             )}
                                                         </div>
                                                         <div>
                                                             Accumulated rewards: {getValidatorAccumulatedRewardsForEpoch(
                                                                 validator.poolId,
-                                                                epochs[index],
+                                                                filteredEpochs[index],
                                                                 epochData,
                                                             )}
                                                         </div>
@@ -594,19 +637,19 @@
                                 {#each stakeObjects.filter((obj) => !hideUnstaked || obj.lastEpoch >= currentEpoch) as stakeObject}
                                     <div class="table-cell stake-cell">
                                         <div class="stake-popup-container">
-                                            {#if isPreActivationInEpoch(stakeObject, epochs[index], epochData)}
+                                            {#if isPreActivationInEpoch(stakeObject, filteredEpochs[index], epochData)}
                                                 <div class="pre-active-indicator">pre-active</div>
-                                            {:else if isActiveInEpoch(stakeObject, epochs[index], epochData) && epochs[index] >= stakeObject.firstEpoch && epochs[index] !== currentEpoch && !hasActionType(stakeObject.actionByEpoch?.[epochs[index]], 'Unstaked')}
+                                            {:else if isActiveInEpoch(stakeObject, filteredEpochs[index], epochData) && filteredEpochs[index] >= stakeObject.firstEpoch && filteredEpochs[index] !== currentEpoch && !hasActionType(stakeObject.actionByEpoch?.[filteredEpochs[index]], 'Unstaked')}
                                                 <div class="stake-cell-content">
                                                     <span class="stake-value">
                                                         {stakeObject.rewardsByEpoch[
-                                                            epochs[index]
+                                                            filteredEpochs[index]
                                                         ] === '0'
                                                             ? '-'
                                                             : (
                                                                   Number(
                                                                       stakeObject.rewardsByEpoch[
-                                                                          epochs[index]
+                                                                          filteredEpochs[index]
                                                                       ],
                                                                   ) / 1_000_000_000
                                                               ).toFixed(2) + ' IOTA'}
@@ -616,7 +659,7 @@
                                                             Rewards this epoch: {(
                                                                 Number(
                                                                     stakeObject.rewardsByEpoch[
-                                                                        epochs[index]
+                                                                        filteredEpochs[index]
                                                                     ],
                                                                 ) / 1_000_000_000
                                                             ).toFixed(9)} IOTA
@@ -625,40 +668,42 @@
                                                             Accumulated rewards: {(
                                                                 Number(
                                                                     stakeObject.accumulatedRewards[
-                                                                        epochs[index]
+                                                                        filteredEpochs[index]
                                                                     ],
                                                                 ) / 1_000_000_000
                                                             ).toFixed(9)} IOTA
                                                         </div>
                                                     </div>
                                                 </div>
-                                            {:else if isActiveInEpoch(stakeObject, epochs[index - 1], epochData) && epochs[index] === currentEpoch && (!stakeObject.actionByEpoch || !stakeObject.actionByEpoch[epochs[index]] || stakeObject.actionByEpoch[epochs[index]].length === 0)}
+                                            {:else if isActiveInEpoch(stakeObject, filteredEpochs[index] - 1, epochData) && filteredEpochs[index] === currentEpoch && (!stakeObject.actionByEpoch || !stakeObject.actionByEpoch[filteredEpochs[index]] || stakeObject.actionByEpoch[filteredEpochs[index]].length === 0)}
                                                 pending
-                                            {:else if !stakeObject.actionByEpoch || !stakeObject.actionByEpoch[epochs[index]] || stakeObject.actionByEpoch[epochs[index]].length === 0}
+                                            {:else if !stakeObject.actionByEpoch || !stakeObject.actionByEpoch[filteredEpochs[index]] || stakeObject.actionByEpoch[filteredEpochs[index]].length === 0}
                                                 <div class="inactive-indicator">-</div>
                                             {/if}
-                                            {#if stakeObject.actionByEpoch && stakeObject.actionByEpoch[epochs[index]] && stakeObject.actionByEpoch[epochs[index]].length > 0}
+                                            {#if stakeObject.actionByEpoch && stakeObject.actionByEpoch[filteredEpochs[index]] && stakeObject.actionByEpoch[filteredEpochs[index]].length > 0}
                                                 <button
                                                     class="action-indicator clickable-action"
                                                     type="button"
                                                     onclick={() => {
                                                         const actionsData =
                                                             stakeObject.actionByEpoch?.[
-                                                                epochs[index]
+                                                                filteredEpochs[index]
                                                             ];
                                                         if (actionsData && actionsData.length > 0) {
                                                             selectedAction = {
                                                                 actions: actionsData,
-                                                                epoch: epochs[index],
+                                                                epoch: filteredEpochs[index],
                                                                 stakeObjectId: stakeObject.objectId,
                                                             };
                                                         }
                                                     }}
                                                     >{getActionNames(
-                                                        stakeObject.actionByEpoch[epochs[index]],
+                                                        stakeObject.actionByEpoch[
+                                                            filteredEpochs[index]
+                                                        ],
                                                     )}
 
-                                                    {#if stakeObject.principalByEpoch[epochs[index]] && stakeObject.principalByEpoch[epochs[index - 1]] && stakeObject.principalByEpoch[epochs[index]] !== stakeObject.principalByEpoch[epochs[index - 1]]}
+                                                    {#if stakeObject.principalByEpoch[filteredEpochs[index]] && stakeObject.principalByEpoch[filteredEpochs[index] - 1] && stakeObject.principalByEpoch[filteredEpochs[index]] !== stakeObject.principalByEpoch[filteredEpochs[index] - 1]}
                                                         <span class="principal-change-tooltip">
                                                             <span class="principal-change-icon"
                                                                 >❗</span
@@ -669,7 +714,8 @@
                                                                     Number(
                                                                         stakeObject
                                                                             .principalByEpoch[
-                                                                            epochs[index - 1]
+                                                                            filteredEpochs[index] -
+                                                                                1
                                                                         ],
                                                                     ) / 1_000_000_000
                                                                 ).toFixed(2)} IOTA to
@@ -677,7 +723,7 @@
                                                                     Number(
                                                                         stakeObject
                                                                             .principalByEpoch[
-                                                                            epochs[index]
+                                                                            filteredEpochs[index]
                                                                         ],
                                                                     ) / 1_000_000_000
                                                                 ).toFixed(2)} IOTA
@@ -732,6 +778,10 @@
         display: flex;
         align-items: center;
         min-height: 32px;
+    }
+    .table-row.highlight-recent {
+        background-color: #1e2a3a;
+        border-left: 3px solid #4a90e2;
     }
     .header-row {
         display: flex;
