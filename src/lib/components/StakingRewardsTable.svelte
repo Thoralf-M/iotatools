@@ -40,18 +40,19 @@
         showValidatorColumns = $bindable(true),
         hideUnstaked = $bindable(false),
         showCompactView = $bindable(true),
+        onPricesFetched,
         noTransactionsFound = false,
     } = $props();
 
-    let height = $state(800);
+    let windowWidth = $state(0);
 
     onMount(() => {
-        const updateHeight = () => {
-            height = window.innerWidth < 768 ? 600 : 800;
+        const updateWidth = () => {
+            windowWidth = window.innerWidth;
         };
-        updateHeight();
-        window.addEventListener('resize', updateHeight);
-        return () => window.removeEventListener('resize', updateHeight);
+        updateWidth();
+        window.addEventListener('resize', updateWidth);
+        return () => window.removeEventListener('resize', updateWidth);
     });
 
     // Computed table data
@@ -81,6 +82,12 @@
     let filteredEpochEndDates = $derived.by(() => {
         if (!showCompactView) return epochEndDates;
         return filteredEpochs.map((epoch) => epochEndDates[epochs.indexOf(epoch)]);
+    });
+
+    let height = $derived.by(() => {
+        const maxHeight = windowWidth < 768 ? 600 : 800;
+        const contentHeight = filteredEpochs.length * 50 + 60;
+        return Math.min(contentHeight, maxHeight);
     });
 
     // Elements for scroll synchronization
@@ -256,6 +263,9 @@
         if (error) priceError = error;
         epochPrices = prices;
         isFetchingPrice = false;
+        if (onPricesFetched) {
+            onPricesFetched(prices);
+        }
     }
 </script>
 
@@ -412,7 +422,7 @@
     </div>
 {:else}
     <div class="table-container">
-        <div class="virtual-table">
+        <div class="virtual-table" style="height: {height + 80}px">
             <!-- Fixed header that scrolls horizontally -->
             <div class="table-header" bind:this={headerElement} onscroll={syncHeaderScroll}>
                 <div class="header-row">
@@ -750,14 +760,12 @@
 
 <style>
     .table-container {
-        overflow-x: auto;
         border-radius: 4px;
     }
 
     .virtual-table {
         display: flex;
         flex-direction: column;
-        height: 900px;
     }
 
     .table-header {
