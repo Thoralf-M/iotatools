@@ -2,12 +2,14 @@
     import { isValidIotaAddress } from '@iota/iota-sdk/utils';
 
     import JsonToggleView from '../../components/JsonToggleView.svelte';
+    import StakingRewardsChart from '../../components/StakingRewardsChart.svelte';
     import StakingRewardsTable from '../../components/StakingRewardsTable.svelte';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
     import { activeAddress, iota_accounts } from '../../utils/signer-data';
     import { EpochPTBAnalyzer } from '../programmable-transaction-block';
     // @ts-ignore
     import exchangeRateCacheBinary from './cache/exchange-rate-cache.bin?raw';
+    import { fetchEpochTimestampsForDisplay } from './graphql-requests';
     import {
         fetchReceivedStakeTransactions,
         fetchStakeTransactions,
@@ -16,6 +18,7 @@
         type StakeObject,
         type ValidatorInfo,
     } from './index';
+    import { computeEpochData } from './table-utils';
 
     // Use query parameters for the address field
     const queryParamValues = usePageQueryParams({
@@ -114,6 +117,27 @@
     let showPriceColumns = true;
     let showValidatorColumns = true;
     let noTransactionsFound = false;
+
+    // Computed table data
+    $: tableData = computeEpochData(stakeObjects, validatorInfo, epoch || 1);
+
+    let epochEndDates: string[] = [];
+    let epochPrices: Record<number, number> = {};
+
+    // Fetch epoch end dates when tableData changes
+    $: if (tableData.epochs.length > 0) {
+        fetchEpochTimestampsForDisplay(tableData.epochs, epoch || 1, {}).then(
+            ({ epochEndDates: dates }) => {
+                epochEndDates = dates;
+            },
+        );
+    } else {
+        epochEndDates = [];
+    }
+
+    function handlePricesFetched(prices: Record<number, number>) {
+        epochPrices = prices;
+    }
 
     // Initialize exchange rate cache on component load
     setInitialExchangeRateCacheFromBinary(exchangeRateCacheBinary);
@@ -340,9 +364,13 @@
             {validatorInfo}
             bind:showPriceColumns
             bind:showValidatorColumns
+            onPricesFetched={handlePricesFetched}
             {noTransactionsFound}
         />
     </div>
+    {#if stakeObjects.length > 0}
+        <StakingRewardsChart {tableData} {epochEndDates} {epochPrices} />
+    {/if}
     <details>
         <summary>Stake objects:</summary>
         <JsonToggleView value={stakeObjects} />
