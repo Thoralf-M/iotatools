@@ -155,7 +155,6 @@
             if (types.length === 0) {
                 return;
             }
-            objectData = null;
             objectsList = [];
             mode = 'package';
         } catch (e: any) {
@@ -332,7 +331,25 @@
         </div>
     {/if}
 
-    {#if mode === 'single' && objectData}
+    {#if packageTypes.length > 0}
+        <div class="package-types">
+            <h3>Package Types</h3>
+            <div class="package-id">
+                <strong>Package:</strong>
+                <code>{packageTypes[0]?.fullType.split('::').slice(0, 1).join('')}</code>
+            </div>
+            <p>Click on a type to search for objects of that type:</p>
+            <div class="types-list">
+                {#each packageTypes as type}
+                    <button class="type-btn" onclick={() => searchType(type.fullType)}>
+                        <code>{type.displayType}</code>
+                    </button>
+                {/each}
+            </div>
+        </div>
+    {/if}
+
+    {#if objectData}
         <div class="objects-list">
             <h3>Object Details</h3>
             <div class="object-item">
@@ -351,118 +368,133 @@
                         </button>
                     </summary>
                     <div class="object-details-content">
-                        {#if objectData.owner}
-                            <div class="detail-row">
-                                <strong>Owner:</strong>
-                                <span>
-                                    {#if objectData.owner.owner}
+                        {#if objectData.asMovePackage}
+                            {#if objectData.previousTransactionBlock}
+                                <div class="detail-row">
+                                    <strong>Last tx:</strong>
+                                    <span>
                                         <a
-                                            href={getAddressLink(
+                                            href={getTransactionLink(
                                                 getSelectedNetworkConfig(),
-                                                objectData.owner.owner.address ||
-                                                    objectData.owner.owner,
+                                                objectData.previousTransactionBlock.digest,
                                             )}
                                             target="_blank"
                                             class="address-link"
                                         >
-                                            {objectData.owner.owner.address ||
-                                                objectData.owner.owner}
+                                            {objectData.previousTransactionBlock.digest}
                                         </a>
-                                    {:else if objectData.owner.initialSharedVersion}
-                                        Shared (v{objectData.owner.initialSharedVersion})
-                                    {:else}
-                                        {JSON.stringify(objectData.owner)}
-                                    {/if}
-                                </span>
-                            </div>
-                        {/if}
-                        {#if objectData.previousTransactionBlock}
-                            <div class="detail-row">
-                                <strong>Last tx:</strong>
-                                <span>
-                                    <a
-                                        href={getTransactionLink(
-                                            getSelectedNetworkConfig(),
-                                            objectData.previousTransactionBlock.digest,
-                                        )}
-                                        target="_blank"
-                                        class="address-link"
-                                    >
-                                        {objectData.previousTransactionBlock.digest}
-                                    </a>
-                                </span>
-                            </div>
-                        {/if}
-                        {#if objectData.asMoveObject}
-                            {#if currentInputType === 'hex'}
-                                <div class="detail-row">
-                                    <strong>Type:</strong>
-                                    <code
-                                        >{objectData.asMoveObject.contents.type?.repr ||
-                                            'Unknown'}</code
-                                    >
+                                    </span>
                                 </div>
                             {/if}
                             <div class="detail-row">
-                                <strong>Contents:</strong>
-                                <button
-                                    onclick={() => queryDynamicFieldsForObject(objectData.address)}
-                                    disabled={dynamicFieldsLoading.get(objectData.address) || false}
-                                    class="dynamic-fields-btn"
-                                >
-                                    {dynamicFieldsLoading.get(objectData.address)
-                                        ? 'Loading...'
-                                        : dynamicFieldsMap.has(objectData.address)
-                                          ? `Query Dynamic Fields: ${dynamicFieldsMap.get(objectData.address)?.length ?? 0}`
-                                          : 'Query Dynamic Fields'}
-                                </button>
+                                <strong>Package</strong>
                             </div>
-                            <pre class="json-content">{JSON.stringify(
-                                    objectData.asMoveObject.contents.json,
-                                    null,
-                                    2,
-                                )}</pre>
-                            {#if objectData.address && (dynamicFieldsMap.get(objectData.address)?.length ?? 0) > 0}
-                                <details
-                                    class="dynamic-fields-details"
-                                    open={dynamicFieldsInitiallyOpen.get(objectData.address) ||
-                                        false}
-                                >
-                                    <summary class="dynamic-fields-summary">
-                                        <strong
-                                            >Dynamic Fields ({dynamicFieldsMap.get(
-                                                objectData.address,
-                                            )!.length})</strong
+                            <div class="detail-row">
+                                <strong>Modules:</strong>
+                                <ul>
+                                    {#each objectData.asMovePackage.modules.nodes as module}
+                                        <li>{module.name}</li>
+                                    {/each}
+                                </ul>
+                            </div>
+                        {:else}
+                            {#if objectData.owner}
+                                <div class="detail-row">
+                                    <strong>Owner:</strong>
+                                    <span>
+                                        {#if objectData.owner.owner}
+                                            <a
+                                                href={getAddressLink(
+                                                    getSelectedNetworkConfig(),
+                                                    objectData.owner.owner.address ||
+                                                        objectData.owner.owner,
+                                                )}
+                                                target="_blank"
+                                                class="address-link"
+                                            >
+                                                {objectData.owner.owner.address ||
+                                                    objectData.owner.owner}
+                                            </a>
+                                        {:else if objectData.owner.initialSharedVersion}
+                                            Shared (v{objectData.owner.initialSharedVersion})
+                                        {:else}
+                                            {JSON.stringify(objectData.owner)}
+                                        {/if}
+                                    </span>
+                                </div>
+                            {/if}
+                            {#if objectData.previousTransactionBlock}
+                                <div class="detail-row">
+                                    <strong>Last tx:</strong>
+                                    <span>
+                                        <a
+                                            href={getTransactionLink(
+                                                getSelectedNetworkConfig(),
+                                                objectData.previousTransactionBlock.digest,
+                                            )}
+                                            target="_blank"
+                                            class="address-link"
                                         >
-                                    </summary>
-                                    <pre class="json-content">{JSON.stringify(
-                                            dynamicFieldsMap.get(objectData.address)!,
-                                            null,
-                                            2,
-                                        )}</pre>
-                                </details>
+                                            {objectData.previousTransactionBlock.digest}
+                                        </a>
+                                    </span>
+                                </div>
+                            {/if}
+                            {#if objectData.asMoveObject}
+                                {#if currentInputType === 'hex'}
+                                    <div class="detail-row">
+                                        <strong>Type:</strong>
+                                        <code
+                                            >{objectData.asMoveObject.contents.type?.repr ||
+                                                'Unknown'}</code
+                                        >
+                                    </div>
+                                {/if}
+                                <div class="detail-row">
+                                    <strong>Contents:</strong>
+                                    <button
+                                        onclick={() =>
+                                            queryDynamicFieldsForObject(objectData.address)}
+                                        disabled={dynamicFieldsLoading.get(objectData.address) ||
+                                            false}
+                                        class="dynamic-fields-btn"
+                                    >
+                                        {dynamicFieldsLoading.get(objectData.address)
+                                            ? 'Loading...'
+                                            : dynamicFieldsMap.has(objectData.address)
+                                              ? `Query Dynamic Fields: ${dynamicFieldsMap.get(objectData.address)?.length ?? 0}`
+                                              : 'Query Dynamic Fields'}
+                                    </button>
+                                </div>
+                                <pre class="json-content">{JSON.stringify(
+                                        objectData.asMoveObject.contents.json,
+                                        null,
+                                        2,
+                                    )}</pre>
+                                {#if objectData.address && (dynamicFieldsMap.get(objectData.address)?.length ?? 0) > 0}
+                                    <details
+                                        class="dynamic-fields-details"
+                                        open={dynamicFieldsInitiallyOpen.get(objectData.address) ||
+                                            false}
+                                    >
+                                        <summary class="dynamic-fields-summary">
+                                            <strong
+                                                >Dynamic Fields ({dynamicFieldsMap.get(
+                                                    objectData.address,
+                                                )!.length})</strong
+                                            >
+                                        </summary>
+                                        <pre class="json-content">{JSON.stringify(
+                                                dynamicFieldsMap.get(objectData.address)!,
+                                                null,
+                                                2,
+                                            )}</pre>
+                                    </details>
+                                {/if}
                             {/if}
                         {/if}
                     </div>
                 </details>
-            </div>
-        </div>
-    {/if}
-
-    {#if packageTypes.length > 0}
-        <div class="package-types">
-            <h3>Package Types</h3>
-            <div class="package-id">
-                <strong>Package:</strong>
-                <code>{packageTypes[0]?.fullType.split('::').slice(0, 1).join('')}</code>
-            </div>
-            <p>Click on a type to search for objects of that type:</p>
-            <div class="types-list">
-                {#each packageTypes as type}
-                    <button class="type-btn" onclick={() => searchType(type.fullType)}>
-                        <code>{type.displayType}</code>
-                    </button>
-                {/each}
             </div>
         </div>
     {/if}
@@ -971,6 +1003,16 @@
         color: rgba(255, 255, 255, 0.7);
         font-size: 0.75rem;
         word-break: break-all;
+    }
+
+    .detail-row ul {
+        text-align: left;
+        margin: 0;
+        padding-left: 1rem;
+    }
+
+    .detail-row li {
+        text-align: left;
     }
 
     .json-content {

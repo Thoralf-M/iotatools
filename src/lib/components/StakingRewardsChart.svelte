@@ -48,11 +48,8 @@
 
             switch (metric) {
                 case 'stakedAmount':
-                    // Total staked amount - sum of all validator principals
-                    value = Object.values(tableData.validatorPrincipal).reduce(
-                        (sum, principal) => sum + Number(principal),
-                        0,
-                    );
+                    // Total staked amount for this epoch
+                    value = Number(epochData[epoch]?.totalStaked || 0n);
                     break;
                 case 'rewards':
                     value = Number(epochData[epoch]?.totalRewards || 0n);
