@@ -453,8 +453,10 @@
                                 <div class="detail-row">
                                     <strong>Contents:</strong>
                                     <button
-                                        onclick={() => queryDynamicFieldsForObject(objectData.address)}
-                                        disabled={dynamicFieldsLoading.get(objectData.address) || false}
+                                        onclick={() =>
+                                            queryDynamicFieldsForObject(objectData.address)}
+                                        disabled={dynamicFieldsLoading.get(objectData.address) ||
+                                            false}
                                         class="dynamic-fields-btn"
                                     >
                                         {dynamicFieldsLoading.get(objectData.address)

@@ -20,7 +20,6 @@
         getTotalAccumulatedRewardsForEpoch,
         getTotalAccumulatedUnstakeRewardsForEpoch,
         getTotalRewardsForEpoch,
-        getTotalStakedForEpoch,
         getTotalUnstakeRewardsForEpoch,
         getValidatorAccumulatedRewardsForEpoch,
         getValidatorRewardsForEpoch,
@@ -534,10 +533,14 @@
                                 <div class="table-cell rewards-cell">
                                     {filteredEpochs[index] === currentEpoch
                                         ? 'pending'
-                                        : getTotalStakedForEpoch(
-                                              filteredEpochs[index],
-                                              stakeObjects,
-                                          )}
+                                        : epochData[filteredEpochs[index]]?.totalStaked === 0n
+                                          ? '0'
+                                          : (
+                                                Number(
+                                                    epochData[filteredEpochs[index]]?.totalStaked ??
+                                                        0n,
+                                                ) / 1_000_000_000
+                                            ).toFixed(2) + ' IOTA'}
                                 </div>
                                 <div class="table-cell rewards-cell">
                                     {filteredEpochs[index] === currentEpoch

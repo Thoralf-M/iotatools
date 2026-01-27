@@ -7,6 +7,7 @@ export type EpochData = Record<
         totalAccumulated: bigint;
         totalUnstakeRewards: bigint;
         totalUnstakeAccumulated: bigint;
+        totalStaked: bigint;
         validatorRewards: Record<string, bigint>;
         validatorAccumulated: Record<string, bigint>;
         stakeRewards: Record<string, string>;
@@ -78,6 +79,7 @@ export function computeEpochData(
             totalAccumulated: 0n,
             totalUnstakeRewards: 0n,
             totalUnstakeAccumulated: 0n,
+            totalStaked: 0n,
             validatorRewards: {},
             validatorAccumulated: {},
             stakeRewards: {},
@@ -131,6 +133,43 @@ export function computeEpochData(
         });
     });
 
+    // Compute total staked for each epoch
+    epochRange.forEach((epoch) => {
+        let total = 0n;
+        for (const stakeObject of stakeObjects) {
+            const principal = stakeObject.principalByEpoch[epoch];
+            if (principal && principal !== '0') {
+                try {
+                    let endPrincipal = BigInt(principal);
+                    // Subtract unstaked amounts in this epoch
+                    if (stakeObject.actionByEpoch && stakeObject.actionByEpoch[epoch]) {
+                        const actions = stakeObject.actionByEpoch[epoch];
+                        // Sum up all unstaked amounts in this epoch
+                        for (const action of actions) {
+                            if (
+                                (action.action === 'Unstaked' || action.action === 'Partial Unstake') &&
+                                action.amount
+                            ) {
+                                try {
+                                    endPrincipal -= BigInt(action.amount);
+                                } catch {
+                                    // Skip invalid amount
+                                }
+                            }
+                        }
+                    }
+                    if (endPrincipal > 0n) {
+                        total += endPrincipal;
+                    }
+                } catch {
+                    // Skip invalid principal values
+                    continue;
+                }
+            }
+        }
+        epochData[epoch].totalStaked = total;
+    });
+
     // Compute accumulated rewards for each epoch (totalAccumulated)
     for (let i = 0; i < epochRange.length; i++) {
         const epoch = epochRange[i];
@@ -160,9 +199,9 @@ export function computeEpochData(
             const prevAccum =
                 i > 0
                     ? BigInt(
-                          epochData[epochRange[i - 1]].stakeAccumulated[stakeObject.objectId] ||
-                              '0',
-                      )
+                        epochData[epochRange[i - 1]].stakeAccumulated[stakeObject.objectId] ||
+                        '0',
+                    )
                     : 0n;
             const currAccum =
                 (stakeRewards && stakeRewards !== '0' ? BigInt(stakeRewards) : 0n) + prevAccum;
