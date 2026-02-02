@@ -6,9 +6,9 @@
 
     import TransactionView from '../../components/TransactionView.svelte';
     import { getClient, getSelectedChain } from '../../utils/client';
-    import { nanoToIota } from '../../utils/iota-nano-conversion';
+    import { formatNumberWithUnderscores, nanoToIota } from '../../utils/iota-nano-conversion';
     import { sharedTransactionExecution, TransactionExecution } from '../../utils/shared-in-memory';
-    import { iota_accounts, iota_wallets } from '../../utils/signer-data';
+    import { iota_accounts } from '../../utils/signer-data';
     import { calculateGasFee } from '../../utils/transaction-execution';
     import { getActiveWallet } from '../../utils/web-wallet';
     import {
@@ -481,7 +481,13 @@
                 <tbody>
                     <tr class="total-row" style="background: rgba(16, 185, 129, 0.1);">
                         <td><strong>Total</strong></td>
-                        <td><strong>{nanoToIota(allAccountsTotalBalance.toString())}</strong></td>
+                        <td
+                            ><strong
+                                >{formatNumberWithUnderscores(
+                                    nanoToIota(allAccountsTotalBalance.toString()),
+                                )}</strong
+                            ></td
+                        >
                         <td>
                             <strong>
                                 {currentPrice
@@ -499,7 +505,11 @@
                     </tr>
                     <tr>
                         <td>IOTA Coins</td>
-                        <td>{nanoToIota(allAccountsTotalIotaCoins.toString())}</td>
+                        <td
+                            >{formatNumberWithUnderscores(
+                                nanoToIota(allAccountsTotalIotaCoins.toString()),
+                            )}</td
+                        >
                         <td>
                             {currentPrice
                                 ? (
@@ -513,7 +523,11 @@
                     </tr>
                     <tr>
                         <td>Staked</td>
-                        <td>{nanoToIota(allAccountsTotalStaked.toString())}</td>
+                        <td
+                            >{formatNumberWithUnderscores(
+                                nanoToIota(allAccountsTotalStaked.toString()),
+                            )}</td
+                        >
                         <td>
                             {currentPrice
                                 ? (
@@ -527,7 +541,11 @@
                     </tr>
                     <tr>
                         <td>Staking Rewards</td>
-                        <td>{nanoToIota(allAccountsTotalRewards.toString())}</td>
+                        <td
+                            >{formatNumberWithUnderscores(
+                                nanoToIota(allAccountsTotalRewards.toString()),
+                            )}</td
+                        >
                         <td>
                             {currentPrice
                                 ? (
@@ -585,33 +603,42 @@
                             Remove
                         </button>
                         <div class="account-balance">
-                            {nanoToIota(
-                                (
-                                    account.objects.reduce((acc, obj) => {
-                                        let amountToAdd = BigInt(0);
-                                        if (obj.data.content.fields?.balance) {
-                                            amountToAdd = BigInt(obj.data.content.fields.balance);
-                                        } else if (obj.data.content.fields?.principal) {
-                                            amountToAdd = BigInt(obj.data.content.fields.principal);
-                                        }
-                                        return acc + amountToAdd;
-                                    }, BigInt(0)) +
-                                    account.timelockedObjects.reduce((acc, obj) => {
-                                        let amountToAdd = BigInt(0);
-                                        if (obj.data.content.fields?.locked) {
-                                            amountToAdd = BigInt(obj.data.content.fields?.locked);
-                                        } else if (
-                                            obj.data.content.fields?.staked_iota?.fields?.principal
-                                        ) {
-                                            amountToAdd = BigInt(
-                                                obj.data.content.fields.staked_iota.fields
-                                                    .principal,
-                                            );
-                                        }
-                                        return acc + amountToAdd;
-                                    }, BigInt(0)) +
-                                    account.stakingRewards
-                                ).toString(),
+                            {formatNumberWithUnderscores(
+                                nanoToIota(
+                                    (
+                                        account.objects.reduce((acc, obj) => {
+                                            let amountToAdd = BigInt(0);
+                                            if (obj.data.content.fields?.balance) {
+                                                amountToAdd = BigInt(
+                                                    obj.data.content.fields.balance,
+                                                );
+                                            } else if (obj.data.content.fields?.principal) {
+                                                amountToAdd = BigInt(
+                                                    obj.data.content.fields.principal,
+                                                );
+                                            }
+                                            return acc + amountToAdd;
+                                        }, BigInt(0)) +
+                                        account.timelockedObjects.reduce((acc, obj) => {
+                                            let amountToAdd = BigInt(0);
+                                            if (obj.data.content.fields?.locked) {
+                                                amountToAdd = BigInt(
+                                                    obj.data.content.fields?.locked,
+                                                );
+                                            } else if (
+                                                obj.data.content.fields?.staked_iota?.fields
+                                                    ?.principal
+                                            ) {
+                                                amountToAdd = BigInt(
+                                                    obj.data.content.fields.staked_iota.fields
+                                                        .principal,
+                                                );
+                                            }
+                                            return acc + amountToAdd;
+                                        }, BigInt(0)) +
+                                        account.stakingRewards
+                                    ).toString(),
+                                ),
                             )}
                             <span style="font-size: 0.8em; color: var(--text-muted);">IOTA</span>
                         </div>
@@ -643,13 +670,19 @@
                                     </span>
                                     <span class="object-amount">
                                         {#if item.label.startsWith('Coin<0x2::iota::IOTA>')}
-                                            {nanoToIota(item.data?.content.fields?.balance)}
+                                            {formatNumberWithUnderscores(
+                                                nanoToIota(item.data?.content.fields?.balance),
+                                            )}
                                         {:else if item.label == 'StakedIota'}
-                                            {nanoToIota(item.data?.content.fields?.principal)}
+                                            {formatNumberWithUnderscores(
+                                                nanoToIota(item.data?.content.fields?.principal),
+                                            )}
                                         {:else if item.label == 'TimelockedStakedIota'}
-                                            {nanoToIota(
-                                                item.data.content.fields.staked_iota.fields
-                                                    .principal,
+                                            {formatNumberWithUnderscores(
+                                                nanoToIota(
+                                                    item.data.content.fields.staked_iota.fields
+                                                        .principal,
+                                                ),
                                             )}
                                         {/if}
                                     </span>
@@ -700,12 +733,18 @@
                                             <span class="object-type">{item.label}</span>
                                             <span class="object-amount">
                                                 {#if item.label == 'TimelockedStakedIota'}
-                                                    {nanoToIota(
-                                                        item.data.content.fields.staked_iota.fields
-                                                            .principal,
+                                                    {formatNumberWithUnderscores(
+                                                        nanoToIota(
+                                                            item.data.content.fields.staked_iota
+                                                                .fields.principal,
+                                                        ),
                                                     )}
                                                 {:else if item.label.startsWith('Coin<0x2::iota::IOTA>')}
-                                                    {nanoToIota(item.data?.content.fields?.balance)}
+                                                    {formatNumberWithUnderscores(
+                                                        nanoToIota(
+                                                            item.data?.content.fields?.balance,
+                                                        ),
+                                                    )}
                                                 {/if}
                                             </span>
                                         </div>
