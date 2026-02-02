@@ -76,13 +76,25 @@ export async function getObjectsForAccounts(
         // Iterate over accounts, get the owned objects for each account
         const updatedAccounts = await Promise.all(
             accounts.map(async (account) => {
-                const result = await client.getOwnedObjects({
-                    owner: account.address,
-                    options: { showContent: true, showType: true },
-                });
+                // Fetch all pages of owned objects
+                let allData: any[] = [];
+                let cursor: string | null | undefined = null;
+                let hasNextPage = true;
+
+                while (hasNextPage) {
+                    const result = await client.getOwnedObjects({
+                        owner: account.address,
+                        options: { showContent: true, showType: true },
+                        cursor,
+                    });
+
+                    allData = allData.concat(result.data);
+                    hasNextPage = result.hasNextPage;
+                    cursor = result.nextCursor;
+                }
 
                 // Map the returned objects to the expected format
-                const objects = result.data.map((obj, idx) => {
+                const objects = allData.map((obj, idx) => {
                     // @ts-ignore
                     let label = obj.data.content?.type;
                     if (typeof label === 'string') {
