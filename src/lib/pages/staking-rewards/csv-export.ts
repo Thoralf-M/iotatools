@@ -1,6 +1,7 @@
 import type { StakeObject, ValidatorInfo } from './compute/types';
 import type { EpochData } from './table-utils';
 import {
+    getAvailableRewardsForEpoch,
     getTotalAccumulatedRewardsForEpoch,
     getTotalAccumulatedUnstakeRewardsForEpoch,
     getTotalRewardsForEpoch,
@@ -29,6 +30,7 @@ export function exportTableToCSV(
     uniqueValidators: ValidatorInfo[],
     epochData: EpochData,
     options: ExportOptions,
+    totalPreTransferRewards: bigint = 0n,
 ): void {
     const { showPriceColumns, showValidatorColumns, epochPrices, selectedCurrency } = options;
 
@@ -41,6 +43,7 @@ export function exportTableToCSV(
         'Accumulated',
         'Unstake Rewards',
         'Unstake Accumulated',
+        'Available Rewards',
     ];
 
     if (showPriceColumns && Object.keys(epochPrices).length > 0) {
@@ -90,6 +93,9 @@ export function exportTableToCSV(
             epoch === currentEpoch
                 ? 'pending'
                 : getTotalAccumulatedUnstakeRewardsForEpoch(epoch, epochData).replace(' IOTA', ''),
+            epoch === currentEpoch
+                ? 'pending'
+                : getAvailableRewardsForEpoch(epoch, epochData, totalPreTransferRewards).replace(' IOTA', ''),
         );
 
         // Price columns
@@ -98,20 +104,20 @@ export function exportTableToCSV(
                 epoch === currentEpoch
                     ? 'pending'
                     : epochPrices[epoch]
-                      ? epochPrices[epoch].toString()
-                      : 'no price',
+                        ? epochPrices[epoch].toString()
+                        : 'no price',
                 epoch === currentEpoch
                     ? 'pending'
                     : epochPrices[epoch]
-                      ? (
+                        ? (
                             Number(getTotalRewardsForEpoch(epoch, epochData).replace(' IOTA', '')) *
                             epochPrices[epoch]
                         ).toFixed(4)
-                      : 'no price',
+                        : 'no price',
                 epoch === currentEpoch
                     ? 'pending'
                     : epochPrices[epoch]
-                      ? (
+                        ? (
                             Number(
                                 getTotalAccumulatedRewardsForEpoch(epoch, epochData).replace(
                                     ' IOTA',
@@ -119,7 +125,7 @@ export function exportTableToCSV(
                                 ),
                             ) * epochPrices[epoch]
                         ).toFixed(4)
-                      : 'no price',
+                        : 'no price',
             );
         }
 
@@ -130,9 +136,9 @@ export function exportTableToCSV(
                     epoch === currentEpoch
                         ? 'pending'
                         : getValidatorRewardsForEpoch(validator.poolId, epoch, epochData).replace(
-                              ' IOTA',
-                              '',
-                          ),
+                            ' IOTA',
+                            '',
+                        ),
                 );
             });
         }

@@ -16,6 +16,7 @@
         formatMultipleActionDetails,
         formatPrincipal,
         getActionNames,
+        getAvailableRewardsForEpoch,
         getFirstPrincipal,
         getTotalAccumulatedRewardsForEpoch,
         getTotalAccumulatedUnstakeRewardsForEpoch,
@@ -58,7 +59,14 @@
     let tableData = $derived.by(() => computeEpochData(stakeObjects, validatorInfo, currentEpoch));
 
     // Destructure for easy access
-    let { minEpoch, uniqueValidators, epochData, validatorPrincipal, epochs } = $derived(tableData);
+    let {
+        minEpoch,
+        uniqueValidators,
+        epochData,
+        validatorPrincipal,
+        epochs,
+        totalPreTransferRewards,
+    } = $derived(tableData);
 
     // Filtered epochs based on showCompactView
     let filteredEpochs = $derived.by(() => {
@@ -235,6 +243,7 @@
             uniqueValidators,
             epochData,
             options,
+            totalPreTransferRewards,
         );
     }
 
@@ -432,6 +441,7 @@
                     <div class="header-cell rewards-header">Accumulated</div>
                     <div class="header-cell rewards-header">Unstake Rewards</div>
                     <div class="header-cell rewards-header">Unstake Total</div>
+                    <div class="header-cell rewards-header">Available Rewards</div>
                     {#if showPriceColumns && Object.keys(epochPrices).length > 0}
                         <div class="header-cell rewards-header">
                             Price ({selectedCurrency.toUpperCase()})
@@ -569,6 +579,15 @@
                                         : getTotalAccumulatedUnstakeRewardsForEpoch(
                                               filteredEpochs[index],
                                               epochData,
+                                          )}
+                                </div>
+                                <div class="table-cell rewards-cell">
+                                    {filteredEpochs[index] === currentEpoch
+                                        ? 'pending'
+                                        : getAvailableRewardsForEpoch(
+                                              filteredEpochs[index],
+                                              epochData,
+                                              totalPreTransferRewards,
                                           )}
                                 </div>
                                 {#if Object.keys(epochPrices).length > 0}

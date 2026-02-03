@@ -197,8 +197,8 @@ function createOrUpdateStakeObject(
         const stakeActivationEpoch = output.stakeActivationEpoch
             ? parseInt(output.stakeActivationEpoch)
             : input?.stakeActivationEpoch
-              ? parseInt(input.stakeActivationEpoch)
-              : epochId;
+                ? parseInt(input.stakeActivationEpoch)
+                : epochId;
         stakeObjects.set(address, {
             objectId: address,
             wasOwnedByTargetAddress: wasOwnedByTarget,
@@ -371,8 +371,31 @@ async function determineActionDetails(
     } else if (idDeleted) {
         actionDetails.action = 'Unstaked';
         actionDetails.amount = input.principal;
-        // Total rewards will be calculated later in the rewards calculator using exchange rates
-        actionDetails.totalRewards = '0'; // Placeholder
+
+        // Calculate rewards using exchange rates for the unstaked principal
+        // This correctly handles cases where partial unstakes have already occurred
+        const principalAmount = safeBigInt(input.principal);
+        const exchangeRateResult = await calculateRewardsFromExchangeRates(
+            input.poolId,
+            principalAmount,
+            existing.stakeActivationEpoch,
+            epochId, // Use the epoch when unstake happened
+        );
+
+        if (exchangeRateResult.success) {
+            actionDetails.totalRewards = exchangeRateResult.totalRewards.toString();
+        } else {
+            // Fallback: try to estimate from coins
+            const ownerCoins = coinObjects.filter((coin) => coin.owner === input.owner);
+            const totalCoinBalance = ownerCoins.reduce((sum, coin) => {
+                return sum + safeBigInt(coin.balance);
+            }, 0n);
+
+            // For full unstake, coins contain principal + rewards
+            const rewards = totalCoinBalance > principalAmount ? totalCoinBalance - principalAmount : 0n;
+            actionDetails.totalRewards = rewards.toString();
+        }
+
         existing.lastEpoch = epochId;
     } else if (!idCreated && !idDeleted) {
         if (input.owner && output?.owner && input.owner !== output.owner) {
@@ -393,7 +416,12 @@ async function determineActionDetails(
                 );
                 existing.lastEpoch = epochId;
             } else if (output.owner === targetAddress) {
-                // Transferring TO target address - extend tracking until current epoch
+                // Transferring TO target address - record the transfer epoch
+                // This is used to calculate pre-transfer rewards that shouldn't count as available
+                existing.transferredInEpoch = epochId;
+                console.log(
+                    `Transfer to target detected: epoch ${epochId}, recording transferredInEpoch`,
+                );
                 // Only extend if current lastEpoch is earlier than currentEpoch (don't override later transfer-away epochs)
                 if (existing.lastEpoch < currentEpoch) {
                     console.log(
@@ -426,6 +454,31 @@ async function determineActionDetails(
                 return sum + safeBigInt(timelock.lockedAmount);
             }, 0n);
 
+            // Detect merged stake objects (deleted objects in this transaction) BEFORE calculating rewards
+            // This is needed to correctly calculate rewards when coins include merged stakes' principal
+            const mergedObjects: Array<{ objectId: string; amount: string }> = [];
+            const splitObjects: Array<{ objectId: string; amount: string }> = [];
+            let mergedPrincipalTotal = 0n;
+
+            txStakeObjects.forEach((otherStakeData, otherAddress) => {
+                if (otherAddress !== address) {
+                    if (otherStakeData.idDeleted && otherStakeData.input) {
+                        // This object was deleted and merged into our current object
+                        mergedObjects.push({
+                            objectId: otherAddress,
+                            amount: otherStakeData.input.principal,
+                        });
+                        mergedPrincipalTotal += safeBigInt(otherStakeData.input.principal);
+                    } else if (otherStakeData.idCreated && otherStakeData.output) {
+                        // This object was created, potentially split from our current object
+                        splitObjects.push({
+                            objectId: otherAddress,
+                            amount: otherStakeData.output.principal,
+                        });
+                    }
+                }
+            });
+
             if (principalDecrease > 0n && ownerCoins.length > 0) {
                 // This is a partial unstake
                 actionDetails.action = 'Partial Unstake';
@@ -453,7 +506,10 @@ async function determineActionDetails(
                         actionDetails.totalRewards = totalCoinBalance.toString();
                     } else {
                         // Normal staking scenario: coins contain principal + rewards
-                        const rewards = totalCoinBalance - principalDecrease;
+                        // When merged stake objects exist, totalCoinBalance includes their principal + rewards
+                        // We need to subtract both the unstaked principal AND the merged principals
+                        const totalPrincipalInCoins = principalDecrease + mergedPrincipalTotal;
+                        const rewards = totalCoinBalance - totalPrincipalInCoins;
                         if (rewards > 0n) {
                             actionDetails.totalRewards = rewards.toString();
                         }
@@ -476,28 +532,6 @@ async function determineActionDetails(
                     };
                 }
             }
-
-            // Detect merged stake objects (deleted objects in this transaction)
-            const mergedObjects: Array<{ objectId: string; amount: string }> = [];
-            const splitObjects: Array<{ objectId: string; amount: string }> = [];
-
-            txStakeObjects.forEach((otherStakeData, otherAddress) => {
-                if (otherAddress !== address) {
-                    if (otherStakeData.idDeleted && otherStakeData.input) {
-                        // This object was deleted and merged into our current object
-                        mergedObjects.push({
-                            objectId: otherAddress,
-                            amount: otherStakeData.input.principal,
-                        });
-                    } else if (otherStakeData.idCreated && otherStakeData.output) {
-                        // This object was created, potentially split from our current object
-                        splitObjects.push({
-                            objectId: otherAddress,
-                            amount: otherStakeData.output.principal,
-                        });
-                    }
-                }
-            });
 
             if (mergedObjects.length > 0) {
                 actionDetails.mergedStakeObjects = mergedObjects;
@@ -848,6 +882,16 @@ export async function processStakeTransactionsWithExchangeRates(
                             return tsA.localeCompare(tsB);
                         });
                     }
+                }
+
+                // Merge transferredInEpoch: if the stake was transferred to the user, preserve that epoch
+                if (stakeObject.transferredInEpoch !== undefined && existing.transferredInEpoch === undefined) {
+                    existing.transferredInEpoch = stakeObject.transferredInEpoch;
+                }
+
+                // Merge preTransferRewards: if the stake has pre-transfer rewards, preserve them
+                if (stakeObject.preTransferRewards !== undefined && existing.preTransferRewards === undefined) {
+                    existing.preTransferRewards = stakeObject.preTransferRewards;
                 }
 
                 // Ensure the earliest stakeActivationEpoch

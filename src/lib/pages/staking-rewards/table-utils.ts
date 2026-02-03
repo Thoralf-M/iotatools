@@ -23,6 +23,9 @@ export type TableComputationResult = {
     epochData: EpochData;
     validatorPrincipal: Record<string, bigint>;
     epochs: number[];
+    // Total pre-transfer rewards (rewards that accrued before stakes were transferred to the user)
+    // This should be subtracted from unstake totals when calculating available rewards
+    totalPreTransferRewards: bigint;
 };
 
 /**
@@ -50,6 +53,7 @@ export function computeEpochData(
             epochData: {},
             validatorPrincipal: {},
             epochs: [],
+            totalPreTransferRewards: 0n,
         };
     }
 
@@ -254,12 +258,25 @@ export function computeEpochData(
             (prevEpoch !== undefined ? epochData[prevEpoch].totalUnstakeAccumulated : 0n);
     }
 
+    // Calculate total pre-transfer rewards (rewards that accrued before stakes were transferred to user)
+    let totalPreTransferRewards = 0n;
+    for (const stakeObject of stakeObjects) {
+        if (stakeObject.preTransferRewards) {
+            try {
+                totalPreTransferRewards += BigInt(stakeObject.preTransferRewards);
+            } catch {
+                // Handle BigInt conversion errors silently
+            }
+        }
+    }
+
     return {
         minEpoch: finalMinEpoch,
         uniqueValidators,
         epochData,
         validatorPrincipal,
         epochs,
+        totalPreTransferRewards,
     };
 }
 
@@ -342,6 +359,28 @@ export function getTotalAccumulatedUnstakeRewardsForEpoch(
 ): string {
     const total = epochData[epoch]?.totalUnstakeAccumulated ?? 0n;
     return total === 0n ? '0' : (Number(total) / 1_000_000_000).toFixed(2) + ' IOTA';
+}
+
+/**
+ * Get available rewards for an epoch (accumulated - (unstake accumulated - pre-transfer rewards)) formatted as IOTA string
+ * Pre-transfer rewards are rewards that accrued before stakes were transferred to the user.
+ * These should be subtracted from unstake totals since they were never earned by this user.
+ * Returns 0 if the result would be negative.
+ */
+export function getAvailableRewardsForEpoch(
+    epoch: number,
+    epochData: EpochData,
+    totalPreTransferRewards: bigint = 0n,
+): string {
+    const accumulated = epochData[epoch]?.totalAccumulated ?? 0n;
+    const unstakeAccumulated = epochData[epoch]?.totalUnstakeAccumulated ?? 0n;
+    // Subtract pre-transfer rewards from unstake total since those weren't earned by this user
+    const adjustedUnstake = unstakeAccumulated > totalPreTransferRewards
+        ? unstakeAccumulated - totalPreTransferRewards
+        : 0n;
+    // Use max(0, ...) to prevent negative values
+    const available = accumulated > adjustedUnstake ? accumulated - adjustedUnstake : 0n;
+    return available === 0n ? '0' : (Number(available) / 1_000_000_000).toFixed(2) + ' IOTA';
 }
 
 /**
