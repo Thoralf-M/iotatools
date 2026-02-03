@@ -2,35 +2,31 @@
     import { onMount } from 'svelte';
     import List from 'svelte-virtual/list';
 
-    import type { ActionDetails, StakeObject, ValidatorInfo } from '../pages/staking-rewards/';
-    import pricesCache from '../pages/staking-rewards/cache/iota-prices-coingecko.json';
-    import epochTimestampsCacheJson from '../pages/staking-rewards/cache/mainnet-epoch-timestamps-cache.json';
-    import { exportTableToCSV, type ExportOptions } from '../pages/staking-rewards/csv-export';
-    import { fetchEpochTimestampsForDisplay } from '../pages/staking-rewards/graphql-requests';
+    import { getSelectedNetworkConfig } from '../../utils/client';
+    import { copyToClipboard } from '../../utils/formatting';
+    import type { ActionDetails, StakeObject, ValidatorInfo } from './';
+    import pricesCache from './cache/iota-prices-coingecko.json';
+    import epochTimestampsCacheJson from './cache/mainnet-epoch-timestamps-cache.json';
+    import { exportTableToCSV } from './csv-export';
+    import { fetchEpochTimestampsForDisplay } from './graphql-requests';
     import {
         fetchAllPrices as fetchAllPricesUtil,
         reloadFromCoinGeckoCache,
-    } from '../pages/staking-rewards/price-fetching';
+    } from './price-fetching';
     import {
         computeEpochData,
         formatMultipleActionDetails,
         formatPrincipal,
         getActionNames,
-        getAvailableRewardsForEpoch,
         getFirstPrincipal,
-        getTotalAccumulatedRewardsForEpoch,
-        getTotalAccumulatedUnstakeRewardsForEpoch,
-        getTotalRewardsForEpoch,
-        getTotalUnstakeRewardsForEpoch,
         getValidatorAccumulatedRewardsForEpoch,
         getValidatorRewardsForEpoch,
         getValidatorTotalPrincipal,
         hasActionType,
         isActiveInEpoch,
         isPreActivationInEpoch,
-    } from '../pages/staking-rewards/table-utils';
-    import { getSelectedNetworkConfig } from '../utils/client';
-    import { copyToClipboard } from '../utils/formatting';
+    } from './table-utils';
+    import type { ExportOptions } from './types';
 
     let {
         currentEpoch = 0,
@@ -59,14 +55,7 @@
     let tableData = $derived.by(() => computeEpochData(stakeObjects, validatorInfo, currentEpoch));
 
     // Destructure for easy access
-    let {
-        minEpoch,
-        uniqueValidators,
-        epochData,
-        validatorPrincipal,
-        epochs,
-        totalPreTransferRewards,
-    } = $derived(tableData);
+    let { uniqueValidators, epochData, validatorPrincipal, epochs } = $derived(tableData);
 
     // Filtered epochs based on showCompactView
     let filteredEpochs = $derived.by(() => {
@@ -243,7 +232,6 @@
             uniqueValidators,
             epochData,
             options,
-            totalPreTransferRewards,
         );
     }
 
@@ -555,40 +543,32 @@
                                 <div class="table-cell rewards-cell">
                                     {filteredEpochs[index] === currentEpoch
                                         ? 'pending'
-                                        : getTotalRewardsForEpoch(filteredEpochs[index], epochData)}
+                                        : (epochData[filteredEpochs[index]]?.display
+                                              .rewardsDisplay ?? '0')}
                                 </div>
                                 <div class="table-cell rewards-cell">
                                     {filteredEpochs[index] === currentEpoch
                                         ? 'pending'
-                                        : getTotalAccumulatedRewardsForEpoch(
-                                              filteredEpochs[index],
-                                              epochData,
-                                          )}
+                                        : (epochData[filteredEpochs[index]]?.display
+                                              .accumulatedDisplay ?? '0')}
                                 </div>
                                 <div class="table-cell rewards-cell">
                                     {filteredEpochs[index] === currentEpoch
                                         ? 'pending'
-                                        : getTotalUnstakeRewardsForEpoch(
-                                              filteredEpochs[index],
-                                              epochData,
-                                          )}
+                                        : (epochData[filteredEpochs[index]]?.display
+                                              .unstakeRewardsDisplay ?? '0')}
                                 </div>
                                 <div class="table-cell rewards-cell">
                                     {filteredEpochs[index] === currentEpoch
                                         ? 'pending'
-                                        : getTotalAccumulatedUnstakeRewardsForEpoch(
-                                              filteredEpochs[index],
-                                              epochData,
-                                          )}
+                                        : (epochData[filteredEpochs[index]]?.display
+                                              .unstakeAccumulatedDisplay ?? '0')}
                                 </div>
                                 <div class="table-cell rewards-cell">
                                     {filteredEpochs[index] === currentEpoch
                                         ? 'pending'
-                                        : getAvailableRewardsForEpoch(
-                                              filteredEpochs[index],
-                                              epochData,
-                                              totalPreTransferRewards,
-                                          )}
+                                        : (epochData[filteredEpochs[index]]?.display
+                                              .availableRewardsDisplay ?? '0')}
                                 </div>
                                 {#if Object.keys(epochPrices).length > 0}
                                     {#if showPriceColumns && Object.keys(epochPrices).length > 0}
@@ -604,12 +584,12 @@
                                                 ? 'pending'
                                                 : epochPrices[filteredEpochs[index]]
                                                   ? `${(
-                                                        Number(
-                                                            getTotalRewardsForEpoch(
-                                                                filteredEpochs[index],
-                                                                epochData,
-                                                            ).replace(' IOTA', ''),
-                                                        ) * epochPrices[filteredEpochs[index]]
+                                                        (Number(
+                                                            epochData[filteredEpochs[index]]
+                                                                ?.totalRewards ?? 0n,
+                                                        ) /
+                                                            1_000_000_000) *
+                                                        epochPrices[filteredEpochs[index]]
                                                     ).toFixed(2)} ${selectedCurrency.toUpperCase()}`
                                                   : 'no price'}
                                         </div>
@@ -618,12 +598,12 @@
                                                 ? 'pending'
                                                 : epochPrices[filteredEpochs[index]]
                                                   ? `${(
-                                                        Number(
-                                                            getTotalAccumulatedRewardsForEpoch(
-                                                                filteredEpochs[index],
-                                                                epochData,
-                                                            ).replace(' IOTA', ''),
-                                                        ) * epochPrices[filteredEpochs[index]]
+                                                        (Number(
+                                                            epochData[filteredEpochs[index]]
+                                                                ?.totalAccumulated ?? 0n,
+                                                        ) /
+                                                            1_000_000_000) *
+                                                        epochPrices[filteredEpochs[index]]
                                                     ).toFixed(2)} ${selectedCurrency.toUpperCase()}`
                                                   : 'no price'}
                                         </div>

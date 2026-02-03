@@ -1,4 +1,4 @@
-import { bcs, toB64 } from '@iota/bcs';
+import { bcs, toBase64 } from '@iota/bcs';
 import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
 
 import { getSelectedNetworkConfig } from '../../utils/client';
@@ -8,7 +8,7 @@ import {
     getCompressionStats,
 } from './cache/binary-cache';
 import { getInactiveValidatorsWithDeactivationEpoch } from './compute/validator-utils';
-import { formatDate } from './table-utils';
+import { formatDate } from './formatting';
 
 async function fetchStakeTransactionsByRole(
     address: string,
@@ -179,16 +179,16 @@ ${objectChangesSection}
         }
         hasNextPage =
             txBlocks &&
-            typeof txBlocks === 'object' &&
-            'pageInfo' in txBlocks &&
-            (txBlocks as any).pageInfo?.hasNextPage
+                typeof txBlocks === 'object' &&
+                'pageInfo' in txBlocks &&
+                (txBlocks as any).pageInfo?.hasNextPage
                 ? (txBlocks as any).pageInfo.hasNextPage
                 : false;
         endCursor =
             txBlocks &&
-            typeof txBlocks === 'object' &&
-            'pageInfo' in txBlocks &&
-            (txBlocks as any).pageInfo?.endCursor
+                typeof txBlocks === 'object' &&
+                'pageInfo' in txBlocks &&
+                (txBlocks as any).pageInfo?.endCursor
                 ? (txBlocks as any).pageInfo.endCursor
                 : undefined;
         if (hasNextPage && endCursor) {
@@ -397,7 +397,7 @@ async function fetchMissingEpochsWithDynamicFields(
             // Always check cache before fetching
             if (cacheEntry.epochData[epoch]) continue;
             try {
-                const epochBcs = toB64(bcs.u64().serialize(epoch).toBytes());
+                const epochBcs = toBase64(bcs.u64().serialize(epoch).toBytes());
                 const query = `query getDynamicFieldObject($parentId: IotaAddress!, $epochBcs: Base64!) {
                                         owner(address: $parentId) {
                                             address
@@ -850,9 +850,9 @@ export function getExchangeRateCacheStats() {
         epochRange:
             stats.epochs.size > 0
                 ? {
-                      min: Math.min(...stats.epochs),
-                      max: Math.max(...stats.epochs),
-                  }
+                    min: Math.min(...stats.epochs),
+                    max: Math.max(...stats.epochs),
+                }
                 : null,
     };
 }
@@ -1006,7 +1006,7 @@ export async function fetchEpochTimestampsForDisplay(
     let isMainnet = false;
     try {
         isMainnet = getSelectedNetworkConfig().name?.toLowerCase().includes('mainnet');
-    } catch {}
+    } catch { }
 
     for (let i = 0; i < epochs.length; i++) {
         const epochNum = epochs[i];

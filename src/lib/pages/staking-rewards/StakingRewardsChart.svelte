@@ -5,7 +5,7 @@
 
     import 'chartjs-adapter-date-fns';
 
-    import type { EpochData, TableComputationResult } from '../pages/staking-rewards/table-utils';
+    import type { TableComputationResult } from './types';
 
     Chart.register(zoomPlugin);
 

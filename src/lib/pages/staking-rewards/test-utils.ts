@@ -3,31 +3,11 @@
  */
 
 import type { ActionDetails, StakeObject, ValidatorInfo } from './compute/types';
-import type { TableComputationResult } from './table-utils';
+import { formatNumberLocale } from './formatting';
+import type { ActionsByEpoch, TableComputationResult } from './types';
 
-// ============================================================================
-// Types
-// ============================================================================
-
-export type ActionsByEpoch = Record<
-    number,
-    Array<{ stakeObjectId: string; validator: string; action: ActionDetails }>
->;
-
-// ============================================================================
-// Utility Functions
-// ============================================================================
-
-/**
- * Format a bigint value as a locale-formatted number with 2 decimal places
- */
-export function formatNumber(value: bigint, decimals = 9): string {
-    const num = Number(value) / Math.pow(10, decimals);
-    return num.toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    });
-}
+// Re-export types for convenience
+export type { ActionsByEpoch };
 
 /**
  * Get the max epoch from exchange rate cache data
@@ -99,9 +79,9 @@ export function generateEpochTable(
                 actionStr += ` ObjId: ${stakeObjectId}`;
                 actionStr += ` | TX: ${action.digest}`;
                 actionStr += ` | Validator: ${validator}`;
-                if (action.amount) actionStr += ` | Amount: ${formatNumber(BigInt(action.amount))}`;
+                if (action.amount) actionStr += ` | Amount: ${formatNumberLocale(BigInt(action.amount))}`;
                 if (action.totalRewards && action.totalRewards !== '0') {
-                    actionStr += ` | Rewards: ${formatNumber(BigInt(action.totalRewards))}`;
+                    actionStr += ` | Rewards: ${formatNumberLocale(BigInt(action.totalRewards))}`;
                 }
                 if (action.fromAddress && action.toAddress) {
                     actionStr += ` | From: ${action.fromAddress} To: ${action.toAddress}`;
@@ -113,11 +93,11 @@ export function generateEpochTable(
             }
         }
 
-        const staked = formatNumber(data.totalStaked).padStart(22);
-        const rewards = formatNumber(data.totalRewards).padStart(22);
-        const accumulated = formatNumber(data.totalAccumulated).padStart(22);
-        const unstakeRewards = formatNumber(data.totalUnstakeRewards).padStart(22);
-        const unstakeTotal = formatNumber(data.totalUnstakeAccumulated).padStart(22);
+        const staked = formatNumberLocale(data.totalStaked).padStart(22);
+        const rewards = formatNumberLocale(data.totalRewards).padStart(22);
+        const accumulated = formatNumberLocale(data.totalAccumulated).padStart(22);
+        const unstakeRewards = formatNumberLocale(data.totalUnstakeRewards).padStart(22);
+        const unstakeTotal = formatNumberLocale(data.totalUnstakeAccumulated).padStart(22);
         // Subtract pre-transfer rewards from unstake total since those weren't earned by this user
         const adjustedUnstake =
             data.totalUnstakeAccumulated > tableData.totalPreTransferRewards
@@ -125,7 +105,7 @@ export function generateEpochTable(
                 : 0n;
         // Use max(0, ...) to prevent negative values
         const availableRaw = data.totalAccumulated > adjustedUnstake ? data.totalAccumulated - adjustedUnstake : 0n;
-        const available = formatNumber(availableRaw).padStart(22);
+        const available = formatNumberLocale(availableRaw).padStart(22);
 
         const epochStr = String(epoch).padEnd(9);
         lines.push(`${epochStr}| ${staked} | ${rewards} | ${accumulated} | ${unstakeRewards} | ${unstakeTotal} | ${available}`);

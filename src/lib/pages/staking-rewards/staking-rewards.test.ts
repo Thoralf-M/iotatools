@@ -20,7 +20,6 @@ import {
     getMaxEpochFromCache,
     collectActionsByEpoch,
     generateEpochTable,
-    formatNumber,
     type ActionsByEpoch,
 } from './index.js';
 import { MAINNET_CONFIG, setNetworkConfigOverride } from '../../utils/network-config.js';
@@ -30,7 +29,7 @@ import { MAINNET_CONFIG, setNetworkConfigOverride } from '../../utils/network-co
 // ============================================================================
 
 const SINGLE_ADDRESS = '0x1ee12dca0e798966a82f74c010c109e1bd0674f4f47517db6843f223bad5eb7c';
-const MULTI_ADDRESSES = [];
+const MULTI_ADDRESSES: string[] = [];
 
 const TX_CACHE_PATH = join(__dirname, '../../../../scripts/staking-rewards-tx-cache.json');
 const TX_CACHE_MULTI_PATH = join(__dirname, '../../../../scripts/staking-rewards-tx-cache-multi.json');
