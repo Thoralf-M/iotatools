@@ -4,6 +4,7 @@ import { get } from 'svelte/store';
 
 import type { NetworkConfig } from './default-client-config';
 import { sharedClientConfig } from './local-storage-store';
+import { getNetworkConfigOverride, hasNetworkConfigOverride } from './network-config';
 
 // Used to determine if the client should be initialized with a new node
 let previousInitializedNodeUrl = '';
@@ -32,6 +33,10 @@ export function getClient(graphql: boolean = false): IotaClient {
 }
 
 export function getSelectedNetworkConfig(): NetworkConfig {
+    // Check for override first (for scripts/tests running outside browser)
+    if (hasNetworkConfigOverride()) {
+        return getNetworkConfigOverride()!;
+    }
     let config = get(sharedClientConfig);
     return config.networks.find((network) => network.name == config.selected)!;
 }

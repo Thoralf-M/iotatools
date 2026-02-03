@@ -2,8 +2,6 @@
     import { isValidIotaAddress } from '@iota/iota-sdk/utils';
 
     import JsonToggleView from '../../components/JsonToggleView.svelte';
-    import StakingRewardsChart from '../../components/StakingRewardsChart.svelte';
-    import StakingRewardsTable from '../../components/StakingRewardsTable.svelte';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
     import { activeAddress, iota_accounts } from '../../utils/signer-data';
     import { EpochPTBAnalyzer } from '../programmable-transaction-block';
@@ -18,6 +16,8 @@
         type StakeObject,
         type ValidatorInfo,
     } from './index';
+    import StakingRewardsChart from './StakingRewardsChart.svelte';
+    import StakingRewardsTable from './StakingRewardsTable.svelte';
     import { computeEpochData } from './table-utils';
 
     // Use query parameters for the address field

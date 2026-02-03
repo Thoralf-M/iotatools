@@ -34,6 +34,11 @@ export type StakeObject = {
     firstEpoch: number;
     lastEpoch: number;
     stakeActivationEpoch: number;
+    // Rewards that accumulated before the user received this stake (via transfer)
+    // This should be subtracted from unstake totals when calculating available rewards
+    preTransferRewards?: string;
+    // The epoch when the stake was transferred to this user (if transferred)
+    transferredInEpoch?: number;
 };
 
 export type ValidatorInfo = {

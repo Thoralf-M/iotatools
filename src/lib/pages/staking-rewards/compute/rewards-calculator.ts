@@ -135,35 +135,29 @@ export async function computeRewardsForStakeObject(
                 const epochActions = stakeObject.actionByEpoch?.[epoch] || [];
                 const unstakeAction = epochActions.find((a) => a.action === 'Unstaked');
                 if (unstakeAction) {
-                    // Update the action with total rewards at unstaking.
-                    // Use epoch-1 accumulated rewards if available.
-                    // Important: When unstaking, you only receive rewards for complete epochs,
-                    // not for the epoch in which the unstake occurs.
-                    const prevEpochRewards = stakeObject.accumulatedRewards[epoch - 1];
-                    if (prevEpochRewards && prevEpochRewards !== '0') {
-                        unstakeAction.totalRewards = prevEpochRewards;
-                    } else {
-                        // No prior accumulated rewards tracked - calculate from exchange rates
-                        // using the PREVIOUS epoch's exchange rate, since you don't earn
-                        // rewards for the unstake epoch itself.
+                    // If totalRewards was already calculated in processor.ts, keep it
+                    // Otherwise calculate here (backwards compatibility)
+                    if (!unstakeAction.totalRewards || unstakeAction.totalRewards === '0') {
+                        // Calculate rewards using the unstaked principal amount
+                        // Use the previous epoch's exchange rate since you don't earn
+                        // rewards for the unstake epoch itself
+                        const unstakePrincipal = safeBigInt(unstakeAction.amount || '0');
                         const prevExchangeRate = stakeObject.exchangeRatesByEpoch[epoch - 1];
-                        if (prevExchangeRate) {
+
+                        if (prevExchangeRate && unstakePrincipal > 0n) {
                             const poolTokenAmount = getTokenAmount(
                                 baselineExchangeRate,
-                                principalAmount,
+                                unstakePrincipal,
                             );
                             const totalIotaAmount = getIotaAmount(
                                 prevExchangeRate,
                                 poolTokenAmount,
                             );
                             const prevAccumulatedRewards =
-                                totalIotaAmount > principalAmount
-                                    ? totalIotaAmount - principalAmount
+                                totalIotaAmount > unstakePrincipal
+                                    ? totalIotaAmount - unstakePrincipal
                                     : 0n;
                             unstakeAction.totalRewards = prevAccumulatedRewards.toString();
-                        } else {
-                            // No previous exchange rate available - rewards are 0
-                            unstakeAction.totalRewards = '0';
                         }
                     }
                     stakeObject.accumulatedRewards[epoch] = '0';
@@ -183,6 +177,33 @@ export async function computeRewardsForStakeObject(
                 stakeObject.accumulatedRewards[epoch] = previousAccumulatedRewards.toString();
                 stakeObject.rewardsByEpoch[epoch] = '0';
             }
+        }
+    }
+
+    // Calculate pre-transfer rewards if this stake was transferred to the user
+    // These rewards accrued before the user owned the stake and should be subtracted
+    // from unstake totals when calculating available rewards
+    if (stakeObject.transferredInEpoch !== undefined) {
+        const transferEpoch = stakeObject.transferredInEpoch;
+        const principalAtTransfer = safeBigInt(stakeObject.principalByEpoch[transferEpoch] || '0');
+
+        // Get exchange rate at transfer epoch (use previous epoch since you don't earn in transfer epoch)
+        const transferExchangeRate = stakeObject.exchangeRatesByEpoch[transferEpoch - 1];
+
+        if (transferExchangeRate && principalAtTransfer > 0n) {
+            // Calculate the accumulated rewards at the transfer epoch
+            const poolTokenAmount = getTokenAmount(baselineExchangeRate, principalAtTransfer);
+            const totalIotaAmount = getIotaAmount(transferExchangeRate, poolTokenAmount);
+            const preTransferRewards = totalIotaAmount > principalAtTransfer
+                ? totalIotaAmount - principalAtTransfer
+                : 0n;
+
+            stakeObject.preTransferRewards = preTransferRewards.toString();
+            console.log(
+                `Pre-transfer rewards for stake ${stakeObject.objectId}: ${preTransferRewards} (transferred in epoch ${transferEpoch})`,
+            );
+        } else {
+            stakeObject.preTransferRewards = '0';
         }
     }
 }
