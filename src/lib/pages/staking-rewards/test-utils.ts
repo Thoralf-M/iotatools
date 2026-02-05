@@ -12,7 +12,9 @@ export type { ActionsByEpoch };
 /**
  * Get the max epoch from exchange rate cache data
  */
-export function getMaxEpochFromCache(exchangeRateCache: Array<{ epochData?: Record<string, unknown> }>): number {
+export function getMaxEpochFromCache(
+    exchangeRateCache: Array<{ epochData?: Record<string, unknown> }>,
+): number {
     let maxEpoch = 0;
     for (const pool of exchangeRateCache) {
         if (pool.epochData) {
@@ -79,7 +81,8 @@ export function generateEpochTable(
                 actionStr += ` ObjId: ${stakeObjectId}`;
                 actionStr += ` | TX: ${action.digest}`;
                 actionStr += ` | Validator: ${validator}`;
-                if (action.amount) actionStr += ` | Amount: ${formatNumberLocale(BigInt(action.amount))}`;
+                if (action.amount)
+                    actionStr += ` | Amount: ${formatNumberLocale(BigInt(action.amount))}`;
                 if (action.totalRewards && action.totalRewards !== '0') {
                     actionStr += ` | Rewards: ${formatNumberLocale(BigInt(action.totalRewards))}`;
                 }
@@ -104,11 +107,14 @@ export function generateEpochTable(
                 ? data.totalUnstakeAccumulated - tableData.totalPreTransferRewards
                 : 0n;
         // Use max(0, ...) to prevent negative values
-        const availableRaw = data.totalAccumulated > adjustedUnstake ? data.totalAccumulated - adjustedUnstake : 0n;
+        const availableRaw =
+            data.totalAccumulated > adjustedUnstake ? data.totalAccumulated - adjustedUnstake : 0n;
         const available = formatNumberLocale(availableRaw).padStart(22);
 
         const epochStr = String(epoch).padEnd(9);
-        lines.push(`${epochStr}| ${staked} | ${rewards} | ${accumulated} | ${unstakeRewards} | ${unstakeTotal} | ${available}`);
+        lines.push(
+            `${epochStr}| ${staked} | ${rewards} | ${accumulated} | ${unstakeRewards} | ${unstakeTotal} | ${available}`,
+        );
     }
 
     lines.push('-'.repeat(142));

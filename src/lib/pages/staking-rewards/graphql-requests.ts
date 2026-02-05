@@ -179,16 +179,16 @@ ${objectChangesSection}
         }
         hasNextPage =
             txBlocks &&
-                typeof txBlocks === 'object' &&
-                'pageInfo' in txBlocks &&
-                (txBlocks as any).pageInfo?.hasNextPage
+            typeof txBlocks === 'object' &&
+            'pageInfo' in txBlocks &&
+            (txBlocks as any).pageInfo?.hasNextPage
                 ? (txBlocks as any).pageInfo.hasNextPage
                 : false;
         endCursor =
             txBlocks &&
-                typeof txBlocks === 'object' &&
-                'pageInfo' in txBlocks &&
-                (txBlocks as any).pageInfo?.endCursor
+            typeof txBlocks === 'object' &&
+            'pageInfo' in txBlocks &&
+            (txBlocks as any).pageInfo?.endCursor
                 ? (txBlocks as any).pageInfo.endCursor
                 : undefined;
         if (hasNextPage && endCursor) {
@@ -850,9 +850,9 @@ export function getExchangeRateCacheStats() {
         epochRange:
             stats.epochs.size > 0
                 ? {
-                    min: Math.min(...stats.epochs),
-                    max: Math.max(...stats.epochs),
-                }
+                      min: Math.min(...stats.epochs),
+                      max: Math.max(...stats.epochs),
+                  }
                 : null,
     };
 }
@@ -1006,7 +1006,7 @@ export async function fetchEpochTimestampsForDisplay(
     let isMainnet = false;
     try {
         isMainnet = getSelectedNetworkConfig().name?.toLowerCase().includes('mainnet');
-    } catch { }
+    } catch {}
 
     for (let i = 0; i < epochs.length; i++) {
         const epochNum = epochs[i];

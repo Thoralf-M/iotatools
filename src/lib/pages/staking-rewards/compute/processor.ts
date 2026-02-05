@@ -197,8 +197,8 @@ function createOrUpdateStakeObject(
         const stakeActivationEpoch = output.stakeActivationEpoch
             ? parseInt(output.stakeActivationEpoch)
             : input?.stakeActivationEpoch
-                ? parseInt(input.stakeActivationEpoch)
-                : epochId;
+              ? parseInt(input.stakeActivationEpoch)
+              : epochId;
         stakeObjects.set(address, {
             objectId: address,
             wasOwnedByTargetAddress: wasOwnedByTarget,
@@ -208,7 +208,9 @@ function createOrUpdateStakeObject(
             rewardsByEpoch: {},
             accumulatedRewards: {},
             actionByEpoch: {},
-            firstEpoch: epochId,
+            // Only set firstEpoch to this transaction's epoch if target owned the stake
+            // Otherwise set to max epoch (will be updated when we see a transaction where target owned it)
+            firstEpoch: wasOwnedByTarget ? epochId : currentEpoch,
             lastEpoch: currentEpoch,
             stakeActivationEpoch,
         });
@@ -217,10 +219,10 @@ function createOrUpdateStakeObject(
         const existing = stakeObjects.get(address)!;
         if (wasOwnedByTarget) {
             existing.wasOwnedByTargetAddress = true;
-        }
-        // Preserve the original firstEpoch - only update if this epoch is earlier
-        if (epochId < existing.firstEpoch) {
-            existing.firstEpoch = epochId;
+            // Only update firstEpoch to an earlier epoch if target owned the stake at that epoch
+            if (epochId < existing.firstEpoch) {
+                existing.firstEpoch = epochId;
+            }
         }
         // Don't automatically update lastEpoch to currentEpoch - let transfer logic handle it
     }
@@ -392,7 +394,8 @@ async function determineActionDetails(
             }, 0n);
 
             // For full unstake, coins contain principal + rewards
-            const rewards = totalCoinBalance > principalAmount ? totalCoinBalance - principalAmount : 0n;
+            const rewards =
+                totalCoinBalance > principalAmount ? totalCoinBalance - principalAmount : 0n;
             actionDetails.totalRewards = rewards.toString();
         }
 
@@ -825,6 +828,33 @@ export async function processStakeTransactionsWithExchangeRates(
             if (allStakeObjects.has(key)) {
                 const existing = allStakeObjects.get(key)!;
 
+                // Handle transfers between tracked addresses:
+                // When the same stake object appears from multiple tracked addresses,
+                // one will have transferredInEpoch set (the new owner) and one won't (the old owner).
+                // We should prefer the new owner's version to avoid double-counting rewards.
+                const existingIsNewOwner = existing.transferredInEpoch !== undefined;
+                const incomingIsNewOwner = stakeObject.transferredInEpoch !== undefined;
+
+                if (!existingIsNewOwner && incomingIsNewOwner) {
+                    // The incoming stake object is from the new owner (has transferredInEpoch).
+                    // Replace the existing with the incoming to use correct firstEpoch and rewards.
+                    // But preserve lastEpoch as the maximum to track the full lifecycle.
+                    const maxLastEpoch = Math.max(existing.lastEpoch, stakeObject.lastEpoch);
+                    stakeObject.lastEpoch = maxLastEpoch;
+                    stakeObject.wasOwnedByTargetAddress = true;
+                    allStakeObjects.set(key, stakeObject);
+                    return; // Skip the rest of the merge logic
+                } else if (existingIsNewOwner && !incomingIsNewOwner) {
+                    // The existing stake object is already from the new owner.
+                    // Just update lastEpoch if needed and skip the rest.
+                    existing.lastEpoch = Math.max(existing.lastEpoch, stakeObject.lastEpoch);
+                    existing.wasOwnedByTargetAddress = true;
+                    return; // Skip the rest of the merge logic
+                }
+
+                // For non-transfer cases (or transfers between non-tracked addresses),
+                // use the original merge logic:
+
                 // Update ownership flag - if any address owned it, mark as owned
                 if (stakeObject.wasOwnedByTargetAddress) {
                     existing.wasOwnedByTargetAddress = true;
@@ -885,12 +915,18 @@ export async function processStakeTransactionsWithExchangeRates(
                 }
 
                 // Merge transferredInEpoch: if the stake was transferred to the user, preserve that epoch
-                if (stakeObject.transferredInEpoch !== undefined && existing.transferredInEpoch === undefined) {
+                if (
+                    stakeObject.transferredInEpoch !== undefined &&
+                    existing.transferredInEpoch === undefined
+                ) {
                     existing.transferredInEpoch = stakeObject.transferredInEpoch;
                 }
 
                 // Merge preTransferRewards: if the stake has pre-transfer rewards, preserve them
-                if (stakeObject.preTransferRewards !== undefined && existing.preTransferRewards === undefined) {
+                if (
+                    stakeObject.preTransferRewards !== undefined &&
+                    existing.preTransferRewards === undefined
+                ) {
                     existing.preTransferRewards = stakeObject.preTransferRewards;
                 }
 
