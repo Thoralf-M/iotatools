@@ -9,7 +9,7 @@
         "preview": "vite preview",
         "production": "node scripts/server.js",
         "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json",
-        "test": "vitest",
+        "test": "vitest --run",
         "test:ui": "vitest --ui"
     },
     "license": "Apache-2.0",
