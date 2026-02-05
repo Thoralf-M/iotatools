@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { NANOS_PER_IOTA } from '@iota/iota-sdk/utils';
     import { onMount } from 'svelte';
     import List from 'svelte-virtual/list';
 
@@ -19,7 +20,6 @@
         formatPrincipal,
         getActionNames,
         getFirstPrincipal,
-        getValidatorAccumulatedRewardsForEpoch,
         getValidatorRewardsForEpoch,
         getValidatorTotalPrincipal,
         hasActionType,
@@ -27,6 +27,44 @@
         isPreActivationInEpoch,
     } from './table-utils';
     import type { ExportOptions } from './types';
+
+    function toIota(amount: number | string | bigint): bigint {
+        return BigInt(amount) / NANOS_PER_IOTA;
+    }
+
+    function formatIota(amount: number | string | bigint, decimals: number = 2): string {
+        const bigAmount = BigInt(amount);
+        const whole = bigAmount / NANOS_PER_IOTA;
+        const nano = bigAmount % NANOS_PER_IOTA;
+        const nanoStr = nano.toString().padStart(9, '0');
+        const decimal = nanoStr.slice(0, decimals);
+        const wholeStr = whole.toLocaleString('en-US');
+        return `${wholeStr}.${decimal} IOTA`;
+    }
+
+    function formatIotaWithSeparators(amount: number | string | bigint): string {
+        const whole = toIota(amount);
+        return whole.toLocaleString('en-US') + ' IOTA';
+    }
+
+    function formatExactIota(amount: number | string | bigint): string {
+        const bigAmount = BigInt(amount);
+        const whole = bigAmount / NANOS_PER_IOTA;
+        const nano = bigAmount % NANOS_PER_IOTA;
+        const wholeStr = whole.toLocaleString('en-US');
+        const nanoStr = nano.toString().padStart(9, '0');
+        // Remove trailing zeros
+        const trimmedNano = nanoStr.replace(/0+$/, '');
+        if (trimmedNano === '') {
+            return wholeStr + ' IOTA';
+        }
+        return `${wholeStr}.${trimmedNano} IOTA`;
+    }
+
+    function formatNano(amount: number | string | bigint): string {
+        const bigAmount = BigInt(amount);
+        return bigAmount.toLocaleString('en-US').replace(/,/g, '_') + ' NANO';
+    }
 
     let {
         currentEpoch = 0,
@@ -272,13 +310,34 @@
             aria-label="Close address info"
             onclick={() => (selectedStakeObject = null)}>×</button
         >
-        <div class="full-address">{selectedStakeObject.objectId}</div>
+        <div class="full-address">
+            {selectedStakeObject.objectId}
+        </div>
         <div class="principal">{formatPrincipal(getFirstPrincipal(selectedStakeObject))}</div>
         <div class="pool-id">
             Pool: {selectedStakeObject.poolId}
         </div>
-        First Epoch: {selectedStakeObject.firstEpoch}
-        Last Epoch: {selectedStakeObject.lastEpoch}
+        <div class="epochs-info">
+            First Epoch: {selectedStakeObject.firstEpoch}
+        </div>
+        <div class="epochs-info">
+            Last Epoch: {selectedStakeObject.lastEpoch}
+        </div>
+        {#if selectedStakeObject.actionByEpoch && Object.keys(selectedStakeObject.actionByEpoch).length > 0}
+            <div class="actions-section">
+                <div class="actions-title">Actions:</div>
+                <div class="actions-list">
+                    {#each Object.entries(selectedStakeObject.actionByEpoch).sort(([a], [b]) => Number(a) - Number(b)) as [epoch, actions]}
+                        <div class="action-epoch-group">
+                            <div class="action-epoch-label">Epoch {epoch}</div>
+                            <div class="action-details-text">
+                                {formatMultipleActionDetails(actions)}
+                            </div>
+                        </div>
+                    {/each}
+                </div>
+            </div>
+        {/if}
     </div>
 {/if}
 
@@ -518,6 +577,37 @@
                     {height}
                 >
                     {#snippet item({ index, style })}
+                        {#snippet amountCell(amount: bigint, displayValue?: string)}
+                            <div class="table-cell rewards-cell">
+                                <div class="amount-popup-container">
+                                    {#if filteredEpochs[index] === currentEpoch}
+                                        <span class="amount-value">pending</span>
+                                    {:else}
+                                        <button
+                                            class="amount-value"
+                                            title={formatExactIota(amount)}
+                                            onclick={() => copyToClipboard(formatExactIota(amount))}
+                                            onkeydown={(e) =>
+                                                e.key === 'Enter' &&
+                                                copyToClipboard(formatExactIota(amount))}
+                                            type="button"
+                                        >
+                                            {displayValue ??
+                                                (amount === 0n ? '0' : formatIota(amount, 2))}
+                                        </button>
+                                        <div class="amount-popup">
+                                            <div>
+                                                {formatExactIota(amount)}
+                                            </div>
+                                            <div class="nano-amount">
+                                                {formatNano(amount)}
+                                            </div>
+                                        </div>
+                                    {/if}
+                                </div>
+                            </div>
+                        {/snippet}
+
                         <div
                             {style}
                             class="table-row"
@@ -528,48 +618,33 @@
                                 <div class="table-cell end-date-cell">
                                     {filteredEpochEndDates[index] || '-'}
                                 </div>
-                                <div class="table-cell rewards-cell">
-                                    {filteredEpochs[index] === currentEpoch
-                                        ? 'pending'
-                                        : epochData[filteredEpochs[index]]?.totalStaked === 0n
-                                          ? '0'
-                                          : (
-                                                Number(
-                                                    epochData[filteredEpochs[index]]?.totalStaked ??
-                                                        0n,
-                                                ) / 1_000_000_000
-                                            ).toFixed(2) + ' IOTA'}
-                                </div>
-                                <div class="table-cell rewards-cell">
-                                    {filteredEpochs[index] === currentEpoch
-                                        ? 'pending'
-                                        : (epochData[filteredEpochs[index]]?.display
-                                              .rewardsDisplay ?? '0')}
-                                </div>
-                                <div class="table-cell rewards-cell">
-                                    {filteredEpochs[index] === currentEpoch
-                                        ? 'pending'
-                                        : (epochData[filteredEpochs[index]]?.display
-                                              .accumulatedDisplay ?? '0')}
-                                </div>
-                                <div class="table-cell rewards-cell">
-                                    {filteredEpochs[index] === currentEpoch
-                                        ? 'pending'
-                                        : (epochData[filteredEpochs[index]]?.display
-                                              .unstakeRewardsDisplay ?? '0')}
-                                </div>
-                                <div class="table-cell rewards-cell">
-                                    {filteredEpochs[index] === currentEpoch
-                                        ? 'pending'
-                                        : (epochData[filteredEpochs[index]]?.display
-                                              .unstakeAccumulatedDisplay ?? '0')}
-                                </div>
-                                <div class="table-cell rewards-cell">
-                                    {filteredEpochs[index] === currentEpoch
-                                        ? 'pending'
-                                        : (epochData[filteredEpochs[index]]?.display
-                                              .availableRewardsDisplay ?? '0')}
-                                </div>
+                                {@render amountCell(
+                                    epochData[filteredEpochs[index]]?.totalStaked ?? 0n,
+                                )}
+                                {@render amountCell(
+                                    epochData[filteredEpochs[index]]?.totalRewards ?? 0n,
+                                    epochData[filteredEpochs[index]]?.display.rewardsDisplay ?? '0',
+                                )}
+                                {@render amountCell(
+                                    epochData[filteredEpochs[index]]?.totalAccumulated ?? 0n,
+                                    epochData[filteredEpochs[index]]?.display.accumulatedDisplay ??
+                                        '0',
+                                )}
+                                {@render amountCell(
+                                    epochData[filteredEpochs[index]]?.totalUnstakeRewards ?? 0n,
+                                    epochData[filteredEpochs[index]]?.display
+                                        .unstakeRewardsDisplay ?? '0',
+                                )}
+                                {@render amountCell(
+                                    epochData[filteredEpochs[index]]?.totalUnstakeAccumulated ?? 0n,
+                                    epochData[filteredEpochs[index]]?.display
+                                        .unstakeAccumulatedDisplay ?? '0',
+                                )}
+                                {@render amountCell(
+                                    epochData[filteredEpochs[index]]?.availableRewards ?? 0n,
+                                    epochData[filteredEpochs[index]]?.display
+                                        .availableRewardsDisplay ?? '0',
+                                )}
                                 {#if Object.keys(epochPrices).length > 0}
                                     {#if showPriceColumns && Object.keys(epochPrices).length > 0}
                                         <div class="table-cell rewards-cell">
@@ -583,28 +658,14 @@
                                             {filteredEpochs[index] === currentEpoch
                                                 ? 'pending'
                                                 : epochPrices[filteredEpochs[index]]
-                                                  ? `${(
-                                                        (Number(
-                                                            epochData[filteredEpochs[index]]
-                                                                ?.totalRewards ?? 0n,
-                                                        ) /
-                                                            1_000_000_000) *
-                                                        epochPrices[filteredEpochs[index]]
-                                                    ).toFixed(2)} ${selectedCurrency.toUpperCase()}`
+                                                  ? `${(Number(toIota(epochData[filteredEpochs[index]]?.totalRewards ?? 0n)) * epochPrices[filteredEpochs[index]]).toFixed(2)} ${selectedCurrency.toUpperCase()}`
                                                   : 'no price'}
                                         </div>
                                         <div class="table-cell rewards-cell">
                                             {filteredEpochs[index] === currentEpoch
                                                 ? 'pending'
                                                 : epochPrices[filteredEpochs[index]]
-                                                  ? `${(
-                                                        (Number(
-                                                            epochData[filteredEpochs[index]]
-                                                                ?.totalAccumulated ?? 0n,
-                                                        ) /
-                                                            1_000_000_000) *
-                                                        epochPrices[filteredEpochs[index]]
-                                                    ).toFixed(2)} ${selectedCurrency.toUpperCase()}`
+                                                  ? `${(Number(toIota(epochData[filteredEpochs[index]]?.totalAccumulated ?? 0n)) * epochPrices[filteredEpochs[index]]).toFixed(2)} ${selectedCurrency.toUpperCase()}`
                                                   : 'no price'}
                                         </div>
                                     {/if}
@@ -616,13 +677,41 @@
                                                 {#if filteredEpochs[index] === currentEpoch}
                                                     pending
                                                 {:else}
-                                                    <span class="validator-reward-value">
+                                                    <button
+                                                        class="validator-reward-value"
+                                                        title={formatExactIota(
+                                                            epochData[filteredEpochs[index]]
+                                                                ?.validatorRewards[
+                                                                validator.poolId
+                                                            ] ?? 0n,
+                                                        )}
+                                                        onclick={() =>
+                                                            copyToClipboard(
+                                                                formatExactIota(
+                                                                    epochData[filteredEpochs[index]]
+                                                                        ?.validatorRewards[
+                                                                        validator.poolId
+                                                                    ] ?? 0n,
+                                                                ),
+                                                            )}
+                                                        onkeydown={(e) =>
+                                                            e.key === 'Enter' &&
+                                                            copyToClipboard(
+                                                                formatExactIota(
+                                                                    epochData[filteredEpochs[index]]
+                                                                        ?.validatorRewards[
+                                                                        validator.poolId
+                                                                    ] ?? 0n,
+                                                                ),
+                                                            )}
+                                                        type="button"
+                                                    >
                                                         {getValidatorRewardsForEpoch(
                                                             validator.poolId,
                                                             filteredEpochs[index],
                                                             epochData,
                                                         )}
-                                                    </span>
+                                                    </button>
                                                     <div class="validator-popup">
                                                         <div>
                                                             Validator: {validator.name}
@@ -631,17 +720,35 @@
                                                             Pool ID: {validator.poolId}
                                                         </div>
                                                         <div>
-                                                            Rewards this epoch: {getValidatorRewardsForEpoch(
-                                                                validator.poolId,
-                                                                filteredEpochs[index],
-                                                                epochData,
+                                                            Rewards this epoch: {formatExactIota(
+                                                                epochData[filteredEpochs[index]]
+                                                                    ?.validatorRewards[
+                                                                    validator.poolId
+                                                                ] ?? 0n,
+                                                            )}
+                                                        </div>
+                                                        <div class="nano-amount">
+                                                            {formatNano(
+                                                                epochData[filteredEpochs[index]]
+                                                                    ?.validatorRewards[
+                                                                    validator.poolId
+                                                                ] ?? 0n,
                                                             )}
                                                         </div>
                                                         <div>
-                                                            Accumulated rewards: {getValidatorAccumulatedRewardsForEpoch(
-                                                                validator.poolId,
-                                                                filteredEpochs[index],
-                                                                epochData,
+                                                            Accumulated rewards: {formatExactIota(
+                                                                epochData[filteredEpochs[index]]
+                                                                    ?.validatorAccumulated[
+                                                                    validator.poolId
+                                                                ] ?? 0n,
+                                                            )}
+                                                        </div>
+                                                        <div class="nano-amount">
+                                                            {formatNano(
+                                                                epochData[filteredEpochs[index]]
+                                                                    ?.validatorAccumulated[
+                                                                    validator.poolId
+                                                                ] ?? 0n,
                                                             )}
                                                         </div>
                                                     </div>
@@ -657,37 +764,71 @@
                                                 <div class="pre-active-indicator">pre-active</div>
                                             {:else if isActiveInEpoch(stakeObject, filteredEpochs[index], epochData) && filteredEpochs[index] >= stakeObject.firstEpoch && filteredEpochs[index] !== currentEpoch && !hasActionType(stakeObject.actionByEpoch?.[filteredEpochs[index]], 'Unstaked')}
                                                 <div class="stake-cell-content">
-                                                    <span class="stake-value">
-                                                        {stakeObject.rewardsByEpoch[
-                                                            filteredEpochs[index]
-                                                        ] === '0'
-                                                            ? '-'
-                                                            : (
-                                                                  Number(
-                                                                      stakeObject.rewardsByEpoch[
-                                                                          filteredEpochs[index]
-                                                                      ],
-                                                                  ) / 1_000_000_000
-                                                              ).toFixed(2) + ' IOTA'}
-                                                    </span>
-                                                    <div class="stake-popup">
-                                                        <div>
-                                                            Rewards this epoch: {(
-                                                                Number(
+                                                    {#if stakeObject.rewardsByEpoch[filteredEpochs[index]] === '0'}
+                                                        <span class="stake-value">-</span>
+                                                    {:else}
+                                                        <button
+                                                            class="stake-value"
+                                                            title={formatExactIota(
+                                                                BigInt(
                                                                     stakeObject.rewardsByEpoch[
                                                                         filteredEpochs[index]
                                                                     ],
-                                                                ) / 1_000_000_000
-                                                            ).toFixed(9)} IOTA
+                                                                ),
+                                                            )}
+                                                            onclick={() =>
+                                                                copyToClipboard(
+                                                                    formatExactIota(
+                                                                        BigInt(
+                                                                            stakeObject
+                                                                                .rewardsByEpoch[
+                                                                                filteredEpochs[
+                                                                                    index
+                                                                                ]
+                                                                            ],
+                                                                        ),
+                                                                    ),
+                                                                )}
+                                                            onkeydown={(e) =>
+                                                                e.key === 'Enter' &&
+                                                                copyToClipboard(
+                                                                    formatExactIota(
+                                                                        BigInt(
+                                                                            stakeObject
+                                                                                .rewardsByEpoch[
+                                                                                filteredEpochs[
+                                                                                    index
+                                                                                ]
+                                                                            ],
+                                                                        ),
+                                                                    ),
+                                                                )}
+                                                            type="button"
+                                                        >
+                                                            {formatIota(
+                                                                stakeObject.rewardsByEpoch[
+                                                                    filteredEpochs[index]
+                                                                ],
+                                                                2,
+                                                            )}
+                                                        </button>
+                                                    {/if}
+                                                    <div class="stake-popup">
+                                                        <div>
+                                                            Rewards this epoch: {formatIota(
+                                                                stakeObject.rewardsByEpoch[
+                                                                    filteredEpochs[index]
+                                                                ],
+                                                                9,
+                                                            )}
                                                         </div>
                                                         <div>
-                                                            Accumulated rewards: {(
-                                                                Number(
-                                                                    stakeObject.accumulatedRewards[
-                                                                        filteredEpochs[index]
-                                                                    ],
-                                                                ) / 1_000_000_000
-                                                            ).toFixed(9)} IOTA
+                                                            Accumulated rewards: {formatIota(
+                                                                stakeObject.accumulatedRewards[
+                                                                    filteredEpochs[index]
+                                                                ],
+                                                                9,
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -726,23 +867,18 @@
                                                             >
                                                             <span class="principal-tooltip-text">
                                                                 Principal amount changed from
-                                                                {(
-                                                                    Number(
-                                                                        stakeObject
-                                                                            .principalByEpoch[
-                                                                            filteredEpochs[index] -
-                                                                                1
-                                                                        ],
-                                                                    ) / 1_000_000_000
-                                                                ).toFixed(2)} IOTA to
-                                                                {(
-                                                                    Number(
-                                                                        stakeObject
-                                                                            .principalByEpoch[
-                                                                            filteredEpochs[index]
-                                                                        ],
-                                                                    ) / 1_000_000_000
-                                                                ).toFixed(2)} IOTA
+                                                                {formatIota(
+                                                                    stakeObject.principalByEpoch[
+                                                                        filteredEpochs[index] - 1
+                                                                    ],
+                                                                    2,
+                                                                )} to
+                                                                {formatIota(
+                                                                    stakeObject.principalByEpoch[
+                                                                        filteredEpochs[index]
+                                                                    ],
+                                                                    2,
+                                                                )}
                                                             </span>
                                                         </span>
                                                     {/if}
@@ -847,6 +983,7 @@
         width: 140px;
         flex-shrink: 0;
         font-size: 1em !important;
+        cursor: pointer;
     }
     .validator-header-cell,
     .validator-cell {
@@ -953,8 +1090,8 @@
     .validator-cell {
         font-size: 0.75em;
         padding: 4px;
-        color: #38a169;
-        font-weight: bold;
+        color: white;
+        font-weight: normal;
     }
 
     .stake-cell {
@@ -968,8 +1105,7 @@
     }
 
     .pre-active-indicator {
-        color: black;
-        background-color: #ff9800;
+        color: white;
         font-size: 0.75em;
     }
 
@@ -1001,6 +1137,54 @@
         font-family: monospace;
         display: flex;
         flex-direction: column;
+    }
+
+    .address-hover-inline .full-address,
+    .address-hover-inline .pool-id,
+    .address-hover-inline .epochs-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+    }
+
+    .actions-section {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #3a4451;
+    }
+
+    .actions-title {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #bacce6;
+    }
+
+    .actions-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .action-epoch-group {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .action-epoch-label {
+        font-size: 0.95em;
+        color: #bacce6;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .action-details-text {
+        color: #a5bbe1;
+        font-size: 0.85em;
+        padding-left: 12px;
+        white-space: pre-line;
+        line-height: 1.5;
     }
 
     .validator-hover-inline {
@@ -1107,13 +1291,79 @@
     }
     .validator-reward-value {
         cursor: pointer;
-        font-weight: bold;
-        color: #38a169;
+        font-weight: normal;
+        color: white;
+        background: none;
+        border: none;
+        padding: 0;
+        font-family: inherit;
+        font-size: inherit;
+        text-align: inherit;
+    }
+    .validator-reward-value:focus {
+        outline: 2px solid #007acc;
+        outline-offset: 2px;
+    }
+    .amount-popup-container {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+    .amount-popup-container .amount-popup {
+        display: none;
+        position: absolute;
+        left: 50%;
+        bottom: 100%;
+        transform: translateX(-50%) translateY(-8px);
+        background: #232b3a;
+        color: #fff;
+        border: 1px solid #bacce6;
+        border-radius: 6px;
+        padding: 8px 12px;
+        min-width: 180px;
+        box-shadow: 0 2px 8px #0002;
+        font-size: 0.95em;
+        font-weight: normal;
+        white-space: pre-line;
+        z-index: 9999;
+    }
+    .amount-popup-container:hover .amount-popup {
+        display: block;
+    }
+    .amount-value {
+        cursor: pointer;
+        font-weight: normal;
+        color: white;
+        background: none;
+        border: none;
+        padding: 0;
+        font-family: inherit;
+        font-size: inherit;
+        text-align: inherit;
+    }
+    .amount-value:focus {
+        outline: 2px solid #007acc;
+        outline-offset: 2px;
+    }
+    .nano-amount {
+        font-size: 0.9em;
+        color: #cccccc;
+        margin-top: 2px;
     }
     .stake-value {
         cursor: pointer;
-        font-weight: bold;
-        color: #38a169;
+        font-weight: normal;
+        color: white;
+        background: none;
+        border: none;
+        padding: 0;
+        font-family: inherit;
+        font-size: inherit;
+        text-align: inherit;
+    }
+    .stake-value:focus {
+        outline: 2px solid #007acc;
+        outline-offset: 2px;
     }
 
     .principal-change-tooltip {
@@ -1186,16 +1436,12 @@
         gap: 8px;
     }
 
-    .action-title {
-        font-size: 1.2em;
-        font-weight: bold;
-        color: #4fc3f7;
-    }
-
     .action-stake-object {
         font-family: monospace;
         color: #a5bbe1;
-        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .action-details {

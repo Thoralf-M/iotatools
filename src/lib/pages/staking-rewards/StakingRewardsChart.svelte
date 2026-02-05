@@ -20,6 +20,7 @@
     let selectedMetrics: string[] = [
         'rewards',
         'accumulatedRewards',
+        'availableRewards',
         'unstakeTotal',
         'rewardsPrice',
         'accumulatedPrice',
@@ -34,6 +35,7 @@
         { value: 'stakedAmount', label: 'Staked Amount' },
         { value: 'rewards', label: 'Rewards' },
         { value: 'accumulatedRewards', label: 'Accumulated Rewards' },
+        { value: 'availableRewards', label: 'Available Rewards' },
         { value: 'unstakeTotal', label: 'Unstake Total' },
         { value: 'rewardsPrice', label: 'Rewards Price' },
         { value: 'accumulatedPrice', label: 'Accumulated Price' },
@@ -56,6 +58,9 @@
                     break;
                 case 'accumulatedRewards':
                     value = Number(epochData[epoch]?.totalAccumulated || 0n);
+                    break;
+                case 'availableRewards':
+                    value = Number(epochData[epoch]?.availableRewards || 0n);
                     break;
                 case 'unstakeTotal':
                     value = Number(epochData[epoch]?.totalUnstakeAccumulated || 0n);
@@ -88,6 +93,7 @@
             '#ea580c', // orange
             '#7c3aed', // purple
             '#0891b2', // cyan
+            '#f59e0b', // amber
         ];
 
         return selectedMetrics.map((metric, index) => {
