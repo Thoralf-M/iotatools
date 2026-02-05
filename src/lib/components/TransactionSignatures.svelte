@@ -4,7 +4,13 @@
     import { parsePartialSignatures } from '@iota/iota-sdk/multisig';
     import { publicKeyFromRawBytes } from '@iota/iota-sdk/verify';
 
+    import { getSelectedNetworkConfig } from '../utils/client';
+    import { getObjectLink } from '../utils/explorer-links';
     import { copyToClipboard } from '../utils/formatting';
+    import {
+        parseMoveAuthenticatorSignature,
+        type MoveAuthenticatorInfo,
+    } from '../utils/move-authenticator';
 
     interface SignatureInfo {
         signatureScheme: string;
@@ -12,6 +18,7 @@
         signature: Uint8Array;
         role?: 'sender' | 'gas_sponsor' | 'unknown';
         rawSignature: string; // base64 encoded
+        moveAuthenticator?: MoveAuthenticatorInfo;
     }
 
     let { signatures = [], transactionData = null } = $props<{
@@ -33,6 +40,41 @@
 
         signatures.forEach((sigString: string, index: number) => {
             try {
+                // TODO: TEMPORARY - Check for MoveAuthenticator (0x07) before using official parser
+                const bytes = fromBase64(sigString);
+                if (bytes[0] === 0x07) {
+                    // MoveAuthenticator - use custom parser
+                    const parsed = parseMoveAuthenticatorSignature(sigString);
+
+                    // Determine role based on the authenticated object address
+                    let role: 'sender' | 'gas_sponsor' | 'unknown' = 'unknown';
+                    if (senderAddress && parsed.objectId === senderAddress) {
+                        role = 'sender';
+                    } else if (
+                        gasSponsorAddress &&
+                        parsed.objectId === gasSponsorAddress &&
+                        gasSponsorAddress !== senderAddress
+                    ) {
+                        role = 'gas_sponsor';
+                    } else if (signatures.length === 1) {
+                        role = 'sender';
+                    } else if (index === 0) {
+                        role = 'sender';
+                    } else if (index === 1) {
+                        role = 'gas_sponsor';
+                    }
+
+                    result.push({
+                        signatureScheme: 'MoveAuthenticator',
+                        publicKey: null, // MoveAuthenticator doesn't have a traditional public key
+                        signature: new Uint8Array(),
+                        role,
+                        rawSignature: sigString,
+                        moveAuthenticator: parsed,
+                    });
+                    return;
+                }
+
                 const parsed = parseSerializedSignature(sigString);
 
                 if (parsed.signatureScheme === 'MultiSig') {
@@ -103,78 +145,162 @@
                 </div>
 
                 <div class="signature-details">
-                    <div class="detail-row">
-                        <span class="detail-label">Public Key:</span>
-                        <div class="detail-value-container">
-                            <span class="detail-value">{sig.publicKey.toBase64()}</span>
-                            <button
-                                class="copy-btn"
-                                onclick={async () =>
-                                    await copyToClipboard(sig.publicKey.toBase64())}
-                            >
-                                Copy
-                            </button>
+                    {#if sig.signatureScheme === 'MoveAuthenticator' && sig.moveAuthenticator}
+                        {@const move = sig.moveAuthenticator}
+                        <div class="detail-row">
+                            <span class="detail-label">Authenticated Object ID:</span>
+                            <div class="detail-value-container">
+                                <a
+                                    class="detail-value link"
+                                    href={getObjectLink(getSelectedNetworkConfig(), move.objectId)}
+                                    target="_blank"
+                                    rel="noopener noreferrer">{move.objectId}</a
+                                >
+                                <button
+                                    class="copy-btn"
+                                    onclick={async () => await copyToClipboard(move.objectId)}
+                                >
+                                    Copy
+                                </button>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="detail-row">
-                        <span class="detail-label">Public Key (with flag):</span>
-                        <div class="detail-value-container">
-                            <span class="detail-value">{sig.publicKey.toIotaPublicKey()}</span>
-                            <button
-                                class="copy-btn"
-                                onclick={async () =>
-                                    await copyToClipboard(sig.publicKey.toIotaPublicKey())}
-                            >
-                                Copy
-                            </button>
+                        <div class="detail-row">
+                            <span class="detail-label">Call Arguments:</span>
+                            <div class="detail-value-container">
+                                <span class="detail-value wrap"
+                                    >{JSON.stringify(move.callArguments, null, 2)}</span
+                                >
+                                <button
+                                    class="copy-btn"
+                                    onclick={async () =>
+                                        await copyToClipboard(JSON.stringify(move.callArguments))}
+                                >
+                                    Copy
+                                </button>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="detail-row">
-                        <span class="detail-label">Address:</span>
-                        <div class="detail-value-container">
-                            <span class="detail-value">{sig.publicKey.toIotaAddress()}</span>
-                            <button
-                                class="copy-btn"
-                                onclick={async () =>
-                                    await copyToClipboard(sig.publicKey.toIotaAddress())}
-                            >
-                                Copy
-                            </button>
+                        <div class="detail-row">
+                            <span class="detail-label">Type Arguments:</span>
+                            <div class="detail-value-container">
+                                <span class="detail-value wrap"
+                                    >{JSON.stringify(move.typeArguments, null, 2)}</span
+                                >
+                                <button
+                                    class="copy-btn"
+                                    onclick={async () =>
+                                        await copyToClipboard(JSON.stringify(move.typeArguments))}
+                                >
+                                    Copy
+                                </button>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="detail-row">
-                        <span class="detail-label">Signature Bytes:</span>
-                        <div class="detail-value-container">
-                            <span class="detail-value"
-                                >{Buffer.from(sig.signature).toString('base64')}</span
-                            >
-                            <button
-                                class="copy-btn"
-                                onclick={async () =>
-                                    await copyToClipboard(
-                                        Buffer.from(sig.signature).toString('base64'),
-                                    )}
-                            >
-                                Copy
-                            </button>
+                        <div class="detail-row">
+                            <span class="detail-label">Object to Authenticate:</span>
+                            <div class="detail-value-container">
+                                <span class="detail-value wrap"
+                                    >{JSON.stringify(move.objectToAuthenticate, null, 2)}</span
+                                >
+                                <button
+                                    class="copy-btn"
+                                    onclick={async () =>
+                                        await copyToClipboard(
+                                            JSON.stringify(move.objectToAuthenticate),
+                                        )}
+                                >
+                                    Copy
+                                </button>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="detail-row">
-                        <span class="detail-label">Full Signature:</span>
-                        <div class="detail-value-container">
-                            <span class="detail-value wrap">{sig.rawSignature}</span>
-                            <button
-                                class="copy-btn"
-                                onclick={async () => await copyToClipboard(sig.rawSignature)}
-                            >
-                                Copy
-                            </button>
+                        <div class="detail-row">
+                            <span class="detail-label">Full Signature:</span>
+                            <div class="detail-value-container">
+                                <span class="detail-value wrap">{sig.rawSignature}</span>
+                                <button
+                                    class="copy-btn"
+                                    onclick={async () => await copyToClipboard(sig.rawSignature)}
+                                >
+                                    Copy
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    {:else}
+                        <div class="detail-row">
+                            <span class="detail-label">Public Key:</span>
+                            <div class="detail-value-container">
+                                <span class="detail-value">{sig.publicKey.toBase64()}</span>
+                                <button
+                                    class="copy-btn"
+                                    onclick={async () =>
+                                        await copyToClipboard(sig.publicKey.toBase64())}
+                                >
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Public Key (with flag):</span>
+                            <div class="detail-value-container">
+                                <span class="detail-value">{sig.publicKey.toIotaPublicKey()}</span>
+                                <button
+                                    class="copy-btn"
+                                    onclick={async () =>
+                                        await copyToClipboard(sig.publicKey.toIotaPublicKey())}
+                                >
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Address:</span>
+                            <div class="detail-value-container">
+                                <span class="detail-value">{sig.publicKey.toIotaAddress()}</span>
+                                <button
+                                    class="copy-btn"
+                                    onclick={async () =>
+                                        await copyToClipboard(sig.publicKey.toIotaAddress())}
+                                >
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Signature Bytes:</span>
+                            <div class="detail-value-container">
+                                <span class="detail-value"
+                                    >{Buffer.from(sig.signature).toString('base64')}</span
+                                >
+                                <button
+                                    class="copy-btn"
+                                    onclick={async () =>
+                                        await copyToClipboard(
+                                            Buffer.from(sig.signature).toString('base64'),
+                                        )}
+                                >
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Full Signature:</span>
+                            <div class="detail-value-container">
+                                <span class="detail-value wrap">{sig.rawSignature}</span>
+                                <button
+                                    class="copy-btn"
+                                    onclick={async () => await copyToClipboard(sig.rawSignature)}
+                                >
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+                    {/if}
                 </div>
             </div>
         {/each}
@@ -268,6 +394,16 @@
         word-break: break-all;
         flex: 1;
         line-height: 1.5;
+    }
+
+    .detail-value.link {
+        color: var(--link-color, #0066cc);
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+    .detail-value.link:hover {
+        color: var(--link-hover-color, #004499);
     }
 
     .detail-value.wrap {
