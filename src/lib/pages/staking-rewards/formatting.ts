@@ -17,8 +17,12 @@ export function formatNanoAsIota(
     includeSuffix: boolean = true,
 ): string {
     if (nanoAmount === 0n) return '0';
-    const iotaValue = Number(nanoAmount) / NANO_TO_IOTA;
-    const formatted = iotaValue.toFixed(decimals);
+    const whole = nanoAmount / BigInt(NANO_TO_IOTA);
+    const nano = nanoAmount % BigInt(NANO_TO_IOTA);
+    const nanoStr = nano.toString().padStart(9, '0');
+    const decimal = nanoStr.slice(0, decimals);
+    const wholeStr = whole.toLocaleString('en-US');
+    const formatted = `${wholeStr}.${decimal}`;
     return includeSuffix ? `${formatted} IOTA` : formatted;
 }
 

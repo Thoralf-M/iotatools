@@ -341,18 +341,6 @@ export function getValidatorRewardsForEpoch(
 }
 
 /**
- * Get validator accumulated rewards for an epoch formatted as IOTA string.
- */
-export function getValidatorAccumulatedRewardsForEpoch(
-    validatorPoolId: string,
-    epoch: number,
-    epochData: EpochData,
-): string {
-    const total = epochData[epoch]?.validatorAccumulated[validatorPoolId] ?? 0n;
-    return formatNanoAsIota(total);
-}
-
-/**
  * Get validator total principal formatted as IOTA string.
  */
 export function getValidatorTotalPrincipal(
