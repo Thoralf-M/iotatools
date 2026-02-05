@@ -1148,14 +1148,6 @@
         margin-bottom: 4px;
     }
 
-    .address-hover-inline .copy-btn {
-        background-color: rgba(186, 204, 230, 0.1);
-        border: 1px solid #bacce6;
-        color: #bacce6;
-        font-size: 0.8em;
-        padding: 2px 6px;
-    }
-
     .actions-section {
         margin-top: 12px;
         padding-top: 12px;
