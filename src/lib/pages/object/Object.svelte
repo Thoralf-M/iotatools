@@ -17,7 +17,7 @@
     // Query parameter integration
     const queryParamDefaults = {
         objectInput: '',
-        pageSize: '1',
+        pageSize: '5',
     };
 
     const pageParams = usePageQueryParams(queryParamDefaults);
@@ -520,6 +520,7 @@
                             onchange={handlePageSizeChange}
                         >
                             <option value="1">1</option>
+                            <option value="5">5</option>
                             <option value="10">10</option>
                             <option value="20">20</option>
                             <option value="50">50</option>
