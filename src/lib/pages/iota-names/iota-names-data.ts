@@ -349,7 +349,10 @@ export async function getReverseRegisteredAddresses(
             );
         let reverseRegistryId = registration.value.json.reverse_registry.id;
 
-        let res: { total: number; reverseRegistry: { address: string; name: string }[] } = { total: 0, reverseRegistry: [] };
+        let res: { total: number; reverseRegistry: { address: string; name: string }[] } = {
+            total: 0,
+            reverseRegistry: [],
+        };
 
         let cursorSection = '';
         while (true) {

@@ -30,9 +30,7 @@ function computeEpochDisplayData(
             ? entry.totalUnstakeAccumulated - totalPreTransferRewards
             : 0n;
     const availableRewards =
-        entry.totalAccumulated > adjustedUnstake
-            ? entry.totalAccumulated - adjustedUnstake
-            : 0n;
+        entry.totalAccumulated > adjustedUnstake ? entry.totalAccumulated - adjustedUnstake : 0n;
 
     return {
         availableRewards,
@@ -161,7 +159,8 @@ export function computeEpochData(
                         // Sum up all unstaked amounts in this epoch
                         for (const action of actions) {
                             if (
-                                (action.action === 'Unstaked' || action.action === 'Partial Unstake') &&
+                                (action.action === 'Unstaked' ||
+                                    action.action === 'Partial Unstake') &&
                                 action.amount
                             ) {
                                 try {
@@ -213,9 +212,9 @@ export function computeEpochData(
             const prevAccum =
                 i > 0
                     ? BigInt(
-                        rawEpochData[epochRange[i - 1]].stakeAccumulated[stakeObject.objectId] ||
-                        '0',
-                    )
+                          rawEpochData[epochRange[i - 1]].stakeAccumulated[stakeObject.objectId] ||
+                              '0',
+                      )
                     : 0n;
             const currAccum =
                 (stakeRewards && stakeRewards !== '0' ? BigInt(stakeRewards) : 0n) + prevAccum;

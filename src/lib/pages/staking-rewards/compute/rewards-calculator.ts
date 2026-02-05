@@ -194,9 +194,8 @@ export async function computeRewardsForStakeObject(
             // Calculate the accumulated rewards at the transfer epoch
             const poolTokenAmount = getTokenAmount(baselineExchangeRate, principalAtTransfer);
             const totalIotaAmount = getIotaAmount(transferExchangeRate, poolTokenAmount);
-            const preTransferRewards = totalIotaAmount > principalAtTransfer
-                ? totalIotaAmount - principalAtTransfer
-                : 0n;
+            const preTransferRewards =
+                totalIotaAmount > principalAtTransfer ? totalIotaAmount - principalAtTransfer : 0n;
 
             stakeObject.preTransferRewards = preTransferRewards.toString();
             console.log(

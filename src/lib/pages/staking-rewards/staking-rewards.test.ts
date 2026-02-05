@@ -13,16 +13,16 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { beforeAll, describe, expect, it } from 'vitest';
 
+import { MAINNET_CONFIG, setNetworkConfigOverride } from '../../utils/network-config.js';
 import {
+    collectActionsByEpoch,
+    computeEpochData,
+    generateEpochTable,
+    getMaxEpochFromCache,
     processStakeTransactionsWithExchangeRates,
     setInitialExchangeRateCache,
-    computeEpochData,
-    getMaxEpochFromCache,
-    collectActionsByEpoch,
-    generateEpochTable,
     type ActionsByEpoch,
 } from './index.js';
-import { MAINNET_CONFIG, setNetworkConfigOverride } from '../../utils/network-config.js';
 
 // ============================================================================
 // Test Configuration
@@ -32,7 +32,10 @@ const SINGLE_ADDRESS = '0x1ee12dca0e798966a82f74c010c109e1bd0674f4f47517db6843f2
 const MULTI_ADDRESSES: string[] = [];
 
 const TX_CACHE_PATH = join(__dirname, '../../../../scripts/staking-rewards-tx-cache.json');
-const TX_CACHE_MULTI_PATH = join(__dirname, '../../../../scripts/staking-rewards-tx-cache-multi.json');
+const TX_CACHE_MULTI_PATH = join(
+    __dirname,
+    '../../../../scripts/staking-rewards-tx-cache-multi.json',
+);
 const EXCHANGE_RATE_CACHE_PATH = join(__dirname, 'cache/exchange-rate-cache.json');
 const SNAPSHOT_PATH = join(__dirname, '__snapshots__/epoch-table.snapshot.txt');
 const SNAPSHOT_MULTI_PATH = join(__dirname, '__snapshots__/epoch-table-multi.snapshot.txt');
@@ -55,7 +58,11 @@ describe('Staking Rewards - Single Address', () => {
         expect(txCache.address).toBe(SINGLE_ADDRESS);
 
         const maxEpoch = getMaxEpochFromCache(exchangeRateCache);
-        const result = await processStakeTransactionsWithExchangeRates(txCache.transactions, maxEpoch, SINGLE_ADDRESS);
+        const result = await processStakeTransactionsWithExchangeRates(
+            txCache.transactions,
+            maxEpoch,
+            SINGLE_ADDRESS,
+        );
         const actionsByEpoch = collectActionsByEpoch(result.stakeObjects, result.validatorInfo);
         const tableData = computeEpochData(result.stakeObjects, result.validatorInfo, maxEpoch);
 
@@ -169,7 +176,7 @@ describe('Staking Rewards - Single Address', () => {
 //     });
 
 //     it('should have correct progression of available rewards after unstake with re-stake', () => {
-//         // After unstaking in epoch 158, available should be 0 in epoch 159, 
+//         // After unstaking in epoch 158, available should be 0 in epoch 159,
 //         // then increase with new rewards in 160, 161
 //         const epoch159Line = generatedTable.split('\n').find((l) => l.trim().startsWith('159 '));
 //         const epoch160Line = generatedTable.split('\n').find((l) => l.trim().startsWith('160 '));

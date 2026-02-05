@@ -66,22 +66,22 @@ export function exportTableToCSV(
             epochEndDates[i] || '-',
             epoch === currentEpoch
                 ? 'pending'
-                : data?.display.stakedDisplay.replace(' IOTA', '') ?? '0',
+                : (data?.display.stakedDisplay.replace(' IOTA', '') ?? '0'),
             epoch === currentEpoch
                 ? 'pending'
-                : data?.display.rewardsDisplay.replace(' IOTA', '') ?? '0',
+                : (data?.display.rewardsDisplay.replace(' IOTA', '') ?? '0'),
             epoch === currentEpoch
                 ? 'pending'
-                : data?.display.accumulatedDisplay.replace(' IOTA', '') ?? '0',
+                : (data?.display.accumulatedDisplay.replace(' IOTA', '') ?? '0'),
             epoch === currentEpoch
                 ? 'pending'
-                : data?.display.unstakeRewardsDisplay.replace(' IOTA', '') ?? '0',
+                : (data?.display.unstakeRewardsDisplay.replace(' IOTA', '') ?? '0'),
             epoch === currentEpoch
                 ? 'pending'
-                : data?.display.unstakeAccumulatedDisplay.replace(' IOTA', '') ?? '0',
+                : (data?.display.unstakeAccumulatedDisplay.replace(' IOTA', '') ?? '0'),
             epoch === currentEpoch
                 ? 'pending'
-                : data?.display.availableRewardsDisplay.replace(' IOTA', '') ?? '0',
+                : (data?.display.availableRewardsDisplay.replace(' IOTA', '') ?? '0'),
         );
 
         // Price columns - use raw bigint values for accurate calculation
@@ -93,18 +93,18 @@ export function exportTableToCSV(
                 epoch === currentEpoch
                     ? 'pending'
                     : epochPrices[epoch]
-                        ? epochPrices[epoch].toString()
-                        : 'no price',
+                      ? epochPrices[epoch].toString()
+                      : 'no price',
                 epoch === currentEpoch
                     ? 'pending'
                     : epochPrices[epoch]
-                        ? (rewardsIota * epochPrices[epoch]).toFixed(4)
-                        : 'no price',
+                      ? (rewardsIota * epochPrices[epoch]).toFixed(4)
+                      : 'no price',
                 epoch === currentEpoch
                     ? 'pending'
                     : epochPrices[epoch]
-                        ? (accumulatedIota * epochPrices[epoch]).toFixed(4)
-                        : 'no price',
+                      ? (accumulatedIota * epochPrices[epoch]).toFixed(4)
+                      : 'no price',
             );
         }
 
@@ -115,9 +115,9 @@ export function exportTableToCSV(
                     epoch === currentEpoch
                         ? 'pending'
                         : getValidatorRewardsForEpoch(validator.poolId, epoch, epochData).replace(
-                            ' IOTA',
-                            '',
-                        ),
+                              ' IOTA',
+                              '',
+                          ),
                 );
             });
         }
