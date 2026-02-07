@@ -57,5 +57,4 @@ describe('parseMoveAuthenticatorSignature', () => {
             'Signature is not a MoveAuthenticator',
         );
     });
-
 });
