@@ -30,11 +30,13 @@
             const client = getClient(true);
             const result = await fetchDelegatorData(
                 client,
-                (progress) => {
+                (progress, currentData, currentStats) => {
                     progressMessage = progress;
-                    // Update reactivity
-                    delegatorData = result.data;
-                    stats = result.stats;
+                    // Update reactivity with current progress
+                    if (currentData && currentStats) {
+                        delegatorData = currentData;
+                        stats = currentStats;
+                    }
                 },
                 () => isPaused,
                 abortController.signal,

@@ -58,7 +58,11 @@ export interface DelegatorStats {
 
 export async function fetchDelegatorData(
     client: IotaClient,
-    progressCallback: (message: string) => void,
+    progressCallback: (
+        message: string,
+        currentData?: DelegatorData,
+        currentStats?: DelegatorStats,
+    ) => void,
     isPaused: () => boolean,
     signal: AbortSignal,
 ): Promise<{ data: DelegatorData; stats: DelegatorStats }> {
@@ -85,7 +89,16 @@ export async function fetchDelegatorData(
         STAKED_IOTA_TYPE,
         false,
         stakedObjects,
-        progressCallback,
+        (message) => {
+            const currentData: DelegatorData = {
+                validators,
+                stakedObjects: [...stakedObjects],
+                totalSupply,
+                currentEpoch,
+            };
+            const currentStats = computeStats(stakedObjects, validators, totalSupply, currentEpoch);
+            progressCallback(message, currentData, currentStats);
+        },
         isPaused,
         signal,
     );
@@ -96,12 +109,21 @@ export async function fetchDelegatorData(
         TIMELOCKED_STAKED_IOTA_TYPE,
         true,
         stakedObjects,
-        progressCallback,
+        (message) => {
+            const currentData: DelegatorData = {
+                validators,
+                stakedObjects: [...stakedObjects],
+                totalSupply,
+                currentEpoch,
+            };
+            const currentStats = computeStats(stakedObjects, validators, totalSupply, currentEpoch);
+            progressCallback(message, currentData, currentStats);
+        },
         isPaused,
         signal,
     );
 
-    progressCallback('Computing statistics...');
+    progressCallback('Computing final statistics...');
     const stats = computeStats(stakedObjects, validators, totalSupply, currentEpoch);
 
     progressCallback('Done!');
