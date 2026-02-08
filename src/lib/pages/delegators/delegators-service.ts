@@ -112,7 +112,11 @@ export async function fetchDelegatorData(
 }> {
     // Get system state to fetch validators and total supply
     // Use non-GraphQL client as GraphQL transport has a bug with stakingPoolId
-    progressCallback(resumeType ? 'Resuming fetch, getting system state...' : 'Fetching system state and validators...');
+    progressCallback(
+        resumeType
+            ? 'Resuming fetch, getting system state...'
+            : 'Fetching system state and validators...',
+    );
     const systemState = await getClient(false).getLatestIotaSystemState();
     const totalSupply = BigInt(systemState.iotaTotalSupply);
     const totalStake = BigInt(systemState.totalStake);
@@ -141,7 +145,11 @@ export async function fetchDelegatorData(
         };
     });
 
-    progressCallback(resumeType ? `Resuming, found ${validators.length} active validators. Continuing staked objects...` : `Found ${validators.length} active validators. Fetching staked objects...`);
+    progressCallback(
+        resumeType
+            ? `Resuming, found ${validators.length} active validators. Continuing staked objects...`
+            : `Found ${validators.length} active validators. Fetching staked objects...`,
+    );
 
     // Fetch both StakedIota and TimelockedStakedIota objects
     let stakedObjects: StakedObject[] = resumeStakedObjects || [];
@@ -150,12 +158,16 @@ export async function fetchDelegatorData(
     // If resuming from parallel fetch (either StakedIota or both), continue in parallel
     if (currentResumeType === 'StakedIota' && resumeTimelockedCursor) {
         // Was paused during parallel fetch - continue both in parallel
-        const normalStakedObjects: StakedObject[] = stakedObjects.filter(obj => !obj.isTimelocked);
-        const timelockedStakedObjects: StakedObject[] = stakedObjects.filter(obj => obj.isTimelocked);
-        
+        const normalStakedObjects: StakedObject[] = stakedObjects.filter(
+            (obj) => !obj.isTimelocked,
+        );
+        const timelockedStakedObjects: StakedObject[] = stakedObjects.filter(
+            (obj) => obj.isTimelocked,
+        );
+
         // Only fetch types that haven't completed (have a cursor)
         const fetchPromises = [];
-        
+
         if (resumeCursor) {
             // StakedIota not complete, continue fetching
             fetchPromises.push(
@@ -184,17 +196,19 @@ export async function fetchDelegatorData(
                     isPaused,
                     signal,
                     resumeCursor,
-                )
+                ),
             );
         } else {
             // StakedIota already complete
-            fetchPromises.push(Promise.resolve({ 
-                stakedObjects: normalStakedObjects, 
-                cursor: null, 
-                paused: false 
-            }));
+            fetchPromises.push(
+                Promise.resolve({
+                    stakedObjects: normalStakedObjects,
+                    cursor: null,
+                    paused: false,
+                }),
+            );
         }
-        
+
         if (resumeTimelockedCursor) {
             // TimelockedStakedIota not complete, continue fetching
             fetchPromises.push(
@@ -223,17 +237,19 @@ export async function fetchDelegatorData(
                     isPaused,
                     signal,
                     resumeTimelockedCursor,
-                )
+                ),
             );
         } else {
             // TimelockedStakedIota already complete
-            fetchPromises.push(Promise.resolve({ 
-                stakedObjects: timelockedStakedObjects, 
-                cursor: null, 
-                paused: false 
-            }));
+            fetchPromises.push(
+                Promise.resolve({
+                    stakedObjects: timelockedStakedObjects,
+                    cursor: null,
+                    paused: false,
+                }),
+            );
         }
-        
+
         const [normalResult, timelockedResult] = await Promise.all(fetchPromises);
 
         // Handle pause scenarios
@@ -248,7 +264,7 @@ export async function fetchDelegatorData(
                     currentEpoch,
                 },
                 stats: computeStats(combined, validators, totalSupply, totalStake, currentEpoch),
-                resumeType: 'StakedIota',  // Always mark as StakedIota for parallel resume
+                resumeType: 'StakedIota', // Always mark as StakedIota for parallel resume
                 resumeCursor: normalResult.cursor,
                 resumeTimelockedCursor: timelockedResult.cursor,
                 resumeStakedObjects: combined,
@@ -314,7 +330,7 @@ export async function fetchDelegatorData(
             const timelockedResult = await fetchStakedObjectsOfType(
                 TIMELOCKED_STAKED_IOTA_TYPE,
                 true,
-                result.stakedObjects,  // This array already has both old and new StakedIota objects
+                result.stakedObjects, // This array already has both old and new StakedIota objects
                 (message) => {
                     const currentData: DelegatorData = {
                         validators,
@@ -504,8 +520,8 @@ export async function fetchDelegatorData(
                     currentEpoch,
                 },
                 stats: computeStats(combined, validators, totalSupply, totalStake, currentEpoch),
-                resumeType: 'StakedIota',  // Use StakedIota to indicate parallel resume
-                resumeCursor: normalResult.cursor,  // null since normal completed
+                resumeType: 'StakedIota', // Use StakedIota to indicate parallel resume
+                resumeCursor: normalResult.cursor, // null since normal completed
                 resumeTimelockedCursor: timelockedResult.cursor,
                 resumeStakedObjects: combined,
             };
@@ -540,14 +556,14 @@ async function fetchStakedObjectsOfType(
     isPaused: () => boolean,
     signal: AbortSignal,
     startingCursor: string | null = null,
-): Promise<{stakedObjects: StakedObject[], cursor: string | null, paused: boolean}> {
+): Promise<{ stakedObjects: StakedObject[]; cursor: string | null; paused: boolean }> {
     const existingIds = new Set(stakedObjects.map((obj) => obj.id));
     const gqlClient = new IotaGraphQLClient({
         url: getSelectedNetworkConfig().graphql,
     });
 
     const typeLabel = isTimelocked ? 'TimelockedStakedIota' : 'StakedIota';
-    
+
     // Use provided cursor for resume
     let cursor: string | null = startingCursor;
     let pageCount = 0;
@@ -604,7 +620,7 @@ async function fetchStakedObjectsOfType(
 
         const edges = result.data.objects.edges || [];
         const objects = edges.map((edge: any) => edge.node);
-        
+
         for (const node of objects) {
             try {
                 const json = node.asMoveObject?.contents?.json;
@@ -663,7 +679,7 @@ async function fetchStakedObjectsOfType(
         const pageInfo = result.data.objects.pageInfo || {};
         const lastEdgeCursor = edges.length > 0 ? edges[edges.length - 1].cursor : null;
         const nextCursor = pageInfo.endCursor || lastEdgeCursor || null;
-        
+
         // Stop if no more pages
         if (!nextCursor || nextCursor === cursor) {
             break;

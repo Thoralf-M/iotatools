@@ -4,8 +4,16 @@
 
     import type { DelegatorData, DelegatorStats } from './delegators-service';
 
+    // Pre-computed chart data type (matches Delegators.svelte export)
+    type ChartData = {
+        epochCounts: Map<number, number>;
+        amountBuckets: number[];
+        addressBuckets: number[];
+    };
+
     export let data: DelegatorData;
     export let stats: DelegatorStats;
+    export let chartData: ChartData;
 
     let stakeActivationCanvas: HTMLCanvasElement;
     let stakedAmountsCanvas: HTMLCanvasElement;
@@ -20,22 +28,17 @@
     function createStakeActivationChart() {
         if (!stakeActivationCanvas) return;
 
-        // Group by stake activation epoch
-        const epochCounts = new Map<number, number>();
-        data.stakedObjects.forEach((obj) => {
-            const count = epochCounts.get(obj.stakeActivationEpoch) || 0;
-            epochCounts.set(obj.stakeActivationEpoch, count + 1);
-        });
+        // Use pre-computed epoch counts
+        const epochCounts = chartData.epochCounts;
 
         // Sort by epoch
         const sortedEpochs = Array.from(epochCounts.keys()).sort((a, b) => a - b);
-        const counts = sortedEpochs.map((epoch) => epochCounts.get(epoch) || 0);
 
         // Filter by epoch range
         const minEpoch = minEpochFilter ? parseInt(minEpochFilter) : Math.min(...sortedEpochs);
         const maxEpoch = maxEpochFilter ? parseInt(maxEpochFilter) : Math.max(...sortedEpochs);
-        const filteredEpochs = sortedEpochs.filter(e => e >= minEpoch && e <= maxEpoch);
-        const filteredCounts = filteredEpochs.map(e => epochCounts.get(e) || 0);
+        const filteredEpochs = sortedEpochs.filter((e) => e >= minEpoch && e <= maxEpoch);
+        const filteredCounts = filteredEpochs.map((e) => epochCounts.get(e) || 0);
 
         const chart = new Chart(stakeActivationCanvas, {
             type: 'line',
@@ -91,10 +94,10 @@
     }
 
     function updateStakeActivationChart() {
-        const existingChart = charts.find(c => c.canvas === stakeActivationCanvas);
+        const existingChart = charts.find((c) => c.canvas === stakeActivationCanvas);
         if (existingChart) {
             existingChart.destroy();
-            charts = charts.filter(c => c !== existingChart);
+            charts = charts.filter((c) => c !== existingChart);
         }
         createStakeActivationChart();
     }
@@ -102,30 +105,24 @@
     function createStakedAmountsChart() {
         if (!stakedAmountsCanvas) return;
 
-        // Create buckets for staked amounts
-        const buckets = [
-            { label: '< 100', min: 0, max: 100, count: 0 },
-            { label: '100-1K', min: 100, max: 1000, count: 0 },
-            { label: '1K-10K', min: 1000, max: 10000, count: 0 },
-            { label: '10K-100K', min: 10000, max: 100000, count: 0 },
-            { label: '100K-1M', min: 100000, max: 1000000, count: 0 },
-            { label: '> 1M', min: 1000000, max: Infinity, count: 0 },
+        // Use pre-computed amount buckets
+        const bucketLabels = [
+            '< 100 IOTA',
+            '100-1K IOTA',
+            '1K-10K IOTA',
+            '10K-100K IOTA',
+            '100K-1M IOTA',
+            '> 1M IOTA',
         ];
-
-        data.stakedObjects.forEach((obj) => {
-            const iotaAmount = Number(obj.principal) / 1_000_000_000;
-            const bucket = buckets.find((b) => iotaAmount >= b.min && iotaAmount < b.max);
-            if (bucket) bucket.count++;
-        });
 
         const chart = new Chart(stakedAmountsCanvas, {
             type: 'bar',
             data: {
-                labels: buckets.map((b) => b.label + ' IOTA'),
+                labels: bucketLabels,
                 datasets: [
                     {
                         label: 'Number of Objects',
-                        data: buckets.map((b) => b.count),
+                        data: chartData.amountBuckets,
                         backgroundColor: 'rgba(234, 88, 12, 0.6)',
                         borderColor: 'rgba(234, 88, 12, 1)',
                         borderWidth: 1,
@@ -168,35 +165,23 @@
     function createAddressDistributionChart() {
         if (!addressDistributionCanvas) return;
 
-        // Count objects per address
-        const addressCounts = new Map<string, number>();
-        data.stakedObjects.forEach((obj) => {
-            const count = addressCounts.get(obj.ownerAddress) || 0;
-            addressCounts.set(obj.ownerAddress, count + 1);
-        });
-
-        // Create buckets
-        const buckets = [
-            { label: '1 object', min: 1, max: 1, count: 0 },
-            { label: '2-5 objects', min: 2, max: 5, count: 0 },
-            { label: '6-10 objects', min: 6, max: 10, count: 0 },
-            { label: '11-50 objects', min: 11, max: 50, count: 0 },
-            { label: '> 50 objects', min: 51, max: Infinity, count: 0 },
+        // Use pre-computed address buckets
+        const bucketLabels = [
+            '1 object',
+            '2-5 objects',
+            '6-10 objects',
+            '11-50 objects',
+            '> 50 objects',
         ];
-
-        addressCounts.forEach((count) => {
-            const bucket = buckets.find((b) => count >= b.min && count <= b.max);
-            if (bucket) bucket.count++;
-        });
 
         const chart = new Chart(addressDistributionCanvas, {
             type: 'pie',
             data: {
-                labels: buckets.map((b) => b.label),
+                labels: bucketLabels,
                 datasets: [
                     {
                         label: 'Number of Addresses',
-                        data: buckets.map((b) => b.count),
+                        data: chartData.addressBuckets,
                         backgroundColor: [
                             'rgba(59, 130, 246, 0.6)',
                             'rgba(16, 185, 129, 0.6)',
@@ -294,7 +279,8 @@
                                     (a: number, b: number) => a + b,
                                     0,
                                 );
-                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                                const percentage =
+                                    total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
                                 return `${label}: ${value.toLocaleString()} IOTA (${percentage}%)`;
                             },
                         },
@@ -307,10 +293,24 @@
     }
 
     onMount(() => {
-        createStakeActivationChart();
-        createStakedAmountsChart();
-        createAddressDistributionChart();
-        createStakeCompositionChart();
+        console.log('DelegatorsCharts: onMount triggered');
+        // Defer chart creation to allow the UI to paint first
+        requestAnimationFrame(() => {
+            console.time('charts total');
+            console.time('chart stakeActivation');
+            createStakeActivationChart();
+            console.timeEnd('chart stakeActivation');
+            console.time('chart stakedAmounts');
+            createStakedAmountsChart();
+            console.timeEnd('chart stakedAmounts');
+            console.time('chart addressDistribution');
+            createAddressDistributionChart();
+            console.timeEnd('chart addressDistribution');
+            console.time('chart stakeComposition');
+            createStakeCompositionChart();
+            console.timeEnd('chart stakeComposition');
+            console.timeEnd('charts total');
+        });
     });
 
     onDestroy(() => {
@@ -325,8 +325,20 @@
     <div class="chart-row">
         <div class="chart-card">
             <div class="filters">
-                <label>Min Epoch: <input type="number" bind:value={minEpochFilter} on:input={updateStakeActivationChart} /></label>
-                <label>Max Epoch: <input type="number" bind:value={maxEpochFilter} on:input={updateStakeActivationChart} /></label>
+                <label
+                    >Min Epoch: <input
+                        type="number"
+                        bind:value={minEpochFilter}
+                        on:input={updateStakeActivationChart}
+                    /></label
+                >
+                <label
+                    >Max Epoch: <input
+                        type="number"
+                        bind:value={maxEpochFilter}
+                        on:input={updateStakeActivationChart}
+                    /></label
+                >
             </div>
             <canvas bind:this={stakeActivationCanvas}></canvas>
         </div>

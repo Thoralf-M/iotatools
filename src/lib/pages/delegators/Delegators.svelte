@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onDestroy } from 'svelte';
+    import { onDestroy, tick } from 'svelte';
 
     import { getClient } from '../../utils/client';
     import {
@@ -35,9 +35,126 @@
     let startTime = $state<number | null>(null);
     let elapsedTime = $state<number>(0);
     let timerInterval = $state<NodeJS.Timeout | null>(null);
+    let showCharts = $state(false);
+    let showRichlist = $state(false);
 
-    type SortableColumn = 'name' | 'stakedObjectCount' | 'timelockedObjectCount' | 'uniqueAddresses' | 'totalStakedAmount' | 'averageStakedAmount' | 'averageStakeDuration' | 'stakePercentage' | 'systemStakePercentage';
-    
+    // Types for derived data
+    type ChartData = {
+        epochCounts: Map<number, number>;
+        amountBuckets: number[];
+        addressBuckets: number[];
+    };
+
+    type RichlistRow = {
+        ownerAddress: string;
+        totalStakedAmount: bigint;
+        objectCount: number;
+    };
+
+    // Computed data - use $state.raw to avoid deep proxy issues with Map
+    let computedObjectsByPoolId = $state.raw(new Map<string, StakedObject[]>());
+    let computedChartData = $state.raw<ChartData | null>(null);
+    let computedRichlistRows = $state.raw<RichlistRow[]>([]);
+
+    // Imperative computation function - called explicitly, not reactively
+    function computeDerivedData(stakedObjects: StakedObject[]) {
+        console.time('computeDerivedData total');
+        console.log('computeDerivedData: processing', stakedObjects.length, 'objects');
+        console.time('computeDerivedData loop');
+
+        // All data structures computed in a single pass
+        const objectsByPoolId = new Map<string, StakedObject[]>();
+        const epochCounts = new Map<number, number>();
+        const amountBuckets = [0, 0, 0, 0, 0, 0];
+        const addressCounts = new Map<string, number>();
+        const byOwner = new Map<string, RichlistRow>();
+
+        // Single iteration over all objects - using plain array, not reactive proxy
+        for (let i = 0; i < stakedObjects.length; i++) {
+            const obj = stakedObjects[i];
+            // Objects by pool
+            const poolObjects = objectsByPoolId.get(obj.poolId);
+            if (poolObjects) {
+                poolObjects.push(obj);
+            } else {
+                objectsByPoolId.set(obj.poolId, [obj]);
+            }
+
+            // Epoch counts for chart
+            epochCounts.set(
+                obj.stakeActivationEpoch,
+                (epochCounts.get(obj.stakeActivationEpoch) || 0) + 1,
+            );
+
+            // Amount buckets for chart
+            const iotaAmount = Number(obj.principal) / 1_000_000_000;
+            if (iotaAmount < 100) amountBuckets[0]++;
+            else if (iotaAmount < 1000) amountBuckets[1]++;
+            else if (iotaAmount < 10000) amountBuckets[2]++;
+            else if (iotaAmount < 100000) amountBuckets[3]++;
+            else if (iotaAmount < 1000000) amountBuckets[4]++;
+            else amountBuckets[5]++;
+
+            // Address counts for chart + richlist
+            addressCounts.set(obj.ownerAddress, (addressCounts.get(obj.ownerAddress) || 0) + 1);
+
+            // Richlist aggregation
+            const existing = byOwner.get(obj.ownerAddress);
+            if (existing) {
+                existing.totalStakedAmount += obj.principal;
+                existing.objectCount += 1;
+            } else {
+                byOwner.set(obj.ownerAddress, {
+                    ownerAddress: obj.ownerAddress,
+                    totalStakedAmount: obj.principal,
+                    objectCount: 1,
+                });
+            }
+        }
+        console.timeEnd('computeDerivedData loop');
+
+        console.time('computeDerivedData addressBuckets');
+        // Convert address counts to buckets: 1, 2-5, 6-10, 11-50, >50
+        const addressBuckets = [0, 0, 0, 0, 0];
+        for (const count of addressCounts.values()) {
+            if (count === 1) addressBuckets[0]++;
+            else if (count <= 5) addressBuckets[1]++;
+            else if (count <= 10) addressBuckets[2]++;
+            else if (count <= 50) addressBuckets[3]++;
+            else addressBuckets[4]++;
+        }
+        console.timeEnd('computeDerivedData addressBuckets');
+
+        console.time('computeDerivedData sort');
+        // Sort richlist
+        const richlistRows = Array.from(byOwner.values());
+        richlistRows.sort((a, b) => {
+            if (a.totalStakedAmount === b.totalStakedAmount) {
+                return b.objectCount - a.objectCount;
+            }
+            return a.totalStakedAmount > b.totalStakedAmount ? -1 : 1;
+        });
+        console.timeEnd('computeDerivedData sort');
+
+        // Update state
+        computedObjectsByPoolId = objectsByPoolId;
+        computedChartData = { epochCounts, amountBuckets, addressBuckets };
+        computedRichlistRows = richlistRows;
+        
+        console.timeEnd('computeDerivedData total');
+    }
+
+    type SortableColumn =
+        | 'name'
+        | 'stakedObjectCount'
+        | 'timelockedObjectCount'
+        | 'uniqueAddresses'
+        | 'totalStakedAmount'
+        | 'averageStakedAmount'
+        | 'averageStakeDuration'
+        | 'stakePercentage'
+        | 'systemStakePercentage';
+
     type ObjectRow = {
         id?: string;
         ownerAddress: string;
@@ -60,13 +177,13 @@
             stats.validators.sort((a, b) => {
                 let aVal = a[column];
                 let bVal = b[column];
-                
+
                 if (typeof aVal === 'string') {
-                    return sortDirection === 'asc' 
+                    return sortDirection === 'asc'
                         ? aVal.localeCompare(bVal as string)
                         : (bVal as string).localeCompare(aVal);
                 } else {
-                    return sortDirection === 'asc' 
+                    return sortDirection === 'asc'
                         ? (aVal as number) - (bVal as number)
                         : (bVal as number) - (aVal as number);
                 }
@@ -90,8 +207,7 @@
     }
 
     function getValidatorStakedObjects(poolId: string): StakedObject[] {
-        if (!delegatorData) return [];
-        return delegatorData.stakedObjects.filter(obj => obj.poolId === poolId);
+        return computedObjectsByPoolId.get(poolId) || [];
     }
 
     function sortObjectTable(column: string) {
@@ -113,7 +229,7 @@
         const hrs = Math.floor(seconds / 3600);
         const mins = Math.floor((seconds % 3600) / 60);
         const secs = seconds % 60;
-        
+
         if (hrs > 0) {
             return `${hrs}h ${mins}m ${secs}s`;
         } else if (mins > 0) {
@@ -126,11 +242,11 @@
     function startTimer() {
         startTime = Date.now();
         elapsedTime = 0;
-        
+
         if (timerInterval) {
             clearInterval(timerInterval);
         }
-        
+
         timerInterval = setInterval(() => {
             if (startTime) {
                 elapsedTime = Math.floor((Date.now() - startTime) / 1000);
@@ -147,11 +263,11 @@
 
     function getSortedObjectRows(poolId: string): ObjectRow[] {
         const objects = getValidatorStakedObjects(poolId);
-        
+
         if (objectSortColumn === 'owner') {
             // Group by owner address
             const groupedMap = new Map<string, ObjectRow>();
-            
+
             for (const obj of objects) {
                 const existing = groupedMap.get(obj.ownerAddress);
                 if (existing) {
@@ -168,28 +284,28 @@
                     });
                 }
             }
-            
+
             const grouped = Array.from(groupedMap.values());
             grouped.sort((a, b) => {
                 const cmp = Number(b.amount - a.amount);
                 return objectSortDirection === 'asc' ? -cmp : cmp;
             });
-            
+
             return grouped;
         } else {
             // Individual objects
-            const rows: ObjectRow[] = objects.map(obj => ({
+            const rows: ObjectRow[] = objects.map((obj) => ({
                 id: obj.id,
                 ownerAddress: obj.ownerAddress,
                 amount: obj.principal,
                 activationEpoch: obj.stakeActivationEpoch,
                 isTimelocked: obj.isTimelocked,
             }));
-            
+
             rows.sort((a, b) => {
                 let aVal: any;
                 let bVal: any;
-                
+
                 if (objectSortColumn === 'amount') {
                     aVal = Number(a.amount);
                     bVal = Number(b.amount);
@@ -199,48 +315,12 @@
                 } else {
                     return 0;
                 }
-                
+
                 return objectSortDirection === 'asc' ? aVal - bVal : bVal - aVal;
             });
-            
+
             return rows;
         }
-    }
-
-    type RichlistRow = {
-        ownerAddress: string;
-        totalStakedAmount: bigint;
-        objectCount: number;
-    };
-
-    function getRichlistRows(): RichlistRow[] {
-        if (!delegatorData) return [];
-
-        const byOwner = new Map<string, RichlistRow>();
-
-        for (const obj of delegatorData.stakedObjects) {
-            const existing = byOwner.get(obj.ownerAddress);
-            if (existing) {
-                existing.totalStakedAmount += obj.principal;
-                existing.objectCount += 1;
-            } else {
-                byOwner.set(obj.ownerAddress, {
-                    ownerAddress: obj.ownerAddress,
-                    totalStakedAmount: obj.principal,
-                    objectCount: 1,
-                });
-            }
-        }
-
-        const rows = Array.from(byOwner.values());
-        rows.sort((a, b) => {
-            if (a.totalStakedAmount === b.totalStakedAmount) {
-                return b.objectCount - a.objectCount;
-            }
-            return a.totalStakedAmount > b.totalStakedAmount ? -1 : 1;
-        });
-
-        return rows;
     }
 
     async function fetchData() {
@@ -256,7 +336,7 @@
                 // Resume timer from paused state
                 if (startTime) {
                     const pausedElapsed = elapsedTime;
-                    startTime = Date.now() - (pausedElapsed * 1000);
+                    startTime = Date.now() - pausedElapsed * 1000;
                     if (timerInterval) clearInterval(timerInterval);
                     timerInterval = setInterval(() => {
                         if (startTime) {
@@ -265,7 +345,9 @@
                     }, 1000);
                 }
             }
-            progressMessage = resumeType ? 'Resuming data fetch...' : 'Starting to fetch delegator data...';
+            progressMessage = resumeType
+                ? 'Resuming data fetch...'
+                : 'Starting to fetch delegator data...';
 
             abortController = new AbortController();
 
@@ -288,24 +370,29 @@
                         delegatorData = currentData;
                         stats = {
                             validators: [...currentStats.validators],
-                            global: currentStats.global
+                            global: currentStats.global,
                         };
                         chartVersion++;
-                        
+
                         // Calculate and display sync percentage based on total stake from system state
                         const totalStakeFromSystem = Number(currentData.totalStake);
                         const syncedStake = currentStats.global.totalStakedAmount;
-                        const calculatedSyncPercentage = totalStakeFromSystem > 0 ? (syncedStake / totalStakeFromSystem) * 100 : 0;
+                        const calculatedSyncPercentage =
+                            totalStakeFromSystem > 0
+                                ? (syncedStake / totalStakeFromSystem) * 100
+                                : 0;
                         syncPercentage = calculatedSyncPercentage;
-                        
+
                         // Calculate estimated remaining time
                         let estimatedTimeMessage = '';
                         if (elapsedTime > 0 && syncPercentage > 0 && syncPercentage < 100) {
                             const remainingPercentage = 100 - syncPercentage;
-                            const estimatedRemainingSeconds = Math.round((elapsedTime * remainingPercentage) / syncPercentage);
+                            const estimatedRemainingSeconds = Math.round(
+                                (elapsedTime * remainingPercentage) / syncPercentage,
+                            );
                             estimatedTimeMessage = ` • ETA: ${formatElapsedTime(estimatedRemainingSeconds)}`;
                         }
-                        
+
                         // Add percentage to main progress message
                         progressMessage = `Syncing data... ${syncPercentage.toFixed(2)}% complete${estimatedTimeMessage}`;
                     }
@@ -325,18 +412,36 @@
                 resumeCursor = result.resumeCursor || null;
                 resumeTimelockedCursor = result.resumeTimelockedCursor || null;
                 resumeStakedObjects = result.resumeStakedObjects || [];
-                progressMessage = `Data fetch was paused after ${formatElapsedTime(elapsedTime)} (${syncPercentage.toFixed(2)}% synced).`;
+                progressMessage = `Data fetch was paused after ${formatElapsedTime(elapsedTime)} (${syncPercentage.toFixed(2)}% synced). Preparing display...`;
                 normalProgress = '';
                 timelockedProgress = '';
+                // Compute derived data ONCE using raw array (not reactive state)
+                console.time('paused: computeDerivedData');
+                computeDerivedData(result.resumeStakedObjects || []);
+                console.timeEnd('paused: computeDerivedData');
+                // Defer heavy UI components to allow the UI to update first
+                console.time('paused: tick+showRichlist');
+                await tick();
+                await new Promise((resolve) => requestAnimationFrame(resolve));
+                showRichlist = true;
+                console.timeEnd('paused: tick+showRichlist');
+                console.time('paused: tick+showCharts');
+                await tick();
+                await new Promise((resolve) => requestAnimationFrame(resolve));
+                showCharts = true;
+                console.timeEnd('paused: tick+showCharts');
+                progressMessage = `Data fetch was paused after ${formatElapsedTime(elapsedTime)} (${syncPercentage.toFixed(2)}% synced).`;
             } else {
                 // completed
                 stopTimer();
+                console.time('completed: assign delegatorData');
                 delegatorData = result.data;
+                console.timeEnd('completed: assign delegatorData');
                 stats = {
                     validators: [...result.stats.validators],
-                    global: result.stats.global
+                    global: result.stats.global,
                 };
-                progressMessage = `Data fetch completed in ${formatElapsedTime(elapsedTime)}!`;
+                progressMessage = `Data fetch completed in ${formatElapsedTime(elapsedTime)}! Preparing display...`;
                 normalProgress = '';
                 timelockedProgress = '';
                 syncPercentage = 100;
@@ -344,6 +449,22 @@
                 resumeCursor = null;
                 resumeTimelockedCursor = null;
                 resumeStakedObjects = [];
+                // Compute derived data ONCE using raw array (not reactive state)
+                console.time('completed: computeDerivedData');
+                computeDerivedData(result.data.stakedObjects);
+                console.timeEnd('completed: computeDerivedData');
+                // Defer heavy UI components to allow the UI to update first
+                console.time('completed: tick+showRichlist');
+                await tick();
+                await new Promise((resolve) => requestAnimationFrame(resolve));
+                showRichlist = true;
+                console.timeEnd('completed: tick+showRichlist');
+                console.time('completed: tick+showCharts');
+                await tick();
+                await new Promise((resolve) => requestAnimationFrame(resolve));
+                showCharts = true;
+                console.timeEnd('completed: tick+showCharts');
+                progressMessage = `Data fetch completed in ${formatElapsedTime(elapsedTime)}!`;
             }
         } catch (err: any) {
             stopTimer();
@@ -367,6 +488,8 @@
         resumeStakedObjects = [];
         startTime = null;
         elapsedTime = 0;
+        showCharts = false;
+        showRichlist = false;
         fetchData();
     }
 
@@ -376,6 +499,8 @@
             abortController.abort();
         }
         stopTimer();
+        showCharts = false;
+        showRichlist = false;
         progressMessage = `Fetching paused by user after ${formatElapsedTime(elapsedTime)} (${syncPercentage.toFixed(2)}% synced).`;
     }
 
@@ -391,7 +516,10 @@
     <h1>Delegators Overview</h1>
 
     {#if delegatorData && stats}
-        {@const wrappedStake = Math.max(0, Number(delegatorData.totalStake) - stats.global.totalStakedAmount)}
+        {@const wrappedStake = Math.max(
+            0,
+            Number(delegatorData.totalStake) - stats.global.totalStakedAmount,
+        )}
         <div class="info-banner">
             <div class="info-text">
                 This page aggregates only `StakedIota` and `TimelockedStakedIota` objects.
@@ -400,10 +528,12 @@
             </div>
             <div class="info-metrics">
                 <div>
-                    System total stake: {(Number(delegatorData.totalStake) / 1_000_000_000).toLocaleString(
-                        undefined,
-                        { minimumFractionDigits: 2, maximumFractionDigits: 2 },
-                    )} IOTA
+                    System total stake: {(
+                        Number(delegatorData.totalStake) / 1_000_000_000
+                    ).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                    })} IOTA
                 </div>
                 <div>
                     Wrapped stake (other objects): {(wrappedStake / 1_000_000_000).toLocaleString(
@@ -488,7 +618,8 @@
                         {(stats.global.totalStakedAmount / 1_000_000_000).toLocaleString(
                             undefined,
                             {
-                                minimumFractionDigits: 2, maximumFractionDigits: 2,
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
                             },
                         )}
                     </div>
@@ -509,9 +640,13 @@
                             {(
                                 Math.max(
                                     0,
-                                    Number(delegatorData.totalStake) - stats.global.totalStakedAmount,
+                                    Number(delegatorData.totalStake) -
+                                        stats.global.totalStakedAmount,
                                 ) / 1_000_000_000
-                            ).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            ).toLocaleString(undefined, {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                            })}
                         </div>
                     </div>
                 {/if}
@@ -528,7 +663,8 @@
                     <div class="stat-label">Average Stake Duration (epochs)</div>
                     <div class="stat-value">
                         {stats.global.averageStakeDuration.toLocaleString(undefined, {
-                            minimumFractionDigits: 2, maximumFractionDigits: 2,
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
                         })}
                     </div>
                 </div>
@@ -543,197 +679,288 @@
             </div>
         </div>
         {#if stats && !isLoading}
-
-        <h2>Validator Statistics</h2>
+            <h2>Validator Statistics</h2>
             <p>Showing {stats.validators.length} validators</p>
             <div class="validators-table-container">
-            <table class="validators-table">
-                <thead>
-                    <tr>
-                        <th class="rank-header">Rank</th>
-                        <th class="sortable" onclick={() => sortValidators('name')}>
-                            Validator Name {getSortIcon('name')}
-                        </th>
-                        <th class="sortable" onclick={() => sortValidators('stakedObjectCount')}>
-                            Staked Objects {getSortIcon('stakedObjectCount')}
-                        </th>
-                        <th class="sortable" onclick={() => sortValidators('timelockedObjectCount')}>
-                            Timelocked Objects {getSortIcon('timelockedObjectCount')}
-                        </th>
-                        <th class="sortable" onclick={() => sortValidators('uniqueAddresses')}>
-                            Unique Addresses {getSortIcon('uniqueAddresses')}
-                        </th>
-                        <th class="sortable" onclick={() => sortValidators('totalStakedAmount')}>
-                            Total Staked (IOTA) {getSortIcon('totalStakedAmount')}
-                        </th>
-                        <th class="sortable" onclick={() => sortValidators('averageStakedAmount')}>
-                            Avg Amount (IOTA) {getSortIcon('averageStakedAmount')}
-                        </th>
-                        <th class="sortable" onclick={() => sortValidators('averageStakeDuration')}>
-                            Avg Duration (epochs) {getSortIcon('averageStakeDuration')}
-                        </th>
-                        <th class="sortable" onclick={() => sortValidators('stakePercentage')}>
-                            Stake % (Objects) {getSortIcon('stakePercentage')}
-                        </th>
-                        <th class="sortable" onclick={() => sortValidators('systemStakePercentage')}>
-                            Stake % (System) {getSortIcon('systemStakePercentage')}
-                        </th>
-                        <th>Address</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {#each stats.validators as validator, index (validator.address)}
+                <table class="validators-table">
+                    <thead>
                         <tr>
-                            <td class="rank-cell">{index + 1}</td>
-                            <td class="name-cell">
-                                <button
-                                    class="details-btn"
-                                    onclick={() => toggleValidatorDetails(validator.poolId)}
-                                    title="View staked objects"
-                                >
-                                    {expandedValidatorPoolId === validator.poolId ? '▼' : '▶'}
-                                </button>
-                                <span class="validator-name">{validator.name}</span>
-                            </td>
-                            <td class="numeric-cell">{validator.stakedObjectCount.toLocaleString()}</td>
-                            <td class="numeric-cell">{validator.timelockedObjectCount.toLocaleString()}</td>
-                            <td class="numeric-cell">{validator.uniqueAddresses.toLocaleString()}</td>
-                            <td class="numeric-cell"
-                                >{(validator.totalStakedAmount / 1_000_000_000).toLocaleString(
-                                    undefined,
-                                    { minimumFractionDigits: 2, maximumFractionDigits: 2 },
-                                )}</td
+                            <th class="rank-header">Rank</th>
+                            <th class="sortable" onclick={() => sortValidators('name')}>
+                                Validator Name {getSortIcon('name')}
+                            </th>
+                            <th
+                                class="sortable"
+                                onclick={() => sortValidators('stakedObjectCount')}
                             >
-                            <td class="numeric-cell"
-                                >{(validator.averageStakedAmount / 1_000_000_000).toLocaleString(
-                                    undefined,
-                                    { minimumFractionDigits: 2, maximumFractionDigits: 2 },
-                                )}</td
+                                Staked Objects {getSortIcon('stakedObjectCount')}
+                            </th>
+                            <th
+                                class="sortable"
+                                onclick={() => sortValidators('timelockedObjectCount')}
                             >
-                            <td class="numeric-cell"
-                                >{validator.averageStakeDuration.toLocaleString(undefined, {
-                                    minimumFractionDigits: 2, maximumFractionDigits: 2,
-                                })}</td
+                                Timelocked Objects {getSortIcon('timelockedObjectCount')}
+                            </th>
+                            <th class="sortable" onclick={() => sortValidators('uniqueAddresses')}>
+                                Unique Addresses {getSortIcon('uniqueAddresses')}
+                            </th>
+                            <th
+                                class="sortable"
+                                onclick={() => sortValidators('totalStakedAmount')}
                             >
-                            <td class="numeric-cell">{validator.stakePercentage.toFixed(2)}%</td>
-                            <td class="numeric-cell">{validator.systemStakePercentage.toFixed(2)}%</td>
-                            <td class="address-cell">
-                                <span class="address-text">{validator.address.slice(0, 10)}...{validator.address.slice(-8)}</span>
-                                <button
-                                    class="copy-btn"
-                                    onclick={() => navigator.clipboard.writeText(validator.address)}
-                                    title="Copy address"
-                                >
-                                    📋
-                                </button>
-                            </td>
+                                Total Staked (IOTA) {getSortIcon('totalStakedAmount')}
+                            </th>
+                            <th
+                                class="sortable"
+                                onclick={() => sortValidators('averageStakedAmount')}
+                            >
+                                Avg Amount (IOTA) {getSortIcon('averageStakedAmount')}
+                            </th>
+                            <th
+                                class="sortable"
+                                onclick={() => sortValidators('averageStakeDuration')}
+                            >
+                                Avg Duration (epochs) {getSortIcon('averageStakeDuration')}
+                            </th>
+                            <th class="sortable" onclick={() => sortValidators('stakePercentage')}>
+                                Stake % (Objects) {getSortIcon('stakePercentage')}
+                            </th>
+                            <th
+                                class="sortable"
+                                onclick={() => sortValidators('systemStakePercentage')}
+                            >
+                                Stake % (System) {getSortIcon('systemStakePercentage')}
+                            </th>
+                            <th>Address</th>
                         </tr>
-                        {#if expandedValidatorPoolId === validator.poolId}
-                            {@const objectRows = getSortedObjectRows(validator.poolId)}
-                            <tr class="details-row">
-                                <td colspan="10">
-                                    <div class="details-container">
-                                        <h3>Staked Objects for {validator.name}</h3>
-                                        <div class="objects-table-container">
-                                            <table class="objects-table">
-                                                <thead>
-                                                    <tr>
-                                                        {#if objectSortColumn !== 'owner'}
-                                                            <th>Object ID</th>
-                                                            <th>Type</th>
-                                                        {:else}
-                                                            <th>Count</th>
-                                                        {/if}
-                                                        <th class="sortable" onclick={() => sortObjectTable('amount')}>
-                                                            Amount (IOTA) {getObjectSortIcon('amount')}
-                                                        </th>
-                                                        <th class="sortable" onclick={() => sortObjectTable('epoch')}>
-                                                            Activation Epoch {getObjectSortIcon('epoch')}
-                                                        </th>
-                                                        <th class="sortable" onclick={() => sortObjectTable('owner')}>
-                                                            Owner Address {getObjectSortIcon('owner')}
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {#each objectRows.slice(0, objectRowsLimit) as row}
+                    </thead>
+                    <tbody>
+                        {#each stats.validators as validator, index (validator.address)}
+                            <tr>
+                                <td class="rank-cell">{index + 1}</td>
+                                <td class="name-cell">
+                                    <button
+                                        class="details-btn"
+                                        onclick={() => toggleValidatorDetails(validator.poolId)}
+                                        title="View staked objects"
+                                    >
+                                        {expandedValidatorPoolId === validator.poolId ? '▼' : '▶'}
+                                    </button>
+                                    <span class="validator-name">{validator.name}</span>
+                                </td>
+                                <td class="numeric-cell"
+                                    >{validator.stakedObjectCount.toLocaleString()}</td
+                                >
+                                <td class="numeric-cell"
+                                    >{validator.timelockedObjectCount.toLocaleString()}</td
+                                >
+                                <td class="numeric-cell"
+                                    >{validator.uniqueAddresses.toLocaleString()}</td
+                                >
+                                <td class="numeric-cell"
+                                    >{(validator.totalStakedAmount / 1_000_000_000).toLocaleString(
+                                        undefined,
+                                        { minimumFractionDigits: 2, maximumFractionDigits: 2 },
+                                    )}</td
+                                >
+                                <td class="numeric-cell"
+                                    >{(
+                                        validator.averageStakedAmount / 1_000_000_000
+                                    ).toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
+                                    })}</td
+                                >
+                                <td class="numeric-cell"
+                                    >{validator.averageStakeDuration.toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
+                                    })}</td
+                                >
+                                <td class="numeric-cell">{validator.stakePercentage.toFixed(2)}%</td
+                                >
+                                <td class="numeric-cell"
+                                    >{validator.systemStakePercentage.toFixed(2)}%</td
+                                >
+                                <td class="address-cell">
+                                    <span class="address-text"
+                                        >{validator.address.slice(
+                                            0,
+                                            10,
+                                        )}...{validator.address.slice(-8)}</span
+                                    >
+                                    <button
+                                        class="copy-btn"
+                                        onclick={() =>
+                                            navigator.clipboard.writeText(validator.address)}
+                                        title="Copy address"
+                                    >
+                                        📋
+                                    </button>
+                                </td>
+                            </tr>
+                            {#if expandedValidatorPoolId === validator.poolId}
+                                {@const objectRows = getSortedObjectRows(validator.poolId)}
+                                <tr class="details-row">
+                                    <td colspan="10">
+                                        <div class="details-container">
+                                            <h3>Staked Objects for {validator.name}</h3>
+                                            <div class="objects-table-container">
+                                                <table class="objects-table">
+                                                    <thead>
                                                         <tr>
-                                                            {#if row.id}
-                                                                <td class="object-id-cell">
-                                                                    <span class="object-id-text">{row.id.slice(0, 10)}...{row.id.slice(-8)}</span>
+                                                            {#if objectSortColumn !== 'owner'}
+                                                                <th>Object ID</th>
+                                                                <th>Type</th>
+                                                            {:else}
+                                                                <th>Count</th>
+                                                            {/if}
+                                                            <th
+                                                                class="sortable"
+                                                                onclick={() =>
+                                                                    sortObjectTable('amount')}
+                                                            >
+                                                                Amount (IOTA) {getObjectSortIcon(
+                                                                    'amount',
+                                                                )}
+                                                            </th>
+                                                            <th
+                                                                class="sortable"
+                                                                onclick={() =>
+                                                                    sortObjectTable('epoch')}
+                                                            >
+                                                                Activation Epoch {getObjectSortIcon(
+                                                                    'epoch',
+                                                                )}
+                                                            </th>
+                                                            <th
+                                                                class="sortable"
+                                                                onclick={() =>
+                                                                    sortObjectTable('owner')}
+                                                            >
+                                                                Owner Address {getObjectSortIcon(
+                                                                    'owner',
+                                                                )}
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {#each objectRows.slice(0, objectRowsLimit) as row}
+                                                            <tr>
+                                                                {#if row.id}
+                                                                    <td class="object-id-cell">
+                                                                        <span class="object-id-text"
+                                                                            >{row.id.slice(
+                                                                                0,
+                                                                                10,
+                                                                            )}...{row.id.slice(
+                                                                                -8,
+                                                                            )}</span
+                                                                        >
+                                                                        <button
+                                                                            class="copy-btn"
+                                                                            onclick={() =>
+                                                                                navigator.clipboard.writeText(
+                                                                                    row.id!,
+                                                                                )}
+                                                                            title="Copy object ID"
+                                                                        >
+                                                                            📋
+                                                                        </button>
+                                                                    </td>
+                                                                    <td class="type-cell">
+                                                                        <span
+                                                                            class="type-badge"
+                                                                            class:timelocked={row.isTimelocked}
+                                                                        >
+                                                                            {row.isTimelocked
+                                                                                ? 'Timelocked'
+                                                                                : 'Normal'}
+                                                                        </span>
+                                                                    </td>
+                                                                {:else}
+                                                                    <td class="count-cell">
+                                                                        {row.objectCount} object{row.objectCount !==
+                                                                        1
+                                                                            ? 's'
+                                                                            : ''}
+                                                                    </td>
+                                                                {/if}
+                                                                <td class="numeric-cell"
+                                                                    >{(
+                                                                        Number(row.amount) /
+                                                                        1_000_000_000
+                                                                    ).toLocaleString(undefined, {
+                                                                        minimumFractionDigits: 2,
+                                                                        maximumFractionDigits: 2,
+                                                                    })}</td
+                                                                >
+                                                                <td class="numeric-cell">
+                                                                    {#if row.id}
+                                                                        {row.activationEpoch.toLocaleString()}
+                                                                    {:else}
+                                                                        <span class="muted"
+                                                                            >Multiple</span
+                                                                        >
+                                                                    {/if}
+                                                                </td>
+                                                                <td class="owner-address-cell">
+                                                                    <span class="owner-address-text"
+                                                                        >{row.ownerAddress.slice(
+                                                                            0,
+                                                                            10,
+                                                                        )}...{row.ownerAddress.slice(
+                                                                            -8,
+                                                                        )}</span
+                                                                    >
                                                                     <button
                                                                         class="copy-btn"
-                                                                        onclick={() => navigator.clipboard.writeText(row.id!)}
-                                                                        title="Copy object ID"
+                                                                        onclick={() =>
+                                                                            navigator.clipboard.writeText(
+                                                                                row.ownerAddress,
+                                                                            )}
+                                                                        title="Copy owner address"
                                                                     >
                                                                         📋
                                                                     </button>
                                                                 </td>
-                                                                <td class="type-cell">
-                                                                    <span class="type-badge" class:timelocked={row.isTimelocked}>
-                                                                        {row.isTimelocked ? 'Timelocked' : 'Normal'}
-                                                                    </span>
-                                                                </td>
-                                                            {:else}
-                                                                <td class="count-cell">
-                                                                    {row.objectCount} object{row.objectCount !== 1 ? 's' : ''}
-                                                                </td>
-                                                            {/if}
-                                                            <td class="numeric-cell">{(Number(row.amount) / 1_000_000_000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                                            <td class="numeric-cell">
-                                                                {#if row.id}
-                                                                    {row.activationEpoch.toLocaleString()}
-                                                                {:else}
-                                                                    <span class="muted">Multiple</span>
-                                                                {/if}
-                                                            </td>
-                                                            <td class="owner-address-cell">
-                                                                <span class="owner-address-text">{row.ownerAddress.slice(0, 10)}...{row.ownerAddress.slice(-8)}</span>
-                                                                <button
-                                                                    class="copy-btn"
-                                                                    onclick={() => navigator.clipboard.writeText(row.ownerAddress)}
-                                                                    title="Copy owner address"
-                                                                >
-                                                                    📋
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    {/each}
-                                                </tbody>
-                                            </table>
+                                                            </tr>
+                                                        {/each}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            {#if objectRows.length > objectRowsLimit}
+                                                <div class="objects-footer">
+                                                    <div class="objects-count">
+                                                        Showing {objectRowsLimit.toLocaleString()} of
+                                                        {objectRows.length.toLocaleString()} objects
+                                                    </div>
+                                                    <button
+                                                        class="load-more-btn"
+                                                        onclick={() => (objectRowsLimit += 200)}
+                                                    >
+                                                        Load 200 more
+                                                    </button>
+                                                </div>
+                                            {:else if objectRows.length > 0}
+                                                <div class="objects-footer">
+                                                    <div class="objects-count">
+                                                        Showing {objectRows.length.toLocaleString()} objects
+                                                    </div>
+                                                </div>
+                                            {/if}
                                         </div>
-                                        {#if objectRows.length > objectRowsLimit}
-                                            <div class="objects-footer">
-                                                <div class="objects-count">
-                                                    Showing {objectRowsLimit.toLocaleString()} of {objectRows.length.toLocaleString()} objects
-                                                </div>
-                                                <button
-                                                    class="load-more-btn"
-                                                    onclick={() => (objectRowsLimit += 200)}
-                                                >
-                                                    Load 200 more
-                                                </button>
-                                            </div>
-                                        {:else if objectRows.length > 0}
-                                            <div class="objects-footer">
-                                                <div class="objects-count">
-                                                    Showing {objectRows.length.toLocaleString()} objects
-                                                </div>
-                                            </div>
-                                        {/if}
-                                    </div>
-                                </td>
-                            </tr>
-                        {/if}
-                    {/each}
-                </tbody>
-            </table>
-        </div>
+                                    </td>
+                                </tr>
+                            {/if}
+                        {/each}
+                    </tbody>
+                </table>
+            </div>
         {/if}
 
-        {#if delegatorData && !isLoading}
+        {#if delegatorData && !isLoading && showRichlist}
             <h2>Delegator Richlist</h2>
-            {@const richlistRows = getRichlistRows()}
             <div class="richlist-table-container">
                 <table class="richlist-table">
                     <thead>
@@ -745,14 +972,15 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {#each richlistRows.slice(0, richlistRowsLimit) as row, index (row.ownerAddress)}
+                        {#each computedRichlistRows.slice(0, richlistRowsLimit) as row, index (row.ownerAddress)}
                             <tr>
                                 <td class="rank-cell">{index + 1}</td>
                                 <td class="richlist-address-cell">
                                     <span class="richlist-address-text">{row.ownerAddress}</span>
                                     <button
                                         class="copy-btn"
-                                        onclick={() => navigator.clipboard.writeText(row.ownerAddress)}
+                                        onclick={() =>
+                                            navigator.clipboard.writeText(row.ownerAddress)}
                                         title="Copy address"
                                     >
                                         📋
@@ -770,34 +998,31 @@
                     </tbody>
                 </table>
             </div>
-            {#if richlistRows.length > richlistRowsLimit}
+            {#if computedRichlistRows.length > richlistRowsLimit}
                 <div class="objects-footer">
                     <div class="objects-count">
-                        Showing {richlistRowsLimit.toLocaleString()} of {richlistRows.length.toLocaleString()} addresses
+                        Showing {richlistRowsLimit.toLocaleString()} of {computedRichlistRows.length.toLocaleString()}
+                        addresses
                     </div>
-                    <button
-                        class="load-more-btn"
-                        onclick={() => (richlistRowsLimit += 200)}
-                    >
+                    <button class="load-more-btn" onclick={() => (richlistRowsLimit += 200)}>
                         Load 200 more
                     </button>
                 </div>
-            {:else if richlistRows.length > 0}
+            {:else if computedRichlistRows.length > 0}
                 <div class="objects-footer">
                     <div class="objects-count">
-                        Showing {richlistRows.length.toLocaleString()} addresses
+                        Showing {computedRichlistRows.length.toLocaleString()} addresses
                     </div>
                 </div>
             {/if}
         {/if}
 
-        {#if delegatorData && !isLoading}
+        {#if delegatorData && !isLoading && showCharts && computedChartData}
             {#key chartVersion}
-                <DelegatorsCharts data={delegatorData} {stats} />
+                <DelegatorsCharts data={delegatorData} {stats} chartData={computedChartData} />
             {/key}
         {/if}
     {/if}
-
 </main>
 
 <style>

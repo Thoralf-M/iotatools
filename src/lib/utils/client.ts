@@ -14,7 +14,7 @@ let graphqlClient: IotaClient | undefined = undefined;
 export function getClient(graphql: boolean = false): IotaClient {
     let networkConfig = getSelectedNetworkConfig();
     let selectedNetworkUrl = networkConfig.node;
-    
+
     if (graphql) {
         if (graphqlClient == undefined || selectedNetworkUrl != previousInitializedNodeUrl) {
             const clientOptions: IotaClientOptions = {
