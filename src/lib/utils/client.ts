@@ -8,28 +8,35 @@ import { getNetworkConfigOverride, hasNetworkConfigOverride } from './network-co
 
 // Used to determine if the client should be initialized with a new node
 let previousInitializedNodeUrl = '';
-let client: any = undefined;
+let regularClient: IotaClient | undefined = undefined;
+let graphqlClient: IotaClient | undefined = undefined;
+
 export function getClient(graphql: boolean = false): IotaClient {
     let networkConfig = getSelectedNetworkConfig();
     let selectedNetworkUrl = networkConfig.node;
-    if (client == undefined || selectedNetworkUrl != previousInitializedNodeUrl) {
-        let clientOptions: IotaClientOptions;
-        if (graphql) {
-            clientOptions = {
+    
+    if (graphql) {
+        if (graphqlClient == undefined || selectedNetworkUrl != previousInitializedNodeUrl) {
+            const clientOptions: IotaClientOptions = {
                 transport: new IotaClientGraphQLTransport({
                     url: networkConfig.graphql,
                     fallbackTransportUrl: selectedNetworkUrl,
                 }),
             };
-        } else {
-            clientOptions = {
+            graphqlClient = new IotaClient(clientOptions);
+            previousInitializedNodeUrl = selectedNetworkUrl;
+        }
+        return graphqlClient;
+    } else {
+        if (regularClient == undefined || selectedNetworkUrl != previousInitializedNodeUrl) {
+            const clientOptions: IotaClientOptions = {
                 url: selectedNetworkUrl,
             };
+            regularClient = new IotaClient(clientOptions);
+            previousInitializedNodeUrl = selectedNetworkUrl;
         }
-        client = new IotaClient(clientOptions);
-        previousInitializedNodeUrl = selectedNetworkUrl;
+        return regularClient;
     }
-    return client;
 }
 
 export function getSelectedNetworkConfig(): NetworkConfig {

@@ -7,64 +7,15 @@
     export let data: DelegatorData;
     export let stats: DelegatorStats;
 
-    let stakeByValidatorCanvas: HTMLCanvasElement;
     let stakeActivationCanvas: HTMLCanvasElement;
     let stakedAmountsCanvas: HTMLCanvasElement;
     let addressDistributionCanvas: HTMLCanvasElement;
+    let stakeCompositionCanvas: HTMLCanvasElement;
 
     let charts: Chart[] = [];
 
-    function createStakeByValidatorChart() {
-        if (!stakeByValidatorCanvas) return;
-
-        const topValidators = stats.validators.slice(0, 15); // Top 15 validators
-
-        const chart = new Chart(stakeByValidatorCanvas, {
-            type: 'bar',
-            data: {
-                labels: topValidators.map((v) => v.name || v.address.slice(0, 8)),
-                datasets: [
-                    {
-                        label: 'Total Staked Amount (IOTA)',
-                        data: topValidators.map((v) => v.totalStakedAmount / 1_000_000_000),
-                        backgroundColor: 'rgba(59, 130, 246, 0.6)',
-                        borderColor: 'rgba(59, 130, 246, 1)',
-                        borderWidth: 1,
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Top 15 Validators by Stake',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: (context) => {
-                                const value = context.parsed.y;
-                                if (value == null) return '';
-                                return `${context.dataset.label}: ${value.toLocaleString()} IOTA`;
-                            },
-                        },
-                    },
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Amount (IOTA)',
-                        },
-                    },
-                },
-            },
-        });
-
-        charts.push(chart);
-    }
+    let minEpochFilter = '';
+    let maxEpochFilter = '';
 
     function createStakeActivationChart() {
         if (!stakeActivationCanvas) return;
@@ -80,14 +31,20 @@
         const sortedEpochs = Array.from(epochCounts.keys()).sort((a, b) => a - b);
         const counts = sortedEpochs.map((epoch) => epochCounts.get(epoch) || 0);
 
+        // Filter by epoch range
+        const minEpoch = minEpochFilter ? parseInt(minEpochFilter) : Math.min(...sortedEpochs);
+        const maxEpoch = maxEpochFilter ? parseInt(maxEpochFilter) : Math.max(...sortedEpochs);
+        const filteredEpochs = sortedEpochs.filter(e => e >= minEpoch && e <= maxEpoch);
+        const filteredCounts = filteredEpochs.map(e => epochCounts.get(e) || 0);
+
         const chart = new Chart(stakeActivationCanvas, {
             type: 'line',
             data: {
-                labels: sortedEpochs,
+                labels: filteredEpochs,
                 datasets: [
                     {
                         label: 'Number of Objects',
-                        data: counts,
+                        data: filteredCounts,
                         backgroundColor: 'rgba(16, 185, 129, 0.2)',
                         borderColor: 'rgba(16, 185, 129, 1)',
                         borderWidth: 2,
@@ -131,6 +88,15 @@
         });
 
         charts.push(chart);
+    }
+
+    function updateStakeActivationChart() {
+        const existingChart = charts.find(c => c.canvas === stakeActivationCanvas);
+        if (existingChart) {
+            existingChart.destroy();
+            charts = charts.filter(c => c !== existingChart);
+        }
+        createStakeActivationChart();
     }
 
     function createStakedAmountsChart() {
@@ -278,11 +244,73 @@
         charts.push(chart);
     }
 
+    function createStakeCompositionChart() {
+        if (!stakeCompositionCanvas) return;
+
+        const totalStake = Number(data.totalStake);
+        const totalStakedAmount = stats.global.totalStakedAmount;
+        const wrappedStake = Math.max(0, totalStake - totalStakedAmount);
+
+        const chart = new Chart(stakeCompositionCanvas, {
+            type: 'pie',
+            data: {
+                labels: ['StakedIota', 'TimelockedStakedIota', 'Wrapped Stake'],
+                datasets: [
+                    {
+                        label: 'Stake Composition (IOTA)',
+                        data: [
+                            stats.global.totalNormalStakedAmount / 1_000_000_000,
+                            stats.global.totalTimelockedAmount / 1_000_000_000,
+                            wrappedStake / 1_000_000_000,
+                        ],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.6)',
+                            'rgba(245, 158, 11, 0.6)',
+                            'rgba(148, 163, 184, 0.6)',
+                        ],
+                        borderColor: [
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(148, 163, 184, 1)',
+                        ],
+                        borderWidth: 1,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Stake Composition',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce(
+                                    (a: number, b: number) => a + b,
+                                    0,
+                                );
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                                return `${label}: ${value.toLocaleString()} IOTA (${percentage}%)`;
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        charts.push(chart);
+    }
+
     onMount(() => {
-        createStakeByValidatorChart();
         createStakeActivationChart();
         createStakedAmountsChart();
         createAddressDistributionChart();
+        createStakeCompositionChart();
     });
 
     onDestroy(() => {
@@ -292,13 +320,14 @@
 </script>
 
 <div class="charts-container">
-    <h2>Charts</h2>
+    <h2>Charts for live objects</h2>
 
     <div class="chart-row">
         <div class="chart-card">
-            <canvas bind:this={stakeByValidatorCanvas}></canvas>
-        </div>
-        <div class="chart-card">
+            <div class="filters">
+                <label>Min Epoch: <input type="number" bind:value={minEpochFilter} on:input={updateStakeActivationChart} /></label>
+                <label>Max Epoch: <input type="number" bind:value={maxEpochFilter} on:input={updateStakeActivationChart} /></label>
+            </div>
             <canvas bind:this={stakeActivationCanvas}></canvas>
         </div>
     </div>
@@ -309,6 +338,12 @@
         </div>
         <div class="chart-card">
             <canvas bind:this={addressDistributionCanvas}></canvas>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-card">
+            <canvas bind:this={stakeCompositionCanvas}></canvas>
         </div>
     </div>
 </div>
@@ -327,6 +362,27 @@
         grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
         gap: 1.5rem;
         margin-bottom: 1.5rem;
+    }
+
+    .filters {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .filters label {
+        display: flex;
+        flex-direction: column;
+        font-size: 0.9rem;
+    }
+
+    .filters input {
+        margin-top: 0.25rem;
+        padding: 0.25rem;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-color);
     }
 
     .chart-card {
