@@ -1,0 +1,413 @@
+<script lang="ts">
+    import Chart from 'chart.js/auto';
+    import { onDestroy, onMount } from 'svelte';
+
+    import type { DelegatorData, DelegatorStats } from './delegators-service';
+
+    // Pre-computed chart data type (matches Delegators.svelte export)
+    type ChartData = {
+        epochCounts: Map<number, number>;
+        amountBuckets: number[];
+        addressBuckets: number[];
+    };
+
+    export let data: DelegatorData;
+    export let stats: DelegatorStats;
+    export let chartData: ChartData;
+
+    let stakeActivationCanvas: HTMLCanvasElement;
+    let stakedAmountsCanvas: HTMLCanvasElement;
+    let addressDistributionCanvas: HTMLCanvasElement;
+    let stakeCompositionCanvas: HTMLCanvasElement;
+
+    let charts: Chart[] = [];
+
+    let minEpochFilter = '';
+    let maxEpochFilter = '';
+
+    function createStakeActivationChart() {
+        if (!stakeActivationCanvas) return;
+
+        // Use pre-computed epoch counts
+        const epochCounts = chartData.epochCounts;
+
+        // Sort by epoch
+        const sortedEpochs = Array.from(epochCounts.keys()).sort((a, b) => a - b);
+
+        // Filter by epoch range
+        const minEpoch = minEpochFilter ? parseInt(minEpochFilter) : Math.min(...sortedEpochs);
+        const maxEpoch = maxEpochFilter ? parseInt(maxEpochFilter) : Math.max(...sortedEpochs);
+        const filteredEpochs = sortedEpochs.filter((e) => e >= minEpoch && e <= maxEpoch);
+        const filteredCounts = filteredEpochs.map((e) => epochCounts.get(e) || 0);
+
+        const chart = new Chart(stakeActivationCanvas, {
+            type: 'line',
+            data: {
+                labels: filteredEpochs,
+                datasets: [
+                    {
+                        label: 'Number of Objects',
+                        data: filteredCounts,
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.1,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Stake Activation Epoch Distribution',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                return `Epoch ${context.label}: ${context.parsed.y} objects`;
+                            },
+                        },
+                    },
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Epoch',
+                        },
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Objects',
+                        },
+                    },
+                },
+            },
+        });
+
+        charts.push(chart);
+    }
+
+    function updateStakeActivationChart() {
+        const existingChart = charts.find((c) => c.canvas === stakeActivationCanvas);
+        if (existingChart) {
+            existingChart.destroy();
+            charts = charts.filter((c) => c !== existingChart);
+        }
+        createStakeActivationChart();
+    }
+
+    function createStakedAmountsChart() {
+        if (!stakedAmountsCanvas) return;
+
+        // Use pre-computed amount buckets
+        const bucketLabels = [
+            '< 100 IOTA',
+            '100-1K IOTA',
+            '1K-10K IOTA',
+            '10K-100K IOTA',
+            '100K-1M IOTA',
+            '> 1M IOTA',
+        ];
+
+        const chart = new Chart(stakedAmountsCanvas, {
+            type: 'bar',
+            data: {
+                labels: bucketLabels,
+                datasets: [
+                    {
+                        label: 'Number of Objects',
+                        data: chartData.amountBuckets,
+                        backgroundColor: 'rgba(234, 88, 12, 0.6)',
+                        borderColor: 'rgba(234, 88, 12, 1)',
+                        borderWidth: 1,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Staked Amount Distribution',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const value = context.parsed.y;
+                                if (value == null) return '';
+                                return `${value.toLocaleString()} objects`;
+                            },
+                        },
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Objects',
+                        },
+                    },
+                },
+            },
+        });
+
+        charts.push(chart);
+    }
+
+    function createAddressDistributionChart() {
+        if (!addressDistributionCanvas) return;
+
+        // Use pre-computed address buckets
+        const bucketLabels = [
+            '1 object',
+            '2-5 objects',
+            '6-10 objects',
+            '11-50 objects',
+            '> 50 objects',
+        ];
+
+        const chart = new Chart(addressDistributionCanvas, {
+            type: 'pie',
+            data: {
+                labels: bucketLabels,
+                datasets: [
+                    {
+                        label: 'Number of Addresses',
+                        data: chartData.addressBuckets,
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.6)',
+                            'rgba(16, 185, 129, 0.6)',
+                            'rgba(234, 88, 12, 0.6)',
+                            'rgba(124, 58, 237, 0.6)',
+                            'rgba(245, 158, 11, 0.6)',
+                        ],
+                        borderColor: [
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(234, 88, 12, 1)',
+                            'rgba(124, 58, 237, 1)',
+                            'rgba(245, 158, 11, 1)',
+                        ],
+                        borderWidth: 1,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Address Distribution by Object Count',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce(
+                                    (a: number, b: number) => a + b,
+                                    0,
+                                );
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${label}: ${value} addresses (${percentage}%)`;
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        charts.push(chart);
+    }
+
+    function createStakeCompositionChart() {
+        if (!stakeCompositionCanvas) return;
+
+        const totalStake = Number(data.totalStake);
+        const totalStakedAmount = stats.global.totalStakedAmount;
+        const wrappedStake = Math.max(0, totalStake - totalStakedAmount);
+
+        const chart = new Chart(stakeCompositionCanvas, {
+            type: 'pie',
+            data: {
+                labels: ['StakedIota', 'TimelockedStakedIota', 'Wrapped Stake'],
+                datasets: [
+                    {
+                        label: 'Stake Composition (IOTA)',
+                        data: [
+                            stats.global.totalNormalStakedAmount / 1_000_000_000,
+                            stats.global.totalTimelockedAmount / 1_000_000_000,
+                            wrappedStake / 1_000_000_000,
+                        ],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.6)',
+                            'rgba(245, 158, 11, 0.6)',
+                            'rgba(148, 163, 184, 0.6)',
+                        ],
+                        borderColor: [
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(148, 163, 184, 1)',
+                        ],
+                        borderWidth: 1,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Stake Composition',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce(
+                                    (a: number, b: number) => a + b,
+                                    0,
+                                );
+                                const percentage =
+                                    total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                                return `${label}: ${value.toLocaleString()} IOTA (${percentage}%)`;
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        charts.push(chart);
+    }
+
+    onMount(() => {
+        console.log('DelegatorsCharts: onMount triggered');
+        // Defer chart creation to allow the UI to paint first
+        requestAnimationFrame(() => {
+            console.time('charts total');
+            console.time('chart stakeActivation');
+            createStakeActivationChart();
+            console.timeEnd('chart stakeActivation');
+            console.time('chart stakedAmounts');
+            createStakedAmountsChart();
+            console.timeEnd('chart stakedAmounts');
+            console.time('chart addressDistribution');
+            createAddressDistributionChart();
+            console.timeEnd('chart addressDistribution');
+            console.time('chart stakeComposition');
+            createStakeCompositionChart();
+            console.timeEnd('chart stakeComposition');
+            console.timeEnd('charts total');
+        });
+    });
+
+    onDestroy(() => {
+        charts.forEach((chart) => chart.destroy());
+        charts = [];
+    });
+</script>
+
+<div class="charts-container">
+    <h2>Charts for live objects</h2>
+
+    <div class="chart-row">
+        <div class="chart-card">
+            <div class="filters">
+                <label
+                    >Min Epoch: <input
+                        type="number"
+                        bind:value={minEpochFilter}
+                        on:input={updateStakeActivationChart}
+                    /></label
+                >
+                <label
+                    >Max Epoch: <input
+                        type="number"
+                        bind:value={maxEpochFilter}
+                        on:input={updateStakeActivationChart}
+                    /></label
+                >
+            </div>
+            <canvas bind:this={stakeActivationCanvas}></canvas>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-card">
+            <canvas bind:this={stakedAmountsCanvas}></canvas>
+        </div>
+        <div class="chart-card">
+            <canvas bind:this={addressDistributionCanvas}></canvas>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-card">
+            <canvas bind:this={stakeCompositionCanvas}></canvas>
+        </div>
+    </div>
+</div>
+
+<style>
+    .charts-container {
+        margin-top: 2rem;
+    }
+
+    h2 {
+        margin-bottom: 1.5rem;
+    }
+
+    .chart-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .filters {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .filters label {
+        display: flex;
+        flex-direction: column;
+        font-size: 0.9rem;
+    }
+
+    .filters input {
+        margin-top: 0.25rem;
+        padding: 0.25rem;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-color);
+    }
+
+    .chart-card {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 1.5rem;
+        height: 400px;
+    }
+
+    @media (max-width: 1024px) {
+        .chart-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

@@ -8,15 +8,15 @@ IOTA Tools is a **Svelte 5 SPA (Single Page Application)** providing utility too
 
 ## Tech Stack
 
-| Category | Technology |
-|----------|------------|
-| Framework | Svelte 5 with TypeScript |
-| Build Tool | Vite 7 |
-| Package Manager | pnpm |
-| Routing | svelte-spa-router (hash-based SPA routing) |
-| Testing | Vitest + jsdom |
-| Formatting | Prettier (with import sorting) |
-| IOTA SDK | @iota/iota-sdk, @iota/bcs, @iota/graphql-transport |
+| Category        | Technology                                                |
+| --------------- | --------------------------------------------------------- |
+| Framework       | Svelte 5 with TypeScript                                  |
+| Build Tool      | Vite 7                                                    |
+| Package Manager | pnpm                                                      |
+| Routing         | svelte-spa-router (hash-based SPA routing)                |
+| Testing         | Vitest + jsdom                                            |
+| Formatting      | Prettier (with import sorting)                            |
+| IOTA SDK        | @iota/iota-sdk, @iota/bcs, @iota/graphql-transport        |
 | Hardware Wallet | @iota/ledgerjs-hw-app-iota, @ledgerhq/hw-transport-webhid |
 
 ## Project Structure
@@ -106,73 +106,82 @@ Imports are auto-sorted: built-ins → third-party → local.
 ## Adding a New Page/Tool
 
 1. **Create the page folder and component:**
-   ```
-   src/lib/pages/my-new-tool/
-   └── MyNewTool.svelte
-   ```
+
+    ```
+    src/lib/pages/my-new-tool/
+    └── MyNewTool.svelte
+    ```
 
 2. **Add the lazy import in `App.svelte`:**
-   ```typescript
-   const pageImports = {
-       // ... existing imports
-       MyNewTool: () => import('./lib/pages/my-new-tool/MyNewTool.svelte'),
-   };
-   ```
+
+    ```typescript
+    const pageImports = {
+        // ... existing imports
+        MyNewTool: () => import('./lib/pages/my-new-tool/MyNewTool.svelte'),
+    };
+    ```
 
 3. **Register the route in `App.svelte`:**
-   ```typescript
-   const routes = {
-       // ... existing routes
-       '/my-new-tool': wrap({ asyncComponent: pageImports['MyNewTool'] }),
-   };
-   ```
+
+    ```typescript
+    const routes = {
+        // ... existing routes
+        '/my-new-tool': wrap({ asyncComponent: pageImports['MyNewTool'] }),
+    };
+    ```
 
 4. **Add navigation tab in `App.svelte`:**
-   ```typescript
-   const allItems = [
-       // ... existing items
-       { label: 'My New Tool', route: '/my-new-tool', group: 'Utilities' },
-   ];
-   ```
 
-   Groups: `Info`, `Wallet`, `Transactions`, `Utilities`, `Other`
+    ```typescript
+    const allItems = [
+        // ... existing items
+        { label: 'My New Tool', route: '/my-new-tool', group: 'Utilities' },
+    ];
+    ```
+
+    Groups: `Info`, `Wallet`, `Transactions`, `Utilities`, `Other`
 
 ## Core Utilities
 
 ### Network/Client (`src/lib/utils/client.ts`)
+
 - `getClient(graphql?)` - Returns configured IotaClient instance
 - `getSelectedNetworkConfig()` - Returns current network configuration
 - Supports mainnet, testnet, devnet
 
 ### Local Storage (`src/lib/utils/local-storage-store.ts`)
+
 - `sharedClientConfig` - Network configuration store
 - `isProMode` - Toggle for advanced features
 - Persistent stores using `localStorage`
 
 ### Query Parameters (`src/lib/utils/page-query-params.ts`)
+
 - `usePageQueryParams(defaults)` - Hook for URL query parameter state
 - `updatePageQueryParams(params)` - Update URL params
 
 ### Formatting (`src/lib/utils/formatting.ts`)
+
 - IOTA amount formatting utilities
 - Address formatting helpers
 
 ### IOTA Conversion (`src/lib/utils/iota-nano-conversion.ts`)
+
 - `iotaToNano(iota)` - Convert IOTA to nano
 - `nanoToIota(nano)` - Convert nano to IOTA
 
 ## Reusable Components
 
-| Component | Purpose |
-|-----------|---------|
-| `JsonToggleView.svelte` | Toggle between formatted/raw JSON display |
+| Component                | Purpose                                      |
+| ------------------------ | -------------------------------------------- |
+| `JsonToggleView.svelte`  | Toggle between formatted/raw JSON display    |
 | `IotaAmountInput.svelte` | Input field for IOTA amounts with conversion |
-| `TransactionView.svelte` | Display transaction details |
-| `ObjectView.svelte` | Display IOTA object details |
-| `QrGenerator.svelte` | Generate QR codes |
-| `QrScanner.svelte` | Scan QR codes via camera |
-| `Signer.svelte` | Transaction signing interface |
-| `Tabs.svelte` | Tab navigation component |
+| `TransactionView.svelte` | Display transaction details                  |
+| `ObjectView.svelte`      | Display IOTA object details                  |
+| `QrGenerator.svelte`     | Generate QR codes                            |
+| `QrScanner.svelte`       | Scan QR codes via camera                     |
+| `Signer.svelte`          | Transaction signing interface                |
+| `Tabs.svelte`            | Tab navigation component                     |
 
 ## Testing
 
@@ -181,11 +190,13 @@ Imports are auto-sorted: built-ins → third-party → local.
 - Test fixtures in `src/lib/components/tx-fixtures/`
 
 Example test location:
+
 ```
 src/lib/components/transaction-view.test.ts
 ```
 
 Run tests:
+
 ```bash
 pnpm test              # Run tests once
 pnpm test:ui           # Interactive UI
@@ -213,10 +224,12 @@ pnpm test:ui           # Interactive UI
 ## Common Patterns
 
 ### Page with Query Parameters
+
 ```svelte
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { usePageQueryParams, updatePageQueryParams } from '../../utils/page-query-params';
+
+    import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
 
     const queryParamDefaults = {
         address: '',
@@ -240,6 +253,7 @@ pnpm test:ui           # Interactive UI
 ```
 
 ### Using IOTA Client
+
 ```svelte
 <script lang="ts">
     import { getClient } from '../../utils/client';
@@ -253,6 +267,7 @@ pnpm test:ui           # Interactive UI
 ```
 
 ### Shared Store Usage
+
 ```svelte
 <script lang="ts">
     import { sharedClientConfig } from '../../utils/local-storage-store';

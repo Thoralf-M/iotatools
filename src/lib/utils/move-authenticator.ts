@@ -3,29 +3,29 @@ import { bcs } from '@iota/iota-sdk/bcs';
 
 type ObjectArg =
     | {
-        $kind: 'ImmOrOwnedObject';
-        ImmOrOwnedObject: {
-            objectId: string;
-            version: string;
-            digest: string;
-        };
-    }
+          $kind: 'ImmOrOwnedObject';
+          ImmOrOwnedObject: {
+              objectId: string;
+              version: string;
+              digest: string;
+          };
+      }
     | {
-        $kind: 'SharedObject';
-        SharedObject: {
-            objectId: string;
-            initialSharedVersion: string;
-            mutable: boolean;
-        };
-    }
+          $kind: 'SharedObject';
+          SharedObject: {
+              objectId: string;
+              initialSharedVersion: string;
+              mutable: boolean;
+          };
+      }
     | {
-        $kind: 'Receiving';
-        Receiving: {
-            objectId: string;
-            version: string;
-            digest: string;
-        };
-    };
+          $kind: 'Receiving';
+          Receiving: {
+              objectId: string;
+              version: string;
+              digest: string;
+          };
+      };
 
 type CallArg =
     | { $kind: 'Pure'; Pure: { bytes: number[] } }

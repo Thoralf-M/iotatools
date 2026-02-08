@@ -1,7 +1,7 @@
 <script lang="ts">
     import { NANOS_PER_IOTA } from '@iota/iota-sdk/utils';
     import { onMount } from 'svelte';
-    import List from 'svelte-virtual/list';
+    import { List } from 'svelte-virtual';
 
     import { getSelectedNetworkConfig } from '../../utils/client';
     import { copyToClipboard } from '../../utils/formatting';
@@ -576,7 +576,7 @@
                     itemSize={50}
                     {height}
                 >
-                    {#snippet item({ index, style })}
+                    {#snippet item({ index, style }: { index: number; style: any })}
                         {#snippet amountCell(amount: bigint, displayValue?: string)}
                             <div class="table-cell rewards-cell">
                                 <div class="amount-popup-container">
