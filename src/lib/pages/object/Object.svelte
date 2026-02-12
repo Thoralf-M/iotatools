@@ -11,6 +11,7 @@
         detectInputType,
         fetchObjectsByTypeData,
         fetchPackageTypesData,
+        fetchPackageVersionsData,
         fetchSingleObjectData,
     } from './objectUtils';
 
@@ -37,6 +38,15 @@
     let currentCursor = $state<string | null>(null);
     let hasNext = $state(false);
     let loadingNext = $state(false);
+
+    // Package versions state
+    let packageVersions = $state<{ address: string; version: number }[]>([]);
+    let packageVersionsCursor = $state<string | null>(null);
+    let packageVersionsHasNext = $state(false);
+    let packageVersionsLoading = $state(false);
+    let packageTypesPerVersion = $state<Map<string, any[]>>(new Map());
+    let packageTypesLoadingMap = $state<Map<string, boolean>>(new Map());
+    let expandedVersions = $state<Record<number, boolean>>({});
 
     // Dynamic fields state
     let dynamicFieldsMap = $state<Map<string, any[]>>(new Map());
@@ -143,18 +153,60 @@
         }
     }
 
-    async function fetchPackageTypes(packageId: string) {
+    async function fetchPackageVersions(packageId: string, cursor: string | null = null) {
         try {
-            loading = true;
+            if (!cursor) {
+                loading = true;
+                packageVersions = [];
+                packageTypesPerVersion = new Map();
+                expandedVersions = {};
+            } else {
+                packageVersionsLoading = true;
+            }
             error = '';
 
             const config = getSelectedNetworkConfig();
-            const types = await fetchPackageTypesData(packageId, config.graphql);
+            const result = await fetchPackageVersionsData(packageId, config.graphql, cursor, 10);
 
-            packageTypes = types;
-            if (types.length === 0) {
+            if (!result || !result.nodes || result.nodes.length === 0) {
+                if (!cursor) {
+                    // Not a package
+                    throw new Error('Not a package');
+                }
                 return;
             }
+
+            if (cursor) {
+                // Append to existing list
+                const startIndex = packageVersions.length;
+                packageVersions = [...packageVersions, ...result.nodes];
+                // Fetch types for the newly loaded versions and auto-expand those with new types
+                await Promise.all(
+                    result.nodes.map((v: { address: string }) => fetchTypesForVersion(v.address)),
+                );
+                for (let i = startIndex; i < packageVersions.length; i++) {
+                    if (getNewTypesForVersion(i).length > 0) {
+                        expandedVersions[i] = true;
+                    }
+                }
+            } else {
+                packageVersions = result.nodes;
+            }
+
+            packageVersionsCursor = result.pageInfo.endCursor;
+            packageVersionsHasNext = result.pageInfo.hasNextPage;
+
+            // Fetch types for all versions so we can determine which types are new per version
+            if (!cursor && packageVersions.length > 0) {
+                await Promise.all(packageVersions.map((v) => fetchTypesForVersion(v.address)));
+                // Auto-expand versions that introduce new types
+                for (let i = 0; i < packageVersions.length; i++) {
+                    if (getNewTypesForVersion(i).length > 0) {
+                        expandedVersions[i] = true;
+                    }
+                }
+            }
+
             objectsList = [];
             mode = 'package';
         } catch (e: any) {
@@ -162,7 +214,75 @@
             throw e;
         } finally {
             loading = false;
+            packageVersionsLoading = false;
         }
+    }
+
+    async function fetchTypesForVersion(versionAddress: string) {
+        if (packageTypesPerVersion.has(versionAddress)) return;
+
+        packageTypesLoadingMap.set(versionAddress, true);
+        packageTypesLoadingMap = new Map(packageTypesLoadingMap);
+
+        try {
+            const config = getSelectedNetworkConfig();
+            const types = await fetchPackageTypesData(versionAddress, config.graphql);
+            packageTypesPerVersion.set(versionAddress, types);
+            packageTypesPerVersion = new Map(packageTypesPerVersion);
+        } catch (e: any) {
+            packageTypesPerVersion.set(versionAddress, []);
+            packageTypesPerVersion = new Map(packageTypesPerVersion);
+        } finally {
+            packageTypesLoadingMap.set(versionAddress, false);
+            packageTypesLoadingMap = new Map(packageTypesLoadingMap);
+        }
+    }
+
+    async function loadMoreVersions() {
+        if (!packageVersionsCursor || !packageVersionsHasNext) return;
+        const input = objectInput.trim();
+        await fetchPackageVersions(input, packageVersionsCursor);
+    }
+
+    async function toggleVersionExpand(index: number, versionAddress: string) {
+        expandedVersions[index] = !expandedVersions[index];
+        if (expandedVersions[index]) {
+            // Fetch types for this version and all earlier versions (needed to determine new types)
+            const fetchPromises = [];
+            for (let j = 0; j <= index; j++) {
+                fetchPromises.push(fetchTypesForVersion(packageVersions[j].address));
+            }
+            await Promise.all(fetchPromises);
+        }
+    }
+
+    function isVersionTypesLoading(index: number): boolean {
+        for (let j = 0; j <= index; j++) {
+            if (packageTypesLoadingMap.get(packageVersions[j].address)) return true;
+        }
+        return false;
+    }
+
+    function isVersionTypesReady(index: number): boolean {
+        for (let j = 0; j <= index; j++) {
+            if (!packageTypesPerVersion.has(packageVersions[j].address)) return false;
+        }
+        return true;
+    }
+
+    function getNewTypesForVersion(index: number): any[] {
+        const versionAddress = packageVersions[index].address;
+        const types = packageTypesPerVersion.get(versionAddress) ?? [];
+
+        // Collect all displayTypes from earlier versions
+        const earlierTypes = new Set<string>();
+        for (let j = 0; j < index; j++) {
+            const prevTypes = packageTypesPerVersion.get(packageVersions[j].address) ?? [];
+            prevTypes.forEach((t) => earlierTypes.add(t.displayType));
+        }
+
+        // Return only types not seen in earlier versions
+        return types.filter((t) => !earlierTypes.has(t.displayType));
     }
 
     async function processInput() {
@@ -184,16 +304,16 @@
             // Try object first (faster)
             try {
                 await fetchSingleObject(input);
-                // If it's a package (has asMovePackage), fetch package types
+                // If it's a package (has asMovePackage), fetch package versions
                 if (objectData && objectData.asMovePackage) {
-                    await fetchPackageTypes(input);
+                    await fetchPackageVersions(input);
                 } else {
                     updatePageQueryParams({ objectInput: input });
                 }
                 return;
             } catch (e) {
                 // Not an object, try as package
-                await fetchPackageTypes(input);
+                await fetchPackageVersions(input);
             }
         } else if (type === 'type') {
             await fetchObjectsByType(input);
@@ -283,6 +403,8 @@
             objectData = null;
             objectsList = [];
             packageTypes = [];
+            packageVersions = [];
+            packageTypesPerVersion = new Map();
             error = '';
         }
     }
@@ -331,21 +453,75 @@
         </div>
     {/if}
 
-    {#if packageTypes.length > 0}
+    {#if packageVersions.length > 0}
         <div class="package-types">
-            <h3>Package Types</h3>
-            <div class="package-id">
-                <strong>Package:</strong>
-                <code>{packageTypes[0]?.fullType.split('::').slice(0, 1).join('')}</code>
-            </div>
-            <p>Click on a type to search for objects of that type:</p>
-            <div class="types-list">
-                {#each packageTypes as type}
-                    <button class="type-btn" onclick={() => searchType(type.fullType)}>
-                        <code>{type.displayType}</code>
-                    </button>
-                {/each}
-            </div>
+            <h3>Package Versions ({packageVersions.length}{packageVersionsHasNext ? '+' : ''})</h3>
+            {#each packageVersions as ver, i}
+                <div class="version-item">
+                    <div class="version-header">
+                        <button
+                            class="version-toggle-btn"
+                            onclick={() => toggleVersionExpand(i, ver.address)}
+                        >
+                            <span class="version-arrow">{expandedVersions[i] ? '▼' : '▶'}</span>
+                            <strong>v{ver.version}</strong>
+                            <code class="version-address">{ver.address}</code>
+                        </button>
+                        <button
+                            onclick={() =>
+                                window.open(
+                                    getObjectLink(getSelectedNetworkConfig(), ver.address),
+                                    '_blank',
+                                )}
+                            class="explorer-btn"
+                        >
+                            Explorer
+                        </button>
+                    </div>
+                    {#if expandedVersions[i]}
+                        <div class="version-types">
+                            {#if isVersionTypesLoading(i)}
+                                <div
+                                    class="loading-message"
+                                    style="padding: 0.5rem; margin: 0.25rem 0;"
+                                >
+                                    <div class="spinner"></div>
+                                    <span>Loading types...</span>
+                                </div>
+                            {:else if isVersionTypesReady(i)}
+                                {@const newTypes = getNewTypesForVersion(i)}
+                                {#if newTypes.length > 0}
+                                    <p class="types-hint">
+                                        Click on a type to search for objects of that type:
+                                    </p>
+                                    <div class="types-list">
+                                        {#each newTypes as type}
+                                            <button
+                                                class="type-btn"
+                                                onclick={() => searchType(type.fullType)}
+                                            >
+                                                <code>{type.displayType}</code>
+                                            </button>
+                                        {/each}
+                                    </div>
+                                {:else}
+                                    <p class="no-types">No new types in this version</p>
+                                {/if}
+                            {/if}
+                        </div>
+                    {/if}
+                </div>
+            {/each}
+            {#if packageVersionsHasNext}
+                <button
+                    onclick={loadMoreVersions}
+                    disabled={packageVersionsLoading}
+                    class="load-more-btn"
+                    style="margin-top: 0.5rem;"
+                >
+                    {packageVersionsLoading ? 'Loading...' : 'Load More Versions'}
+                </button>
+            {/if}
         </div>
     {/if}
 
@@ -1057,18 +1233,6 @@
         margin-top: 0.5rem;
     }
 
-    .package-id {
-        margin-bottom: 0.5rem;
-        padding: 0.5rem;
-        background: rgba(0, 0, 0, 0.2);
-        border-radius: 4px;
-    }
-
-    .package-id strong {
-        color: rgba(255, 255, 255, 0.9);
-        margin-right: 0.5rem;
-    }
-
     .type-btn {
         padding: 0.5rem 0.75rem;
         background: rgba(16, 185, 129, 0.15);
@@ -1107,6 +1271,76 @@
     .dynamic-fields-btn:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+    }
+
+    .version-item {
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+    }
+
+    .version-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .version-toggle-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.9);
+        cursor: pointer;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.9rem;
+        flex: 1;
+        text-align: left;
+    }
+
+    .version-toggle-btn:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+    }
+
+    .version-arrow {
+        color: rgba(59, 130, 246, 1);
+        font-size: 0.8rem;
+        font-weight: bold;
+        width: 1rem;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .version-address {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .version-types {
+        padding: 0.5rem 0 0 1.5rem;
+    }
+
+    .types-hint {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.85rem;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .types-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .no-types {
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.85rem;
+        font-style: italic;
+        margin: 0;
     }
 
     @media (max-width: 768px) {

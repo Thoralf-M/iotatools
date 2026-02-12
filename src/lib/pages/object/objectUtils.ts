@@ -135,6 +135,54 @@ export async function fetchObjectsByTypeData(
     return (result.data?.objects as ObjectsResponse) || null;
 }
 
+type PackageVersionNode = {
+    address: string;
+    version: number;
+};
+
+type PackageVersionsResponse = {
+    nodes: PackageVersionNode[];
+    pageInfo: {
+        hasNextPage: boolean;
+        endCursor: string | null;
+    };
+} | null;
+
+export async function fetchPackageVersionsData(
+    packageAddress: string,
+    graphqlUrl: string,
+    cursor: string | null = null,
+    first: number = 10,
+): Promise<PackageVersionsResponse> {
+    const graphqlClient = new IotaGraphQLClient({
+        url: graphqlUrl,
+    });
+
+    const result = await graphqlClient.query({
+        query: `
+            query GetPackageVersions($address: IotaAddress!, $cursor: String, $first: Int!) {
+                packageVersions(address: $address, after: $cursor, first: $first) {
+                    nodes {
+                        address
+                        version
+                    }
+                    pageInfo {
+                        hasNextPage
+                        endCursor
+                    }
+                }
+            }
+        `,
+        variables: {
+            address: packageAddress,
+            cursor,
+            first,
+        },
+    });
+
+    return (result.data?.packageVersions as PackageVersionsResponse) || null;
+}
+
 export async function fetchPackageTypesData(packageId: string, graphqlUrl: string) {
     const graphqlClient = new IotaGraphQLClient({
         url: graphqlUrl,

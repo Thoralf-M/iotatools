@@ -140,7 +140,7 @@
         computedObjectsByPoolId = objectsByPoolId;
         computedChartData = { epochCounts, amountBuckets, addressBuckets };
         computedRichlistRows = richlistRows;
-        
+
         console.timeEnd('computeDerivedData total');
     }
 
