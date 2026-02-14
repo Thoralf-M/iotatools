@@ -63,7 +63,8 @@ jobs:
         if: steps.verify-changed-files.outputs.changed == 'true'
         run: |
           gh auth login --with-token <<< "${{ github.token }}"
-          PR_NUMBER=$(gh pr create --title "feat(StakingRewards): update caches" --body "Automated cache update" --base develop --head ${{ env.BRANCH_NAME }} --json number --jq .number)
+          PR_URL=$(gh pr create --title "feat(StakingRewards): update caches" --body "Automated cache update" --base develop --head ${{ env.BRANCH_NAME }})
+          PR_NUMBER=$(echo $PR_URL | sed 's|.*/||')
           echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
 
       - name: Enable auto-merge
