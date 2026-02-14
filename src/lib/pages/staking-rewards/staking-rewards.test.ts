@@ -71,7 +71,15 @@ describe('Staking Rewards - Single Address', () => {
     });
 
     it('should match the epoch table snapshot', () => {
-        expect(generatedTable).toBe(expectedSnapshot);
+        // Remove the last 2 lines (last epoch row + separator) from the snapshot
+        // because the latest epoch is not finished and its data changes.
+        const expectedLines = expectedSnapshot.split('\n');
+        expectedLines.splice(-2, 2);
+        const expectedLength = expectedLines.length;
+        const modifiedExpected = expectedLines.join('\n');
+
+        const truncatedGenerated = generatedTable.split('\n').slice(0, expectedLength).join('\n');
+        expect(truncatedGenerated).toBe(modifiedExpected);
     });
 
     it('should have correct number of lines', () => {
