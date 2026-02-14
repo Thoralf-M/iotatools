@@ -6,6 +6,10 @@ export default defineConfig({
     test: {
         globals: true,
         environment: 'jsdom',
+        setupFiles: ['./src/test-setup.ts'],
+        alias: {
+            '@testing-library/svelte': '@testing-library/svelte/svelte5',
+        },
     },
     resolve: {
         conditions: ['browser'],
