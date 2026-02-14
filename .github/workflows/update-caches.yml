@@ -1,0 +1,69 @@
+name: Update Staking Rewards Caches
+
+on:
+    schedule:
+        - cron: "0 0 */3 * *" # Every 3 days at midnight UTC
+    workflow_dispatch: # Allow manual trigger
+
+jobs:
+    update-caches:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  ref: develop
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "18"
+
+            - name: Install pnpm
+              run: npm install -g pnpm
+
+            - name: Install dependencies
+              run: pnpm install
+
+            - name: Run update caches script
+              run: npx tsx scripts/update-caches.ts --all
+
+            - name: Check for changes and fail if none
+              id: verify-changed-files
+              run: |
+                  if [ -n "$(git status --porcelain)" ]; then
+                    echo "changed=true" >> $GITHUB_OUTPUT
+                  else
+                    echo "No changes detected. Expected cache updates but found none."
+                    exit 1
+                  fi
+
+            - name: Run pnpm build
+              run: pnpm build
+
+            - name: Create and push changes to new branch
+              if: steps.verify-changed-files.outputs.changed == 'true'
+              run: |
+                  BRANCH_NAME="cache-update-$(date +%Y%m%d-%H%M%S)"
+                  git checkout -b $BRANCH_NAME
+                  git config --global user.name 'github-actions[bot]'
+                  git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+                  git add .
+                  git commit -m "feat(StakingRewards): update caches"
+                  git push origin $BRANCH_NAME
+                  echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+
+            - name: Create Pull Request
+              if: steps.verify-changed-files.outputs.changed == 'true'
+              run: |
+                  gh auth login --with-token <<< ${{ secrets.GITHUB_TOKEN }}
+                  PR_URL=$(gh pr create --title "feat(StakingRewards): update caches" --body "Automated cache update" --base develop --head ${{ env.BRANCH_NAME }})
+                  PR_NUMBER=$(echo $PR_URL | grep -o '[0-9]*$')
+                  echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+
+            - name: Enable auto-merge
+              if: steps.verify-changed-files.outputs.changed == 'true'
+              run: |
+                  gh pr merge $PR_NUMBER --auto --squash
