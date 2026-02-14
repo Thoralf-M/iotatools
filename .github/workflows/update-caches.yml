@@ -71,4 +71,4 @@ jobs:
         if: steps.verify-changed-files.outputs.changed == 'true'
         run: |
           sleep 5
-          gh pr merge $PR_NUMBER --auto --squash
+          gh pr merge $PR_NUMBER --auto --squash --delete-branch
