@@ -7,6 +7,7 @@
 
     import TransactionView from '../../components/TransactionView.svelte';
     import { getClient, getSelectedChain } from '../../utils/client';
+    import { requireMainnetTransactionConfirmation } from '../../utils/mainnet-transaction-confirmation';
     import { activeAddress, iota_wallets } from '../../utils/signer-data';
 
     interface CodeSnippets {
@@ -142,6 +143,7 @@ tx.moveCall({
         try {
             let tx = (await buildTransaction())!;
             console.log('execute', tx);
+            await requireMainnetTransactionConfirmation(tx);
             let txResult = await $iota_wallets[0].signAndExecuteTransaction({
                 transaction: tx,
                 options: {

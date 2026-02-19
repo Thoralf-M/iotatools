@@ -12,6 +12,7 @@ import type { Transaction } from '@iota/iota-sdk/transactions';
 import { get } from 'svelte/store';
 
 import { getClient, getSelectedChain } from './client';
+import { requireMainnetTransactionConfirmation } from './mainnet-transaction-confirmation';
 import { sharedTransactionExecution, TransactionExecution } from './shared-in-memory';
 import { activeAddress } from './signer-data';
 import { getActiveWallet } from './web-wallet';
@@ -30,11 +31,12 @@ export async function executeTransaction(
     const senderAddress = get(activeAddress);
 
     transaction.setSenderIfNotSet(senderAddress);
+    const txSenderAddress = transaction.getData().sender ?? senderAddress;
 
     switch (executionMode) {
         case TransactionExecution.DevInspect:
             return client.devInspectTransactionBlock({
-                sender: senderAddress,
+                sender: txSenderAddress,
                 transactionBlock: transaction,
             });
         case TransactionExecution.DryRun:
@@ -45,12 +47,13 @@ export async function executeTransaction(
             if (!wallet) {
                 throw new Error('No active wallet available');
             }
+            await requireMainnetTransactionConfirmation(transaction);
             return wallet.signAndExecuteTransaction({
                 transaction,
                 options,
                 // @ts-ignore
                 chain: getSelectedChain(),
-                account: { address: senderAddress },
+                account: { address: txSenderAddress },
             });
         case TransactionExecution.Prepare:
             let json = JSON.parse(await transaction.toJSON());
@@ -88,12 +91,12 @@ type Optional<T> = {
 
 export type GasSummaryType =
     | (GasCostSummary &
-          Optional<IotaGasData> & {
-              isSponsored: boolean;
-              gasUsed: GasCostSummary;
-              totalGas?: string;
-              owner?: string;
-          })
+        Optional<IotaGasData> & {
+            isSponsored: boolean;
+            gasUsed: GasCostSummary;
+            totalGas?: string;
+            owner?: string;
+        })
     | null;
 
 export function getGasSummary(
@@ -128,7 +131,7 @@ export function getTotalGasUsed(effects: TransactionEffects): bigint | undefined
     const gasSummary = effects?.gasUsed;
     return gasSummary
         ? BigInt(gasSummary.computationCost) +
-              BigInt(gasSummary.storageCost) -
-              BigInt(gasSummary.storageRebate)
+        BigInt(gasSummary.storageCost) -
+        BigInt(gasSummary.storageRebate)
         : undefined;
 }

@@ -7,6 +7,7 @@
     import TransactionView from '../../components/TransactionView.svelte';
     import { getClient, getSelectedChain } from '../../utils/client';
     import { formatNumberWithUnderscores, nanoToIota } from '../../utils/iota-nano-conversion';
+    import { requireMainnetTransactionConfirmation } from '../../utils/mainnet-transaction-confirmation';
     import { sharedTransactionExecution, TransactionExecution } from '../../utils/shared-in-memory';
     import { iota_accounts } from '../../utils/signer-data';
     import { calculateGasFee } from '../../utils/transaction-execution';
@@ -302,6 +303,7 @@
                         if (!wallet) {
                             throw new Error('No active wallet available');
                         }
+                        await requireMainnetTransactionConfirmation(transaction);
                         result = await wallet.signAndExecuteTransaction({
                             transaction,
                             options: {
