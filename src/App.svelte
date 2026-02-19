@@ -2,6 +2,7 @@
     import Router from 'svelte-spa-router';
     import { wrap } from 'svelte-spa-router/wrap';
 
+    import MainnetTransactionConfirmation from './lib/components/MainnetTransactionConfirmation.svelte';
     import Options from './lib/components/Options.svelte';
     import Signer from './lib/components/Signer.svelte';
     import Tabs from './lib/components/Tabs.svelte';
@@ -186,6 +187,8 @@
             >
         </div>
     </footer>
+
+    <MainnetTransactionConfirmation />
 </main>
 
 <style>
