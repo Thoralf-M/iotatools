@@ -61,14 +61,22 @@ jobs:
 
       - name: Create Pull Request
         if: steps.verify-changed-files.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.STAKING_REWARDS_CACHE_PAT }}
         run: |
-          gh auth login --with-token <<< "${{ secrets.STAKING_REWARDS_CACHE_PAT }}"
-          PR_URL=$(gh pr create --title "feat(StakingRewards): update caches" --body "Automated cache update" --base develop --head ${{ env.BRANCH_NAME }})
-          PR_NUMBER=$(echo $PR_URL | sed 's|.*/||')
+          PR_NUMBER=$(gh api repos/${{ github.repository }}/pulls \
+            --method POST \
+            --field title="feat(StakingRewards): update caches" \
+            --field body="Automated cache update" \
+            --field head="${{ env.BRANCH_NAME }}" \
+            --field base="develop" \
+            --jq '.number')
           echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
 
       - name: Enable auto-merge
         if: steps.verify-changed-files.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.STAKING_REWARDS_CACHE_PAT }}
         run: |
           sleep 5
           gh pr merge $PR_NUMBER --auto --squash --delete-branch
