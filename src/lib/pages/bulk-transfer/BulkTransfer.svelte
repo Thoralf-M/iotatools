@@ -259,7 +259,7 @@
                     );
                 }
 
-                const coinOne = txb.object(selectedCoins.shift()?.coinObjectId!);
+                const coinOne = txb.object(selectedCoins.shift()!.coinObjectId);
                 // first, merge the selected coins into the first coin if needed
                 if (selectedCoins.length > 0) {
                     txb.mergeCoins(

@@ -21,7 +21,6 @@ import {
     getMaxEpochFromCache,
     processStakeTransactionsWithExchangeRates,
     setInitialExchangeRateCache,
-    type ActionsByEpoch,
 } from './index.js';
 
 // ============================================================================
@@ -29,16 +28,10 @@ import {
 // ============================================================================
 
 const SINGLE_ADDRESS = '0x1ee12dca0e798966a82f74c010c109e1bd0674f4f47517db6843f223bad5eb7c';
-const MULTI_ADDRESSES: string[] = [];
 
 const TX_CACHE_PATH = join(__dirname, '../../../../scripts/staking-rewards-tx-cache.json');
-const TX_CACHE_MULTI_PATH = join(
-    __dirname,
-    '../../../../scripts/staking-rewards-tx-cache-multi.json',
-);
 const EXCHANGE_RATE_CACHE_PATH = join(__dirname, 'cache/exchange-rate-cache.json');
 const SNAPSHOT_PATH = join(__dirname, '__snapshots__/epoch-table.snapshot.txt');
-const SNAPSHOT_MULTI_PATH = join(__dirname, '__snapshots__/epoch-table-multi.snapshot.txt');
 
 // ============================================================================
 // Test Suite: Single Address

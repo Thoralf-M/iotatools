@@ -566,7 +566,6 @@ async function fetchStakedObjectsOfType(
 
     // Use provided cursor for resume
     let cursor: string | null = startingCursor;
-    let pageCount = 0;
 
     while (true) {
         if (isPaused()) {
@@ -577,7 +576,6 @@ async function fetchStakedObjectsOfType(
             return { stakedObjects, cursor, paused: true };
         }
 
-        pageCount++;
         progressCallback(
             `Fetching ${typeLabel} objects (total ${stakedObjects.length} objects)...`,
         );

@@ -94,7 +94,7 @@ export async function getObjectsForAccounts(
                 }
 
                 // Map the returned objects to the expected format
-                const objects = allData.map((obj, idx) => {
+                const objects = allData.map((obj) => {
                     // @ts-ignore
                     let label = obj.data.content?.type;
                     if (typeof label === 'string') {

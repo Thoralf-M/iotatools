@@ -209,9 +209,6 @@
 
             objectsList = [];
             mode = 'package';
-        } catch (e: any) {
-            // Not a package, rethrow to try as object
-            throw e;
         } finally {
             loading = false;
             packageVersionsLoading = false;

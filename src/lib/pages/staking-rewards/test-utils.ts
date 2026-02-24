@@ -2,7 +2,7 @@
  * Shared utilities for staking rewards tests and snapshot generation
  */
 
-import type { ActionDetails, StakeObject, ValidatorInfo } from './compute/types';
+import type { StakeObject, ValidatorInfo } from './compute/types';
 import { formatNumberLocale } from './formatting';
 import type { ActionsByEpoch, TableComputationResult } from './types';
 

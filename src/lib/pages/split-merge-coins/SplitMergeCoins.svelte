@@ -64,7 +64,9 @@
     const splitIotaCoins = async () => {
         try {
             const tx = new Transaction();
-            const splitAmounts = new Array(parseInt(objectCount)).fill(parseInt(amountPerObject));
+            const splitAmounts = Array.from({ length: parseInt(objectCount) }, () =>
+                parseInt(amountPerObject),
+            );
             const coins = tx.splitCoins(tx.gas, splitAmounts);
             let coinArgs = [...Array(splitAmounts.length).keys()].map((i) => {
                 return {

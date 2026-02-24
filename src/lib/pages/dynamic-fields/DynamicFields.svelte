@@ -118,6 +118,7 @@
 
     // Update when selection changes
     $effect(() => {
+        // oxlint-disable-next-line no-unused-expressions
         fieldStructType; // Track the dependency
         updateSelectedStructJson();
     });
@@ -203,10 +204,15 @@
     // Update computed dynamic field ID when relevant values change
     $effect(() => {
         // Track dependencies
+        // oxlint-disable-next-line no-unused-expressions
         objectId;
+        // oxlint-disable-next-line no-unused-expressions
         fieldType;
+        // oxlint-disable-next-line no-unused-expressions
         fieldBcs;
+        // oxlint-disable-next-line no-unused-expressions
         fieldStructType;
+        // oxlint-disable-next-line no-unused-expressions
         bcsInputMode;
         computedDynamicFieldId = computeDynamicFieldId();
     });

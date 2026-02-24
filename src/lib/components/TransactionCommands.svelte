@@ -688,8 +688,10 @@
 
     function formatType(
         type: string,
+        // oxlint-disable-next-line only-used-in-recursion
         full: boolean,
         interactive: boolean = true,
+        // oxlint-disable-next-line only-used-in-recursion
         typeArgs: string[] = [],
     ): Segment[] {
         const segments: Segment[] = [];
@@ -860,8 +862,7 @@
 
                     // Check if this has nested results
                     const usage = getUsage(index, commands);
-                    const hasNestedResults =
-                        usage.length > 0 && usage.some((s) => s.value.includes('Result('));
+                    const hasNestedResults = usage.some((s) => s.value.includes('Result('));
 
                     if (hasNestedResults) {
                         // Show Result definitions with types (skip the arrow from usage)
@@ -1153,6 +1154,7 @@
         // Reference transactionData to make this effect reactive to changes in the prop.
         // When transactionData changes (e.g., viewing a different transaction),
         // this effect runs and resets hasAutoFetched to enable auto-fetch for the new transaction.
+        // oxlint-disable-next-line no-unused-expressions
         transactionData;
         hasAutoFetched = false;
     });

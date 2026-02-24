@@ -81,7 +81,7 @@ export async function verifySignature(
                     return { status, error, pubkeyPairs };
                 }
                 status = 'valid';
-            } catch (e) {
+            } catch {
                 // If transaction verification fails, try as personal message
                 try {
                     const messageBytes = new TextEncoder().encode(inputString);

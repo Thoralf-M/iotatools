@@ -288,7 +288,7 @@ export async function updatePricesCache(
     const newPricesCache = await fetchPricesForDates(sortedMissingDates);
 
     // Merge with existing cache
-    const updatedCache = { ...(existingCache || {}), ...newPricesCache };
+    const updatedCache = { ...existingCache, ...newPricesCache };
     const successCount = Object.keys(newPricesCache).length;
 
     console.log(

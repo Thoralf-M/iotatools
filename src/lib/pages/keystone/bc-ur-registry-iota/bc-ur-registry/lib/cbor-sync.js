@@ -149,7 +149,7 @@ Writer.prototype = {
         this.writeUint32(value % 4294967296);
     },
     writeString: notImplemented('writeString'),
-    canWriteBinary: function (chunk) {
+    canWriteBinary: function (_chunk) {
         return false;
     },
     writeBinary: notImplemented('writeChunk'),

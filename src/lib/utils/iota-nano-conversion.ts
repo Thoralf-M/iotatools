@@ -15,7 +15,7 @@ export function iotaToNano(iota: string): string {
     return BigInt(combined).toString();
 }
 
-function formatBigIntWithDecimal(bigint: BigInt, decimalPlaces: number): string {
+function formatBigIntWithDecimal(bigint: bigint, decimalPlaces: number): string {
     const str = bigint.toString();
     const len = str.length;
 

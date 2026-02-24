@@ -36,7 +36,7 @@ export class EpochPTBAnalyzer {
 
     getCheckpointTransactions(
         checkpointNum: string | number,
-        displayData: DisplayData,
+        _displayData: DisplayData,
     ): ProcessedTransaction[] {
         return this.processor.getCheckpointTransactions(checkpointNum);
     }

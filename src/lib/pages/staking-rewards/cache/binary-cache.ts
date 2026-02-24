@@ -88,7 +88,7 @@ export function serializeExchangeRateCache(cacheData: ExchangeRateCacheEntry[]):
 
     for (const entry of cacheData) {
         totalSize += 8; // Pool ID index (2) + Exchange Rate ID index (2) + Deactivation epoch (2) + Epoch count (2)
-        for (const [epoch, data] of Object.entries(entry.epochData)) {
+        for (const [, data] of Object.entries(entry.epochData)) {
             totalSize += 2; // Epoch number
             totalSize += 1 + stringTableEncoder.encode(data.iota).length; // IOTA amount
             totalSize += 1 + stringTableEncoder.encode(data.pool).length; // Pool amount

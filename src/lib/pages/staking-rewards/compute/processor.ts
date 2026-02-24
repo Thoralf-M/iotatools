@@ -46,7 +46,6 @@ type TimelockObject = {
 
 // Extract stake object data from node state
 function extractStakeObjectData(node: any): StakeObjectData | null {
-    const address = node.address;
     const outputState = node.outputState?.asMoveObject?.contents;
     const inputState = node.inputState?.asMoveObject?.contents;
     const idCreated = node.idCreated === true;
@@ -657,7 +656,7 @@ async function processTransactions(
 // Finalize lastEpoch for a stake object based on all collected actions
 // This is called after merging stake objects from all addresses to ensure
 // correct lastEpoch even when multiple actions happen in the same epoch
-function finalizeLastEpoch(stakeObject: StakeObject, currentEpoch: number): void {
+function finalizeLastEpoch(stakeObject: StakeObject, _currentEpoch: number): void {
     if (!stakeObject.actionByEpoch) return;
 
     // Get all epochs with actions, sorted

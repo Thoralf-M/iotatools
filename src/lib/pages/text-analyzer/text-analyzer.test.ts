@@ -102,7 +102,7 @@ describe('TextAnalyzer', () => {
     });
 
     it('should detect format changes from invalid to valid', async () => {
-        const { container } = render(TextAnalyzer);
+        render(TextAnalyzer);
         const textarea = screen.getByPlaceholderText(
             /paste your text here/i,
         ) as HTMLTextAreaElement;

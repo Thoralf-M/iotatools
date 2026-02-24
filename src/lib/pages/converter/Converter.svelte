@@ -132,20 +132,22 @@
         }
     }
 
-    enum SourceType {
-        Bytes,
-        Hex,
-        Base58,
-        Base64,
-        UTF8,
-        BcsNumber,
-    }
+    const SourceType = {
+        Bytes: 0,
+        Hex: 1,
+        Base58: 2,
+        Base64: 3,
+        UTF8: 4,
+        BcsNumber: 5,
+    } as const;
+    type SourceType = (typeof SourceType)[keyof typeof SourceType];
 
-    enum AddressSourceType {
-        Hex,
-        Bech32,
-        Ternary,
-    }
+    const AddressSourceType = {
+        Hex: 0,
+        Bech32: 1,
+        Ternary: 2,
+    } as const;
+    type AddressSourceType = (typeof AddressSourceType)[keyof typeof AddressSourceType];
 
     function convertAddress(source: AddressSourceType) {
         addressError = '';

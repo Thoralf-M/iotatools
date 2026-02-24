@@ -173,7 +173,7 @@ export function handleScanResult(data: string, state: UrProcessorState): Process
             state.isMultipart = true;
             const seqPart = parts[1];
             if (seqPart.includes('-')) {
-                const [current, total] = seqPart.split('-').map(Number);
+                const [, total] = seqPart.split('-').map(Number);
                 state.expectedParts = total;
             }
         } else {
@@ -282,7 +282,7 @@ export function processCompleteUR(
  * Process account data UR (multi-accounts or HD key)
  */
 function processAccountData(type: string, cborHex: string): ProcessorResult {
-    const onSucceed = ({ type, cbor }: { type: string; cbor: string }) => {
+    const onSucceed = ({ cbor }: { type: string; cbor: string }) => {
         try {
             console.log('Attempting to parse as multi-accounts...');
             const multiAccounts = CryptoMultiAccounts.fromCBOR(Buffer.from(cbor, 'hex'));
@@ -331,7 +331,7 @@ function processAccountData(type: string, cborHex: string): ProcessorResult {
                         pathString = pathString.slice(0, -1); // remove trailing /
                         bip32Key = pathString;
                     }
-                } catch (e) {
+                } catch {
                     // Keep default bip32Key
                 }
                 if (
