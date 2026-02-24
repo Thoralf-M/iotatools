@@ -117,7 +117,7 @@ export async function registerName(nameName: string, activeAddress: string) {
                         // @ts-ignore
                         e.data.content.fields.nft.fields.name == parentNameName,
                 );
-                parentNft = subnameNft?.data?.objectId!;
+                parentNft = subnameNft?.data?.objectId ?? '';
                 // Expiration time can be at most the same as the parent
                 expirationNextMonthTimestampMs =
                     // @ts-ignore

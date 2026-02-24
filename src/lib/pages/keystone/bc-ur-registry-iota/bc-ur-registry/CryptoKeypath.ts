@@ -43,15 +43,14 @@ export class CryptoKeypath extends RegistryItem {
     toDataItem = () => {
         const map: DataItemMap = {};
         const components: (number | boolean | any[])[] = [];
-        this.components &&
-            this.components.forEach((component) => {
-                if (component.isWildcard()) {
-                    components.push([]);
-                } else {
-                    components.push(component.getIndex() as number);
-                }
-                components.push(component.isHardened());
-            });
+        this.components?.forEach((component) => {
+            if (component.isWildcard()) {
+                components.push([]);
+            } else {
+                components.push(component.getIndex() as number);
+            }
+            components.push(component.isHardened());
+        });
         map[Keys.components] = components;
         if (this.sourceFingerprint) {
             map[Keys.source_fingerprint] = this.sourceFingerprint.readUInt32BE(0);

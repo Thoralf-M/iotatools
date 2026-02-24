@@ -192,7 +192,7 @@ ${objectChangesSection}
                 ? (txBlocks as any).pageInfo.endCursor
                 : undefined;
         if (hasNextPage && endCursor) {
-            cursorSection = `,after: \"${endCursor}\"`;
+            cursorSection = `,after: "${endCursor}"`;
         } else {
             break;
         }
@@ -951,7 +951,7 @@ export async function updateTimestampsCache(
     console.log(`Current epoch: ${currentEpoch}`);
 
     // Start with existing cache or empty object
-    const timestamps: Record<string, number> = { ...(existingCache || {}) };
+    const timestamps: Record<string, number> = { ...existingCache };
 
     // Find missing epochs
     const existingEpochs = Object.keys(timestamps).map((e) => parseInt(e));

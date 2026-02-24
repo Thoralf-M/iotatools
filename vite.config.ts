@@ -27,7 +27,7 @@ export default defineConfig({
         'process.env.NODE_DEBUG': JSON.stringify(''), // or 'my-module'
     },
     optimizeDeps: {
-        include: ['process', 'buffer', 'debug'],
+        include: ['process', 'buffer'],
     },
     build: {
         minify: false,

@@ -273,7 +273,7 @@ export async function sendAllObjects(
             throw new Error('No gas coin found');
         }
 
-        let objectsToTransfer = page.data.map((o) => o.data?.objectId!);
+        let objectsToTransfer = page.data.map((o) => o.data?.objectId ?? '');
         // @ts-ignore
         objectsToTransfer.push(tx.gas);
         tx.transferObjects(objectsToTransfer, tx.pure.address(recipientAddress));

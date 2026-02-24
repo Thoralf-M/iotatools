@@ -39,7 +39,7 @@ export async function computeRewardsForStakeObject(
                     pool_token_amount: '1',
                 };
             }
-        } catch (err) {
+        } catch {
             console.warn(
                 `Failed to fetch exchange rate for baseline epoch ${baselineEpoch}, using 1:1 ratio`,
             );
