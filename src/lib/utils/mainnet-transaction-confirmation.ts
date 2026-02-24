@@ -12,7 +12,9 @@ export const pendingMainnetTransactionConfirmation =
 
 let pendingResolver: ((confirmed: boolean) => void) | null = null;
 
-export async function requireMainnetTransactionConfirmation(transaction: Transaction): Promise<void> {
+export async function requireMainnetTransactionConfirmation(
+    transaction: Transaction,
+): Promise<void> {
     if (getSelectedNetworkConfig().name !== 'mainnet') {
         return;
     }

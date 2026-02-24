@@ -554,7 +554,7 @@ export function getTransactionData(data: any): any {
             let txBytes = txData.build();
             txDigest = TransactionDataBuilder.getDigestFromBytes(txBytes);
         } catch (e) {
-            console.log('Failed to build transaction digest:', e);
+            // console.log('Failed to build transaction digest:', e);
         }
 
         const normalized = {
