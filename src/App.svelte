@@ -37,6 +37,7 @@
         IotaNames: () => import('./lib/pages/iota-names/IotaNames.svelte'),
         Settings: () => import('./lib/pages/settings/Settings.svelte'),
         Txs: () => import('./lib/pages/txs/Txs.svelte'),
+        TxsVisualizer: () => import('./lib/pages/txs-visualizer/TxsVisualizer.svelte'),
         Impressum: () => import('./lib/pages/impressum/Impressum.svelte'),
         Datenschutz: () => import('./lib/pages/datenschutz/Datenschutz.svelte'),
     };
@@ -70,6 +71,7 @@
         '/iota-names': wrap({ asyncComponent: pageImports['IotaNames'] }),
         '/settings': wrap({ asyncComponent: pageImports['Settings'] }),
         '/txs': wrap({ asyncComponent: pageImports['Txs'] }),
+        '/txs-visualizer': wrap({ asyncComponent: pageImports['TxsVisualizer'] }),
         '/impressum': wrap({ asyncComponent: pageImports['Impressum'] }),
         '/datenschutz': wrap({ asyncComponent: pageImports['Datenschutz'] }),
     };
@@ -84,6 +86,7 @@
         { label: 'Staking Rewards', route: '/staking-rewards', group: 'Info' },
         { label: 'Delegators', route: '/delegators', group: 'Info' },
         { label: 'Txs', route: '/txs', group: 'Info' },
+        { label: 'Txs Visualizer', route: '/txs-visualizer', group: 'Info' },
         { label: 'Multi Account View', route: '/multi-account-view', group: 'Wallet' },
         { label: 'Accounts List', route: '/accounts-list', group: 'Wallet' },
         { label: 'Keystone', route: '/keystone', group: 'Wallet' },
@@ -145,6 +148,7 @@
                 '/dynamic-fields': pageImports.DynamicFields,
                 '/staking-rewards': pageImports.StakingRewards,
                 '/delegators': pageImports.Delegators,
+                '/txs-visualizer': pageImports.TxsVisualizer,
                 '/multi-account-view': pageImports.MultiAccountView,
                 '/accounts-list': pageImports.AccountsList,
                 '/keystone': pageImports.Keystone,
