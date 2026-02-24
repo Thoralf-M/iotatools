@@ -520,7 +520,9 @@
                     // Base64 decoding logic
                     try {
                         let txBytes = fromBase64(inputString);
-                        value = TransactionDataBuilder.fromBytes(txBytes);
+                        const txBuilder = TransactionDataBuilder.fromBytes(txBytes);
+                        // Attach the original base64 bytes so TransactionView can show/use them
+                        value = Object.assign(txBuilder, { transactionBytes: inputString });
                     } catch (e) {
                         console.log('error TransactionDataBuilder', e);
                         try {

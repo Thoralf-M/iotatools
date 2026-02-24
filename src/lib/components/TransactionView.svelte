@@ -130,10 +130,9 @@
         try {
             isDryRunning = true;
             const client = getClient();
-            const txBytesValue = txBytes;
 
             const dryRunResult = await client.dryRunTransactionBlock({
-                transactionBlock: txBytesValue,
+                transactionBlock: txBytes,
             });
 
             // Update the transaction data with dry run effects
@@ -143,7 +142,7 @@
                 ...value,
                 ...dryRunResult,
                 // Keep the original transactionBytes
-                transactionBytes: txBytesValue,
+                transactionBytes: txBytes,
                 // Mark that this is from a dry run
                 isDryRun: true,
                 // Preserve any original metadata that might be important
