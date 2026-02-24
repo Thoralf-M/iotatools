@@ -91,12 +91,12 @@ type Optional<T> = {
 
 export type GasSummaryType =
     | (GasCostSummary &
-        Optional<IotaGasData> & {
-            isSponsored: boolean;
-            gasUsed: GasCostSummary;
-            totalGas?: string;
-            owner?: string;
-        })
+          Optional<IotaGasData> & {
+              isSponsored: boolean;
+              gasUsed: GasCostSummary;
+              totalGas?: string;
+              owner?: string;
+          })
     | null;
 
 export function getGasSummary(
@@ -131,7 +131,7 @@ export function getTotalGasUsed(effects: TransactionEffects): bigint | undefined
     const gasSummary = effects?.gasUsed;
     return gasSummary
         ? BigInt(gasSummary.computationCost) +
-        BigInt(gasSummary.storageCost) -
-        BigInt(gasSummary.storageRebate)
+              BigInt(gasSummary.storageCost) -
+              BigInt(gasSummary.storageRebate)
         : undefined;
 }

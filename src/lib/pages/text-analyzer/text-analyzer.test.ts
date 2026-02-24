@@ -40,7 +40,9 @@ describe('TextAnalyzer', () => {
     it('should count characters after input', async () => {
         render(TextAnalyzer);
 
-        const textarea = screen.getByPlaceholderText(/paste your text here/i) as HTMLTextAreaElement;
+        const textarea = screen.getByPlaceholderText(
+            /paste your text here/i,
+        ) as HTMLTextAreaElement;
         // Use fireEvent to simulate input
         textarea.value = 'Hello World';
         await fireEvent.input(textarea);
@@ -54,7 +56,9 @@ describe('TextAnalyzer', () => {
     it('should count words correctly', async () => {
         const { container } = render(TextAnalyzer);
 
-        const textarea = screen.getByPlaceholderText(/paste your text here/i) as HTMLTextAreaElement;
+        const textarea = screen.getByPlaceholderText(
+            /paste your text here/i,
+        ) as HTMLTextAreaElement;
         textarea.value = 'one two three';
         await fireEvent.input(textarea);
 
@@ -67,7 +71,9 @@ describe('TextAnalyzer', () => {
     it('should detect valid JSON', async () => {
         render(TextAnalyzer);
 
-        const textarea = screen.getByPlaceholderText(/paste your text here/i) as HTMLTextAreaElement;
+        const textarea = screen.getByPlaceholderText(
+            /paste your text here/i,
+        ) as HTMLTextAreaElement;
         textarea.value = '{"key":"value"}';
         await fireEvent.input(textarea);
 
@@ -79,7 +85,9 @@ describe('TextAnalyzer', () => {
     it('should detect valid hex strings', async () => {
         render(TextAnalyzer);
 
-        const textarea = screen.getByPlaceholderText(/paste your text here/i) as HTMLTextAreaElement;
+        const textarea = screen.getByPlaceholderText(
+            /paste your text here/i,
+        ) as HTMLTextAreaElement;
         textarea.value = '0xdeadbeef';
         await fireEvent.input(textarea);
 
@@ -95,7 +103,9 @@ describe('TextAnalyzer', () => {
 
     it('should detect format changes from invalid to valid', async () => {
         const { container } = render(TextAnalyzer);
-        const textarea = screen.getByPlaceholderText(/paste your text here/i) as HTMLTextAreaElement;
+        const textarea = screen.getByPlaceholderText(
+            /paste your text here/i,
+        ) as HTMLTextAreaElement;
 
         // Initially all formats should be "No"
         textarea.value = 'not json';

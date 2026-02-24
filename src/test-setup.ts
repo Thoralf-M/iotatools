@@ -48,17 +48,17 @@ Object.defineProperty(window, 'matchMedia', {
 
 // ResizeObserver
 class ResizeObserverStub {
-    observe() { }
-    unobserve() { }
-    disconnect() { }
+    observe() {}
+    unobserve() {}
+    disconnect() {}
 }
 window.ResizeObserver = ResizeObserverStub as any;
 
 // IntersectionObserver
 class IntersectionObserverStub {
-    observe() { }
-    unobserve() { }
-    disconnect() { }
+    observe() {}
+    unobserve() {}
+    disconnect() {}
 }
 window.IntersectionObserver = IntersectionObserverStub as any;
 

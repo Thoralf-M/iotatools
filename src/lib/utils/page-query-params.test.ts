@@ -2,7 +2,7 @@
  * Tests for page query params utilities
  */
 
-import { describe, expect, it, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import {
     clearQueryParams,
