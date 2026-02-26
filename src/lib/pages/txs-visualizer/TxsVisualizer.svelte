@@ -25,16 +25,7 @@
         ),
     );
 
-    // Derived state for the visualizer
-    let addresses = $derived(
-        [...new Set(sortedTransactions.map((tx) => tx.sender))].sort((a, b) => {
-            const countA = sortedTransactions.filter((tx) => tx.sender === a).length;
-            const countB = sortedTransactions.filter((tx) => tx.sender === b).length;
-            return countB - countA;
-        }),
-    );
-
-    // Group transactions by sender
+    // Group transactions by sender (computed before addresses so the sort can reuse it)
     let txsBySender = $derived.by(() => {
         const map = new Map<string, TransactionNode[]>();
         for (const tx of sortedTransactions) {
@@ -45,6 +36,13 @@
         }
         return map;
     });
+
+    // Derived state for the visualizer — sort uses the already-built map (O(k log k) not O(n·k²))
+    let addresses = $derived(
+        [...txsBySender.keys()].sort(
+            (a, b) => (txsBySender.get(b)?.length ?? 0) - (txsBySender.get(a)?.length ?? 0),
+        ),
+    );
 
     // Separate addresses into multiple txs and single tx
     let multiTxAddresses = $derived(
@@ -160,18 +158,157 @@
         };
     });
 
-    // Time bounds for the x-axis
-    let minTime = $derived(
-        sortedTransactions.length > 0
-            ? Math.min(...sortedTransactions.map((tx) => parseInt(tx.timestamp || '0')))
-            : 0,
-    );
-    let maxTime = $derived(
-        sortedTransactions.length > 0
-            ? Math.max(...sortedTransactions.map((tx) => parseInt(tx.timestamp || '0')))
-            : 0,
-    );
+    // Count all move function calls across all transactions (all commands)
+    let moveFunctionCounts = $derived.by(() => {
+        const counts = new Map<
+            string,
+            {
+                pkg: string;
+                module: string;
+                func: string;
+                label: string;
+                fullCallName: string;
+                count: number;
+            }
+        >();
+
+        for (const tx of sortedTransactions) {
+            const txData = tx.rawData?.transaction?.data?.transaction;
+            if (txData) {
+                const commands = txData.transactions || txData.commands;
+                if (commands && Array.isArray(commands)) {
+                    for (const cmd of commands) {
+                        const moveCall = cmd.MoveCall || cmd.moveCall;
+                        if (moveCall) {
+                            const pkg = moveCall.package;
+                            const module = moveCall.module;
+                            const func = moveCall.function;
+                            const fullCallName = `${pkg}::${module}::${func}`;
+                            const label = `${module}::${func}`;
+                            const current = counts.get(fullCallName) || {
+                                pkg,
+                                module,
+                                func,
+                                label,
+                                fullCallName,
+                                count: 0,
+                            };
+                            current.count++;
+                            counts.set(fullCallName, current);
+                        }
+                    }
+                }
+            }
+        }
+
+        return Array.from(counts.values()).sort((a, b) => b.count - a.count);
+    });
+
+    // Group move function counts by package, sorted by total calls per package descending
+    // Ranks are embedded here so the template doesn't need O(n) indexOf() per row
+    let moveFunctionGroups = $derived.by(() => {
+        const pkgMap = new Map<
+            string,
+            { pkg: string; totalCount: number; fns: typeof moveFunctionCounts }
+        >();
+
+        for (const entry of moveFunctionCounts) {
+            if (!pkgMap.has(entry.pkg)) {
+                pkgMap.set(entry.pkg, { pkg: entry.pkg, totalCount: 0, fns: [] });
+            }
+            const group = pkgMap.get(entry.pkg)!;
+            group.totalCount += entry.count;
+            group.fns.push(entry);
+        }
+
+        const sorted = Array.from(pkgMap.values()).sort((a, b) => b.totalCount - a.totalCount);
+
+        // Attach a global rank to each fn entry so the template doesn't do indexOf()
+        let rank = 1;
+        for (const group of sorted) {
+            for (const fn of group.fns) {
+                (fn as any).rank = rank++;
+            }
+        }
+        return sorted;
+    });
+
+    // Precompute first move call per tx digest so the template doesn't re-parse rawData per dot
+    let firstMoveCallByDigest = $derived.by(() => {
+        const map = new Map<string, string>();
+        for (const tx of sortedTransactions) {
+            const txData = tx.rawData?.transaction?.data?.transaction;
+            if (txData) {
+                const commands = txData.transactions || txData.commands;
+                if (commands && Array.isArray(commands)) {
+                    for (const cmd of commands) {
+                        const moveCall = cmd.MoveCall || cmd.moveCall;
+                        if (moveCall) {
+                            map.set(
+                                tx.digest,
+                                `${moveCall.package}::${moveCall.module}::${moveCall.function}`,
+                            );
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return map;
+    });
+
+    // Cache network config — avoids repeated object construction per link render
+    let networkConfig = $derived(getSelectedNetworkConfig());
+
+    // Time bounds for the x-axis — use reduce to avoid spread-of-2000 items into Math.min/max
+    let minTime = $derived.by(() => {
+        if (sortedTransactions.length === 0) return 0;
+        let min = parseInt(sortedTransactions[0].timestamp || '0');
+        for (let i = 1; i < sortedTransactions.length; i++) {
+            const t = parseInt(sortedTransactions[i].timestamp || '0');
+            if (t < min) min = t;
+        }
+        return min;
+    });
+    let maxTime = $derived.by(() => {
+        if (sortedTransactions.length === 0) return 0;
+        let max = parseInt(sortedTransactions[0].timestamp || '0');
+        for (let i = 1; i < sortedTransactions.length; i++) {
+            const t = parseInt(sortedTransactions[i].timestamp || '0');
+            if (t > max) max = t;
+        }
+        return max;
+    });
     let timeRange = $derived(maxTime - minTime || 1);
+
+    // Precompute per-dot { left, color } so the template does zero arithmetic per dot per render
+    let dotDataByDigest = $derived.by(() => {
+        const map = new Map<string, { left: number; color: string }>();
+        const inv = 100 / timeRange;
+
+        for (const address of multiTxAddresses) {
+            const commonCall = multiTxCommonCalls.get(address)?.fullCallName;
+            for (const tx of txsBySender.get(address) || []) {
+                const left = (parseInt(tx.timestamp || '0') - minTime) * inv;
+                const color =
+                    firstMoveCallByDigest.get(tx.digest) === commonCall
+                        ? COLOR_HIGHLIGHT
+                        : COLOR_BASE;
+                map.set(tx.digest, { left, color });
+            }
+        }
+        for (const [, data] of otherTxsByMoveCall.withMoveCall) {
+            for (const tx of data.txs) {
+                const left = (parseInt(tx.timestamp || '0') - minTime) * inv;
+                map.set(tx.digest, { left, color: COLOR_HIGHLIGHT });
+            }
+        }
+        for (const tx of otherTxsByMoveCall.noMoveCall) {
+            const left = (parseInt(tx.timestamp || '0') - minTime) * inv;
+            map.set(tx.digest, { left, color: COLOR_BASE });
+        }
+        return map;
+    });
 
     // Calculate PTBs per second
     let ptbsPerSecond = $derived.by(() => {
@@ -286,23 +423,6 @@
 
     const COLOR_BASE = '#3b82f6'; // Mid blue
     const COLOR_HIGHLIGHT = '#bfdbfe'; // Brighter blue highlight
-
-    // Helper to extract first move call from a tx
-    function getFirstMoveCall(tx: TransactionNode): string | undefined {
-        const txData = tx.rawData?.transaction?.data?.transaction;
-        if (txData) {
-            const commands = txData.transactions || txData.commands;
-            if (commands && Array.isArray(commands)) {
-                for (const cmd of commands) {
-                    const moveCall = cmd.MoveCall || cmd.moveCall;
-                    if (moveCall) {
-                        return `${moveCall.package}::${moveCall.module}::${moveCall.function}`;
-                    }
-                }
-            }
-        }
-        return undefined;
-    }
 </script>
 
 <div class="page-container">
@@ -355,6 +475,7 @@
             <label>
                 Max Txs:
                 <input type="number" bind:value={limit} step="100" class="input-small" />
+                <span class="tx-current-count">({sortedTransactions.length})</span>
             </label>
             <label>
                 Interval (ms):
@@ -392,12 +513,12 @@
             </div>
 
             <div class="timeline-body">
-                {#each multiTxAddresses as address}
+                {#each multiTxAddresses as address (address)}
                     <div class="timeline-row">
                         <div class="address-col">
                             <div class="address-row-main">
                                 <a
-                                    href={getAddressLink(getSelectedNetworkConfig(), address)}
+                                    href={getAddressLink(networkConfig, address)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     class="address-link"
@@ -414,7 +535,7 @@
                                     <span class="call-icon">⤷</span>
                                     <a
                                         href={getObjectLink(
-                                            getSelectedNetworkConfig(),
+                                            networkConfig,
                                             multiTxCommonCalls.get(address)!.pkg,
                                         )}
                                         target="_blank"
@@ -432,15 +553,12 @@
                         </div>
                         <div class="timeline-col">
                             <div class="timeline-line"></div>
-                            {#each txsBySender.get(address) || [] as tx}
+                            {#each txsBySender.get(address) || [] as tx (tx.digest)}
+                                {@const d = dotDataByDigest.get(tx.digest)}
                                 <button
                                     class="tx-dot"
-                                    style="left: {((parseInt(tx.timestamp || '0') - minTime) /
-                                        timeRange) *
-                                        100}%; background-color: {getFirstMoveCall(tx) ===
-                                    multiTxCommonCalls.get(address)?.fullCallName
-                                        ? COLOR_HIGHLIGHT
-                                        : COLOR_BASE}"
+                                    style="left: {d?.left ?? 0}%; background-color: {d?.color ??
+                                        COLOR_BASE}"
                                     title="Tx: {tx.digest}&#10;Time: {formatTime(
                                         tx.timestamp || '0',
                                     )}"
@@ -452,12 +570,12 @@
                     </div>
                 {/each}
 
-                {#each otherTxsByMoveCall.withMoveCall as [fullCall, data]}
+                {#each otherTxsByMoveCall.withMoveCall as [fullCall, data] (fullCall)}
                     <div class="timeline-row other-txs-row">
                         <div class="address-col">
                             <div class="address-row-main">
                                 <a
-                                    href={getObjectLink(getSelectedNetworkConfig(), data.pkg)}
+                                    href={getObjectLink(networkConfig, data.pkg)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     class="address-link other-txs-label"
@@ -471,12 +589,12 @@
                         </div>
                         <div class="timeline-col">
                             <div class="timeline-line"></div>
-                            {#each data.txs as tx}
+                            {#each data.txs as tx (tx.digest)}
+                                {@const d = dotDataByDigest.get(tx.digest)}
                                 <button
                                     class="tx-dot"
-                                    style="left: {((parseInt(tx.timestamp || '0') - minTime) /
-                                        timeRange) *
-                                        100}%; background-color: {COLOR_HIGHLIGHT}"
+                                    style="left: {d?.left ?? 0}%; background-color: {d?.color ??
+                                        COLOR_HIGHLIGHT}"
                                     title="Sender: {tx.sender}&#10;Tx: {tx.digest}&#10;Time: {formatTime(
                                         tx.timestamp || '0',
                                     )}"
@@ -500,12 +618,12 @@
                         </div>
                         <div class="timeline-col">
                             <div class="timeline-line"></div>
-                            {#each otherTxsByMoveCall.noMoveCall as tx}
+                            {#each otherTxsByMoveCall.noMoveCall as tx (tx.digest)}
+                                {@const d = dotDataByDigest.get(tx.digest)}
                                 <button
                                     class="tx-dot"
-                                    style="left: {((parseInt(tx.timestamp || '0') - minTime) /
-                                        timeRange) *
-                                        100}%; background-color: {COLOR_BASE}"
+                                    style="left: {d?.left ?? 0}%; background-color: {d?.color ??
+                                        COLOR_BASE}"
                                     title="Sender: {tx.sender}&#10;Tx: {tx.digest}&#10;Time: {formatTime(
                                         tx.timestamp || '0',
                                     )}"
@@ -517,6 +635,59 @@
                     </div>
                 {/if}
             </div>
+        </div>
+    {/if}
+
+    <!-- Move Function Calls Table -->
+    {#if moveFunctionGroups.length > 0}
+        <div class="move-calls-table card">
+            <h2 class="table-title">Move Function Calls</h2>
+            <table class="fn-table">
+                <thead>
+                    <tr>
+                        <th class="col-count">Count</th>
+                        <th class="col-fn">Function</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {#each moveFunctionGroups as group, gi}
+                        {#each group.fns as entry, fi}
+                            <tr class="fn-row {gi % 2 === 0 ? 'group-even' : 'group-odd'}">
+                                <td class="col-count">{entry.count}</td>
+                                <td class="col-fn">
+                                    <div class="fn-cell">
+                                        <div class="fn-pkg-part">
+                                            {#if fi === 0}
+                                                <a
+                                                    href={getObjectLink(networkConfig, entry.pkg)}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    class="fn-link pkg-link"
+                                                    title={entry.pkg}
+                                                    >{entry.pkg.slice(0, 8)}...{entry.pkg.slice(
+                                                        -4,
+                                                    )}::</a
+                                                >
+                                            {/if}
+                                        </div>
+                                        <a
+                                            href="{getObjectLink(
+                                                networkConfig,
+                                                entry.pkg,
+                                            )}&module={entry.module}"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="fn-link fn-label"
+                                            title="{entry.pkg}&module={entry.module}"
+                                            >{entry.module}::{entry.func}</a
+                                        >
+                                    </div>
+                                </td>
+                            </tr>
+                        {/each}
+                    {/each}
+                </tbody>
+            </table>
         </div>
     {/if}
 
@@ -551,6 +722,7 @@
         padding: 1rem;
         max-width: 100%;
         margin: 0 auto;
+        overflow-x: hidden;
     }
 
     .header {
@@ -705,6 +877,13 @@
         margin-left: 0.5rem;
     }
 
+    .tx-current-count {
+        font-size: 0.85rem;
+        color: #60a5fa;
+        font-family: monospace;
+        margin-left: 0.4rem;
+    }
+
     .visualizer-container {
         overflow-x: auto;
     }
@@ -736,6 +915,16 @@
         justify-content: space-between;
         width: 100%;
         margin-bottom: 2px;
+        min-width: 0;
+    }
+
+    .address-row-main .address-link,
+    .address-row-main .other-txs-label {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
     }
 
     .common-call {
@@ -822,6 +1011,8 @@
         align-items: center;
         margin-bottom: 0.8rem;
         min-height: 32px;
+        /* Scope layout changes to this row, prevents scroll-triggered full-page reflow */
+        contain: layout style;
     }
 
     .address-link {
@@ -843,6 +1034,8 @@
     }
 
     .tx-count {
+        flex-shrink: 0;
+        margin-left: 4px;
         font-size: 0.8rem;
         color: #cbd5e1; /* Brighter neutral color */
         background: rgba(255, 255, 255, 0.15);
@@ -869,10 +1062,8 @@
         transform: translate(-50%, -50%);
         border: 1px solid rgba(0, 0, 0, 0.5);
         cursor: pointer;
-        transition:
-            transform 0.2s,
-            background-color 0.2s,
-            filter 0.2s;
+        /* No transitions at rest — avoids 1000 simultaneous animations on every poll update */
+        will-change: transform;
         z-index: 10;
         padding: 0;
     }
@@ -881,9 +1072,125 @@
         transform: translate(-50%, -50%) scale(1.5);
         filter: brightness(1.2);
         z-index: 20;
+        /* Transitions only activate on hover entry/exit, not on position updates */
+        transition:
+            transform 0.15s,
+            filter 0.15s;
     }
 
-    /* Modal styles copied from Txs.svelte */
+    .table-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: var(--text-color);
+    }
+
+    .move-calls-table {
+        overflow-x: auto;
+    }
+
+    .fn-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+
+    .fn-table thead tr {
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .fn-table th {
+        text-align: left;
+        padding: 0.4rem 0.75rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .fn-table td {
+        padding: 0.35rem 0.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .fn-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    .col-rank {
+        width: 2.5rem;
+        text-align: center;
+        color: var(--text-muted);
+    }
+
+    .col-fn {
+        font-family: monospace;
+        text-align: left;
+        width: 100%;
+        min-width: 0; /* allow table cell to shrink below content width */
+    }
+
+    .fn-cell {
+        display: flex;
+        align-items: baseline;
+        gap: 0;
+        min-width: 0;
+    }
+
+    /* Fixed-width slot for the pkg part so all rows align on desktop */
+    /* "0xae65a3...8b7d::" = 17 chars in monospace */
+    .fn-pkg-part {
+        display: inline-block;
+        width: 17.5ch;
+        flex-shrink: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: clip;
+    }
+
+    .fn-label {
+        color: #bfdbfe;
+        white-space: nowrap;
+    }
+
+    .col-count {
+        width: 5rem;
+        text-align: right;
+        font-family: monospace;
+        color: #60a5fa;
+        font-weight: 600;
+    }
+
+    .fn-row.group-even {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .fn-row.group-odd {
+        background: rgba(59, 130, 246, 0.05);
+    }
+
+    .fn-row.group-even:first-of-type td,
+    .fn-row.group-odd:first-of-type td {
+        padding-top: 0.55rem;
+    }
+
+    .pkg-link {
+        color: #94a3b8;
+        opacity: 0.85;
+    }
+
+    /* remove old indent span rule */
+
+    .fn-link {
+        color: #bfdbfe;
+        text-decoration: none;
+        transition: filter 0.2s;
+    }
+
+    .fn-link:hover {
+        text-decoration: underline;
+        filter: brightness(1.2);
+    }
+
     .modal-overlay {
         position: fixed;
         top: 0;
