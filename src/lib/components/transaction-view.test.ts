@@ -4,10 +4,13 @@
 
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { fromBase64 } from '@iota/bcs';
-import { describe, expect, it } from 'vitest';
+import { fromBase64, toBase64 } from '@iota/bcs';
+import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
+import { Transaction, TransactionDataBuilder } from '@iota/iota-sdk/transactions';
+import { describe, expect, it, vi } from 'vitest';
 
 import {
+    formatJsonWithCompactArrays,
     getTransactionData,
     isTransactionData,
     normalizeOwner,
@@ -717,6 +720,8 @@ describe('getTransactionData - Web wallet signing response format', () => {
     });
 
     it('should handle web wallet response with invalid bytes gracefully', () => {
+        const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
         const webWalletResponse = {
             digest: 'TestDigest',
             signature: 'TestSignature',
@@ -726,6 +731,14 @@ describe('getTransactionData - Web wallet signing response format', () => {
 
         const normalized = getTransactionData(webWalletResponse);
 
+        // console.warn should have been called for each decoding failure
+        expect(consoleSpy).toHaveBeenCalledTimes(2);
+        const [firstCall, secondCall] = consoleSpy.mock.calls;
+        expect(firstCall[0]).toContain('Failed to decode transaction bytes');
+        expect(secondCall[0]).toContain('Failed to decode effects');
+
+        consoleSpy.mockRestore();
+
         // Should still create a normalized structure
         expect(normalized.digest).toBe('TestDigest');
         expect(normalized.signatures).toEqual(['TestSignature']);
@@ -734,5 +747,127 @@ describe('getTransactionData - Web wallet signing response format', () => {
         // But should not have decoded data
         expect(normalized.transactionData).toBeUndefined();
         expect(normalized.decodedBCS).toBeUndefined();
+    });
+});
+
+// ─── Raw TX JSON roundtrip ────────────────────────────────────────────────────
+// These values come from the "Example signed tx" / "Example unsigned tx" buttons
+// on the Converter page (Converter.svelte).
+const CONVERTER_EXAMPLE_UNSIGNED_TX =
+    'AAAEAAgAypo7AAAAAAAIAJQ1dwAAAAAAIAAApJhL1JXUNG+iCN3/T11eWtSMId7GMd3ryZgJ8WkAACAREXOhTD1ALAFUbFQmXDDMBEFMe37BcyQSuxkGbdSdEQMCAAIBAAABAQABAQMAAAAAAQIAAQEDAAABAAEDAAAApJhL1JXUNG+iCN3/T11eWtSMId7GMd3ryZgJ8WkAAgG17QdHZ+O2o4na/TneylcrvwY7XNDR98PK2ffE16W3cG9SHwAAAAAgOtvL1ilwL7CT/xBDvtdFWeLe23EYPsQOeWmBNM3rMLOOPbshjMcd4lpSlNYarN19Cibrg+b3QfX4zU263nR5UlzYIBoAAAAAIPWQ2HPkYb/8uoCU0bJ+nJUDnnxOrvSuydHPsgLOozz3AACkmEvUldQ0b6II3f9PXV5a1Iwh3sYx3evJmAnxaQDoAwAAAAAAAJBlSwAAAAAAAA==';
+const CONVERTER_EXAMPLE_SIGNED_TX =
+    'AQAAAAAABQAgAADITWzmvxDdFgAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAQOrTZ5H0khvmeaMM7Q+RqIE3kXhhUmg8Ye1x03DM1/oxo+fFQAAAAABAQC1UdUC/HAd21HmDkcdewfnQ/8ZyCdSznxVvhX2A+UdkhQ/8xUAAAAAIGvBzsOprOdLXmvbV4WNEAdCeVyxUQC4casadEmSiOz8AQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgEAAAAAAAAAAAEBVB+vemIenOWjJKPeaiUWCEN25jsEPmTpIlut31oacd9AaKkVAAAAAAEEAKBMDts1kJoNC+au685RIk/bcqEzZUlnLfnwjJpgx1omB2ZpeGVkMTgNZnJvbV9yYXdfdTI1NgABAQAAAHS7cwUfi9jmrdrHu2LvhWKLCdye6W294+RBZ4pEgCvbC21vY2tfc291cmNlCXNldF92YWx1ZQADAQEAAQIAAgAAAHS7cwUfi9jmrdrHu2LvhWKLCdye6W294+RBZ4pEgCvbC21vY2tfc291cmNlBXByaWNlAAIBAQABAwAADSboscHb0PENnJ/ZKPsb8EgfRLahSRbrPfEuFCT0XaoGbWFya2V0DHVwZGF0ZV9wcmljZQEHVk0OWNWfzsxej+coc1GWFdn7sceB009VRe4/PcHNRf0Gc3RhYmxlBlNUQUJMRQACAQQAAgIAKncQef3db67TtP+AYhEsoc86M8mLAnwGhbj7/3IK0mEBRfaRcZkkQl7YnEMWcsyOrUsBJtE2Di3bqK/2JiFVZP0UP/MVAAAAACDNN3mgas1+l1nWysvP0pprzh7yATGvFfv+hKdhxMIwiyp3EHn93W+u07T/gGIRLKHPOjPJiwJ8BoW4+/9yCtJh6AMAAAAAAACcxWVRAAAAAAABYQBuCFSJ1RJeUMmPez2iX78Kz4uLyOBFD+mUii8dqFUHgMeg+ioHP3cI/3LnNc+id/JHyjRpl1Lgc9tXdRpnPoADDR2pqxdjx19PH7B5MVEMS2PLUy97CDQNgDC1vbQqPXQ=';
+
+/** Same exclusion list as TransactionView.svelte RAW_TX_EXCLUDED_FIELDS */
+const RAW_TX_EXCLUDED_FIELDS = new Set([
+    'effects',
+    'decodedBCS',
+    'transactionBytes',
+    'bytes',
+    'rawTransaction',
+    'isDryRun',
+    'originalDigest',
+    'webWalletResponse',
+    'transactionData',
+]);
+
+function toRawTxJson(value: any): Record<string, unknown> {
+    const txData = getTransactionData(value);
+    return Object.fromEntries(
+        Object.entries(txData).filter(([k]) => !RAW_TX_EXCLUDED_FIELDS.has(k)),
+    );
+}
+
+describe('Raw TX JSON roundtrip - unsigned example tx', () => {
+    it('should parse the unsigned example tx without throwing', () => {
+        const txBytes = fromBase64(CONVERTER_EXAMPLE_UNSIGNED_TX);
+        const txBuilder = TransactionDataBuilder.fromBytes(txBytes);
+        expect(txBuilder).toBeDefined();
+        expect(txBuilder.sender).toBeDefined();
+    });
+
+    it('should produce formatted output that is valid JSON (no undefined literals)', () => {
+        const txBytes = fromBase64(CONVERTER_EXAMPLE_UNSIGNED_TX);
+        const txBuilder = TransactionDataBuilder.fromBytes(txBytes);
+        const value = Object.assign(txBuilder, { transactionBytes: CONVERTER_EXAMPLE_UNSIGNED_TX });
+
+        const rawTxJson = toRawTxJson(value);
+        const formatted = formatJsonWithCompactArrays(rawTxJson);
+
+        // Must be parseable as JSON (no 'undefined' literal values)
+        expect(() => JSON.parse(formatted)).not.toThrow();
+        const reparsed = JSON.parse(formatted);
+        expect(reparsed.sender).toBeDefined();
+        expect(reparsed.inputs).toBeDefined();
+        expect(reparsed.commands).toBeDefined();
+        expect(reparsed.gasData).toBeDefined();
+        // Excluded fields must not appear in parsed output
+        expect(reparsed.effects).toBeUndefined();
+        expect(reparsed.decodedBCS).toBeUndefined();
+        expect(reparsed.transactionBytes).toBeUndefined();
+        expect(reparsed.transactionData).toBeUndefined();
+        // No signatures field for unsigned tx (would be undefined → omitted)
+        expect(reparsed.signatures).toBeUndefined();
+    });
+
+    it('should round-trip via Transaction.from(formatJsonWithCompactArrays): rawTxJson → same base64 as original', async () => {
+        const txBytes = fromBase64(CONVERTER_EXAMPLE_UNSIGNED_TX);
+        const txBuilder = TransactionDataBuilder.fromBytes(txBytes);
+        const value = Object.assign(txBuilder, { transactionBytes: CONVERTER_EXAMPLE_UNSIGNED_TX });
+
+        const rawTxJson = toRawTxJson(value);
+        // Use formatJsonWithCompactArrays — this is the exact string the browser shows and the
+        // user pastes back into the converter textarea
+        const formatted = formatJsonWithCompactArrays(rawTxJson);
+
+        const rebuilt = Transaction.from(formatted);
+        const rebuiltBytes = await rebuilt.build();
+
+        expect(toBase64(rebuiltBytes)).toBe(CONVERTER_EXAMPLE_UNSIGNED_TX);
+    });
+});
+
+describe('Raw TX JSON roundtrip - signed example tx', () => {
+    it('should parse the signed example tx (SenderSignedData) without throwing', () => {
+        const parsed = IotaBcs.SenderSignedData.parse(fromBase64(CONVERTER_EXAMPLE_SIGNED_TX))[0];
+        expect(parsed).toBeDefined();
+        expect(parsed.intentMessage).toBeDefined();
+        expect(parsed.txSignatures).toBeDefined();
+        expect(parsed.txSignatures.length).toBeGreaterThan(0);
+    });
+
+    it('should produce a rawTxJson that contains core transaction fields and signatures', () => {
+        const parsed = IotaBcs.SenderSignedData.parse(fromBase64(CONVERTER_EXAMPLE_SIGNED_TX))[0];
+
+        const rawTxJson = toRawTxJson(parsed);
+        const formatted = formatJsonWithCompactArrays(rawTxJson);
+
+        // formatted output must be valid JSON
+        expect(() => JSON.parse(formatted)).not.toThrow();
+        const reparsed = JSON.parse(formatted);
+
+        expect(reparsed.sender).toBeDefined();
+        expect(reparsed.inputs).toBeDefined();
+        expect(reparsed.commands).toBeDefined();
+        expect(reparsed.gasData).toBeDefined();
+        expect(reparsed.signatures).toBeDefined();
+        // Excluded fields must not appear
+        expect(reparsed.effects).toBeUndefined();
+        expect(reparsed.decodedBCS).toBeUndefined();
+        expect(reparsed.transactionData).toBeUndefined();
+    });
+
+    it('should round-trip via Transaction.from(formatJsonWithCompactArrays): rawTxJson → digest matches original', async () => {
+        const parsed = IotaBcs.SenderSignedData.parse(fromBase64(CONVERTER_EXAMPLE_SIGNED_TX))[0];
+
+        const rawTxJson = toRawTxJson(parsed);
+        // Use formatJsonWithCompactArrays — exact string shown in browser
+        const formatted = formatJsonWithCompactArrays(rawTxJson);
+
+        const rebuilt = Transaction.from(formatted);
+        const rebuiltBytes = await rebuilt.build();
+
+        const rebuiltDigest = TransactionDataBuilder.getDigestFromBytes(rebuiltBytes);
+        expect(rebuiltDigest).toBe(rawTxJson.digest);
     });
 });

@@ -381,6 +381,16 @@
         font-size: 13px;
     }
 
+    @media (max-width: 600px) {
+        .detail-row {
+            flex-direction: column;
+            gap: 4px;
+        }
+        .detail-label {
+            min-width: 0;
+        }
+    }
+
     .detail-value-container {
         flex: 1;
         display: flex;

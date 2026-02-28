@@ -446,23 +446,23 @@
         <div class="box">
             <input
                 type="string"
-                size="40"
+                style="width: 100%;"
                 bind:value={nano}
                 on:input={() => convertToIota()}
                 placeholder="NANO amount"
             />
-            {nanoWithUnderscore}
+            {#if nanoWithUnderscore}<div class="formatted-value">{nanoWithUnderscore}</div>{/if}
         </div>
         <div class="box">IOTA:</div>
         <div class="box">
             <input
                 type="string"
-                size="40"
+                style="width: 100%;"
                 bind:value={iota}
                 on:input={() => convertToNano()}
                 placeholder="IOTA amount"
             />
-            {iotaWithUnderscore}
+            {#if iotaWithUnderscore}<div class="formatted-value">{iotaWithUnderscore}</div>{/if}
         </div>
     </div>
     <br />
@@ -596,5 +596,11 @@
     textarea {
         width: 100%;
         height: 100px;
+    }
+
+    .formatted-value {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.5);
+        word-break: break-all;
     }
 </style>

@@ -939,8 +939,9 @@
 
     .header-line {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        gap: 1rem;
+        gap: 0.5rem;
         padding: 0.375rem;
         background: var(--background-light);
         border-radius: 6px;
@@ -994,6 +995,13 @@
         background: var(--background-light);
         border-radius: 6px;
         border: 1px solid var(--border-color);
+    }
+
+    @media (max-width: 600px) {
+        .sender-fee-line {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
     }
 
     .field-label {
@@ -1057,6 +1065,13 @@
         display: grid;
         grid-template-columns: 0.6fr 1fr 1fr;
         gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+        .balance-columns,
+        .object-columns-three {
+            grid-template-columns: 1fr;
+        }
     }
 
     .negative-changes,
@@ -1392,6 +1407,21 @@
         white-space: pre-wrap;
         width: 100%;
         overflow-y: auto;
+    }
+
+    @media (max-width: 600px) {
+        .input-item {
+            flex-direction: column;
+        }
+
+        .input-kind {
+            min-width: unset;
+        }
+
+        .input-data {
+            flex-direction: column;
+            width: 100%;
+        }
     }
 
     .gas-info {

@@ -72,6 +72,26 @@
 
     let transactionData = $derived(getTransactionData(value));
 
+    const RAW_TX_EXCLUDED_FIELDS = new Set([
+        'effects',
+        'decodedBCS',
+        'transactionBytes',
+        'bytes',
+        'rawTransaction',
+        'isDryRun',
+        'originalDigest',
+        'webWalletResponse',
+        'transactionData',
+    ]);
+
+    let rawTxJsonData = $derived(
+        transactionData
+            ? Object.fromEntries(
+                  Object.entries(transactionData).filter(([k]) => !RAW_TX_EXCLUDED_FIELDS.has(k)),
+              )
+            : null,
+    );
+
     // Check if transaction has signatures
     let hasSignatures = $derived(
         transactionData?.signatures &&
@@ -87,7 +107,7 @@
 
             // Define valid modes
             const validModes = isTxData
-                ? ['formatted', 'commands', 'json', 'tree']
+                ? ['formatted', 'commands', 'json', 'rawtxjson', 'tree']
                 : ['json', 'tree'];
             if (hasBytes) validModes.push('txbytes');
             if (hasSigs) validModes.push('signatures');
@@ -206,6 +226,16 @@
             >
                 Raw JSON
             </button>
+            {#if isTransactionData(value)}
+                <button
+                    class:active={viewMode === 'rawtxjson'}
+                    onclick={() => {
+                        viewMode = 'rawtxjson';
+                    }}
+                >
+                    Raw TX JSON
+                </button>
+            {/if}
             <button
                 class:active={viewMode === 'tree'}
                 onclick={() => {
@@ -339,6 +369,19 @@
             </div>
         {:else if viewMode === 'tree'}
             <div class="tree-view">
+                <div class="json-view-header">
+                    <button
+                        class="copy-btn"
+                        onclick={() =>
+                            navigator.clipboard.writeText(
+                                formatJsonWithCompactArrays(
+                                    isTransactionData(value) ? transactionData : value,
+                                ),
+                            )}
+                    >
+                        Copy
+                    </button>
+                </div>
                 <JSONTree
                     value={isTransactionData(value) ? transactionData : value}
                     defaultExpandedLevel={1}
@@ -354,8 +397,36 @@
                     {shortPackageIds}
                 />
             </div>
+        {:else if viewMode === 'rawtxjson' && isTransactionData(value)}
+            <div class="json-view">
+                <div class="json-view-header">
+                    <button
+                        class="copy-btn"
+                        onclick={() =>
+                            navigator.clipboard.writeText(
+                                formatJsonWithCompactArrays(rawTxJsonData),
+                            )}
+                    >
+                        Copy
+                    </button>
+                </div>
+                <pre>{formatJsonWithCompactArrays(rawTxJsonData)}</pre>
+            </div>
         {:else}
             <div class="json-view">
+                <div class="json-view-header">
+                    <button
+                        class="copy-btn"
+                        onclick={() =>
+                            navigator.clipboard.writeText(
+                                formatJsonWithCompactArrays(
+                                    isTransactionData(value) ? transactionData : value,
+                                ),
+                            )}
+                    >
+                        Copy
+                    </button>
+                </div>
                 <pre>{formatJsonWithCompactArrays(
                         isTransactionData(value) ? transactionData : value,
                     )}</pre>
@@ -444,6 +515,29 @@
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
+    }
+
+    .json-view-header {
+        display: flex;
+        justify-content: flex-start;
+        margin-bottom: 0.2rem;
+    }
+
+    .json-view .copy-btn,
+    .tree-view .copy-btn {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 0.3rem 0.7rem;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .json-view .copy-btn:hover,
+    .tree-view .copy-btn:hover {
+        background: var(--primary-color-dark, #005fa3);
     }
 
     .json-view pre {

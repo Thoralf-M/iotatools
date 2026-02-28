@@ -3,7 +3,6 @@ import {
     fetchAllExchangeRates,
     fetchPoolExchangeRates,
     fetchSystemState,
-    getExchangeRateCacheStats,
 } from '../graphql-requests';
 import { computeRewardsForStakeObject } from './rewards-calculator';
 import type { ActionDetails, ProcessStakeTransactionsResult, StakeObject } from './types';
@@ -963,14 +962,14 @@ export async function processStakeTransactionsWithExchangeRates(
     );
 
     // Log the entire cache for copying to a JSON file
-    const cacheArray = Array.from(exchangeRateCache.values());
-    const cacheStats = getExchangeRateCacheStats();
+    // const cacheArray = Array.from(exchangeRateCache.values());
+    // const cacheStats = getExchangeRateCacheStats();
 
-    console.log('=== EXCHANGE RATE CACHE DATA ===');
-    console.log('Cache Statistics:', cacheStats);
-    console.log('Copy this data to a JSON file for initial cache loading:');
-    console.log(JSON.stringify(cacheArray, null, 2));
-    console.log('=== END CACHE DATA ===');
+    // console.log('=== EXCHANGE RATE CACHE DATA ===');
+    // console.log('Cache Statistics:', cacheStats);
+    // console.log('Copy this data to a JSON file for initial cache loading:');
+    // console.log(JSON.stringify(cacheArray, null, 2));
+    // console.log('=== END CACHE DATA ===');
 
     return {
         stakeObjects: stakeObjectsArray,
