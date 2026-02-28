@@ -1,0 +1,18 @@
+
+    .wrapper.svelte-1dsv85v {
+        display: grid;
+        grid-template-columns: repeat(2, auto);
+        text-align: left;
+        grid-template-columns: auto 1fr; /* label auto, input takes remaining space */
+    }
+
+    textarea.svelte-1dsv85v {
+        width: 100%;
+        height: 100px;
+    }
+
+    .formatted-value.svelte-1dsv85v {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.5);
+        word-break: break-all;
+    }
