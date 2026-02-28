@@ -204,7 +204,9 @@ export function exportTableToCSV(
     });
 
     // Download as file
-    downloadCSV(csvContent, 'staking-rewards-table.csv');
+    const today = new Date();
+    const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+    downloadCSV(csvContent, `staking-rewards-table-${dateStr}.csv`);
 }
 
 /**
