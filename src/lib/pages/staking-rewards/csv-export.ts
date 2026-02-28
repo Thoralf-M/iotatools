@@ -1,5 +1,5 @@
+import { formatNanoAsIotaFullPrecision, nanoToIota } from './formatting';
 import {
-    getValidatorRewardsForEpoch,
     isActiveInEpoch,
     isPreActivationInEpoch,
 } from './table-utils';
@@ -60,65 +60,75 @@ export function exportTableToCSV(
         const row: string[] = [];
         const data = epochData[epoch];
 
-        // Basic epoch data - use pre-computed display values
+        // Basic epoch data - use full precision values without unit suffix for spreadsheet import
         row.push(
             epoch.toString(),
             epochEndDates[i] || '-',
             epoch === currentEpoch
                 ? 'pending'
-                : (data?.display.stakedDisplay.replace(' IOTA', '') ?? '0'),
+                : data
+                    ? formatNanoAsIotaFullPrecision(data.totalStaked)
+                    : '0',
             epoch === currentEpoch
                 ? 'pending'
-                : (data?.display.rewardsDisplay.replace(' IOTA', '') ?? '0'),
+                : data
+                    ? formatNanoAsIotaFullPrecision(data.totalRewards)
+                    : '0',
             epoch === currentEpoch
                 ? 'pending'
-                : (data?.display.accumulatedDisplay.replace(' IOTA', '') ?? '0'),
+                : data
+                    ? formatNanoAsIotaFullPrecision(data.totalAccumulated)
+                    : '0',
             epoch === currentEpoch
                 ? 'pending'
-                : (data?.display.unstakeRewardsDisplay.replace(' IOTA', '') ?? '0'),
+                : data
+                    ? formatNanoAsIotaFullPrecision(data.totalUnstakeRewards)
+                    : '0',
             epoch === currentEpoch
                 ? 'pending'
-                : (data?.display.unstakeAccumulatedDisplay.replace(' IOTA', '') ?? '0'),
+                : data
+                    ? formatNanoAsIotaFullPrecision(data.totalUnstakeAccumulated)
+                    : '0',
             epoch === currentEpoch
                 ? 'pending'
-                : (data?.display.availableRewardsDisplay.replace(' IOTA', '') ?? '0'),
+                : data
+                    ? formatNanoAsIotaFullPrecision(data.availableRewards)
+                    : '0',
         );
 
-        // Price columns - use raw bigint values for accurate calculation
+        // Price columns - use nanoToIota for precise float conversion (same as table display)
         if (showPriceColumns && Object.keys(epochPrices).length > 0) {
-            const rewardsIota = data ? Number(data.totalRewards) / 1_000_000_000 : 0;
-            const accumulatedIota = data ? Number(data.totalAccumulated) / 1_000_000_000 : 0;
+            const rewardsIota = data ? nanoToIota(data.totalRewards) : 0;
+            const accumulatedIota = data ? nanoToIota(data.totalAccumulated) : 0;
 
             row.push(
                 epoch === currentEpoch
                     ? 'pending'
                     : epochPrices[epoch]
-                      ? epochPrices[epoch].toString()
-                      : 'no price',
+                        ? epochPrices[epoch].toString()
+                        : 'no price',
                 epoch === currentEpoch
                     ? 'pending'
                     : epochPrices[epoch]
-                      ? (rewardsIota * epochPrices[epoch]).toFixed(4)
-                      : 'no price',
+                        ? (rewardsIota * epochPrices[epoch]).toFixed(4)
+                        : 'no price',
                 epoch === currentEpoch
                     ? 'pending'
                     : epochPrices[epoch]
-                      ? (accumulatedIota * epochPrices[epoch]).toFixed(4)
-                      : 'no price',
+                        ? (accumulatedIota * epochPrices[epoch]).toFixed(4)
+                        : 'no price',
             );
         }
 
-        // Validator columns
+        // Validator columns - full precision without suffix
         if (showValidatorColumns) {
             uniqueValidators.forEach((validator) => {
-                row.push(
-                    epoch === currentEpoch
-                        ? 'pending'
-                        : getValidatorRewardsForEpoch(validator.poolId, epoch, epochData).replace(
-                              ' IOTA',
-                              '',
-                          ),
-                );
+                if (epoch === currentEpoch) {
+                    row.push('pending');
+                } else {
+                    const rewards = data?.validatorRewards[validator.poolId] ?? 0n;
+                    row.push(formatNanoAsIotaFullPrecision(rewards));
+                }
             });
         }
 
@@ -132,11 +142,11 @@ export function exportTableToCSV(
                 isActiveInEpoch(stakeObject, epoch, epochData) &&
                 epoch >= stakeObject.firstEpoch
             ) {
-                // Add reward amount
+                // Add reward amount - full precision
                 row.push(
                     stakeObject.rewardsByEpoch[epoch] === '0'
                         ? '-'
-                        : (Number(stakeObject.rewardsByEpoch[epoch]) / 1_000_000_000).toFixed(4),
+                        : formatNanoAsIotaFullPrecision(BigInt(stakeObject.rewardsByEpoch[epoch])),
                 );
 
                 // Add action information
@@ -151,26 +161,18 @@ export function exportTableToCSV(
                     for (const action of actions) {
                         let details = `TX: ${action.digest}`;
                         if (action.amount) {
-                            const amount = (Number(action.amount) / 1_000_000_000).toFixed(2);
-                            details += ` | Amount: ${amount} IOTA`;
+                            details += ` | Amount: ${formatNanoAsIotaFullPrecision(BigInt(action.amount), true)}`;
                         }
                         if (action.totalRewards) {
-                            const rewards = (Number(action.totalRewards) / 1_000_000_000).toFixed(
-                                2,
-                            );
-                            details += ` | Rewards: ${rewards} IOTA`;
+                            details += ` | Rewards: ${formatNanoAsIotaFullPrecision(BigInt(action.totalRewards), true)}`;
                         }
                         if (action.fromAddress && action.toAddress) {
                             details += ` | From: ${action.fromAddress} To: ${action.toAddress}`;
                         }
                         if (action.principalChange) {
-                            const from = (
-                                Number(action.principalChange.from) / 1_000_000_000
-                            ).toFixed(2);
-                            const to = (Number(action.principalChange.to) / 1_000_000_000).toFixed(
-                                2,
-                            );
-                            details += ` | Principal: ${from} → ${to} IOTA`;
+                            const from = formatNanoAsIotaFullPrecision(BigInt(action.principalChange.from), true);
+                            const to = formatNanoAsIotaFullPrecision(BigInt(action.principalChange.to), true);
+                            details += ` | Principal: ${from} → ${to}`;
                         }
                         if (action.mergedStakeObjects && action.mergedStakeObjects.length > 0) {
                             details += ` | Merged: ${action.mergedStakeObjects.length} objects`;
@@ -202,7 +204,9 @@ export function exportTableToCSV(
     });
 
     // Download as file
-    downloadCSV(csvContent, 'staking-rewards-table.csv');
+    const today = new Date();
+    const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+    downloadCSV(csvContent, `staking-rewards-table-${dateStr}.csv`);
 }
 
 /**

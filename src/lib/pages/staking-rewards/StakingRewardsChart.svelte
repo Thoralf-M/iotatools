@@ -294,7 +294,8 @@
 <div class="chart-container">
     <div class="chart-header">
         <div class="legend-instructions">
-            Click legend to toggle. Double-click to view only that metric.
+            Click legend to toggle. Double-click to view only that metric. For price metrics, click
+            "Fetch prices from coingecko" above the table first.
         </div>
         <button class="reset-button" onclick={resetZoom} title="Reset Zoom">🔍 Reset</button>
     </div>

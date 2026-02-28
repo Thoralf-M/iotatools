@@ -1116,12 +1116,6 @@
         background: rgba(255, 255, 255, 0.04);
     }
 
-    .col-rank {
-        width: 2.5rem;
-        text-align: center;
-        color: var(--text-muted);
-    }
-
     .col-fn {
         font-family: monospace;
         text-align: left;

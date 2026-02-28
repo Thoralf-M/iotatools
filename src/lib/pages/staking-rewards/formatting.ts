@@ -70,6 +70,29 @@ export function formatDate(date: Date): string {
 }
 
 /**
+ * Format a nano amount as IOTA with full precision (no trailing zeros).
+ * Used for CSV export where maximum precision is needed.
+ * @param nanoAmount The amount in nano IOTA
+ * @param includeSuffix Whether to include " IOTA" suffix (default false for CSV)
+ */
+export function formatNanoAsIotaFullPrecision(
+    nanoAmount: bigint,
+    includeSuffix: boolean = false,
+): string {
+    if (nanoAmount === 0n) return '0';
+    const whole = nanoAmount / BigInt(NANO_TO_IOTA);
+    const nano = nanoAmount % BigInt(NANO_TO_IOTA);
+    const wholeStr = whole.toString();
+    const nanoStr = nano.toString().padStart(9, '0');
+    const trimmedNano = nanoStr.replace(/0+$/, '');
+    if (trimmedNano === '') {
+        return includeSuffix ? `${wholeStr} IOTA` : wholeStr;
+    }
+    const formatted = `${wholeStr}.${trimmedNano}`;
+    return includeSuffix ? `${formatted} IOTA` : formatted;
+}
+
+/**
  * Format a price value with the specified currency.
  */
 export function formatPrice(value: number, currency: 'usd' | 'eur' = 'usd'): string {

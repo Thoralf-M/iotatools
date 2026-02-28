@@ -9,6 +9,7 @@
     import pricesCache from './cache/iota-prices-coingecko.json';
     import epochTimestampsCacheJson from './cache/mainnet-epoch-timestamps-cache.json';
     import { exportTableToCSV } from './csv-export';
+    import { nanoToIota } from './formatting';
     import { fetchEpochTimestampsForDisplay } from './graphql-requests';
     import {
         fetchAllPrices as fetchAllPricesUtil,
@@ -658,14 +659,14 @@
                                             {filteredEpochs[index] === currentEpoch
                                                 ? 'pending'
                                                 : epochPrices[filteredEpochs[index]]
-                                                  ? `${(Number(toIota(epochData[filteredEpochs[index]]?.totalRewards ?? 0n)) * epochPrices[filteredEpochs[index]]).toFixed(2)} ${selectedCurrency.toUpperCase()}`
+                                                  ? `${(nanoToIota(epochData[filteredEpochs[index]]?.totalRewards ?? 0n) * epochPrices[filteredEpochs[index]]).toFixed(2)} ${selectedCurrency.toUpperCase()}`
                                                   : 'no price'}
                                         </div>
                                         <div class="table-cell rewards-cell">
                                             {filteredEpochs[index] === currentEpoch
                                                 ? 'pending'
                                                 : epochPrices[filteredEpochs[index]]
-                                                  ? `${(Number(toIota(epochData[filteredEpochs[index]]?.totalAccumulated ?? 0n)) * epochPrices[filteredEpochs[index]]).toFixed(2)} ${selectedCurrency.toUpperCase()}`
+                                                  ? `${(nanoToIota(epochData[filteredEpochs[index]]?.totalAccumulated ?? 0n) * epochPrices[filteredEpochs[index]]).toFixed(2)} ${selectedCurrency.toUpperCase()}`
                                                   : 'no price'}
                                         </div>
                                     {/if}
