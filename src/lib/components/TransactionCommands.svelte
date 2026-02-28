@@ -1378,6 +1378,7 @@
 
     .ptb-controls {
         display: flex;
+        flex-wrap: wrap;
         gap: 0.5rem;
         margin-bottom: 0.5rem;
         align-items: center;
@@ -1385,6 +1386,7 @@
 
     .controls-group {
         display: flex;
+        flex-wrap: wrap;
         gap: 0.5rem;
         align-items: center;
     }
@@ -1394,6 +1396,18 @@
         height: 24px;
         background: var(--border-color);
         margin: 0 0.25rem;
+    }
+
+    @media (max-width: 480px) {
+        .ptb-controls {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .controls-divider {
+            width: 100%;
+            height: 1px;
+            margin: 0.1rem 0;
+        }
     }
 
     .ptb-controls button {
@@ -1611,5 +1625,23 @@
 
     .link-style:hover {
         text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+        .command-item {
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        .command-index {
+            border-right: none;
+            margin-right: 0;
+            padding-right: 0;
+        }
+
+        .command-content {
+            width: 100%;
+            flex-basis: 100%;
+        }
     }
 </style>

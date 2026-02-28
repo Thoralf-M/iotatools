@@ -8,7 +8,7 @@ import { defaultClientConfig, verifyClientConfig } from './default-client-config
 
 describe('defaultClientConfig', () => {
     it('should have a selected network', () => {
-        expect(defaultClientConfig.selected).toBe('testnet');
+        expect(defaultClientConfig.selected).toBe('mainnet');
     });
 
     it('should have multiple networks configured', () => {

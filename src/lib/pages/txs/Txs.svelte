@@ -3039,11 +3039,32 @@
         }
 
         .timeline {
-            padding-left: 60px;
+            padding-left: 0;
         }
 
         .timeline::before {
-            left: 40px;
+            display: none;
+        }
+
+        .transaction-card {
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .tx-left-panel {
+            min-width: 0;
+            max-width: 100%;
+            flex-direction: row;
+            flex-wrap: wrap;
+            border-right: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-right: 0;
+            padding-bottom: 0.35rem;
+        }
+
+        .tx-commands-panel {
+            max-height: none;
+            overflow: visible;
         }
 
         .checkpoint-badge {

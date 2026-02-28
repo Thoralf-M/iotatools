@@ -498,6 +498,13 @@
         <div class="empty">No transactions found.</div>
     {:else}
         <div class="visualizer-container card">
+            <p class="visualizer-desc">
+                Addresses with ≥2 transactions are shown as individual rows — the move call invoked
+                most often as the first command is listed below the address. <br /> Single-tx
+                senders are grouped by their first move call (independent of address), or collected
+                under
+                <em>Other Txs</em> if no move call is involved.
+            </p>
             <div class="timeline-header">
                 <div class="address-col">Sender/first fn call</div>
                 <div class="timeline-col">
@@ -642,52 +649,57 @@
     {#if moveFunctionGroups.length > 0}
         <div class="move-calls-table card">
             <h2 class="table-title">Move Function Calls</h2>
-            <table class="fn-table">
-                <thead>
-                    <tr>
-                        <th class="col-count">Count</th>
-                        <th class="col-fn">Function</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {#each moveFunctionGroups as group, gi}
-                        {#each group.fns as entry, fi}
-                            <tr class="fn-row {gi % 2 === 0 ? 'group-even' : 'group-odd'}">
-                                <td class="col-count">{entry.count}</td>
-                                <td class="col-fn">
-                                    <div class="fn-cell">
-                                        <div class="fn-pkg-part">
-                                            {#if fi === 0}
-                                                <a
-                                                    href={getObjectLink(networkConfig, entry.pkg)}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    class="fn-link pkg-link"
-                                                    title={entry.pkg}
-                                                    >{entry.pkg.slice(0, 8)}...{entry.pkg.slice(
-                                                        -4,
-                                                    )}::</a
-                                                >
-                                            {/if}
+            <div class="fn-table-scroll">
+                <table class="fn-table">
+                    <thead>
+                        <tr>
+                            <th class="col-count">Count</th>
+                            <th class="col-fn">Function</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {#each moveFunctionGroups as group, gi}
+                            {#each group.fns as entry, fi}
+                                <tr class="fn-row {gi % 2 === 0 ? 'group-even' : 'group-odd'}">
+                                    <td class="col-count">{entry.count}</td>
+                                    <td class="col-fn">
+                                        <div class="fn-cell">
+                                            <div class="fn-pkg-part">
+                                                {#if fi === 0}
+                                                    <a
+                                                        href={getObjectLink(
+                                                            networkConfig,
+                                                            entry.pkg,
+                                                        )}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        class="fn-link pkg-link"
+                                                        title={entry.pkg}
+                                                        >{entry.pkg.slice(0, 8)}...{entry.pkg.slice(
+                                                            -4,
+                                                        )}::</a
+                                                    >
+                                                {/if}
+                                            </div>
+                                            <a
+                                                href="{getObjectLink(
+                                                    networkConfig,
+                                                    entry.pkg,
+                                                )}&module={entry.module}"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                class="fn-link fn-label"
+                                                title="{entry.pkg}&module={entry.module}"
+                                                >{entry.module}::{entry.func}</a
+                                            >
                                         </div>
-                                        <a
-                                            href="{getObjectLink(
-                                                networkConfig,
-                                                entry.pkg,
-                                            )}&module={entry.module}"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            class="fn-link fn-label"
-                                            title="{entry.pkg}&module={entry.module}"
-                                            >{entry.module}::{entry.func}</a
-                                        >
-                                    </div>
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
+                            {/each}
                         {/each}
-                    {/each}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
     {/if}
 
@@ -888,6 +900,13 @@
         overflow-x: auto;
     }
 
+    .visualizer-desc {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin: 0 0 0.75rem;
+        line-height: 1.5;
+    }
+
     .timeline-header {
         display: flex;
         border-bottom: 1px solid var(--border-color);
@@ -1085,12 +1104,12 @@
         color: var(--text-color);
     }
 
-    .move-calls-table {
+    .fn-table-scroll {
         overflow-x: auto;
     }
 
     .fn-table {
-        width: 100%;
+        width: auto;
         border-collapse: collapse;
         font-size: 0.9rem;
     }

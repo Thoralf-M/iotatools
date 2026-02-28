@@ -13,7 +13,7 @@ export interface ClientConfig {
 }
 
 export const defaultClientConfig: ClientConfig = {
-    selected: 'testnet',
+    selected: 'mainnet',
     networks: [
         {
             name: 'mainnet',

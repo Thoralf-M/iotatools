@@ -112,6 +112,7 @@
                   [
                       'Transaction',
                       'Staking Rewards',
+                      'Txs Visualizer',
                       'Multi Account View',
                       'Sign',
                       'Split Merge Coins',
@@ -218,6 +219,7 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        min-width: 0;
     }
 
     .warning-banner {

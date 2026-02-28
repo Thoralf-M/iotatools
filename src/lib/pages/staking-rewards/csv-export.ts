@@ -1,8 +1,5 @@
 import { formatNanoAsIotaFullPrecision, nanoToIota } from './formatting';
-import {
-    isActiveInEpoch,
-    isPreActivationInEpoch,
-} from './table-utils';
+import { isActiveInEpoch, isPreActivationInEpoch } from './table-utils';
 import type { EpochData, ExportOptions, StakeObject, ValidatorInfo } from './types';
 
 /**
@@ -67,33 +64,33 @@ export function exportTableToCSV(
             epoch === currentEpoch
                 ? 'pending'
                 : data
-                    ? formatNanoAsIotaFullPrecision(data.totalStaked)
-                    : '0',
+                  ? formatNanoAsIotaFullPrecision(data.totalStaked)
+                  : '0',
             epoch === currentEpoch
                 ? 'pending'
                 : data
-                    ? formatNanoAsIotaFullPrecision(data.totalRewards)
-                    : '0',
+                  ? formatNanoAsIotaFullPrecision(data.totalRewards)
+                  : '0',
             epoch === currentEpoch
                 ? 'pending'
                 : data
-                    ? formatNanoAsIotaFullPrecision(data.totalAccumulated)
-                    : '0',
+                  ? formatNanoAsIotaFullPrecision(data.totalAccumulated)
+                  : '0',
             epoch === currentEpoch
                 ? 'pending'
                 : data
-                    ? formatNanoAsIotaFullPrecision(data.totalUnstakeRewards)
-                    : '0',
+                  ? formatNanoAsIotaFullPrecision(data.totalUnstakeRewards)
+                  : '0',
             epoch === currentEpoch
                 ? 'pending'
                 : data
-                    ? formatNanoAsIotaFullPrecision(data.totalUnstakeAccumulated)
-                    : '0',
+                  ? formatNanoAsIotaFullPrecision(data.totalUnstakeAccumulated)
+                  : '0',
             epoch === currentEpoch
                 ? 'pending'
                 : data
-                    ? formatNanoAsIotaFullPrecision(data.availableRewards)
-                    : '0',
+                  ? formatNanoAsIotaFullPrecision(data.availableRewards)
+                  : '0',
         );
 
         // Price columns - use nanoToIota for precise float conversion (same as table display)
@@ -105,18 +102,18 @@ export function exportTableToCSV(
                 epoch === currentEpoch
                     ? 'pending'
                     : epochPrices[epoch]
-                        ? epochPrices[epoch].toString()
-                        : 'no price',
+                      ? epochPrices[epoch].toString()
+                      : 'no price',
                 epoch === currentEpoch
                     ? 'pending'
                     : epochPrices[epoch]
-                        ? (rewardsIota * epochPrices[epoch]).toFixed(4)
-                        : 'no price',
+                      ? (rewardsIota * epochPrices[epoch]).toFixed(4)
+                      : 'no price',
                 epoch === currentEpoch
                     ? 'pending'
                     : epochPrices[epoch]
-                        ? (accumulatedIota * epochPrices[epoch]).toFixed(4)
-                        : 'no price',
+                      ? (accumulatedIota * epochPrices[epoch]).toFixed(4)
+                      : 'no price',
             );
         }
 
@@ -170,8 +167,14 @@ export function exportTableToCSV(
                             details += ` | From: ${action.fromAddress} To: ${action.toAddress}`;
                         }
                         if (action.principalChange) {
-                            const from = formatNanoAsIotaFullPrecision(BigInt(action.principalChange.from), true);
-                            const to = formatNanoAsIotaFullPrecision(BigInt(action.principalChange.to), true);
+                            const from = formatNanoAsIotaFullPrecision(
+                                BigInt(action.principalChange.from),
+                                true,
+                            );
+                            const to = formatNanoAsIotaFullPrecision(
+                                BigInt(action.principalChange.to),
+                                true,
+                            );
                             details += ` | Principal: ${from} → ${to}`;
                         }
                         if (action.mergedStakeObjects && action.mergedStakeObjects.length > 0) {

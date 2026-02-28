@@ -247,9 +247,7 @@
                                             </option>
                                         {/each}
                                     </select>
-                                    <span
-                                        style="font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace; font-size: 0.8em;"
-                                    >
+                                    <span class="active-address-text">
                                         {$activeAddress}
                                     </span>
                                     <button
@@ -366,6 +364,12 @@
         align-items: center;
         word-break: break-all;
         overflow-wrap: anywhere;
+        flex-wrap: wrap;
+    }
+
+    .active-address-text {
+        font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+        font-size: 0.8em;
     }
 
     .address-select {
@@ -547,6 +551,17 @@
         .address-group {
             flex-direction: row;
             width: 100%;
+        }
+
+        .active-address-text {
+            order: 3;
+            width: 100%;
+            font-size: 0.75em;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            order: 2;
         }
 
         .address-select {

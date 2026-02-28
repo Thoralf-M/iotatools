@@ -38,7 +38,7 @@ export function formatJsonWithCompactArrays(obj: any, indent: number = 0): strin
     const nextIndentStr = '  '.repeat(indent + 1);
 
     if (obj === null) return 'null';
-    if (typeof obj === 'undefined') return 'undefined';
+    if (typeof obj === 'undefined') return 'null';
     if (typeof obj === 'string') return JSON.stringify(obj);
     if (typeof obj === 'number' || typeof obj === 'boolean') return String(obj);
 
@@ -52,16 +52,22 @@ export function formatJsonWithCompactArrays(obj: any, indent: number = 0): strin
         } else if (obj.length === 0) {
             return '[]';
         } else {
-            // Regular array formatting for non-number arrays
+            // Regular array formatting for non-number arrays;
+            // undefined items become null (JSON.stringify semantics)
             const items = obj
-                .map((item) => nextIndentStr + formatJsonWithCompactArrays(item, indent + 1))
+                .map(
+                    (item) =>
+                        nextIndentStr +
+                        formatJsonWithCompactArrays(item === undefined ? null : item, indent + 1),
+                )
                 .join(',\n');
             return `[\n${items}\n${indentStr}]`;
         }
     }
 
     if (typeof obj === 'object') {
-        const keys = Object.keys(obj);
+        // Skip undefined values (JSON.stringify semantics)
+        const keys = Object.keys(obj).filter((k) => obj[k] !== undefined);
         if (keys.length === 0) return '{}';
 
         const items = keys
@@ -489,7 +495,7 @@ export function getTransactionData(data: any): any {
             const v1Data = data.intentMessage.value.V1;
             if (v1Data.kind && v1Data.kind.ProgrammableTransaction) {
                 transactionData = {
-                    version: 1, // or extract from somewhere else if available
+                    version: 2, // BCS "V1" intent message = TransactionData serialization version 2
                     sender: v1Data.sender,
                     inputs: v1Data.kind.ProgrammableTransaction.inputs,
                     commands: v1Data.kind.ProgrammableTransaction.commands,

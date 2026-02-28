@@ -346,6 +346,9 @@
 
     @media (max-width: 768px) {
         .options-container {
+            display: flex;
+            width: 100%;
+            max-width: 100%;
             flex-direction: row;
             flex-wrap: wrap;
             gap: 0.5rem;
@@ -358,15 +361,25 @@
             flex-direction: row;
             align-items: center;
             gap: 0.5rem;
+            min-width: 0;
+        }
+
+        .option-label {
+            white-space: normal;
         }
 
         .select-input {
             width: auto;
-            min-width: unset;
+            min-width: 0;
+            max-width: 100vw;
+        }
+
+        .external-address-input-wrapper {
+            width: min(35rem, calc(100vw - 4rem));
         }
 
         .external-address-input-small {
-            max-width: 250px;
+            max-width: 100%;
         }
     }
 </style>
