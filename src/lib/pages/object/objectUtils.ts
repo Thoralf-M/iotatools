@@ -41,6 +41,8 @@ export async function fetchSingleObjectData(objectId: string, graphqlUrl: string
             query GetObject($id: IotaAddress!) {
                 object(address: $id) {
                     address
+                    digest
+                    version
                     owner {
                         ... on AddressOwner {
                             owner {
@@ -96,6 +98,8 @@ export async function fetchObjectsByTypeData(
                 objects(filter: { type: $type }, after: $cursor, first: $first) {
                     nodes {
                         address
+                        digest
+                        version
                         owner {
                             ... on AddressOwner {
                                 owner {
