@@ -542,6 +542,14 @@
                     </summary>
                     <div class="object-details-content">
                         {#if objectData.asMovePackage}
+                            {#if objectData.version || objectData.digest}
+                                <div class="detail-row">
+                                    {#if objectData.version}<strong>Version:</strong>
+                                        <code>{objectData.version}</code>{/if}
+                                    {#if objectData.digest}<strong>Digest:</strong>
+                                        <code>{objectData.digest}</code>{/if}
+                                </div>
+                            {/if}
                             {#if objectData.previousTransactionBlock}
                                 <div class="detail-row">
                                     <strong>Last tx:</strong>
@@ -571,6 +579,14 @@
                                 </ul>
                             </div>
                         {:else}
+                            {#if objectData.version || objectData.digest}
+                                <div class="detail-row">
+                                    {#if objectData.version}<strong>Version:</strong>
+                                        <code>{objectData.version}</code>{/if}
+                                    {#if objectData.digest}<strong>Digest:</strong>
+                                        <code>{objectData.digest}</code>{/if}
+                                </div>
+                            {/if}
                             {#if objectData.owner}
                                 <div class="detail-row">
                                     <strong>Owner:</strong>
@@ -719,6 +735,14 @@
                             </button>
                         </summary>
                         <div class="object-details-content">
+                            {#if obj.version || obj.digest}
+                                <div class="detail-row">
+                                    {#if obj.version}<strong>Version:</strong>
+                                        <code>{obj.version}</code>{/if}
+                                    {#if obj.digest}<strong>Digest:</strong>
+                                        <code>{obj.digest}</code>{/if}
+                                </div>
+                            {/if}
                             {#if obj.owner}
                                 <div class="detail-row">
                                     <strong>Owner:</strong>
