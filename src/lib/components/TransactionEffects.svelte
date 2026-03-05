@@ -706,7 +706,7 @@
                 <span>Inputs:</span>
                 <div class="inputs-list">
                     {#each transactionData.input.transaction.inputs as input, index}
-                        {@const inputData = { valueType: input.valueType, value: input.value }}
+                        {@const { type: _type, ...inputData } = input}
                         <div class="input-item">
                             <span class="input-index">{index}</span>
                             <span class="input-kind">{input.type}</span>
