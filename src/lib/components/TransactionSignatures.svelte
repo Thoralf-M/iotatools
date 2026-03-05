@@ -148,6 +148,13 @@
                     {#if sig.signatureScheme === 'MoveAuthenticator' && sig.moveAuthenticator}
                         {@const move = sig.moveAuthenticator}
                         <div class="detail-row">
+                            <span class="detail-label">Version:</span>
+                            <div class="detail-value-container">
+                                <span class="detail-value">V{move.version}</span>
+                            </div>
+                        </div>
+
+                        <div class="detail-row">
                             <span class="detail-label">Authenticated Object ID:</span>
                             <div class="detail-value-container">
                                 <a

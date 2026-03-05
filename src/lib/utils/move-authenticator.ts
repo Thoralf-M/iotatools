@@ -3,35 +3,36 @@ import { bcs } from '@iota/iota-sdk/bcs';
 
 type ObjectArg =
     | {
-          $kind: 'ImmOrOwnedObject';
-          ImmOrOwnedObject: {
-              objectId: string;
-              version: string;
-              digest: string;
-          };
-      }
+        $kind: 'ImmOrOwnedObject';
+        ImmOrOwnedObject: {
+            objectId: string;
+            version: string;
+            digest: string;
+        };
+    }
     | {
-          $kind: 'SharedObject';
-          SharedObject: {
-              objectId: string;
-              initialSharedVersion: string;
-              mutable: boolean;
-          };
-      }
+        $kind: 'SharedObject';
+        SharedObject: {
+            objectId: string;
+            initialSharedVersion: string;
+            mutable: boolean;
+        };
+    }
     | {
-          $kind: 'Receiving';
-          Receiving: {
-              objectId: string;
-              version: string;
-              digest: string;
-          };
-      };
+        $kind: 'Receiving';
+        Receiving: {
+            objectId: string;
+            version: string;
+            digest: string;
+        };
+    };
 
 type CallArg =
     | { $kind: 'Pure'; Pure: { bytes: number[] } }
     | { $kind: 'Object'; Object: ObjectArg };
 
 export type MoveAuthenticatorInfo = {
+    version: number;
     callArguments: string[];
     typeArguments: string[];
     objectToAuthenticate: ObjectArg;
@@ -63,10 +64,14 @@ function createTypeTagBcs(): BcsType<string> {
 
 const TypeTagBcs = createTypeTagBcs();
 
-const MoveAuthenticatorBcs = bcs.struct('MoveAuthenticator', {
+const MoveAuthenticatorV1Bcs = bcs.struct('MoveAuthenticatorV1', {
     call_args: bcs.vector(bcs.CallArg),
     type_args: bcs.vector(TypeTagBcs),
     object_to_authenticate: bcs.CallArg,
+});
+
+const MoveAuthenticatorInnerBcs = bcs.enum('MoveAuthenticatorInner', {
+    V1: MoveAuthenticatorV1Bcs,
 });
 
 function normalizeCallArg(arg: CallArg): string {
@@ -115,11 +120,20 @@ export function parseMoveAuthenticatorSignature(signatureBase64: string): MoveAu
         throw new Error('Signature is not a MoveAuthenticator');
     }
 
-    const data = MoveAuthenticatorBcs.parse(bytes.slice(1)) as unknown as {
-        call_args: CallArg[];
-        type_args: string[];
-        object_to_authenticate: CallArg;
+    const inner = MoveAuthenticatorInnerBcs.parse(bytes.slice(1)) as unknown as {
+        $kind: string;
+        V1?: { call_args: CallArg[]; type_args: string[]; object_to_authenticate: CallArg };
     };
+
+    let version: number;
+    let data: { call_args: CallArg[]; type_args: string[]; object_to_authenticate: CallArg };
+
+    if (inner.$kind === 'V1' && inner.V1) {
+        version = 1;
+        data = inner.V1;
+    } else {
+        throw new Error(`Unknown MoveAuthenticator version: ${inner.$kind}`);
+    }
 
     if (data.object_to_authenticate.$kind !== 'Object') {
         throw new Error('MoveAuthenticator object_to_authenticate is not an Object');
@@ -128,6 +142,7 @@ export function parseMoveAuthenticatorSignature(signatureBase64: string): MoveAu
     const objectToAuthenticate = data.object_to_authenticate.Object;
 
     return {
+        version,
         callArguments: data.call_args.map(normalizeCallArg),
         typeArguments: data.type_args,
         objectToAuthenticate,
