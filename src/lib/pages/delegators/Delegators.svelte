@@ -597,23 +597,27 @@
             <h2>Global Statistics</h2>
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-label">Total Staked Objects</div>
+                    <div class="stat-label">Staked Objects</div>
                     <div class="stat-value">{stats.global.totalStakedObjects.toLocaleString()}</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Total Timelocked Objects</div>
+                    <div class="stat-label">Timelocked Objects</div>
                     <div class="stat-value">
                         {stats.global.totalTimelockedObjects.toLocaleString()}
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Total Unique Addresses</div>
+                    <div class="stat-label">Unique Addresses</div>
                     <div class="stat-value">
                         {stats.global.totalUniqueAddresses.toLocaleString()}
                     </div>
+                    <div class="stat-detail">
+                        StakedIota: {stats.global.uniqueStakedIotaAddresses.toLocaleString()} /
+                        Timelocked: {stats.global.uniqueTimelockedAddresses.toLocaleString()}
+                    </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Total Staked Amount (IOTA)</div>
+                    <div class="stat-label">Staked Amount (IOTA)</div>
                     <div class="stat-value">
                         {(stats.global.totalStakedAmount / 1_000_000_000).toLocaleString(
                             undefined,
@@ -670,9 +674,17 @@
                 </div>
                 {#if stats.global.totalSupply}
                     <div class="stat-card">
-                        <div class="stat-label">Total Stake Percentage</div>
+                        <div class="stat-label">Stake Percentage</div>
                         <div class="stat-value">
                             {stats.global.totalStakePercentage.toFixed(2)}%
+                        </div>
+                    </div>
+                {/if}
+                {#if delegatorData && stats.global.totalSystemStakePercentage}
+                    <div class="stat-card">
+                        <div class="stat-label">Total System Stake Percentage</div>
+                        <div class="stat-value">
+                            {stats.global.totalSystemStakePercentage.toFixed(2)}%
                         </div>
                     </div>
                 {/if}
@@ -1164,6 +1176,12 @@
         font-size: 1.5rem;
         font-weight: 600;
         color: #fff;
+    }
+
+    .stat-detail {
+        font-size: 0.75rem;
+        color: #888;
+        margin-top: 0.25rem;
     }
 
     .validators-table-container {

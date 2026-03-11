@@ -60,6 +60,8 @@ export interface GlobalStats {
     totalStakedObjects: number;
     totalTimelockedObjects: number;
     totalUniqueAddresses: number;
+    uniqueStakedIotaAddresses: number;
+    uniqueTimelockedAddresses: number;
     totalStakedAmount: number;
     totalNormalStakedAmount: number;
     totalTimelockedAmount: number;
@@ -67,6 +69,7 @@ export interface GlobalStats {
     averageStakeDuration: number;
     totalSupply: bigint;
     totalStakePercentage: number;
+    totalSystemStakePercentage: number;
 }
 
 function parseBigIntValue(value: string | number | null | undefined): bigint {
@@ -736,6 +739,8 @@ function computeStats(
     let totalStakeDuration = 0;
     let totalTimelockedCount = 0;
     const globalAddresses = new Set<string>();
+    const stakedIotaAddresses = new Set<string>();
+    const timelockedAddresses = new Set<string>();
 
     // Process each staked object
     stakedObjects.forEach((obj) => {
@@ -760,8 +765,10 @@ function computeStats(
         if (obj.isTimelocked) {
             totalTimelockedCount++;
             totalTimelockedAmount += amount;
+            timelockedAddresses.add(obj.ownerAddress);
         } else {
             totalNormalStakedAmount += amount;
+            stakedIotaAddresses.add(obj.ownerAddress);
         }
 
         globalAddresses.add(obj.ownerAddress);
@@ -810,6 +817,8 @@ function computeStats(
         totalStakedObjects: stakedObjects.filter((o) => !o.isTimelocked).length,
         totalTimelockedObjects: totalTimelockedCount,
         totalUniqueAddresses: globalAddresses.size,
+        uniqueStakedIotaAddresses: stakedIotaAddresses.size,
+        uniqueTimelockedAddresses: timelockedAddresses.size,
         totalStakedAmount: Number(totalStakedAmount),
         totalNormalStakedAmount: Number(totalNormalStakedAmount),
         totalTimelockedAmount: Number(totalTimelockedAmount),
@@ -819,6 +828,8 @@ function computeStats(
             stakedObjects.length > 0 ? totalStakeDuration / stakedObjects.length : 0,
         totalSupply,
         totalStakePercentage: (Number(totalStakedAmount) / Number(totalSupply)) * 100,
+        totalSystemStakePercentage:
+            totalStake > 0n ? (Number(totalStake) / Number(totalSupply)) * 100 : 0,
     };
 
     return {
