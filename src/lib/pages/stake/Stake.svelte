@@ -572,9 +572,7 @@
                                     >
                                     <span class="validator-name">{validator.name}</span>
                                     <span class="validator-stake"
-                                        >Current Stake: {formatNumberWithUnderscores(
-                                            validator.stake,
-                                        )} NANO</span
+                                        >Current Stake: {nanoToIotaFormatted(validator.stake)} IOTA</span
                                     >
                                 </div>
                             </div>
