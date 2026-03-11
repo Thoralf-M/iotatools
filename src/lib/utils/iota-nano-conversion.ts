@@ -34,6 +34,15 @@ export const nanoToIota = (nano: string): string => {
     return formatBigIntWithDecimal(BigInt(nano.replace(/_/g, '')), IOTA_DECIMALS);
 };
 
+export const nanoToIotaFormatted = (nano: string): string => {
+    const iota = nanoToIota(nano);
+    const [intPart, decPart] = iota.split('.');
+    const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '_');
+    if (!decPart) return formattedInt;
+    const formattedDec = decPart.replace(/(\d{3})(?=\d)/g, '$1_');
+    return `${formattedInt}.${formattedDec}`;
+};
+
 // Add _ as a thousands separator
 export function formatNumberWithUnderscores(n: any) {
     return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '_');

@@ -612,8 +612,8 @@
                         {stats.global.totalUniqueAddresses.toLocaleString()}
                     </div>
                     <div class="stat-detail">
-                        StakedIota: {stats.global.uniqueStakedIotaAddresses.toLocaleString()} /
-                        Timelocked: {stats.global.uniqueTimelockedAddresses.toLocaleString()}
+                        StakedIota: {stats.global.uniqueStakedIotaAddresses.toLocaleString()} / Timelocked:
+                        {stats.global.uniqueTimelockedAddresses.toLocaleString()}
                     </div>
                 </div>
                 <div class="stat-card">

@@ -13,6 +13,7 @@
     import {
         formatNumbersWithUnderscores,
         formatNumberWithUnderscores,
+        nanoToIotaFormatted,
     } from '../../utils/iota-nano-conversion';
     import { activeAddress } from '../../utils/signer-data';
     import { executeTransaction } from '../../utils/transaction-execution';
@@ -54,6 +55,7 @@
     let showValidatorSelection = false;
     let selectedValidator: ValidatorInfo | null = null;
     let showCommitteeMembers = true;
+    let showActiveValidators = true;
     let showCandidates = true;
 
     const stake = async () => {
@@ -141,6 +143,12 @@
             const systemState = await client.getLatestIotaSystemState();
 
             console.log('System state structure:', systemState);
+            console.log(
+                'Validator candidates size:',
+                systemState.validatorCandidatesSize,
+                'ID:',
+                systemState.validatorCandidatesId,
+            );
 
             const committeeMemberAddresses = getCommitteeMemberAddresses(systemState);
 
@@ -170,18 +178,20 @@
                     cursor: nextPageCursor,
                 });
 
+                console.log('Candidate validators page:', candidateValidatorsPage);
+
                 for (const candidateValidator of candidateValidatorsPage.data) {
                     try {
-                        const validatorWrapper = await client.getDynamicFieldObject({
-                            objectId: validatorCandidatesId,
+                        const validatorWrapper = await client.getDynamicFieldObjectV2({
+                            parentObjectId: validatorCandidatesId,
                             name: candidateValidator.name,
-                        } as any);
+                            options: { showContent: true },
+                        });
 
+                        const innerId = (validatorWrapper.data as any).content.fields.value.fields
+                            .inner.fields.id.id;
                         const validatorV1 = await client.getDynamicFields({
-                            parentId:
-                                // @ts-ignore
-                                validatorWrapper.data?.content.fields.value.fields.inner.fields.id
-                                    .id,
+                            parentId: innerId,
                         });
 
                         const validatorObject = await client.getObject({
@@ -439,105 +449,138 @@
                     <strong>Select a validator:</strong>
                 </div>
 
-                <!-- Candidates Section -->
-                {#if validators.filter((v) => v.status === 'Candidate').length > 0}
-                    <div style="margin-bottom: 1rem;">
-                        <div
-                            class="section-header"
-                            style="font-weight: bold; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
-                            on:click={() => (showCandidates = !showCandidates)}
-                            on:keydown={(e) =>
-                                e.key === 'Enter' && (showCandidates = !showCandidates)}
-                            role="button"
-                            tabindex="0"
+                <!-- Committee Members Section -->
+                <div style="margin-bottom: 1rem;">
+                    <div
+                        class="section-header"
+                        style="font-weight: bold; border: 1px solid grey; border-radius: 4px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                        on:click={() => (showCommitteeMembers = !showCommitteeMembers)}
+                        on:keydown={(e) =>
+                            e.key === 'Enter' && (showCommitteeMembers = !showCommitteeMembers)}
+                        role="button"
+                        tabindex="0"
+                    >
+                        <span
+                            >Committee Members ({validators.filter(
+                                (v) => v.status === 'Committee Member',
+                            ).length})</span
                         >
-                            <span
-                                >Candidates ({validators.filter((v) => v.status === 'Candidate')
-                                    .length})</span
-                            >
-                            <span>{showCandidates ? '▼' : '▶'}</span>
-                        </div>
-                        {#if showCandidates}
-                            {#each validators.filter((v) => v.status === 'Candidate') as validator}
-                                <div
-                                    class="validator-item"
-                                    style="margin: 0.125rem 0; border: 1px solid grey; border-radius: 4px; cursor: pointer;"
-                                    on:click={() => selectValidator(validator.address)}
-                                    on:keydown={(e) =>
-                                        e.key === 'Enter' && selectValidator(validator.address)}
-                                    role="button"
-                                    tabindex="0"
-                                >
-                                    <div class="validator-content">
-                                        <span class="validator-address">{validator.address}</span>
-                                        <span class="validator-status" style="color: #c62828;"
-                                            >{validator.status}</span
-                                        >
-                                        <span class="validator-name">{validator.name}</span>
-                                        <span class="validator-stake"
-                                            >Current Stake: {formatNumberWithUnderscores(
-                                                validator.stake,
-                                            )} NANO</span
-                                        >
-                                    </div>
-                                </div>
-                            {/each}
-                        {/if}
+                        <span>{showCommitteeMembers ? '▼' : '▶'}</span>
                     </div>
-                {/if}
+                    {#if showCommitteeMembers}
+                        {#each validators.filter((v) => v.status === 'Committee Member') as validator}
+                            <div
+                                class="validator-item"
+                                style="margin: 0.125rem 0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;"
+                                on:click={() => selectValidator(validator.address)}
+                                on:keydown={(e) =>
+                                    e.key === 'Enter' && selectValidator(validator.address)}
+                                role="button"
+                                tabindex="0"
+                            >
+                                <div class="validator-content">
+                                    <span class="validator-address">{validator.address}</span>
+                                    <span class="validator-status" style="color: #2e7d32;"
+                                        >{validator.status}</span
+                                    >
+                                    <span class="validator-name">{validator.name}</span>
+                                    <span class="validator-stake"
+                                        >Current Stake: {nanoToIotaFormatted(validator.stake)} IOTA</span
+                                    >
+                                </div>
+                            </div>
+                        {/each}
+                    {/if}
+                </div>
 
                 <!-- Active Validators Section -->
-                {#if validators.filter((v) => v.status === 'Committee Member' || v.status === 'Active Validator').length > 0}
-                    <div>
-                        <div
-                            class="section-header"
-                            style="font-weight: bold; border: 1px solid grey; border-radius: 4px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
-                            on:click={() => (showCommitteeMembers = !showCommitteeMembers)}
-                            on:keydown={(e) =>
-                                e.key === 'Enter' && (showCommitteeMembers = !showCommitteeMembers)}
-                            role="button"
-                            tabindex="0"
+                <div style="margin-bottom: 1rem;">
+                    <div
+                        class="section-header"
+                        style="font-weight: bold; border: 1px solid grey; border-radius: 4px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                        on:click={() => (showActiveValidators = !showActiveValidators)}
+                        on:keydown={(e) =>
+                            e.key === 'Enter' && (showActiveValidators = !showActiveValidators)}
+                        role="button"
+                        tabindex="0"
+                    >
+                        <span
+                            >Active Validators ({validators.filter(
+                                (v) => v.status === 'Active Validator',
+                            ).length})</span
                         >
-                            <span
-                                >Active Validators ({validators.filter(
-                                    (v) =>
-                                        v.status === 'Committee Member' ||
-                                        v.status === 'Active Validator',
-                                ).length})</span
-                            >
-                            <span>{showCommitteeMembers ? '▼' : '▶'}</span>
-                        </div>
-                        {#if showCommitteeMembers}
-                            {#each validators.filter((v) => v.status === 'Committee Member' || v.status === 'Active Validator') as validator}
-                                <div
-                                    class="validator-item"
-                                    style="margin: 0.125rem 0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;"
-                                    on:click={() => selectValidator(validator.address)}
-                                    on:keydown={(e) =>
-                                        e.key === 'Enter' && selectValidator(validator.address)}
-                                    role="button"
-                                    tabindex="0"
-                                >
-                                    <div class="validator-content">
-                                        <span class="validator-address">{validator.address}</span>
-                                        <span
-                                            class="validator-status"
-                                            style="color: {validator.status === 'Committee Member'
-                                                ? '#2e7d32'
-                                                : '#f57f17'};">{validator.status}</span
-                                        >
-                                        <span class="validator-name">{validator.name}</span>
-                                        <span class="validator-stake"
-                                            >Current Stake: {formatNumberWithUnderscores(
-                                                validator.stake,
-                                            )} NANO</span
-                                        >
-                                    </div>
-                                </div>
-                            {/each}
-                        {/if}
+                        <span>{showActiveValidators ? '▼' : '▶'}</span>
                     </div>
-                {/if}
+                    {#if showActiveValidators}
+                        {#each validators.filter((v) => v.status === 'Active Validator') as validator}
+                            <div
+                                class="validator-item"
+                                style="margin: 0.125rem 0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;"
+                                on:click={() => selectValidator(validator.address)}
+                                on:keydown={(e) =>
+                                    e.key === 'Enter' && selectValidator(validator.address)}
+                                role="button"
+                                tabindex="0"
+                            >
+                                <div class="validator-content">
+                                    <span class="validator-address">{validator.address}</span>
+                                    <span class="validator-status" style="color: #f57f17;"
+                                        >{validator.status}</span
+                                    >
+                                    <span class="validator-name">{validator.name}</span>
+                                    <span class="validator-stake"
+                                        >Current Stake: {nanoToIotaFormatted(validator.stake)} IOTA</span
+                                    >
+                                </div>
+                            </div>
+                        {/each}
+                    {/if}
+                </div>
+
+                <!-- Candidates Section -->
+                <div>
+                    <div
+                        class="section-header"
+                        style="font-weight: bold; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                        on:click={() => (showCandidates = !showCandidates)}
+                        on:keydown={(e) => e.key === 'Enter' && (showCandidates = !showCandidates)}
+                        role="button"
+                        tabindex="0"
+                    >
+                        <span
+                            >Candidate Validators ({validators.filter(
+                                (v) => v.status === 'Candidate',
+                            ).length})</span
+                        >
+                        <span>{showCandidates ? '▼' : '▶'}</span>
+                    </div>
+                    {#if showCandidates}
+                        {#each validators.filter((v) => v.status === 'Candidate') as validator}
+                            <div
+                                class="validator-item"
+                                style="margin: 0.125rem 0; border: 1px solid grey; border-radius: 4px; cursor: pointer;"
+                                on:click={() => selectValidator(validator.address)}
+                                on:keydown={(e) =>
+                                    e.key === 'Enter' && selectValidator(validator.address)}
+                                role="button"
+                                tabindex="0"
+                            >
+                                <div class="validator-content">
+                                    <span class="validator-address">{validator.address}</span>
+                                    <span class="validator-status" style="color: #c62828;"
+                                        >{validator.status}</span
+                                    >
+                                    <span class="validator-name">{validator.name}</span>
+                                    <span class="validator-stake"
+                                        >Current Stake: {formatNumberWithUnderscores(
+                                            validator.stake,
+                                        )} NANO</span
+                                    >
+                                </div>
+                            </div>
+                        {/each}
+                    {/if}
+                </div>
             {/if}
         </div>
     {:else if selectedValidator}
@@ -567,7 +610,7 @@
                     >
                     <span class="validator-name">{selectedValidator.name}</span>
                     <span class="validator-stake"
-                        >Current Stake: {formatNumberWithUnderscores(selectedValidator.stake)} NANO</span
+                        >Current Stake: {nanoToIotaFormatted(selectedValidator.stake)} IOTA</span
                     >
                 </div>
             </div>
