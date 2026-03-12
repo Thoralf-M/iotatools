@@ -1,4 +1,6 @@
-import { bcs, fromBase64 } from '@iota/bcs';
+// [GAP] @iota/bcs custom BCS schema not available in WASM SDK
+const bcs = null as any;
+import { base64Decode as fromBase64 } from './wasm-sdk';
 
 export function bytesToUtf8(bytes: number[]): string {
     try {

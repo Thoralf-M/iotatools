@@ -1,10 +1,20 @@
 // Ledger Nano service functions and types
-import { toHex } from '@iota/bcs';
-import type { IotaClient } from '@iota/iota-sdk/client';
-import { messageWithIntent, toSerializedSignature } from '@iota/iota-sdk/cryptography';
-import { Ed25519PublicKey } from '@iota/iota-sdk/keypairs/ed25519';
-import { Transaction } from '@iota/iota-sdk/transactions';
-import { isValidIotaAddress } from '@iota/iota-sdk/utils';
+import { toHex } from '../../utils/wasm-sdk';
+// [MIGRATION] IotaClient → GraphQlClient from wasm-sdk
+import type { GraphQlClient } from '../../utils/wasm-sdk';
+// [GAP] messageWithIntent from @iota/iota-sdk/cryptography not in WASM SDK
+const messageWithIntent = (...args: any[]): any => {
+    throw new Error('[GAP] messageWithIntent not available in WASM SDK');
+};
+// [GAP] toSerializedSignature from @iota/iota-sdk/cryptography not in WASM SDK
+const toSerializedSignature = (...args: any[]): any => {
+    throw new Error('[GAP] toSerializedSignature not available in WASM SDK');
+};
+// [GAP] Ed25519PublicKey from old SDK not in WASM SDK
+const Ed25519PublicKey = null as any; // [GAP] placeholder
+// [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
+type Transaction = any;
+import { isValidIotaAddress } from '../../utils/wasm-sdk';
 import IotaLedgerClient from '@iota/ledgerjs-hw-app-iota';
 import TransportWebHID from '@ledgerhq/hw-transport-webhid';
 
@@ -340,7 +350,7 @@ export async function finishTransaction(
     tx: Transaction,
     bip44Path: string,
     senderAddress: string,
-    client: IotaClient,
+    client: GraphQlClient,
     dryRun: boolean = true,
 ): Promise<any> {
     try {

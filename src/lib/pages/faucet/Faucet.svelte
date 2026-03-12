@@ -1,10 +1,7 @@
 <script lang="ts">
-    import {
-        getFaucetRequestStatus,
-        requestIotaFromFaucetV0,
-        requestIotaFromFaucetV1,
-    } from '@iota/iota-sdk/faucet';
-    import { isValidIotaAddress } from '@iota/iota-sdk/utils';
+    import { isValidIotaAddress } from '../../utils/wasm-sdk';
+
+    import { Address, FaucetClient } from '../../utils/wasm-sdk';
 
     import JsonToggleView from '../../components/JsonToggleView.svelte';
     import { sharedClientConfig } from '../../utils/local-storage-store';
@@ -28,42 +25,10 @@
             if (!isValidIotaAddress(address)) {
                 throw new Error('invalid address');
             }
-            // Try batched request and switch to single request in case of an error
-            try {
-                var response = await requestIotaFromFaucetV1({
-                    host: faucetUrl,
-                    recipient: address,
-                });
-                // @ts-ignore
-                let taskId = response.task?.taskId;
-
-                if (error || !taskId) {
-                    throw new Error(error ?? 'Failed, task id not found.');
-                }
-
-                console.log(taskId);
-
-                var {
-                    status: { status, transferred_gas_objects },
-                    error,
-                } = await getFaucetRequestStatus({
-                    host: faucetUrl,
-                    taskId,
-                });
-
-                console.log(status);
-                console.log(transferred_gas_objects);
-
-                value = transferred_gas_objects;
-            } catch (e) {
-                console.log(e);
-                const faucetResponse = await requestIotaFromFaucetV0({
-                    host: faucetUrl,
-                    recipient: address,
-                });
-                console.log(faucetResponse);
-                value = faucetResponse;
-            }
+            const faucetClient = new FaucetClient(faucetUrl);
+            const response = await faucetClient.request(Address.fromHex(address));
+            console.log(response);
+            value = response;
         } catch (err: any) {
             value = err.toString();
             console.error(err);

@@ -1,6 +1,7 @@
 // IOTA Names transaction functions
-import { Transaction } from '@iota/iota-sdk/transactions';
-import { IOTA_CLOCK_OBJECT_ID } from '@iota/iota-sdk/utils';
+// [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
+type Transaction = any;
+import { IOTA_CLOCK_OBJECT_ID } from '../../utils/wasm-sdk';
 
 import { getClient } from '../../utils/client';
 import { executeTransaction } from '../../utils/transaction-execution';

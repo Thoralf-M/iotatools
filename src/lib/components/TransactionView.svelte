@@ -1,7 +1,8 @@
 <script lang="ts">
     // @ts-ignore - Module resolution issue with svelte-json-tree
-    import { fromBase64 } from '@iota/bcs';
-    import { TransactionDataBuilder } from '@iota/iota-sdk/transactions';
+    import { base64Decode as fromBase64 } from '../utils/wasm-sdk';
+    // [GAP] TransactionDataBuilder not in WASM SDK
+    type TransactionDataBuilder = any;
     import JSONTree from '@sveltejs/svelte-json-tree';
 
     import { getClient, getSelectedNetworkConfig } from '../utils/client';

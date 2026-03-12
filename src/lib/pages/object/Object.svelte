@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { normalizeIotaAddress } from '@iota/iota-sdk/utils';
+    import { normalizeIotaAddress } from '../../utils/wasm-sdk';
     import { onMount } from 'svelte';
 
     import { getSelectedNetworkConfig } from '../../utils/client';

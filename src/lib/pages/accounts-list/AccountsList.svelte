@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { toHex } from '@iota/bcs';
+    import { toHex } from '../../utils/wasm-sdk';
 
     import { iota_accounts } from '../../utils/signer-data';
 </script>

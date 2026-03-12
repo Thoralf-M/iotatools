@@ -1,6 +1,7 @@
 <script lang="ts">
-    import { bcs, fromBase64 } from '@iota/bcs';
-    import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
+    // [GAP] @iota/bcs custom BCS schema not available in WASM SDK
+    const bcs = null as any;
+    import { base64Decode as fromBase64, GraphQlClient } from '../utils/wasm-sdk';
 
     import { getSelectedNetworkConfig } from '../utils/client';
     import { getObjectLink } from '../utils/explorer-links';
@@ -248,9 +249,7 @@
         sharedPackageErrors[packageId] = '';
 
         try {
-            const gqlClient = new IotaGraphQLClient({
-                url: getSelectedNetworkConfig().graphql,
-            });
+            const gqlClient = new GraphQlClient(getSelectedNetworkConfig().graphql);
 
             const query = `
                 query PackageQuery($address: IotaAddress!, $functionsCursor: String) {
@@ -291,18 +290,18 @@
 
             // Fetch all pages
             while (hasMorePages) {
-                const result: any = await gqlClient.query({
+                const result: any = JSON.parse(await gqlClient.runQuery({
                     query,
-                    variables: { address: packageId, functionsCursor: cursor },
-                });
+                    variables: JSON.stringify({ address: packageId, functionsCursor: cursor }),
+                }));
 
-                if (!result.data?.package) {
+                if (!result?.package) {
                     sharedPackageErrors[packageId] = 'Package not found';
                     console.error('Package not found:', packageId);
                     break;
                 }
 
-                const modules: any[] = result.data.package.modules?.nodes || [];
+                const modules: any[] = result.package.modules?.nodes || [];
 
                 // Check if any module has more pages
                 hasMorePages = false;
@@ -332,7 +331,7 @@
 
                 if (!hasMorePages) {
                     sharedPackageCache[packageId] = {
-                        address: result.data.package.address,
+                        address: result.package.address,
                         modules: { nodes: allModules },
                     };
                     console.log('Package data fetched:', packageId, sharedPackageCache[packageId]);

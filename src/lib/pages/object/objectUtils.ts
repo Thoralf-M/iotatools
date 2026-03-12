@@ -1,4 +1,4 @@
-import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
+import { GraphQlClient } from '../../utils/wasm-sdk';
 
 type GraphQLObjectNode = {
     address: string;
@@ -32,11 +32,9 @@ export function detectInputType(input: string): 'hex' | 'type' | null {
 }
 
 export async function fetchSingleObjectData(objectId: string, graphqlUrl: string) {
-    const graphqlClient = new IotaGraphQLClient({
-        url: graphqlUrl,
-    });
+    const graphqlClient = new GraphQlClient(graphqlUrl);
 
-    const result = await graphqlClient.query({
+    const resultStr = await graphqlClient.runQuery({
         query: `
             query GetObject($id: IotaAddress!) {
                 object(address: $id) {
@@ -74,12 +72,13 @@ export async function fetchSingleObjectData(objectId: string, graphqlUrl: string
                 }
             }
         `,
-        variables: {
+        variables: JSON.stringify({
             id: objectId,
-        },
+        }),
     });
-
-    return result.data?.object;
+    // WASM SDK's runQuery returns the 'data' field content directly (no .data wrapper)
+    const result: any = JSON.parse(resultStr);
+    return result?.object;
 }
 
 export async function fetchObjectsByTypeData(
@@ -88,11 +87,9 @@ export async function fetchObjectsByTypeData(
     cursor: string | null = null,
     first: number = 1,
 ): Promise<ObjectsResponse> {
-    const graphqlClient = new IotaGraphQLClient({
-        url: graphqlUrl,
-    });
+    const graphqlClient = new GraphQlClient(graphqlUrl);
 
-    const result = await graphqlClient.query({
+    const result: any = JSON.parse(await graphqlClient.runQuery({
         query: `
             query GetObjects($type: String!, $cursor: String, $first: Int!) {
                 objects(filter: { type: $type }, after: $cursor, first: $first) {
@@ -129,14 +126,14 @@ export async function fetchObjectsByTypeData(
                 }
             }
         `,
-        variables: {
+        variables: JSON.stringify({
             type,
             cursor,
             first,
-        },
-    });
+        }),
+    }));
 
-    return (result.data?.objects as ObjectsResponse) || null;
+    return (result?.objects as ObjectsResponse) || null;
 }
 
 type PackageVersionNode = {
@@ -158,11 +155,9 @@ export async function fetchPackageVersionsData(
     cursor: string | null = null,
     first: number = 10,
 ): Promise<PackageVersionsResponse> {
-    const graphqlClient = new IotaGraphQLClient({
-        url: graphqlUrl,
-    });
+    const graphqlClient = new GraphQlClient(graphqlUrl);
 
-    const result = await graphqlClient.query({
+    const result: any = JSON.parse(await graphqlClient.runQuery({
         query: `
             query GetPackageVersions($address: IotaAddress!, $cursor: String, $first: Int!) {
                 packageVersions(address: $address, after: $cursor, first: $first) {
@@ -177,22 +172,20 @@ export async function fetchPackageVersionsData(
                 }
             }
         `,
-        variables: {
+        variables: JSON.stringify({
             address: packageAddress,
             cursor,
             first,
-        },
-    });
+        }),
+    }));
 
-    return (result.data?.packageVersions as PackageVersionsResponse) || null;
+    return (result?.packageVersions as PackageVersionsResponse) || null;
 }
 
 export async function fetchPackageTypesData(packageId: string, graphqlUrl: string) {
-    const graphqlClient = new IotaGraphQLClient({
-        url: graphqlUrl,
-    });
+    const graphqlClient = new GraphQlClient(graphqlUrl);
 
-    const result = await graphqlClient.query({
+    const result: any = JSON.parse(await graphqlClient.runQuery({
         query: `
             query GetPackage($address: IotaAddress!) {
                 package(address: $address) {
@@ -220,12 +213,12 @@ export async function fetchPackageTypesData(packageId: string, graphqlUrl: strin
                 }
             }
         `,
-        variables: {
+        variables: JSON.stringify({
             address: packageId,
-        },
-    });
+        }),
+    }));
 
-    const pkg = result.data?.package as any;
+    const pkg = result?.package as any;
     if (!pkg) {
         return [];
     }

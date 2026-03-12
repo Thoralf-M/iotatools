@@ -1,7 +1,14 @@
 <script lang="ts">
-    import { fromBase64, fromHex, toBase64, toHex } from '@iota/bcs';
-    import { decodeIotaPrivateKey } from '@iota/iota-sdk/cryptography';
-    import { Ed25519Keypair, Ed25519PublicKey } from '@iota/iota-sdk/keypairs/ed25519';
+    import { fromHEX as fromHex, toHex } from '../../utils/wasm-sdk';
+    import { base64Decode as fromBase64, toB64 as toBase64 } from '../../utils/wasm-sdk';
+    // [GAP] decodeIotaPrivateKey from @iota/iota-sdk/cryptography not in WASM SDK
+    const decodeIotaPrivateKey = (...args: any[]): any => {
+        throw new Error('[GAP] decodeIotaPrivateKey not available in WASM SDK');
+    };
+    // [GAP] Ed25519Keypair (with seed derivation) not in WASM SDK
+    const Ed25519Keypair = null as any; // [GAP] placeholder
+    // [GAP] Ed25519PublicKey from old SDK not in WASM SDK
+    const Ed25519PublicKey = null as any; // [GAP] placeholder
     import {
         entropyToMnemonic,
         generateMnemonic,

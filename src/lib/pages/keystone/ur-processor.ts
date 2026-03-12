@@ -1,8 +1,9 @@
 import { Buffer } from 'buffer';
 // @ts-ignore - bc-ur doesn't have complete type definitions
 import { URDecoder } from '@gandlaf21/bc-ur';
-import { fromHEX, toBase64 } from '@iota/bcs';
-import { Ed25519PublicKey } from '@iota/iota-sdk/keypairs/ed25519';
+import { fromHEX, toB64 as toBase64 } from '../../utils/wasm-sdk';
+// [GAP] Ed25519PublicKey from old SDK not in WASM SDK
+const Ed25519PublicKey = null as any; // [GAP] placeholder
 
 // Use direct registry exports
 import { CryptoHDKey, CryptoMultiAccounts } from './bc-ur-registry-iota/bc-ur-registry';

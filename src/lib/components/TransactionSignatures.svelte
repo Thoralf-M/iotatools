@@ -1,8 +1,17 @@
 <script lang="ts">
-    import { fromBase64 } from '@iota/bcs';
-    import { parseSerializedSignature } from '@iota/iota-sdk/cryptography';
-    import { parsePartialSignatures } from '@iota/iota-sdk/multisig';
-    import { publicKeyFromRawBytes } from '@iota/iota-sdk/verify';
+    import { base64Decode as fromBase64 } from '../utils/wasm-sdk';
+    // [GAP] parseSerializedSignature from @iota/iota-sdk/cryptography not in WASM SDK
+    const parseSerializedSignature = (...args: any[]): any => {
+        throw new Error('[GAP] parseSerializedSignature not available in WASM SDK');
+    };
+    // [GAP] parsePartialSignatures not in WASM SDK
+    // [GAP] publicKeyFromRawBytes not in WASM SDK
+    const parsePartialSignatures = (...args: any[]) => {
+        throw new Error('[GAP] parsePartialSignatures not available in WASM SDK');
+    };
+    const publicKeyFromRawBytes = (...args: any[]) => {
+        throw new Error('[GAP] publicKeyFromRawBytes not available in WASM SDK');
+    };
 
     import { getSelectedNetworkConfig } from '../utils/client';
     import { getObjectLink } from '../utils/explorer-links';

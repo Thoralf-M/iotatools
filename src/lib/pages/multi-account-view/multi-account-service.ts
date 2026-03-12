@@ -1,5 +1,6 @@
-import { getClient } from '../../utils/client';
+import { getClient, getSelectedNetworkConfig } from '../../utils/client';
 import { computeStakingRewards } from '../../utils/staking-utils';
+import { GraphQlClient } from '../../utils/wasm-sdk';
 
 export interface ExtendedAccount {
     id: string;
@@ -16,6 +17,93 @@ export interface ExtendedObject {
     label: string;
     data: any;
     currentOwner: string;
+}
+
+const OWNED_OBJECTS_QUERY = `
+    query getOwnedObjects($owner: IotaAddress!, $cursor: String) {
+        address(address: $owner) {
+            objects(after: $cursor) {
+                pageInfo {
+                    hasNextPage
+                    endCursor
+                }
+                nodes {
+                    address
+                    digest
+                    version
+                    asMoveObject {
+                        contents {
+                            type {
+                                repr
+                            }
+                            json
+                        }
+                    }
+                }
+            }
+        }
+    }
+`;
+
+/**
+ * Flatten GraphQL JSON fields to match the old JSON-RPC content.fields shape.
+ * GraphQL returns Balance values as { value: "123" } objects, but the old
+ * JSON-RPC API returned them as plain strings like "123".
+ * Also wraps nested move objects (like staked_iota) in a { fields: { ... } }
+ * wrapper to match the old content.fields nesting.
+ */
+function flattenJsonFields(json: any): any {
+    if (json == null || typeof json !== 'object') {
+        return json;
+    }
+    if (Array.isArray(json)) {
+        return json.map(flattenJsonFields);
+    }
+    // If the object has only a "value" key, unwrap it to the plain value
+    const keys = Object.keys(json);
+    if (keys.length === 1 && keys[0] === 'value') {
+        return json.value;
+    }
+    // Otherwise recursively flatten each property
+    const result: any = {};
+    for (const key of keys) {
+        const val = json[key];
+        if (val != null && typeof val === 'object' && !Array.isArray(val)) {
+            const valKeys = Object.keys(val);
+            // If it's a { value: ... } wrapper, unwrap it
+            if (valKeys.length === 1 && valKeys[0] === 'value') {
+                result[key] = val.value;
+            } else {
+                // It's a nested object (like staked_iota) - wrap in { fields: { ... } }
+                // to match the old JSON-RPC nesting pattern
+                result[key] = { fields: flattenJsonFields(val) };
+            }
+        } else {
+            result[key] = flattenJsonFields(val);
+        }
+    }
+    return result;
+}
+
+/**
+ * Transform a GraphQL object node into the old JSON-RPC data shape.
+ * This preserves compatibility with the MultiAccountView component which
+ * accesses obj.data.content.type, obj.data.content.fields, obj.data.objectId, etc.
+ */
+function transformGraphQlObject(node: any): any {
+    const type = node.asMoveObject?.contents?.type?.repr;
+    const json = node.asMoveObject?.contents?.json;
+    const fields = json ? flattenJsonFields(json) : {};
+
+    return {
+        objectId: node.address,
+        digest: node.digest,
+        version: node.version,
+        content: {
+            type: type || '',
+            fields,
+        },
+    };
 }
 
 /**
@@ -66,46 +154,52 @@ export async function computeAllStakingRewards(
 }
 
 /**
- * Fetch objects for all accounts
+ * Fetch objects for all accounts using GraphQL
  */
 export async function getObjectsForAccounts(
     accounts: ExtendedAccount[],
 ): Promise<ExtendedAccount[]> {
     try {
-        const client = getClient();
+        const gqlClient = new GraphQlClient(getSelectedNetworkConfig().graphql);
+
         // Iterate over accounts, get the owned objects for each account
         const updatedAccounts = await Promise.all(
             accounts.map(async (account) => {
                 // Fetch all pages of owned objects
-                let allData: any[] = [];
-                let cursor: string | null | undefined = null;
+                let allNodes: any[] = [];
+                let cursor: string | null = null;
                 let hasNextPage = true;
 
                 while (hasNextPage) {
-                    const result = await client.getOwnedObjects({
-                        owner: account.address,
-                        options: { showContent: true, showType: true },
-                        cursor,
+                    const resultStr = await gqlClient.runQuery({
+                        query: OWNED_OBJECTS_QUERY,
+                        variables: JSON.stringify({
+                            owner: account.address,
+                            cursor,
+                        }),
                     });
+                    const result: any = JSON.parse(resultStr);
+                    const objectsData = result?.address?.objects;
 
-                    allData = allData.concat(result.data);
-                    hasNextPage = result.hasNextPage;
-                    cursor = result.nextCursor;
+                    if (!objectsData?.nodes?.length) break;
+
+                    allNodes = allNodes.concat(objectsData.nodes);
+                    hasNextPage = objectsData.pageInfo.hasNextPage;
+                    cursor = objectsData.pageInfo.endCursor;
                 }
 
                 // Map the returned objects to the expected format
-                const objects = allData.map((obj) => {
-                    // @ts-ignore
-                    let label = obj.data.content?.type;
+                const objects = allNodes.map((node) => {
+                    const data = transformGraphQlObject(node);
+                    let label = data.content?.type;
                     if (typeof label === 'string') {
                         // Only show the actual type name
                         label = label.split('::').slice(2).join('::');
                     }
                     return {
-                        // @ts-ignore
-                        id: obj.data.objectId,
+                        id: data.objectId,
                         label,
-                        data: obj.data,
+                        data,
                         currentOwner: account.address,
                     };
                 });

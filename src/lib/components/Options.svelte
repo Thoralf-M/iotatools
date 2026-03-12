@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { isValidIotaAddress } from '@iota/iota-sdk/utils';
+    import { isValidIotaAddress } from '../utils/wasm-sdk';
     import { onMount } from 'svelte';
 
     import {

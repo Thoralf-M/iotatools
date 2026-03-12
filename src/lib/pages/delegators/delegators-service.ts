@@ -1,6 +1,6 @@
-import type { IotaClient } from '@iota/iota-sdk/client';
-import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
-import { graphql } from '@iota/iota-sdk/graphql/schemas/2025.2';
+// [MIGRATION] IotaClient → GraphQlClient from wasm-sdk
+import { GraphQlClient } from '../../utils/wasm-sdk';
+// [GAP] graphql tagged template not in WASM SDK - use GraphQlClient.runQuery() with raw strings
 
 import { getClient, getSelectedNetworkConfig } from '../../utils/client';
 
@@ -93,7 +93,7 @@ export interface DelegatorStats {
 }
 
 export async function fetchDelegatorData(
-    client: IotaClient,
+    client: GraphQlClient,
     progressCallback: (
         message: string,
         currentData?: DelegatorData,
@@ -561,9 +561,7 @@ async function fetchStakedObjectsOfType(
     startingCursor: string | null = null,
 ): Promise<{ stakedObjects: StakedObject[]; cursor: string | null; paused: boolean }> {
     const existingIds = new Set(stakedObjects.map((obj) => obj.id));
-    const gqlClient = new IotaGraphQLClient({
-        url: getSelectedNetworkConfig().graphql,
-    });
+    const gqlClient = new GraphQlClient(getSelectedNetworkConfig().graphql);
 
     const typeLabel = isTimelocked ? 'TimelockedStakedIota' : 'StakedIota';
 
@@ -694,15 +692,15 @@ async function fetchStakedObjectsOfType(
 }
 
 async function queryGraphQL(
-    gqlClient: IotaGraphQLClient,
+    gqlClient: GraphQlClient,
     query: string,
     variables: Record<string, any>,
 ): Promise<any> {
-    const options = {
-        query: graphql(query),
-        variables,
-    };
-    return gqlClient.query(options);
+    const resultStr = await gqlClient.runQuery({
+        query,
+        variables: JSON.stringify(variables),
+    });
+    return JSON.parse(resultStr);
 }
 
 function computeStats(

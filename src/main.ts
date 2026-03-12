@@ -1,11 +1,17 @@
 import './app.css';
 
-import { mount } from 'svelte';
+// Initialize WASM SDK BEFORE any app imports — static imports are hoisted
+// and their module-level code (including Svelte store init that calls into
+// the WASM SDK) would run before top-level await. Dynamic imports ensure
+// the entire app import tree loads only after WASM is ready.
+import { initWasmSdk } from './lib/utils/wasm-init';
 
-import App from './App.svelte';
-import { initQueryParamHandling } from './lib/utils/query-param-store';
+await initWasmSdk();
 
-// Initialize query parameter handling
+const { mount } = await import('svelte');
+const { default: App } = await import('./App.svelte');
+const { initQueryParamHandling } = await import('./lib/utils/query-param-store');
+
 initQueryParamHandling();
 
 const target = document.getElementById('app')!;

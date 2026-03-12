@@ -27,9 +27,15 @@ export default defineConfig({
         'process.env.NODE_DEBUG': JSON.stringify(''), // or 'my-module'
     },
     optimizeDeps: {
-        include: ['process', 'buffer'],
+        include: ['process', 'buffer', 'uniffi-bindgen-react-native'],
     },
     build: {
         minify: false,
+    },
+    // Allow importing from wasm/ folder
+    server: {
+        fs: {
+            allow: ['..'],
+        },
     },
 });

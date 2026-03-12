@@ -1,11 +1,24 @@
-import { fromBase64 } from '@iota/bcs';
-import { parseSerializedSignature } from '@iota/iota-sdk/cryptography';
-import { parsePartialSignatures } from '@iota/iota-sdk/multisig';
-import {
-    publicKeyFromRawBytes,
-    verifyPersonalMessageSignature,
-    verifyTransactionSignature,
-} from '@iota/iota-sdk/verify';
+import { base64Decode as fromBase64 } from '../../utils/wasm-sdk';
+// [GAP] parseSerializedSignature from @iota/iota-sdk/cryptography not in WASM SDK
+const parseSerializedSignature = (...args: any[]): any => {
+    throw new Error('[GAP] parseSerializedSignature not available in WASM SDK');
+};
+// [GAP] parsePartialSignatures not in WASM SDK
+const parsePartialSignatures = (...args: any[]) => {
+    throw new Error('[GAP] parsePartialSignatures not available in WASM SDK');
+};
+// [GAP] publicKeyFromRawBytes not in WASM SDK
+const publicKeyFromRawBytes = (...args: any[]): any => {
+    throw new Error('[GAP] publicKeyFromRawBytes not available in WASM SDK');
+};
+// [GAP] verifyTransactionSignature not in WASM SDK
+const verifyTransactionSignature = (...args: any[]): any => {
+    throw new Error('[GAP] verifyTransactionSignature not available in WASM SDK');
+};
+// [GAP] verifyPersonalMessageSignature not in WASM SDK
+const verifyPersonalMessageSignature = (...args: any[]): any => {
+    throw new Error('[GAP] verifyPersonalMessageSignature not available in WASM SDK');
+};
 
 export interface SignaturePubkeyPair {
     signatureScheme: string;

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { NANOS_PER_IOTA } from '@iota/iota-sdk/utils';
+    import { NANOS_PER_IOTA } from '../../utils/wasm-sdk';
     import { onMount } from 'svelte';
     import { List } from 'svelte-virtual';
 

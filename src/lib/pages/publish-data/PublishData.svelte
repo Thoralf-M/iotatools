@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { Transaction } from '@iota/iota-sdk/transactions';
+    // [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
+    type Transaction = any;
 
     import TransactionView from '../../components/TransactionView.svelte';
     import { executeTransaction } from '../../utils/transaction-execution';

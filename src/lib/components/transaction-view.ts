@@ -2,9 +2,11 @@
  * Utility functions for formatting and displaying transaction data
  */
 
-import { fromBase64 } from '@iota/bcs';
-import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
-import { TransactionDataBuilder } from '@iota/iota-sdk/transactions';
+import { base64Decode as fromBase64 } from '../utils/wasm-sdk';
+// [GAP] @iota/iota-sdk/bcs - Custom BCS schema object not available in WASM SDK
+const IotaBcs = null as any; // [GAP] placeholder
+// [GAP] TransactionDataBuilder not in WASM SDK
+type TransactionDataBuilder = any;
 
 /**
  * Recursively removes $kind fields from objects to clean up display data

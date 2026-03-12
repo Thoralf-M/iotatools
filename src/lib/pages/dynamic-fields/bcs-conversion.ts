@@ -1,7 +1,10 @@
-import type { BcsType } from '@iota/bcs';
-import { bcs } from '@iota/iota-sdk/bcs';
-import { type MoveTypeLayout } from '@iota/iota-sdk/graphql/schemas/2025.2';
-import { toB64 } from '@iota/iota-sdk/utils';
+// [GAP] BcsType not available in WASM SDK
+type BcsType = any;
+// [GAP] @iota/iota-sdk/bcs - Custom BCS schema object not available in WASM SDK
+const bcs = null as any; // [GAP] placeholder
+// [GAP] MoveTypeLayout type not in WASM SDK
+type MoveTypeLayout = any;
+import { toB64 } from '../../utils/wasm-sdk';
 
 export interface BcsDecodeResult {
     value?: any;

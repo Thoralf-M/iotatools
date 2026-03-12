@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { isValidIotaAddress, normalizeIotaObjectId, toB64 } from '@iota/iota-sdk/utils';
+    import { isValidIotaAddress, normalizeIotaObjectId, toB64 } from '../../utils/wasm-sdk';
     import { writable } from 'svelte/store';
 
     import JsonToggleView from '../../components/JsonToggleView.svelte';

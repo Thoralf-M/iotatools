@@ -1,6 +1,7 @@
 <script lang="ts">
     import { javascript } from '@codemirror/lang-javascript';
-    import { Transaction } from '@iota/iota-sdk/transactions';
+    // [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
+    type Transaction = any;
     import { githubDark } from '@uiw/codemirror-theme-github';
     import { basicSetup, EditorView } from 'codemirror';
     import { onMount } from 'svelte';

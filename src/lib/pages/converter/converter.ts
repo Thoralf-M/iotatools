@@ -1,4 +1,5 @@
-import { bcs } from '@iota/bcs';
+// [GAP] @iota/bcs custom BCS schema not available in WASM SDK
+const bcs = null as any;
 import { blake2b } from '@noble/hashes/blake2.js';
 import { bech32 } from '@scure/base';
 

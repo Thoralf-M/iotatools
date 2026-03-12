@@ -1,7 +1,11 @@
 <script lang="ts">
-    import { fromBase64, toBase64 } from '@iota/bcs';
-    import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
-    import { Transaction, TransactionDataBuilder } from '@iota/iota-sdk/transactions';
+    import { base64Decode as fromBase64, toB64 as toBase64 } from '../../utils/wasm-sdk';
+    // [GAP] @iota/iota-sdk/bcs - Custom BCS schema object not available in WASM SDK
+    const IotaBcs = null as any; // [GAP] placeholder
+    // [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
+    type Transaction = any;
+    // [GAP] TransactionDataBuilder not in WASM SDK
+    type TransactionDataBuilder = any;
     import { get } from 'svelte/store';
 
     import JsonToggleView from '../../components/JsonToggleView.svelte';

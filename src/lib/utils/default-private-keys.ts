@@ -1,7 +1,9 @@
-import { decodeIotaPrivateKey, Keypair } from '@iota/iota-sdk/cryptography';
-import { Ed25519Keypair } from '@iota/iota-sdk/keypairs/ed25519';
-import { Secp256k1Keypair } from '@iota/iota-sdk/keypairs/secp256k1';
-import { Secp256r1Keypair } from '@iota/iota-sdk/keypairs/secp256r1';
+// Old imports (replaced by WASM SDK equivalents):
+// import { decodeIotaPrivateKey, Keypair } from '@iota/iota-sdk/cryptography';
+// import { Ed25519Keypair } from '@iota/iota-sdk/keypairs/ed25519';
+// import { Secp256k1Keypair } from '@iota/iota-sdk/keypairs/secp256k1';
+// import { Secp256r1Keypair } from '@iota/iota-sdk/keypairs/secp256r1';
+import { SimpleKeypair, type SimpleKeypairInterface } from './wasm-sdk';
 import type { WalletAccount } from '@iota/wallet-standard';
 
 export interface PrivateKeyAccounts {
@@ -54,7 +56,7 @@ export function verifyPrivateKeyAccounts(value: any) {
         if (typeof acc.bech32PrivateKey !== 'string')
             throw new Error(`Account for ${address} is missing a valid bech32PrivateKey`);
         try {
-            acc.address = keypairFromBech32PrivateKey(acc.bech32PrivateKey).toIotaAddress();
+            acc.address = deriveAddressFromKeypair(keypairFromBech32PrivateKey(acc.bech32PrivateKey));
             if (address !== acc.address) {
                 throw new Error(
                     `Address key ${address} doesn't match derived address from the private key`,
@@ -67,20 +69,27 @@ export function verifyPrivateKeyAccounts(value: any) {
     return true;
 }
 
-export function keypairFromBech32PrivateKey(bech32privateKey: string): Keypair {
-    const decoded = decodeIotaPrivateKey(bech32privateKey);
-    const schema = decoded.schema;
-    const secretKey = decoded.secretKey;
-    switch (schema) {
-        case 'ED25519':
-            return Ed25519Keypair.fromSecretKey(secretKey);
-        case 'Secp256k1':
-            return Secp256k1Keypair.fromSecretKey(secretKey);
-        case 'Secp256r1':
-            return Secp256r1Keypair.fromSecretKey(secretKey);
-        default:
-            throw new Error(`Invalid keypair schema ${schema}`);
+// [GAP] decodeIotaPrivateKey not in WASM SDK - use SimpleKeypair.fromBech32() directly.
+// The old code decoded the bech32 key, inspected the schema, then created the correct keypair.
+// SimpleKeypair.fromBech32() handles all schemes (ED25519, Secp256k1, Secp256r1) internally.
+export function keypairFromBech32PrivateKey(bech32privateKey: string): SimpleKeypairInterface {
+    return SimpleKeypair.fromBech32(bech32privateKey);
+}
+
+/**
+ * Derive the IOTA address from a WASM SDK keypair.
+ * Dispatches to the correct public key type based on the keypair's scheme.
+ */
+export function deriveAddressFromKeypair(keypair: SimpleKeypairInterface): string {
+    const pk = keypair.publicKey();
+    if (pk.isEd25519()) {
+        return pk.asEd25519().deriveAddress().toCanonicalString(true);
+    } else if (pk.isSecp256k1()) {
+        return pk.asSecp256k1().deriveAddress().toCanonicalString(true);
+    } else if (pk.isSecp256r1()) {
+        return pk.asSecp256r1().deriveAddress().toCanonicalString(true);
     }
+    throw new Error(`Unsupported signature scheme: ${pk.scheme()}`);
 }
 
 export function toWalletAccounts(sharedPrivateKeyAccounts: PrivateKeyAccounts): WalletAccount[] {
@@ -90,9 +99,9 @@ export function toWalletAccounts(sharedPrivateKeyAccounts: PrivateKeyAccounts): 
                 address: account.address,
                 label: account.label,
                 privKey: account.bech32PrivateKey,
-                publicKey: keypairFromBech32PrivateKey(account.bech32PrivateKey)
-                    .getPublicKey()
-                    .toRawBytes(),
+                publicKey: new Uint8Array(
+                    keypairFromBech32PrivateKey(account.bech32PrivateKey).publicKey().asEd25519().toBytes(),
+                ),
                 chains: ['iota:mainnet'],
                 features: ['iota:signAndExecuteTransaction'],
             }) as WalletAccount,

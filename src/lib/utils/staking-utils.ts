@@ -1,6 +1,9 @@
-import { bcs } from '@iota/bcs';
-import type { IotaClient } from '@iota/iota-sdk/client';
-import { Transaction } from '@iota/iota-sdk/transactions';
+// [GAP] @iota/bcs custom BCS schema not available in WASM SDK
+const bcs = null as any;
+// [MIGRATION] IotaClient → GraphQlClient from wasm-sdk
+import type { GraphQlClient } from './wasm-sdk';
+// [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
+type Transaction = any;
 
 export interface StakeData {
     objectId: string;
@@ -19,7 +22,7 @@ export interface StakeData {
  * @returns Promise<StakeData> containing the staking rewards and related data
  */
 export async function computeStakingRewards(
-    client: IotaClient,
+    client: GraphQlClient,
     stakedIotaObjectId: string,
     senderAddress: string,
 ): Promise<StakeData> {

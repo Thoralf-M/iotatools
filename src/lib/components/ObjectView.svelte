@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
+    import { GraphQlClient } from '../utils/wasm-sdk';
 
     import { getSelectedNetworkConfig } from '../utils/client';
     import { queryDynamicFields, type DynamicFieldsResult } from '../utils/dynamic-fields';
@@ -27,11 +27,9 @@
             error = '';
 
             const config = getSelectedNetworkConfig();
-            const graphqlClient = new IotaGraphQLClient({
-                url: config.graphql,
-            });
+            const graphqlClient = new GraphQlClient(config.graphql);
 
-            const result = await graphqlClient.query({
+            const resultStr = await graphqlClient.runQuery({
                 query: `
                     query GetObject($id: IotaAddress!) {
                         object(address: $id) {
@@ -60,12 +58,13 @@
                         }
                     }
                 `,
-                variables: {
+                variables: JSON.stringify({
                     id,
-                },
+                }),
             });
+            const result: any = JSON.parse(resultStr);
 
-            const obj = result.data?.object;
+            const obj = result?.object;
             if (!obj) {
                 error = 'Object not found';
                 objectData = null;

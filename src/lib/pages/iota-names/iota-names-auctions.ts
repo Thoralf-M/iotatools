@@ -1,5 +1,6 @@
 // IOTA Names auction functions
-import { Transaction } from '@iota/iota-sdk/transactions';
+// [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
+type Transaction = any;
 
 import { getClient } from '../../utils/client';
 import { executeTransaction } from '../../utils/transaction-execution';

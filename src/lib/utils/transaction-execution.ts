@@ -1,14 +1,20 @@
-import { toBase64 } from '@iota/bcs';
-import type {
-    DevInspectResults,
-    DryRunTransactionBlockResponse,
-    GasCostSummary,
-    IotaGasData,
-    IotaTransactionBlockResponse,
-    IotaTransactionBlockResponseOptions,
-    TransactionEffects,
-} from '@iota/iota-sdk/client';
-import type { Transaction } from '@iota/iota-sdk/transactions';
+import { toB64 as toBase64 } from './wasm-sdk';
+// [GAP] DevInspectResults type not available in WASM SDK - use DryRunResult
+// [GAP] DryRunTransactionBlockResponse type not available in WASM SDK - use DryRunResult
+// [GAP] GasCostSummary type not available in WASM SDK
+// [GAP] IotaGasData type not available in WASM SDK
+// [GAP] IotaTransactionBlockResponse type not available in WASM SDK - use TransactionDataEffects
+// [GAP] IotaTransactionBlockResponseOptions type not available in WASM SDK
+// [GAP] TransactionEffects type not available in WASM SDK - use TransactionEffectsInterface
+type DevInspectResults = any;
+type DryRunTransactionBlockResponse = any;
+type GasCostSummary = any;
+type IotaGasData = any;
+type IotaTransactionBlockResponse = any;
+type IotaTransactionBlockResponseOptions = any;
+type TransactionEffects = any;
+// [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
+type Transaction = any;
 import { get } from 'svelte/store';
 
 import { getClient, getSelectedChain } from './client';
@@ -40,6 +46,8 @@ export async function executeTransaction(
                 transactionBlock: transaction,
             });
         case TransactionExecution.DryRun:
+            // [GAP] Transaction.build() and dryRunTransactionBlock() not in WASM SDK
+            // WASM SDK uses ClientTransactionBuilder.dryRun() instead
             let transactionBlock = await transaction.build({ client });
             return client.dryRunTransactionBlock({ transactionBlock });
         case TransactionExecution.Send:

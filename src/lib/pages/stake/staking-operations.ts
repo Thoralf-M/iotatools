@@ -1,9 +1,44 @@
-import { bcs } from '@iota/bcs';
-import type { IotaClient, IotaObjectData } from '@iota/iota-sdk/client';
-import { Transaction } from '@iota/iota-sdk/transactions';
-import { IOTA_SYSTEM_STATE_OBJECT_ID } from '@iota/iota-sdk/utils';
+// [GAP] @iota/bcs custom BCS schema not available in WASM SDK
+const bcs = null as any;
+// [MIGRATION] IotaClient → GraphQlClient from wasm-sdk
+// [GAP] IotaObjectData type not available in WASM SDK - use ObjectInterface
+import type { GraphQlClient } from '../../utils/wasm-sdk';
+type IotaObjectData = any;
+// [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
+type Transaction = any;
+import { GraphQlClient as GraphQlClientClass, IOTA_SYSTEM_STATE_OBJECT_ID } from '../../utils/wasm-sdk';
+import { getSelectedNetworkConfig } from '../../utils/client';
 
 import { computeStakingRewards, type StakeData } from '../../utils/staking-utils';
+
+/**
+ * Helper to query a single object's type and JSON content via GraphQL.
+ */
+async function queryObjectTypeAndJson(
+    client: GraphQlClient,
+    objectId: string,
+): Promise<{ type: string | null; json: any }> {
+    const gqlClient = new GraphQlClientClass(getSelectedNetworkConfig().graphql);
+    const resultStr = await gqlClient.runQuery({
+        query: `query GetObject($id: IotaAddress!) {
+            object(address: $id) {
+                asMoveObject {
+                    contents {
+                        type { repr }
+                        json
+                    }
+                }
+            }
+        }`,
+        variables: JSON.stringify({ id: objectId }),
+    });
+    const result: any = JSON.parse(resultStr);
+    const contents = result?.object?.asMoveObject?.contents;
+    return {
+        type: contents?.type?.repr ?? null,
+        json: contents?.json ?? null,
+    };
+}
 
 export interface RequiredUnstakeAmount {
     amount: bigint;
@@ -35,7 +70,7 @@ export function buildStakeTransaction(validatorAddress: string, amount: number):
  * Build a transaction to unstake a single staked IOTA object
  */
 export async function buildUnstakeSingleTransaction(
-    client: IotaClient,
+    client: GraphQlClient,
     stakedIotaObjectId: string,
 ): Promise<Transaction> {
     const obj = await client.getObject({
@@ -122,7 +157,7 @@ export function buildSingleObjectUnstakeTransaction(
  * Compute the required unstake amount to withdraw a specific amount
  */
 export async function computeRequiredUnstakeAmount(
-    client: IotaClient,
+    client: GraphQlClient,
     stakedIotaObjectId: string,
     targetAmount: bigint,
     activeAddress: string,
@@ -167,7 +202,7 @@ export async function computeRequiredUnstakeAmount(
  * Dev inspect a staked object to get stake data
  */
 export async function devInspectStakedObject(
-    client: IotaClient,
+    client: GraphQlClient,
     stakedIotaObjectId: string,
     activeAddress: string,
 ): Promise<StakeData> {
@@ -240,7 +275,7 @@ export function buildUnstakeAllTransaction(
  * Get timelocked objects for an address
  */
 export async function getTimelockedObjects(
-    client: IotaClient,
+    client: GraphQlClient,
     address: string,
 ): Promise<IotaObjectData[]> {
     const ownedObjectPage = await client.getOwnedObjects({
@@ -264,7 +299,7 @@ export async function getTimelockedObjects(
  * Run a simulation to test different unstake amounts
  */
 export async function unstakeSpecificAmountSimulation(
-    client: IotaClient,
+    client: GraphQlClient,
     stakedIotaObjectId: string,
     targetAmount: bigint,
     activeAddress: string,

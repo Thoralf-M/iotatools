@@ -1,7 +1,8 @@
 <script lang="ts">
-    import { toBase64 } from '@iota/bcs';
-    import { Transaction } from '@iota/iota-sdk/transactions';
-    import { isValidIotaAddress } from '@iota/iota-sdk/utils';
+    import { toB64 as toBase64 } from '../../utils/wasm-sdk';
+    // [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
+    type Transaction = any;
+    import { isValidIotaAddress } from '../../utils/wasm-sdk';
     import { dragHandle, dragHandleZone, type DndEvent } from 'svelte-dnd-action';
 
     import TransactionView from '../../components/TransactionView.svelte';

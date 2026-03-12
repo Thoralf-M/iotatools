@@ -1,5 +1,6 @@
-import { fromBase64 } from '@iota/bcs';
-import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
+import { base64Decode as fromBase64 } from '../../utils/wasm-sdk';
+// [GAP] @iota/iota-sdk/bcs - Custom BCS schema object not available in WASM SDK
+const IotaBcs = null as any; // [GAP] placeholder
 
 import type { CheckpointRange, RawTransactionBlock } from '../../utils/graphql-types';
 

@@ -1,13 +1,21 @@
 <script lang="ts">
-    import { IotaClient, type CoinStruct, type PaginatedCoins } from '@iota/iota-sdk/client';
-    import { Transaction } from '@iota/iota-sdk/transactions';
+    // [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
+    type Transaction = any;
 
     import IotaAmountInput from '../../components/IotaAmountInput.svelte';
     import JsonToggleView from '../../components/JsonToggleView.svelte';
     import TransactionView from '../../components/TransactionView.svelte';
     import { getClient } from '../../utils/client';
+    import type { GraphQlClientInterface } from '../../utils/wasm-sdk';
     import { activeAddress } from '../../utils/signer-data';
     import { executeTransaction } from '../../utils/transaction-execution';
+
+    interface CoinData {
+        coinObjectId: string;
+        balance: string;
+        version: string;
+        digest: string;
+    }
 
     let objectCount = $state('1');
     let amountPerObject = $state('1000000000');
@@ -24,7 +32,7 @@
 
     const mergeAllIotaCoins = async () => {
         try {
-            let client = getClient();
+            let client = getClient(true);
             let coins = await getAllIotaCoins(client, $activeAddress);
             if (coins.length < 2) {
                 throw new Error('No coins to consolidate');
@@ -87,7 +95,7 @@
     };
     const listAllIotaCoinObjects = async () => {
         try {
-            let client = getClient();
+            let client = getClient(true);
             let coins = await getAllIotaCoins(client, $activeAddress);
             iotaBalance = 0;
             for (const coin of coins) {
@@ -102,22 +110,52 @@
         }
     };
 
-    async function getAllIotaCoins(client: IotaClient, address: string): Promise<CoinStruct[]> {
-        let cursor: string | undefined | null = null;
-        const coins: CoinStruct[] = [];
-        // keep fetching until cursor is null or undefined
-        do {
-            const { data, nextCursor }: PaginatedCoins = await client.getCoins({
-                owner: address,
-                cursor,
-            });
-            if (!data || !data.length) {
-                break;
-            }
+    async function getAllIotaCoins(
+        client: GraphQlClientInterface,
+        owner: string,
+    ): Promise<CoinData[]> {
+        const coins: CoinData[] = [];
+        let cursor: string | null = null;
+        let hasNextPage = true;
 
-            coins.push(...data);
-            cursor = nextCursor;
-        } while (cursor);
+        while (hasNextPage) {
+            const resultStr = await client.runQuery({
+                query: `
+                    query getCoins($owner: IotaAddress!, $cursor: String) {
+                        address(address: $owner) {
+                            coins(after: $cursor) {
+                                pageInfo {
+                                    hasNextPage
+                                    endCursor
+                                }
+                                nodes {
+                                    coinBalance
+                                    address
+                                    version
+                                    digest
+                                }
+                            }
+                        }
+                    }
+                `,
+                variables: JSON.stringify({ owner, cursor }),
+            });
+            const result: any = JSON.parse(resultStr);
+            const coinsData = result?.address?.coins;
+            if (!coinsData?.nodes?.length) break;
+
+            for (const node of coinsData.nodes) {
+                coins.push({
+                    coinObjectId: node.address,
+                    balance: node.coinBalance,
+                    version: String(node.version),
+                    digest: node.digest,
+                });
+            }
+            hasNextPage = coinsData.pageInfo.hasNextPage;
+            cursor = coinsData.pageInfo.endCursor;
+        }
+
         return coins;
     }
 </script>

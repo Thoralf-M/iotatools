@@ -1,5 +1,9 @@
-import { BcsType, fromBase64, toHex } from '@iota/bcs';
-import { bcs } from '@iota/iota-sdk/bcs';
+// [GAP] BcsType not available in WASM SDK
+type BcsType = any;
+import { toHex } from './wasm-sdk';
+import { base64Decode as fromBase64 } from './wasm-sdk';
+// [GAP] @iota/iota-sdk/bcs - Custom BCS schema object not available in WASM SDK
+const bcs = null as any; // [GAP] placeholder
 
 type ObjectArg =
     | {
@@ -62,17 +66,32 @@ function createTypeTagBcs(): BcsType<string> {
     }) as unknown as BcsType<string>;
 }
 
-const TypeTagBcs = createTypeTagBcs();
+// [GAP] BCS custom schema not available in WASM SDK — these are created lazily
+// and will throw at runtime if actually called. The parseMoveAuthenticatorSignature
+// function below will throw an informative error instead.
+let TypeTagBcs: any;
+let MoveAuthenticatorV1Bcs: any;
+let MoveAuthenticatorInnerBcs: any;
 
-const MoveAuthenticatorV1Bcs = bcs.struct('MoveAuthenticatorV1', {
-    call_args: bcs.vector(bcs.CallArg),
-    type_args: bcs.vector(TypeTagBcs),
-    object_to_authenticate: bcs.CallArg,
-});
-
-const MoveAuthenticatorInnerBcs = bcs.enum('MoveAuthenticatorInner', {
-    V1: MoveAuthenticatorV1Bcs,
-});
+function ensureBcsInitialized() {
+    if (bcs === null) {
+        throw new Error(
+            '[GAP] BCS custom schema definitions are not available in the WASM SDK. ' +
+                'MoveAuthenticator parsing requires the @iota/bcs package.',
+        );
+    }
+    if (!TypeTagBcs) {
+        TypeTagBcs = createTypeTagBcs();
+        MoveAuthenticatorV1Bcs = bcs.struct('MoveAuthenticatorV1', {
+            call_args: bcs.vector(bcs.CallArg),
+            type_args: bcs.vector(TypeTagBcs),
+            object_to_authenticate: bcs.CallArg,
+        });
+        MoveAuthenticatorInnerBcs = bcs.enum('MoveAuthenticatorInner', {
+            V1: MoveAuthenticatorV1Bcs,
+        });
+    }
+}
 
 function normalizeCallArg(arg: CallArg): string {
     if (arg.$kind === 'Pure') {
@@ -114,6 +133,7 @@ function extractObjectId(objectArg: ObjectArg): string {
 }
 
 export function parseMoveAuthenticatorSignature(signatureBase64: string): MoveAuthenticatorInfo {
+    ensureBcsInitialized();
     const bytes = fromBase64(signatureBase64);
 
     if (bytes[0] !== 0x07) {

@@ -13,7 +13,8 @@
         "production": "node scripts/server.js",
         "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json",
         "test": "vitest --run",
-        "test:ui": "vitest --ui"
+        "test:ui": "vitest --ui",
+        "postinstall": "node scripts/patch-uniffi.js"
     },
     "license": "Apache-2.0",
     "devDependencies": {

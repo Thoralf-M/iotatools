@@ -1,11 +1,13 @@
 <script lang="ts">
-    import type {
-        DelegatedStake,
-        DelegatedTimelockedStake,
-        IotaObjectData,
-    } from '@iota/iota-sdk/client';
-    import { Transaction } from '@iota/iota-sdk/transactions';
-    import { IOTA_SYSTEM_STATE_OBJECT_ID, isValidIotaAddress } from '@iota/iota-sdk/utils';
+    // [GAP] DelegatedStake type not available in WASM SDK
+    // [GAP] DelegatedTimelockedStake type not available in WASM SDK
+    // [GAP] IotaObjectData type not available in WASM SDK - use ObjectInterface
+    type DelegatedStake = any;
+    type DelegatedTimelockedStake = any;
+    type IotaObjectData = any;
+    // [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
+    type Transaction = any;
+    import { IOTA_SYSTEM_STATE_OBJECT_ID, isValidIotaAddress } from '../../utils/wasm-sdk';
 
     import IotaAmountInput from '../../components/IotaAmountInput.svelte';
     import TransactionView from '../../components/TransactionView.svelte';

@@ -1,5 +1,5 @@
-import type { IotaClient } from '@iota/iota-sdk/client';
-import { isValidIotaAddress } from '@iota/iota-sdk/utils';
+import type { GraphQlClient } from '../../utils/wasm-sdk';
+import { isValidIotaAddress } from '../../utils/wasm-sdk';
 
 export interface ValidatorInfo {
     address: string;
@@ -8,15 +8,88 @@ export interface ValidatorInfo {
     stake: string;
 }
 
+// GraphQL query to fetch active validators and committee members from the current epoch
+const VALIDATORS_QUERY = `
+    query {
+        epoch {
+            validatorSet {
+                activeValidators {
+                    nodes {
+                        name
+                        description
+                        address { address }
+                        votingPower
+                        gasPrice
+                        stakingPoolIotaBalance
+                        rewardsPool
+                        poolTokenBalance
+                        pendingStake
+                        nextEpochStake
+                        nextEpochGasPrice
+                        nextEpochCommission
+                        exchangeRatesSize
+                    }
+                }
+                committeeMembers {
+                    nodes {
+                        address { address }
+                    }
+                }
+            }
+        }
+    }
+`;
+
+// GraphQL query to paginate dynamic fields (used for candidate validators)
+const DYNAMIC_FIELDS_QUERY = `
+    query ($parentId: IotaAddress!, $cursor: String) {
+        object(address: $parentId) {
+            dynamicFields(after: $cursor) {
+                nodes {
+                    name { json }
+                    value {
+                        ... on MoveObject {
+                            contents { json }
+                        }
+                    }
+                }
+                pageInfo { hasNextPage endCursor }
+            }
+        }
+    }
+`;
+
 /**
- * Get committee member addresses from system state
+ * Run a GraphQL query against the client and parse the JSON result.
+ * runQuery() returns only the data field content (no {data:} wrapper).
+ */
+async function queryGraphQL(
+    client: GraphQlClient,
+    query: string,
+    variables?: Record<string, any>,
+): Promise<any> {
+    const resultStr = await client.runQuery({
+        query,
+        variables: variables ? JSON.stringify(variables) : undefined,
+    });
+    return JSON.parse(resultStr);
+}
+
+/**
+ * Get committee member addresses from the GraphQL validator set response.
+ * Works with both the old systemState shape (for Stake.svelte compatibility)
+ * and the new GraphQL committeeMembers array.
  */
 export function getCommitteeMemberAddresses(systemState: any): Set<string> {
     const committeeMemberAddresses = new Set<string>();
 
     if (systemState.committeeMembers && Array.isArray(systemState.committeeMembers)) {
         systemState.committeeMembers.forEach((validator: any) => {
-            committeeMemberAddresses.add(validator.iotaAddress);
+            // Support both old shape (iotaAddress) and new GraphQL shape (address)
+            const addr = validator.iotaAddress || validator.address;
+            if (addr) {
+                committeeMemberAddresses.add(addr);
+            }
         });
     }
 
@@ -34,76 +107,104 @@ export function isValidatorCommitteeMember(
 }
 
 /**
- * Load all validators from the system state
+ * Fetch candidate validators by traversing the dynamic fields on the
+ * validator_candidates table from the system object (0x5).
  */
-export async function loadValidators(client: IotaClient): Promise<ValidatorInfo[]> {
-    const validators: ValidatorInfo[] = [];
-    const systemState = await client.getLatestIotaSystemState();
+async function fetchCandidateValidatorsList(client: GraphQlClient): Promise<ValidatorInfo[]> {
+    const candidates: ValidatorInfo[] = [];
 
-    const committeeMemberAddresses = getCommitteeMemberAddresses(systemState);
+    // Get the system object to find the validator_candidates table ID
+    const sysResult = await queryGraphQL(
+        client,
+        `query { object(address: "0x5") { asMoveObject { contents { json } } } }`,
+    );
+    const sysJson = sysResult?.object?.asMoveObject?.contents?.json;
+    const validatorCandidatesId = sysJson?.validator_candidates?.fields?.id?.id;
 
-    // Add active validators
-    for (const validator of systemState.activeValidators) {
-        const isCommitteeMember = isValidatorCommitteeMember(
-            validator.iotaAddress,
-            committeeMemberAddresses,
-        );
-        validators.push({
-            address: validator.iotaAddress,
-            name: validator.name || 'Unknown',
-            status: isCommitteeMember ? 'Committee Member' : 'Active Validator',
-            stake: validator.stakingPoolIotaBalance,
-        });
+    if (!validatorCandidatesId) {
+        return candidates;
     }
 
-    // Add candidate validators
-    const validatorCandidatesId = systemState.validatorCandidatesId;
+    // Paginate through the dynamic fields of the candidates table
     let hasNextPage = true;
-    let nextPageCursor;
+    let cursor: string | null = null;
 
     while (hasNextPage) {
-        const candidateValidatorsPage = await client.getDynamicFields({
+        const dfResult = await queryGraphQL(client, DYNAMIC_FIELDS_QUERY, {
             parentId: validatorCandidatesId,
-            cursor: nextPageCursor,
+            cursor,
         });
+        const dynamicFields = dfResult?.object?.dynamicFields;
+        const nodes = dynamicFields?.nodes || [];
 
-        for (const candidateValidator of candidateValidatorsPage.data) {
+        for (const node of nodes) {
             try {
-                const validatorWrapper = await client.getDynamicFieldObject({
-                    objectId: validatorCandidatesId,
-                    name: candidateValidator.name,
-                } as any);
+                const validatorData = node?.value?.contents?.json;
+                if (!validatorData) continue;
 
-                const validatorV1 = await client.getDynamicFields({
-                    parentId:
-                        // @ts-ignore
-                        validatorWrapper.data?.content.fields.value.fields.inner.fields.id.id,
-                });
+                const validator = validatorData?.value?.fields || validatorData;
+                const metadata = validator?.metadata?.fields || validator?.metadata;
+                const stakingPool = validator?.staking_pool?.fields || validator?.staking_pool;
 
-                const validatorObject = await client.getObject({
-                    id: validatorV1.data[0].objectId,
-                    options: { showContent: true },
-                });
+                const address = metadata?.iota_address;
+                const name = metadata?.name || 'Unknown';
+                const stake = stakingPool?.iota_balance || '0';
 
-                const validator =
-                    // @ts-ignore
-                    validatorObject.data?.content.fields.value.fields;
-
-                validators.push({
-                    address: validator.metadata.fields.iota_address,
-                    name: validator.metadata.fields.name || 'Unknown',
-                    status: 'Candidate',
-                    stake: validator.staking_pool.fields.iota_balance,
-                });
+                if (address) {
+                    candidates.push({ address, name, status: 'Candidate', stake });
+                }
             } catch (err) {
                 console.warn('Failed to load candidate validator:', err);
             }
         }
 
-        hasNextPage = candidateValidatorsPage.hasNextPage;
-        if (hasNextPage) {
-            nextPageCursor = candidateValidatorsPage.nextCursor;
+        hasNextPage = dynamicFields?.pageInfo?.hasNextPage || false;
+        cursor = dynamicFields?.pageInfo?.endCursor || null;
+    }
+
+    return candidates;
+}
+
+/**
+ * Load all validators from the system state via GraphQL
+ */
+export async function loadValidators(client: GraphQlClient): Promise<ValidatorInfo[]> {
+    const validators: ValidatorInfo[] = [];
+
+    const result = await queryGraphQL(client, VALIDATORS_QUERY);
+    const validatorSet = result?.epoch?.validatorSet;
+    const activeNodes = validatorSet?.activeValidators?.nodes || [];
+    const committeeMemberNodes = validatorSet?.committeeMembers?.nodes || [];
+
+    // Build the set of committee member addresses
+    const committeeMemberAddresses = new Set<string>();
+    for (const member of committeeMemberNodes) {
+        const addr = member?.address?.address;
+        if (addr) {
+            committeeMemberAddresses.add(addr);
         }
+    }
+
+    // Add active validators
+    for (const v of activeNodes) {
+        const addr = v.address?.address;
+        if (!addr) continue;
+
+        const isCommitteeMember = isValidatorCommitteeMember(addr, committeeMemberAddresses);
+        validators.push({
+            address: addr,
+            name: v.name || 'Unknown',
+            status: isCommitteeMember ? 'Committee Member' : 'Active Validator',
+            stake: v.stakingPoolIotaBalance || '0',
+        });
+    }
+
+    // Add candidate validators
+    try {
+        const candidates = await fetchCandidateValidatorsList(client);
+        validators.push(...candidates);
+    } catch (err) {
+        console.warn('Failed to load candidate validators:', err);
     }
 
     // Sort validators: Committee members first, then active validators, then candidates
@@ -120,84 +221,51 @@ export async function loadValidators(client: IotaClient): Promise<ValidatorInfo[
 }
 
 /**
- * Fetch a single validator by address
+ * Fetch a single validator by address via GraphQL
  */
 export async function fetchValidatorByAddress(
-    client: IotaClient,
+    client: GraphQlClient,
     address: string,
 ): Promise<ValidatorInfo | null> {
     if (!address || !isValidIotaAddress(address)) return null;
 
     try {
-        const systemState = await client.getLatestIotaSystemState();
-        const committeeMemberAddresses = getCommitteeMemberAddresses(systemState);
+        const result = await queryGraphQL(client, VALIDATORS_QUERY);
+        const validatorSet = result?.epoch?.validatorSet;
+        const activeNodes = validatorSet?.activeValidators?.nodes || [];
+        const committeeMemberNodes = validatorSet?.committeeMembers?.nodes || [];
+
+        // Build the set of committee member addresses
+        const committeeMemberAddresses = new Set<string>();
+        for (const member of committeeMemberNodes) {
+            const addr = member?.address?.address;
+            if (addr) {
+                committeeMemberAddresses.add(addr);
+            }
+        }
 
         // Check in active validators first
-        for (const validator of systemState.activeValidators) {
-            if (validator.iotaAddress === address) {
+        for (const v of activeNodes) {
+            const addr = v.address?.address;
+            if (addr === address) {
                 const isCommitteeMember = isValidatorCommitteeMember(
-                    validator.iotaAddress,
+                    addr,
                     committeeMemberAddresses,
                 );
-
                 return {
-                    address: validator.iotaAddress,
-                    name: validator.name || 'Unknown',
+                    address: addr,
+                    name: v.name || 'Unknown',
                     status: isCommitteeMember ? 'Committee Member' : 'Active Validator',
-                    stake: validator.stakingPoolIotaBalance,
+                    stake: v.stakingPoolIotaBalance || '0',
                 };
             }
         }
 
         // Check in candidate validators
-        const validatorCandidatesId = systemState.validatorCandidatesId;
-        let hasNextPage = true;
-        let nextPageCursor;
-
-        while (hasNextPage) {
-            const candidateValidatorsPage = await client.getDynamicFields({
-                parentId: validatorCandidatesId,
-                cursor: nextPageCursor,
-            });
-
-            for (const candidateValidator of candidateValidatorsPage.data) {
-                try {
-                    const validatorWrapper = await client.getDynamicFieldObject({
-                        objectId: validatorCandidatesId,
-                        name: candidateValidator.name,
-                    } as any);
-
-                    const validatorV1 = await client.getDynamicFields({
-                        parentId:
-                            // @ts-ignore
-                            validatorWrapper.data?.content.fields.value.fields.inner.fields.id.id,
-                    });
-
-                    const validatorObject = await client.getObject({
-                        id: validatorV1.data[0].objectId,
-                        options: { showContent: true },
-                    });
-
-                    const validator =
-                        // @ts-ignore
-                        validatorObject.data?.content.fields.value.fields;
-
-                    if (validator.metadata.fields.iota_address === address) {
-                        return {
-                            address: validator.metadata.fields.iota_address,
-                            name: validator.metadata.fields.name || 'Unknown',
-                            status: 'Candidate',
-                            stake: validator.staking_pool.fields.iota_balance,
-                        };
-                    }
-                } catch (err) {
-                    console.warn('Failed to check candidate validator:', err);
-                }
-            }
-
-            hasNextPage = candidateValidatorsPage.hasNextPage;
-            if (hasNextPage) {
-                nextPageCursor = candidateValidatorsPage.nextCursor;
+        const candidates = await fetchCandidateValidatorsList(client);
+        for (const candidate of candidates) {
+            if (candidate.address === address) {
+                return candidate;
             }
         }
 

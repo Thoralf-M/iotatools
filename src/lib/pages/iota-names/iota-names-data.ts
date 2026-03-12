@@ -1,6 +1,7 @@
 // IOTA Names data fetching functions
-import { Transaction } from '@iota/iota-sdk/transactions';
-import { toHex } from '@iota/iota-sdk/utils';
+// [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
+type Transaction = any;
+import { toHex } from '../../utils/wasm-sdk';
 
 import { getClient } from '../../utils/client';
 import { config } from './iota-names-config';

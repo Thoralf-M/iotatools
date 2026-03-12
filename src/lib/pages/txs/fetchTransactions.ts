@@ -1,4 +1,4 @@
-import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
+import { GraphQlClient } from '../../utils/wasm-sdk';
 
 import { getClient, getSelectedNetworkConfig } from '../../utils/client';
 
@@ -36,103 +36,97 @@ export interface TransactionNode {
     rawData?: any; // Store raw tx data for substring search
 }
 
+const TX_BY_DIGEST_QUERY = `
+    query GetTransaction($digest: String!) {
+        transactionBlock(digest: $digest) {
+            digest
+            sender { address }
+            effects {
+                checkpoint { sequenceNumber }
+                timestamp
+                objectChanges {
+                    nodes {
+                        address
+                        inputState { asMoveObject { contents { type { repr } } } version }
+                        outputState { asMoveObject { contents { type { repr } } } version }
+                        idCreated
+                        idDeleted
+                    }
+                }
+                gasEffects {
+                    gasObject { address version }
+                    gasSummary { computationCost storageCost storageRebate }
+                }
+            }
+        }
+    }
+`;
+
 export async function fetchTransactionByDigest(digest: string): Promise<TransactionNode | null> {
     try {
-        const client = getClient();
-        const tx = await client.getTransactionBlock({
-            digest,
-            options: {
-                showEffects: true,
-                showInput: true,
-                showEvents: true,
-                showObjectChanges: true,
-            },
+        const config = getSelectedNetworkConfig();
+        const graphqlClient = new GraphQlClient(config.graphql);
+
+        const resultStr = await graphqlClient.runQuery({
+            query: TX_BY_DIGEST_QUERY,
+            variables: JSON.stringify({ digest }),
         });
+        const result: any = JSON.parse(resultStr);
+        const tx = result?.transactionBlock;
 
         if (!tx) return null;
 
-        const checkpoint = tx.checkpoint ? parseInt(tx.checkpoint) : 0;
-        const timestamp = tx.timestampMs || '';
-        const sender = tx.transaction?.data?.sender || '';
+        const checkpoint = tx.effects?.checkpoint?.sequenceNumber
+            ? parseInt(tx.effects.checkpoint.sequenceNumber)
+            : 0;
+        const timestamp = tx.effects?.timestamp || '';
+        const sender = tx.sender?.address || '';
 
-        // Extract created objects
         const createdObjects: CreatedObject[] = [];
         const mutatedObjects: MutatedObject[] = [];
         const deletedObjects: string[] = [];
         const inputObjects: InputObject[] = [];
         const recipients: string[] = [];
 
-        // Build a map of object types from objectChanges
-        const objectTypeMap = new Map<string, string>();
-        if (tx.objectChanges) {
-            for (const change of tx.objectChanges) {
-                if (
-                    (change.type === 'created' || change.type === 'mutated') &&
-                    'objectId' in change &&
-                    'objectType' in change
-                ) {
-                    objectTypeMap.set(change.objectId, change.objectType);
-                }
-            }
-        }
+        const objectChanges = tx.effects?.objectChanges?.nodes || [];
+        for (const change of objectChanges) {
+            const objectId = change.address;
+            const outputType = change.outputState?.asMoveObject?.contents?.type?.repr || 'Unknown';
+            const inputType = change.inputState?.asMoveObject?.contents?.type?.repr || 'Unknown';
+            const outputVersion = change.outputState?.version?.toString() || '';
+            const inputVersion = change.inputState?.version?.toString() || '';
 
-        // Extract input objects from transaction data
-        if (tx.transaction?.data?.transaction) {
-            const txData = tx.transaction.data.transaction as any;
-            if (txData.inputs) {
-                for (const input of txData.inputs) {
-                    if (input.Object?.ImmOrOwnedObject) {
-                        const obj = input.Object.ImmOrOwnedObject;
-                        inputObjects.push({
-                            objectId: obj.objectId,
-                            objectType:
-                                obj.objectType || objectTypeMap.get(obj.objectId) || 'Unknown',
-                            version: obj.version || '',
-                            isGas: false,
-                        });
-                    }
-                }
-            }
-        }
-
-        // Extract gas payment objects
-        if (tx.transaction?.data?.gasData?.payment) {
-            for (const gasCoin of tx.transaction.data.gasData.payment) {
+            if (change.idCreated) {
+                createdObjects.push({
+                    objectId,
+                    objectType: outputType,
+                    version: outputVersion,
+                });
+            } else if (change.idDeleted) {
+                deletedObjects.push(objectId);
+            } else if (change.inputState && change.outputState) {
+                mutatedObjects.push({
+                    objectId,
+                    objectType: outputType,
+                    previousVersion: inputVersion,
+                    version: outputVersion,
+                });
+            } else if (change.inputState && !change.outputState) {
                 inputObjects.push({
-                    objectId: gasCoin.objectId,
-                    objectType: objectTypeMap.get(gasCoin.objectId) || 'Unknown',
-                    version: gasCoin.version || '',
-                    isGas: true,
+                    objectId,
+                    objectType: inputType,
+                    version: inputVersion,
+                    isGas: false,
                 });
             }
         }
 
-        // Process object changes
-        if (tx.objectChanges) {
-            for (const change of tx.objectChanges) {
-                if (change.type === 'created' && 'objectId' in change && 'objectType' in change) {
-                    createdObjects.push({
-                        objectId: change.objectId,
-                        objectType: change.objectType,
-                        version: (change as any).version || '',
-                    });
-                    if ((change as any).recipient && (change as any).recipient !== sender) {
-                        recipients.push((change as any).recipient);
-                    }
-                } else if (
-                    change.type === 'mutated' &&
-                    'objectId' in change &&
-                    'objectType' in change
-                ) {
-                    mutatedObjects.push({
-                        objectId: change.objectId,
-                        objectType: change.objectType,
-                        previousVersion: (change as any).previousVersion || '',
-                        version: (change as any).version || '',
-                    });
-                } else if (change.type === 'deleted' && 'objectId' in change) {
-                    deletedObjects.push(change.objectId);
-                }
+        // Mark gas object
+        const gasObjectId = tx.effects?.gasEffects?.gasObject?.address;
+        if (gasObjectId) {
+            const existing = inputObjects.find((o) => o.objectId === gasObjectId);
+            if (existing) {
+                existing.isGas = true;
             }
         }
 
@@ -146,7 +140,7 @@ export async function fetchTransactionByDigest(digest: string): Promise<Transact
             deletedObjects,
             inputObjects,
             recipients: [...new Set(recipients)],
-            rawData: tx,
+            rawData: result?.transactionBlock,
         };
     } catch (e: any) {
         console.error(`Failed to fetch transaction ${digest}:`, e);
@@ -171,9 +165,7 @@ async function fetchTransactionsWithFilter(
     scanLimit?: number,
 ): Promise<{ txs: TransactionNode[]; nextCursor: string | null; hasMore: boolean }> {
     const config = getSelectedNetworkConfig();
-    const graphqlClient = new IotaGraphQLClient({
-        url: config.graphql,
-    });
+    const graphqlClient = new GraphQlClient(config.graphql);
 
     const isNewest = options.orderBy === 'newest';
     const direction = isNewest ? 'last' : 'first';
@@ -193,7 +185,7 @@ async function fetchTransactionsWithFilter(
     }
     const variableDeclarationsStr = variableDeclarations.join(', ');
 
-    const result = await graphqlClient.query({
+    const result: any = JSON.parse(await graphqlClient.runQuery({
         query: `
             query GetTransactions(${variableDeclarationsStr}) {
                 transactionBlocks(
@@ -210,13 +202,13 @@ async function fetchTransactionsWithFilter(
                 }
             }
         `,
-        variables: {
+        variables: JSON.stringify({
             limit: options.limit,
             ...variables,
-        },
-    });
+        }),
+    }));
 
-    const data = result.data as any;
+    const data = result;
     const allDigests =
         data?.transactionBlocks?.nodes?.map((n: any) => n.digest).filter(Boolean) || [];
     // Limit to the requested number to ensure we don't fetch more than intended

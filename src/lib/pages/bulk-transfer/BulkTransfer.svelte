@@ -1,6 +1,7 @@
 <script lang="ts">
-    import { Transaction } from '@iota/iota-sdk/transactions';
-    import { isValidIotaAddress } from '@iota/iota-sdk/utils';
+    // [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
+    type Transaction = any;
+    import { isValidIotaAddress } from '../../utils/wasm-sdk';
 
     import TransactionView from '../../components/TransactionView.svelte';
     import { getClient } from '../../utils/client';
@@ -32,11 +33,48 @@
         try {
             fetchingCoins = true;
             fetchError = '';
-            const client = getClient();
-            const balances = await client.getAllBalances({ owner: $activeAddress });
+            const client = getClient(true);
+
+            const allBalances: Array<{ coinType: string; totalBalance: string }> = [];
+            let cursor: string | null = null;
+            let hasNextPage = true;
+
+            while (hasNextPage) {
+                const resultStr = await client.runQuery({
+                    query: `
+                        query getAllBalances($owner: IotaAddress!, $cursor: String) {
+                            address(address: $owner) {
+                                balances(after: $cursor) {
+                                    pageInfo {
+                                        hasNextPage
+                                        endCursor
+                                    }
+                                    nodes {
+                                        coinType { repr }
+                                        totalBalance
+                                    }
+                                }
+                            }
+                        }
+                    `,
+                    variables: JSON.stringify({ owner: $activeAddress, cursor }),
+                });
+                const result: any = JSON.parse(resultStr);
+                const balancesData = result?.address?.balances;
+                if (!balancesData?.nodes?.length) break;
+
+                for (const node of balancesData.nodes) {
+                    allBalances.push({
+                        coinType: node.coinType.repr,
+                        totalBalance: node.totalBalance,
+                    });
+                }
+                hasNextPage = balancesData.pageInfo.hasNextPage;
+                cursor = balancesData.pageInfo.endCursor;
+            }
 
             // Filter out zero balances and format the data
-            availableCoins = balances
+            availableCoins = allBalances
                 .filter((balance) => parseInt(balance.totalBalance) > 0)
                 .map((balance) => ({
                     coinType: balance.coinType,
@@ -230,7 +268,7 @@
                 });
             } else {
                 // For other coin types, need to get and use existing coins
-                const client = getClient();
+                const client = getClient(true);
                 const iotaAddress = $activeAddress;
 
                 let totalTransferAmount = transfers.reduce(
@@ -238,14 +276,65 @@
                     BigInt(0),
                 );
 
-                let availableCoins = await client.getCoins({ owner: iotaAddress, coinType });
-                if (availableCoins.data.length === 0) {
+                // Fetch coins via GraphQL
+                const fetchedCoins: Array<{
+                    coinObjectId: string;
+                    balance: string;
+                    version: string;
+                    digest: string;
+                }> = [];
+                let coinCursor: string | null = null;
+                let coinHasNextPage = true;
+
+                while (coinHasNextPage) {
+                    const resultStr = await client.runQuery({
+                        query: `
+                            query getCoins($owner: IotaAddress!, $type: String, $cursor: String) {
+                                address(address: $owner) {
+                                    coins(type: $type, after: $cursor) {
+                                        pageInfo {
+                                            hasNextPage
+                                            endCursor
+                                        }
+                                        nodes {
+                                            coinBalance
+                                            address
+                                            version
+                                            digest
+                                        }
+                                    }
+                                }
+                            }
+                        `,
+                        variables: JSON.stringify({
+                            owner: iotaAddress,
+                            type: coinType,
+                            cursor: coinCursor,
+                        }),
+                    });
+                    const result: any = JSON.parse(resultStr);
+                    const coinsData = result?.address?.coins;
+                    if (!coinsData?.nodes?.length) break;
+
+                    for (const node of coinsData.nodes) {
+                        fetchedCoins.push({
+                            coinObjectId: node.address,
+                            balance: node.coinBalance,
+                            version: String(node.version),
+                            digest: node.digest,
+                        });
+                    }
+                    coinHasNextPage = coinsData.pageInfo.hasNextPage;
+                    coinCursor = coinsData.pageInfo.endCursor;
+                }
+
+                if (fetchedCoins.length === 0) {
                     throw new Error(`No ${coinSymbol} coins available for transfer`);
                 }
 
                 let selectedAmount = BigInt(0);
                 let selectedCoins = [];
-                for (const coin of availableCoins.data) {
+                for (const coin of fetchedCoins) {
                     if (selectedAmount >= totalTransferAmount) {
                         break;
                     }

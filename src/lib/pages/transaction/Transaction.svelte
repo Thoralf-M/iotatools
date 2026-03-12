@@ -1,8 +1,9 @@
 <script lang="ts">
-    import { fromBase64, toBase64 } from '@iota/bcs';
-    import { bcs } from '@iota/iota-sdk/bcs';
-    import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
-    import { TransactionDataBuilder } from '@iota/iota-sdk/transactions';
+    import { base64Decode as fromBase64, toB64 as toBase64, GraphQlClient } from '../../utils/wasm-sdk';
+    // [GAP] @iota/iota-sdk/bcs - Custom BCS schema object not available in WASM SDK
+    const bcs = null as any; // [GAP] placeholder
+    // [GAP] TransactionDataBuilder not in WASM SDK
+    type TransactionDataBuilder = any;
     import { onMount } from 'svelte';
 
     import { getTransactionData } from '../../components/transaction-view';
@@ -97,49 +98,47 @@
             loading = true;
             error = '';
 
-            const client = getClient();
-            const tx = await client.getTransactionBlock({
-                digest,
-                options: {
-                    showInput: true,
-                    showRawInput: true,
-                    showEffects: true,
-                    showEvents: true,
-                    showObjectChanges: true,
-                    showBalanceChanges: true,
-                    showRawEffects: true,
-                },
+            const config = getSelectedNetworkConfig();
+            const graphqlClient = new GraphQlClient(config.graphql);
+
+            const resultStr = await graphqlClient.runQuery({
+                query: `query($digest: String!) {
+                    transactionBlock(digest: $digest) {
+                        digest
+                        sender { address }
+                        effects {
+                            checkpoint { sequenceNumber }
+                            timestamp
+                            objectChanges {
+                                nodes {
+                                    address
+                                    inputState { asMoveObject { contents { type { repr } json } } version }
+                                    outputState { asMoveObject { contents { type { repr } json } } version }
+                                    idCreated
+                                    idDeleted
+                                }
+                            }
+                            gasEffects {
+                                gasObject { address version }
+                                gasSummary { computationCost storageCost storageRebate }
+                            }
+                            balanceChanges { nodes { owner { asAddress { address } } amount coinType { repr } } }
+                        }
+                        expiration { epochId }
+                    }
+                }`,
+                variables: JSON.stringify({ digest }),
             });
+            const result: any = JSON.parse(resultStr);
+            const tx = result?.transactionBlock;
+
+            if (!tx) {
+                error = 'Transaction not found';
+                transactionData = null;
+                return;
+            }
 
             transactionData = tx;
-            // If the API response includes rawTransaction, extract it for dry run functionality
-            if (tx.rawTransaction) {
-                // Try to parse as signed transaction first
-                try {
-                    const signedBytes = fromBase64(tx.rawTransaction);
-                    const signedData = bcs.SenderSignedData.parse(signedBytes);
-                    // Extract the transaction part from the signed data for dry run
-                    const v1Data = signedData[0].intentMessage.value.V1;
-                    if (v1Data.kind && v1Data.kind.ProgrammableTransaction) {
-                        const normalizedTxData = {
-                            version: 2 as const,
-                            sender: v1Data.sender,
-                            inputs: v1Data.kind.ProgrammableTransaction.inputs,
-                            commands: v1Data.kind.ProgrammableTransaction.commands,
-                            gasData: v1Data.gasData,
-                            expiration: v1Data.expiration,
-                        };
-                        const txDataBuilder = new TransactionDataBuilder(normalizedTxData);
-                        transactionData.transactionBytes = toBase64(txDataBuilder.build());
-                    } else {
-                        // Fallback to raw transaction if parsing fails
-                        transactionData.transactionBytes = tx.rawTransaction;
-                    }
-                } catch (e) {
-                    // If parsing as signed transaction fails, assume it's already unsigned
-                    transactionData.transactionBytes = tx.rawTransaction;
-                }
-            }
 
             // Update query parameters with the digest
             updatePageQueryParams({ txInput: digest, inputObjectFilter, functionFilter });
@@ -259,11 +258,9 @@
             error = '';
 
             const config = getSelectedNetworkConfig();
-            const graphqlClient = new IotaGraphQLClient({
-                url: config.graphql,
-            });
+            const graphqlClient = new GraphQlClient(config.graphql);
 
-            const result = await graphqlClient.query({
+            const result: any = JSON.parse(await graphqlClient.runQuery({
                 query: `
                     query($filter: TransactionBlockFilter) {
                         transactionBlocks(last: 1, filter: $filter${hasFilters() ? ', scanLimit: 100000000' : ''}) {
@@ -279,13 +276,13 @@
                         }
                     }
                 `,
-                variables: {
+                variables: JSON.stringify({
                     filter: buildFilter(),
-                },
-            });
+                }),
+            }));
 
-            const nodes = (result.data as any)?.transactionBlocks?.nodes;
-            const pageInfo = (result.data as any)?.transactionBlocks?.pageInfo;
+            const nodes = result?.transactionBlocks?.nodes;
+            const pageInfo = result?.transactionBlocks?.pageInfo;
 
             if (!nodes || nodes.length === 0) {
                 error = 'No PTB transactions found';
@@ -320,11 +317,9 @@
             error = '';
 
             const config = getSelectedNetworkConfig();
-            const graphqlClient = new IotaGraphQLClient({
-                url: config.graphql,
-            });
+            const graphqlClient = new GraphQlClient(config.graphql);
 
-            const result = await graphqlClient.query({
+            const result: any = JSON.parse(await graphqlClient.runQuery({
                 query: `
                     query($cursor: String!, $filter: TransactionBlockFilter) {
                         transactionBlocks(before: $cursor, last: 1, filter: $filter${hasFilters() ? ', scanLimit: 100000000' : ''}) {
@@ -340,14 +335,14 @@
                         }
                     }
                 `,
-                variables: {
+                variables: JSON.stringify({
                     cursor: currentCursor,
                     filter: buildFilter(),
-                },
-            });
+                }),
+            }));
 
-            const nodes = (result.data as any)?.transactionBlocks?.nodes;
-            const pageInfo = (result.data as any)?.transactionBlocks?.pageInfo;
+            const nodes = result?.transactionBlocks?.nodes;
+            const pageInfo = result?.transactionBlocks?.pageInfo;
 
             if (!nodes || nodes.length === 0) {
                 error = 'No more PTB transactions found';
@@ -384,11 +379,9 @@
             error = '';
 
             const config = getSelectedNetworkConfig();
-            const graphqlClient = new IotaGraphQLClient({
-                url: config.graphql,
-            });
+            const graphqlClient = new GraphQlClient(config.graphql);
 
-            const result = await graphqlClient.query({
+            const result: any = JSON.parse(await graphqlClient.runQuery({
                 query: `
                     query($cursor: String!, $filter: TransactionBlockFilter) {
                         transactionBlocks(after: $cursor, first: 1, filter: $filter${hasFilters() ? ', scanLimit: 100000000' : ''}) {
@@ -404,14 +397,14 @@
                         }
                     }
                 `,
-                variables: {
+                variables: JSON.stringify({
                     cursor: currentCursor,
                     filter: buildFilter(),
-                },
-            });
+                }),
+            }));
 
-            const nodes = (result.data as any)?.transactionBlocks?.nodes;
-            const pageInfo = (result.data as any)?.transactionBlocks?.pageInfo;
+            const nodes = result?.transactionBlocks?.nodes;
+            const pageInfo = result?.transactionBlocks?.pageInfo;
 
             if (!nodes || nodes.length === 0) {
                 error = 'No more PTB transactions found';

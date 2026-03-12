@@ -1,38 +1,30 @@
-import { IotaClientGraphQLTransport } from '@iota/graphql-transport';
-import { IotaClient, type IotaClientOptions } from '@iota/iota-sdk/client';
+// [GAP] @iota/graphql-transport not available in WASM SDK - GraphQlClient is natively GraphQL
+// [MIGRATION] IotaClient → GraphQlClient, IotaClientOptions removed (GraphQlClient takes a URL string)
 import { get } from 'svelte/store';
 
 import type { NetworkConfig } from './default-client-config';
 import { sharedClientConfig } from './local-storage-store';
 import { getNetworkConfigOverride, hasNetworkConfigOverride } from './network-config';
+import { GraphQlClient } from './wasm-sdk';
 
 // Used to determine if the client should be initialized with a new node
 let previousInitializedNodeUrl = '';
-let regularClient: IotaClient | undefined = undefined;
-let graphqlClient: IotaClient | undefined = undefined;
+let regularClient: GraphQlClient | undefined = undefined;
+let graphqlClient: GraphQlClient | undefined = undefined;
 
-export function getClient(graphql: boolean = false): IotaClient {
+export function getClient(graphql: boolean = false): GraphQlClient {
     let networkConfig = getSelectedNetworkConfig();
     let selectedNetworkUrl = networkConfig.node;
 
     if (graphql) {
         if (graphqlClient == undefined || selectedNetworkUrl != previousInitializedNodeUrl) {
-            const clientOptions: IotaClientOptions = {
-                transport: new IotaClientGraphQLTransport({
-                    url: networkConfig.graphql,
-                    fallbackTransportUrl: selectedNetworkUrl,
-                }),
-            };
-            graphqlClient = new IotaClient(clientOptions);
+            graphqlClient = new GraphQlClient(networkConfig.graphql);
             previousInitializedNodeUrl = selectedNetworkUrl;
         }
         return graphqlClient;
     } else {
         if (regularClient == undefined || selectedNetworkUrl != previousInitializedNodeUrl) {
-            const clientOptions: IotaClientOptions = {
-                url: selectedNetworkUrl,
-            };
-            regularClient = new IotaClient(clientOptions);
+            regularClient = new GraphQlClient(selectedNetworkUrl);
             previousInitializedNodeUrl = selectedNetworkUrl;
         }
         return regularClient;

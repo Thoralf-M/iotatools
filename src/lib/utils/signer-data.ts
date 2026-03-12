@@ -1,8 +1,9 @@
-import type {
-    IotaTransactionBlockResponse,
-    IotaTransactionBlockResponseOptions,
-} from '@iota/iota-sdk/client';
-import type { Transaction } from '@iota/iota-sdk/transactions';
+// [GAP] IotaTransactionBlockResponse type not available in WASM SDK - use TransactionDataEffects
+// [GAP] IotaTransactionBlockResponseOptions type not available in WASM SDK
+type IotaTransactionBlockResponse = any;
+type IotaTransactionBlockResponseOptions = any;
+// [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
+type Transaction = any;
 import type { IotaSignAndExecuteTransactionInput, WalletAccount } from '@iota/wallet-standard';
 import { get, writable, type Writable } from 'svelte/store';
 

@@ -1,5 +1,5 @@
 // Price fetching utilities using the CoinGecko API
-import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
+import { GraphQlClient } from '../../utils/wasm-sdk';
 
 import { getSelectedNetworkConfig } from '../../utils/client';
 import { fetchEpochEndTimestamp } from './graphql-requests';
@@ -221,15 +221,11 @@ export async function updatePricesCache(
     console.log('Fetching all historical IOTA prices...');
 
     // Get current epoch to determine date range
-    const gqlClient = new IotaGraphQLClient({
-        url: getSelectedNetworkConfig().graphql,
-    });
+    const gqlClient = new GraphQlClient(getSelectedNetworkConfig().graphql);
 
     const epochQuery = `query { epoch { epochId } }`;
-    // @ts-ignore
-    const epochResult = await gqlClient.query({ query: epochQuery });
-    // @ts-ignore
-    const currentEpoch = epochResult.data?.epoch?.epochId || 1;
+    const epochResult: any = JSON.parse(await gqlClient.runQuery({ query: epochQuery, variables: undefined }));
+    const currentEpoch = epochResult?.epoch?.epochId || 1;
 
     console.log(`Current epoch: ${currentEpoch}`);
 

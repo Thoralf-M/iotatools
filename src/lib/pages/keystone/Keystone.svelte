@@ -2,8 +2,11 @@
     import { Buffer } from 'buffer';
     // @ts-ignore - bc-ur doesn't have complete type definitions
     import { URDecoder } from '@gandlaf21/bc-ur';
-    import { toB64, toBase64, toHEX } from '@iota/bcs';
-    import { messageWithIntent } from '@iota/iota-sdk/cryptography';
+    import { toHex as toHEX, toB64 as toBase64 } from '../../utils/wasm-sdk';
+    // [GAP] messageWithIntent from @iota/iota-sdk/cryptography not in WASM SDK
+    const messageWithIntent = (...args: any[]): any => {
+        throw new Error('[GAP] messageWithIntent not available in WASM SDK');
+    };
 
     import QrGeneratorComponent from '../../components/QrGenerator.svelte';
     import QrScannerComponent from '../../components/QrScanner.svelte';
