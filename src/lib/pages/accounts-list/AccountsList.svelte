@@ -1,7 +1,6 @@
 <script lang="ts">
-    import { toHex } from '../../utils/wasm-sdk';
-
     import { iota_accounts } from '../../utils/signer-data';
+    import { toHex } from '../../utils/wasm-sdk';
 </script>
 
 <main>

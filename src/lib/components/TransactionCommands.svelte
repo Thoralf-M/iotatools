@@ -1,8 +1,4 @@
 <script lang="ts">
-    // [GAP] @iota/bcs custom BCS schema not available in WASM SDK
-    const bcs = null as any;
-    import { base64Decode as fromBase64, GraphQlClient } from '../utils/wasm-sdk';
-
     import { getSelectedNetworkConfig } from '../utils/client';
     import { getObjectLink } from '../utils/explorer-links';
     import {
@@ -10,6 +6,7 @@
         sharedPackageCache,
         sharedPackageErrors,
     } from '../utils/shared-caches';
+    import { base64Decode as fromBase64, GraphQlClient } from '../utils/wasm-sdk';
 
     let {
         transactionData,
@@ -155,21 +152,32 @@
             // Extract the base type without references
             let baseType = type.replace(/^&(mut )?/, '');
 
-            // Handle simple types
+            // Handle simple types using DataView for BCS little-endian parsing
+            const dv = new DataView(
+                uint8Array.buffer,
+                uint8Array.byteOffset,
+                uint8Array.byteLength,
+            );
             if (baseType === 'bool') {
-                return bcs.bool().parse(uint8Array).toString();
+                return (uint8Array[0] !== 0).toString();
             } else if (baseType === 'u8') {
-                return bcs.u8().parse(uint8Array).toString();
+                return uint8Array[0].toString();
             } else if (baseType === 'u16') {
-                return bcs.u16().parse(uint8Array).toString();
+                return dv.getUint16(0, true).toString();
             } else if (baseType === 'u32') {
-                return bcs.u32().parse(uint8Array).toString();
+                return dv.getUint32(0, true).toString();
             } else if (baseType === 'u64') {
-                return bcs.u64().parse(uint8Array).toString();
+                return dv.getBigUint64(0, true).toString();
             } else if (baseType === 'u128') {
-                return bcs.u128().parse(uint8Array).toString();
+                const lo = dv.getBigUint64(0, true);
+                const hi = dv.getBigUint64(8, true);
+                return ((hi << 64n) | lo).toString();
             } else if (baseType === 'u256') {
-                return bcs.u256().parse(uint8Array).toString();
+                let val = 0n;
+                for (let i = 3; i >= 0; i--) {
+                    val = (val << 64n) | dv.getBigUint64(i * 8, true);
+                }
+                return val.toString();
             } else if (baseType === 'address') {
                 // Address is 32 bytes, convert to hex
                 return `0x${Array.from(uint8Array)
@@ -290,10 +298,12 @@
 
             // Fetch all pages
             while (hasMorePages) {
-                const result: any = JSON.parse(await gqlClient.runQuery({
-                    query,
-                    variables: JSON.stringify({ address: packageId, functionsCursor: cursor }),
-                }));
+                const result: any = JSON.parse(
+                    await gqlClient.runQuery({
+                        query,
+                        variables: JSON.stringify({ address: packageId, functionsCursor: cursor }),
+                    }),
+                );
 
                 if (!result?.package) {
                     sharedPackageErrors[packageId] = 'Package not found';

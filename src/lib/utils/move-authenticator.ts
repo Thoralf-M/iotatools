@@ -1,9 +1,6 @@
-// [GAP] BcsType not available in WASM SDK
-type BcsType = any;
+import { type BcsType, bcs } from '@iota/iota-sdk/bcs';
 import { toHex } from './wasm-sdk';
 import { base64Decode as fromBase64 } from './wasm-sdk';
-// [GAP] @iota/iota-sdk/bcs - Custom BCS schema object not available in WASM SDK
-const bcs = null as any; // [GAP] placeholder
 
 type ObjectArg =
     | {
@@ -66,20 +63,11 @@ function createTypeTagBcs(): BcsType<string> {
     }) as unknown as BcsType<string>;
 }
 
-// [GAP] BCS custom schema not available in WASM SDK — these are created lazily
-// and will throw at runtime if actually called. The parseMoveAuthenticatorSignature
-// function below will throw an informative error instead.
 let TypeTagBcs: any;
 let MoveAuthenticatorV1Bcs: any;
 let MoveAuthenticatorInnerBcs: any;
 
 function ensureBcsInitialized() {
-    if (bcs === null) {
-        throw new Error(
-            '[GAP] BCS custom schema definitions are not available in the WASM SDK. ' +
-                'MoveAuthenticator parsing requires the @iota/bcs package.',
-        );
-    }
     if (!TypeTagBcs) {
         TypeTagBcs = createTypeTagBcs();
         MoveAuthenticatorV1Bcs = bcs.struct('MoveAuthenticatorV1', {
@@ -98,7 +86,7 @@ function normalizeCallArg(arg: CallArg): string {
         // Pure bytes can be number[] from BCS parsing
         const bytes =
             typeof arg.Pure.bytes === 'string'
-                ? fromBase64(arg.Pure.bytes)
+                ? new Uint8Array(fromBase64(arg.Pure.bytes))
                 : new Uint8Array(arg.Pure.bytes);
         return `0x${toHex(bytes)}`;
     }
@@ -134,7 +122,7 @@ function extractObjectId(objectArg: ObjectArg): string {
 
 export function parseMoveAuthenticatorSignature(signatureBase64: string): MoveAuthenticatorInfo {
     ensureBcsInitialized();
-    const bytes = fromBase64(signatureBase64);
+    const bytes = new Uint8Array(fromBase64(signatureBase64));
 
     if (bytes[0] !== 0x07) {
         throw new Error('Signature is not a MoveAuthenticator');

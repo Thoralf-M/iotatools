@@ -1,10 +1,10 @@
 <script lang="ts">
-    import { NANOS_PER_IOTA } from '../../utils/wasm-sdk';
     import { onMount } from 'svelte';
     import { List } from 'svelte-virtual';
 
     import { getSelectedNetworkConfig } from '../../utils/client';
     import { copyToClipboard } from '../../utils/formatting';
+    import { NANOS_PER_IOTA } from '../../utils/wasm-sdk';
     import type { ActionDetails, StakeObject, ValidatorInfo } from './';
     import pricesCache from './cache/iota-prices-coingecko.json';
     import epochTimestampsCacheJson from './cache/mainnet-epoch-timestamps-cache.json';
@@ -80,8 +80,10 @@
     } = $props();
 
     let windowWidth = $state(0);
+    let mounted = $state(false);
 
     onMount(() => {
+        mounted = true;
         const updateWidth = () => {
             windowWidth = window.innerWidth;
         };
@@ -476,7 +478,7 @@
     <div style="text-align: center; padding: 2rem; color: #bacce6;">
         No stake transactions for this address.
     </div>
-{:else}
+{:else if filteredEpochs.length > 0 && mounted}
     <div class="table-container">
         <div class="virtual-table" style="height: {height + 80}px">
             <!-- Fixed header that scrolls horizontally -->

@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { GraphQlClient } from '../../utils/wasm-sdk';
     import cytoscape from 'cytoscape';
     // @ts-ignore
     import cytoscapeDagre from 'cytoscape-dagre';
@@ -12,6 +11,7 @@
     import { getClient, getSelectedNetworkConfig } from '../../utils/client';
     import { getAddressLink } from '../../utils/explorer-links';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
+    import { GraphQlClient } from '../../utils/wasm-sdk';
     import {
         fetchRecentTransactions,
         fetchTransactionByDigest,
@@ -622,10 +622,12 @@
 
             // Get current epoch
             const epochQuery = `query { epoch { epochId } }`;
-            const epochResult: any = JSON.parse(await gqlClient.runQuery({
-                query: epochQuery,
-                variables: undefined,
-            }));
+            const epochResult: any = JSON.parse(
+                await gqlClient.runQuery({
+                    query: epochQuery,
+                    variables: undefined,
+                }),
+            );
             const currentEpoch = epochResult?.epoch?.epochId;
 
             if (currentEpoch) {
@@ -644,10 +646,12 @@
                         }
                     }
                 }`;
-                const checkpointResult: any = JSON.parse(await gqlClient.runQuery({
-                    query: checkpointQuery,
-                    variables: JSON.stringify({ epochId: parseInt(currentEpoch) }),
-                }));
+                const checkpointResult: any = JSON.parse(
+                    await gqlClient.runQuery({
+                        query: checkpointQuery,
+                        variables: JSON.stringify({ epochId: parseInt(currentEpoch) }),
+                    }),
+                );
                 if (checkpointResult.errors) {
                     throw new Error(`GraphQL errors: ${JSON.stringify(checkpointResult.errors)}`);
                 }

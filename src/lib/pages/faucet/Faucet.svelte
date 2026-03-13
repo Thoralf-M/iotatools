@@ -1,15 +1,12 @@
 <script lang="ts">
-    import { isValidIotaAddress } from '../../utils/wasm-sdk';
-
-    import { Address, FaucetClient } from '../../utils/wasm-sdk';
-
     import JsonToggleView from '../../components/JsonToggleView.svelte';
     import { sharedClientConfig } from '../../utils/local-storage-store';
     import { activeAddress } from '../../utils/signer-data';
+    import { Address, FaucetClient, isValidIotaAddress } from '../../utils/wasm-sdk';
 
     let address = '0x111111111504e9350e635d65cd38ccd2c029434c6a3a480d8947a9ba6a15b215';
     let faucetUrl = 'https://faucet.testnet.iota.cafe/gas';
-    let value = {};
+    let value: any = {};
     let amountOfRequests = 1;
     let msBetweenRequests = 1000;
 

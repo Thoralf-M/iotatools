@@ -105,7 +105,9 @@ ${objectChangesSection}
         `;
 
         const variables = { address };
-        const result: any = JSON.parse(await gqlClient.runQuery({ query, variables: JSON.stringify(variables) }));
+        const result: any = JSON.parse(
+            await gqlClient.runQuery({ query, variables: JSON.stringify(variables) }),
+        );
         if (result.errors) {
             throw new Error(`GraphQL query error: ${JSON.stringify(result.errors)}`);
         }
@@ -145,10 +147,12 @@ ${objectChangesSection}
                         txDigest: tx.digest,
                         objectChangesCursor: objectEndCursor,
                     };
-                    const objectResult: any = JSON.parse(await gqlClient.runQuery({
-                        query: objectChangesQuery,
-                        variables: JSON.stringify(objectVariables),
-                    }));
+                    const objectResult: any = JSON.parse(
+                        await gqlClient.runQuery({
+                            query: objectChangesQuery,
+                            variables: JSON.stringify(objectVariables),
+                        }),
+                    );
                     if (objectResult.errors) {
                         throw new Error(`GraphQL query error: ${JSON.stringify(result.errors)}`);
                     }
@@ -407,8 +411,9 @@ async function fetchMissingEpochsWithDynamicFields(
                                     }`;
                 const variables = { parentId: exchangeRateId, epochBcs };
                 // @ts-ignore
-                const resultStr = await new GraphQlClient(getSelectedNetworkConfig().graphql)
-                    .runQuery({ query, variables: JSON.stringify(variables) });
+                const resultStr = await new GraphQlClient(
+                    getSelectedNetworkConfig().graphql,
+                ).runQuery({ query, variables: JSON.stringify(variables) });
                 const result: any = JSON.parse(resultStr);
                 const data = result?.owner?.dynamicField?.value?.json;
                 if (data) {
@@ -566,7 +571,9 @@ export async function fetchAllExchangeRates(
         }`;
 
         const variables = { epochId: currentEpoch };
-        const result: any = JSON.parse(await gqlClient.runQuery({ query, variables: JSON.stringify(variables) }));
+        const result: any = JSON.parse(
+            await gqlClient.runQuery({ query, variables: JSON.stringify(variables) }),
+        );
         const activeValidators = result?.epoch?.validatorSet?.activeValidators;
 
         if (!activeValidators?.nodes) break;
@@ -642,10 +649,12 @@ export async function fetchAllExchangeRates(
                         exchangeRatesTableId: validator.exchangeRatesTable?.address,
                         cursor: exchangeRateCursor,
                     };
-                    const exchangeRateResult: any = JSON.parse(await gqlClient.runQuery({
-                        query: exchangeRateQuery,
-                        variables: JSON.stringify(exchangeRateVariables),
-                    }));
+                    const exchangeRateResult: any = JSON.parse(
+                        await gqlClient.runQuery({
+                            query: exchangeRateQuery,
+                            variables: JSON.stringify(exchangeRateVariables),
+                        }),
+                    );
                     const dynamicFields = exchangeRateResult?.owner?.dynamicFields;
 
                     if (!dynamicFields?.nodes) break;
@@ -883,7 +892,9 @@ export async function fetchEpochStartTimestamp(epochId: number): Promise<number 
     const gqlClient = new GraphQlClient(getSelectedNetworkConfig().graphql);
     const query = `query ($epochId: Int!) { epoch(id: $epochId) { startTimestamp } }`;
     const variables = { epochId };
-    const result: any = JSON.parse(await gqlClient.runQuery({ query, variables: JSON.stringify(variables) }));
+    const result: any = JSON.parse(
+        await gqlClient.runQuery({ query, variables: JSON.stringify(variables) }),
+    );
     const startTimestamp = result?.epoch?.startTimestamp;
     if (typeof startTimestamp === 'string') {
         // Parse ISO string to Date and return seconds since epoch
@@ -900,7 +911,9 @@ export async function fetchEpochEndTimestamp(epochId: number): Promise<number | 
     const gqlClient = new GraphQlClient(getSelectedNetworkConfig().graphql);
     const query = `query ($epochId: Int!) { epoch(id: $epochId) { endTimestamp } }`;
     const variables = { epochId };
-    const result: any = JSON.parse(await gqlClient.runQuery({ query, variables: JSON.stringify(variables) }));
+    const result: any = JSON.parse(
+        await gqlClient.runQuery({ query, variables: JSON.stringify(variables) }),
+    );
     const endTimestamp = result?.epoch?.endTimestamp;
     if (typeof endTimestamp === 'string') {
         // Parse ISO string to Date and return seconds since epoch
@@ -921,7 +934,9 @@ export async function updateTimestampsCache(
 
     // Get current epoch
     const epochQuery = `query { epoch { epochId } }`;
-    const epochResult: any = JSON.parse(await gqlClient.runQuery({ query: epochQuery, variables: undefined }));
+    const epochResult: any = JSON.parse(
+        await gqlClient.runQuery({ query: epochQuery, variables: undefined }),
+    );
     const currentEpoch = epochResult?.epoch?.epochId || 1;
 
     console.log(`Current epoch: ${currentEpoch}`);
@@ -1032,7 +1047,9 @@ export async function updateExchangeRatesCache(): Promise<void> {
 
     // Get current epoch
     const epochQuery = `query { epoch { epochId } }`;
-    const epochResult: any = JSON.parse(await gqlClient.runQuery({ query: epochQuery, variables: undefined }));
+    const epochResult: any = JSON.parse(
+        await gqlClient.runQuery({ query: epochQuery, variables: undefined }),
+    );
     const currentEpoch = epochResult?.epoch?.epochId;
 
     if (!currentEpoch) {
@@ -1089,7 +1106,9 @@ export async function updateExchangeRatesCache(): Promise<void> {
         }`;
 
         const variables = { epochId: currentEpoch };
-        const result: any = JSON.parse(await gqlClient.runQuery({ query, variables: JSON.stringify(variables) }));
+        const result: any = JSON.parse(
+            await gqlClient.runQuery({ query, variables: JSON.stringify(variables) }),
+        );
         const activeValidators = result?.epoch?.validatorSet?.activeValidators;
 
         if (!activeValidators?.nodes) break;
@@ -1164,10 +1183,12 @@ export async function updateExchangeRatesCache(): Promise<void> {
                         exchangeRatesTableId: validator.exchangeRatesTable?.address,
                         cursor: exchangeRateCursor,
                     };
-                    const exchangeRateResult: any = JSON.parse(await gqlClient.runQuery({
-                        query: exchangeRateQuery,
-                        variables: JSON.stringify(exchangeRateVariables),
-                    }));
+                    const exchangeRateResult: any = JSON.parse(
+                        await gqlClient.runQuery({
+                            query: exchangeRateQuery,
+                            variables: JSON.stringify(exchangeRateVariables),
+                        }),
+                    );
                     const dynamicFields = exchangeRateResult?.owner?.dynamicFields;
 
                     if (!dynamicFields?.nodes) break;

@@ -1,18 +1,4 @@
 <script lang="ts">
-    import { base64Decode as fromBase64 } from '../utils/wasm-sdk';
-    // [GAP] parseSerializedSignature from @iota/iota-sdk/cryptography not in WASM SDK
-    const parseSerializedSignature = (...args: any[]): any => {
-        throw new Error('[GAP] parseSerializedSignature not available in WASM SDK');
-    };
-    // [GAP] parsePartialSignatures not in WASM SDK
-    // [GAP] publicKeyFromRawBytes not in WASM SDK
-    const parsePartialSignatures = (...args: any[]) => {
-        throw new Error('[GAP] parsePartialSignatures not available in WASM SDK');
-    };
-    const publicKeyFromRawBytes = (...args: any[]) => {
-        throw new Error('[GAP] publicKeyFromRawBytes not available in WASM SDK');
-    };
-
     import { getSelectedNetworkConfig } from '../utils/client';
     import { getObjectLink } from '../utils/explorer-links';
     import { copyToClipboard } from '../utils/formatting';
@@ -20,6 +6,100 @@
         parseMoveAuthenticatorSignature,
         type MoveAuthenticatorInfo,
     } from '../utils/move-authenticator';
+    import {
+        base64Decode as fromBase64,
+        base64Encode as toBase64Str,
+        WasmEd25519PublicKey,
+        WasmSecp256k1PublicKey,
+        WasmSecp256r1PublicKey,
+    } from '../utils/wasm-sdk';
+
+    // Signature scheme flags
+    const SCHEME_ED25519 = 0x00;
+    const SCHEME_SECP256K1 = 0x01;
+    const SCHEME_SECP256R1 = 0x02;
+    const SCHEME_MULTISIG = 0x03;
+
+    const SCHEME_NAMES: Record<number, string> = {
+        [SCHEME_ED25519]: 'ED25519',
+        [SCHEME_SECP256K1]: 'Secp256k1',
+        [SCHEME_SECP256R1]: 'Secp256r1',
+        [SCHEME_MULTISIG]: 'MultiSig',
+    };
+
+    // Signature sizes: ED25519 = 64 sig + 32 pubkey, Secp256k1/r1 = 64 sig + 33 pubkey
+    const PUBKEY_SIZES: Record<number, number> = {
+        [SCHEME_ED25519]: 32,
+        [SCHEME_SECP256K1]: 33,
+        [SCHEME_SECP256R1]: 33,
+    };
+
+    /**
+     * Wraps a WASM SDK public key object with the display methods
+     * expected by the template (toBase64, toIotaPublicKey, toIotaAddress).
+     */
+    function wrapPublicKey(wasmPubKey: {
+        toBytes(): ArrayBuffer;
+        toFlaggedBytes(): ArrayBuffer;
+        deriveAddress(): { toHex(): string };
+    }) {
+        return {
+            toBase64() {
+                return toBase64Str(wasmPubKey.toBytes());
+            },
+            toIotaPublicKey() {
+                return toBase64Str(wasmPubKey.toFlaggedBytes());
+            },
+            toIotaAddress() {
+                return wasmPubKey.deriveAddress().toHex();
+            },
+        };
+    }
+
+    /**
+     * Parse a serialized IOTA signature from base64 into its components.
+     * Format: [scheme_flag | signature_bytes | public_key_bytes]
+     */
+    function parseSerializedSignature(sigBase64: string) {
+        const bytes = new Uint8Array(fromBase64(sigBase64));
+        const scheme = bytes[0];
+        const schemeName = SCHEME_NAMES[scheme];
+
+        if (scheme === SCHEME_MULTISIG) {
+            return { signatureScheme: 'MultiSig', bytes };
+        }
+
+        if (!schemeName) {
+            throw new Error(`Unknown signature scheme: 0x${scheme.toString(16).padStart(2, '0')}`);
+        }
+
+        const pubKeySize = PUBKEY_SIZES[scheme];
+        const sigSize = 64;
+        const expectedLen = 1 + sigSize + pubKeySize;
+
+        if (bytes.length < expectedLen) {
+            throw new Error(`Signature too short: ${bytes.length} bytes, expected ${expectedLen}`);
+        }
+
+        const signatureBytes = bytes.slice(1, 1 + sigSize);
+        const publicKeyBytes = bytes.slice(1 + sigSize, 1 + sigSize + pubKeySize);
+
+        // Create WASM SDK public key object
+        let wasmPubKey;
+        if (scheme === SCHEME_ED25519) {
+            wasmPubKey = WasmEd25519PublicKey.fromBytes(publicKeyBytes.buffer as ArrayBuffer);
+        } else if (scheme === SCHEME_SECP256K1) {
+            wasmPubKey = WasmSecp256k1PublicKey.fromBytes(publicKeyBytes.buffer as ArrayBuffer);
+        } else {
+            wasmPubKey = WasmSecp256r1PublicKey.fromBytes(publicKeyBytes.buffer as ArrayBuffer);
+        }
+
+        return {
+            signatureScheme: schemeName,
+            signature: signatureBytes,
+            publicKey: wrapPublicKey(wasmPubKey),
+        };
+    }
 
     interface SignatureInfo {
         signatureScheme: string;
@@ -35,10 +115,29 @@
         transactionData?: any;
     }>();
 
+    function determineRole(
+        index: number,
+        address: string | null,
+        senderAddress: string | null,
+        gasSponsorAddress: string | null,
+    ): 'sender' | 'gas_sponsor' | 'unknown' {
+        if (address && senderAddress && address === senderAddress) return 'sender';
+        if (
+            address &&
+            gasSponsorAddress &&
+            address === gasSponsorAddress &&
+            gasSponsorAddress !== senderAddress
+        )
+            return 'gas_sponsor';
+        if (signatures.length === 1) return 'sender';
+        if (index === 0) return 'sender';
+        if (index === 1) return 'gas_sponsor';
+        return 'unknown';
+    }
+
     let parsedSignatures = $derived.by(() => {
         const result: SignatureInfo[] = [];
 
-        // Extract sender and gas sponsor addresses from transaction data
         let senderAddress: string | null = null;
         let gasSponsorAddress: string | null = null;
 
@@ -49,33 +148,20 @@
 
         signatures.forEach((sigString: string, index: number) => {
             try {
-                // TODO: TEMPORARY - Check for MoveAuthenticator (0x07) before using official parser
-                const bytes = fromBase64(sigString);
+                const bytes = new Uint8Array(fromBase64(sigString));
                 if (bytes[0] === 0x07) {
                     // MoveAuthenticator - use custom parser
                     const parsed = parseMoveAuthenticatorSignature(sigString);
-
-                    // Determine role based on the authenticated object address
-                    let role: 'sender' | 'gas_sponsor' | 'unknown' = 'unknown';
-                    if (senderAddress && parsed.objectId === senderAddress) {
-                        role = 'sender';
-                    } else if (
-                        gasSponsorAddress &&
-                        parsed.objectId === gasSponsorAddress &&
-                        gasSponsorAddress !== senderAddress
-                    ) {
-                        role = 'gas_sponsor';
-                    } else if (signatures.length === 1) {
-                        role = 'sender';
-                    } else if (index === 0) {
-                        role = 'sender';
-                    } else if (index === 1) {
-                        role = 'gas_sponsor';
-                    }
+                    const role = determineRole(
+                        index,
+                        parsed.objectId,
+                        senderAddress,
+                        gasSponsorAddress,
+                    );
 
                     result.push({
                         signatureScheme: 'MoveAuthenticator',
-                        publicKey: null, // MoveAuthenticator doesn't have a traditional public key
+                        publicKey: null,
                         signature: new Uint8Array(),
                         role,
                         rawSignature: sigString,
@@ -87,42 +173,22 @@
                 const parsed = parseSerializedSignature(sigString);
 
                 if (parsed.signatureScheme === 'MultiSig') {
-                    const partialSignatures = parsePartialSignatures(parsed.multisig);
-                    partialSignatures.forEach((sig) => {
-                        result.push({
-                            signatureScheme: sig.signatureScheme,
-                            publicKey: sig.publicKey,
-                            signature: sig.signature,
-                            role: 'unknown',
-                            rawSignature: sigString,
-                        });
+                    // MultiSig: show as single entry with raw signature
+                    result.push({
+                        signatureScheme: 'MultiSig',
+                        publicKey: null,
+                        signature: new Uint8Array(),
+                        role: determineRole(index, null, senderAddress, gasSponsorAddress),
+                        rawSignature: sigString,
                     });
                 } else {
-                    const pubKey = publicKeyFromRawBytes(parsed.signatureScheme, parsed.publicKey);
-                    const address = pubKey.toIotaAddress();
-
-                    // Determine role
-                    let role: 'sender' | 'gas_sponsor' | 'unknown' = 'unknown';
-                    if (senderAddress && address === senderAddress) {
-                        role = 'sender';
-                    } else if (
-                        gasSponsorAddress &&
-                        address === gasSponsorAddress &&
-                        gasSponsorAddress !== senderAddress
-                    ) {
-                        role = 'gas_sponsor';
-                    } else if (signatures.length === 1) {
-                        role = 'sender';
-                    } else if (index === 0) {
-                        role = 'sender';
-                    } else if (index === 1) {
-                        role = 'gas_sponsor';
-                    }
+                    const address = parsed.publicKey!.toIotaAddress();
+                    const role = determineRole(index, address, senderAddress, gasSponsorAddress);
 
                     result.push({
                         signatureScheme: parsed.signatureScheme,
-                        publicKey: pubKey,
-                        signature: parsed.signature,
+                        publicKey: parsed.publicKey!,
+                        signature: parsed.signature!,
                         role,
                         rawSignature: sigString,
                     });
@@ -243,7 +309,7 @@
                                 </button>
                             </div>
                         </div>
-                    {:else}
+                    {:else if sig.publicKey}
                         <div class="detail-row">
                             <span class="detail-label">Public Key:</span>
                             <div class="detail-value-container">
@@ -304,6 +370,19 @@
                             </div>
                         </div>
 
+                        <div class="detail-row">
+                            <span class="detail-label">Full Signature:</span>
+                            <div class="detail-value-container">
+                                <span class="detail-value wrap">{sig.rawSignature}</span>
+                                <button
+                                    class="copy-btn"
+                                    onclick={async () => await copyToClipboard(sig.rawSignature)}
+                                >
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+                    {:else}
                         <div class="detail-row">
                             <span class="detail-label">Full Signature:</span>
                             <div class="detail-value-container">

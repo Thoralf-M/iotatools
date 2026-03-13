@@ -1,14 +1,14 @@
-// [GAP] IotaTransactionBlockResponse type not available in WASM SDK - use TransactionDataEffects
-// [GAP] IotaTransactionBlockResponseOptions type not available in WASM SDK
-type IotaTransactionBlockResponse = any;
-type IotaTransactionBlockResponseOptions = any;
-// [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
-type Transaction = any;
+import type {
+    IotaTransactionBlockResponse,
+    IotaTransactionBlockResponseOptions,
+} from '@iota/iota-sdk/client';
+import { Transaction } from '@iota/iota-sdk/transactions';
 import type { IotaSignAndExecuteTransactionInput, WalletAccount } from '@iota/wallet-standard';
 import { get, writable, type Writable } from 'svelte/store';
 
-import { getClient } from './client';
+import { getLegacyClient } from './client';
 import { keypairFromBech32PrivateKey, toWalletAccounts } from './default-private-keys';
+import { PersonalMessage, transactionFromBcs } from './wasm-sdk';
 import {
     sharedExternalAddresses,
     sharedPrivateKeyAccounts,
@@ -49,11 +49,10 @@ export class PrivateKeyWallet {
             throw new Error(`No account found for address: ${senderAddress}`);
         }
         const keypair = keypairFromBech32PrivateKey(senderAccount.bech32PrivateKey);
-        let client = getClient();
+        let client = getLegacyClient();
         return client.signAndExecuteTransaction({
-            // @ts-ignore
-            transaction: params.transaction,
-            signer: keypair,
+            transaction: params.transaction as any,
+            signer: keypair as any,
             options: params.options,
         });
     }
@@ -69,8 +68,12 @@ export class PrivateKeyWallet {
             throw new Error(`No account found for address: ${senderAddress}`);
         }
         const keypair = keypairFromBech32PrivateKey(senderAccount.bech32PrivateKey);
-        const signature = await keypair.signTransaction(await params.transaction.build());
-        return { signature: signature.signature };
+        // WASM SDK signTransaction returns UserSignatureInterface with toBase64()
+        const txBytes = await params.transaction.build({ client: getLegacyClient() });
+        const sig = await keypair.signTransaction(
+            transactionFromBcs(txBytes.buffer as ArrayBuffer),
+        );
+        return { signature: sig.toBase64() };
     }
 
     async signPersonalMessage(params: {
@@ -84,8 +87,10 @@ export class PrivateKeyWallet {
             throw new Error(`No account found for address: ${senderAddress}`);
         }
         const keypair = keypairFromBech32PrivateKey(senderAccount.bech32PrivateKey);
-        const signature = await keypair.signPersonalMessage(params.message);
-        return { signature: signature.signature };
+        // WASM SDK signPersonalMessage takes PersonalMessageInterface
+        const personalMsg = new PersonalMessage(params.message.buffer as ArrayBuffer);
+        const sig = await keypair.signPersonalMessage(personalMsg);
+        return { signature: sig.toBase64() };
     }
 }
 

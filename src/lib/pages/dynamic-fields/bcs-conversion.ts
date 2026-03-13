@@ -1,8 +1,6 @@
-// [GAP] BcsType not available in WASM SDK
-type BcsType = any;
-// [GAP] @iota/iota-sdk/bcs - Custom BCS schema object not available in WASM SDK
-const bcs = null as any; // [GAP] placeholder
-// [GAP] MoveTypeLayout type not in WASM SDK
+import { type BcsType, bcs } from '@iota/iota-sdk/bcs';
+
+// MoveTypeLayout is used for dynamic BCS schema construction
 type MoveTypeLayout = any;
 import { toB64 } from '../../utils/wasm-sdk';
 

@@ -56,7 +56,9 @@ export function verifyPrivateKeyAccounts(value: any) {
         if (typeof acc.bech32PrivateKey !== 'string')
             throw new Error(`Account for ${address} is missing a valid bech32PrivateKey`);
         try {
-            acc.address = deriveAddressFromKeypair(keypairFromBech32PrivateKey(acc.bech32PrivateKey));
+            acc.address = deriveAddressFromKeypair(
+                keypairFromBech32PrivateKey(acc.bech32PrivateKey),
+            );
             if (address !== acc.address) {
                 throw new Error(
                     `Address key ${address} doesn't match derived address from the private key`,
@@ -100,7 +102,10 @@ export function toWalletAccounts(sharedPrivateKeyAccounts: PrivateKeyAccounts): 
                 label: account.label,
                 privKey: account.bech32PrivateKey,
                 publicKey: new Uint8Array(
-                    keypairFromBech32PrivateKey(account.bech32PrivateKey).publicKey().asEd25519().toBytes(),
+                    keypairFromBech32PrivateKey(account.bech32PrivateKey)
+                        .publicKey()
+                        .asEd25519()
+                        .toBytes(),
                 ),
                 chains: ['iota:mainnet'],
                 features: ['iota:signAndExecuteTransaction'],

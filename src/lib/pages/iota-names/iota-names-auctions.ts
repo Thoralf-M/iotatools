@@ -1,8 +1,6 @@
 // IOTA Names auction functions
-// [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
-type Transaction = any;
+import { Transaction } from '@iota/iota-sdk/transactions';
 
-import { getClient } from '../../utils/client';
 import { executeTransaction } from '../../utils/transaction-execution';
 import { config } from './iota-names-config';
 import { queryAuctionObjectId } from './iota-names-data';
@@ -110,11 +108,19 @@ export async function listAuctions() {
     try {
         await getPackageIds();
         await queryAuctionObjectId();
-        let client = getClient();
-        let object = await client.getObject({
-            id: config.AUCTION_HOUSE_OBJECT_ID,
-            options: { showContent: true, showPreviousTransaction: true },
-        });
+        const gqlClient = createGraphQLClient();
+        const objectQuery = `{
+            object(address: "${config.AUCTION_HOUSE_OBJECT_ID}") {
+                address
+                previousTransactionBlock { digest }
+                asMoveObject {
+                    contents {
+                        json
+                    }
+                }
+            }
+        }`;
+        const objectResult = await queryGraphQl(gqlClient, objectQuery, {});
         let res: any = {
             objectId: '',
             previousTransaction: '',
@@ -124,15 +130,11 @@ export async function listAuctions() {
             auctions: [],
             unclaimedAuctions: [],
         };
-        res.objectId = object.data?.objectId;
-        res.previousTransaction = object.data?.previousTransaction;
-        // @ts-ignore
-        res.balance = object.data?.content?.fields?.balance;
-        let linked_table_id =
-            // @ts-ignore
-            object.data.content.fields.auctions.fields.id.id;
+        res.objectId = objectResult.object?.address;
+        res.previousTransaction = objectResult.object?.previousTransactionBlock?.digest;
+        res.balance = objectResult.object?.asMoveObject?.contents?.json?.balance;
+        let linked_table_id = objectResult.object?.asMoveObject?.contents?.json?.auctions?.id?.id;
 
-        const gqlClient = createGraphQLClient();
         let cursorSection = '';
         while (true) {
             let query = `{
@@ -155,16 +157,11 @@ export async function listAuctions() {
                 }
             }`;
 
-            let object = await queryGraphQl(gqlClient, query, {
-                address: config.IOTA_NAMES_OBJECT_ID,
-            });
+            let object = await queryGraphQl(gqlClient, query, {});
 
-            if (object.errors) {
-                break;
-            }
             let now = new Date().getTime();
             // @ts-ignore
-            for (let auctionNode of object.data.owner.dynamicFields.nodes) {
+            for (let auctionNode of object.owner.dynamicFields.nodes) {
                 // @ts-ignore
                 let auction = auctionNode.value.json;
                 delete auction['prev'];
@@ -187,9 +184,9 @@ export async function listAuctions() {
             }
 
             // @ts-ignore
-            if (object.data.owner.dynamicFields.pageInfo.hasNextPage) {
+            if (object.owner.dynamicFields.pageInfo.hasNextPage) {
                 // @ts-ignore
-                cursorSection = `(after: "${object.data.owner.dynamicFields.pageInfo.endCursor}")`;
+                cursorSection = `(after: "${object.owner.dynamicFields.pageInfo.endCursor}")`;
             } else {
                 break;
             }

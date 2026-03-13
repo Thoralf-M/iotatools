@@ -1,14 +1,13 @@
 <script lang="ts">
-    // [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
-    type Transaction = any;
+    import { Transaction } from '@iota/iota-sdk/transactions';
 
     import IotaAmountInput from '../../components/IotaAmountInput.svelte';
     import JsonToggleView from '../../components/JsonToggleView.svelte';
     import TransactionView from '../../components/TransactionView.svelte';
     import { getClient } from '../../utils/client';
-    import type { GraphQlClientInterface } from '../../utils/wasm-sdk';
     import { activeAddress } from '../../utils/signer-data';
     import { executeTransaction } from '../../utils/transaction-execution';
+    import type { GraphQlClientInterface } from '../../utils/wasm-sdk';
 
     interface CoinData {
         coinObjectId: string;

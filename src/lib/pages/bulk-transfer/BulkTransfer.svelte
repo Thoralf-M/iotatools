@@ -1,12 +1,11 @@
 <script lang="ts">
-    // [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
-    type Transaction = any;
-    import { isValidIotaAddress } from '../../utils/wasm-sdk';
+    import { Transaction } from '@iota/iota-sdk/transactions';
 
     import TransactionView from '../../components/TransactionView.svelte';
     import { getClient } from '../../utils/client';
     import { activeAddress } from '../../utils/signer-data';
     import { executeTransaction } from '../../utils/transaction-execution';
+    import { isValidIotaAddress } from '../../utils/wasm-sdk';
 
     let transfersJson = `0x0000a4984bd495d4346fa208ddff4f5d5e5ad48c21dec631ddebc99809f16900 1000000000
 0x111173a14c3d402c01546c54265c30cc04414c7b7ec1732412bb19066dd49d11 2000000000`;

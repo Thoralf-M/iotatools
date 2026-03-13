@@ -1,17 +1,15 @@
 <script lang="ts">
-    import { toB64 as toBase64 } from '../../utils/wasm-sdk';
-    // [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
-    type Transaction = any;
-    import { isValidIotaAddress } from '../../utils/wasm-sdk';
+    import { Transaction } from '@iota/iota-sdk/transactions';
     import { dragHandle, dragHandleZone, type DndEvent } from 'svelte-dnd-action';
 
     import TransactionView from '../../components/TransactionView.svelte';
-    import { getClient, getSelectedChain } from '../../utils/client';
+    import { getClient, getLegacyClient, getSelectedChain } from '../../utils/client';
     import { formatNumberWithUnderscores, nanoToIota } from '../../utils/iota-nano-conversion';
     import { requireMainnetTransactionConfirmation } from '../../utils/mainnet-transaction-confirmation';
     import { sharedTransactionExecution, TransactionExecution } from '../../utils/shared-in-memory';
     import { iota_accounts } from '../../utils/signer-data';
     import { calculateGasFee } from '../../utils/transaction-execution';
+    import { isValidIotaAddress, toB64 as toBase64 } from '../../utils/wasm-sdk';
     import { getActiveWallet } from '../../utils/web-wallet';
     import {
         computeAllStakingRewards,
@@ -287,16 +285,17 @@
 
                 let result: any;
 
+                const legacy = getLegacyClient();
                 switch (executionMode) {
                     case TransactionExecution.DevInspect:
-                        result = await client.devInspectTransactionBlock({
+                        result = await legacy.devInspectTransactionBlock({
                             sender: sender,
                             transactionBlock: transaction,
                         });
                         break;
                     case TransactionExecution.DryRun:
-                        result = await client.dryRunTransactionBlock({
-                            transactionBlock: await transaction.build({ client }),
+                        result = await legacy.dryRunTransactionBlock({
+                            transactionBlock: await transaction.build({ client: legacy }),
                         });
                         break;
                     case TransactionExecution.Send:
@@ -321,7 +320,7 @@
                         let json = JSON.parse(await transaction.toJSON());
 
                         if (transaction.getData().gasData.price == 0) {
-                            let referenceGasPrice = await client.getReferenceGasPrice();
+                            let referenceGasPrice = await legacy.getReferenceGasPrice();
                             transaction.setGasPrice(referenceGasPrice);
                         }
                         if (transaction.getData().gasData.budget == 0) {
@@ -329,7 +328,9 @@
                             transaction.setGasBudget(BigInt(gas!));
                         }
 
-                        let transactionBytes = toBase64(await transaction.build({ client }));
+                        let transactionBytes = toBase64(
+                            await transaction.build({ client: legacy }),
+                        );
                         result = { json, transactionBytes };
                         break;
                     default:

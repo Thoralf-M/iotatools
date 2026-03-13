@@ -1,9 +1,8 @@
 <script lang="ts">
-    import { GraphQlClient } from '../utils/wasm-sdk';
-
     import { getSelectedNetworkConfig } from '../utils/client';
     import { queryDynamicFields, type DynamicFieldsResult } from '../utils/dynamic-fields';
     import { getAddressLink, getObjectLink, getTransactionLink } from '../utils/explorer-links';
+    import { GraphQlClient } from '../utils/wasm-sdk';
 
     interface Props {
         objectId: string;

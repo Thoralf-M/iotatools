@@ -1,5 +1,8 @@
-// [GAP] @iota/graphql-transport not available in WASM SDK - GraphQlClient is natively GraphQL
-// [MIGRATION] IotaClient → GraphQlClient, IotaClientOptions removed (GraphQlClient takes a URL string)
+// [MIGRATION] Primary client is now GraphQlClient from WASM SDK.
+// Legacy IotaClient kept for operations the WASM SDK doesn't yet support
+// (devInspect, dryRunTransactionBlock, signAndExecuteTransaction, getLatestIotaSystemState).
+import { IotaClient } from '@iota/iota-sdk/client';
+import { IotaClientGraphQLTransport } from '@iota/graphql-transport';
 import { get } from 'svelte/store';
 
 import type { NetworkConfig } from './default-client-config';
@@ -14,7 +17,7 @@ let graphqlClient: GraphQlClient | undefined = undefined;
 
 export function getClient(graphql: boolean = false): GraphQlClient {
     let networkConfig = getSelectedNetworkConfig();
-    let selectedNetworkUrl = networkConfig.node;
+    let selectedNetworkUrl = networkConfig.graphql;
 
     if (graphql) {
         if (graphqlClient == undefined || selectedNetworkUrl != previousInitializedNodeUrl) {
@@ -38,6 +41,23 @@ export function getSelectedNetworkConfig(): NetworkConfig {
     }
     let config = get(sharedClientConfig);
     return config.networks.find((network) => network.name == config.selected)!;
+}
+
+// Legacy IotaClient for operations not yet supported by the WASM SDK
+// (devInspect, dryRunTransactionBlock, signAndExecuteTransaction, getLatestIotaSystemState, etc.)
+let legacyClient: IotaClient | undefined = undefined;
+let previousLegacyNodeUrl = '';
+
+export function getLegacyClient(): IotaClient {
+    const networkConfig = getSelectedNetworkConfig();
+    const url = networkConfig.graphql;
+    if (legacyClient == undefined || url != previousLegacyNodeUrl) {
+        legacyClient = new IotaClient({
+            transport: new IotaClientGraphQLTransport({ url }),
+        });
+        previousLegacyNodeUrl = url;
+    }
+    return legacyClient;
 }
 
 export function getSelectedChain(): string {

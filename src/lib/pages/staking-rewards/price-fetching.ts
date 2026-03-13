@@ -224,7 +224,9 @@ export async function updatePricesCache(
     const gqlClient = new GraphQlClient(getSelectedNetworkConfig().graphql);
 
     const epochQuery = `query { epoch { epochId } }`;
-    const epochResult: any = JSON.parse(await gqlClient.runQuery({ query: epochQuery, variables: undefined }));
+    const epochResult: any = JSON.parse(
+        await gqlClient.runQuery({ query: epochQuery, variables: undefined }),
+    );
     const currentEpoch = epochResult?.epoch?.epochId || 1;
 
     console.log(`Current epoch: ${currentEpoch}`);

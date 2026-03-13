@@ -1,15 +1,14 @@
 <script lang="ts">
-    import { base64Decode as fromBase64, toB64 as toBase64, GraphQlClient } from '../../utils/wasm-sdk';
-    // [GAP] @iota/iota-sdk/bcs - Custom BCS schema object not available in WASM SDK
-    const bcs = null as any; // [GAP] placeholder
-    // [GAP] TransactionDataBuilder not in WASM SDK
-    type TransactionDataBuilder = any;
     import { onMount } from 'svelte';
 
-    import { getTransactionData } from '../../components/transaction-view';
+    import { decodeBcsToDecodedBCS, getTransactionData } from '../../components/transaction-view';
     import TransactionView from '../../components/TransactionView.svelte';
     import { getClient, getSelectedNetworkConfig } from '../../utils/client';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
+    import { GraphQlClient } from '../../utils/wasm-sdk';
+
+    // [GAP] TransactionDataBuilder not in WASM SDK
+    type TransactionDataBuilder = any;
 
     // Query parameter integration
     const queryParamDefaults = {
@@ -107,8 +106,10 @@
                         digest
                         sender { address }
                         effects {
-                            checkpoint { sequenceNumber }
+                            status
+                            checkpoint { sequenceNumber timestamp }
                             timestamp
+                            transactionBlock { bcs }
                             objectChanges {
                                 nodes {
                                     address
@@ -123,6 +124,7 @@
                                 gasSummary { computationCost storageCost storageRebate }
                             }
                             balanceChanges { nodes { owner { asAddress { address } } amount coinType { repr } } }
+                            events { nodes { sendingModule { name } type { repr } json timestamp } }
                         }
                         expiration { epochId }
                     }
@@ -178,68 +180,41 @@
                 const parsed = JSON.parse(input);
                 transactionData = parsed;
             } else if (type === 'base64') {
-                // Try multiple decoding methods like in Converter page
+                // Try multiple decoding methods using WASM SDK
                 let decoded = false;
 
-                // First try: TransactionDataBuilder (unsigned transaction)
-                try {
-                    const txBytes = fromBase64(input);
-                    transactionData = TransactionDataBuilder.fromBytes(txBytes);
-                    // Add the original transaction bytes for dry run functionality
-                    transactionData.transactionBytes = input;
+                // Use shared BCS decoder which tries multiple strategies
+                const decodedBCS = decodeBcsToDecodedBCS(input);
+                if (decodedBCS) {
+                    const v1 = decodedBCS.intentMessage.value.V1;
+                    transactionData = {
+                        sender: v1.sender,
+                        inputs: v1.kind.ProgrammableTransaction?.inputs,
+                        commands: v1.kind.ProgrammableTransaction?.commands,
+                        gasData: v1.gasData,
+                        expiration: v1.expiration,
+                        transactionBytes: input,
+                        decodedBCS,
+                        signatures: decodedBCS.txSignatures,
+                    };
                     decoded = true;
-                } catch (e1) {
-                    console.log(
-                        'TransactionDataBuilder failed, trying JSON then SenderSignedData:',
-                        e1,
-                    );
-
-                    // Second try: Check if it's a JSON string containing signed transaction data
+                }
+                if (!decoded) {
+                    // Last try: JSON string containing signed transaction data
                     try {
                         const jsonData = JSON.parse(input);
                         if (jsonData && jsonData.intentMessage && jsonData.txSignatures) {
-                            // This is a JSON signed transaction format
                             transactionData = getTransactionData(jsonData);
                             decoded = true;
-                        } else {
-                            throw new Error('Not a signed transaction JSON format');
                         }
-                    } catch (e2) {
-                        console.log('JSON parsing failed, trying SenderSignedData BCS:', e2);
-
-                        // Third try: SenderSignedData (signed transaction)
-                        try {
-                            const txBytes = fromBase64(input);
-                            const signedData = bcs.SenderSignedData.parse(txBytes);
-                            transactionData = signedData[0];
-                            // Store the original signed transaction bytes
-                            transactionData.rawTransaction = input;
-                            // For dry run, we need just the transaction bytes without signatures
-                            // Extract the transaction part from the signed data and build it properly
-                            const v1Data = signedData[0].intentMessage.value.V1;
-                            if (v1Data.kind && v1Data.kind.ProgrammableTransaction) {
-                                const normalizedTxData = {
-                                    version: 2 as const,
-                                    sender: v1Data.sender,
-                                    inputs: v1Data.kind.ProgrammableTransaction.inputs,
-                                    commands: v1Data.kind.ProgrammableTransaction.commands,
-                                    gasData: v1Data.gasData,
-                                    expiration: v1Data.expiration,
-                                };
-                                const txDataBuilder = new TransactionDataBuilder(normalizedTxData);
-                                const transactionBytesForDryRun = toBase64(txDataBuilder.build());
-                                transactionData.transactionBytes = transactionBytesForDryRun;
-                            } else {
-                                throw new Error('Unsupported transaction kind');
-                            }
-                            decoded = true;
-                        } catch (e3) {
-                            console.log('SenderSignedData failed:', e3);
-                            throw new Error(
-                                `Failed to decode base64 transaction. Tried TransactionDataBuilder, JSON, and SenderSignedData formats.`,
-                            );
-                        }
+                    } catch {
+                        // Not JSON
                     }
+                }
+                if (!decoded) {
+                    throw new Error(
+                        'Failed to decode base64 transaction. Tried Transaction BCS and SenderSignedData BCS formats.',
+                    );
                 }
             }
 
@@ -260,8 +235,9 @@
             const config = getSelectedNetworkConfig();
             const graphqlClient = new GraphQlClient(config.graphql);
 
-            const result: any = JSON.parse(await graphqlClient.runQuery({
-                query: `
+            const result: any = JSON.parse(
+                await graphqlClient.runQuery({
+                    query: `
                     query($filter: TransactionBlockFilter) {
                         transactionBlocks(last: 1, filter: $filter${hasFilters() ? ', scanLimit: 100000000' : ''}) {
                             nodes {
@@ -276,10 +252,11 @@
                         }
                     }
                 `,
-                variables: JSON.stringify({
-                    filter: buildFilter(),
+                    variables: JSON.stringify({
+                        filter: buildFilter(),
+                    }),
                 }),
-            }));
+            );
 
             const nodes = result?.transactionBlocks?.nodes;
             const pageInfo = result?.transactionBlocks?.pageInfo;
@@ -319,8 +296,9 @@
             const config = getSelectedNetworkConfig();
             const graphqlClient = new GraphQlClient(config.graphql);
 
-            const result: any = JSON.parse(await graphqlClient.runQuery({
-                query: `
+            const result: any = JSON.parse(
+                await graphqlClient.runQuery({
+                    query: `
                     query($cursor: String!, $filter: TransactionBlockFilter) {
                         transactionBlocks(before: $cursor, last: 1, filter: $filter${hasFilters() ? ', scanLimit: 100000000' : ''}) {
                             nodes {
@@ -335,11 +313,12 @@
                         }
                     }
                 `,
-                variables: JSON.stringify({
-                    cursor: currentCursor,
-                    filter: buildFilter(),
+                    variables: JSON.stringify({
+                        cursor: currentCursor,
+                        filter: buildFilter(),
+                    }),
                 }),
-            }));
+            );
 
             const nodes = result?.transactionBlocks?.nodes;
             const pageInfo = result?.transactionBlocks?.pageInfo;
@@ -381,8 +360,9 @@
             const config = getSelectedNetworkConfig();
             const graphqlClient = new GraphQlClient(config.graphql);
 
-            const result: any = JSON.parse(await graphqlClient.runQuery({
-                query: `
+            const result: any = JSON.parse(
+                await graphqlClient.runQuery({
+                    query: `
                     query($cursor: String!, $filter: TransactionBlockFilter) {
                         transactionBlocks(after: $cursor, first: 1, filter: $filter${hasFilters() ? ', scanLimit: 100000000' : ''}) {
                             nodes {
@@ -397,11 +377,12 @@
                         }
                     }
                 `,
-                variables: JSON.stringify({
-                    cursor: currentCursor,
-                    filter: buildFilter(),
+                    variables: JSON.stringify({
+                        cursor: currentCursor,
+                        filter: buildFilter(),
+                    }),
                 }),
-            }));
+            );
 
             const nodes = result?.transactionBlocks?.nodes;
             const pageInfo = result?.transactionBlocks?.pageInfo;

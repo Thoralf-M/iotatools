@@ -1,13 +1,12 @@
 <script lang="ts">
     import { javascript } from '@codemirror/lang-javascript';
-    // [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
-    type Transaction = any;
+    import { Transaction } from '@iota/iota-sdk/transactions';
     import { githubDark } from '@uiw/codemirror-theme-github';
     import { basicSetup, EditorView } from 'codemirror';
     import { onMount } from 'svelte';
 
     import TransactionView from '../../components/TransactionView.svelte';
-    import { getClient, getSelectedChain } from '../../utils/client';
+    import { getClient, getLegacyClient, getSelectedChain } from '../../utils/client';
     import { requireMainnetTransactionConfirmation } from '../../utils/mainnet-transaction-confirmation';
     import { activeAddress, iota_wallets } from '../../utils/signer-data';
 
@@ -104,8 +103,7 @@ tx.moveCall({
         try {
             let tx = (await buildTransaction())!;
             console.log('devInspect', tx);
-            let client = getClient();
-            const devInspectResult = await client.devInspectTransactionBlock({
+            const devInspectResult = await getLegacyClient().devInspectTransactionBlock({
                 sender:
                     $activeAddress ||
                     '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -123,13 +121,13 @@ tx.moveCall({
         try {
             let tx = (await buildTransaction())!;
             console.log('dryRun', tx);
-            let client = getClient();
+            let legacyClient = getLegacyClient();
             tx.setSender(
                 $activeAddress ||
                     '0x0000000000000000000000000000000000000000000000000000000000000000',
             );
-            const bytes = await tx.build({ client });
-            const dryRunResult = await client.dryRunTransactionBlock({
+            const bytes = await tx.build({ client: legacyClient });
+            const dryRunResult = await legacyClient.dryRunTransactionBlock({
                 transactionBlock: bytes,
             });
             console.log(dryRunResult);

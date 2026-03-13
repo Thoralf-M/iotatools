@@ -15,8 +15,6 @@
 import {
     Address,
     type AddressInterface,
-    base64Decode,
-    base64Encode,
     type CoinPage,
     type DryRunResult,
     type DynamicFieldOutput,
@@ -58,11 +56,16 @@ import {
     type Ed25519PublicKeyInterface,
     Secp256k1PrivateKey,
     type Secp256k1PrivateKeyInterface,
+    Secp256k1PublicKey as WasmSecp256k1PublicKey,
+    type Secp256k1PublicKeyInterface,
     Secp256r1PrivateKey,
     type Secp256r1PrivateKeyInterface,
+    Secp256r1PublicKey as WasmSecp256r1PublicKey,
+    type Secp256r1PublicKeyInterface,
     type SignatureScheme,
     type MultisigMemberPublicKeyInterface,
     type TransactionInterface,
+    PersonalMessage,
     type PersonalMessageInterface,
     type WaitForTx,
     type ServiceConfig,
@@ -74,6 +77,10 @@ import {
     transactionFromJson,
     transactionToBcs,
     transactionToJson,
+    transactionKindToJson,
+    programmableTransactionToJson,
+    signedTransactionFromBcs,
+    transactionEffectsToJson,
     type ClientTransactionBuilderInterface,
 } from '../../../wasm/src/ts/index.web';
 
@@ -130,7 +137,7 @@ export function normalizeIotaObjectId(objectId: string): string {
  * [ADAPT] The old SDK's toB64 takes Uint8Array, WASM SDK takes ArrayBuffer.
  */
 export function toB64(data: Uint8Array): string {
-    return base64Encode(data.buffer as ArrayBuffer);
+    return pureBase64Encode(data.buffer as ArrayBuffer);
 }
 
 /**
@@ -170,13 +177,7 @@ export {
 };
 
 // Address / Object types
-export {
-    Address,
-    type AddressInterface,
-    ObjectId,
-    type ObjectIdInterface,
-    Identifier,
-};
+export { Address, type AddressInterface, ObjectId, type ObjectIdInterface, Identifier };
 
 // Transaction building
 export {
@@ -188,7 +189,16 @@ export {
 };
 
 // Transaction BCS
-export { transactionFromBcs, transactionFromJson, transactionToBcs, transactionToJson };
+export {
+    transactionFromBcs,
+    transactionFromJson,
+    transactionToBcs,
+    transactionToJson,
+    transactionKindToJson,
+    programmableTransactionToJson,
+    signedTransactionFromBcs,
+    transactionEffectsToJson,
+};
 
 // Crypto / Keypairs
 export {
@@ -200,11 +210,16 @@ export {
     type Ed25519PublicKeyInterface,
     Secp256k1PrivateKey,
     type Secp256k1PrivateKeyInterface,
+    WasmSecp256k1PublicKey,
+    type Secp256k1PublicKeyInterface,
     Secp256r1PrivateKey,
     type Secp256r1PrivateKeyInterface,
+    WasmSecp256r1PublicKey,
+    type Secp256r1PublicKeyInterface,
     type SignatureScheme,
     type MultisigMemberPublicKeyInterface,
     type UserSignatureInterface,
+    PersonalMessage,
     type PersonalMessageInterface,
 };
 
@@ -243,7 +258,31 @@ export type {
 // Encoding helpers
 // ============================================================================
 
-export { base64Encode, base64Decode };
+/**
+ * Pure-JS base64 encode/decode replacements.
+ * The WASM SDK's base64Encode/base64Decode require the WASM binary to be
+ * initialized, which fails in Node.js test environments (vitest).
+ * These pure-JS implementations work everywhere.
+ */
+function pureBase64Encode(data: ArrayBuffer): string {
+    const bytes = new Uint8Array(data);
+    let binary = '';
+    for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+}
+
+function pureBase64Decode(base64: string): ArrayBuffer {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes.buffer as ArrayBuffer;
+}
+
+export { pureBase64Encode as base64Encode, pureBase64Decode as base64Decode };
 
 /**
  * Parse a GraphQL runQuery result string into a data object.

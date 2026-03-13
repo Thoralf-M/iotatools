@@ -1,24 +1,10 @@
 import { base64Decode as fromBase64 } from '../../utils/wasm-sdk';
-// [GAP] parseSerializedSignature from @iota/iota-sdk/cryptography not in WASM SDK
-const parseSerializedSignature = (...args: any[]): any => {
-    throw new Error('[GAP] parseSerializedSignature not available in WASM SDK');
-};
-// [GAP] parsePartialSignatures not in WASM SDK
-const parsePartialSignatures = (...args: any[]) => {
-    throw new Error('[GAP] parsePartialSignatures not available in WASM SDK');
-};
-// [GAP] publicKeyFromRawBytes not in WASM SDK
-const publicKeyFromRawBytes = (...args: any[]): any => {
-    throw new Error('[GAP] publicKeyFromRawBytes not available in WASM SDK');
-};
-// [GAP] verifyTransactionSignature not in WASM SDK
-const verifyTransactionSignature = (...args: any[]): any => {
-    throw new Error('[GAP] verifyTransactionSignature not available in WASM SDK');
-};
-// [GAP] verifyPersonalMessageSignature not in WASM SDK
-const verifyPersonalMessageSignature = (...args: any[]): any => {
-    throw new Error('[GAP] verifyPersonalMessageSignature not available in WASM SDK');
-};
+// [GAP] These crypto functions from @iota/iota-sdk/cryptography are not in the WASM SDK.
+// Signature verification is not yet supported in the WASM SDK migration.
+import { parseSerializedSignature } from '@iota/iota-sdk/cryptography';
+import { publicKeyFromRawBytes } from '@iota/iota-sdk/verify';
+import { verifyTransactionSignature, verifyPersonalMessageSignature } from '@iota/iota-sdk/verify';
+import { parsePartialSignatures } from '@iota/iota-sdk/multisig';
 
 export interface SignaturePubkeyPair {
     signatureScheme: string;
@@ -86,7 +72,7 @@ export async function verifySignature(
             const pair = pubkeyPairs[0];
             try {
                 // Try transaction verification first, fallback to message if it fails
-                const txBytes = fromBase64(inputString);
+                const txBytes = new Uint8Array(fromBase64(inputString));
                 const verifiedPubKey = await verifyTransactionSignature(txBytes, signatureString);
                 if (verifiedPubKey.toBase64() !== pair.publicKey.toBase64()) {
                     status = 'invalid';

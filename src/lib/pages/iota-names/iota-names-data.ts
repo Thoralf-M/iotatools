@@ -1,9 +1,9 @@
 // IOTA Names data fetching functions
-// [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
-type Transaction = any;
+import { Transaction } from '@iota/iota-sdk/transactions';
+
 import { toHex } from '../../utils/wasm-sdk';
 
-import { getClient } from '../../utils/client';
+import { getClient, getLegacyClient } from '../../utils/client';
 import { config } from './iota-names-config';
 import { createGraphQLClient, queryGraphQl } from './iota-names-graphql';
 
@@ -24,9 +24,8 @@ export async function queryIotaNamesObjectId() {
     }`;
     let object = await queryGraphQl(gqlClient, objectQuery, {});
     // @ts-ignore
-    if (object.data.objects.edges.length > 0) {
-        // @ts-ignore
-        config.IOTA_NAMES_OBJECT_ID = object.data.objects.edges[0].node.address;
+    if (object.objects.edges.length > 0) {
+        config.IOTA_NAMES_OBJECT_ID = object.objects.edges[0].node.address;
     } else {
         config.IOTA_NAMES_OBJECT_ID = 'Not found';
     }
@@ -49,7 +48,7 @@ export async function queryAuctionObjectId() {
     }`;
     let object = await queryGraphQl(gqlClient, objectQuery, {});
     // @ts-ignore
-    config.AUCTION_HOUSE_OBJECT_ID = object.data.objects.edges[0].node.address;
+    config.AUCTION_HOUSE_OBJECT_ID = object.objects.edges[0].node.address;
 }
 
 /**
@@ -131,8 +130,7 @@ export const resolveAddress = async (nameName: string) => {
             arguments: [targetAddressOption],
         });
 
-        let client = getClient();
-        let txResult = await client.devInspectTransactionBlock({
+        let txResult = await getLegacyClient().devInspectTransactionBlock({
             sender: '0x0000000000000000000000000000000000000000000000000000000000000000',
             transactionBlock: tx,
         });
@@ -187,8 +185,7 @@ export const resolveName = async (address: string) => {
             arguments: [name],
         });
 
-        let client = getClient();
-        let txResult = await client.devInspectTransactionBlock({
+        let txResult = await getLegacyClient().devInspectTransactionBlock({
             sender: '0x0000000000000000000000000000000000000000000000000000000000000000',
             transactionBlock: tx,
         });
@@ -213,7 +210,7 @@ export const resolveName = async (address: string) => {
 export const getRegistryEntry = async (nameName: string) => {
     try {
         let client = getClient();
-        let result = await client.iotaNamesLookup({ name: nameName });
+        let result = await client.iotaNamesLookup(nameName);
         console.log(result);
         return result || 'No registry entry found';
     } catch (err: any) {

@@ -12,10 +12,7 @@ import type {
 export class GraphQLDataFetcher {
     constructor() {}
 
-    private async queryGraphQl(
-        query: string,
-        variables: Record<string, any> = {},
-    ): Promise<any> {
+    private async queryGraphQl(query: string, variables: Record<string, any> = {}): Promise<any> {
         const gqlClient = new GraphQlClient(getSelectedNetworkConfig().graphql);
         const resultStr = await gqlClient.runQuery({
             query,

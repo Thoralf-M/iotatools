@@ -1,24 +1,16 @@
 // Ledger Nano service functions and types
-import { toHex } from '../../utils/wasm-sdk';
+import { Address, toHex } from '../../utils/wasm-sdk';
 // [MIGRATION] IotaClient → GraphQlClient from wasm-sdk
 import type { GraphQlClient } from '../../utils/wasm-sdk';
-// [GAP] messageWithIntent from @iota/iota-sdk/cryptography not in WASM SDK
-const messageWithIntent = (...args: any[]): any => {
-    throw new Error('[GAP] messageWithIntent not available in WASM SDK');
-};
-// [GAP] toSerializedSignature from @iota/iota-sdk/cryptography not in WASM SDK
-const toSerializedSignature = (...args: any[]): any => {
-    throw new Error('[GAP] toSerializedSignature not available in WASM SDK');
-};
-// [GAP] Ed25519PublicKey from old SDK not in WASM SDK
-const Ed25519PublicKey = null as any; // [GAP] placeholder
-// [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
-type Transaction = any;
+// These crypto functions are not yet in the WASM SDK, using old SDK
+import { messageWithIntent, toSerializedSignature } from '@iota/iota-sdk/cryptography';
+import { Ed25519PublicKey } from '@iota/iota-sdk/keypairs/ed25519';
+import { Transaction } from '@iota/iota-sdk/transactions';
 import { isValidIotaAddress } from '../../utils/wasm-sdk';
 import IotaLedgerClient from '@iota/ledgerjs-hw-app-iota';
 import TransportWebHID from '@ledgerhq/hw-transport-webhid';
 
-import { getClient } from '../../utils/client';
+import { getClient, getLegacyClient } from '../../utils/client';
 
 // Constants
 export const IOTA_BIP44_COIN_TYPE = 4218;
@@ -193,10 +185,8 @@ export async function getAllBalances(
             if (entry.totalBalance && skipKnown) {
                 continue;
             }
-            let page = await client.getBalance({
-                owner: entry.address,
-            });
-            entry.totalBalance = page.totalBalance;
+            const bal = await client.balance(Address.fromHex(entry.address), undefined);
+            entry.totalBalance = (bal ?? 0n).toString();
         }
         return accountEntries;
     } catch (err: any) {
@@ -213,16 +203,25 @@ export async function getAllObjects(
     skipKnown: boolean = false,
 ): Promise<AccountEntry[]> {
     try {
-        const client = getClient();
+        const gqlClient = getClient(true);
         for (const entry of accountEntries) {
             // skip if the count is already known
             if (entry.objectCount && skipKnown) {
                 continue;
             }
-            let page = await client.getOwnedObjects({
-                owner: entry.address,
+            const resultStr = await gqlClient.runQuery({
+                query: `query getOwnedObjectCount($owner: IotaAddress!) {
+                    address(address: $owner) {
+                        objects {
+                            pageInfo { hasNextPage }
+                            nodes { address }
+                        }
+                    }
+                }`,
+                variables: JSON.stringify({ owner: entry.address }),
             });
-            entry.objectCount = page.data.length;
+            const result = JSON.parse(resultStr);
+            entry.objectCount = result?.address?.objects?.nodes?.length ?? 0;
         }
         return accountEntries;
     } catch (err: any) {
@@ -259,35 +258,46 @@ export async function sendAllObjects(
             bip44Path = `m/44'/${coinType}'/${accountIndex}'/${change}'/${addressIndex}'`;
         }
 
-        const client = getClient();
+        const gqlClient = getClient(true);
 
         const tx = new Transaction();
-        let page = await client.getOwnedObjects({
-            owner: senderAddress,
-            options: {
-                showType: true,
-            },
+        const resultStr = await gqlClient.runQuery({
+            query: `query getOwnedObjects($owner: IotaAddress!) {
+                address(address: $owner) {
+                    objects {
+                        nodes {
+                            address
+                            contents {
+                                type { repr }
+                            }
+                        }
+                    }
+                }
+            }`,
+            variables: JSON.stringify({ owner: senderAddress }),
         });
-        if (page.data.length == 0) {
+        const result = JSON.parse(resultStr);
+        const objects = result?.address?.objects?.nodes ?? [];
+        if (objects.length == 0) {
             throw new Error('No objects found');
         }
 
-        const gasCoinIndex = page.data.findIndex((o) => {
-            return o.data?.type === `0x2::coin::Coin<0x2::iota::IOTA>`;
+        const gasCoinIndex = objects.findIndex((o: any) => {
+            return o.contents?.type?.repr?.includes('::coin::Coin<') && o.contents?.type?.repr?.includes('::iota::IOTA>');
         });
         let gasCoin = null;
         if (gasCoinIndex !== -1) {
-            gasCoin = page.data.splice(gasCoinIndex, 1)[0];
+            gasCoin = objects.splice(gasCoinIndex, 1)[0];
         }
         if (!gasCoin) {
             throw new Error('No gas coin found');
         }
 
-        let objectsToTransfer = page.data.map((o) => o.data?.objectId ?? '');
+        let objectsToTransfer = objects.map((o: any) => o.address ?? '');
         // @ts-ignore
         objectsToTransfer.push(tx.gas);
         tx.transferObjects(objectsToTransfer, tx.pure.address(recipientAddress));
-        return await finishTransaction(tx, bip44Path, senderAddress, client, dryRun);
+        return await finishTransaction(tx, bip44Path, senderAddress, gqlClient, dryRun);
     } catch (err: any) {
         console.error(err);
         throw err;
@@ -326,12 +336,11 @@ export async function sendIotaAmount(
         const client = getClient();
 
         const tx = new Transaction();
-        let balance = await client.getBalance({
-            owner: senderAddress,
-        });
+        const bal = await client.balance(Address.fromHex(senderAddress), undefined);
+        const totalBalance = (bal ?? 0n).toString();
 
-        if (BigInt(balance.totalBalance) < BigInt(iotaAmountToSend)) {
-            throw new Error(`Not enough balance ${balance.totalBalance}/${iotaAmountToSend}`);
+        if (BigInt(totalBalance) < BigInt(iotaAmountToSend)) {
+            throw new Error(`Not enough balance ${totalBalance}/${iotaAmountToSend}`);
         }
 
         const coins = tx.splitCoins(tx.gas, [BigInt(iotaAmountToSend)]);
@@ -355,9 +364,10 @@ export async function finishTransaction(
 ): Promise<any> {
     try {
         tx.setSender(senderAddress);
-        const txBytes = await tx.build({ client });
+        const legacyClient = getLegacyClient();
+        const txBytes = await tx.build({ client: legacyClient });
         if (dryRun) {
-            const dryRunResult = await client.dryRunTransactionBlock({
+            const dryRunResult = await legacyClient.dryRunTransactionBlock({
                 transactionBlock: txBytes,
             });
             console.log(dryRunResult);
@@ -372,7 +382,7 @@ export async function finishTransaction(
                 signatureScheme: 'ED25519',
                 publicKey: new Ed25519PublicKey(publicKey),
             });
-            const result = await client.executeTransactionBlock({
+            const result = await legacyClient.executeTransactionBlock({
                 transactionBlock: txBytes,
                 signature: serializedSignature,
                 options: {

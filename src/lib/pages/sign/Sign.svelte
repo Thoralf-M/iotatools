@@ -1,22 +1,21 @@
 <script lang="ts">
-    import { base64Decode as fromBase64, toB64 as toBase64 } from '../../utils/wasm-sdk';
-    // [GAP] @iota/iota-sdk/bcs - Custom BCS schema object not available in WASM SDK
-    const IotaBcs = null as any; // [GAP] placeholder
-    // [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
-    type Transaction = any;
-    // [GAP] TransactionDataBuilder not in WASM SDK
-    type TransactionDataBuilder = any;
+    // [GAP] placeholder
+    import { Transaction, TransactionDataBuilder } from '@iota/iota-sdk/transactions';
     import { get } from 'svelte/store';
 
     import JsonToggleView from '../../components/JsonToggleView.svelte';
     import TransactionView from '../../components/TransactionView.svelte';
-    import { getClient, getSelectedChain } from '../../utils/client';
+    import { getClient, getLegacyClient, getSelectedChain } from '../../utils/client';
     import { copyToClipboard } from '../../utils/formatting';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
     import { activeAddress } from '../../utils/signer-data';
+    import { base64Decode as fromBase64, toB64 as toBase64 } from '../../utils/wasm-sdk';
     import { getActiveWallet } from '../../utils/web-wallet';
     import type { SignaturePubkeyPair } from './sign-utils';
     import { verifySignature } from './sign-utils';
+
+    // [GAP] @iota/iota-sdk/bcs - Custom BCS schema object not available in WASM SDK
+    const IotaBcs = null as any;
 
     // Use query parameters for the transaction bytes
     const queryParamValues = usePageQueryParams({
@@ -52,14 +51,14 @@
             // Parse transaction bytes
             let txBytes: Uint8Array;
             try {
-                txBytes = fromBase64(inputString);
+                txBytes = new Uint8Array(fromBase64(inputString));
             } catch (e) {
                 error = 'Invalid base64 transaction bytes';
                 return;
             }
 
-            const client = getClient();
-            const result = await client.dryRunTransactionBlock({
+            const legacyClient = getLegacyClient();
+            const result = await legacyClient.dryRunTransactionBlock({
                 transactionBlock: txBytes,
             });
             dryRunResult = result;
@@ -89,7 +88,7 @@
             return;
         }
         try {
-            let txBytes = fromBase64(inputString);
+            let txBytes = new Uint8Array(fromBase64(inputString));
             value = TransactionDataBuilder.fromBytes(txBytes);
             // Store the original transaction bytes for display
             value.transactionBytes = inputString;
@@ -157,7 +156,7 @@
             let transactionBytes: Uint8Array;
 
             try {
-                transactionBytes = fromBase64(inputString);
+                transactionBytes = new Uint8Array(fromBase64(inputString));
             } catch (e) {
                 error = 'Invalid base64 transaction bytes';
                 return;
@@ -304,7 +303,7 @@
 
             let txBytes: Uint8Array;
             try {
-                txBytes = fromBase64(inputString);
+                txBytes = new Uint8Array(fromBase64(inputString));
             } catch (e) {
                 error = 'Invalid base64 transaction bytes';
                 return;
@@ -312,13 +311,13 @@
 
             let bcsSignature: Uint8Array;
             try {
-                bcsSignature = fromBase64(signatureString);
+                bcsSignature = new Uint8Array(fromBase64(signatureString));
             } catch (e) {
                 error = 'Invalid base64 signature';
                 return;
             }
 
-            const client = getClient();
+            const client = getLegacyClient();
             const result = await client.executeTransactionBlock({
                 transactionBlock: txBytes,
                 signature: signatureString,

@@ -43,7 +43,7 @@ const SYSTEM_STATE_QUERY = `
                         pendingTotalIotaWithdraw
                         nextEpochStake
                         nextEpochGasPrice
-                        nextEpochCommission
+                        nextEpochCommissionRate
                         exchangeRatesSize
                         atRisk
                     }
@@ -61,8 +61,7 @@ export async function fetchLatestSystemState(client: GraphQlClientInterface): Pr
     stakeInfo: StakeInfo;
     apiVersion: string;
 }> {
-    const serviceConfig = await client.serviceConfig();
-    const apiVersion = serviceConfig.version || '';
+    const apiVersion = '';
 
     const resultStr = await client.runQuery({
         query: SYSTEM_STATE_QUERY,
@@ -93,7 +92,7 @@ export async function fetchLatestSystemState(client: GraphQlClientInterface): Pr
             pendingTotalIotaWithdraw: v.pendingTotalIotaWithdraw,
             nextEpochStake: v.nextEpochStake,
             nextEpochGasPrice: v.nextEpochGasPrice,
-            nextEpochCommission: v.nextEpochCommission,
+            nextEpochCommissionRate: v.nextEpochCommissionRate,
             exchangeRatesSize: v.exchangeRatesSize,
             atRisk: v.atRisk,
         })),

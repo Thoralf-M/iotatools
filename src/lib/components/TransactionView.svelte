@@ -1,12 +1,15 @@
 <script lang="ts">
     // @ts-ignore - Module resolution issue with svelte-json-tree
-    import { base64Decode as fromBase64 } from '../utils/wasm-sdk';
-    // [GAP] TransactionDataBuilder not in WASM SDK
-    type TransactionDataBuilder = any;
     import JSONTree from '@sveltejs/svelte-json-tree';
 
     import { getClient, getSelectedNetworkConfig } from '../utils/client';
     import { getTransactionLink } from '../utils/explorer-links';
+    import {
+        base64Decode as fromBase64,
+        signedTransactionFromBcs,
+        transactionEffectsToJson,
+        transactionFromBcs,
+    } from '../utils/wasm-sdk';
     import {
         formatJsonWithCompactArrays,
         getTransactionData,
@@ -35,9 +38,34 @@
 
     function isValidTxBytes(str: string): boolean {
         try {
-            const txBytes = fromBase64(str);
-            TransactionDataBuilder.fromBytes(txBytes);
-            return true;
+            const raw = fromBase64(str);
+            const arr = new Uint8Array(raw);
+            // Try multiple BCS parse strategies (same as decodeBcsToDecodedBCS)
+            const attempts = [
+                () => {
+                    const s = signedTransactionFromBcs(arr.slice(4).buffer as ArrayBuffer);
+                    s.transaction.asV1();
+                },
+                () => {
+                    const s = signedTransactionFromBcs(arr.buffer as ArrayBuffer);
+                    s.transaction.asV1();
+                },
+                () => {
+                    const t = transactionFromBcs(arr.slice(4).buffer as ArrayBuffer);
+                    t.asV1();
+                },
+                () => {
+                    const t = transactionFromBcs(arr.buffer as ArrayBuffer);
+                    t.asV1();
+                },
+            ];
+            for (const attempt of attempts) {
+                try {
+                    attempt();
+                    return true;
+                } catch {}
+            }
+            return false;
         } catch {
             return false;
         }
@@ -83,6 +111,9 @@
         'originalDigest',
         'webWalletResponse',
         'transactionData',
+        'objectChanges',
+        'balanceChanges',
+        'events',
     ]);
 
     let rawTxJsonData = $derived(
@@ -145,29 +176,60 @@
         }
     });
 
+    function parseTxFromBytes(base64Str: string) {
+        const raw = fromBase64(base64Str);
+        const arr = new Uint8Array(raw);
+        const strategies: Array<{ offset: number; method: 'signed' | 'transaction' }> = [
+            { offset: 4, method: 'signed' },
+            { offset: 0, method: 'signed' },
+            { offset: 4, method: 'transaction' },
+            { offset: 0, method: 'transaction' },
+        ];
+        for (const { offset, method } of strategies) {
+            try {
+                const sliced = arr.slice(offset);
+                if (method === 'signed') {
+                    return signedTransactionFromBcs(sliced.buffer as ArrayBuffer).transaction;
+                } else {
+                    return transactionFromBcs(sliced.buffer as ArrayBuffer);
+                }
+            } catch {}
+        }
+        throw new Error('Failed to parse transaction bytes');
+    }
+
     async function performDryRun() {
         if (!hasTxBytes || isDryRunning) return;
 
         try {
             isDryRunning = true;
-            const client = getClient();
+            const client = getClient(true);
 
-            const dryRunResult = await client.dryRunTransactionBlock({
-                transactionBlock: txBytes,
-            });
+            const txObj = parseTxFromBytes(txBytes);
+            const dryRunResult = await client.dryRunTx(txObj, false);
 
-            // Update the transaction data with dry run effects
-            // Dry run returns the same structure as a regular transaction response
-            // We want to merge the effects and other dry run data while preserving original metadata
+            // Serialize WASM effects object to plain JSON
+            let effectsJson: any = null;
+            if (dryRunResult.effects) {
+                try {
+                    effectsJson = JSON.parse(transactionEffectsToJson(dryRunResult.effects));
+                } catch (e) {
+                    console.warn('Failed to serialize dry run effects:', e);
+                }
+            }
+
+            // Build normalized result from DryRunResult
             const updatedData = {
                 ...value,
-                ...dryRunResult,
-                // Keep the original transactionBytes
-                transactionBytes: txBytes,
                 // Mark that this is from a dry run
                 isDryRun: true,
-                // Preserve any original metadata that might be important
+                // Preserve any original metadata
                 originalDigest: value.digest || value.transactionDigest,
+                transactionBytes: txBytes,
+                // Map dry run results
+                devInspectResults: dryRunResult.results,
+                ...(effectsJson ? { effects: effectsJson } : {}),
+                ...(dryRunResult.error ? { dryRunError: dryRunResult.error } : {}),
             };
 
             value = updatedData;

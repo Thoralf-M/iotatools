@@ -2,16 +2,12 @@
     import { Buffer } from 'buffer';
     // @ts-ignore - bc-ur doesn't have complete type definitions
     import { URDecoder } from '@gandlaf21/bc-ur';
-    import { toHex as toHEX, toB64 as toBase64 } from '../../utils/wasm-sdk';
-    // [GAP] messageWithIntent from @iota/iota-sdk/cryptography not in WASM SDK
-    const messageWithIntent = (...args: any[]): any => {
-        throw new Error('[GAP] messageWithIntent not available in WASM SDK');
-    };
 
     import QrGeneratorComponent from '../../components/QrGenerator.svelte';
     import QrScannerComponent from '../../components/QrScanner.svelte';
     import TransactionView from '../../components/TransactionView.svelte';
-    import { getClient } from '../../utils/client';
+    import { getClient, getLegacyClient } from '../../utils/client';
+    import { toB64 as toBase64, toHex as toHEX } from '../../utils/wasm-sdk';
     // @ts-ignore - bc-ur-registry-iota doesn't have complete type definitions
     import {
         CryptoKeypath,
@@ -41,6 +37,11 @@
         uuidStringify,
         type UrProcessorState,
     } from './ur-processor.js';
+
+    // [GAP] messageWithIntent from @iota/iota-sdk/cryptography not in WASM SDK
+    const messageWithIntent = (...args: any[]): any => {
+        throw new Error('[GAP] messageWithIntent not available in WASM SDK');
+    };
 
     // State variables
     let activeStep: 'connect' | 'prepare' | 'scan-signature' | 'ur-decode' | 'key-derivation' =
@@ -404,7 +405,7 @@
             const signatureBase64 = parsed.specific.signatureBase64;
             console.log('signatureBase64', signatureBase64);
 
-            const result = await getClient().executeTransactionBlock({
+            const result = await getLegacyClient().executeTransactionBlock({
                 transactionBlock: txBytes,
                 signature: signatureBase64,
                 options: {

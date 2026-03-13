@@ -41,6 +41,7 @@ const TX_BY_DIGEST_QUERY = `
         transactionBlock(digest: $digest) {
             digest
             sender { address }
+            bcs
             effects {
                 checkpoint { sequenceNumber }
                 timestamp
@@ -185,8 +186,9 @@ async function fetchTransactionsWithFilter(
     }
     const variableDeclarationsStr = variableDeclarations.join(', ');
 
-    const result: any = JSON.parse(await graphqlClient.runQuery({
-        query: `
+    const result: any = JSON.parse(
+        await graphqlClient.runQuery({
+            query: `
             query GetTransactions(${variableDeclarationsStr}) {
                 transactionBlocks(
                     filter: ${filterStr}
@@ -202,11 +204,12 @@ async function fetchTransactionsWithFilter(
                 }
             }
         `,
-        variables: JSON.stringify({
-            limit: options.limit,
-            ...variables,
+            variables: JSON.stringify({
+                limit: options.limit,
+                ...variables,
+            }),
         }),
-    }));
+    );
 
     const data = result;
     const allDigests =

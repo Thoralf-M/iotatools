@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { normalizeIotaAddress } from '../../utils/wasm-sdk';
     import { onMount } from 'svelte';
 
     import { getSelectedNetworkConfig } from '../../utils/client';
     import { queryDynamicFields, type DynamicFieldsResult } from '../../utils/dynamic-fields';
     import { getAddressLink, getObjectLink, getTransactionLink } from '../../utils/explorer-links';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
+    import { normalizeIotaAddress } from '../../utils/wasm-sdk';
     import { getIotaNamesPackageId } from '../iota-names/iota-names-config';
     import {
         detectInputType,

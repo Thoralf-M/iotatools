@@ -89,8 +89,9 @@ export async function fetchObjectsByTypeData(
 ): Promise<ObjectsResponse> {
     const graphqlClient = new GraphQlClient(graphqlUrl);
 
-    const result: any = JSON.parse(await graphqlClient.runQuery({
-        query: `
+    const result: any = JSON.parse(
+        await graphqlClient.runQuery({
+            query: `
             query GetObjects($type: String!, $cursor: String, $first: Int!) {
                 objects(filter: { type: $type }, after: $cursor, first: $first) {
                     nodes {
@@ -126,12 +127,13 @@ export async function fetchObjectsByTypeData(
                 }
             }
         `,
-        variables: JSON.stringify({
-            type,
-            cursor,
-            first,
+            variables: JSON.stringify({
+                type,
+                cursor,
+                first,
+            }),
         }),
-    }));
+    );
 
     return (result?.objects as ObjectsResponse) || null;
 }
@@ -157,8 +159,9 @@ export async function fetchPackageVersionsData(
 ): Promise<PackageVersionsResponse> {
     const graphqlClient = new GraphQlClient(graphqlUrl);
 
-    const result: any = JSON.parse(await graphqlClient.runQuery({
-        query: `
+    const result: any = JSON.parse(
+        await graphqlClient.runQuery({
+            query: `
             query GetPackageVersions($address: IotaAddress!, $cursor: String, $first: Int!) {
                 packageVersions(address: $address, after: $cursor, first: $first) {
                     nodes {
@@ -172,12 +175,13 @@ export async function fetchPackageVersionsData(
                 }
             }
         `,
-        variables: JSON.stringify({
-            address: packageAddress,
-            cursor,
-            first,
+            variables: JSON.stringify({
+                address: packageAddress,
+                cursor,
+                first,
+            }),
         }),
-    }));
+    );
 
     return (result?.packageVersions as PackageVersionsResponse) || null;
 }
@@ -185,8 +189,9 @@ export async function fetchPackageVersionsData(
 export async function fetchPackageTypesData(packageId: string, graphqlUrl: string) {
     const graphqlClient = new GraphQlClient(graphqlUrl);
 
-    const result: any = JSON.parse(await graphqlClient.runQuery({
-        query: `
+    const result: any = JSON.parse(
+        await graphqlClient.runQuery({
+            query: `
             query GetPackage($address: IotaAddress!) {
                 package(address: $address) {
                     address
@@ -213,10 +218,11 @@ export async function fetchPackageTypesData(packageId: string, graphqlUrl: strin
                 }
             }
         `,
-        variables: JSON.stringify({
-            address: packageId,
+            variables: JSON.stringify({
+                address: packageId,
+            }),
         }),
-    }));
+    );
 
     const pkg = result?.package as any;
     if (!pkg) {
