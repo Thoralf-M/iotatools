@@ -1,9 +1,11 @@
 import { Buffer } from 'buffer';
 // @ts-ignore - bc-ur doesn't have complete type definitions
 import { URDecoder } from '@gandlaf21/bc-ur';
-import { fromHEX, toB64 as toBase64 } from '../../utils/wasm-sdk';
-// [GAP] Ed25519PublicKey from old SDK not in WASM SDK
-const Ed25519PublicKey = null as any; // [GAP] placeholder
+import {
+    fromHEX,
+    toB64 as toBase64,
+    WasmEd25519PublicKey,
+} from '../../utils/wasm-sdk';
 
 // Use direct registry exports
 import { CryptoHDKey, CryptoMultiAccounts } from './bc-ur-registry-iota/bc-ur-registry';
@@ -100,10 +102,10 @@ export function deriveIotaAddress(publicKeyHex: string): string {
             cleanHex = cleanHex.slice(2);
         }
 
-        // Create Ed25519PublicKey from bytes
+        // Create Ed25519PublicKey from bytes and derive IOTA address
         let bytes = fromHEX(cleanHex);
-        const publicKey = new Ed25519PublicKey(bytes);
-        return publicKey.toIotaAddress();
+        const publicKey = WasmEd25519PublicKey.fromBytes(bytes.buffer as ArrayBuffer);
+        return publicKey.deriveAddress().toHex();
     } catch (error) {
         console.error('Failed to derive IOTA address:', error, 'for public key:', publicKeyHex);
         return 'Error deriving address';

@@ -1,4 +1,5 @@
 import type { GraphQlClientInterface } from '../../utils/wasm-sdk';
+import { getLegacyClient } from '../../utils/client';
 import { formatNumbersWithUnderscores } from '../../utils/iota-nano-conversion';
 
 export interface StakeInfo {
@@ -125,12 +126,9 @@ const DYNAMIC_FIELDS_QUERY = `
     }
 `;
 
-async function fetchSystemObjectJson(client: GraphQlClientInterface): Promise<any> {
-    const sysResultStr = await client.runQuery({
-        query: `query { object(address: "0x5") { asMoveObject { contents { json } } } }`,
-        variables: undefined,
-    });
-    return JSON.parse(sysResultStr)?.object?.asMoveObject?.contents?.json;
+async function fetchSystemObjectJson(): Promise<any> {
+    const systemState = await getLegacyClient().getLatestIotaSystemState();
+    return systemState;
 }
 
 async function fetchDynamicFieldValidators(
@@ -179,8 +177,8 @@ export async function fetchCandidateValidators(
     const { stakeInfo: baseStakeInfo } = await fetchLatestSystemState(client);
     let stakeInfo = { ...baseStakeInfo, candidateValidatorsStake: 0 };
 
-    const sysJson = await fetchSystemObjectJson(client);
-    const validatorCandidatesId = sysJson?.validator_candidates?.fields?.id?.id;
+    const sysJson = await fetchSystemObjectJson();
+    const validatorCandidatesId = sysJson?.validatorCandidatesId;
 
     if (!validatorCandidatesId) {
         return {
@@ -196,8 +194,10 @@ export async function fetchCandidateValidators(
     );
 
     for (const v of validatorCandidates) {
-        if (v?.staking_pool?.fields?.iota_balance) {
-            stakeInfo.candidateValidatorsStake! += parseInt(v.staking_pool.fields.iota_balance);
+        const iotaBalance =
+            v?.staking_pool?.fields?.iota_balance || v?.staking_pool?.iota_balance;
+        if (iotaBalance) {
+            stakeInfo.candidateValidatorsStake! += parseInt(iotaBalance);
         }
     }
 
@@ -220,7 +220,7 @@ export async function fetchPendingValidators(
     const { stakeInfo: baseStakeInfo } = await fetchLatestSystemState(client);
     let stakeInfo = { ...baseStakeInfo, pendingValidatorsStake: 0 };
 
-    const sysJson = await fetchSystemObjectJson(client);
+    const sysJson = await fetchSystemObjectJson();
     const pendingActiveValidatorsId = sysJson?.pending_active_validators?.fields?.id?.id;
 
     if (!pendingActiveValidatorsId) {
@@ -257,7 +257,7 @@ export async function fetchInactiveValidators(
 ): Promise<{
     formattedValidators: any;
 }> {
-    const sysJson = await fetchSystemObjectJson(client);
+    const sysJson = await fetchSystemObjectJson();
     const inactivePoolsSize = sysJson?.inactive_pools?.fields?.size;
     const inactiveValidatorsId = sysJson?.inactive_pools?.fields?.id?.id;
 

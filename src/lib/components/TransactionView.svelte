@@ -184,6 +184,7 @@
             { offset: 0, method: 'signed' },
             { offset: 4, method: 'transaction' },
             { offset: 0, method: 'transaction' },
+            { offset: 1, method: 'signed' },
         ];
         for (const { offset, method } of strategies) {
             try {

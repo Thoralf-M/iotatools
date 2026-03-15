@@ -268,6 +268,10 @@
                     sourceBytes = bcs.u64().serialize(bcsNumber).toBytes();
                     break;
             }
+            // Ensure sourceBytes is always Uint8Array (some paths return number[])
+            if (!(sourceBytes instanceof Uint8Array)) {
+                sourceBytes = new Uint8Array(sourceBytes);
+            }
             if (source != SourceType.Bytes) {
                 bytes = sourceBytes;
             }

@@ -232,7 +232,7 @@ export async function getRegisteredNamesInner(
     let dynamicFields = await queryDynamicFields();
     let registration =
         // @ts-ignore
-        dynamicFields.data.owner.dynamicFields.nodes.find(
+        dynamicFields.owner.dynamicFields.nodes.find(
             (v: any) =>
                 v.name.type.repr ==
                 `${config.IOTA_NAMES_PACKAGE_ID}::iota_names::RegistryKey<${config.IOTA_NAMES_PACKAGE_ID}::registry::Registry>`,
@@ -277,15 +277,15 @@ export async function getRegisteredNamesInner(
             break;
         }
         // @ts-ignore
-        res.total += object.data.owner.dynamicFields.nodes.length;
+        res.total += object.owner.dynamicFields.nodes.length;
         res.names.push(
             // @ts-ignore
-            ...object.data.owner.dynamicFields.nodes.map((v) =>
+            ...object.owner.dynamicFields.nodes.map((v) =>
                 v.name.json.labels.reverse().join('.'),
             ),
         );
         // @ts-ignore
-        res.registrations.push(...object.data.owner.dynamicFields.nodes);
+        res.registrations.push(...object.owner.dynamicFields.nodes);
 
         // Call progress callback if provided
         if (onProgress) {
@@ -301,9 +301,9 @@ export async function getRegisteredNamesInner(
         }
 
         // @ts-ignore
-        if (object.data.owner.dynamicFields.pageInfo.hasNextPage) {
+        if (object.owner.dynamicFields.pageInfo.hasNextPage) {
             // @ts-ignore
-            cursorSection = `(after: "${object.data.owner.dynamicFields.pageInfo.endCursor}")`;
+            cursorSection = `(after: "${object.owner.dynamicFields.pageInfo.endCursor}")`;
         } else {
             break;
         }
@@ -340,7 +340,7 @@ export async function getReverseRegisteredAddresses(
         let dynamicFields = await queryDynamicFields();
         let registration =
             // @ts-ignore
-            dynamicFields.data.owner.dynamicFields.nodes.find(
+            dynamicFields.owner.dynamicFields.nodes.find(
                 (v: any) =>
                     v.name.type.repr ==
                     `${config.IOTA_NAMES_PACKAGE_ID}::iota_names::RegistryKey<${config.IOTA_NAMES_PACKAGE_ID}::registry::Registry>`,
@@ -389,7 +389,7 @@ export async function getReverseRegisteredAddresses(
             }
 
             // @ts-ignore
-            const newEntries = object.data.owner.dynamicFields.nodes.map((v: any) => {
+            const newEntries = object.owner.dynamicFields.nodes.map((v: any) => {
                 return {
                     address: v.name.json,
                     name: v.value.json.labels.reverse().join('.'),
@@ -405,9 +405,9 @@ export async function getReverseRegisteredAddresses(
             }
 
             // @ts-ignore
-            if (object.data.owner.dynamicFields.pageInfo.hasNextPage) {
+            if (object.owner.dynamicFields.pageInfo.hasNextPage) {
                 // @ts-ignore
-                cursorSection = `(after: "${object.data.owner.dynamicFields.pageInfo.endCursor}")`;
+                cursorSection = `(after: "${object.owner.dynamicFields.pageInfo.endCursor}")`;
             } else {
                 break;
             }

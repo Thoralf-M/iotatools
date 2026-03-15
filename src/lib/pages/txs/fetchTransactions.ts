@@ -1,5 +1,6 @@
 import { GraphQlClient } from '../../utils/wasm-sdk';
 
+import { decodeBcsToDecodedBCS } from '../../components/transaction-view';
 import { getClient, getSelectedNetworkConfig } from '../../utils/client';
 
 // Transaction data interfaces
@@ -80,7 +81,8 @@ export async function fetchTransactionByDigest(digest: string): Promise<Transact
         const checkpoint = tx.effects?.checkpoint?.sequenceNumber
             ? parseInt(tx.effects.checkpoint.sequenceNumber)
             : 0;
-        const timestamp = tx.effects?.timestamp || '';
+        const rawTimestamp = tx.effects?.timestamp || '';
+        const timestamp = rawTimestamp ? new Date(rawTimestamp).getTime().toString() : '';
         const sender = tx.sender?.address || '';
 
         const createdObjects: CreatedObject[] = [];
@@ -131,6 +133,22 @@ export async function fetchTransactionByDigest(digest: string): Promise<Transact
             }
         }
 
+        // Decode BCS to extract transaction commands (for visualizer move call grouping)
+        let decodedTransaction: any = undefined;
+        if (tx.bcs) {
+            try {
+                const decoded = decodeBcsToDecodedBCS(tx.bcs, sender);
+                const ptb = decoded?.intentMessage?.value?.V1?.kind?.ProgrammableTransaction;
+                if (ptb) {
+                    decodedTransaction = {
+                        data: { transaction: { commands: ptb.commands } },
+                    };
+                }
+            } catch {
+                // BCS decoding is optional
+            }
+        }
+
         return {
             digest,
             sender,
@@ -141,7 +159,10 @@ export async function fetchTransactionByDigest(digest: string): Promise<Transact
             deletedObjects,
             inputObjects,
             recipients: [...new Set(recipients)],
-            rawData: result?.transactionBlock,
+            rawData: {
+                ...result?.transactionBlock,
+                transaction: decodedTransaction,
+            },
         };
     } catch (e: any) {
         console.error(`Failed to fetch transaction ${digest}:`, e);

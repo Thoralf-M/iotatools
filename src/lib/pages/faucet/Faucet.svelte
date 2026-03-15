@@ -5,7 +5,7 @@
     import { Address, FaucetClient, isValidIotaAddress } from '../../utils/wasm-sdk';
 
     let address = '0x111111111504e9350e635d65cd38ccd2c029434c6a3a480d8947a9ba6a15b215';
-    let faucetUrl = 'https://faucet.testnet.iota.cafe/gas';
+    let faucetUrl = 'https://faucet.testnet.iota.cafe';
     let value: any = {};
     let amountOfRequests = 1;
     let msBetweenRequests = 1000;
@@ -40,7 +40,7 @@
             faucetUrl =
                 $sharedClientConfig.networks.find(
                     (network) => network.name === $sharedClientConfig.selected,
-                )?.faucet ?? 'http://127.0.0.1:9123/gas';
+                )?.faucet ?? 'http://127.0.0.1:9123';
         }}
     >
         Set to current network and active address
@@ -53,7 +53,7 @@
             list="faucetUrls"
             class="faucet-input"
             bind:value={faucetUrl}
-            placeholder="faucet URL, like http://127.0.0.1:9123/gas"
+            placeholder="faucet URL, like http://127.0.0.1:9123"
         />
         <datalist id="faucetUrls">
             {#each $sharedClientConfig.networks as network}

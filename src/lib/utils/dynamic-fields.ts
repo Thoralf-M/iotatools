@@ -1,8 +1,5 @@
-// [GAP] BcsType not available in WASM SDK
-type BcsType<T = any> = any;
+import { type BcsType, bcs } from '@iota/iota-sdk/bcs';
 import { base64Decode as fromBase64, GraphQlClient } from './wasm-sdk';
-// [GAP] @iota/iota-sdk/bcs - Custom BCS schema object not available in WASM SDK
-const bcs = null as any; // [GAP] placeholder
 // [GAP] GraphQLQueryResult type not in WASM SDK - use Value or any
 // [GAP] graphql tagged template not in WASM SDK - use GraphQlClient.runQuery() with raw strings
 // [GAP] MoveTypeLayout type not in WASM SDK
