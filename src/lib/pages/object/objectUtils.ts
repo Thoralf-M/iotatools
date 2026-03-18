@@ -1,5 +1,7 @@
 import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
 
+import { getClient } from '../../utils/client';
+
 type GraphQLObjectNode = {
     address: string;
     owner: any;
@@ -44,8 +46,14 @@ export async function fetchSingleObjectData(objectId: string, graphqlUrl: string
                     digest
                     version
                     owner {
+                        __typename
                         ... on AddressOwner {
                             owner {
+                                address
+                            }
+                        }
+                        ... on Parent {
+                            parent {
                                 address
                             }
                         }
@@ -79,7 +87,26 @@ export async function fetchSingleObjectData(objectId: string, graphqlUrl: string
         },
     });
 
-    return result.data?.object;
+    const object = result.data?.object as any;
+
+    // GraphQL can't always resolve the parent object, fall back to JSON-RPC
+    if (object?.owner?.__typename === 'Parent' && !object.owner.parent) {
+        try {
+            const rpcClient = getClient();
+            const rpcResult = await rpcClient.getObject({
+                id: objectId,
+                options: { showOwner: true },
+            });
+            const rpcOwner = rpcResult.data?.owner;
+            if (rpcOwner && typeof rpcOwner === 'object' && 'ObjectOwner' in rpcOwner) {
+                object.owner.parent = { address: rpcOwner.ObjectOwner };
+            }
+        } catch {
+            // ignore, will show "parent not accessible"
+        }
+    }
+
+    return object;
 }
 
 export async function fetchObjectsByTypeData(
@@ -101,8 +128,14 @@ export async function fetchObjectsByTypeData(
                         digest
                         version
                         owner {
+                            __typename
                             ... on AddressOwner {
                                 owner {
+                                    address
+                                }
+                            }
+                            ... on Parent {
+                                parent {
                                     address
                                 }
                             }

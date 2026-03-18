@@ -591,7 +591,8 @@
                                 <div class="detail-row">
                                     <strong>Owner:</strong>
                                     <span>
-                                        {#if objectData.owner.owner}
+                                        {#if objectData.owner.__typename === 'AddressOwner'}
+                                            <span class="owner-type">Address</span>
                                             <a
                                                 href={getAddressLink(
                                                     getSelectedNetworkConfig(),
@@ -604,8 +605,27 @@
                                                 {objectData.owner.owner.address ||
                                                     objectData.owner.owner}
                                             </a>
-                                        {:else if objectData.owner.initialSharedVersion}
-                                            Shared (v{objectData.owner.initialSharedVersion})
+                                        {:else if objectData.owner.__typename === 'Parent'}
+                                            <span class="owner-type">Object</span>
+                                            {#if objectData.owner.parent?.address}
+                                                <a
+                                                    href={getObjectLink(
+                                                        getSelectedNetworkConfig(),
+                                                        objectData.owner.parent.address,
+                                                    )}
+                                                    target="_blank"
+                                                    class="address-link"
+                                                >
+                                                    {objectData.owner.parent.address}
+                                                </a>
+                                            {:else}
+                                                (parent not accessible)
+                                            {/if}
+                                        {:else if objectData.owner.__typename === 'Shared'}
+                                            <span class="owner-type">Shared</span>
+                                            (v{objectData.owner.initialSharedVersion})
+                                        {:else if objectData.owner.__typename === 'Immutable'}
+                                            <span class="owner-type">Immutable</span>
                                         {:else}
                                             {JSON.stringify(objectData.owner)}
                                         {/if}
@@ -1201,6 +1221,19 @@
         color: rgba(255, 255, 255, 0.7);
         font-size: 0.75rem;
         word-break: break-all;
+    }
+
+    .owner-type {
+        display: inline-block;
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.6);
+        margin-right: 4px;
+        vertical-align: middle;
     }
 
     .detail-row ul {
