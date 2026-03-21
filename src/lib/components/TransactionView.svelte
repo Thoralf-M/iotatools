@@ -67,7 +67,20 @@
         value &&
             typeof value === 'object' &&
             'effects' in value &&
-            !('transactionBytes' in value || 'rawTransaction' in value || 'bytes' in value),
+            !('transactionBytes' in value || 'rawTransaction' in value || 'bytes' in value) &&
+            !('digest' in value),
+    );
+
+    let isDevInspectResult = $derived(
+        isDryRunResult && value && typeof value === 'object' && 'results' in value,
+    );
+
+    let isPreparedTxBytes = $derived(
+        value &&
+            typeof value === 'object' &&
+            'json' in value &&
+            'transactionBytes' in value &&
+            !('effects' in value),
     );
 
     let transactionData = $derived(getTransactionData(value));
@@ -181,6 +194,18 @@
 
 {#if !hidden}
     <div class="transaction-view ultra-compact">
+        {#if isDryRunResult || transactionData?.isDryRun || isPreparedTxBytes}
+            <div class="dry-run-banner">
+                {#if isPreparedTxBytes}
+                    Prepared Tx Bytes — This transaction was not sent to the network.
+                {:else if isDevInspectResult || transactionData?.devInspectResults}
+                    Dev Inspect — This transaction was simulated and not sent to the network.
+                {:else}
+                    Dry Run — This transaction was simulated and not sent to the network.
+                {/if}
+                <br />The execution mode can be changed at the top.
+            </div>
+        {/if}
         {#if transactionData?.digest}
             <div class="header-line">
                 <span class="tx-header">Transaction</span>
@@ -623,6 +648,16 @@
         overflow-x: hidden;
         overflow-y: auto;
         max-height: 60vh;
+    }
+
+    .dry-run-banner {
+        background: rgba(234, 179, 8, 0.15);
+        border: 1px solid rgba(234, 179, 8, 0.4);
+        color: #facc15;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
     }
 
     .header-line {
