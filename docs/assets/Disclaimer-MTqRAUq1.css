@@ -1,0 +1,22 @@
+
+    .lang-toggle.svelte-16ofwrz {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .lang-toggle.svelte-16ofwrz button:where(.svelte-16ofwrz) {
+        padding: 0.4rem 1rem;
+        border: 1px solid rgba(156, 163, 175, 0.3);
+        border-radius: 6px;
+        background: rgba(55, 65, 81, 0.3);
+        color: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .lang-toggle.svelte-16ofwrz button.active:where(.svelte-16ofwrz) {
+        background: rgba(59, 130, 246, 0.2);
+        border-color: rgba(59, 130, 246, 0.5);
+        color: rgba(255, 255, 255, 0.95);
+    }
