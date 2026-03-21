@@ -2,6 +2,7 @@
     import Router from 'svelte-spa-router';
     import { wrap } from 'svelte-spa-router/wrap';
 
+    import DisclaimerModal from './lib/components/DisclaimerModal.svelte';
     import MainnetTransactionConfirmation from './lib/components/MainnetTransactionConfirmation.svelte';
     import Options from './lib/components/Options.svelte';
     import Signer from './lib/components/Signer.svelte';
@@ -35,11 +36,13 @@
         Ed25519AddressGeneration: () =>
             import('./lib/pages/ed25519-address-generation/Ed25519AddressGeneration.svelte'),
         IotaNames: () => import('./lib/pages/iota-names/IotaNames.svelte'),
+        CandidateStake: () => import('./lib/pages/candidate-stake/CandidateStake.svelte'),
         Settings: () => import('./lib/pages/settings/Settings.svelte'),
         Txs: () => import('./lib/pages/txs/Txs.svelte'),
         TxsVisualizer: () => import('./lib/pages/txs-visualizer/TxsVisualizer.svelte'),
         Impressum: () => import('./lib/pages/impressum/Impressum.svelte'),
         Datenschutz: () => import('./lib/pages/datenschutz/Datenschutz.svelte'),
+        Disclaimer: () => import('./lib/pages/disclaimer/Disclaimer.svelte'),
     };
 
     // Route definitions: map route paths to lazy-loaded components using wrap
@@ -69,11 +72,13 @@
         '/text-analyzer': wrap({ asyncComponent: pageImports['TextAnalyzer'] }),
         '/address-generation': wrap({ asyncComponent: pageImports['Ed25519AddressGeneration'] }),
         '/iota-names': wrap({ asyncComponent: pageImports['IotaNames'] }),
+        '/candidate-stake': wrap({ asyncComponent: pageImports['CandidateStake'] }),
         '/settings': wrap({ asyncComponent: pageImports['Settings'] }),
         '/txs': wrap({ asyncComponent: pageImports['Txs'] }),
         '/txs-visualizer': wrap({ asyncComponent: pageImports['TxsVisualizer'] }),
         '/impressum': wrap({ asyncComponent: pageImports['Impressum'] }),
         '/datenschutz': wrap({ asyncComponent: pageImports['Datenschutz'] }),
+        '/disclaimer': wrap({ asyncComponent: pageImports['Disclaimer'] }),
     };
 
     // Tab items with route paths
@@ -102,6 +107,7 @@
         { label: 'Text Analyzer', route: '/text-analyzer', group: 'Utilities' },
         { label: 'Address generation', route: '/address-generation', group: 'Utilities' },
         { label: 'IOTA-Names', route: '/iota-names', group: 'Other' },
+        { label: 'Candidate Stake', route: '/candidate-stake', group: 'Other' },
         { label: '⚙ Settings', route: '/settings', group: 'Other' },
     ];
 
@@ -165,10 +171,12 @@
                 '/text-analyzer': pageImports.TextAnalyzer,
                 '/address-generation': pageImports.Ed25519AddressGeneration,
                 '/iota-names': pageImports.IotaNames,
+                '/candidate-stake': pageImports.CandidateStake,
                 '/settings': pageImports.Settings,
                 '/txs': pageImports.Txs,
                 '/impressum': pageImports.Impressum,
                 '/datenschutz': pageImports.Datenschutz,
+                '/disclaimer': pageImports.Disclaimer,
             }}
         />
     </div>
@@ -190,9 +198,13 @@
                 class="datenschutz-link"
                 onclick={() => navigateWithGlobalParams('/datenschutz')}>Datenschutz</button
             >
+            <button class="disclaimer-link" onclick={() => navigateWithGlobalParams('/disclaimer')}
+                >Disclaimer</button
+            >
         </div>
     </footer>
 
+    <DisclaimerModal />
     <MainnetTransactionConfirmation />
 </main>
 
@@ -324,6 +336,17 @@
     }
 
     .datenschutz-link:hover {
+        color: rgba(255, 255, 255, 0.95);
+    }
+
+    .disclaimer-link {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .disclaimer-link:hover {
         color: rgba(255, 255, 255, 0.95);
     }
 

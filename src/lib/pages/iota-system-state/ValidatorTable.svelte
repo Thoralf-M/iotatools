@@ -96,10 +96,7 @@
                     Commission{sortIndicator('commissionRate')}
                 </th>
                 {#if showEffectiveCommission}
-                    <th
-                        class="sortable right"
-                        onclick={() => toggleSort('effectiveCommission')}
-                    >
+                    <th class="sortable right" onclick={() => toggleSort('effectiveCommission')}>
                         Eff. Commission (<a
                             href="https://github.com/iotaledger/IIPs/blob/main/iips/IIP-0008/IIP-0008.md"
                             target="_blank"
