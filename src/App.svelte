@@ -35,6 +35,7 @@
         Ed25519AddressGeneration: () =>
             import('./lib/pages/ed25519-address-generation/Ed25519AddressGeneration.svelte'),
         IotaNames: () => import('./lib/pages/iota-names/IotaNames.svelte'),
+        CandidateStake: () => import('./lib/pages/candidate-stake/CandidateStake.svelte'),
         Settings: () => import('./lib/pages/settings/Settings.svelte'),
         Txs: () => import('./lib/pages/txs/Txs.svelte'),
         TxsVisualizer: () => import('./lib/pages/txs-visualizer/TxsVisualizer.svelte'),
@@ -69,6 +70,7 @@
         '/text-analyzer': wrap({ asyncComponent: pageImports['TextAnalyzer'] }),
         '/address-generation': wrap({ asyncComponent: pageImports['Ed25519AddressGeneration'] }),
         '/iota-names': wrap({ asyncComponent: pageImports['IotaNames'] }),
+        '/candidate-stake': wrap({ asyncComponent: pageImports['CandidateStake'] }),
         '/settings': wrap({ asyncComponent: pageImports['Settings'] }),
         '/txs': wrap({ asyncComponent: pageImports['Txs'] }),
         '/txs-visualizer': wrap({ asyncComponent: pageImports['TxsVisualizer'] }),
@@ -102,6 +104,7 @@
         { label: 'Text Analyzer', route: '/text-analyzer', group: 'Utilities' },
         { label: 'Address generation', route: '/address-generation', group: 'Utilities' },
         { label: 'IOTA-Names', route: '/iota-names', group: 'Other' },
+        { label: 'Candidate Stake', route: '/candidate-stake', group: 'Other' },
         { label: '⚙ Settings', route: '/settings', group: 'Other' },
     ];
 
@@ -165,6 +168,7 @@
                 '/text-analyzer': pageImports.TextAnalyzer,
                 '/address-generation': pageImports.Ed25519AddressGeneration,
                 '/iota-names': pageImports.IotaNames,
+                '/candidate-stake': pageImports.CandidateStake,
                 '/settings': pageImports.Settings,
                 '/txs': pageImports.Txs,
                 '/impressum': pageImports.Impressum,
