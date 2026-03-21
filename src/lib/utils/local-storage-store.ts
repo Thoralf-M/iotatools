@@ -62,6 +62,7 @@ const SELECTED_SIGNER_TYPE_KEY = 'selectedSignerType';
 const EXTERNAL_ADDRESSES_KEY = 'externalAddresses';
 const IS_PRO_MODE_KEY = 'isProMode';
 const SELECTED_ADDRESS_KEY = 'selectedAddress';
+const DISCLAIMER_ACCEPTED_KEY = 'disclaimerAccepted';
 
 export const clientConfigErrorMsg = writable<string>('');
 export const sharedClientConfig: Writable<ClientConfig> = persistentWritableStore(
@@ -125,6 +126,12 @@ export const sharedSelectedAddress: Writable<Record<string, string>> = persisten
         }
         return true;
     },
+);
+
+export const disclaimerAccepted: Writable<boolean> = persistentWritableStore(
+    DISCLAIMER_ACCEPTED_KEY,
+    false,
+    (value: any) => typeof value === 'boolean',
 );
 
 // Custom store synced with localStorage

@@ -2,6 +2,7 @@
     import Router from 'svelte-spa-router';
     import { wrap } from 'svelte-spa-router/wrap';
 
+    import DisclaimerModal from './lib/components/DisclaimerModal.svelte';
     import MainnetTransactionConfirmation from './lib/components/MainnetTransactionConfirmation.svelte';
     import Options from './lib/components/Options.svelte';
     import Signer from './lib/components/Signer.svelte';
@@ -41,6 +42,7 @@
         TxsVisualizer: () => import('./lib/pages/txs-visualizer/TxsVisualizer.svelte'),
         Impressum: () => import('./lib/pages/impressum/Impressum.svelte'),
         Datenschutz: () => import('./lib/pages/datenschutz/Datenschutz.svelte'),
+        Disclaimer: () => import('./lib/pages/disclaimer/Disclaimer.svelte'),
     };
 
     // Route definitions: map route paths to lazy-loaded components using wrap
@@ -76,6 +78,7 @@
         '/txs-visualizer': wrap({ asyncComponent: pageImports['TxsVisualizer'] }),
         '/impressum': wrap({ asyncComponent: pageImports['Impressum'] }),
         '/datenschutz': wrap({ asyncComponent: pageImports['Datenschutz'] }),
+        '/disclaimer': wrap({ asyncComponent: pageImports['Disclaimer'] }),
     };
 
     // Tab items with route paths
@@ -173,6 +176,7 @@
                 '/txs': pageImports.Txs,
                 '/impressum': pageImports.Impressum,
                 '/datenschutz': pageImports.Datenschutz,
+                '/disclaimer': pageImports.Disclaimer,
             }}
         />
     </div>
@@ -194,9 +198,13 @@
                 class="datenschutz-link"
                 onclick={() => navigateWithGlobalParams('/datenschutz')}>Datenschutz</button
             >
+            <button class="disclaimer-link" onclick={() => navigateWithGlobalParams('/disclaimer')}
+                >Disclaimer</button
+            >
         </div>
     </footer>
 
+    <DisclaimerModal />
     <MainnetTransactionConfirmation />
 </main>
 
@@ -328,6 +336,17 @@
     }
 
     .datenschutz-link:hover {
+        color: rgba(255, 255, 255, 0.95);
+    }
+
+    .disclaimer-link {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .disclaimer-link:hover {
         color: rgba(255, 255, 255, 0.95);
     }
 
