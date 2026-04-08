@@ -18,8 +18,19 @@
     // Load tab component if not loaded
     async function loadTab(route: string) {
         if (!loadedTabs[route] && tabComponents[route]) {
-            const mod = await tabComponents[route]();
-            loadedTabs[route] = mod.default;
+            try {
+                const mod = await tabComponents[route]();
+                loadedTabs[route] = mod.default;
+            } catch (error) {
+                console.error('Failed to load tab module:', error);
+                // Reload once to recover from outdated cached chunk URLs after a new deployment.
+                // The sessionStorage flag prevents an infinite reload loop if the error persists.
+                const reloadKey = 'tab_chunk_reload_attempted';
+                if (!sessionStorage.getItem(reloadKey)) {
+                    sessionStorage.setItem(reloadKey, '1');
+                    window.location.reload();
+                }
+            }
         }
     }
 
