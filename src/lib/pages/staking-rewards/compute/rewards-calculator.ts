@@ -81,6 +81,18 @@ export async function computeRewardsForStakeObject(
             // Adjust for net accumulated from firstEpoch
             currentAccumulatedRewards -= accumulatedAtFirst;
 
+            // For stakes not owned from the beginning (unlocked/transferred), initialize
+            // previousAccumulatedRewards on the first owned epoch so we don't attribute
+            // pre-ownership accumulated rewards to this epoch. The old object (timelocked or
+            // previous owner) earns rewards for this epoch, so the new one yields 0 here.
+            if (
+                previousAccumulatedRewards === 0n &&
+                epoch === stakeObject.firstEpoch &&
+                stakeObject.firstEpoch > stakeObject.stakeActivationEpoch
+            ) {
+                previousAccumulatedRewards = currentAccumulatedRewards;
+            }
+
             let newEpochRewards: bigint;
 
             if (isTransitionEpoch) {
@@ -168,6 +180,12 @@ export async function computeRewardsForStakeObject(
                 }
 
                 // Update previous accumulated rewards for next iteration
+                previousAccumulatedRewards = currentAccumulatedRewards;
+            } else if (stakeObject.firstEpoch > stakeObject.stakeActivationEpoch) {
+                // For epochs before firstEpoch on transferred/unlocked stakes,
+                // do NOT update previousAccumulatedRewards — it was already set
+                // to the pre-ownership baseline (lines 60-73) and must be preserved.
+            } else {
                 previousAccumulatedRewards = currentAccumulatedRewards;
             }
             previousPrincipal = principalAmount;
