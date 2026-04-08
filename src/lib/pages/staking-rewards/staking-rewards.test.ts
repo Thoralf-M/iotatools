@@ -77,7 +77,7 @@ describe('Staking Rewards - Single Address', () => {
 
     it('should have correct number of lines', () => {
         const lines = generatedTable.split('\n');
-        expect(lines.length).toBeGreaterThan(277);
+        expect(lines.length).toBeGreaterThan(380);
     });
 
     it('should show correct unstake rewards for epoch 128 (~1,016,491 IOTA)', () => {

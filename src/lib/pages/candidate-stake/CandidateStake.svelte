@@ -295,23 +295,29 @@
         <p class="intro-text">
             Pool your staked IOTA to help a candidate validator reach the 2,000,000 IOTA minimum
             required to join the active validator set. Deposit your existing <code>StakedIota</code>
-            objects into a pool — they remain staked to their original validator and continue
-            earning rewards until the pool is executed. You stay in full control and can withdraw at
-            any time. Once the threshold is reached, the pool creator can trigger the restaking.
+            objects into a pool — they remain staked to their original validator and continue earning
+            rewards until the pool is executed. You stay in full control and can withdraw at any time.
+            Once the threshold is reached, the pool creator can trigger the restaking.
             <a href={GITHUB_REPO} target="_blank" rel="noreferrer">View smart contract on GitHub</a>
         </p>
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <picture class="flow-picture" onclick={() => (lightbox = true)}>
             <source media="(max-width: 768px)" srcset="./candidate-stake-flow-mobile.svg" />
-            <img class="flow-diagram" src="./candidate-stake-flow.svg" alt="CandidateStake flow diagram" />
+            <img
+                class="flow-diagram"
+                src="./candidate-stake-flow.svg"
+                alt="CandidateStake flow diagram"
+            />
         </picture>
         {#if lightbox}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div class="lightbox" onclick={() => (lightbox = false)}>
                 <img
-                    src={window.innerWidth <= 768 ? './candidate-stake-flow-mobile.svg' : './candidate-stake-flow.svg'}
+                    src={window.innerWidth <= 768
+                        ? './candidate-stake-flow-mobile.svg'
+                        : './candidate-stake-flow.svg'}
                     alt="CandidateStake flow diagram"
                 />
             </div>
