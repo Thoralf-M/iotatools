@@ -29,6 +29,7 @@ type StakeObjectData = {
     };
     idCreated: boolean;
     idDeleted: boolean;
+    isTimelockedInput?: boolean;
 };
 
 type CoinObject = {
@@ -61,6 +62,7 @@ function extractStakeObjectData(node: any): StakeObjectData | null {
             owner: node.inputState.asMoveObject?.owner?.owner?.address,
             stakeActivationEpoch: stakedIota?.stake_activation_epoch,
         };
+        stakeData.isTimelockedInput = true;
     } else if (inputState?.type?.repr?.includes('staking_pool::StakedIota')) {
         stakeData.input = {
             poolId: inputState.json?.pool_id ?? '',
@@ -575,6 +577,28 @@ async function processTransactions(
         const { txStakeObjects, coinObjects, timelockObjects } =
             parseTransactionObjects(transaction);
 
+        // Identify timelocked unlock pairs: a deleted TimelockedStakedIota paired with
+        // a created/updated StakedIota in the same transaction (matching pool + principal).
+        // Maps address -> paired address for both directions.
+        const unlockPairs = new Map<string, string>();
+        for (const [addr, data] of txStakeObjects) {
+            if (!data.idDeleted || !data.isTimelockedInput || !data.input) continue;
+            for (const [otherAddr, other] of txStakeObjects) {
+                if (
+                    other.isTimelockedInput ||
+                    other.idDeleted ||
+                    !other.output ||
+                    unlockPairs.has(otherAddr) ||
+                    other.output.poolId !== data.input.poolId ||
+                    other.output.principal !== data.input.principal
+                )
+                    continue;
+                unlockPairs.set(addr, otherAddr);
+                unlockPairs.set(otherAddr, addr);
+                break;
+            }
+        }
+
         // Second pass: process each stake object and determine detailed actions
         for (const [address, stakeData] of txStakeObjects) {
             const { input, output, idCreated, idDeleted } = stakeData;
@@ -615,22 +639,36 @@ async function processTransactions(
                         existing.wasOwnedByTargetAddress = true;
                     }
 
-                    const actionDetails = await determineActionDetails(
-                        input,
-                        output,
-                        idCreated,
-                        idDeleted,
-                        digest,
-                        timestamp,
-                        targetAddress,
-                        currentEpoch,
-                        epochId,
-                        existing,
-                        coinObjects,
-                        timelockObjects,
-                        txStakeObjects,
-                        address,
-                    );
+                    let actionDetails: ActionDetails;
+
+                    // Timelocked unlock: the deleted TimelockedStakedIota becomes 'Unlocked'
+                    // instead of going through the normal action detection
+                    if (stakeData.isTimelockedInput && unlockPairs.has(address)) {
+                        actionDetails = {
+                            action: 'Unlocked',
+                            digest,
+                            timestamp,
+                            amount: input.principal,
+                        };
+                        existing.lastEpoch = epochId;
+                    } else {
+                        actionDetails = await determineActionDetails(
+                            input,
+                            output,
+                            idCreated,
+                            idDeleted,
+                            digest,
+                            timestamp,
+                            targetAddress,
+                            currentEpoch,
+                            epochId,
+                            existing,
+                            coinObjects,
+                            timelockObjects,
+                            txStakeObjects,
+                            address,
+                        );
+                    }
 
                     existing.actionByEpoch = existing.actionByEpoch || {};
                     if (!existing.actionByEpoch[epochId]) {
@@ -643,6 +681,23 @@ async function processTransactions(
                         const tsA = a.timestamp || '';
                         const tsB = b.timestamp || '';
                         return tsA.localeCompare(tsB);
+                    });
+                }
+            }
+
+            // Add 'Unlocked' action for the StakedIota extracted from a timelocked unlock
+            if (output && !stakeData.isTimelockedInput && unlockPairs.has(address)) {
+                const existing = stakeObjects.get(address);
+                if (existing) {
+                    existing.actionByEpoch = existing.actionByEpoch || {};
+                    if (!existing.actionByEpoch[epochId]) {
+                        existing.actionByEpoch[epochId] = [];
+                    }
+                    existing.actionByEpoch[epochId].push({
+                        action: 'Unlocked',
+                        digest,
+                        timestamp,
+                        amount: output.principal,
                     });
                 }
             }
@@ -703,10 +758,14 @@ function filterOwnedStakeObjects(stakeObjects: Map<string, StakeObject>): {
 
 // Fill in missing principal entries for active epochs
 function fillMissingPrincipalEntries(stakeObject: StakeObject): void {
-    // Generate all epochs where this stake object was active
-    // Include the stake activation epoch itself, as that's where the principal is established
+    // Generate all epochs where this stake object was owned by the target address.
+    // Use the later of stakeActivationEpoch and firstEpoch as the start:
+    // - For regular stakes, firstEpoch <= stakeActivationEpoch, so stakeActivationEpoch is used
+    // - For transferred stakes, firstEpoch > stakeActivationEpoch, so firstEpoch is used
+    //   (avoids retroactively filling principal for epochs before the target owned the stake)
+    const startEpoch = Math.max(stakeObject.stakeActivationEpoch, stakeObject.firstEpoch);
     const activeEpochs: number[] = [];
-    for (let epoch = stakeObject.stakeActivationEpoch; epoch <= stakeObject.lastEpoch; epoch++) {
+    for (let epoch = startEpoch; epoch <= stakeObject.lastEpoch; epoch++) {
         activeEpochs.push(epoch);
     }
 
@@ -740,13 +799,13 @@ async function fetchExchangeRatesForStakeObject(
     exchangeRateId: string,
     currentEpoch: number,
 ): Promise<void> {
-    const activeEpochs: number[] = [];
-    for (let epoch = stakeObject.stakeActivationEpoch; epoch <= stakeObject.lastEpoch; epoch++) {
-        activeEpochs.push(epoch);
+    // Only fetch exchange rates for epochs where the target owned the stake
+    // (same logic as fillMissingPrincipalEntries)
+    const startEpoch = Math.max(stakeObject.stakeActivationEpoch, stakeObject.firstEpoch);
+    const rewardEpochs: number[] = [];
+    for (let epoch = startEpoch; epoch <= stakeObject.lastEpoch; epoch++) {
+        rewardEpochs.push(epoch);
     }
-
-    // Fetch exchange rates for epochs where rewards are earned (stakeActivationEpoch onwards)
-    const rewardEpochs = activeEpochs.filter((epoch) => epoch >= stakeObject.stakeActivationEpoch);
     for (const epoch of rewardEpochs) {
         if (epoch == currentEpoch) {
             continue; // Skip current epoch as we don't have exchange rates for it yet
