@@ -172,6 +172,29 @@ describe('Staking Rewards - Time Frame Filtering', () => {
         generatedTable = generateEpochTable(tableData, actionsByEpoch);
     });
 
+    it('should correctly compute date range for "last-7-days" (Apr 2-8 2026)', () => {
+        const range = getTimeFrameDateRange('last-7-days', REFERENCE_DATE);
+        expect(range).not.toBeNull();
+        // Rolling 7-day window ending at REFERENCE_DATE: Apr 2 00:00 local
+        // through REFERENCE_DATE.
+        expect(range!.start.getFullYear()).toBe(2026);
+        expect(range!.start.getMonth()).toBe(3); // April
+        expect(range!.start.getDate()).toBe(2);
+        expect(range!.start.getHours()).toBe(0);
+        expect(range!.start.getMinutes()).toBe(0);
+        expect(range!.end.getTime()).toBe(REFERENCE_DATE.getTime());
+    });
+
+    it('should handle "last-7-days" crossing a month boundary', () => {
+        // Ref date Jan 3 2026 → start should roll back to Dec 28 2025.
+        const crossMonth = new Date(2026, 0, 3, 12, 0, 0);
+        const range = getTimeFrameDateRange('last-7-days', crossMonth);
+        expect(range).not.toBeNull();
+        expect(range!.start.getFullYear()).toBe(2025);
+        expect(range!.start.getMonth()).toBe(11); // December
+        expect(range!.start.getDate()).toBe(28);
+    });
+
     it('should correctly compute date range for "last-month" (March 2026)', () => {
         const range = getTimeFrameDateRange('last-month', REFERENCE_DATE);
         expect(range).not.toBeNull();

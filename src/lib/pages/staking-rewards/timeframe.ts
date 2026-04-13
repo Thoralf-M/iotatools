@@ -3,7 +3,7 @@
  * Provides date range presets and epoch filtering by timestamp.
  */
 
-export type TimeFrame = 'all' | 'last-month' | 'last-quarter' | 'ytd' | 'custom';
+export type TimeFrame = 'all' | 'last-7-days' | 'last-month' | 'last-quarter' | 'ytd' | 'custom';
 
 export type DateRange = {
     start: Date;
@@ -12,6 +12,7 @@ export type DateRange = {
 
 export const TIME_FRAME_LABELS: Record<TimeFrame, string> = {
     all: 'All time',
+    'last-7-days': 'Last 7 days',
     'last-month': 'Last month',
     'last-quarter': 'Last quarter',
     ytd: 'Year to date',
@@ -20,6 +21,8 @@ export const TIME_FRAME_LABELS: Record<TimeFrame, string> = {
 
 /**
  * Compute the date range for a given time frame preset.
+ * "Last 7 days" = rolling 7-day window ending at the reference instant
+ *                 (start is midnight local time 7 days ago).
  * "Last month" = previous calendar month.
  * "Last quarter" = previous calendar quarter (Q1=Jan-Mar, Q2=Apr-Jun, Q3=Jul-Sep, Q4=Oct-Dec).
  * "YTD" = January 1 of current year through today.
@@ -33,6 +36,13 @@ export function getTimeFrameDateRange(
     const now = referenceDate ?? new Date();
 
     switch (timeFrame) {
+        case 'last-7-days': {
+            // Start at midnight 6 days ago so the window covers 7 full days
+            // including today. Date arithmetic via the Date ctor normalizes
+            // month/year rollover automatically.
+            const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+            return { start, end: now };
+        }
         case 'last-month': {
             const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
             const end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
