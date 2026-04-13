@@ -1,5 +1,6 @@
 import { fromBase64 } from '@iota/bcs';
 import { parseSerializedSignature } from '@iota/iota-sdk/cryptography';
+import type { MoveAuthenticatorData } from '@iota/iota-sdk/keypairs/move-authenticator';
 import { parsePartialSignatures } from '@iota/iota-sdk/multisig';
 import {
     publicKeyFromRawBytes,
@@ -13,17 +14,20 @@ export interface SignaturePubkeyPair {
     signature: Uint8Array;
 }
 
+export type VerificationStatus = 'valid' | 'invalid' | 'checking' | 'on_chain_only' | null;
+
 export interface VerificationResult {
-    status: 'valid' | 'invalid' | 'checking' | null;
+    status: VerificationStatus;
     error: string;
     pubkeyPairs: SignaturePubkeyPair[] | null;
+    moveAuthenticator?: MoveAuthenticatorData;
 }
 
 export async function verifySignature(
     txBytesInput: string,
     signatureResult: string,
 ): Promise<VerificationResult> {
-    let status: 'valid' | 'invalid' | 'checking' | null = 'checking';
+    let status: VerificationStatus = 'checking';
     let error = '';
     let pubkeyPairs: SignaturePubkeyPair[] | null = null;
 
@@ -50,6 +54,29 @@ export async function verifySignature(
                     signature: sig.signature,
                 }));
                 status = 'valid'; // Assume valid if parsed successfully
+            } else if (parsed.signatureScheme === 'MoveAuthenticator') {
+                // MoveAuthenticator uses account abstraction — validity depends on the Move
+                // authenticator function executing successfully on-chain, which can't be
+                // checked here.
+                const moveAuth = parsed.moveAuthenticator;
+                if (moveAuth.$kind !== 'V1') {
+                    throw new Error(`Unsupported MoveAuthenticator version: ${moveAuth.$kind}`);
+                }
+                const v1 = moveAuth.V1;
+                if (v1.objectToAuthenticate.$kind !== 'Object') {
+                    throw new Error('MoveAuthenticator objectToAuthenticate must be an Object');
+                }
+                return {
+                    status: 'on_chain_only',
+                    error,
+                    pubkeyPairs: [],
+                    moveAuthenticator: {
+                        version: 'V1',
+                        callArgs: v1.callArgs,
+                        typeArgs: v1.typeArgs,
+                        objectToAuthenticate: v1.objectToAuthenticate.Object,
+                    },
+                };
             } else {
                 // Single signature
                 const pubKey = publicKeyFromRawBytes(parsed.signatureScheme, parsed.publicKey);

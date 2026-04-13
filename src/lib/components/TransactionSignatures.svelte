@@ -1,16 +1,20 @@
 <script lang="ts">
-    import { fromBase64 } from '@iota/bcs';
     import { parseSerializedSignature } from '@iota/iota-sdk/cryptography';
+    import type { MoveAuthenticatorData } from '@iota/iota-sdk/keypairs/move-authenticator';
     import { parsePartialSignatures } from '@iota/iota-sdk/multisig';
     import { publicKeyFromRawBytes } from '@iota/iota-sdk/verify';
 
-    import { getSelectedNetworkConfig } from '../utils/client';
-    import { getObjectLink } from '../utils/explorer-links';
     import { copyToClipboard } from '../utils/formatting';
-    import {
-        parseMoveAuthenticatorSignature,
-        type MoveAuthenticatorInfo,
-    } from '../utils/move-authenticator';
+    import MoveAuthenticatorDetails from './MoveAuthenticatorDetails.svelte';
+
+    type ObjectArg = MoveAuthenticatorData['objectToAuthenticate'];
+
+    function extractObjectId(objectArg: ObjectArg): string {
+        if ('SharedObject' in objectArg) return objectArg.SharedObject.objectId;
+        if ('ImmOrOwnedObject' in objectArg) return objectArg.ImmOrOwnedObject.objectId;
+        if ('Receiving' in objectArg) return objectArg.Receiving.objectId;
+        throw new Error('Unknown ObjectArg variant');
+    }
 
     interface SignatureInfo {
         signatureScheme: string;
@@ -18,7 +22,7 @@
         signature: Uint8Array;
         role?: 'sender' | 'gas_sponsor' | 'unknown';
         rawSignature: string; // base64 encoded
-        moveAuthenticator?: MoveAuthenticatorInfo;
+        moveAuthenticator?: MoveAuthenticatorData;
     }
 
     let { signatures = [], transactionData = null } = $props<{
@@ -40,19 +44,23 @@
 
         signatures.forEach((sigString: string, index: number) => {
             try {
-                // TODO: TEMPORARY - Check for MoveAuthenticator (0x07) before using official parser
-                const bytes = fromBase64(sigString);
-                if (bytes[0] === 0x07) {
-                    // MoveAuthenticator - use custom parser
-                    const parsed = parseMoveAuthenticatorSignature(sigString);
+                const parsed = parseSerializedSignature(sigString);
+
+                if (parsed.signatureScheme === 'MoveAuthenticator') {
+                    const v1 = parsed.moveAuthenticator.V1;
+                    if (v1.objectToAuthenticate.$kind !== 'Object') {
+                        throw new Error('MoveAuthenticator objectToAuthenticate must be an Object');
+                    }
+                    const objectArg = v1.objectToAuthenticate.Object;
+                    const authenticatedObjectId = extractObjectId(objectArg);
 
                     // Determine role based on the authenticated object address
                     let role: 'sender' | 'gas_sponsor' | 'unknown' = 'unknown';
-                    if (senderAddress && parsed.objectId === senderAddress) {
+                    if (senderAddress && authenticatedObjectId === senderAddress) {
                         role = 'sender';
                     } else if (
                         gasSponsorAddress &&
-                        parsed.objectId === gasSponsorAddress &&
+                        authenticatedObjectId === gasSponsorAddress &&
                         gasSponsorAddress !== senderAddress
                     ) {
                         role = 'gas_sponsor';
@@ -70,12 +78,15 @@
                         signature: new Uint8Array(),
                         role,
                         rawSignature: sigString,
-                        moveAuthenticator: parsed,
+                        moveAuthenticator: {
+                            version: 'V1',
+                            callArgs: v1.callArgs,
+                            typeArgs: v1.typeArgs,
+                            objectToAuthenticate: objectArg,
+                        },
                     });
                     return;
                 }
-
-                const parsed = parseSerializedSignature(sigString);
 
                 if (parsed.signatureScheme === 'MultiSig') {
                     const partialSignatures = parsePartialSignatures(parsed.multisig);
@@ -146,81 +157,7 @@
 
                 <div class="signature-details">
                     {#if sig.signatureScheme === 'MoveAuthenticator' && sig.moveAuthenticator}
-                        {@const move = sig.moveAuthenticator}
-                        <div class="detail-row">
-                            <span class="detail-label">Version:</span>
-                            <div class="detail-value-container">
-                                <span class="detail-value">V{move.version}</span>
-                            </div>
-                        </div>
-
-                        <div class="detail-row">
-                            <span class="detail-label">Authenticated Object ID:</span>
-                            <div class="detail-value-container">
-                                <a
-                                    class="detail-value link"
-                                    href={getObjectLink(getSelectedNetworkConfig(), move.objectId)}
-                                    target="_blank"
-                                    rel="noopener noreferrer">{move.objectId}</a
-                                >
-                                <button
-                                    class="copy-btn"
-                                    onclick={async () => await copyToClipboard(move.objectId)}
-                                >
-                                    Copy
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="detail-row">
-                            <span class="detail-label">Call Arguments:</span>
-                            <div class="detail-value-container">
-                                <span class="detail-value wrap"
-                                    >{JSON.stringify(move.callArguments, null, 2)}</span
-                                >
-                                <button
-                                    class="copy-btn"
-                                    onclick={async () =>
-                                        await copyToClipboard(JSON.stringify(move.callArguments))}
-                                >
-                                    Copy
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="detail-row">
-                            <span class="detail-label">Type Arguments:</span>
-                            <div class="detail-value-container">
-                                <span class="detail-value wrap"
-                                    >{JSON.stringify(move.typeArguments, null, 2)}</span
-                                >
-                                <button
-                                    class="copy-btn"
-                                    onclick={async () =>
-                                        await copyToClipboard(JSON.stringify(move.typeArguments))}
-                                >
-                                    Copy
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="detail-row">
-                            <span class="detail-label">Object to Authenticate:</span>
-                            <div class="detail-value-container">
-                                <span class="detail-value wrap"
-                                    >{JSON.stringify(move.objectToAuthenticate, null, 2)}</span
-                                >
-                                <button
-                                    class="copy-btn"
-                                    onclick={async () =>
-                                        await copyToClipboard(
-                                            JSON.stringify(move.objectToAuthenticate),
-                                        )}
-                                >
-                                    Copy
-                                </button>
-                            </div>
-                        </div>
+                        <MoveAuthenticatorDetails data={sig.moveAuthenticator} />
 
                         <div class="detail-row">
                             <span class="detail-label">Full Signature:</span>
@@ -411,16 +348,6 @@
         word-break: break-all;
         flex: 1;
         line-height: 1.5;
-    }
-
-    .detail-value.link {
-        color: var(--link-color, #0066cc);
-        text-decoration: underline;
-        cursor: pointer;
-    }
-
-    .detail-value.link:hover {
-        color: var(--link-hover-color, #004499);
     }
 
     .detail-value.wrap {

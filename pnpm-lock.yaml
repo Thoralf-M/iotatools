@@ -27,8 +27,8 @@ importers:
         specifier: ^0.13.1
         version: 0.13.1(typescript@5.9.3)
       '@iota/iota-sdk':
-        specifier: ^1.10.1
-        version: 1.10.1(typescript@5.9.3)
+        specifier: ^1.12.0
+        version: 1.12.0(typescript@5.9.3)
       '@iota/ledgerjs-hw-app-iota':
         specifier: ^0.6.0
         version: 0.6.0
@@ -529,12 +529,19 @@ packages:
   '@iota/bcs@1.4.0':
     resolution: {integrity: sha512-Bpg8uPB3UTweJyFS3G+aycGcTCxaJQi2a9bEy2QXWMBM8a/tLN1KCg4IzKWkAJ4FyMNrZZrdXiBqAzmNK6xdVQ==}
 
+  '@iota/bcs@1.6.0':
+    resolution: {integrity: sha512-H8I9g+aPBQigSsHkydnnR6wmmTwOwI7iu/TghTOz6tikqVFM09cA2JlDQXRLDTSkW3Qlz6gONyVKzrBhoTkHxQ==}
+
   '@iota/graphql-transport@0.13.1':
     resolution: {integrity: sha512-imGMisIq/WzPc8oA+PuNJsCVeNYlnxBCzrInlKvHUf3ExYyUDaB4GQsmbLqTnhk7LVCgNEWBdhAJgd5Uyuw6jQ==}
 
   '@iota/iota-sdk@1.10.1':
     resolution: {integrity: sha512-q0GxOCFzPqIcaw1lFuFljmMDj1ajIK6UZFzOYnnPqfs/nufOZrJQ9Bg/hLj23xbMno/tdND+aIjDWY6GG8MAXw==}
     engines: {node: '>=20'}
+
+  '@iota/iota-sdk@1.12.0':
+    resolution: {integrity: sha512-l9MEzcjY+OJBBZA8OirTxLhuMi7rRkk3QHEmek0hfloxZB/uS+K7GjUcFVAWS6VPk/478lNpDwmAFETZvVIudA==}
+    engines: {node: '>=24'}
 
   '@iota/ledgerjs-hw-app-iota@0.6.0':
     resolution: {integrity: sha512-VNtEygn3hySBuz7i+K4VRmA7HtQXLjB38uOWfW+8ykgOZmL2HJqJCIIkq2u/q7EymG9QixnFSAUFyKvQFCQvPQ==}
@@ -2390,6 +2397,10 @@ snapshots:
     dependencies:
       bs58: 6.0.0
 
+  '@iota/bcs@1.6.0':
+    dependencies:
+      '@scure/base': 1.2.6
+
   '@iota/graphql-transport@0.13.1(typescript@5.9.3)':
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.12.0)
@@ -2415,6 +2426,24 @@ snapshots:
       gql.tada: 1.9.0(graphql@16.12.0)(typescript@5.9.3)
       graphql: 16.12.0
       tweetnacl: 1.0.3
+      valibot: 1.2.0(typescript@5.9.3)
+    transitivePeerDependencies:
+      - '@gql.tada/svelte-support'
+      - '@gql.tada/vue-support'
+      - typescript
+
+  '@iota/iota-sdk@1.12.0(typescript@5.9.3)':
+    dependencies:
+      '@graphql-typed-document-node/core': 3.2.0(graphql@16.12.0)
+      '@iota/bcs': 1.6.0
+      '@noble/curves': 1.9.7
+      '@noble/hashes': 1.8.0
+      '@scure/base': 1.2.6
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      bignumber.js: 9.3.1
+      gql.tada: 1.9.0(graphql@16.12.0)(typescript@5.9.3)
+      graphql: 16.12.0
       valibot: 1.2.0(typescript@5.9.3)
     transitivePeerDependencies:
       - '@gql.tada/svelte-support'

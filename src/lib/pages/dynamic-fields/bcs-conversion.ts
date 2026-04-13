@@ -1,7 +1,7 @@
 import type { BcsType } from '@iota/bcs';
 import { bcs } from '@iota/iota-sdk/bcs';
 import { type MoveTypeLayout } from '@iota/iota-sdk/graphql/schemas/2025.2';
-import { toB64 } from '@iota/iota-sdk/utils';
+import { toBase64 } from '@iota/iota-sdk/utils';
 
 export interface BcsDecodeResult {
     value?: any;
@@ -102,7 +102,7 @@ export function layoutToBcs(layout: MoveTypeLayout): any {
  */
 export function mapJsonToBcs(json: unknown, layout: MoveTypeLayout): string {
     const schema = layoutToBcs(layout);
-    return toB64(schema.serialize(json).toBytes());
+    return toBase64(schema.serialize(json).toBytes());
 }
 
 /**
