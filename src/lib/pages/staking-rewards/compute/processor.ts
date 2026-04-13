@@ -3,6 +3,7 @@ import {
     fetchAllExchangeRates,
     fetchPoolExchangeRates,
     fetchSystemState,
+    type CurrentStakeInfo,
 } from '../graphql-requests';
 import { computeRewardsForStakeObject } from './rewards-calculator';
 import type { ActionDetails, ProcessStakeTransactionsResult, StakeObject } from './types';
@@ -12,6 +13,28 @@ import {
     getInactiveValidatorsExchangeRateIds,
     getValidatorInfo,
 } from './validator-utils';
+
+/**
+ * Options for time-frame-aware processing.
+ *
+ * Constraints when a startEpoch is set:
+ * - Transactions before startEpoch are skipped during processing.
+ * - currentStakeObjects (from getStakes) supplements the transaction-derived
+ *   objects to catch stakes whose creation predates startEpoch.
+ * - For objects whose creation tx was skipped, firstEpoch is reset DOWN to
+ *   stakeActivationEpoch so the rewards calculator treats them identically
+ *   to a full (non-filtered) run; otherwise the calculator would assume the
+ *   object was transferred at firstEpoch and under-count early rewards.
+ * - Processing always runs to currentEpoch (not the display end date) because
+ *   objects may be unstaked after the display range. Skipping those transactions
+ *   would lose them entirely — they wouldn't appear in current objects either.
+ */
+export type ProcessingOptions = {
+    /** Skip transactions before this epoch. Must still process to currentEpoch. */
+    startEpoch?: number;
+    /** Currently staked objects fetched via getStakes(). Fills gaps from skipped transactions. */
+    currentStakeObjects?: CurrentStakeInfo[];
+};
 
 // Types for internal processing
 type StakeObjectData = {
@@ -240,7 +263,7 @@ function createOrUpdateStakeObject(
     }
 }
 
-// Create stake object for input-only transactions
+// Create stake object for input-only transactions (e.g., full unstake where object is deleted)
 function createInputOnlyStakeObject(
     stakeObjects: Map<string, StakeObject>,
     address: string,
@@ -272,6 +295,14 @@ function createInputOnlyStakeObject(
         // For input-only transactions, this might be the final epoch for this object
         // But preserve the firstEpoch - only update lastEpoch
         existing.lastEpoch = epochId;
+    }
+
+    // Record the input principal so fillMissingPrincipalEntries has an anchor
+    // at this epoch (mirrors how createOrUpdateStakeObject records output).
+    // Applied in both create and update paths to keep behavior symmetric.
+    const obj = stakeObjects.get(address)!;
+    if (input.principal) {
+        obj.principalByEpoch[epochId] = input.principal;
     }
 }
 
@@ -856,13 +887,131 @@ async function processStakeObjectsWithExchangeRates(
     return stakeObjectsArray;
 }
 
+/**
+ * Add minimal StakeObject entries for currently-staked objects that aren't
+ * already present. Used when a startEpoch filter hides the creation tx of
+ * objects that are still on-chain: without this supplementation the rewards
+ * pipeline has no record of them.
+ */
+function supplementMissingStakeObjects(
+    allStakeObjects: Map<string, StakeObject>,
+    currentStakeObjects: CurrentStakeInfo[],
+    currentEpoch: number,
+): void {
+    for (const current of currentStakeObjects) {
+        if (allStakeObjects.has(current.objectId)) continue;
+        allStakeObjects.set(current.objectId, {
+            objectId: current.objectId,
+            wasOwnedByTargetAddress: true,
+            poolId: current.poolId,
+            principalByEpoch: { [current.stakeActivationEpoch]: current.principal },
+            exchangeRatesByEpoch: {},
+            rewardsByEpoch: {},
+            accumulatedRewards: {},
+            firstEpoch: current.stakeActivationEpoch,
+            lastEpoch: currentEpoch,
+            stakeActivationEpoch: current.stakeActivationEpoch,
+        });
+    }
+}
+
+/**
+ * Find the principal an object held BEFORE the first visible action at its
+ * firstEpoch. Used to seed principalByEpoch at stakeActivationEpoch when the
+ * creation tx is outside the filter window. Returns undefined if no action
+ * exposes the pre-action state.
+ */
+function findPreFirstEpochPrincipal(stakeObject: StakeObject): string | undefined {
+    const actions = stakeObject.actionByEpoch?.[stakeObject.firstEpoch] ?? [];
+    for (const action of actions) {
+        if (action.action === 'Unlocked') continue;
+        if (action.principalChange?.from) return action.principalChange.from;
+        if (action.action === 'Unstaked' && action.amount) return action.amount;
+    }
+    return undefined;
+}
+
+/**
+ * When startEpoch filters out an object's creation tx, the object's firstEpoch
+ * lands at whatever tx we first see it in (typically an unstake) rather than
+ * at its stakeActivationEpoch. The rewards calculator treats firstEpoch >
+ * stakeActivationEpoch as "this object was transferred in", zeroing pre-
+ * firstEpoch rewards. Reset firstEpoch down to stakeActivationEpoch for
+ * affected objects, and seed a principal entry there so fillMissing... can
+ * carry it forward across the gap.
+ *
+ * Only adjust objects whose firstEpoch action proves pre-existence:
+ *   - Object deleted at firstEpoch (lastEpoch == firstEpoch) — must have
+ *     existed before to be deletable now (e.g. timelocked wrappers).
+ *   - Non-Unlocked action at firstEpoch (Unstaked, Partial Unstake, Transfer,
+ *     Transition) — these reveal pre-action state.
+ * Unlocked alone on a continuing object is NOT proof — it also appears on
+ * newly-unwrapped StakedIotas whose stakeActivationEpoch is inherited from
+ * the timelocked predecessor.
+ */
+function extendFirstEpochToActivation(
+    allStakeObjects: Map<string, StakeObject>,
+    startEpoch: number,
+): void {
+    for (const stakeObject of allStakeObjects.values()) {
+        const isDeletedAtFirst = stakeObject.lastEpoch === stakeObject.firstEpoch;
+        const hasNonUnlockAction =
+            stakeObject.actionByEpoch?.[stakeObject.firstEpoch]?.some(
+                (a) => a.action !== 'Unlocked',
+            ) ?? false;
+        const shouldReset =
+            (isDeletedAtFirst || hasNonUnlockAction) &&
+            stakeObject.stakeActivationEpoch < stakeObject.firstEpoch &&
+            stakeObject.firstEpoch >= startEpoch;
+        if (!shouldReset) continue;
+
+        // Seed the principal at stakeActivationEpoch with the principal held
+        // BEFORE the first visible action — i.e. the action's *input*
+        // principal, not its output. Using the output (post-unstake) amount
+        // would under-count rewards for pre-firstEpoch epochs: the unstake's
+        // `totalRewards` captures rewards against the pre-unstake amount and
+        // flows into Unstake Total, so a smaller seed makes
+        // Accumulated − Unstake Total come out too low.
+        let seedPrincipal = findPreFirstEpochPrincipal(stakeObject);
+        if (seedPrincipal === undefined) {
+            // Fallback for actions that don't expose pre-action state
+            // (e.g. Transfer, which preserves principal — so the earliest-
+            // known output equals the input).
+            const knownEpochs = Object.keys(stakeObject.principalByEpoch)
+                .map(Number)
+                .sort((a, b) => a - b);
+            if (knownEpochs.length > 0) {
+                seedPrincipal = stakeObject.principalByEpoch[knownEpochs[0]];
+            }
+        }
+        if (seedPrincipal !== undefined) {
+            stakeObject.principalByEpoch[stakeObject.stakeActivationEpoch] = seedPrincipal;
+        }
+        stakeObject.firstEpoch = stakeObject.stakeActivationEpoch;
+    }
+}
+
 export async function processStakeTransactionsWithExchangeRates(
     transactions: Array<any>,
     currentEpoch: number,
     targetAddresses: string | string[],
+    options?: ProcessingOptions,
 ): Promise<ProcessStakeTransactionsResult> {
     // Normalize targetAddresses to always be an array
     const addressArray = Array.isArray(targetAddresses) ? targetAddresses : [targetAddresses];
+    const { startEpoch, currentStakeObjects } = options ?? {};
+
+    // When startEpoch is set, filter transactions to skip those before the range.
+    // We always keep transactions up to currentEpoch (not just the display end date)
+    // because an object unstaked after the display range would be invisible in both
+    // current objects and pre-range transactions — losing it entirely.
+    let filteredTransactions = transactions;
+    if (startEpoch !== undefined) {
+        filteredTransactions = transactions.filter((tx) => {
+            const txEpoch = tx.effects?.epoch?.epochId;
+            return txEpoch === undefined || parseInt(txEpoch) >= startEpoch;
+        });
+    }
 
     // Get system state to map pool IDs to exchange rate IDs
     const systemState = (await fetchSystemState())[0];
@@ -878,7 +1027,11 @@ export async function processStakeTransactionsWithExchangeRates(
     const allStakeObjects = new Map<string, StakeObject>();
 
     for (const targetAddress of addressArray) {
-        const stakeObjects = await processTransactions(transactions, currentEpoch, targetAddress);
+        const stakeObjects = await processTransactions(
+            filteredTransactions,
+            currentEpoch,
+            targetAddress,
+        );
 
         // Merge stake objects from this address into the combined map
         stakeObjects.forEach((stakeObject, key) => {
@@ -995,6 +1148,16 @@ export async function processStakeTransactionsWithExchangeRates(
                 allStakeObjects.set(key, stakeObject);
             }
         });
+    }
+
+    // Time-frame-aware post-processing: fill in objects whose creation tx was
+    // filtered out, and extend firstEpoch back to stakeActivationEpoch so the
+    // rewards calculator sees the same shape it would in a full run.
+    if (currentStakeObjects && currentStakeObjects.length > 0) {
+        supplementMissingStakeObjects(allStakeObjects, currentStakeObjects, currentEpoch);
+    }
+    if (startEpoch !== undefined) {
+        extendFirstEpochToActivation(allStakeObjects, startEpoch);
     }
 
     // Finalize lastEpoch for all stake objects based on their complete action history
