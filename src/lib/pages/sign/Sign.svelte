@@ -1,22 +1,25 @@
 <script lang="ts">
     import { fromBase64, toBase64 } from '@iota/bcs';
     import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
+    import type { MoveAuthenticatorData } from '@iota/iota-sdk/keypairs/move-authenticator';
     import { Transaction, TransactionDataBuilder } from '@iota/iota-sdk/transactions';
     import { get } from 'svelte/store';
 
     import JsonToggleView from '../../components/JsonToggleView.svelte';
+    import MoveAuthenticatorDetails from '../../components/MoveAuthenticatorDetails.svelte';
     import TransactionView from '../../components/TransactionView.svelte';
     import { getClient, getSelectedChain } from '../../utils/client';
     import { copyToClipboard } from '../../utils/formatting';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
     import { activeAddress } from '../../utils/signer-data';
     import { getActiveWallet } from '../../utils/web-wallet';
-    import type { SignaturePubkeyPair } from './sign-utils';
+    import type { SignaturePubkeyPair, VerificationStatus } from './sign-utils';
     import { verifySignature } from './sign-utils';
 
-    // Use query parameters for the transaction bytes
+    // Use query parameters for the transaction bytes and signature
     const queryParamValues = usePageQueryParams({
         tx: '', // Query parameter for transaction bytes
+        signature: '', // Query parameter for the signature (base64)
     });
 
     let error = '';
@@ -30,9 +33,10 @@
     let signedTxBytes = ''; // New: stores the combined signed transaction bytes
 
     // Signature verification state
-    let signatureVerificationStatus: 'valid' | 'invalid' | 'checking' | null = null;
+    let signatureVerificationStatus: VerificationStatus = null;
     let signatureVerificationError = '';
     let signaturePubkeyPairs: SignaturePubkeyPair[] | null = null;
+    let signatureMoveAuthenticator: MoveAuthenticatorData | null = null;
     // Dry run transaction function
     async function dryRunTransaction() {
         try {
@@ -69,6 +73,10 @@
         processTransactionBytes(txBytesInput);
     }
 
+    $: if ($queryParamValues.signature !== signatureResult) {
+        signatureResult = $queryParamValues.signature;
+    }
+
     // Function to update transaction bytes and query parameter
     function updateTxBytes(newTxBytes: string) {
         txBytesInput = newTxBytes;
@@ -76,6 +84,12 @@
 
         // Process the transaction bytes
         processTransactionBytes(newTxBytes);
+    }
+
+    // Function to update signature and query parameter
+    function updateSignature(newSignature: string) {
+        signatureResult = newSignature;
+        updatePageQueryParams({ signature: newSignature || null });
     }
 
     // Function to process transaction bytes and update the value
@@ -128,7 +142,7 @@
     async function signTransaction() {
         try {
             error = '';
-            signatureResult = '';
+            updateSignature('');
 
             const inputString = txBytesInput.trim();
             if (!inputString) {
@@ -167,7 +181,7 @@
             });
 
             signatureTypeLabel = 'Transaction Signature';
-            signatureResult = result.signature;
+            updateSignature(result.signature);
             // Also update the signature textarea if present
             if (signatureTextarea) {
                 signatureTextarea.value = signatureResult;
@@ -181,7 +195,7 @@
     async function signPersonalMessage() {
         try {
             error = '';
-            signatureResult = '';
+            updateSignature('');
 
             const inputString = txBytesInput.trim();
             if (!inputString) {
@@ -211,7 +225,7 @@
             });
 
             signatureTypeLabel = 'Message Signature';
-            signatureResult = result.signature;
+            updateSignature(result.signature);
         } catch (e) {
             error = `Error signing message: ${e}`;
         }
@@ -223,6 +237,7 @@
         signatureVerificationStatus = result.status;
         signatureVerificationError = result.error;
         signaturePubkeyPairs = result.pubkeyPairs;
+        signatureMoveAuthenticator = result.moveAuthenticator ?? null;
     }
 
     // Function to create signed transaction bytes by combining tx bytes with signature
@@ -267,6 +282,7 @@
         if (signatureResult.trim() === '') {
             signatureVerificationStatus = null;
             signaturePubkeyPairs = null;
+            signatureMoveAuthenticator = null;
             signedTxBytes = '';
         } else {
             // Clear any pending verification
@@ -377,7 +393,7 @@
         <textarea
             bind:this={signatureTextarea}
             value={signatureResult}
-            oninput={(e) => (signatureResult = (e.target as HTMLTextAreaElement).value)}
+            oninput={(e) => updateSignature((e.target as HTMLTextAreaElement).value)}
             placeholder="Signature (base64)"
             class="signature-textarea"
         ></textarea>
@@ -403,6 +419,24 @@
                         {signatureVerificationError}
                     </div>
                 {/if}
+            </div>
+        {/if}
+
+        {#if signatureVerificationStatus === 'on_chain_only'}
+            <div style="margin-top: 8px; padding: 8px; border-radius: 4px;">
+                ⓘ Signature parsed. MoveAuthenticator validity depends on on-chain execution and
+                cannot be verified here.
+            </div>
+        {/if}
+
+        {#if signatureMoveAuthenticator}
+            <div class="signature-details-container">
+                <div class="signature-item">
+                    <div class="signature-header">MoveAuthenticator</div>
+                    <div class="signature-details">
+                        <MoveAuthenticatorDetails data={signatureMoveAuthenticator} />
+                    </div>
+                </div>
             </div>
         {/if}
 

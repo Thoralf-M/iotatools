@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { isValidIotaAddress, normalizeIotaObjectId, toB64 } from '@iota/iota-sdk/utils';
+    import { isValidIotaAddress, normalizeIotaObjectId, toBase64 } from '@iota/iota-sdk/utils';
     import { writable } from 'svelte/store';
 
     import JsonToggleView from '../../components/JsonToggleView.svelte';
@@ -156,7 +156,7 @@
 
             // Convert the JSON layout to BCS schema using layoutToBcs
             const bcsSchema = layoutToBcs(struct.layout);
-            return toB64(bcsSchema.serialize(json).toBytes());
+            return toBase64(bcsSchema.serialize(json).toBytes());
         } catch (e) {
             console.error('BCS serialization error:', e);
             return '';
