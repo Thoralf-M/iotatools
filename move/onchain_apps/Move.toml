@@ -1,0 +1,14 @@
+[package]
+name = "onchain_apps"
+edition = "2024.beta"
+version = "0.0.1"
+# published-at is intentionally left unset for the first publish.
+# After publishing, set this and [addresses] onchain_apps to the package id
+# so the package can be upgraded with `iota client upgrade`.
+# published-at = "0x..."
+
+[dependencies]
+Iota = { git = "https://github.com/iotaledger/iota.git", subdir = "crates/iota-framework/packages/iota-framework", rev = "framework/devnet" }
+
+[addresses]
+onchain_apps = "0x0"

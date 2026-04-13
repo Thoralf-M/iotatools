@@ -43,6 +43,7 @@
         Impressum: () => import('./lib/pages/impressum/Impressum.svelte'),
         Datenschutz: () => import('./lib/pages/datenschutz/Datenschutz.svelte'),
         Disclaimer: () => import('./lib/pages/disclaimer/Disclaimer.svelte'),
+        OnChainApps: () => import('./lib/pages/onchain-apps/OnChainApps.svelte'),
     };
 
     // Route definitions: map route paths to lazy-loaded components using wrap
@@ -79,6 +80,7 @@
         '/impressum': wrap({ asyncComponent: pageImports['Impressum'] }),
         '/datenschutz': wrap({ asyncComponent: pageImports['Datenschutz'] }),
         '/disclaimer': wrap({ asyncComponent: pageImports['Disclaimer'] }),
+        '/onchain-apps': wrap({ asyncComponent: pageImports['OnChainApps'] }),
     };
 
     // Tab items with route paths
@@ -106,6 +108,7 @@
         { label: 'Converter', route: '/converter', group: 'Utilities' },
         { label: 'Text Analyzer', route: '/text-analyzer', group: 'Utilities' },
         { label: 'Address generation', route: '/address-generation', group: 'Utilities' },
+        { label: 'On-Chain Apps', route: '/onchain-apps', group: 'Other' },
         { label: 'IOTA-Names', route: '/iota-names', group: 'Other' },
         { label: 'Candidate Stake', route: '/candidate-stake', group: 'Other' },
         { label: '⚙ Settings', route: '/settings', group: 'Other' },
@@ -177,6 +180,7 @@
                 '/impressum': pageImports.Impressum,
                 '/datenschutz': pageImports.Datenschutz,
                 '/disclaimer': pageImports.Disclaimer,
+                '/onchain-apps': pageImports.OnChainApps,
             }}
         />
     </div>
