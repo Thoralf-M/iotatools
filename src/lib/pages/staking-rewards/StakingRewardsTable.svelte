@@ -77,6 +77,7 @@
         showCompactView = $bindable(true),
         onPricesFetched,
         noTransactionsFound = false,
+        timeFrameFilteredEpochs = undefined as number[] | undefined,
     } = $props();
 
     let windowWidth = $state(0);
@@ -97,9 +98,12 @@
     let { uniqueValidators, epochData, validatorPrincipal, epochs } = $derived(tableData);
 
     // Filtered epochs based on showCompactView
+    // Use time-frame-filtered epochs from parent when available, otherwise all epochs
+    let baseEpochs = $derived(timeFrameFilteredEpochs ?? epochs);
+
     let filteredEpochs = $derived.by(() => {
-        if (!showCompactView) return epochs;
-        return epochs.filter((epoch) => {
+        if (!showCompactView) return baseEpochs;
+        return baseEpochs.filter((epoch) => {
             if (epoch === currentEpoch || epoch === currentEpoch - 1) return true;
             const hasPreActive = stakeObjects.some((stakeObject) =>
                 isPreActivationInEpoch(stakeObject, epoch, epochData),
@@ -115,7 +119,7 @@
     });
 
     let filteredEpochEndDates = $derived.by(() => {
-        if (!showCompactView) return epochEndDates;
+        if (!showCompactView && !timeFrameFilteredEpochs) return epochEndDates;
         return filteredEpochs.map((epoch) => epochEndDates[epochs.indexOf(epoch)]);
     });
 

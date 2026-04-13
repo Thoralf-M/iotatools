@@ -1,7 +1,7 @@
 import { bcs, toBase64 } from '@iota/bcs';
 import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
 
-import { getSelectedNetworkConfig } from '../../utils/client';
+import { getClient, getSelectedNetworkConfig } from '../../utils/client';
 import {
     compressExchangeRateCache,
     decompressExchangeRateCache,
@@ -1044,6 +1044,81 @@ export async function fetchEpochTimestampsForDisplay(
 }
 
 export { exchangeRateCache };
+
+/**
+ * Info about a currently staked object fetched directly from the chain.
+ * Used to discover stake objects whose creation transaction predates the fetch range.
+ */
+export type CurrentStakeInfo = {
+    objectId: string;
+    poolId: string;
+    principal: string;
+    stakeActivationEpoch: number;
+};
+
+/**
+ * Fetch currently staked objects for the given addresses using the JSON-RPC API.
+ *
+ * This supplements transaction-based discovery: when a time frame filter restricts
+ * which transactions are processed, objects created before the filter range would
+ * be invisible from transactions alone. Querying current objects catches them.
+ *
+ * Note: objects that were both created AND unstaked before the fetch range are
+ * not found by either method, but they also have no rewards within the range.
+ */
+export async function fetchCurrentStakedObjects(addresses: string[]): Promise<CurrentStakeInfo[]> {
+    const client = getClient();
+
+    const perAddress = await Promise.all(
+        addresses.map(async (address) => {
+            const results: CurrentStakeInfo[] = [];
+
+            const [stakesRes, timelockedRes] = await Promise.allSettled([
+                client.getStakes({ owner: address }),
+                client.getTimelockedStakes({ owner: address }),
+            ]);
+
+            if (stakesRes.status === 'fulfilled') {
+                for (const delegated of stakesRes.value) {
+                    for (const stake of delegated.stakes) {
+                        if (stake.status === 'Unstaked') continue;
+                        results.push({
+                            objectId: stake.stakedIotaId,
+                            poolId: delegated.stakingPool,
+                            principal: stake.principal,
+                            stakeActivationEpoch: parseInt(stake.stakeActiveEpoch),
+                        });
+                    }
+                }
+            } else {
+                console.warn(`Failed to fetch stakes for ${address}:`, stakesRes.reason);
+            }
+
+            if (timelockedRes.status === 'fulfilled') {
+                for (const delegated of timelockedRes.value) {
+                    for (const stake of delegated.stakes) {
+                        if (stake.status === 'Unstaked') continue;
+                        results.push({
+                            objectId: stake.timelockedStakedIotaId,
+                            poolId: delegated.stakingPool,
+                            principal: stake.principal,
+                            stakeActivationEpoch: parseInt(stake.stakeActiveEpoch),
+                        });
+                    }
+                }
+            } else {
+                console.warn(
+                    `Failed to fetch timelocked stakes for ${address}:`,
+                    timelockedRes.reason,
+                );
+            }
+
+            return results;
+        }),
+    );
+
+    return perAddress.flat();
+}
 
 /**
  * Update exchange rates cache with all historical data for all validators

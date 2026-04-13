@@ -20,4 +20,4 @@ export {
 
 export { getCurrentActiveValidatorsExchangeRateIds, getValidatorInfo } from './validator-utils';
 
-export { processStakeTransactionsWithExchangeRates } from './processor';
+export { processStakeTransactionsWithExchangeRates, type ProcessingOptions } from './processor';

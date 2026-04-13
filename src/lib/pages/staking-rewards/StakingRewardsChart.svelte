@@ -12,6 +12,11 @@
     export let tableData: TableComputationResult;
     export let epochEndDates: string[];
     export let epochPrices: Record<number, number>;
+    // The trailing epoch (currentEpoch) is pending and has partial data. By default
+    // we drop it so charts show only completed epochs. Set false when the caller
+    // has already restricted epochs to a closed range (e.g. a time-frame filter
+    // that does not include the current epoch).
+    export let skipLastEpoch: boolean = true;
 
     let canvas: HTMLCanvasElement;
     let chart: Chart | null = null;
@@ -44,7 +49,8 @@
     // Function to get data for a specific metric
     function getMetricData(metric: string) {
         const { epochs, epochData } = tableData;
-        return epochs.slice(0, -1).map((epoch, index) => {
+        const visibleEpochs = skipLastEpoch ? epochs.slice(0, -1) : epochs;
+        return visibleEpochs.map((epoch, index) => {
             const date = epochEndDates[index] ? new Date(epochEndDates[index]) : new Date();
             let value: number = 0;
 

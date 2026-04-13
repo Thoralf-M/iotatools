@@ -7,7 +7,8 @@
     import { EpochPTBAnalyzer } from '../programmable-transaction-block';
     // @ts-ignore
     import exchangeRateCacheBinary from './cache/exchange-rate-cache.bin?raw';
-    import { fetchEpochTimestampsForDisplay } from './graphql-requests';
+    import epochTimestampsCacheJson from './cache/mainnet-epoch-timestamps-cache.json';
+    import { fetchCurrentStakedObjects, fetchEpochTimestampsForDisplay } from './graphql-requests';
     import {
         fetchReceivedStakeTransactions,
         fetchStakeTransactions,
@@ -19,6 +20,14 @@
     import StakingRewardsChart from './StakingRewardsChart.svelte';
     import StakingRewardsTable from './StakingRewardsTable.svelte';
     import { computeEpochData } from './table-utils';
+    import {
+        filterEpochsByTimeFrame,
+        getStartEpochForTimeFrame,
+        getTimeFrameDescription,
+        TIME_FRAME_LABELS,
+        type DateRange,
+        type TimeFrame,
+    } from './timeframe';
 
     // Use query parameters for the address field
     const queryParamValues = usePageQueryParams({
@@ -122,17 +131,68 @@
     $: tableData = computeEpochData(stakeObjects, validatorInfo, epoch || 1);
 
     let epochEndDates: string[] = [];
+    // Seed from the bundled cache so the time-frame filter has data to match
+    // against on first render. The reactive fetch below replaces it once the
+    // async call resolves (possibly with freshly fetched epochs).
+    let epochTimestamps: Record<number, number> = epochTimestampsCacheJson as Record<
+        number,
+        number
+    >;
     let epochPrices: Record<number, number> = {};
+
+    // Time frame filtering
+    let selectedTimeFrame: TimeFrame = 'all';
+    let customDateStart = '';
+    let customDateEnd = '';
+
+    $: customDateRange =
+        selectedTimeFrame === 'custom' && customDateStart && customDateEnd
+            ? ({
+                  start: new Date(customDateStart + 'T00:00:00'),
+                  end: new Date(customDateEnd + 'T23:59:59.999'),
+              } as DateRange)
+            : undefined;
+
+    $: timeFrameFilteredEpochs = filterEpochsByTimeFrame(
+        tableData.epochs,
+        epochTimestamps,
+        selectedTimeFrame,
+        customDateRange,
+    );
+
+    $: timeFrameFilteredEpochEndDates = timeFrameFilteredEpochs.map((ep) => {
+        const idx = tableData.epochs.indexOf(ep);
+        return idx >= 0 ? epochEndDates[idx] : '';
+    });
+
+    // Only tell the chart to drop its last epoch when the filter ends at the
+    // pending current epoch (that epoch has partial data). For closed ranges
+    // that end earlier, every epoch in the filter is complete and should render.
+    // Compare against tableData.epochs's last entry (authoritative) rather than
+    // `epoch` — the latter can be '' before fetch completes.
+    $: chartSkipLastEpoch =
+        timeFrameFilteredEpochs.length > 0 &&
+        tableData.epochs.length > 0 &&
+        timeFrameFilteredEpochs[timeFrameFilteredEpochs.length - 1] ===
+            tableData.epochs[tableData.epochs.length - 1];
+
+    $: filteredTableDataForChart = {
+        ...tableData,
+        epochs: timeFrameFilteredEpochs,
+    };
 
     // Fetch epoch end dates when tableData changes
     $: if (tableData.epochs.length > 0) {
-        fetchEpochTimestampsForDisplay(tableData.epochs, epoch || 1, {}).then(
-            ({ epochEndDates: dates }) => {
+        fetchEpochTimestampsForDisplay(tableData.epochs, epoch || 1, epochTimestampsCacheJson).then(
+            ({ epochEndDates: dates, fetchedEpochTimestamps }) => {
                 epochEndDates = dates;
+                epochTimestamps = fetchedEpochTimestamps;
             },
         );
     } else {
         epochEndDates = [];
+        // Keep epochTimestamps seeded from the bundled cache so the time-frame
+        // filter can still compute even before any tableData is available.
     }
 
     function handlePricesFetched(prices: Record<number, number>) {
@@ -165,6 +225,14 @@
         loadingTxs = true;
         loadingStep = 'Fetching stake txs...';
         try {
+            // Determine the filter's start epoch (undefined for "all").
+            // See ProcessingOptions in processor.ts for how it's used.
+            const startEpoch = getStartEpochForTimeFrame(
+                epochTimestampsCacheJson,
+                selectedTimeFrame,
+                customDateRange,
+            );
+
             // Fetch transactions for all addresses in parallel
             const allTxsPromises = allAddresses.map(async (addr, index) => {
                 try {
@@ -215,7 +283,21 @@
                 return acc;
             }, []);
 
-            if (uniqueTxs.length === 0) {
+            // Fetch current on-chain stake objects to supplement the filtered
+            // transactions. See supplementMissingStakeObjects in processor.ts.
+            let currentStakeObjects;
+            if (startEpoch !== undefined) {
+                loadingStep = 'Fetching current stake objects...';
+                currentStakeObjects = await fetchCurrentStakedObjects(allAddresses);
+                console.log(
+                    `Fetched ${currentStakeObjects.length} current stake objects from chain`,
+                );
+            }
+
+            if (
+                uniqueTxs.length === 0 &&
+                (!currentStakeObjects || currentStakeObjects.length === 0)
+            ) {
                 noTransactionsFound = true;
                 loadingTxs = false;
                 loadingStep = null;
@@ -228,6 +310,7 @@
                 uniqueTxs,
                 epoch as number,
                 allAddresses,
+                { startEpoch, currentStakeObjects },
             );
             stakeObjects = result.stakeObjects;
             validatorInfo = result.validatorInfo;
@@ -327,6 +410,34 @@
                     >
                 </div>
             </label>
+            <div class="timeframe-controls">
+                <label class="timeframe-label">
+                    Time frame:
+                    <select bind:value={selectedTimeFrame}>
+                        {#each Object.entries(TIME_FRAME_LABELS) as [value, label]}
+                            <option {value}>{label}</option>
+                        {/each}
+                    </select>
+                </label>
+                {#if selectedTimeFrame === 'custom'}
+                    <label class="timeframe-date">
+                        From:
+                        <input type="date" bind:value={customDateStart} />
+                    </label>
+                    <label class="timeframe-date">
+                        To:
+                        <input type="date" bind:value={customDateEnd} />
+                    </label>
+                {/if}
+                {#if selectedTimeFrame !== 'all'}
+                    <span class="timeframe-info">
+                        {getTimeFrameDescription(selectedTimeFrame, customDateRange)}
+                        {#if tableData.epochs.length > 0}
+                            ({timeFrameFilteredEpochs.length} of {tableData.epochs.length} epochs)
+                        {/if}
+                    </span>
+                {/if}
+            </div>
             <button
                 onclick={fetchTransactions}
                 disabled={loadingTxs}
@@ -357,6 +468,7 @@
     {#if error}
         <div class="error-message">{error}</div>
     {/if}
+
     <div class="summary-section">
         <StakingRewardsTable
             currentEpoch={epoch || 1}
@@ -366,10 +478,16 @@
             bind:showValidatorColumns
             onPricesFetched={handlePricesFetched}
             {noTransactionsFound}
+            {timeFrameFilteredEpochs}
         />
     </div>
     {#if stakeObjects.length > 0}
-        <StakingRewardsChart {tableData} {epochEndDates} {epochPrices} />
+        <StakingRewardsChart
+            tableData={filteredTableDataForChart}
+            epochEndDates={timeFrameFilteredEpochEndDates}
+            {epochPrices}
+            skipLastEpoch={chartSkipLastEpoch}
+        />
     {/if}
     <details>
         <summary>Stake objects:</summary>
@@ -533,5 +651,36 @@
         padding: 0.75rem;
         color: #10b981;
         font-size: 0.9rem;
+    }
+
+    .timeframe-controls {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        font-size: 0.9rem;
+    }
+
+    .timeframe-label select {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border-color);
+        color: white;
+        padding: 0.3rem 0.5rem;
+        border-radius: 4px;
+        margin-left: 0.25rem;
+    }
+
+    .timeframe-date input {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border-color);
+        color: white;
+        padding: 0.3rem 0.5rem;
+        border-radius: 4px;
+        margin-left: 0.25rem;
+    }
+
+    .timeframe-info {
+        color: #10b981;
+        font-size: 0.85rem;
     }
 </style>
