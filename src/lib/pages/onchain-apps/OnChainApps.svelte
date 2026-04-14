@@ -62,7 +62,11 @@
 
     import { getClient, getSelectedNetworkConfig } from '../../utils/client';
     import { sharedClientConfig } from '../../utils/local-storage-store';
-    import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
+    import {
+        getCurrentPageQueryParams,
+        updatePageQueryParams,
+        usePageQueryParams,
+    } from '../../utils/page-query-params';
     import { BOOTSTRAP_JS, createIframeBridge, type BridgeMethod } from './onchain-apps-bridge';
     import {
         buildAppendChunksTx,
@@ -367,6 +371,12 @@
                 return $sharedClientConfig.selected;
             case 'getAppId':
                 return appId;
+            case 'getParam': {
+                const key = args?.key;
+                if (!key) return null;
+                const params = getCurrentPageQueryParams();
+                return params[key] ?? null;
+            }
             case 'rpc': {
                 const { method: rpcMethod, args: rpcArgs = [] } = args ?? {};
                 const fn = (client as any)[rpcMethod];

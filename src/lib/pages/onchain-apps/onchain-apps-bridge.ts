@@ -23,6 +23,7 @@ export type BridgeMethod =
     | 'getAddress'
     | 'getNetwork'
     | 'getAppId'
+    | 'getParam'
     | 'rpc' // calls a named method on the IotaClient
     | 'signAndExecute'
     | 'storageSet'
@@ -278,6 +279,8 @@ export const BOOTSTRAP_JS = String.raw`
         getAddress: function () { return send('getAddress'); },
         getNetwork: function () { return send('getNetwork'); },
         getAppId: function () { return send('getAppId'); },
+        // Read a query parameter from the host page URL (e.g. ?gameId=xyz).
+        getParam: function (key) { return send('getParam', { key: key }); },
         client: makeClient(),
         signAndExecuteTransaction: function (txJson) {
             return send('signAndExecute', { txJson: txJson });
