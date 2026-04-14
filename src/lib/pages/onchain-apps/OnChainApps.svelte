@@ -96,6 +96,7 @@
     const pageParams = usePageQueryParams({ appId: '' });
 
     let randomKey: RandomKey = $state(ensureRandomKey());
+    let signerBalance = $state('');
     let apps: AppMetadata[] = $state([]);
     let loadingList = $state(false);
     let loadError = $state('');
@@ -128,6 +129,287 @@
     let updating = $state(false);
 
     let iframeEl: HTMLIFrameElement | undefined = $state();
+    let appMaximized = $state(false);
+
+    // --- WebRTC state (connections are managed on the host page for ICE compatibility) ---
+
+    // Abstracted channel that works for both WebRTC DataChannel and BroadcastChannel.
+    interface ProxyChannel {
+        send(data: string): void;
+        close(): void;
+    }
+    const proxyChannels = new Map<string, ProxyChannel>();
+    let webrtcIdSeq = 0;
+
+    const DEFAULT_ICE_SERVERS: RTCIceServer[] = [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+    ];
+    const WEBRTC_POLL_MS = 2500;
+
+    function rtcLog(...args: unknown[]) {
+        console.log('[WebRTC]', ...args);
+    }
+
+    function gatherIce(pc: RTCPeerConnection): Promise<RTCSessionDescription | null> {
+        return new Promise((resolve) => {
+            const candidates: string[] = [];
+            pc.onicecandidate = (e) => {
+                if (e.candidate) candidates.push(e.candidate.candidate);
+            };
+            if (pc.iceGatheringState === 'complete') {
+                rtcLog('ICE already complete, candidates:', candidates.length);
+                resolve(pc.localDescription);
+                return;
+            }
+            const check = () => {
+                if (pc.iceGatheringState === 'complete') {
+                    pc.removeEventListener('icegatheringstatechange', check);
+                    rtcLog('ICE gathering complete, candidates:', candidates.length);
+                    candidates.forEach((c) => rtcLog('  candidate:', c));
+                    resolve(pc.localDescription);
+                }
+            };
+            pc.addEventListener('icegatheringstatechange', check);
+            setTimeout(() => {
+                pc.removeEventListener('icegatheringstatechange', check);
+                rtcLog(
+                    'ICE gathering safety-net timeout (8s), state:',
+                    pc.iceGatheringState,
+                    'candidates:',
+                    candidates.length,
+                );
+                candidates.forEach((c) => rtcLog('  candidate:', c));
+                resolve(pc.localDescription);
+            }, 8000);
+        });
+    }
+
+    function waitForOpen(dc: RTCDataChannel): Promise<RTCDataChannel> {
+        return new Promise((resolve, reject) => {
+            rtcLog('waitForOpen: current state =', dc.readyState);
+            if (dc.readyState === 'open') {
+                resolve(dc);
+                return;
+            }
+            const onOpen = () => {
+                rtcLog('DataChannel opened!');
+                resolve(dc);
+            };
+            const onError = (e: Event) => {
+                rtcLog('DataChannel error:', e);
+                reject(e);
+            };
+            dc.addEventListener('open', onOpen);
+            dc.addEventListener('error', onError);
+            setTimeout(() => {
+                dc.removeEventListener('open', onOpen);
+                dc.removeEventListener('error', onError);
+                rtcLog('DataChannel open timeout (30s), state:', dc.readyState);
+                reject(new Error('DataChannel open timeout after 30s, state=' + dc.readyState));
+            }, 30000);
+        });
+    }
+
+    // Returns a promise that resolves when a datachannel event fires.
+    // The timeout is NOT started here — it is started later after signaling
+    // completes, so signaling time doesn't eat into the connection window.
+    function listenForDataChannel(pc: RTCPeerConnection): {
+        promise: Promise<RTCDataChannel>;
+        startTimeout: (ms: number) => void;
+    } {
+        let rejectFn: ((e: Error) => void) | null = null;
+        let resolved = false;
+        const promise = new Promise<RTCDataChannel>((resolve, reject) => {
+            rejectFn = reject;
+            pc.addEventListener('datachannel', (e) => {
+                rtcLog('datachannel event received, label:', e.channel.label);
+                resolved = true;
+                resolve(e.channel);
+            });
+        });
+        function startTimeout(ms: number) {
+            setTimeout(() => {
+                if (!resolved && rejectFn) {
+                    rtcLog('DataChannel receive timeout (' + ms + 'ms) — ICE state:', pc.iceConnectionState, 'connection:', pc.connectionState);
+                    rejectFn(new Error('DataChannel receive timeout (' + (ms / 1000) + 's after signaling)'));
+                }
+            }, ms);
+        }
+        return { promise, startTimeout };
+    }
+
+    async function rtcReadShared(key: string): Promise<string | null> {
+        const client = getClient();
+        const appId = selectedApp?.id ?? '';
+        if (!$onChainAppsConfig.storageId || !appId) return null;
+        const bytes = await readStorageValue(client, appId, '', key, true);
+        if (!bytes) return null;
+        return new TextDecoder().decode(bytes);
+    }
+
+    async function rtcWriteShared(key: string, value: string): Promise<void> {
+        rtcLog('writing shared key:', key, '(' + value.length + ' bytes)');
+        const client = getClient();
+        const appId = selectedApp?.id ?? '';
+        const tx = buildStorageSetTx({
+            packageId: $onChainAppsConfig.packageId,
+            storageId: $onChainAppsConfig.storageId,
+            appId,
+            key,
+            value: new TextEncoder().encode(value),
+            shared: true,
+        });
+        const result = await client.signAndExecuteTransaction({
+            transaction: tx,
+            signer: keypairFor(randomKey.bech32PrivateKey),
+            options: { showEffects: true },
+        });
+        const status = result.effects?.status?.status;
+        rtcLog('write result:', status, 'digest:', result.digest);
+        if (status !== 'success') {
+            throw new Error('Storage write failed: ' + JSON.stringify(result.effects?.status));
+        }
+    }
+
+    async function rtcPollShared(key: string, timeoutMs: number): Promise<string> {
+        const deadline = Date.now() + timeoutMs;
+        let attempts = 0;
+        while (Date.now() < deadline) {
+            try {
+                const val = await rtcReadShared(key);
+                attempts++;
+                if (val !== null && val !== '') {
+                    rtcLog('poll found key:', key, 'after', attempts, 'attempts');
+                    return val;
+                }
+            } catch (e) {
+                rtcLog('poll read error for', key, ':', e);
+            }
+            await new Promise((r) => setTimeout(r, WEBRTC_POLL_MS));
+        }
+        throw new Error('WebRTC signaling timeout for key: ' + key + ' after ' + attempts + ' attempts');
+    }
+
+    function registerProxy(channelId: string, proxy: ProxyChannel) {
+        proxyChannels.set(channelId, proxy);
+    }
+
+    function pushToIframe(channelId: string, data: string) {
+        iframeEl?.contentWindow?.postMessage({ kind: 'webrtcData', channelId, data }, '*');
+    }
+
+    function pushCloseToIframe(channelId: string) {
+        iframeEl?.contentWindow?.postMessage({ kind: 'webrtcClose', channelId }, '*');
+        proxyChannels.delete(channelId);
+    }
+
+    /** Wire up an RTCDataChannel + its PeerConnection as a proxy channel. */
+    function setupRTCProxy(channelId: string, pc: RTCPeerConnection, dc: RTCDataChannel) {
+        pc.onconnectionstatechange = () =>
+            rtcLog('pc connection state:', pc.connectionState);
+        pc.oniceconnectionstatechange = () =>
+            rtcLog('pc ICE connection state:', pc.iceConnectionState);
+        dc.onmessage = (e) => pushToIframe(channelId, e.data);
+        dc.onclose = () => {
+            rtcLog('DataChannel closed for', channelId);
+            pushCloseToIframe(channelId);
+        };
+        registerProxy(channelId, {
+            send: (data) => dc.send(data),
+            close: () => {
+                try { dc.close(); } catch { /* ok */ }
+                try { pc.close(); } catch { /* ok */ }
+            },
+        });
+    }
+
+    /** Wire up a BroadcastChannel as a proxy channel (same-browser fast path). */
+    function setupBCProxy(channelId: string, bc: BroadcastChannel) {
+        bc.onmessage = (e) => {
+            const msg = e.data;
+            if (msg?.t === 'd') pushToIframe(channelId, msg.p);
+            else if (msg?.t === 'x') {
+                rtcLog('BC peer closed', channelId);
+                pushCloseToIframe(channelId);
+                bc.close();
+            }
+        };
+        registerProxy(channelId, {
+            send: (data) => bc.postMessage({ t: 'd', p: data }),
+            close: () => {
+                bc.postMessage({ t: 'x' });
+                bc.close();
+            },
+        });
+    }
+
+    /**
+     * BroadcastChannel handshake for same-browser connections.
+     * Returns the channel + id on success, null on timeout.
+     */
+    function bcHost(roomId: string): {
+        promise: Promise<string | null>;
+        cancel: () => void;
+    } {
+        const bcName = 'iota-rtc:' + roomId;
+        const bc = new BroadcastChannel(bcName);
+        let done = false;
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        const promise = new Promise<string | null>((resolve) => {
+            bc.onmessage = (e) => {
+                if (done) return;
+                if (e.data?.t === 'ping') {
+                    done = true;
+                    clearTimeout(timer);
+                    bc.postMessage({ t: 'pong' });
+                    const chId = 'bc-' + ++webrtcIdSeq;
+                    setupBCProxy(chId, bc);
+                    rtcLog('HOST: BroadcastChannel connected (same browser)!', chId);
+                    resolve(chId);
+                }
+            };
+            // This never resolves on its own — it gets cancelled or resolved by a ping.
+        });
+        function cancel() {
+            if (!done) { done = true; bc.close(); }
+        }
+        return { promise, cancel };
+    }
+
+    function bcJoin(roomId: string, timeoutMs: number): Promise<string | null> {
+        const bcName = 'iota-rtc:' + roomId;
+        const bc = new BroadcastChannel(bcName);
+        return new Promise<string | null>((resolve) => {
+            let done = false;
+            bc.onmessage = (e) => {
+                if (done) return;
+                if (e.data?.t === 'pong') {
+                    done = true;
+                    const chId = 'bc-' + ++webrtcIdSeq;
+                    setupBCProxy(chId, bc);
+                    rtcLog('JOIN: BroadcastChannel connected (same browser)!', chId);
+                    resolve(chId);
+                }
+            };
+            // Send ping immediately and retry a few times.
+            bc.postMessage({ t: 'ping' });
+            const retryInterval = setInterval(() => {
+                if (!done) bc.postMessage({ t: 'ping' });
+            }, 500);
+            setTimeout(() => {
+                clearInterval(retryInterval);
+                if (!done) { done = true; bc.close(); resolve(null); }
+            }, timeoutMs);
+        });
+    }
+
+    function cleanupWebRTC() {
+        for (const [, proxy] of proxyChannels) {
+            try { proxy.close(); } catch { /* ok */ }
+        }
+        proxyChannels.clear();
+    }
 
     // --- effects ---
 
@@ -139,6 +421,30 @@
         }
         refreshList();
         refreshMyApps();
+
+        // Auto-fund from faucet if the balance is zero (first-time use).
+        (async () => {
+            try {
+                const client = getClient();
+                const bal = await client.getBalance({ owner: randomKey.address });
+                if (BigInt(bal.totalBalance) === 0n) {
+                    setStatus('New signer detected — requesting devnet funds...');
+                    await requestFromFaucet();
+                }
+                await refreshBalance();
+            } catch {
+                /* non-critical */
+            }
+        })();
+
+        function onKeyDown(e: KeyboardEvent) {
+            if (e.key === 'Escape' && appMaximized) {
+                appMaximized = false;
+                document.body.classList.remove('app-maximized');
+            }
+        }
+        window.addEventListener('keydown', onKeyDown);
+        return () => window.removeEventListener('keydown', onKeyDown);
     });
 
     $effect(() => {
@@ -158,7 +464,10 @@
                 iframeHeight = Math.max(200, Math.min(4000, h));
             });
             window.addEventListener('message', handler.handleMessage);
-            return () => window.removeEventListener('message', handler.handleMessage);
+            return () => {
+                window.removeEventListener('message', handler.handleMessage);
+                cleanupWebRTC();
+            };
         }
     });
 
@@ -307,6 +616,8 @@
             const client = getClient();
             const ids = await listAppIds(client, $onChainAppsConfig.registryId);
             const metas = await fetchAppMetadatas(client, ids);
+            // Show newest apps first (by publish date, falling back to index).
+            metas.sort((a, b) => (b.publishedAtMs || 0) - (a.publishedAtMs || 0));
             apps = metas;
         } catch (err: any) {
             loadError = err?.message ?? String(err);
@@ -322,6 +633,16 @@
             const app = await fetchAppMetadata(client, appId);
             selectedApp = app;
             updatePageQueryParams({ appId: app.id });
+
+            // Pass extra URL params (e.g. ?room=CODE) into the app's localStorage
+            // so the app can read them on load without needing URL access.
+            const hashParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
+            for (const [key, val] of hashParams.entries()) {
+                if (key !== 'appId' && val) {
+                    writeAppLocal(app.id, '_param_' + key, val);
+                }
+            }
+
             const bytes = await fetchAppContent(client, app);
             selectedAppContent = bytes;
             const html = new TextDecoder().decode(bytes);
@@ -356,12 +677,17 @@
         selectedApp = null;
         selectedAppContent = null;
         iframeSrcDoc = '';
+        appMaximized = false;
+        document.body.classList.remove('app-maximized');
         updatePageQueryParams({ appId: null });
     }
 
     // --- bridge request handler ---
 
     async function onBridgeRequest(method: BridgeMethod, args: any): Promise<any> {
+        if (method.startsWith('webrtc')) {
+            console.log('[Bridge] request:', method, args);
+        }
         const client = getClient();
         const appId = selectedApp?.id ?? '';
         switch (method) {
@@ -473,6 +799,117 @@
             case 'localRemove':
                 removeAppLocal(appId, args?.key);
                 return true;
+            case 'webrtcHost': {
+                const roomId = args?.roomId || crypto.randomUUID();
+                const prefix = 'webrtc:' + roomId;
+                const iceServers = args?.iceServers || DEFAULT_ICE_SERVERS;
+                const timeout = args?.timeout || 120000;
+                rtcLog('HOST: creating room', roomId);
+
+                // Start BroadcastChannel listener (same-browser fast path).
+                const bcHandle = bcHost(roomId);
+
+                // Start WebRTC signaling in parallel.
+                const pc = new RTCPeerConnection({ iceServers });
+                const dc = pc.createDataChannel(args?.label || 'data');
+                rtcLog('HOST: creating offer...');
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+                rtcLog('HOST: gathering ICE...');
+                const fullOffer = await gatherIce(pc);
+                rtcLog('HOST: writing offer to chain...');
+                await rtcWriteShared(prefix + ':offer', JSON.stringify(fullOffer));
+
+                // Check if BC already connected while we did signaling.
+                const earlyBc = await Promise.race([
+                    bcHandle.promise,
+                    new Promise<null>((r) => setTimeout(() => r(null), 0)),
+                ]);
+                if (earlyBc) {
+                    pc.close();
+                    return { channelId: earlyBc, roomId };
+                }
+
+                // Race BC listener against WebRTC answer polling.
+                rtcLog('HOST: polling for answer (+ BC fallback)...');
+                const rtcPath = (async (): Promise<string> => {
+                    const answerJson = await rtcPollShared(prefix + ':answer', timeout);
+                    rtcLog('HOST: got answer, setting remote desc...');
+                    await pc.setRemoteDescription(JSON.parse(answerJson));
+                    rtcLog('HOST: waiting for datachannel open...');
+                    await waitForOpen(dc);
+                    const chId = 'ch-' + ++webrtcIdSeq;
+                    setupRTCProxy(chId, pc, dc);
+                    rtcLog('HOST: WebRTC connected!', chId);
+                    return chId;
+                })();
+
+                const winnerId = await Promise.race([
+                    bcHandle.promise.then((id) => (id ? id : rtcPath)),
+                    rtcPath,
+                ]);
+                bcHandle.cancel();
+                if (winnerId.startsWith('bc-')) pc.close();
+                return { channelId: winnerId, roomId };
+            }
+            case 'webrtcJoin': {
+                if (!args?.roomId) throw new Error('roomId is required');
+                const jRoomId = args.roomId;
+                const jPrefix = 'webrtc:' + jRoomId;
+                const jIce = args?.iceServers || DEFAULT_ICE_SERVERS;
+                const jTimeout = args?.timeout || 120000;
+                rtcLog('JOIN: joining room', jRoomId);
+
+                // Try BroadcastChannel first (< 2 s for same browser).
+                const bcChId = await bcJoin(jRoomId, 2000);
+                if (bcChId) {
+                    return { channelId: bcChId, roomId: jRoomId };
+                }
+
+                // Fall back to WebRTC.
+                rtcLog('JOIN: BC not available, using WebRTC...');
+                const jPc = new RTCPeerConnection({ iceServers: jIce });
+                const dcListener = listenForDataChannel(jPc);
+                rtcLog('JOIN: polling for offer...');
+                const offerJson = await rtcPollShared(jPrefix + ':offer', jTimeout);
+                rtcLog('JOIN: got offer, setting remote desc...');
+                await jPc.setRemoteDescription(JSON.parse(offerJson));
+                rtcLog('JOIN: creating answer...');
+                const jAnswer = await jPc.createAnswer();
+                await jPc.setLocalDescription(jAnswer);
+                rtcLog('JOIN: gathering ICE...');
+                const fullAnswer = await gatherIce(jPc);
+                rtcLog('JOIN: writing answer to chain...');
+                await rtcWriteShared(jPrefix + ':answer', JSON.stringify(fullAnswer));
+                rtcLog('JOIN: signaling done, waiting for datachannel (30 s)...');
+                dcListener.startTimeout(30000);
+                const jDc = await dcListener.promise;
+                rtcLog('JOIN: got datachannel, waiting for open...');
+                await waitForOpen(jDc);
+                const joinChId = 'ch-' + ++webrtcIdSeq;
+                setupRTCProxy(joinChId, jPc, jDc);
+                rtcLog('JOIN: WebRTC connected!', joinChId);
+                return { channelId: joinChId, roomId: jRoomId };
+            }
+            case 'webrtcSend': {
+                const proxy = proxyChannels.get(args?.channelId);
+                if (!proxy) throw new Error('Unknown channel: ' + args?.channelId);
+                proxy.send(args.data);
+                return true;
+            }
+            case 'webrtcClose': {
+                rtcLog('closing channel', args?.channelId);
+                const proxy = proxyChannels.get(args?.channelId);
+                if (proxy) {
+                    try {
+                        proxy.close();
+                    } catch {
+                        /* ok */
+                    }
+                    proxyChannels.delete(args.channelId);
+                }
+                return true;
+            }
             default:
                 throw new Error(`Unsupported bridge method: ${method}`);
         }
@@ -538,6 +975,25 @@
         localStorage.removeItem(localKeyFor(appId, key));
     }
 
+    // --- balance ---
+
+    async function refreshBalance() {
+        try {
+            const client = getClient();
+            const bal = await client.getBalance({ owner: randomKey.address });
+            const nano = BigInt(bal.totalBalance);
+            if (nano === 0n) {
+                signerBalance = '0 IOTA';
+            } else if (nano < 1_000_000_000n) {
+                signerBalance = `${(Number(nano) / 1e9).toFixed(4)} IOTA`;
+            } else {
+                signerBalance = `${(Number(nano) / 1e9).toFixed(2)} IOTA`;
+            }
+        } catch {
+            signerBalance = '';
+        }
+    }
+
     // --- actions: key / faucet ---
 
     function rotateKey() {
@@ -546,7 +1002,9 @@
         );
         if (!ok) return;
         randomKey = generateAndStoreRandomKey();
+        signerBalance = '';
         void refreshMyApps();
+        void refreshBalance();
     }
 
     async function requestFromFaucet() {
@@ -559,7 +1017,9 @@
         }
         try {
             await requestIotaFromFaucetV0({ host: faucetUrl, recipient: randomKey.address });
-            setStatus(`Requested funds from ${faucetUrl} for ${randomKey.address}.`);
+            setStatus(`Requested funds — balance will update shortly.`);
+            // Balance takes a moment to reflect.
+            setTimeout(() => refreshBalance(), 3000);
         } catch (err: any) {
             setStatus(`Faucet request failed: ${err?.message ?? err}`, true);
         }
@@ -694,12 +1154,20 @@
         <h3>Sandbox signer</h3>
         <p class="muted">
             A random Ed25519 key is used for every tx this page signs. It is kept in your browser's
-            <code>localStorage</code>. Fund it from the faucet before publishing or interacting with
-            apps. Devnet only - never paste a real-value key here.
+            <code>localStorage</code>. Devnet only.
         </p>
-        <div class="kv">
-            <span><strong>Network:</strong> {$sharedClientConfig.selected}</span>
-            <span><strong>Address:</strong> <code>{randomKey.address}</code></span>
+        <div class="key-info">
+            <div class="key-row">
+                <strong>Network:</strong> {$sharedClientConfig.selected}
+            </div>
+            <div class="key-row">
+                <strong>Address:</strong> <code class="address-code">{randomKey.address}</code>
+            </div>
+            {#if signerBalance}
+                <div class="key-row">
+                    <strong>Balance:</strong> {signerBalance}
+                </div>
+            {/if}
         </div>
         <div class="kv">
             <button onclick={rotateKey}>Generate new random key</button>
@@ -803,24 +1271,37 @@
                         >
                         <span>published {formatDate(selectedApp.publishedAtMs)}</span>
                         <span>last update {formatDate(selectedApp.updatedAtMs)}</span>
-                        <span>by <code>{selectedApp.publisher}</code></span>
+                        <span>by <code class="address-code">{selectedApp.publisher}</code></span>
                     </p>
                 </div>
                 <div class="viewer-actions">
                     <button onclick={copyShareLink}>Copy share link</button>
+                    <button onclick={() => { appMaximized = !appMaximized; if (appMaximized) { window.scrollTo(0, 0); document.body.classList.add('app-maximized'); } else { document.body.classList.remove('app-maximized'); } }}>
+                        {appMaximized ? '↙ Minimize' : '↗ Maximize'}
+                    </button>
                     <button onclick={closeApp}>← Back to list</button>
                 </div>
             </div>
             {#if loadingApp}
                 <p>Loading app bytes...</p>
             {:else if iframeSrcDoc}
+                {#if appMaximized}
+                    <button
+                        class="maximize-exit-btn"
+                        onclick={() => (appMaximized = false)}
+                        title="Exit fullscreen (Esc)"
+                    >
+                        ✕
+                    </button>
+                {/if}
                 <iframe
                     bind:this={iframeEl}
                     title={selectedApp.name}
                     srcdoc={iframeSrcDoc}
                     sandbox="allow-scripts"
                     referrerpolicy="no-referrer"
-                    style="height: {iframeHeight}px"
+                    class:iframe-maximized={appMaximized}
+                    style="height: {appMaximized ? '100%' : iframeHeight + 'px'}"
                 ></iframe>
             {/if}
         </section>
@@ -1103,6 +1584,11 @@
         gap: 0.5rem;
         font-size: 0.75rem;
         color: rgba(255, 255, 255, 0.55);
+        overflow: hidden;
+    }
+
+    .app-meta code {
+        word-break: break-all;
     }
 
     .app-id {
@@ -1110,6 +1596,26 @@
         font-size: 0.7rem;
         word-break: break-all;
         color: rgba(255, 255, 255, 0.55);
+    }
+
+    .key-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .key-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+        align-items: baseline;
+    }
+
+    .address-code {
+        word-break: break-all;
+        font-size: 0.8rem;
     }
 
     .viewer-header {
@@ -1138,6 +1644,48 @@
         border: 1px solid rgba(156, 163, 175, 0.3);
         border-radius: 6px;
         background: white;
+    }
+
+    iframe.iframe-maximized {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh !important;
+        min-height: 100vh;
+        border: none;
+        border-radius: 0;
+        z-index: 9999;
+    }
+
+    /* Prevent body scroll when app is maximized. Applied via JS. */
+    :global(body.app-maximized) {
+        overflow: hidden !important;
+    }
+
+    .maximize-exit-btn {
+        position: fixed;
+        top: 12px;
+        right: 12px;
+        z-index: 10000;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+        transition: opacity 0.2s;
+        opacity: 0.7;
+    }
+
+    .maximize-exit-btn:hover {
+        opacity: 1;
     }
 
     .status {

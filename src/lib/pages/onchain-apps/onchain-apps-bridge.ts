@@ -33,7 +33,11 @@ export type BridgeMethod =
     | 'storageGetShared'
     | 'localGet'
     | 'localSet'
-    | 'localRemove';
+    | 'localRemove'
+    | 'webrtcHost'
+    | 'webrtcJoin'
+    | 'webrtcSend'
+    | 'webrtcClose';
 
 export interface BridgeRequest {
     kind: 'req';
@@ -89,6 +93,7 @@ export function createIframeBridge(
             const resp: BridgeResponse = { kind: 'res', id: req.id, result };
             iframe.contentWindow?.postMessage(resp, '*');
         } catch (err: any) {
+            console.error('[Bridge] error handling', req.method, ':', err);
             const resp: BridgeResponse = {
                 kind: 'res',
                 id: req.id,
@@ -148,129 +153,66 @@ export const BOOTSTRAP_JS = String.raw`
         };
     }
 
-    // --- WebRTC helpers ---
-
-    var DEFAULT_ICE_SERVERS = [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' },
-    ];
-    var POLL_INTERVAL_MS = 2500;
-
-    // Wait for ICE gathering to finish, then return the local description
-    // (which now contains all gathered candidates).
-    function gatherIce(pc) {
-        return new Promise(function (resolve) {
-            if (pc.iceGatheringState === 'complete') {
-                resolve(pc.localDescription);
-                return;
-            }
-            function check() {
-                if (pc.iceGatheringState === 'complete') {
-                    pc.removeEventListener('icegatheringstatechange', check);
-                    resolve(pc.localDescription);
-                }
-            }
-            pc.addEventListener('icegatheringstatechange', check);
-            // Safety net: resolve after 8s even if not complete.
-            setTimeout(function () {
-                pc.removeEventListener('icegatheringstatechange', check);
-                resolve(pc.localDescription);
-            }, 8000);
-        });
-    }
-
-    // Poll on-chain shared storage until a value appears or timeout.
-    function pollShared(key, timeoutMs) {
-        var deadline = Date.now() + (timeoutMs || 120000);
-        return new Promise(function (resolve, reject) {
-            function tick() {
-                if (Date.now() > deadline) {
-                    reject(new Error('WebRTC signaling timeout waiting for key: ' + key));
-                    return;
-                }
-                send('storageGetShared', { key: key, opts: {} }).then(function (val) {
-                    if (val != null && val !== '') resolve(val);
-                    else setTimeout(tick, POLL_INTERVAL_MS);
-                }).catch(function () {
-                    setTimeout(tick, POLL_INTERVAL_MS);
-                });
-            }
-            tick();
-        });
-    }
-
-    function waitForOpen(dc) {
-        return new Promise(function (resolve, reject) {
-            if (dc.readyState === 'open') { resolve(dc); return; }
-            dc.addEventListener('open', function () { resolve(dc); });
-            dc.addEventListener('error', function (e) { reject(e); });
-            setTimeout(function () { reject(new Error('DataChannel open timeout')); }, 30000);
-        });
-    }
-
-    function waitForDataChannel(pc) {
-        return new Promise(function (resolve, reject) {
-            pc.addEventListener('datachannel', function (e) { resolve(e.channel); });
-            setTimeout(function () { reject(new Error('DataChannel receive timeout')); }, 30000);
-        });
-    }
+    // --- WebRTC helpers (proxied to host page for ICE compatibility) ---
 
     function makeWebRTC() {
+        var channelHandlers = Object.create(null);
+
+        // Listen for push messages from the host page (data relay + close).
+        window.addEventListener('message', function (event) {
+            var d = event.data;
+            if (!d) return;
+            if (d.kind === 'webrtcData') {
+                var ch = channelHandlers[d.channelId];
+                if (ch && ch.onmessage) ch.onmessage({ data: d.data });
+            } else if (d.kind === 'webrtcClose') {
+                var ch2 = channelHandlers[d.channelId];
+                if (ch2) {
+                    ch2.readyState = 'closed';
+                    if (ch2.onclose) ch2.onclose();
+                    delete channelHandlers[d.channelId];
+                }
+            }
+        });
+
+        function makeChannel(chId) {
+            var ch = {
+                readyState: 'open',
+                send: function (data) { send('webrtcSend', { channelId: chId, data: data }); },
+                close: function () { ch.readyState = 'closed'; send('webrtcClose', { channelId: chId }); },
+                onmessage: null,
+                onclose: null,
+                onerror: null,
+                addEventListener: function (type, fn) { if (type === 'open') fn(); else ch['on' + type] = fn; },
+                removeEventListener: function () {},
+            };
+            channelHandlers[chId] = ch;
+            return ch;
+        }
+
         return {
-            // Create a room and wait for a peer to join.
-            // Returns { channel: RTCDataChannel, roomId: string, pc: RTCPeerConnection }
             host: async function (opts) {
                 opts = opts || {};
-                var roomId = opts.roomId || crypto.randomUUID();
-                var prefix = 'webrtc:' + roomId;
-                var pc = new RTCPeerConnection({
-                    iceServers: opts.iceServers || DEFAULT_ICE_SERVERS,
+                console.log('[iota.webrtc] host() called, proxying to host page');
+                var result = await send('webrtcHost', {
+                    roomId: opts.roomId || crypto.randomUUID(),
+                    iceServers: opts.iceServers,
+                    timeout: opts.timeout,
+                    label: opts.label,
                 });
-                var dc = pc.createDataChannel(opts.label || 'data');
-
-                var offer = await pc.createOffer();
-                await pc.setLocalDescription(offer);
-                var fullOffer = await gatherIce(pc);
-
-                await send('storageSetShared', {
-                    key: prefix + ':offer',
-                    value: JSON.stringify(fullOffer),
-                });
-
-                var answerJson = await pollShared(prefix + ':answer', opts.timeout || 120000);
-                await pc.setRemoteDescription(JSON.parse(answerJson));
-
-                await waitForOpen(dc);
-                return { channel: dc, roomId: roomId, pc: pc };
+                console.log('[iota.webrtc] host() resolved:', result.roomId, result.channelId);
+                return { channel: makeChannel(result.channelId), roomId: result.roomId, pc: null };
             },
-
-            // Join an existing room.
-            // Returns { channel: RTCDataChannel, roomId: string, pc: RTCPeerConnection }
             join: async function (opts) {
                 if (!opts || !opts.roomId) throw new Error('roomId is required');
-                var roomId = opts.roomId;
-                var prefix = 'webrtc:' + roomId;
-                var pc = new RTCPeerConnection({
-                    iceServers: opts.iceServers || DEFAULT_ICE_SERVERS,
+                console.log('[iota.webrtc] join() called, proxying to host page, room:', opts.roomId);
+                var result = await send('webrtcJoin', {
+                    roomId: opts.roomId,
+                    iceServers: opts.iceServers,
+                    timeout: opts.timeout,
                 });
-
-                var dcPromise = waitForDataChannel(pc);
-
-                var offerJson = await pollShared(prefix + ':offer', opts.timeout || 120000);
-                await pc.setRemoteDescription(JSON.parse(offerJson));
-
-                var answer = await pc.createAnswer();
-                await pc.setLocalDescription(answer);
-                var fullAnswer = await gatherIce(pc);
-
-                await send('storageSetShared', {
-                    key: prefix + ':answer',
-                    value: JSON.stringify(fullAnswer),
-                });
-
-                var dc = await dcPromise;
-                await waitForOpen(dc);
-                return { channel: dc, roomId: roomId, pc: pc };
+                console.log('[iota.webrtc] join() resolved:', result.roomId, result.channelId);
+                return { channel: makeChannel(result.channelId), roomId: result.roomId, pc: null };
             },
         };
     }

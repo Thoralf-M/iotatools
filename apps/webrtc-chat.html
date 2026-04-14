@@ -1,0 +1,283 @@
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0d1117;color:#e6edf3;display:flex;justify-content:center;padding:12px}
+#app{width:100%;max-width:500px}
+h1{font-size:24px;font-weight:800;text-align:center;background:linear-gradient(135deg,#58a6ff,#3fb950);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
+.sub{text-align:center;color:#8b949e;font-size:13px;margin-bottom:16px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:16px;margin-bottom:12px}
+.btn{display:block;width:100%;padding:14px;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:#58a6ff;color:#0d1117}
+.btn-secondary{background:#21262d;color:#e6edf3;border:1px solid #30363d}
+.btn-sm{padding:10px 16px;font-size:14px;width:auto;display:inline-block}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-row{display:flex;gap:8px;margin-top:12px}
+.btn-row .btn{flex:1}
+input{width:100%;padding:12px;background:#0d1117;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:15px;outline:none}
+input:focus{border-color:#58a6ff}
+label{display:block;font-size:12px;font-weight:600;color:#8b949e;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.field{margin-bottom:12px}
+.room-code{font-family:'Courier New',monospace;font-size:28px;font-weight:800;letter-spacing:6px;text-align:center;color:#58a6ff;padding:12px;background:#0d1117;border-radius:10px;border:2px dashed #30363d;margin:8px 0;cursor:pointer;transition:border-color .2s;word-break:break-all}
+.room-code:active{border-color:#58a6ff}
+.hint{text-align:center;font-size:11px;color:#8b949e;margin-top:2px}
+.chat-area{height:360px;overflow-y:auto;background:#0d1117;border-radius:10px;padding:10px;margin-bottom:10px;display:flex;flex-direction:column;gap:4px;scroll-behavior:smooth}
+.msg{max-width:85%;padding:8px 12px;border-radius:12px;font-size:14px;line-height:1.4;word-wrap:break-word}
+.msg-me{align-self:flex-end;background:#1f3d5e;border-bottom-right-radius:4px;color:#c9d1d9}
+.msg-peer{align-self:flex-start;background:#21262d;border-bottom-left-radius:4px;color:#c9d1d9}
+.msg-system{align-self:center;color:#8b949e;font-size:12px;font-style:italic;padding:4px 0}
+.msg-time{font-size:10px;color:#484f58;margin-top:2px}
+.chat-input{display:flex;gap:8px}
+.chat-input input{flex:1}
+.chat-input .btn{width:auto;padding:12px 20px}
+.status{display:flex;align-items:center;gap:6px;font-size:13px;margin-bottom:10px}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-on{background:#3fb950}
+.dot-off{background:#f85149}
+.dot-wait{background:#d29922;animation:pulse 1.5s infinite}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid #30363d;border-top-color:#58a6ff;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px}
+.status-msg{text-align:center;color:#8b949e;font-size:14px;padding:16px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#3fb950;color:#0d1117;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:600;z-index:999;animation:fadeUp .3s ease}
+.name-badge{font-weight:600;font-size:11px;margin-bottom:2px}
+.typing-indicator{font-size:12px;color:#8b949e;font-style:italic;min-height:16px;margin-bottom:4px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+.mt8{margin-top:8px}.mb8{margin-bottom:8px}
+</style>
+
+<div id="app"><div class="status-msg"><span class="spinner"></span> Loading...</div></div>
+
+<script>
+(async function(){
+'use strict';
+
+const ICE=[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:stun.cloudflare.com:3478'}];
+const CHARS='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+let myAddr='',myName='',screen='home',roomId='',channel=null,pc=null,peerName='',connected=false,connecting=false,connectMsg='';
+let messages=[];
+let typingTimeout=null;
+let peerTyping=false;
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function genRoom(){let c='';for(let i=0;i<8;i++)c+=CHARS[Math.floor(Math.random()*CHARS.length)];return c}
+function ts(){const d=new Date();return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')}
+function toast(m){const d=document.createElement('div');d.className='toast';d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),2000)}
+
+function addMsg(type,text,name){
+    messages.push({type,text,name:name||'',time:ts()});
+    render();
+    setTimeout(()=>{const ca=$('chat');if(ca)ca.scrollTop=ca.scrollHeight},50);
+}
+
+function sendMsg(msg){if(channel&&channel.readyState==='open')channel.send(JSON.stringify(msg))}
+
+function handlePeerMsg(raw){
+    try{
+        const msg=JSON.parse(raw);
+        if(msg.t==='chat'){addMsg('peer',msg.d,msg.n||peerName)}
+        else if(msg.t==='name'){peerName=msg.d;addMsg('system',peerName+' connected')}
+        else if(msg.t==='typing'){peerTyping=!!msg.d;render()}
+    }catch(e){console.error(e)}
+}
+
+function setupChannel(ch){
+    channel=ch;connected=true;connecting=false;
+    ch.onmessage=e=>handlePeerMsg(e.data);
+    ch.onclose=()=>{connected=false;addMsg('system','Peer disconnected');render()};
+    ch.onerror=()=>{connected=false;render()};
+    sendMsg({t:'name',d:myName});
+    addMsg('system','Connected! Start chatting.');
+    render();
+}
+
+/* ======== RENDER ======== */
+function render(){
+    const app=$('app');
+    switch(screen){
+    case'home':
+        app.innerHTML=`
+        <div style="margin-top:20px">
+            <h1>P2P Chat</h1>
+            <p class="sub">Peer-to-peer chat via WebRTC &middot; No server, no logs</p>
+        </div>
+        <div class="card">
+            <div class="field">
+                <label>Your Name</label>
+                <input id="hname" type="text" maxlength="20" placeholder="Enter a nickname" value="${esc(myName)}">
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-primary" onclick="doHost()">Create Room</button>
+                <button class="btn btn-secondary" onclick="goJoin()">Join Room</button>
+            </div>
+        </div>
+        <div class="card" style="font-size:13px;color:#8b949e;line-height:1.5">
+            <b style="color:#e6edf3">How it works</b><br>
+            Create a room to get a code. Share it with someone. Once they join, you're connected directly &mdash; peer-to-peer via WebRTC. Messages never touch a server. On-chain storage is only used for the initial handshake.
+        </div>`;
+        break;
+    case'join':
+        app.innerHTML=`
+        <h1 style="font-size:20px;margin-bottom:12px">Join Room</h1>
+        <div class="card">
+            <div class="field">
+                <label>Room Code</label>
+                <input id="jroom" type="text" maxlength="8" placeholder="XXXXXXXX" style="text-transform:uppercase;text-align:center;font-size:18px;font-weight:700;letter-spacing:4px" value="${esc(roomId)}">
+            </div>
+            <div class="field">
+                <label>Your Name</label>
+                <input id="jname" type="text" maxlength="20" placeholder="Enter a nickname" value="${esc(myName)}">
+            </div>
+        </div>
+        ${connecting?`<div class="status-msg"><span class="spinner"></span> ${esc(connectMsg)}</div>`
+        :`<button class="btn btn-primary" onclick="doJoin()">Join</button>
+           <button class="btn btn-secondary mt8" onclick="goHome()">Back</button>`}`;
+        break;
+    case'waiting':
+        app.innerHTML=`
+        <h1 style="font-size:20px;margin-bottom:12px">Waiting for peer</h1>
+        <div class="card">
+            <p style="text-align:center;color:#8b949e;font-size:14px;margin-bottom:10px">Share this room code:</p>
+            <div class="room-code" onclick="copyRoom()">${roomId}</div>
+            <p class="hint">Tap code to copy</p>
+            <button class="btn btn-primary mt8" onclick="copyInviteLink()">Copy invite link</button>
+        </div>
+        <div class="status-msg"><span class="spinner"></span> Waiting for someone to join...</div>
+        <button class="btn btn-secondary" onclick="goHome()">Cancel</button>`;
+        break;
+    case'chat':
+        const msgsHtml=messages.map(m=>{
+            if(m.type==='system')return `<div class="msg msg-system">${esc(m.text)}</div>`;
+            const badge=m.type==='me'?'':`<div class="name-badge" style="color:#58a6ff">${esc(m.name)}</div>`;
+            return `<div class="msg msg-${m.type}">${badge}${esc(m.text)}<div class="msg-time">${m.time}</div></div>`;
+        }).join('');
+
+        app.innerHTML=`
+        <div class="status">
+            <span class="status-dot ${connected?'dot-on':'dot-off'}"></span>
+            <span>${connected?'Connected to <b>'+esc(peerName||'peer')+'</b>':'Disconnected'}</span>
+            <span style="margin-left:auto;font-size:11px;color:#484f58">Room: ${roomId}</span>
+        </div>
+        <div class="chat-area" id="chat">${msgsHtml}</div>
+        <div class="typing-indicator" id="typing">${peerTyping?esc(peerName||'Peer')+' is typing...':''}</div>
+        <div class="chat-input">
+            <input id="msg" type="text" maxlength="500" placeholder="Type a message..." onkeydown="if(event.key==='Enter')doSend()" oninput="onTyping()" ${connected?'':'disabled'}>
+            <button class="btn btn-primary btn-sm" onclick="doSend()" ${connected?'':'disabled'}>Send</button>
+        </div>
+        <button class="btn btn-secondary mt8 btn-sm" onclick="goHome()" style="width:100%">Leave Chat</button>`;
+        setTimeout(()=>{const ca=$('chat');if(ca)ca.scrollTop=ca.scrollHeight},50);
+        break;
+    }
+    iota.resize(document.body.scrollHeight+32);
+}
+
+/* ======== ACTIONS ======== */
+window.goHome=function(){
+    if(channel){try{channel.close()}catch(e){}}
+    if(pc){try{pc.close()}catch(e){}}
+    channel=null;pc=null;connected=false;connecting=false;
+    messages=[];peerName='';peerTyping=false;
+    screen='home';render();
+};
+window.goJoin=function(){
+    const n=($('hname')||{}).value?.trim();
+    if(n)myName=n;
+    screen='join';render();
+};
+
+window.copyRoom=function(){
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(roomId).then(()=>toast('Copied!')).catch(()=>fbCopy(roomId));
+    }else{fbCopy(roomId)}
+};
+window.copyInviteLink=async function(){
+    try{
+        const appId=await iota.getAppId();
+        // Build shareable URL with room param (host page injects it into app localStorage)
+        const base=window.location.ancestorOrigins?.[0]||'https://iotatools.dev';
+        const link=base+'/#/onchain-apps?appId='+appId+'&room='+roomId;
+        if(navigator.clipboard&&navigator.clipboard.writeText){
+            navigator.clipboard.writeText(link).then(()=>toast('Invite link copied!')).catch(()=>fbCopy(link));
+        }else{fbCopy(link)}
+    }catch(e){fbCopy(roomId)}
+};
+function fbCopy(t){
+    const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(ta);ta.focus();ta.select();
+    try{document.execCommand('copy');toast('Copied!')}catch(e){toast(t)}
+    ta.remove();
+}
+
+window.doHost=async function(){
+    const n=($('hname')||{}).value?.trim();
+    if(!n){toast('Enter your name');return}
+    myName=n;
+    roomId=genRoom();
+    screen='waiting';render();
+    try{
+        const res=await iota.webrtc.host({roomId:roomId,iceServers:ICE,timeout:300000});
+        pc=res.pc;
+        setupChannel(res.channel);
+        screen='chat';render();
+    }catch(e){
+        toast('Connection failed: '+(e.message||e));
+        screen='home';render();
+    }
+};
+
+window.doJoin=async function(){
+    const code=(($('jroom')||{}).value||'').trim().toUpperCase();
+    const n=(($('jname')||{}).value||'').trim();
+    if(!code||code.length<4){toast('Enter the room code');return}
+    if(!n){toast('Enter your name');return}
+    myName=n;roomId=code;
+    connecting=true;connectMsg='Connecting...';render();
+    try{
+        const res=await iota.webrtc.join({roomId:code,iceServers:ICE,timeout:120000});
+        pc=res.pc;
+        setupChannel(res.channel);
+        connecting=false;
+        screen='chat';render();
+    }catch(e){
+        connecting=false;
+        toast('Failed: '+(e.message||e));
+        render();
+    }
+};
+
+window.doSend=function(){
+    const inp=$('msg');
+    if(!inp)return;
+    const text=inp.value.trim();
+    if(!text||!connected)return;
+    sendMsg({t:'chat',d:text,n:myName});
+    addMsg('me',text,myName);
+    inp.value='';
+    sendMsg({t:'typing',d:false});
+};
+
+window.onTyping=function(){
+    sendMsg({t:'typing',d:true});
+    clearTimeout(typingTimeout);
+    typingTimeout=setTimeout(()=>sendMsg({t:'typing',d:false}),2000);
+};
+
+/* ======== INIT ======== */
+try{
+    myAddr=await iota.getAddress();
+    // Check if we were opened with a room invite link (param injected by host page).
+    const pendingRoom=await iota.localStorage.get('_param_room');
+    if(pendingRoom){
+        await iota.localStorage.remove('_param_room');
+        roomId=pendingRoom.toUpperCase();
+        screen='join';
+    }
+    render();
+}catch(e){
+    $('app').innerHTML='<div class="status-msg" style="color:#f85149">Failed: '+(e.message||e)+'</div>';
+}
+
+})();
+</script>
