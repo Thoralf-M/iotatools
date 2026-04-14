@@ -1,0 +1,699 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Undercover</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,system-ui,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;overflow-x:hidden}
+.screen{display:none;padding:16px;max-width:480px;margin:0 auto;min-height:100vh}
+.screen.active{display:flex;flex-direction:column}
+h1{font-size:1.8rem;text-align:center;margin:12px 0;background:linear-gradient(135deg,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+h2{font-size:1.2rem;margin:8px 0;color:#94a3b8}
+.btn{padding:12px 20px;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s;width:100%;margin:6px 0;color:#fff}
+.btn-primary{background:linear-gradient(135deg,#6366f1,#8b5cf6)}
+.btn-danger{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.btn-success{background:linear-gradient(135deg,#22c55e,#16a34a)}
+.btn-secondary{background:#334155}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn:active:not(:disabled){transform:scale(.97)}
+.btn-sm{padding:8px 14px;font-size:.85rem;width:auto;display:inline-block}
+input,select{width:100%;padding:12px;border:1px solid #334155;border-radius:10px;background:#1e293b;color:#e2e8f0;font-size:1rem;margin:4px 0}
+.card{background:#1e293b;border-radius:12px;padding:14px;margin:8px 0;border:1px solid #334155}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.stat{background:#334155;border-radius:8px;padding:6px 10px;font-size:.8rem;text-align:center;flex:1;min-width:60px}
+.stat b{display:block;font-size:1.1rem;color:#818cf8}
+.player-list{list-style:none}
+.player-list li{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#1e293b;border-radius:8px;margin:4px 0;border:1px solid #334155}
+.player-list li.dead{opacity:.45;text-decoration:line-through}
+.player-list li.me{border-color:#818cf8}
+.badge{font-size:.7rem;padding:2px 8px;border-radius:20px;font-weight:700;text-transform:uppercase}
+.badge-civ{background:#22c55e33;color:#4ade80}
+.badge-uc{background:#ef444433;color:#f87171}
+.badge-mw{background:#f59e0b33;color:#fbbf24}
+.badge-alive{background:#3b82f633;color:#60a5fa}
+.word-reveal{text-align:center;padding:30px 0}
+.word-box{font-size:2rem;font-weight:700;padding:20px;background:#334155;border-radius:16px;margin:16px 0;min-height:80px;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;transition:all .3s}
+.word-box.hidden-word{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:transparent;text-shadow:none}
+.word-box.hidden-word::after{content:'Tap to reveal';color:#fff;font-size:1rem;position:absolute}
+.word-box{position:relative}
+.clue-list{max-height:240px;overflow-y:auto;margin:8px 0}
+.clue-item{padding:8px 10px;background:#1e293b;border-radius:6px;margin:3px 0;font-size:.9rem;border-left:3px solid #6366f1}
+.clue-item .name{color:#818cf8;font-weight:600}
+.vote-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.vote-btn{padding:14px;background:#1e293b;border:2px solid #334155;border-radius:10px;color:#e2e8f0;font-size:.9rem;cursor:pointer;transition:all .2s;text-align:center}
+.vote-btn:hover{border-color:#818cf8}
+.vote-btn.selected{border-color:#6366f1;background:#6366f122}
+.vote-btn:disabled{opacity:.4}
+.timer{text-align:center;font-size:1.4rem;font-weight:700;color:#818cf8;margin:8px 0}
+.room-code{font-family:monospace;font-size:2rem;letter-spacing:4px;text-align:center;color:#818cf8;padding:10px;background:#1e293b;border-radius:10px;margin:8px 0;user-select:all}
+.role-reveal{text-align:center;padding:20px}
+.role-reveal h2{font-size:1.5rem;margin:10px 0}
+.separator{height:1px;background:#334155;margin:12px 0}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0}
+.setting-row label{font-size:.9rem;color:#94a3b8}
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#334155;color:#e2e8f0;padding:10px 20px;border-radius:10px;z-index:100;font-size:.9rem;animation:fadeInOut 3s forwards}
+@keyframes fadeInOut{0%{opacity:0;transform:translateX(-50%) translateY(-10px)}10%{opacity:1;transform:translateX(-50%) translateY(0)}80%{opacity:1}100%{opacity:0}}
+.spinner{display:inline-block;width:20px;height:20px;border:3px solid #334155;border-top-color:#818cf8;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.flex-center{display:flex;align-items:center;justify-content:center;flex:1}
+.gap-8{gap:8px}.mt-8{margin-top:8px}.mt-16{margin-top:16px}.mb-8{margin-bottom:8px}.text-center{text-align:center}
+.text-muted{color:#64748b;font-size:.85rem}
+</style></head><body>
+<div id="s-home" class="screen active">
+<h1>Undercover</h1>
+<p class="text-center text-muted mb-8">Find the spy among you</p>
+<div class="card"><input id="i-name" placeholder="Your name" maxlength="20"><button class="btn btn-primary mt-8" id="b-create">Create Game</button></div>
+<div class="card"><input id="i-code" placeholder="Room code" maxlength="6" style="text-transform:uppercase;letter-spacing:2px;text-align:center"><button class="btn btn-secondary mt-8" id="b-join">Join Game</button></div>
+</div>
+
+<div id="s-lobby" class="screen">
+<h1>Lobby</h1>
+<div class="room-code" id="d-code"></div>
+<p class="text-center text-muted" id="d-share"></p>
+<div id="d-settings" class="card" style="display:none">
+<h2>Settings</h2>
+<div class="setting-row"><label>Difficulty</label><select id="i-diff"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select></div>
+<div class="setting-row"><label>Undercover count</label><select id="i-uc"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
+<div class="setting-row"><label>Mr. White</label><select id="i-mw"><option value="1" selected>Yes</option><option value="0">No</option></select></div>
+</div>
+<h2>Players</h2>
+<ul class="player-list" id="d-lobby-players"></ul>
+<button class="btn btn-success mt-16" id="b-start" style="display:none">Start Game</button>
+<p class="text-center text-muted mt-8" id="d-wait">Waiting for host to start...</p>
+</div>
+
+<div id="s-word" class="screen">
+<h1>Your Word</h1>
+<div class="word-reveal"><p class="text-muted mb-8">Memorize your word. Don't show anyone!</p>
+<div class="word-box hidden-word" id="d-word"></div>
+<p class="text-muted mt-8" id="d-word-hint"></p></div>
+<button class="btn btn-primary mt-16" id="b-ready">I'm Ready</button>
+</div>
+
+<div id="s-clue" class="screen">
+<h1 id="d-round-title">Round 1</h1>
+<div class="stats" id="d-stats"></div>
+<div class="separator"></div>
+<div class="clue-list" id="d-clues"></div>
+<div class="separator"></div>
+<div id="d-clue-input" style="display:none"><p class="text-center" style="color:#fbbf24;font-weight:600">Your turn! Give a clue:</p>
+<input id="i-clue" placeholder="One word or short phrase" maxlength="60">
+<button class="btn btn-primary mt-8" id="b-clue">Submit Clue</button></div>
+<p class="text-center text-muted mt-8" id="d-clue-wait"></p>
+</div>
+
+<div id="s-vote" class="screen">
+<h1>Vote</h1>
+<p class="text-center text-muted mb-8">Who is the undercover?</p>
+<div class="stats" id="d-vote-stats"></div>
+<div class="clue-list mb-8" id="d-vote-clues"></div>
+<div class="vote-grid" id="d-vote-grid"></div>
+<button class="btn btn-danger mt-8" id="b-vote" disabled>Confirm Vote</button>
+<div class="text-center text-muted mt-8" id="d-vote-wait"></div>
+</div>
+
+<div id="s-elim" class="screen">
+<div class="flex-center"><div class="role-reveal">
+<h2 id="d-elim-name"></h2>
+<p class="text-muted" id="d-elim-role"></p>
+<div id="d-mw-guess" style="display:none"><p style="color:#fbbf24;font-weight:600;margin:12px 0">Mr. White gets one guess at the Civilian word!</p>
+<input id="i-mw-guess" placeholder="Guess the word..." style="display:none">
+<button class="btn btn-danger mt-8" id="b-mw-guess" style="display:none">Submit Guess</button>
+<p class="text-center text-muted" id="d-mw-wait"></p></div>
+<button class="btn btn-primary mt-16" id="b-continue">Continue</button>
+</div></div></div>
+
+<div id="s-over" class="screen">
+<div class="flex-center"><div class="role-reveal" style="width:100%">
+<h1 id="d-winner"></h1>
+<div class="separator"></div>
+<h2>All Roles</h2>
+<ul class="player-list" id="d-over-players"></ul>
+<div class="separator"></div>
+<p class="text-muted">Civilian word: <b id="d-civ-word"></b></p>
+<p class="text-muted">Undercover word: <b id="d-uc-word"></b></p>
+<button class="btn btn-primary mt-16" id="b-newgame">New Game</button>
+</div></div></div>
+
+<div id="toast-container"></div>
+<script>
+// === WORD PAIRS ===
+const WORDS={easy:[
+["Coffee","Tea"],["Sun","Moon"],["Dog","Cat"],["Sword","Shield"],["Mountain","Valley"],
+["Summer","Winter"],["Fire","Water"],["King","Queen"],["Piano","Drums"],["Book","Magazine"],
+["Apple","Orange"],["Salt","Pepper"],["Cake","Pie"],["Beach","Pool"],["Ring","Bracelet"],
+["Pen","Pencil"],["Shark","Whale"],["Hammer","Nail"],["Gold","Silver"],["Clock","Watch"],
+["Rose","Tulip"],["Cheese","Butter"],["Lamp","Candle"],["Truck","Van"],["Gloves","Mittens"],
+["Boots","Shoes"],["Ketchup","Mustard"],["Blanket","Towel"],["Forest","Jungle"],["River","Stream"]
+],medium:[
+["Guitar","Violin"],["Pancake","Waffle"],["Ocean","Lake"],["Taxi","Bus"],["Soccer","Basketball"],
+["Painting","Photograph"],["Cookie","Brownie"],["Pillow","Cushion"],["Backpack","Suitcase"],
+["Motorcycle","Bicycle"],["Dolphin","Seal"],["Chocolate","Caramel"],["Tent","Cabin"],
+["Sneakers","Sandals"],["Volcano","Geyser"],["Owl","Eagle"],["Perfume","Cologne"],
+["Salad","Soup"],["Compass","Map"],["Scooter","Skateboard"],["Newspaper","Blog"],
+["Balcony","Terrace"],["Violin","Cello"],["Astronaut","Pilot"],["Comet","Meteor"],
+["Igloo","Tent"],["Submarine","Boat"],["Lemonade","Iced Tea"],["Parrot","Toucan"],["Tornado","Hurricane"]
+],hard:[
+["Laptop","Tablet"],["Butter","Margarine"],["Sofa","Couch"],["Alligator","Crocodile"],
+["Jam","Jelly"],["Cupcake","Muffin"],["Frog","Toad"],["Rabbit","Hare"],["Bison","Buffalo"],
+["Turtle","Tortoise"],["Shrimp","Prawn"],["Latte","Cappuccino"],["Raven","Crow"],
+["Mandarin","Tangerine"],["Noodles","Pasta"],["Llama","Alpaca"],["Herb","Spice"],
+["Fog","Mist"],["Creek","Brook"],["Broth","Stock"],["Panther","Jaguar"],["Oat Milk","Soy Milk"],
+["Kayak","Canoe"],["Cement","Concrete"],["Moth","Butterfly"],["Sardine","Anchovy"],
+["Syrup","Honey"],["Gravel","Sand"],["Pigeon","Dove"],["Cheetah","Leopard"]
+]};
+
+// === UTILS ===
+const $=id=>document.getElementById(id);
+const screens=['s-home','s-lobby','s-word','s-clue','s-vote','s-elim','s-over'];
+function show(id){screens.forEach(s=>{const el=$(s);if(el)el.classList.toggle('active',s===id)})}
+function toast(msg){const d=document.createElement('div');d.className='toast';d.textContent=msg;document.body.appendChild(d);setTimeout(()=>d.remove(),3200)}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*i+1|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+function roomCode(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let r='';for(let i=0;i<6;i++)r+=c[Math.random()*c.length|0];return r}
+function badge(role){return role==='civilian'?'<span class="badge badge-civ">Civilian</span>':role==='undercover'?'<span class="badge badge-uc">Undercover</span>':'<span class="badge badge-mw">Mr. White</span>'}
+
+// === ICE / SIGNALING HELPERS ===
+const ICE=[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}];
+const POLL=2000;
+
+function gatherComplete(pc){
+  return new Promise(r=>{
+    if(pc.iceGatheringState==='complete')return r(pc.localDescription);
+    const fn=()=>{if(pc.iceGatheringState==='complete'){pc.removeEventListener('icegatheringstatechange',fn);r(pc.localDescription)}};
+    pc.addEventListener('icegatheringstatechange',fn);
+    setTimeout(()=>{pc.removeEventListener('icegatheringstatechange',fn);r(pc.localDescription)},8000);
+  });
+}
+function waitDC(pc){return new Promise((r,j)=>{pc.addEventListener('datachannel',e=>r(e.channel));setTimeout(()=>j(new Error('timeout')),30000)})}
+function waitOpen(dc){return new Promise((r,j)=>{if(dc.readyState==='open')return r(dc);dc.onopen=()=>r(dc);dc.onerror=e=>j(e);setTimeout(()=>j(new Error('open timeout')),20000)})}
+
+async function pollKey(key,ms){
+  const deadline=Date.now()+(ms||120000);
+  while(Date.now()<deadline){
+    try{const v=await iota.storage.getShared(key);if(v)return v}catch{}
+    await new Promise(r=>setTimeout(r,POLL));
+  }
+  throw new Error('Signaling timeout: '+key);
+}
+
+// === GAME STATE ===
+let G={
+  phase:'home', // home|lobby|word|clue|vote|elim|mw_guess|over
+  isHost:false,
+  myId:null,
+  myName:'',
+  code:'',
+  settings:{difficulty:'medium',ucCount:1,mrWhite:true},
+  players:[], // {id,name,alive,role,word,clues:[]}
+  round:0,
+  speakerIdx:0,
+  firstSpeakerOffset:0,
+  votes:{}, // {voterId:targetId}
+  elimId:null,
+  winner:null,
+  civWord:'',
+  ucWord:'',
+  myRole:null,
+  myWord:null,
+  wordRevealed:false,
+  readySet:new Set(),
+  voteTarget:null,
+};
+
+// Networking
+let peers={}; // id -> {dc, pc}
+let hostDC=null; // non-host: datachannel to host
+let acceptingPlayers=false;
+
+// === HOST: ACCEPT PLAYERS ===
+async function hostAcceptLoop(){
+  acceptingPlayers=true;
+  let slot=1;
+  while(acceptingPlayers && G.phase==='lobby'){
+    const key='uc:'+G.code+':p'+slot+':offer';
+    try{
+      const offerJson=await Promise.race([
+        pollKey(key,5000),
+        new Promise((_,j)=>setTimeout(()=>j('skip'),5000))
+      ]);
+      if(!offerJson||typeof offerJson!=='string')throw'skip';
+      // Create answer
+      const pc=new RTCPeerConnection({iceServers:ICE});
+      const dcP=waitDC(pc);
+      await pc.setRemoteDescription(JSON.parse(offerJson));
+      const ans=await pc.createAnswer();
+      await pc.setLocalDescription(ans);
+      const full=await gatherComplete(pc);
+      await iota.storage.setShared('uc:'+G.code+':p'+slot+':answer',JSON.stringify(full));
+      const dc=await dcP;
+      await waitOpen(dc);
+      const pid='p'+slot;
+      peers[pid]={dc,pc};
+      dc.onmessage=e=>hostHandleMsg(pid,JSON.parse(e.data));
+      dc.onclose=()=>{if(peers[pid])delete peers[pid]};
+      slot++;
+    }catch(e){
+      if(e==='skip'||e?.message==='Signaling timeout: '+key){/* no new player yet, keep polling */}
+      else console.warn('accept error',e);
+    }
+    await new Promise(r=>setTimeout(r,500));
+  }
+}
+
+function broadcast(msg){
+  const s=JSON.stringify(msg);
+  Object.values(peers).forEach(p=>{try{if(p.dc.readyState==='open')p.dc.send(s)}catch{}});
+}
+function sendTo(pid,msg){try{if(peers[pid]?.dc.readyState==='open')peers[pid].dc.send(JSON.stringify(msg))}catch{}}
+function sendHost(msg){try{if(hostDC?.readyState==='open')hostDC.send(JSON.stringify(msg))}catch{}}
+
+// === HOST: HANDLE MESSAGES ===
+function hostHandleMsg(pid,msg){
+  if(msg.type==='join'){
+    if(G.phase!=='lobby')return;
+    const existing=G.players.find(p=>p.id===pid);
+    if(!existing){
+      G.players.push({id:pid,name:msg.name,alive:true,role:null,word:null,clues:[]});
+      broadcastState();
+    }
+  }else if(msg.type==='ready'){
+    G.readySet.add(pid);
+    if(G.readySet.size>=G.players.length)advanceFromWord();
+  }else if(msg.type==='clue'){
+    const p=G.players.find(x=>x.id===pid);
+    if(p&&G.phase==='clue'){
+      p.clues.push({round:G.round,text:msg.text});
+      nextSpeaker();
+    }
+  }else if(msg.type==='vote'){
+    if(G.phase==='vote'){
+      G.votes[pid]=msg.target;
+      checkVotes();
+    }
+  }else if(msg.type==='mw_guess'){
+    if(G.phase==='mw_guess'){
+      const correct=msg.word.trim().toLowerCase()===G.civWord.toLowerCase();
+      G.winner=correct?'undercover':null;
+      G.phase=correct?'over':'elim';
+      broadcastState();
+      if(!correct)checkWinAfterElim();
+    }
+  }else if(msg.type==='continue'){
+    G.readySet.add(pid);
+    if(G.readySet.size>=aliveCount())advanceContinue();
+  }
+}
+
+// === PLAYER: HANDLE MESSAGES FROM HOST ===
+function playerHandleMsg(msg){
+  if(msg.type==='state'){
+    Object.assign(G,msg.state);
+    G.isHost=false;
+    render();
+  }else if(msg.type==='role'){
+    G.myRole=msg.role;
+    G.myWord=msg.word;
+  }
+}
+
+// === GAME LOGIC (HOST ONLY) ===
+function broadcastState(){
+  // Build sanitized state for players
+  const pub={
+    phase:G.phase,code:G.code,settings:G.settings,round:G.round,
+    speakerIdx:G.speakerIdx,firstSpeakerOffset:G.firstSpeakerOffset,
+    votes:G.phase==='elim'||G.phase==='over'?G.votes:{},
+    elimId:G.elimId,winner:G.winner,civWord:G.phase==='over'?G.civWord:'',ucWord:G.phase==='over'?G.ucWord:'',
+    readySet:[...G.readySet],
+    players:G.players.map(p=>({
+      id:p.id,name:p.name,alive:p.alive,
+      role:(!p.alive||G.phase==='over')?p.role:null,
+      clues:p.clues
+    }))
+  };
+  broadcast({type:'state',state:pub});
+  // Send private role info
+  G.players.forEach(p=>{if(p.id!=='host')sendTo(p.id,{type:'role',role:p.role,word:p.word})});
+  render();
+}
+
+function startGame(){
+  const n=G.players.length;
+  const uc=Math.min(G.settings.ucCount,Math.floor(n/3));
+  const mw=G.settings.mrWhite&&n>=5?1:0;
+  const civ=n-uc-mw;
+  if(civ<2){toast('Need more players');return}
+
+  // Pick words
+  const pairs=WORDS[G.settings.difficulty]||WORDS.medium;
+  const pair=pairs[Math.random()*pairs.length|0];
+  const swap=Math.random()>.5;
+  G.civWord=swap?pair[1]:pair[0];
+  G.ucWord=swap?pair[0]:pair[1];
+
+  // Assign roles
+  const roles=[];
+  for(let i=0;i<civ;i++)roles.push('civilian');
+  for(let i=0;i<uc;i++)roles.push('undercover');
+  for(let i=0;i<mw;i++)roles.push('mr_white');
+  shuffle(roles);
+  G.players.forEach((p,i)=>{
+    p.role=roles[i];
+    p.word=roles[i]==='civilian'?G.civWord:roles[i]==='undercover'?G.ucWord:null;
+    p.alive=true;p.clues=[];
+  });
+
+  // Host's own role
+  const me=G.players.find(p=>p.id==='host');
+  if(me){G.myRole=me.role;G.myWord=me.word}
+
+  G.round=1;G.speakerIdx=0;G.firstSpeakerOffset=0;
+  G.votes={};G.elimId=null;G.winner=null;
+  G.readySet=new Set();G.wordRevealed=false;
+  G.phase='word';
+  broadcastState();
+}
+
+function alivePlayers(){return G.players.filter(p=>p.alive)}
+function aliveCount(){return alivePlayers().length}
+
+function advanceFromWord(){
+  G.readySet=new Set();
+  G.phase='clue';G.speakerIdx=0;
+  // Rotate first speaker each round
+  const alive=alivePlayers();
+  G.firstSpeakerOffset=(G.round-1)%alive.length;
+  G.speakerIdx=0;
+  broadcastState();
+}
+
+function getSpeaker(){
+  const alive=alivePlayers();
+  if(!alive.length)return null;
+  const idx=(G.firstSpeakerOffset+G.speakerIdx)%alive.length;
+  return alive[idx];
+}
+
+function nextSpeaker(){
+  G.speakerIdx++;
+  if(G.speakerIdx>=aliveCount()){
+    // All spoke, move to vote
+    G.phase='vote';G.votes={};G.voteTarget=null;
+  }
+  broadcastState();
+}
+
+function checkVotes(){
+  const alive=alivePlayers();
+  const voted=Object.keys(G.votes).length;
+  if(voted<alive.length)return broadcastState();
+
+  // Tally
+  const tally={};
+  Object.values(G.votes).forEach(t=>{tally[t]=(tally[t]||0)+1});
+  const max=Math.max(...Object.values(tally));
+  const tied=Object.keys(tally).filter(k=>tally[k]===max);
+
+  if(tied.length>1){
+    // Tie: no elimination
+    G.elimId=null;G.phase='elim';
+    broadcastState();
+    return;
+  }
+
+  const elimId=tied[0];
+  const elim=G.players.find(p=>p.id===elimId);
+  if(elim){
+    elim.alive=false;
+    G.elimId=elimId;
+    if(elim.role==='mr_white'){
+      G.phase='mw_guess';
+      broadcastState();
+      return;
+    }
+  }
+  G.phase='elim';
+  broadcastState();
+  checkWinAfterElim();
+}
+
+function checkWinAfterElim(){
+  const alive=alivePlayers();
+  const ucAlive=alive.filter(p=>p.role==='undercover'||p.role==='mr_white').length;
+  const civAlive=alive.filter(p=>p.role==='civilian').length;
+  if(ucAlive===0){G.winner='civilians';G.phase='over';broadcastState();return}
+  if(ucAlive>=civAlive){G.winner='undercover';G.phase='over';broadcastState();return}
+}
+
+function advanceContinue(){
+  if(G.winner){G.phase='over';broadcastState();return}
+  G.round++;G.readySet=new Set();G.elimId=null;G.votes={};
+  G.phase='clue';G.speakerIdx=0;
+  const alive=alivePlayers();
+  G.firstSpeakerOffset=(G.round-1)%alive.length;
+  broadcastState();
+}
+
+// === RENDER ===
+function render(){
+  const phase=G.phase;
+  if(phase==='home'){show('s-home');return}
+  if(phase==='lobby')renderLobby();
+  if(phase==='word')renderWord();
+  if(phase==='clue')renderClue();
+  if(phase==='vote')renderVote();
+  if(phase==='elim')renderElim();
+  if(phase==='mw_guess')renderElim();
+  if(phase==='over')renderOver();
+}
+
+function statsHTML(){
+  const alive=alivePlayers();
+  const dead=G.players.filter(p=>!p.alive);
+  const ucDead=dead.filter(p=>p.role==='undercover').length;
+  const mwDead=dead.filter(p=>p.role==='mr_white').length;
+  const civDead=dead.filter(p=>p.role==='civilian').length;
+  return `<div class="stat"><b>${alive.length}</b>Alive</div>
+<div class="stat"><b>${G.players.length}</b>Total</div>
+<div class="stat"><b>${civDead}</b>Civ out</div>
+<div class="stat"><b>${ucDead+mwDead}</b>Spy out</div>`;
+}
+
+function renderLobby(){
+  show('s-lobby');
+  $('d-code').textContent=G.code;
+  $('d-share').textContent='Share the code with friends!';
+  const ul=$('d-lobby-players');
+  ul.innerHTML=G.players.map(p=>`<li class="${p.id===G.myId?'me':''}">${p.name}${p.id==='host'?' (host)':''}</li>`).join('');
+  if(G.isHost){
+    $('d-settings').style.display='';
+    $('b-start').style.display=G.players.length>=4?'':'none';
+    $('d-wait').style.display='none';
+  }else{
+    $('d-settings').style.display='none';
+    $('b-start').style.display='none';
+    $('d-wait').style.display='';
+  }
+}
+
+function renderWord(){
+  show('s-word');
+  const wb=$('d-word');
+  wb.textContent=G.wordRevealed?(G.myWord||'No word (Mr. White)'):'';
+  wb.className='word-box'+(G.wordRevealed?'':' hidden-word');
+  $('d-word-hint').textContent=G.myRole==='mr_white'?'You are Mr. White — you have no word. Bluff!':'Memorize this word carefully.';
+}
+
+function renderClue(){
+  show('s-clue');
+  $('d-round-title').textContent='Round '+G.round;
+  $('d-stats').innerHTML=statsHTML();
+  // All clues this round
+  const clues=[];
+  G.players.forEach(p=>{p.clues?.forEach(c=>{if(c.round===G.round)clues.push({name:p.name,text:c.text})})});
+  $('d-clues').innerHTML=clues.map(c=>`<div class="clue-item"><span class="name">${c.name}:</span> ${c.text}</div>`).join('')||'<p class="text-muted text-center">Waiting for clues...</p>';
+
+  const speaker=getSpeaker();
+  const isMyTurn=speaker&&speaker.id===G.myId;
+  const meAlive=G.players.find(p=>p.id===G.myId)?.alive;
+  $('d-clue-input').style.display=isMyTurn&&meAlive?'':'none';
+  $('d-clue-wait').textContent=isMyTurn?'':(speaker?`Waiting for ${speaker.name}...`:'');
+}
+
+function renderVote(){
+  show('s-vote');
+  $('d-vote-stats').innerHTML=statsHTML();
+  // Show all clues from this round
+  const clues=[];
+  G.players.forEach(p=>{p.clues?.forEach(c=>{if(c.round===G.round)clues.push({name:p.name,text:c.text})})});
+  $('d-vote-clues').innerHTML=clues.map(c=>`<div class="clue-item"><span class="name">${c.name}:</span> ${c.text}</div>`).join('');
+
+  const alive=alivePlayers().filter(p=>p.id!==G.myId);
+  const meAlive=G.players.find(p=>p.id===G.myId)?.alive;
+  const grid=$('d-vote-grid');
+  grid.innerHTML=alive.map(p=>`<div class="vote-btn${G.voteTarget===p.id?' selected':''}" data-id="${p.id}"${meAlive?'':' disabled'}>${p.name}</div>`).join('');
+  grid.querySelectorAll('.vote-btn').forEach(b=>{
+    b.onclick=()=>{if(!meAlive)return;G.voteTarget=b.dataset.id;renderVote()};
+  });
+  $('b-vote').disabled=!G.voteTarget||!meAlive;
+
+  const voted=G.votes?Object.keys(G.votes).length:0;
+  $('d-vote-wait').textContent=voted?`${voted}/${aliveCount()} voted`:'';
+}
+
+function renderElim(){
+  show('s-elim');
+  if(!G.elimId){
+    $('d-elim-name').textContent='Tie! No one eliminated.';
+    $('d-elim-role').innerHTML='';
+    $('d-mw-guess').style.display='none';
+    $('b-continue').style.display='';
+  }else{
+    const p=G.players.find(x=>x.id===G.elimId);
+    $('d-elim-name').textContent=(p?.name||'?')+' was eliminated!';
+    $('d-elim-role').innerHTML=p?'They were: '+badge(p.role):'';
+    if(G.phase==='mw_guess'){
+      $('d-mw-guess').style.display='';
+      const isMW=G.myId===G.elimId;
+      $('i-mw-guess').style.display=isMW?'':'none';
+      $('b-mw-guess').style.display=isMW?'':'none';
+      $('d-mw-wait').textContent=isMW?'':'Mr. White is guessing...';
+      $('b-continue').style.display='none';
+    }else{
+      $('d-mw-guess').style.display='none';
+      $('b-continue').style.display='';
+    }
+  }
+}
+
+function renderOver(){
+  show('s-over');
+  $('d-winner').textContent=G.winner==='civilians'?'Civilians Win!':'Undercover Wins!';
+  $('d-winner').style.color=G.winner==='civilians'?'#4ade80':'#f87171';
+  const ul=$('d-over-players');
+  ul.innerHTML=G.players.map(p=>`<li class="${!p.alive?'dead':''}">${p.name} ${badge(p.role)}</li>`).join('');
+  $('d-civ-word').textContent=G.civWord;
+  $('d-uc-word').textContent=G.ucWord;
+}
+
+// === EVENT HANDLERS ===
+$('b-create').onclick=async()=>{
+  const name=$('i-name').value.trim();
+  if(!name){toast('Enter your name');return}
+  G.myName=name;G.isHost=true;G.myId='host';
+  G.code=roomCode();
+  G.players=[{id:'host',name,alive:true,role:null,word:null,clues:[]}];
+  G.phase='lobby';
+  render();
+  // Write lobby marker for joiners to find
+  try{await iota.storage.setShared('uc:'+G.code+':lobby',JSON.stringify({host:name,ts:Date.now()}))}catch(e){console.warn(e)}
+  hostAcceptLoop();
+};
+
+$('b-join').onclick=async()=>{
+  const name=$('i-name').value.trim();
+  const code=$('i-code').value.trim().toUpperCase();
+  if(!name){toast('Enter your name');return}
+  if(!code||code.length<4){toast('Enter the room code');return}
+  G.myName=name;G.code=code;G.isHost=false;
+
+  toast('Connecting...');
+  try{
+    // Find next free slot by trying slots 1..20
+    let slot=0;
+    for(let i=1;i<=20;i++){
+      try{const v=await iota.storage.getShared('uc:'+code+':p'+i+':offer');if(!v){slot=i;break}}catch{slot=i;break}
+    }
+    if(!slot){toast('Room full');return}
+
+    G.myId='p'+slot;
+    const pc=new RTCPeerConnection({iceServers:ICE});
+    const dc=pc.createDataChannel('data');
+    const offer=await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    const fullOffer=await gatherComplete(pc);
+    await iota.storage.setShared('uc:'+code+':p'+slot+':offer',JSON.stringify(fullOffer));
+
+    const ansJson=await pollKey('uc:'+code+':p'+slot+':answer',60000);
+    await pc.setRemoteDescription(JSON.parse(ansJson));
+    await waitOpen(dc);
+    hostDC=dc;
+    dc.onmessage=e=>playerHandleMsg(JSON.parse(e.data));
+    dc.onclose=()=>{toast('Disconnected from host');G.phase='home';render()};
+    // Send join
+    sendHost({type:'join',name});
+    G.phase='lobby';
+    render();
+    toast('Connected!');
+  }catch(e){toast('Failed to join: '+e.message);G.phase='home';render()}
+};
+
+$('b-start').onclick=()=>{
+  G.settings.difficulty=$('i-diff').value;
+  G.settings.ucCount=parseInt($('i-uc').value);
+  G.settings.mrWhite=$('i-mw').value==='1';
+  acceptingPlayers=false;
+  if(G.players.length<4){toast('Need at least 4 players');return}
+  startGame();
+};
+
+$('d-word').onclick=()=>{G.wordRevealed=!G.wordRevealed;renderWord()};
+
+$('b-ready').onclick=()=>{
+  G.readySet.add(G.myId);
+  if(G.isHost){if(G.readySet.size>=G.players.length)advanceFromWord()}
+  else sendHost({type:'ready'});
+  toast('Ready! Waiting for others...');
+  $('b-ready').disabled=true;
+};
+
+$('b-clue').onclick=()=>{
+  const text=$('i-clue').value.trim();
+  if(!text){toast('Enter a clue');return}
+  $('i-clue').value='';
+  if(G.isHost){
+    const me=G.players.find(p=>p.id==='host');
+    if(me){me.clues.push({round:G.round,text});nextSpeaker()}
+  }else{sendHost({type:'clue',text})}
+};
+
+$('b-vote').onclick=()=>{
+  if(!G.voteTarget)return;
+  if(G.isHost){G.votes['host']=G.voteTarget;checkVotes()}
+  else sendHost({type:'vote',target:G.voteTarget});
+  $('b-vote').disabled=true;
+  toast('Vote submitted');
+};
+
+$('b-mw-guess').onclick=()=>{
+  const w=$('i-mw-guess').value.trim();
+  if(!w){toast('Enter your guess');return}
+  if(G.isHost){
+    const correct=w.toLowerCase()===G.civWord.toLowerCase();
+    G.winner=correct?'undercover':null;
+    G.phase=correct?'over':'elim';
+    broadcastState();
+    if(!correct)checkWinAfterElim();
+  }else{sendHost({type:'mw_guess',word:w})}
+};
+
+$('b-continue').onclick=()=>{
+  G.readySet.add(G.myId);
+  if(G.isHost){if(G.readySet.size>=aliveCount())advanceContinue()}
+  else sendHost({type:'continue'});
+  $('b-continue').disabled=true;
+};
+
+$('b-newgame').onclick=()=>{
+  G.phase='home';G.players=[];G.winner=null;G.myRole=null;G.myWord=null;
+  G.wordRevealed=false;G.readySet=new Set();G.voteTarget=null;
+  peers={};hostDC=null;acceptingPlayers=false;
+  show('s-home');
+};
+
+// === AUTO-JOIN FROM URL ===
+(async()=>{
+  try{
+    const code=await iota.getParam('gameId');
+    if(code){$('i-code').value=code;toast('Room code loaded from link')}
+  }catch{}
+  iota.resize(document.body.scrollHeight+40);
+})();
+</script></body></html>
