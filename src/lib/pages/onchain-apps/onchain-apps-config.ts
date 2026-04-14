@@ -16,9 +16,9 @@ export interface OnChainAppsConfig {
 // config panel the defaults are used automatically.
 // After deploying (or re-deploying) the Move package, update the values here.
 export const DEFAULT_CONFIG: OnChainAppsConfig = {
-    packageId: '',
-    registryId: '',
-    storageId: '',
+    packageId: '0x76f9af5d12803e11caa60a6f7adaca9b59c3674eba1fda3e8af22c97381052f5',
+    registryId: '0x6d998e1a16bb43e270a52e048a87c90b7386073e45fbcc6ae190ce674b2b2415',
+    storageId: '0xa3bf3f0a63f0389c8d01778e5e65847b1770cd4e5abab201c76890d45e01b37d',
 };
 
 const CONFIG_KEY = 'onchainAppsConfig';
