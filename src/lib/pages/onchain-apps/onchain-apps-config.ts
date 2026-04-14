@@ -12,9 +12,10 @@ export interface OnChainAppsConfig {
     storageId: string;
 }
 
-// Best-effort devnet defaults. Left blank until the Move package is deployed
-// and the user pastes in the ids via the Settings panel on the page.
-const EMPTY_CONFIG: OnChainAppsConfig = {
+// Canonical devnet deployment ids. If the user hasn't overridden these in the
+// config panel the defaults are used automatically.
+// After deploying (or re-deploying) the Move package, update the values here.
+export const DEFAULT_CONFIG: OnChainAppsConfig = {
     packageId: '',
     registryId: '',
     storageId: '',
@@ -24,18 +25,19 @@ const CONFIG_KEY = 'onchainAppsConfig';
 const RANDOM_KEY_KEY = 'onchainAppsRandomKey';
 
 function loadConfig(): OnChainAppsConfig {
-    if (typeof localStorage === 'undefined') return { ...EMPTY_CONFIG };
+    if (typeof localStorage === 'undefined') return { ...DEFAULT_CONFIG };
     try {
         const raw = localStorage.getItem(CONFIG_KEY);
-        if (!raw) return { ...EMPTY_CONFIG };
+        if (!raw) return { ...DEFAULT_CONFIG };
         const parsed = JSON.parse(raw);
+        // Merge: stored value wins if non-empty, otherwise fall back to default.
         return {
-            packageId: typeof parsed.packageId === 'string' ? parsed.packageId : '',
-            registryId: typeof parsed.registryId === 'string' ? parsed.registryId : '',
-            storageId: typeof parsed.storageId === 'string' ? parsed.storageId : '',
+            packageId: parsed.packageId || DEFAULT_CONFIG.packageId,
+            registryId: parsed.registryId || DEFAULT_CONFIG.registryId,
+            storageId: parsed.storageId || DEFAULT_CONFIG.storageId,
         };
     } catch {
-        return { ...EMPTY_CONFIG };
+        return { ...DEFAULT_CONFIG };
     }
 }
 

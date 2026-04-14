@@ -132,8 +132,6 @@ export const BOOTSTRAP_JS = String.raw`
     });
 
     function makeClient() {
-        // Thin wrapper around a subset of IotaClient. Everything else can
-        // be reached via client.call(method, args).
         return {
             call: function (method, args) { return send('rpc', { method: method, args: args }); },
             getObject: function (input) { return send('rpc', { method: 'getObject', args: [input] }); },
@@ -149,21 +147,141 @@ export const BOOTSTRAP_JS = String.raw`
         };
     }
 
+    // --- WebRTC helpers ---
+
+    var DEFAULT_ICE_SERVERS = [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+    ];
+    var POLL_INTERVAL_MS = 2500;
+
+    // Wait for ICE gathering to finish, then return the local description
+    // (which now contains all gathered candidates).
+    function gatherIce(pc) {
+        return new Promise(function (resolve) {
+            if (pc.iceGatheringState === 'complete') {
+                resolve(pc.localDescription);
+                return;
+            }
+            function check() {
+                if (pc.iceGatheringState === 'complete') {
+                    pc.removeEventListener('icegatheringstatechange', check);
+                    resolve(pc.localDescription);
+                }
+            }
+            pc.addEventListener('icegatheringstatechange', check);
+            // Safety net: resolve after 8s even if not complete.
+            setTimeout(function () {
+                pc.removeEventListener('icegatheringstatechange', check);
+                resolve(pc.localDescription);
+            }, 8000);
+        });
+    }
+
+    // Poll on-chain shared storage until a value appears or timeout.
+    function pollShared(key, timeoutMs) {
+        var deadline = Date.now() + (timeoutMs || 120000);
+        return new Promise(function (resolve, reject) {
+            function tick() {
+                if (Date.now() > deadline) {
+                    reject(new Error('WebRTC signaling timeout waiting for key: ' + key));
+                    return;
+                }
+                send('storageGetShared', { key: key, opts: {} }).then(function (val) {
+                    if (val != null && val !== '') resolve(val);
+                    else setTimeout(tick, POLL_INTERVAL_MS);
+                }).catch(function () {
+                    setTimeout(tick, POLL_INTERVAL_MS);
+                });
+            }
+            tick();
+        });
+    }
+
+    function waitForOpen(dc) {
+        return new Promise(function (resolve, reject) {
+            if (dc.readyState === 'open') { resolve(dc); return; }
+            dc.addEventListener('open', function () { resolve(dc); });
+            dc.addEventListener('error', function (e) { reject(e); });
+            setTimeout(function () { reject(new Error('DataChannel open timeout')); }, 30000);
+        });
+    }
+
+    function waitForDataChannel(pc) {
+        return new Promise(function (resolve, reject) {
+            pc.addEventListener('datachannel', function (e) { resolve(e.channel); });
+            setTimeout(function () { reject(new Error('DataChannel receive timeout')); }, 30000);
+        });
+    }
+
+    function makeWebRTC() {
+        return {
+            // Create a room and wait for a peer to join.
+            // Returns { channel: RTCDataChannel, roomId: string, pc: RTCPeerConnection }
+            host: async function (opts) {
+                opts = opts || {};
+                var roomId = opts.roomId || crypto.randomUUID();
+                var prefix = 'webrtc:' + roomId;
+                var pc = new RTCPeerConnection({
+                    iceServers: opts.iceServers || DEFAULT_ICE_SERVERS,
+                });
+                var dc = pc.createDataChannel(opts.label || 'data');
+
+                var offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+                var fullOffer = await gatherIce(pc);
+
+                await send('storageSetShared', {
+                    key: prefix + ':offer',
+                    value: JSON.stringify(fullOffer),
+                });
+
+                var answerJson = await pollShared(prefix + ':answer', opts.timeout || 120000);
+                await pc.setRemoteDescription(JSON.parse(answerJson));
+
+                await waitForOpen(dc);
+                return { channel: dc, roomId: roomId, pc: pc };
+            },
+
+            // Join an existing room.
+            // Returns { channel: RTCDataChannel, roomId: string, pc: RTCPeerConnection }
+            join: async function (opts) {
+                if (!opts || !opts.roomId) throw new Error('roomId is required');
+                var roomId = opts.roomId;
+                var prefix = 'webrtc:' + roomId;
+                var pc = new RTCPeerConnection({
+                    iceServers: opts.iceServers || DEFAULT_ICE_SERVERS,
+                });
+
+                var dcPromise = waitForDataChannel(pc);
+
+                var offerJson = await pollShared(prefix + ':offer', opts.timeout || 120000);
+                await pc.setRemoteDescription(JSON.parse(offerJson));
+
+                var answer = await pc.createAnswer();
+                await pc.setLocalDescription(answer);
+                var fullAnswer = await gatherIce(pc);
+
+                await send('storageSetShared', {
+                    key: prefix + ':answer',
+                    value: JSON.stringify(fullAnswer),
+                });
+
+                var dc = await dcPromise;
+                await waitForOpen(dc);
+                return { channel: dc, roomId: roomId, pc: pc };
+            },
+        };
+    }
+
     window.iota = {
-        // Active signer address, as a 0x-prefixed hex string.
         getAddress: function () { return send('getAddress'); },
-        // Network name (e.g. 'devnet').
         getNetwork: function () { return send('getNetwork'); },
-        // Object id of the App this iframe is running (useful for storage keys).
         getAppId: function () { return send('getAppId'); },
-        // IotaClient proxy for read-only queries.
         client: makeClient(),
-        // Sign + execute a transaction. Accept JSON (as string or object)
-        // produced by Transaction.toJSON().
         signAndExecuteTransaction: function (txJson) {
             return send('signAndExecute', { txJson: txJson });
         },
-        // Shared per-user / per-app on-chain key/value storage.
         storage: {
             set: function (key, value) { return send('storageSet', { key: key, value: value }); },
             get: function (key, opts) { return send('storageGet', { key: key, opts: opts || {} }); },
@@ -171,20 +289,18 @@ export const BOOTSTRAP_JS = String.raw`
             setShared: function (key, value) { return send('storageSetShared', { key: key, value: value }); },
             getShared: function (key, opts) { return send('storageGetShared', { key: key, opts: opts || {} }); },
         },
-        // Browser localStorage, namespaced per app so two apps cannot
-        // stomp on each other.
         localStorage: {
             get: function (key) { return send('localGet', { key: key }); },
             set: function (key, value) { return send('localSet', { key: key, value: value }); },
             remove: function (key) { return send('localRemove', { key: key }); },
         },
-        // Helper so an app can request the host to resize its iframe.
+        // WebRTC peer-to-peer via on-chain signaling.
+        webrtc: makeWebRTC(),
         resize: function (height) {
             window.parent.postMessage({ kind: 'resize', height: Number(height) }, '*');
         },
     };
 
-    // Announce readiness so the host can hide its loading spinner.
     window.parent.postMessage({ kind: 'ready' }, '*');
 })();
 `;

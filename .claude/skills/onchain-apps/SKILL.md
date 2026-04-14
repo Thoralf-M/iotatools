@@ -184,6 +184,67 @@ Use this after rendering so users do not see inner scrollbars.
 iota.resize(document.body.scrollHeight);
 ```
 
+### `iota.webrtc` — peer-to-peer data channels via on-chain signaling
+
+Two helpers for establishing a WebRTC `RTCDataChannel` between two browser
+tabs / devices, using on-chain shared storage as the signaling channel. Once
+connected, **all communication is peer-to-peer** — no data hits the chain.
+
+#### `iota.webrtc.host(opts?) -> Promise<{ channel, roomId, pc }>`
+
+Creates a room, writes the SDP offer to shared storage, and waits for
+a peer to answer. Returns when the `RTCDataChannel` is open.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `roomId` | `string` | random UUID | Identifier for the room. Share this with the peer. |
+| `iceServers` | `RTCIceServer[]` | Google STUN | Custom STUN/TURN servers. |
+| `timeout` | `number` | 120000 | Milliseconds to wait for the peer before rejecting. |
+| `label` | `string` | `'data'` | Data channel label. |
+
+#### `iota.webrtc.join(opts) -> Promise<{ channel, roomId, pc }>`
+
+Joins an existing room. Reads the offer from shared storage, writes the
+answer back, and waits for the data channel to open.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `roomId` | `string` | *required* | Room to join. |
+| `iceServers` | `RTCIceServer[]` | Google STUN | Custom STUN/TURN servers. |
+| `timeout` | `number` | 120000 | Milliseconds to wait for the offer before rejecting. |
+
+#### Example: two-player game lobby
+
+```js
+// Player 1 (host)
+const { channel, roomId } = await iota.webrtc.host();
+log('Room: ' + roomId + ' — share this with Player 2');
+channel.onmessage = (e) => log('P2 says: ' + e.data);
+channel.send('hello from Player 1');
+
+// Player 2 (guest, in another browser tab)
+const { channel } = await iota.webrtc.join({ roomId: 'paste-room-id-here' });
+channel.onmessage = (e) => log('P1 says: ' + e.data);
+channel.send('hello from Player 2');
+```
+
+**How it works under the hood:**
+1. Host creates an `RTCPeerConnection`, generates an SDP offer, waits for
+   ICE gathering to finish, then writes the complete offer to
+   `iota.storage.setShared('webrtc:<roomId>:offer', ...)`.
+2. Guest polls `iota.storage.getShared('webrtc:<roomId>:offer')` every
+   ~2.5 s until it appears, sets it as remote description, generates an
+   answer (with ICE), and writes it to `…:answer`.
+3. Host picks up the answer, sets remote description. WebRTC punches
+   through NAT via STUN. The `RTCDataChannel` opens.
+4. From this point on, `channel.send()` / `channel.onmessage` are direct
+   peer-to-peer — low latency, no gas, no chain involvement.
+
+**Privacy:** The SDP offer/answer are written to public on-chain storage.
+They contain your public IP (via ICE candidates). If that is a concern,
+encrypt the SDP blobs with a shared room password before writing, or use a
+TURN server that masks your IP.
+
 ## App authoring rules
 
 Keep the payload small and self-contained:

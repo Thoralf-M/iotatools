@@ -704,11 +704,11 @@
         </div>
     </section>
 
-    <section class="panel config-panel">
-        <h3>Package configuration</h3>
+    <details class="panel config-panel">
+        <summary>Package configuration</summary>
         <p class="muted">
-            Deploy the <code>onchain_apps</code> Move package (see <code>move/onchain_apps/</code> in
-            the repo) and paste the resulting ids here. They are saved in your browser.
+            Override the Move package / object ids if you deployed your own instance. Otherwise the
+            defaults point at the canonical devnet deployment.
         </p>
         <label>
             Package ID
@@ -734,7 +734,7 @@
                 spellcheck="false"
             />
         </label>
-    </section>
+    </details>
 
     {#if statusMessage}
         <div class="status" class:error={statusIsError}>{statusMessage}</div>
@@ -992,6 +992,21 @@
 
     .panel h3 {
         margin: 0 0 0.25rem 0;
+    }
+
+    details.panel > summary {
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1rem;
+        list-style: revert;
+    }
+
+    details.panel > summary:hover {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    details.panel[open] > summary {
+        margin-bottom: 0.5rem;
     }
 
     .muted {
