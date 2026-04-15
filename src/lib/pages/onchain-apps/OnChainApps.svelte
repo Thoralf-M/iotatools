@@ -1,4 +1,6 @@
 <script lang="ts" module>
+    import skillMd from '../../../../.claude/skills/onchain-apps/SKILL.md?raw';
+
     // The DEFAULT_HTML template literal below embeds a closing script tag.
     // To keep Svelte's own parser from seeing it as the end of this script
     // block, we assemble the closing tag at runtime from two halves.
@@ -130,6 +132,34 @@
 
     let iframeEl: HTMLIFrameElement | undefined = $state();
     let appMaximized = $state(false);
+
+    // --- Starred apps ---
+    const STARRED_KEY = 'onchainApps:starred';
+    function loadStarred(): Set<string> {
+        try {
+            const raw = localStorage.getItem(STARRED_KEY);
+            return new Set(raw ? JSON.parse(raw) : []);
+        } catch {
+            return new Set();
+        }
+    }
+    function saveStarred(set: Set<string>) {
+        localStorage.setItem(STARRED_KEY, JSON.stringify([...set]));
+    }
+    let starred: Set<string> = $state(loadStarred());
+    function toggleStar(id: string, e: MouseEvent) {
+        e.stopPropagation();
+        const next = new Set(starred);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        starred = next;
+        saveStarred(next);
+    }
+    let sortedApps = $derived.by(() => {
+        const pinned = apps.filter((a) => starred.has(a.id));
+        const rest = apps.filter((a) => !starred.has(a.id));
+        return { pinned, rest };
+    });
 
     // --- WebRTC state (connections are managed on the host page for ICE compatibility) ---
 
@@ -1225,6 +1255,11 @@
                     <a href={publishResultUrl}>{publishResultUrl}</a>
                 {/if}
             </div>
+
+            <details class="skill-docs">
+                <summary>App development guide (SKILL.md)</summary>
+                <pre class="skill-pre">{skillMd}</pre>
+            </details>
         </section>
     {/if}
 
@@ -1326,31 +1361,57 @@
                     Nothing published yet. Use <em>+ Publish new app</em> above to upload your first app.
                 </p>
             {:else}
-                <ul class="apps">
-                    {#each apps as app (app.id)}
-                        {@const initials = app.name.trim().split(/\s+/).slice(0, 2).map((w: string) => w[0]?.toUpperCase() ?? '').join('') || '?'}
-                        {@const hue = [...app.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) & 0xffff, 0) % 360}
-                        <li>
-                            <button class="app-card" onclick={() => openApp(app.id)}>
-                                <div class="app-card-top">
-                                    <div class="app-avatar" style="--hue:{hue}">{initials}</div>
-                                    <div class="app-card-title">
-                                        <div class="app-name">{app.name}</div>
-                                        <div class="app-size">{formatSize(app.totalSize)}</div>
-                                    </div>
-                                    <span class="app-arrow">→</span>
+                {#snippet appCard(app: AppMetadata)}
+                    {@const initials = app.name.trim().split(/\s+/).slice(0, 2).map((w: string) => w[0]?.toUpperCase() ?? '').join('') || '?'}
+                    {@const hue = [...app.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) & 0xffff, 0) % 360}
+                    <li>
+                        <div class="app-card" onclick={() => openApp(app.id)} role="button" tabindex="0" onkeydown={(e) => e.key === 'Enter' && openApp(app.id)}>
+                            <div class="app-card-top">
+                                <div class="app-avatar" style="--hue:{hue}">{initials}</div>
+                                <div class="app-card-title">
+                                    <div class="app-name">{app.name}</div>
+                                    <div class="app-size">{formatSize(app.totalSize)}</div>
                                 </div>
-                                {#if app.description}
-                                    <div class="app-desc">{app.description}</div>
-                                {/if}
-                                <div class="app-card-footer">
-                                    <span class="app-date">{formatDate(app.publishedAtMs)}</span>
-                                    <span class="app-id-short" title={app.id}>{app.id.slice(0, 6)}…{app.id.slice(-4)}</span>
-                                </div>
-                            </button>
-                        </li>
-                    {/each}
-                </ul>
+                                <button
+                                    class="star-btn"
+                                    class:starred={starred.has(app.id)}
+                                    onclick={(e) => toggleStar(app.id, e)}
+                                    title={starred.has(app.id) ? 'Unstar' : 'Star'}
+                                    aria-label={starred.has(app.id) ? 'Unstar' : 'Star'}
+                                >★</button>
+                            </div>
+                            {#if app.description}
+                                <div class="app-desc">{app.description}</div>
+                            {/if}
+                            <div class="app-card-footer">
+                                <span class="app-date">{formatDate(app.publishedAtMs)}</span>
+                                <span class="app-id-short" title={app.id}>{app.id.slice(0, 6)}…{app.id.slice(-4)}</span>
+                            </div>
+                        </div>
+                    </li>
+                {/snippet}
+
+                {#if sortedApps.pinned.length > 0}
+                    <ul class="apps">
+                        {#each sortedApps.pinned as app (app.id)}
+                            {@render appCard(app)}
+                        {/each}
+                    </ul>
+                    {#if sortedApps.rest.length > 0}
+                        <div class="apps-divider"></div>
+                        <ul class="apps">
+                            {#each sortedApps.rest as app (app.id)}
+                                {@render appCard(app)}
+                            {/each}
+                        </ul>
+                    {/if}
+                {:else}
+                    <ul class="apps">
+                        {#each sortedApps.rest as app (app.id)}
+                            {@render appCard(app)}
+                        {/each}
+                    </ul>
+                {/if}
             {/if}
         </section>
 
@@ -1634,15 +1695,32 @@
         color: rgba(255, 255, 255, 0.4);
     }
 
-    .app-arrow {
-        color: rgba(255, 255, 255, 0.25);
-        font-size: 1rem;
-        transition: color 0.15s, transform 0.15s;
+    .star-btn {
+        flex-shrink: 0;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.1rem;
+        line-height: 1;
+        padding: 2px 4px;
+        color: rgba(255, 255, 255, 0.18);
+        transition: color 0.15s, transform 0.12s;
+        border-radius: 4px;
     }
 
-    .app-card:hover .app-arrow {
-        color: rgba(255, 255, 255, 0.7);
-        transform: translateX(2px);
+    .star-btn:hover {
+        color: #facc15;
+        transform: scale(1.15);
+    }
+
+    .star-btn.starred {
+        color: #facc15;
+    }
+
+    .apps-divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.07);
+        margin: 0.25rem 0;
     }
 
     .app-desc {
@@ -1674,6 +1752,41 @@
         font-family: ui-monospace, Menlo, Consolas, monospace;
         font-size: 0.7rem;
         color: rgba(255, 255, 255, 0.25);
+    }
+
+    .skill-docs {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding-top: 0.75rem;
+        margin-top: 0.25rem;
+    }
+
+    .skill-docs > summary {
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.55);
+        list-style: revert;
+        user-select: none;
+    }
+
+    .skill-docs > summary:hover {
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    .skill-pre {
+        margin-top: 0.75rem;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 8px;
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        font-size: 0.78rem;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: rgba(255, 255, 255, 0.75);
+        max-height: 600px;
+        overflow-y: auto;
     }
 
     .key-info {
