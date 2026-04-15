@@ -161,18 +161,37 @@ async function main() {
     const newCapId = capObjChange?.objectId;
     console.log(`App created: ${newAppId}`);
 
-    // Wait for the shared object to be available and get its version.
+    // Extract the initial shared version for the App shared object.
+    // Priority 1: owner field in the objectChange (most reliable — available immediately).
+    // Priority 2: version field on the objectChange (equals initial_shared_version for new objects).
+    // Priority 3: re-fetch from chain (fallback).
     let appSharedVersion = null;
-    if (chunks.length > 1) {
+
+    // Priority 1 & 2 — from TX1 result
+    if (typeof appObjChange.owner === 'object' && appObjChange.owner !== null) {
+        const ow = appObjChange.owner;
+        if ('Shared' in ow) {
+            appSharedVersion = String(ow.Shared.initial_shared_version);
+        }
+    }
+    if (!appSharedVersion && appObjChange.version) {
+        appSharedVersion = String(appObjChange.version);
+    }
+
+    if (chunks.length > 1 && !appSharedVersion) {
+        // Priority 3 — re-fetch from chain
         console.log('Waiting for object to propagate...');
         for (let w = 0; w < 30; w++) {
             try {
                 const obj = await client.getObject({ id: newAppId, options: { showOwner: true } });
                 if (obj.data) {
-                    // Shared objects report their initial shared version in the owner field.
                     const owner = obj.data.owner;
-                    if (typeof owner === 'object' && 'Shared' in owner) {
-                        appSharedVersion = owner.Shared.initial_shared_version;
+                    if (typeof owner === 'object' && owner !== null && 'Shared' in owner) {
+                        appSharedVersion = String(owner.Shared.initial_shared_version);
+                    }
+                    // Last-resort: use current object version as proxy
+                    if (!appSharedVersion && obj.data.version) {
+                        appSharedVersion = String(obj.data.version);
                     }
                     console.log(`Object found, version: ${obj.data.version}, shared: ${appSharedVersion}`);
                     break;
@@ -182,6 +201,10 @@ async function main() {
             }
             await new Promise((r) => setTimeout(r, 2000));
         }
+    }
+
+    if (appSharedVersion) {
+        console.log(`Initial shared version: ${appSharedVersion}`);
     }
 
     // Append remaining chunks if any
