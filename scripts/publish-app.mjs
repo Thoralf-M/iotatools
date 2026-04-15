@@ -99,11 +99,15 @@ async function main() {
         await new Promise((r) => setTimeout(r, 2000));
     }
 
-    // TX1: Publish app using the entry function (handles sharing internally).
+    // TX1: Create app, register in registry, share it, and transfer AppCap — all in one tx.
+    // Uses create_app (returns App + AppCap as values) so we can compose the sharing and
+    // registration in the same PTB. app::publish is an entry function that does NOT share
+    // the object, so we can't use sharedObjectRef for subsequent chunk appends.
     console.log('Publishing app...');
+    const appType = `${PACKAGE_ID}::app::App`;
     const tx = new Transaction();
-    tx.moveCall({
-        target: `${PACKAGE_ID}::app::publish`,
+    const [appObj, capObj] = tx.moveCall({
+        target: `${PACKAGE_ID}::app::create_app`,
         arguments: [
             tx.pure.string(appName),
             tx.pure.string(appDesc),
@@ -112,6 +116,27 @@ async function main() {
             tx.object(IOTA_CLOCK_OBJECT_ID),
         ],
     });
+    // Grab the ID while we still hold the App value, so we can register it.
+    const appIdVal = tx.moveCall({
+        target: `0x2::object::id`,
+        typeArguments: [appType],
+        arguments: [appObj],
+    });
+    tx.moveCall({
+        target: `${PACKAGE_ID}::registry::register`,
+        arguments: [tx.object(REGISTRY_ID), appIdVal],
+    });
+    // Share the App (makes it a shared object, required for append_chunks).
+    tx.moveCall({
+        target: `0x2::transfer::public_share_object`,
+        typeArguments: [appType],
+        arguments: [appObj],
+    });
+    // Transfer AppCap to the signer so they can update/append later.
+    tx.transferObjects(
+        [capObj],
+        tx.moveCall({ target: `0x2::tx_context::sender`, arguments: [] }),
+    );
 
     const result = await client.signAndExecuteTransaction({
         transaction: tx,
@@ -131,25 +156,6 @@ async function main() {
     const capObjChange = result.objectChanges?.find(
         (c) => c.type === 'created' && c.objectType?.includes('::app::AppCap'),
     );
-
-    // TX2: Register in the shared registry (separate tx so the shared object is ready).
-    if (appObjChange) {
-        console.log('Registering in registry...');
-        await new Promise((r) => setTimeout(r, 1500));
-        const regTx = new Transaction();
-        regTx.moveCall({
-            target: `${PACKAGE_ID}::registry::register`,
-            arguments: [regTx.object(REGISTRY_ID), regTx.pure.id(appObjChange.objectId)],
-        });
-        const regResult = await client.signAndExecuteTransaction({
-            transaction: regTx,
-            signer: keypair,
-            options: { showEffects: true },
-        });
-        if (regResult.effects?.status?.status !== 'success') {
-            console.warn('Registry registration failed (app still usable via direct link):', regResult.effects?.status);
-        }
-    }
 
     if (!appObjChange) {
         console.error('Could not find App object in tx results');
