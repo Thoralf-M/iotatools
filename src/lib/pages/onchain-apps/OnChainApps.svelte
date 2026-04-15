@@ -1155,38 +1155,6 @@
         </div>
     </header>
 
-    <section class="panel key-panel">
-        <h3>Sandbox signer</h3>
-        <p class="muted">
-            A random Ed25519 key is used for every tx this page signs. It is kept in your browser's
-            <code>localStorage</code>. Devnet only.
-        </p>
-        <div class="key-info">
-            <div class="key-row">
-                <strong>Network:</strong> {$sharedClientConfig.selected}
-            </div>
-            <div class="key-row">
-                <strong>Address:</strong> <code class="address-code">{randomKey.address}</code>
-            </div>
-            {#if signerBalance}
-                <div class="key-row">
-                    <strong>Balance:</strong> {signerBalance}
-                </div>
-            {/if}
-        </div>
-        <div class="kv">
-            <button onclick={rotateKey}>Generate new random key</button>
-            <button onclick={requestFromFaucet}>Request devnet IOTA from faucet</button>
-            <a
-                href={`${getSelectedNetworkConfig().explorer}/address/${randomKey.address}?network=${$sharedClientConfig.selected}`}
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                View in explorer ↗
-            </a>
-        </div>
-    </section>
-
     <details class="panel config-panel">
         <summary>Package configuration</summary>
         <p class="muted">
@@ -1346,6 +1314,46 @@
             </div>
         </section>
     {:else}
+        <section class="panel">
+            <h3>Published apps ({apps.length})</h3>
+            {#if loadError}
+                <div class="error-block">{loadError}</div>
+            {/if}
+            {#if loadingList}
+                <p>Loading...</p>
+            {:else if apps.length === 0 && !loadError}
+                <p class="muted">
+                    Nothing published yet. Use <em>+ Publish new app</em> above to upload your first app.
+                </p>
+            {:else}
+                <ul class="apps">
+                    {#each apps as app (app.id)}
+                        {@const initials = app.name.trim().split(/\s+/).slice(0, 2).map((w: string) => w[0]?.toUpperCase() ?? '').join('') || '?'}
+                        {@const hue = [...app.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) & 0xffff, 0) % 360}
+                        <li>
+                            <button class="app-card" onclick={() => openApp(app.id)}>
+                                <div class="app-card-top">
+                                    <div class="app-avatar" style="--hue:{hue}">{initials}</div>
+                                    <div class="app-card-title">
+                                        <div class="app-name">{app.name}</div>
+                                        <div class="app-size">{formatSize(app.totalSize)}</div>
+                                    </div>
+                                    <span class="app-arrow">→</span>
+                                </div>
+                                {#if app.description}
+                                    <div class="app-desc">{app.description}</div>
+                                {/if}
+                                <div class="app-card-footer">
+                                    <span class="app-date">{formatDate(app.publishedAtMs)}</span>
+                                    <span class="app-id-short" title={app.id}>{app.id.slice(0, 6)}…{app.id.slice(-4)}</span>
+                                </div>
+                            </button>
+                        </li>
+                    {/each}
+                </ul>
+            {/if}
+        </section>
+
         <section class="panel my-apps-panel">
             <div class="my-apps-header">
                 <h3>My apps ({myApps.length})</h3>
@@ -1413,47 +1421,39 @@
                 </ul>
             {/if}
         </section>
-
-        <section class="panel">
-            <h3>Published apps ({apps.length})</h3>
-            {#if loadError}
-                <div class="error-block">{loadError}</div>
-            {/if}
-            {#if loadingList}
-                <p>Loading...</p>
-            {:else if apps.length === 0 && !loadError}
-                <p class="muted">
-                    Nothing published yet. Use <em>+ Publish new app</em> above to upload your first app.
-                </p>
-            {:else}
-                <ul class="apps">
-                    {#each apps as app (app.id)}
-                        {@const initials = app.name.trim().split(/\s+/).slice(0, 2).map((w: string) => w[0]?.toUpperCase() ?? '').join('') || '?'}
-                        {@const hue = [...app.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) & 0xffff, 0) % 360}
-                        <li>
-                            <button class="app-card" onclick={() => openApp(app.id)}>
-                                <div class="app-card-top">
-                                    <div class="app-avatar" style="--hue:{hue}">{initials}</div>
-                                    <div class="app-card-title">
-                                        <div class="app-name">{app.name}</div>
-                                        <div class="app-size">{formatSize(app.totalSize)}</div>
-                                    </div>
-                                    <span class="app-arrow">→</span>
-                                </div>
-                                {#if app.description}
-                                    <div class="app-desc">{app.description}</div>
-                                {/if}
-                                <div class="app-card-footer">
-                                    <span class="app-date">{formatDate(app.publishedAtMs)}</span>
-                                    <span class="app-id-short" title={app.id}>{app.id.slice(0, 6)}…{app.id.slice(-4)}</span>
-                                </div>
-                            </button>
-                        </li>
-                    {/each}
-                </ul>
-            {/if}
-        </section>
     {/if}
+
+    <details class="panel key-panel">
+        <summary>Sandbox signer</summary>
+        <p class="muted">
+            A random Ed25519 key is used for every tx this page signs. It is kept in your browser's
+            <code>localStorage</code>. Devnet only.
+        </p>
+        <div class="key-info">
+            <div class="key-row">
+                <strong>Network:</strong> {$sharedClientConfig.selected}
+            </div>
+            <div class="key-row">
+                <strong>Address:</strong> <code class="address-code">{randomKey.address}</code>
+            </div>
+            {#if signerBalance}
+                <div class="key-row">
+                    <strong>Balance:</strong> {signerBalance}
+                </div>
+            {/if}
+        </div>
+        <div class="kv">
+            <button onclick={rotateKey}>Generate new random key</button>
+            <button onclick={requestFromFaucet}>Request devnet IOTA from faucet</button>
+            <a
+                href={`${getSelectedNetworkConfig().explorer}/address/${randomKey.address}?network=${$sharedClientConfig.selected}`}
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                View in explorer ↗
+            </a>
+        </div>
+    </details>
 </main>
 
 <style>
