@@ -4,6 +4,7 @@
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0d1117;color:#e6edf3;display:flex;justify-content:center;padding:12px}
 #app{width:100%;max-width:500px}
 h1{font-size:24px;font-weight:800;text-align:center;background:linear-gradient(135deg,#58a6ff,#3fb950);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
+h3{font-size:12px;font-weight:700;margin-bottom:10px;color:#8b949e;text-transform:uppercase;letter-spacing:1px}
 .sub{text-align:center;color:#8b949e;font-size:13px;margin-bottom:16px}
 .card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:16px;margin-bottom:12px}
 .btn{display:block;width:100%;padding:14px;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center}
@@ -21,11 +22,11 @@ label{display:block;font-size:12px;font-weight:600;color:#8b949e;margin-bottom:4
 .room-code{font-family:'Courier New',monospace;font-size:28px;font-weight:800;letter-spacing:6px;text-align:center;color:#58a6ff;padding:12px;background:#0d1117;border-radius:10px;border:2px dashed #30363d;margin:8px 0;cursor:pointer;transition:border-color .2s;word-break:break-all}
 .room-code:active{border-color:#58a6ff}
 .hint{text-align:center;font-size:11px;color:#8b949e;margin-top:2px}
-.chat-area{height:360px;overflow-y:auto;background:#0d1117;border-radius:10px;padding:10px;margin-bottom:10px;display:flex;flex-direction:column;gap:4px;scroll-behavior:smooth}
+.chat-area{height:380px;overflow-y:auto;background:#0d1117;border-radius:10px;padding:10px;margin-bottom:10px;display:flex;flex-direction:column;gap:4px;scroll-behavior:smooth}
 .msg{max-width:85%;padding:8px 12px;border-radius:12px;font-size:14px;line-height:1.4;word-wrap:break-word}
 .msg-me{align-self:flex-end;background:#1f3d5e;border-bottom-right-radius:4px;color:#c9d1d9}
 .msg-peer{align-self:flex-start;background:#21262d;border-bottom-left-radius:4px;color:#c9d1d9}
-.msg-system{align-self:center;color:#8b949e;font-size:12px;font-style:italic;padding:4px 0}
+.msg-system{align-self:center;color:#8b949e;font-size:12px;font-style:italic;padding:4px 0;text-align:center}
 .msg-time{font-size:10px;color:#484f58;margin-top:2px}
 .chat-input{display:flex;gap:8px}
 .chat-input input{flex:1}
@@ -39,7 +40,9 @@ label{display:block;font-size:12px;font-weight:600;color:#8b949e;margin-bottom:4
 .status-msg{text-align:center;color:#8b949e;font-size:14px;padding:16px}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#3fb950;color:#0d1117;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:600;z-index:999;animation:fadeUp .3s ease}
 .name-badge{font-weight:600;font-size:11px;margin-bottom:2px}
-.typing-indicator{font-size:12px;color:#8b949e;font-style:italic;min-height:16px;margin-bottom:4px}
+.peer-list{list-style:none;display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.peer-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;background:#21262d;border:1px solid #30363d;font-size:12px}
+.peer-chip .dot{width:6px;height:6px;border-radius:50%}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes fadeUp{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
@@ -52,227 +55,450 @@ label{display:block;font-size:12px;font-weight:600;color:#8b949e;margin-bottom:4
 (async function(){
 'use strict';
 
+/* ==============================
+   CONSTANTS
+   ============================== */
 const ICE=[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:stun.cloudflare.com:3478'}];
 const CHARS='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const MAX_SLOTS=20;
+const POLL_MS=3000;
+const COLORS=['#58a6ff','#f0883e','#3fb950','#bc8cff','#f85149','#d29922','#79c0ff','#56d364','#db61a2','#e3b341','#39d353','#a371f7'];
 
-let myAddr='',myName='',screen='home',roomId='',channel=null,pc=null,peerName='',connected=false,connecting=false,connectMsg='';
-let messages=[];
-let typingTimeout=null;
-let peerTyping=false;
+/* ==============================
+   STATE
+   ============================== */
+let S={
+    screen:'home', // home, join, chat
+    isHost:false,
+    roomCode:'',
+    myName:'',
+    myAddr:'',
+    myId:-1,   // 0 = host, 1..N = clients
+    mySlot:-1, // only relevant for clients
+    appId:'',
+    peers:[],  // [{id, name, connected, slot}]
+    messages:[], // [{type:'sys'|'chat', id, name, text, time}]
+    connecting:false,
+    connectMsg:'',
+};
 
+let channels={};      // HOST: slot -> RTCDataChannel (to each client)
+let hostChannel=null; // CLIENT: channel to host
+let lobbyAbort=false;
+
+/* ==============================
+   UTILITIES
+   ============================== */
 const $=id=>document.getElementById(id);
-const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-function genRoom(){let c='';for(let i=0;i<8;i++)c+=CHARS[Math.floor(Math.random()*CHARS.length)];return c}
-function ts(){const d=new Date();return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function genCode(){let c='';for(let i=0;i<8;i++)c+=CHARS[Math.floor(Math.random()*CHARS.length)];return c}
+function tsNow(){const d=new Date();return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')}
+function pcolor(id){return COLORS[id%COLORS.length]}
 function toast(m){const d=document.createElement('div');d.className='toast';d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),2000)}
 
-function addMsg(type,text,name){
-    messages.push({type,text,name:name||'',time:ts()});
-    render();
+function appendMsg(m){
+    S.messages.push(m);
+    // Keep last 500 messages.
+    if(S.messages.length>500)S.messages.splice(0,S.messages.length-500);
+}
+
+function fitIframe(){setTimeout(()=>iota.resize(document.body.scrollHeight+24),50)}
+
+/* ==============================
+   RENDERING
+   ============================== */
+function render(){
+    switch(S.screen){
+        case'home':renderHome();break;
+        case'join':renderJoin();break;
+        case'chat':renderChat();break;
+    }
+    fitIframe();
+}
+
+function renderHome(){
+    $('app').innerHTML=`
+    <div style="margin-top:20px">
+        <h1>P2P Chat</h1>
+        <p class="sub">Multi-peer chat via WebRTC &middot; No server, no logs</p>
+    </div>
+    <div class="card">
+        <div class="field">
+            <label>Your Name</label>
+            <input id="hname" type="text" maxlength="20" placeholder="Enter a nickname" value="${esc(S.myName)}">
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-primary" onclick="doHost()">Create Room</button>
+            <button class="btn btn-secondary" onclick="goJoin()">Join Room</button>
+        </div>
+    </div>
+    <div class="card" style="font-size:13px;color:#8b949e;line-height:1.5">
+        <b style="color:#e6edf3">How it works</b><br>
+        Create a room to get a code. Share it with anyone &mdash; multiple people can join, even after the chat has started. Messages flow peer-to-peer through the room host. Only the initial handshake touches on-chain storage.
+    </div>`;
+}
+
+function renderJoin(){
+    $('app').innerHTML=`
+    <h1 style="font-size:20px;margin-bottom:12px">Join Room</h1>
+    <div class="card">
+        <div class="field">
+            <label>Room Code</label>
+            <input id="jroom" type="text" maxlength="8" placeholder="XXXXXXXX" style="text-transform:uppercase;text-align:center;font-size:18px;font-weight:700;letter-spacing:4px" value="${esc(S.roomCode)}">
+        </div>
+        <div class="field">
+            <label>Your Name</label>
+            <input id="jname" type="text" maxlength="20" placeholder="Enter a nickname" value="${esc(S.myName)}">
+        </div>
+    </div>
+    ${S.connecting?`<div class="status-msg"><span class="spinner"></span> ${esc(S.connectMsg)}</div>`
+    :`<button class="btn btn-primary" onclick="doJoin()">Join</button>
+       <button class="btn btn-secondary mt8" onclick="goHome()">Back</button>`}`;
+}
+
+function renderChat(){
+    const msgsHtml=S.messages.map(m=>{
+        if(m.type==='sys')return `<div class="msg msg-system">${esc(m.text)}</div>`;
+        const mine=m.id===S.myId;
+        const cls=mine?'msg-me':'msg-peer';
+        const badge=mine?'':`<div class="name-badge" style="color:${pcolor(m.id)}">${esc(m.name)}</div>`;
+        return `<div class="msg ${cls}">${badge}${esc(m.text)}<div class="msg-time">${m.time||''}</div></div>`;
+    }).join('');
+
+    const connected=S.isHost||(hostChannel&&hostChannel.readyState==='open');
+    const peerChips=S.peers.map(p=>`<span class="peer-chip"><span class="dot" style="background:${p.connected?'#3fb950':'#f85149'}"></span><span style="color:${pcolor(p.id)}">${esc(p.name)}</span>${p.id===S.myId?' <span style="color:#8b949e">(You)</span>':''}${p.id===0?' <span style="color:#d29922;font-weight:700">Host</span>':''}</span>`).join('');
+
+    $('app').innerHTML=`
+    <div class="status">
+        <span class="status-dot ${connected?'dot-on':'dot-off'}"></span>
+        <span>${connected?'Connected':'Disconnected'}</span>
+        <span style="margin-left:auto;font-size:11px;color:#484f58">Room: ${S.roomCode}</span>
+    </div>
+    <div class="card" style="padding:10px 14px">
+        <h3 style="margin-bottom:6px">Peers (${S.peers.length})</h3>
+        <div class="peer-list">${peerChips}</div>
+    </div>
+    <div class="chat-area" id="chat">${msgsHtml}</div>
+    <div class="chat-input">
+        <input id="msg" type="text" maxlength="500" placeholder="Type a message..." onkeydown="if(event.key==='Enter')doSend()" ${connected?'':'disabled'}>
+        <button class="btn btn-primary btn-sm" onclick="doSend()" ${connected?'':'disabled'}>Send</button>
+    </div>
+    ${S.isHost?`<div class="btn-row mt8"><button class="btn btn-secondary btn-sm" style="flex:1" onclick="copyRoom()">Copy code</button><button class="btn btn-secondary btn-sm" style="flex:1" onclick="copyInviteLink()">Copy invite link</button></div>`:''}
+    <button class="btn btn-secondary mt8 btn-sm" onclick="goHome()" style="width:100%">Leave Chat</button>`;
     setTimeout(()=>{const ca=$('chat');if(ca)ca.scrollTop=ca.scrollHeight},50);
 }
 
-function sendMsg(msg){if(channel&&channel.readyState==='open')channel.send(JSON.stringify(msg))}
-
-function handlePeerMsg(raw){
-    try{
-        const msg=JSON.parse(raw);
-        if(msg.t==='chat'){addMsg('peer',msg.d,msg.n||peerName)}
-        else if(msg.t==='name'){peerName=msg.d;addMsg('system',peerName+' connected')}
-        else if(msg.t==='typing'){peerTyping=!!msg.d;render()}
-    }catch(e){console.error(e)}
-}
-
-function setupChannel(ch){
-    channel=ch;connected=true;connecting=false;
-    ch.onmessage=e=>handlePeerMsg(e.data);
-    ch.onclose=()=>{connected=false;addMsg('system','Peer disconnected');render()};
-    ch.onerror=()=>{connected=false;render()};
-    sendMsg({t:'name',d:myName});
-    addMsg('system','Connected! Start chatting.');
-    render();
-}
-
-/* ======== RENDER ======== */
-function render(){
-    const app=$('app');
-    switch(screen){
-    case'home':
-        app.innerHTML=`
-        <div style="margin-top:20px">
-            <h1>P2P Chat</h1>
-            <p class="sub">Peer-to-peer chat via WebRTC &middot; No server, no logs</p>
-        </div>
-        <div class="card">
-            <div class="field">
-                <label>Your Name</label>
-                <input id="hname" type="text" maxlength="20" placeholder="Enter a nickname" value="${esc(myName)}">
-            </div>
-            <div class="btn-row">
-                <button class="btn btn-primary" onclick="doHost()">Create Room</button>
-                <button class="btn btn-secondary" onclick="goJoin()">Join Room</button>
-            </div>
-        </div>
-        <div class="card" style="font-size:13px;color:#8b949e;line-height:1.5">
-            <b style="color:#e6edf3">How it works</b><br>
-            Create a room to get a code. Share it with someone. Once they join, you're connected directly &mdash; peer-to-peer via WebRTC. Messages never touch a server. On-chain storage is only used for the initial handshake.
-        </div>`;
-        break;
-    case'join':
-        app.innerHTML=`
-        <h1 style="font-size:20px;margin-bottom:12px">Join Room</h1>
-        <div class="card">
-            <div class="field">
-                <label>Room Code</label>
-                <input id="jroom" type="text" maxlength="8" placeholder="XXXXXXXX" style="text-transform:uppercase;text-align:center;font-size:18px;font-weight:700;letter-spacing:4px" value="${esc(roomId)}">
-            </div>
-            <div class="field">
-                <label>Your Name</label>
-                <input id="jname" type="text" maxlength="20" placeholder="Enter a nickname" value="${esc(myName)}">
-            </div>
-        </div>
-        ${connecting?`<div class="status-msg"><span class="spinner"></span> ${esc(connectMsg)}</div>`
-        :`<button class="btn btn-primary" onclick="doJoin()">Join</button>
-           <button class="btn btn-secondary mt8" onclick="goHome()">Back</button>`}`;
-        break;
-    case'waiting':
-        app.innerHTML=`
-        <h1 style="font-size:20px;margin-bottom:12px">Waiting for peer</h1>
-        <div class="card">
-            <p style="text-align:center;color:#8b949e;font-size:14px;margin-bottom:10px">Share this room code:</p>
-            <div class="room-code" onclick="copyRoom()">${roomId}</div>
-            <p class="hint">Tap code to copy</p>
-            <button class="btn btn-primary mt8" onclick="copyInviteLink()">Copy invite link</button>
-        </div>
-        <div class="status-msg"><span class="spinner"></span> Waiting for someone to join...</div>
-        <button class="btn btn-secondary" onclick="goHome()">Cancel</button>`;
-        break;
-    case'chat':
-        const msgsHtml=messages.map(m=>{
-            if(m.type==='system')return `<div class="msg msg-system">${esc(m.text)}</div>`;
-            const badge=m.type==='me'?'':`<div class="name-badge" style="color:#58a6ff">${esc(m.name)}</div>`;
-            return `<div class="msg msg-${m.type}">${badge}${esc(m.text)}<div class="msg-time">${m.time}</div></div>`;
-        }).join('');
-
-        app.innerHTML=`
-        <div class="status">
-            <span class="status-dot ${connected?'dot-on':'dot-off'}"></span>
-            <span>${connected?'Connected to <b>'+esc(peerName||'peer')+'</b>':'Disconnected'}</span>
-            <span style="margin-left:auto;font-size:11px;color:#484f58">Room: ${roomId}</span>
-        </div>
-        <div class="chat-area" id="chat">${msgsHtml}</div>
-        <div class="typing-indicator" id="typing">${peerTyping?esc(peerName||'Peer')+' is typing...':''}</div>
-        <div class="chat-input">
-            <input id="msg" type="text" maxlength="500" placeholder="Type a message..." onkeydown="if(event.key==='Enter')doSend()" oninput="onTyping()" ${connected?'':'disabled'}>
-            <button class="btn btn-primary btn-sm" onclick="doSend()" ${connected?'':'disabled'}>Send</button>
-        </div>
-        <button class="btn btn-secondary mt8 btn-sm" onclick="goHome()" style="width:100%">Leave Chat</button>`;
-        setTimeout(()=>{const ca=$('chat');if(ca)ca.scrollTop=ca.scrollHeight},50);
-        break;
-    }
-    iota.resize(document.body.scrollHeight+32);
-}
-
-/* ======== ACTIONS ======== */
+/* ==============================
+   ACTIONS
+   ============================== */
 window.goHome=function(){
-    if(channel){try{channel.close()}catch(e){}}
-    if(pc){try{pc.close()}catch(e){}}
-    channel=null;pc=null;connected=false;connecting=false;
-    messages=[];peerName='';peerTyping=false;
-    screen='home';render();
+    lobbyAbort=true;
+    for(const sl in channels){try{channels[sl].close()}catch(e){}}
+    channels={};
+    if(hostChannel){try{hostChannel.close()}catch(e){}hostChannel=null;}
+    S={...S,screen:'home',isHost:false,roomCode:'',myId:-1,mySlot:-1,peers:[],messages:[],connecting:false,connectMsg:''};
+    render();
 };
+
 window.goJoin=function(){
     const n=($('hname')||{}).value?.trim();
-    if(n)myName=n;
-    screen='join';render();
+    if(n)S.myName=n;
+    S.screen='join';render();
 };
 
 window.copyRoom=function(){
+    const code=S.roomCode;
     if(navigator.clipboard&&navigator.clipboard.writeText){
-        navigator.clipboard.writeText(roomId).then(()=>toast('Copied!')).catch(()=>fbCopy(roomId));
-    }else{fbCopy(roomId)}
+        navigator.clipboard.writeText(code).then(()=>toast('Code copied!')).catch(()=>fbCopy(code));
+    }else{fbCopy(code)}
 };
-window.copyInviteLink=async function(){
-    try{
-        const appId=await iota.getAppId();
-        // Build shareable URL with room param (host page injects it into app localStorage)
-        const base=window.location.ancestorOrigins?.[0]||'https://iotatools.dev';
-        const link=base+'/#/onchain-apps?appId='+appId+'&room='+roomId;
-        if(navigator.clipboard&&navigator.clipboard.writeText){
-            navigator.clipboard.writeText(link).then(()=>toast('Invite link copied!')).catch(()=>fbCopy(link));
-        }else{fbCopy(link)}
-    }catch(e){fbCopy(roomId)}
+
+function inviteUrl(){
+    if(!S.appId||!S.roomCode)return null;
+    return 'https://iotatools.dev/#/onchain-apps?appId='+encodeURIComponent(S.appId)+'&room='+encodeURIComponent(S.roomCode);
+}
+
+window.copyInviteLink=function(){
+    const url=inviteUrl();
+    if(!url){toast('App ID not ready yet');return;}
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(url).then(()=>toast('Invite link copied!')).catch(()=>fbCopy(url));
+    }else{fbCopy(url)}
 };
-function fbCopy(t){
-    const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;top:0;left:0;opacity:0';
+
+function fbCopy(text){
+    const ta=document.createElement('textarea');
+    ta.value=text;ta.style.cssText='position:fixed;top:0;left:0;opacity:0;pointer-events:none';
     document.body.appendChild(ta);ta.focus();ta.select();
-    try{document.execCommand('copy');toast('Copied!')}catch(e){toast(t)}
+    try{document.execCommand('copy');toast('Copied!')}
+    catch(e){toast(text)}
     ta.remove();
 }
 
 window.doHost=async function(){
     const n=($('hname')||{}).value?.trim();
     if(!n){toast('Enter your name');return}
-    myName=n;
-    roomId=genRoom();
-    screen='waiting';render();
+    S.myName=n;
+    S.isHost=true;
+    S.roomCode=genCode();
+    S.myId=0;
+    S.peers=[{id:0,name:n,connected:true,slot:-1}];
+    S.screen='chat';
+    appendMsg({type:'sys',text:'Room created. Share the code to invite people.',time:tsNow()});
+    render();
     try{
-        const res=await iota.webrtc.host({roomId:roomId,iceServers:ICE,timeout:300000});
-        pc=res.pc;
-        setupChannel(res.channel);
-        screen='chat';render();
+        // Record room metadata so joiners can find it.
+        await iota.storage.setShared('chat:'+S.roomCode+':room',JSON.stringify({host:n,createdAt:Date.now()}));
+        lobbyAbort=false;
+        hostLobbyLoop();
     }catch(e){
-        toast('Connection failed: '+(e.message||e));
-        screen='home';render();
+        toast('Failed to create room: '+(e.message||e));
+        window.goHome();
     }
 };
 
 window.doJoin=async function(){
     const code=(($('jroom')||{}).value||'').trim().toUpperCase();
-    const n=(($('jname')||{}).value||'').trim();
+    const name=(($('jname')||{}).value||'').trim();
     if(!code||code.length<4){toast('Enter the room code');return}
-    if(!n){toast('Enter your name');return}
-    myName=n;roomId=code;
-    connecting=true;connectMsg='Connecting...';render();
+    if(!name){toast('Enter your name');return}
+    S.myName=name;S.roomCode=code;
+    S.connecting=true;S.connectMsg='Looking for room...';render();
     try{
-        const res=await iota.webrtc.join({roomId:code,iceServers:ICE,timeout:120000});
-        pc=res.pc;
-        setupChannel(res.channel);
-        connecting=false;
-        screen='chat';render();
+        const info=await iota.storage.getShared('chat:'+code+':room');
+        if(!info){S.connecting=false;toast('Room not found');render();return}
+        S.connectMsg='Claiming slot...';render();
+        let mySlot=-1;
+        for(let attempt=0;attempt<MAX_SLOTS;attempt++){
+            const key='chat:'+code+':s'+attempt;
+            const val=await iota.storage.getShared(key);
+            if(!val){
+                await iota.storage.setShared(key,name+'\t'+S.myAddr);
+                await sleep(2500);
+                const verify=await iota.storage.getShared(key);
+                if(verify&&verify.includes(S.myAddr)){mySlot=attempt;break}
+            }
+        }
+        if(mySlot<0){S.connecting=false;toast('Room is full');render();return}
+        S.mySlot=mySlot;
+
+        let channel=null;
+        const MAX_RTC=5;
+        for(let rtcAttempt=0;rtcAttempt<MAX_RTC&&!channel;rtcAttempt++){
+            try{
+                S.connectMsg='Connecting to host'+(rtcAttempt>0?' (retry '+rtcAttempt+')':'')+'...';render();
+                const roomId='chat-'+code+'-'+mySlot+(rtcAttempt>0?'-r'+rtcAttempt:'');
+                const res=await iota.webrtc.join({roomId,iceServers:ICE,timeout:90000});
+                channel=res.channel;
+            }catch(rtcErr){
+                console.log('WebRTC join attempt '+(rtcAttempt+1)+'/'+MAX_RTC+' failed',rtcErr);
+                if(rtcAttempt<MAX_RTC-1)await sleep(2000+rtcAttempt*1500);
+            }
+        }
+        if(!channel)throw new Error('Could not connect to host. Try again from a different browser or device.');
+        hostChannel=channel;
+        channel.onmessage=e=>{try{handleHostMsg(JSON.parse(e.data))}catch(err){console.error(err)}};
+        channel.onclose=()=>{
+            hostChannel=null;
+            appendMsg({type:'sys',text:'Disconnected from host.',time:tsNow()});
+            render();
+        };
+        sendToHost({t:'join',d:{name,addr:S.myAddr,slot:mySlot}});
+        S.connecting=false;
+        S.screen='chat';
+        appendMsg({type:'sys',text:'You joined the room as '+name+'.',time:tsNow()});
+        render();
     }catch(e){
-        connecting=false;
-        toast('Failed: '+(e.message||e));
+        S.connecting=false;
+        toast('Failed to join: '+(e.message||e));
         render();
     }
 };
 
 window.doSend=function(){
-    const inp=$('msg');
-    if(!inp)return;
+    const inp=$('msg');if(!inp)return;
     const text=inp.value.trim();
-    if(!text||!connected)return;
-    sendMsg({t:'chat',d:text,n:myName});
-    addMsg('me',text,myName);
+    if(!text)return;
     inp.value='';
-    sendMsg({t:'typing',d:false});
+    const time=tsNow();
+    if(S.isHost){
+        const m={type:'chat',id:0,name:S.myName,text,time};
+        appendMsg(m);
+        broadcast({t:'chatmsg',d:m});
+        render();
+    }else{
+        if(!hostChannel||hostChannel.readyState!=='open'){toast('Not connected');return}
+        // Optimistically render locally; host will echo to other peers.
+        appendMsg({type:'chat',id:S.myId,name:S.myName,text,time});
+        sendToHost({t:'chat',d:{text,time}});
+        render();
+    }
 };
 
-window.onTyping=function(){
-    sendMsg({t:'typing',d:true});
-    clearTimeout(typingTimeout);
-    typingTimeout=setTimeout(()=>sendMsg({t:'typing',d:false}),2000);
-};
+/* ==============================
+   NETWORKING - HOST
+   ============================== */
+async function hostLobbyLoop(){
+    const code=S.roomCode;
+    const discovered={};
+    while(!lobbyAbort&&S.screen==='chat'&&S.isHost){
+        const checks=[];
+        for(let sl=0;sl<MAX_SLOTS;sl++){
+            if(discovered[sl])continue;
+            checks.push(iota.storage.getShared('chat:'+code+':s'+sl).then(v=>v?{slot:sl,val:v}:null).catch(()=>null));
+        }
+        const results=(await Promise.all(checks)).filter(Boolean);
+        for(const r of results){
+            if(lobbyAbort)return;
+            if(discovered[r.slot])continue;
+            discovered[r.slot]=true;
+            connectToSlot(code,r).catch(err=>console.log('connectToSlot slot',r.slot,err));
+        }
+        await sleep(POLL_MS);
+    }
+}
 
-/* ======== INIT ======== */
+async function connectToSlot(code,r){
+    const parts=r.val.split('\t');
+    const name=parts[0]||'peer';
+    const addr=parts[1]||'';
+    const MAX_ATTEMPTS=5;
+    for(let attempt=0;attempt<MAX_ATTEMPTS&&!lobbyAbort;attempt++){
+        if(channels[r.slot]&&channels[r.slot].readyState==='open')return;
+        try{
+            const roomId='chat-'+code+'-'+r.slot+(attempt>0?'-r'+attempt:'');
+            const {channel}=await iota.webrtc.host({roomId,iceServers:ICE,timeout:90000});
+            if(channels[r.slot]&&channels[r.slot].readyState==='open'){try{channel.close()}catch(e){}return}
+            // Assign a stable id based on slot number (slot+1, host is 0).
+            const pid=r.slot+1;
+            let peer=S.peers.find(p=>p.id===pid);
+            if(peer){peer.name=name;peer.connected=true;peer.slot=r.slot}
+            else{peer={id:pid,name,connected:true,slot:r.slot};S.peers.push(peer);S.peers.sort((a,b)=>a.id-b.id);}
+            channels[r.slot]=channel;
+
+            channel.onmessage=e=>{try{handleClientMsg(r.slot,JSON.parse(e.data))}catch(err){console.error(err)}};
+            channel.onclose=()=>{
+                if(channels[r.slot]===channel)delete channels[r.slot];
+                const pp=S.peers.find(p=>p.slot===r.slot);
+                if(pp){pp.connected=false;appendMsg({type:'sys',text:pp.name+' disconnected',time:tsNow()});}
+                broadcast({t:'peers',d:S.peers.map(p=>({id:p.id,name:p.name,connected:p.connected}))});
+                render();
+            };
+
+            sendTo(r.slot,{t:'welcome',d:{id:pid,peers:S.peers.map(p=>({id:p.id,name:p.name,connected:p.connected})),history:S.messages.slice(-100)}});
+            broadcast({t:'peers',d:S.peers.map(p=>({id:p.id,name:p.name,connected:p.connected}))});
+            appendMsg({type:'sys',text:name+' joined',time:tsNow()});
+            broadcast({t:'sysmsg',d:{text:name+' joined',time:tsNow()}});
+            render();
+            return;
+        }catch(e){
+            console.log('host WebRTC attempt '+(attempt+1)+'/'+MAX_ATTEMPTS+' failed for slot '+r.slot,e);
+            if(attempt<MAX_ATTEMPTS-1)await sleep(2000+attempt*1500);
+        }
+    }
+    console.log('Could not connect to slot '+r.slot+' after '+MAX_ATTEMPTS+' attempts');
+}
+
+function sendTo(slot,msg){
+    const ch=channels[slot];
+    if(ch&&ch.readyState==='open')ch.send(JSON.stringify(msg));
+}
+
+function broadcast(msg){
+    const data=JSON.stringify(msg);
+    for(const sl in channels){
+        const ch=channels[sl];
+        if(ch&&ch.readyState==='open')ch.send(data);
+    }
+}
+
+function handleClientMsg(slot,msg){
+    const peer=S.peers.find(p=>p.slot===slot);
+    if(!peer)return;
+    switch(msg.t){
+        case'join':{
+            // Handle name updates.
+            if(msg.d&&msg.d.name){peer.name=msg.d.name}
+            broadcast({t:'peers',d:S.peers.map(p=>({id:p.id,name:p.name,connected:p.connected}))});
+            render();
+            break;
+        }
+        case'chat':{
+            const text=String(msg.d?.text||'').slice(0,500);
+            if(!text)return;
+            const time=msg.d?.time||tsNow();
+            const m={type:'chat',id:peer.id,name:peer.name,text,time};
+            appendMsg(m);
+            // Relay to all peers (including echo back to sender so they can confirm ordering).
+            broadcast({t:'chatmsg',d:m});
+            render();
+            break;
+        }
+    }
+}
+
+/* ==============================
+   NETWORKING - CLIENT
+   ============================== */
+function sendToHost(msg){
+    if(hostChannel&&hostChannel.readyState==='open')hostChannel.send(JSON.stringify(msg));
+}
+
+function handleHostMsg(msg){
+    switch(msg.t){
+        case'welcome':{
+            S.myId=msg.d.id;
+            S.peers=msg.d.peers||[];
+            if(Array.isArray(msg.d.history)){
+                // Merge prior history for the new joiner, de-duplicated by (id, text, time).
+                const seen=new Set(S.messages.map(m=>m.type+'|'+m.id+'|'+(m.text||'')+'|'+(m.time||'')));
+                for(const h of msg.d.history){
+                    const k=h.type+'|'+h.id+'|'+(h.text||'')+'|'+(h.time||'');
+                    if(!seen.has(k)){seen.add(k);S.messages.push(h);}
+                }
+                S.messages.sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+            }
+            render();
+            break;
+        }
+        case'peers':{
+            S.peers=msg.d||[];
+            render();
+            break;
+        }
+        case'chatmsg':{
+            const m=msg.d;
+            if(!m)return;
+            // Don't echo our own message twice (we already rendered optimistically).
+            if(m.id===S.myId&&S.messages.some(x=>x.type==='chat'&&x.id===m.id&&x.text===m.text&&x.time===m.time))return;
+            appendMsg(m);
+            render();
+            break;
+        }
+        case'sysmsg':{
+            appendMsg({type:'sys',text:msg.d.text,time:msg.d.time});
+            render();
+            break;
+        }
+    }
+}
+
+/* ==============================
+   INIT
+   ============================== */
 try{
-    myAddr=await iota.getAddress();
-    // Check if we were opened with a room invite link (param injected by host page).
-    const pendingRoom=await iota.localStorage.get('_param_room');
+    const [addr,appId,pendingRoom]=await Promise.all([
+        iota.getAddress(),
+        iota.getAppId(),
+        iota.localStorage.get('_param_room'),
+    ]);
+    S.myAddr=addr;
+    S.appId=appId||'';
     if(pendingRoom){
         await iota.localStorage.remove('_param_room');
-        roomId=pendingRoom.toUpperCase();
-        screen='join';
+        S.roomCode=pendingRoom.toUpperCase();
+        S.screen='join';
     }
     render();
 }catch(e){

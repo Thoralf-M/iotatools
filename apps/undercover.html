@@ -208,6 +208,7 @@ const MAX_SLOTS=20;
 const POLL_MS=3000;
 const CODE_CHARS='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const COLORS=['#58a6ff','#f0883e','#3fb950','#bc8cff','#f85149','#d29922','#79c0ff','#56d364','#db61a2','#e3b341','#39d353','#a371f7'];
+const ICE_SERVERS=[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:stun.cloudflare.com:3478'}];
 
 /* ==============================
    STATE
@@ -367,7 +368,6 @@ function renderHome(){
 }
 
 function renderCreate(){
-    const s=S.settings;
     APP().innerHTML=`
     <h2>Create Game</h2>
     <div class="card">
@@ -375,31 +375,7 @@ function renderCreate(){
             <label>Your Name</label>
             <input id="cname" type="text" maxlength="20" placeholder="Enter your name" value="${esc(S.myName)}">
         </div>
-        <div class="field">
-            <label>Difficulty</label>
-            <select id="cdiff">
-                <option value="easy"${s.difficulty==='easy'?' selected':''}>Easy &mdash; words are loosely related</option>
-                <option value="medium"${s.difficulty==='medium'?' selected':''}>Medium &mdash; same category, somewhat similar</option>
-                <option value="hard"${s.difficulty==='hard'?' selected':''}>Hard &mdash; very similar, tricky to distinguish</option>
-            </select>
-        </div>
-        <div class="field">
-            <label>Number of Undercovers</label>
-            <select id="cuc">
-                <option value="1"${s.numUndercover===1?' selected':''}>1 Undercover</option>
-                <option value="2"${s.numUndercover===2?' selected':''}>2 Undercovers</option>
-                <option value="3"${s.numUndercover===3?' selected':''}>3 Undercovers</option>
-            </select>
-        </div>
-        <div class="field">
-            <div class="toggle-row">
-                <div>
-                    <label style="margin:0">Include Mr. White</label>
-                    <span class="text-sm text-dim">Gets no word, must bluff</span>
-                </div>
-                <div class="toggle ${s.mrWhite?'on':''}" onclick="toggleMW()"></div>
-            </div>
-        </div>
+        <p class="text-sm text-dim">Game settings (difficulty, undercovers, Mr. White) can be adjusted in the lobby once players have joined.</p>
     </div>
     <button class="btn btn-primary" onclick="doCreate()">Create Game</button>
     <button class="btn btn-secondary mt8" onclick="goHome()">Back</button>`;
@@ -462,6 +438,36 @@ function renderLobby(){
         <ul class="player-list">${plist}</ul>
         ${S.isHost && S.lobbyRunning?'<p class="text-sm text-dim text-center mt8"><span class="spinner"></span> Waiting for players to join...</p>':''}
     </div>
+    ${S.isHost?`
+    <div class="card">
+        <h3>Settings</h3>
+        <div class="field">
+            <label>Difficulty</label>
+            <select id="lobby-diff" onchange="onSettingChange()">
+                <option value="easy"${S.settings.difficulty==='easy'?' selected':''}>Easy &mdash; loosely related</option>
+                <option value="medium"${S.settings.difficulty==='medium'?' selected':''}>Medium &mdash; similar</option>
+                <option value="hard"${S.settings.difficulty==='hard'?' selected':''}>Hard &mdash; very similar</option>
+            </select>
+        </div>
+        <div class="field">
+            <label>Number of Undercovers</label>
+            <select id="lobby-uc" onchange="onSettingChange()">
+                <option value="1"${S.settings.numUndercover===1?' selected':''}>1 Undercover</option>
+                <option value="2"${S.settings.numUndercover===2?' selected':''}>2 Undercovers</option>
+                <option value="3"${S.settings.numUndercover===3?' selected':''}>3 Undercovers</option>
+            </select>
+        </div>
+        <div class="field">
+            <div class="toggle-row">
+                <div>
+                    <label style="margin:0">Include Mr. White</label>
+                    <span class="text-sm text-dim">Gets no word, must bluff</span>
+                </div>
+                <div class="toggle ${S.settings.mrWhite?'on':''}" onclick="toggleMW()"></div>
+            </div>
+        </div>
+        <div class="text-sm text-dim">Need at least <b>${minP}</b> players to start</div>
+    </div>`:`
     <div class="card">
         <h3>Settings</h3>
         <div class="text-sm">
@@ -470,7 +476,7 @@ function renderLobby(){
             <div>Mr. White: <b>${S.settings.mrWhite?'Yes':'No'}</b></div>
             <div class="text-dim mt8">Need at least <b>${minP}</b> players to start</div>
         </div>
-    </div>
+    </div>`}
     ${S.isHost?`
         <button class="btn btn-primary" ${canStart?`onclick="startGame()"`:' disabled'}>
             ${canStart?'Start Game':'Waiting for more players...'}
@@ -765,12 +771,13 @@ function renderOver(){
     </div>
     ${voteHistoryHtml}
     ${S.isHost?`
-    <div class="btn-row mt16">
-        <button class="btn btn-primary" onclick="playAgainHost()">Play Again</button>
+    <button class="btn btn-primary mt16" onclick="nextRoundHost()">Next Round</button>
+    <div class="btn-row mt8">
+        <button class="btn btn-secondary" onclick="playAgainHost()">Back to Lobby</button>
         <button class="btn btn-secondary" onclick="goHome()">Exit</button>
     </div>`:`
-    <button class="btn btn-secondary mt16" onclick="goHome()">Leave Game</button>
-    <div class="status-msg mt8">Waiting for host to start a new game...</div>`}`;
+    <div class="status-msg mt16">Waiting for host to start a new round...</div>
+    <button class="btn btn-secondary mt8" onclick="goHome()">Leave Game</button>`}`;
 }
 
 /* ==============================
@@ -809,10 +816,68 @@ window.playAgainHost=function(){
         nameError:'',namePending:false,
     });
     broadcast({t:'restart',d:{players:S.players.map(p=>({id:p.id,name:p.name,alive:true,connected:p.connected}))}});
+    // Persist updated settings for any late joiners.
+    try{iota.storage.setShared('uc:'+S.gameCode+':lobby',JSON.stringify(S.settings)).catch(()=>{});}catch(e){}
     lobbyAbort=false;
     const preDiscovered={};
-    for(const sl in channels)preDiscovered[sl]=true;
+    for(const sl in channels)if(channels[sl]&&channels[sl].readyState==='open')preDiscovered[sl]=true;
     hostLobbyLoop(preDiscovered);
+    render();
+};
+
+// Directly starts a new round with the same players and settings.
+// Skips the lobby, so host doesn't need to click "Start Game" again.
+window.nextRoundHost=function(){
+    if(!S.isHost)return;
+    if(mrWhiteTimer)clearTimeout(mrWhiteTimer);
+    if(mrWhiteCountdown)clearInterval(mrWhiteCountdown);
+    // Reset alive + keep existing ids stable so non-host peers don't need rekeying.
+    S.players=S.players.map(p=>({...p,alive:true}));
+    const connectedPlayers=S.players.filter(p=>p.id===0||p.connected);
+    const minP=S.settings.numUndercover+(S.settings.mrWhite?1:0)+2;
+    if(connectedPlayers.length<minP){
+        toast('Not enough connected players — back to lobby');
+        window.playAgainHost();
+        return;
+    }
+    if(S.settings.numUndercover>=connectedPlayers.length-1){
+        toast('Too many undercovers for current player count');
+        window.playAgainHost();
+        return;
+    }
+    // Pick fresh words + roles (only among connected players).
+    const pairs=WORDS[S.settings.difficulty]||WORDS.medium;
+    const pair=pairs[Math.floor(Math.random()*pairs.length)];
+    const swap=Math.random()<0.5;
+    S.citizenWord=swap?pair[1]:pair[0];
+    S.undercoverWord=swap?pair[0]:pair[1];
+    const connIds=shuffle(connectedPlayers.map(p=>p.id));
+    const roles={};const words={};
+    let idx=0;
+    for(let i=0;i<S.settings.numUndercover;i++){roles[connIds[idx]]='undercover';words[connIds[idx]]=S.undercoverWord;idx++}
+    if(S.settings.mrWhite){roles[connIds[idx]]='mrwhite';words[connIds[idx]]=null;idx++}
+    for(;idx<connIds.length;idx++){roles[connIds[idx]]='citizen';words[connIds[idx]]=S.citizenWord}
+    // Mark any unconnected players as eliminated so they don't block game flow.
+    for(const p of S.players){
+        if(!connIds.includes(p.id))p.alive=false;
+    }
+    S.roles=roles;
+    S.myWord=words[S.myId]!==undefined?words[S.myId]:null;
+    S.myRole=roles[S.myId];
+    S.phase='word_reveal';
+    S.round=1;
+    S.clues={};S.eliminated=[];S.winner=null;S.winDetail='';
+    S.votes={};S.myVote=-1;S.voteTally={};
+    S.speakerOrder=[];S.currentSpeaker=0;
+    S.wordRevealed=false;
+    S.screen='game';
+    S.mrWhiteGuessing=false;S.mrWhiteId=-1;S.mrWhiteTimerSec=30;
+    calcStats();
+    for(const p of S.players){
+        if(p.id===0||!p.connected)continue;
+        sendTo(p.slot,{t:'w',d:{word:words[p.id]}});
+    }
+    broadcastState();
     render();
 };
 
@@ -852,7 +917,18 @@ window.submitRename=function(){
 window.goCreate=function(){S.screen='create';render()};
 window.goJoin=function(){S.screen='join';render()};
 window.toggleRules=function(){S.showRules=!S.showRules;render()};
-window.toggleMW=function(){S.settings.mrWhite=!S.settings.mrWhite;render()};
+window.toggleMW=function(){
+    S.settings.mrWhite=!S.settings.mrWhite;
+    if(S.isHost&&S.screen==='lobby')hostPersistAndBroadcastSettings();
+    render();
+};
+window.onSettingChange=function(){
+    if(!S.isHost)return;
+    const d=$('lobby-diff');if(d)S.settings.difficulty=d.value;
+    const u=$('lobby-uc');if(u)S.settings.numUndercover=parseInt(u.value)||1;
+    hostPersistAndBroadcastSettings();
+    render();
+};
 window.flipWord=function(){S.wordRevealed=!S.wordRevealed;render()};
 
 window.copyCode=function(){
@@ -885,8 +961,6 @@ window.doCreate=async function(){
     const name=($('cname')||{}).value?.trim();
     if(!name){toast('Enter your name');return}
     S.myName=name;
-    S.settings.difficulty=($('cdiff')||{}).value||'medium';
-    S.settings.numUndercover=parseInt(($('cuc')||{}).value)||1;
     S.isHost=true;
     S.gameCode=genCode();
     S.myId=0;
@@ -934,20 +1008,26 @@ window.doJoin=async function(){
         if(mySlot<0){S.connecting=false;toast('Game is full');render();return}
         S.mySlot=mySlot;
         let channel=null;
-        for(let rtcAttempt=0;rtcAttempt<2&&!channel;rtcAttempt++){
+        const MAX_RTC=5;
+        for(let rtcAttempt=0;rtcAttempt<MAX_RTC&&!channel;rtcAttempt++){
             try{
-                S.connectMsg='Connecting to host'+(rtcAttempt>0?' (retry)':'')+'...';render();
-                const res=await iota.webrtc.join({roomId:'uc-'+code+'-'+mySlot+(rtcAttempt>0?'-r'+rtcAttempt:''),iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:stun.cloudflare.com:3478'}],timeout:120000});
+                S.connectMsg='Connecting to host'+(rtcAttempt>0?' (retry '+rtcAttempt+')':'')+'...';render();
+                const roomId='uc-'+code+'-'+mySlot+(rtcAttempt>0?'-r'+rtcAttempt:'');
+                const res=await iota.webrtc.join({roomId,iceServers:ICE_SERVERS,timeout:90000});
                 channel=res.channel;
             }catch(rtcErr){
-                console.log('WebRTC join attempt '+(rtcAttempt+1)+' failed',rtcErr);
-                if(rtcAttempt===0)await sleep(3000);
+                console.log('WebRTC join attempt '+(rtcAttempt+1)+'/'+MAX_RTC+' failed',rtcErr);
+                if(rtcAttempt<MAX_RTC-1)await sleep(2000+rtcAttempt*1500);
             }
         }
         if(!channel)throw new Error('Could not connect to host. Make sure you are using a different browser or device than the host.');
         hostChannel=channel;
         channel.onmessage=e=>{try{handleHostMsg(JSON.parse(e.data))}catch(err){console.error(err)}};
-        channel.onclose=()=>{toast('Disconnected from host');goHome()};
+        channel.onclose=()=>{
+            hostChannel=null;
+            toast('Disconnected from host. Go back to home to rejoin.');
+            render();
+        };
 
         sendToHost({t:'join',d:{name,addr:S.myAddr,slot:mySlot}});
         S.connecting=false;
@@ -1094,7 +1174,6 @@ window.submitMWGuess=function(){
 /* ==============================
    NETWORKING - HOST
    ============================== */
-const ICE_SERVERS=[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:stun.cloudflare.com:3478'}];
 
 async function hostLobbyLoop(preDiscovered={}){
     const code=S.gameCode;
@@ -1112,45 +1191,73 @@ async function hostLobbyLoop(preDiscovered={}){
             if(lobbyAbort)return;
             if(discovered[r.slot])continue;
             discovered[r.slot]=true;
-            const parts=r.val.split('\t');
-            const name=parts[0],addr=parts[1]||'';
-
-            let connected=false;
-            for(let attempt=0;attempt<2&&!connected;attempt++){
-                try{
-                    S.connectMsg='Connecting to '+name+(attempt>0?' (retry)':'')+'...';render();
-                    const {channel}=await iota.webrtc.host({roomId:'uc-'+code+'-'+r.slot+(attempt>0?'-r'+attempt:''),iceServers:ICE_SERVERS,timeout:90000});
-                    const pid=S.players.length;
-                    const player={id:pid,name,slot:r.slot,addr,alive:true,connected:true};
-                    S.players.push(player);
-                    channels[r.slot]=channel;
-                    connected=true;
-
-                    channel.onmessage=e=>{try{handlePlayerMsg(r.slot,JSON.parse(e.data))}catch(err){console.error(err)}};
-                    channel.onclose=()=>{
-                        const pp=S.players.find(x=>x.slot===r.slot);
-                        if(pp)pp.connected=false;
-                        if(S.screen==='lobby'){render()}
-                    };
-
-                    sendTo(r.slot,{t:'welcome',d:{id:pid,players:S.players.map(p=>({id:p.id,name:p.name,alive:p.alive,connected:p.connected}))}});
-                    broadcast({t:'plist',d:{players:S.players.map(p=>({id:p.id,name:p.name,alive:p.alive,connected:p.connected}))}});
-                    if(S.players.filter(p=>p.name.toLowerCase()===name.toLowerCase()).length>1){
-                        sendTo(r.slot,{t:'nameError',d:{msg:'Name "'+name+'" is already taken. Please choose a different name.'}});
-                    }
-                    render();
-                }catch(e){
-                    console.log('WebRTC attempt '+(attempt+1)+' failed for slot '+r.slot,e);
-                    if(attempt===0)await sleep(3000);
-                }
-            }
-            if(!connected){
-                S.connectMsg='';render();
-                console.log('Could not connect to player at slot '+r.slot);
-            }
+            // Connect in parallel - don't block discovery of other slots
+            connectToSlot(code,r).catch(err=>console.log('connectToSlot error slot',r.slot,err));
         }
         await sleep(POLL_MS);
     }
+}
+
+async function connectToSlot(code,r){
+    const parts=r.val.split('\t');
+    const name=parts[0],addr=parts[1]||'';
+    const MAX_ATTEMPTS=5;
+    for(let attempt=0;attempt<MAX_ATTEMPTS&&!lobbyAbort;attempt++){
+        // If another (earlier) attempt already succeeded for this slot, stop.
+        if(channels[r.slot]&&channels[r.slot].readyState==='open')return;
+        try{
+            S.connectMsg='Connecting to '+name+(attempt>0?' (retry '+attempt+')':'')+'...';
+            if(S.screen==='lobby')render();
+            const roomId='uc-'+code+'-'+r.slot+(attempt>0?'-r'+attempt:'');
+            const {channel}=await iota.webrtc.host({roomId,iceServers:ICE_SERVERS,timeout:90000});
+            // If a parallel attempt beat us, discard.
+            if(channels[r.slot]&&channels[r.slot].readyState==='open'){
+                try{channel.close()}catch(e){}
+                return;
+            }
+            // Try to reclaim an existing player id (e.g. after reconnect).
+            let player=S.players.find(p=>p.slot===r.slot);
+            if(player){
+                player.name=name;player.addr=addr;player.connected=true;player.alive=player.alive!==false;
+            }else{
+                const pid=S.players.length;
+                player={id:pid,name,slot:r.slot,addr,alive:true,connected:true};
+                S.players.push(player);
+            }
+            channels[r.slot]=channel;
+
+            channel.onmessage=e=>{try{handlePlayerMsg(r.slot,JSON.parse(e.data))}catch(err){console.error(err)}};
+            channel.onclose=()=>{
+                if(channels[r.slot]===channel)delete channels[r.slot];
+                const pp=S.players.find(x=>x.slot===r.slot);
+                if(pp)pp.connected=false;
+                render();
+            };
+
+            sendTo(r.slot,{t:'welcome',d:{id:player.id,players:S.players.map(p=>({id:p.id,name:p.name,alive:p.alive,connected:p.connected})),settings:S.settings}});
+            broadcast({t:'plist',d:{players:S.players.map(p=>({id:p.id,name:p.name,alive:p.alive,connected:p.connected}))}});
+            // Make sure freshly-connected peers get the latest settings.
+            broadcast({t:'settings',d:S.settings});
+            if(S.players.filter(p=>p.name.toLowerCase()===name.toLowerCase()).length>1){
+                sendTo(r.slot,{t:'nameError',d:{msg:'Name "'+name+'" is already taken. Please choose a different name.'}});
+            }
+            render();
+            return;
+        }catch(e){
+            console.log('WebRTC attempt '+(attempt+1)+'/'+MAX_ATTEMPTS+' failed for slot '+r.slot,e);
+            if(attempt<MAX_ATTEMPTS-1)await sleep(2000+attempt*1500);
+        }
+    }
+    S.connectMsg='';
+    if(S.screen==='lobby')render();
+    console.log('Could not connect to player at slot '+r.slot+' after '+MAX_ATTEMPTS+' attempts');
+}
+
+function hostPersistAndBroadcastSettings(){
+    if(!S.isHost)return;
+    // Persist for any future joiners reading lobby info.
+    try{iota.storage.setShared('uc:'+S.gameCode+':lobby',JSON.stringify(S.settings)).catch(()=>{});}catch(e){}
+    broadcast({t:'settings',d:S.settings});
 }
 
 function sendTo(slot,msg){
@@ -1246,6 +1353,7 @@ function handleHostMsg(msg){
         case'welcome':
             S.myId=msg.d.id;
             S.players=msg.d.players.map(p=>({...p,slot:p.slot||0}));
+            if(msg.d.settings)S.settings=msg.d.settings;
             render();
             break;
         case'plist':
@@ -1257,6 +1365,10 @@ function handleHostMsg(msg){
                     S.namePending=false;S.nameError='';
                 }
             }
+            render();
+            break;
+        case'settings':
+            S.settings=msg.d||S.settings;
             render();
             break;
         case'w':
@@ -1325,6 +1437,9 @@ function applyStateView(v){
         S.roles=v.roles||{};
         S.screen='over';
     }else{
+        // Moving back to game clears prior winner state (e.g. Next Round from over screen).
+        S.winner=null;S.winDetail='';
+        S.eliminated=v.eliminated||[];
         S.screen='game';
     }
 
