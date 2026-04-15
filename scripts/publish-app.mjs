@@ -166,51 +166,37 @@ async function main() {
     const newAppId = appObjChange.objectId;
     const newCapId = capObjChange?.objectId;
     console.log(`App created: ${newAppId}`);
+    console.log(`TX owner field: ${JSON.stringify(appObjChange.owner)}`);
 
-    // Extract the initial shared version for the App shared object.
-    // Priority 1: owner field in the objectChange (most reliable — available immediately).
-    // Priority 2: version field on the objectChange (equals initial_shared_version for new objects).
-    // Priority 3: re-fetch from chain (fallback).
+    // Always re-fetch the object from the chain to get the confirmed owner/shared state.
+    // The objectChanges in the TX result can report an intermediate owner that doesn't
+    // yet reflect public_share_object; polling the fullnode gives us the committed state.
     let appSharedVersion = null;
-
-    // Priority 1 & 2 — from TX1 result
-    if (typeof appObjChange.owner === 'object' && appObjChange.owner !== null) {
-        const ow = appObjChange.owner;
-        if ('Shared' in ow) {
-            appSharedVersion = String(ow.Shared.initial_shared_version);
-        }
-    }
-    if (!appSharedVersion && appObjChange.version) {
-        appSharedVersion = String(appObjChange.version);
-    }
-
-    if (chunks.length > 1 && !appSharedVersion) {
-        // Priority 3 — re-fetch from chain
-        console.log('Waiting for object to propagate...');
+    if (chunks.length > 1) {
+        console.log('Waiting for shared object to be available...');
         for (let w = 0; w < 30; w++) {
             try {
                 const obj = await client.getObject({ id: newAppId, options: { showOwner: true } });
                 if (obj.data) {
                     const owner = obj.data.owner;
+                    console.log(`  poll ${w + 1}: version=${obj.data.version} owner=${JSON.stringify(owner)}`);
                     if (typeof owner === 'object' && owner !== null && 'Shared' in owner) {
                         appSharedVersion = String(owner.Shared.initial_shared_version);
+                        console.log(`Confirmed shared. Initial shared version: ${appSharedVersion}`);
+                        break;
                     }
-                    // Last-resort: use current object version as proxy
-                    if (!appSharedVersion && obj.data.version) {
-                        appSharedVersion = String(obj.data.version);
-                    }
-                    console.log(`Object found, version: ${obj.data.version}, shared: ${appSharedVersion}`);
-                    break;
                 }
-            } catch {
-                /* not ready yet */
+            } catch (e) {
+                console.log(`  poll ${w + 1}: not ready yet (${e.message})`);
             }
             await new Promise((r) => setTimeout(r, 2000));
         }
-    }
 
-    if (appSharedVersion) {
-        console.log(`Initial shared version: ${appSharedVersion}`);
+        if (!appSharedVersion) {
+            console.error('App object did not become shared within timeout.');
+            console.error('Owner from TX result:', JSON.stringify(appObjChange.owner));
+            process.exit(1);
+        }
     }
 
     // Append remaining chunks if any
