@@ -147,8 +147,7 @@
         localStorage.setItem(STARRED_KEY, JSON.stringify([...set]));
     }
     let starred: Set<string> = $state(loadStarred());
-    function toggleStar(id: string, e: MouseEvent) {
-        e.stopPropagation();
+    function toggleStar(id: string) {
         const next = new Set(starred);
         if (next.has(id)) next.delete(id);
         else next.add(id);
@@ -1185,38 +1184,6 @@
         </div>
     </header>
 
-    <details class="panel config-panel">
-        <summary>Package configuration</summary>
-        <p class="muted">
-            Override the Move package / object ids if you deployed your own instance. Otherwise the
-            defaults point at the canonical devnet deployment.
-        </p>
-        <label>
-            Package ID
-            <input
-                bind:value={$onChainAppsConfig.packageId}
-                placeholder="0x..."
-                spellcheck="false"
-            />
-        </label>
-        <label>
-            Registry object ID (shared)
-            <input
-                bind:value={$onChainAppsConfig.registryId}
-                placeholder="0x..."
-                spellcheck="false"
-            />
-        </label>
-        <label>
-            Generic storage object ID (shared)
-            <input
-                bind:value={$onChainAppsConfig.storageId}
-                placeholder="0x..."
-                spellcheck="false"
-            />
-        </label>
-    </details>
-
     {#if statusMessage}
         <div class="status" class:error={statusIsError}>{statusMessage}</div>
     {/if}
@@ -1365,7 +1332,7 @@
                     {@const initials = app.name.trim().split(/\s+/).slice(0, 2).map((w: string) => w[0]?.toUpperCase() ?? '').join('') || '?'}
                     {@const hue = [...app.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) & 0xffff, 0) % 360}
                     <li>
-                        <div class="app-card" onclick={() => openApp(app.id)} role="button" tabindex="0" onkeydown={(e) => e.key === 'Enter' && openApp(app.id)}>
+                        <div class="app-card">
                             <div class="app-card-top">
                                 <div class="app-avatar" style="--hue:{hue}">{initials}</div>
                                 <div class="app-card-title">
@@ -1375,7 +1342,7 @@
                                 <button
                                     class="star-btn"
                                     class:starred={starred.has(app.id)}
-                                    onclick={(e) => toggleStar(app.id, e)}
+                                    onclick={() => toggleStar(app.id)}
                                     title={starred.has(app.id) ? 'Unstar' : 'Star'}
                                     aria-label={starred.has(app.id) ? 'Unstar' : 'Star'}
                                 >★</button>
@@ -1385,7 +1352,7 @@
                             {/if}
                             <div class="app-card-footer">
                                 <span class="app-date">{formatDate(app.publishedAtMs)}</span>
-                                <span class="app-id-short" title={app.id}>{app.id.slice(0, 6)}…{app.id.slice(-4)}</span>
+                                <button class="open-btn" onclick={() => openApp(app.id)}>Open →</button>
                             </div>
                         </div>
                     </li>
@@ -1486,6 +1453,7 @@
 
     <details class="panel key-panel">
         <summary>Sandbox signer</summary>
+
         <p class="muted">
             A random Ed25519 key is used for every tx this page signs. It is kept in your browser's
             <code>localStorage</code>. Devnet only.
@@ -1514,6 +1482,38 @@
                 View in explorer ↗
             </a>
         </div>
+    </details>
+
+    <details class="panel config-panel">
+        <summary>Package configuration</summary>
+        <p class="muted">
+            Override the Move package / object ids if you deployed your own instance. Otherwise the
+            defaults point at the canonical devnet deployment.
+        </p>
+        <label>
+            Package ID
+            <input
+                bind:value={$onChainAppsConfig.packageId}
+                placeholder="0x..."
+                spellcheck="false"
+            />
+        </label>
+        <label>
+            Registry object ID (shared)
+            <input
+                bind:value={$onChainAppsConfig.registryId}
+                placeholder="0x..."
+                spellcheck="false"
+            />
+        </label>
+        <label>
+            Generic storage object ID (shared)
+            <input
+                bind:value={$onChainAppsConfig.storageId}
+                placeholder="0x..."
+                spellcheck="false"
+            />
+        </label>
     </details>
 </main>
 
@@ -1642,14 +1642,6 @@
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 12px;
-        transition: background 0.15s, border-color 0.15s, transform 0.15s;
-        cursor: pointer;
-    }
-
-    .app-card:hover {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.15);
-        transform: translateY(-1px);
     }
 
     .app-card-top {
@@ -1748,10 +1740,22 @@
         color: rgba(255, 255, 255, 0.35);
     }
 
-    .app-id-short {
-        font-family: ui-monospace, Menlo, Consolas, monospace;
-        font-size: 0.7rem;
-        color: rgba(255, 255, 255, 0.25);
+    .open-btn {
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 6px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+        white-space: nowrap;
+    }
+
+    .open-btn:hover {
+        background: rgba(255, 255, 255, 0.13);
+        border-color: rgba(255, 255, 255, 0.25);
     }
 
     .skill-docs {
