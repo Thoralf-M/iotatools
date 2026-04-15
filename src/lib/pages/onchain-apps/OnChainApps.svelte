@@ -1225,6 +1225,21 @@
 
             <details class="skill-docs">
                 <summary>App development guide (SKILL.md)</summary>
+                <div class="skill-toolbar">
+                    <a
+                        href="https://github.com/thoralf-m/iotatools/blob/main/.claude/skills/onchain-apps/SKILL.md"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="skill-link"
+                    >View on GitHub ↗</a>
+                    <button
+                        class="skill-copy"
+                        onclick={() => navigator.clipboard.writeText(skillMd).then(() => {
+                            const btn = document.querySelector('.skill-copy') as HTMLButtonElement;
+                            if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy'; }, 2000); }
+                        })}
+                    >Copy</button>
+                </div>
                 <pre class="skill-pre">{skillMd}</pre>
             </details>
         </section>
@@ -1775,6 +1790,42 @@
 
     .skill-docs > summary:hover {
         color: rgba(255, 255, 255, 0.85);
+    }
+
+    .skill-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-top: 0.6rem;
+    }
+
+    .skill-link {
+        font-size: 0.78rem;
+        color: rgba(255, 255, 255, 0.45);
+        text-decoration: none;
+    }
+
+    .skill-link:hover {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: underline;
+    }
+
+    .skill-copy {
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 5px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+
+    .skill-copy:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.9);
     }
 
     .skill-pre {
