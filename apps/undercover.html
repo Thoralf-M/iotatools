@@ -214,7 +214,7 @@ const COLORS=['#58a6ff','#f0883e','#3fb950','#bc8cff','#f85149','#d29922','#79c0
    ============================== */
 let S={
     screen:'home',isHost:false,
-    gameCode:'',myName:'',myAddr:'',mySlot:-1,myId:-1,
+    gameCode:'',myName:'',myAddr:'',mySlot:-1,myId:-1,appId:'',
     settings:{difficulty:'medium',numUndercover:1,mrWhite:true},
     players:[],
     phase:'',round:0,
@@ -445,8 +445,17 @@ function renderLobby(){
 
     APP().innerHTML=`
     <h2>Game Lobby</h2>
-    <div class="game-code" onclick="copyCode()">${S.gameCode}</div>
-    <p class="game-code-hint">Tap code to copy &middot; Share with other players</p>
+    <div class="card" style="margin-bottom:12px;padding:14px 16px">
+        <div style="font-size:11px;font-weight:700;color:#768390;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Invite players</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+            <div class="game-code" style="flex:1;font-size:22px;letter-spacing:6px;padding:10px 12px;margin:0">${S.gameCode}</div>
+        </div>
+        <div style="font-size:11px;color:#768390;margin-bottom:10px">Enter this code on the Join screen &mdash; or share the invite link below.</div>
+        <div style="display:flex;gap:6px">
+            <button class="btn btn-secondary btn-sm" style="flex:1;padding:10px" onclick="copyCode()">Copy code</button>
+            <button class="btn btn-secondary btn-sm" style="flex:1;padding:10px" onclick="copyInviteLink()">Copy invite link</button>
+        </div>
+    </div>
     ${renameHtml}
     <div class="card">
         <h3>Players (${S.players.length})</h3>
@@ -851,6 +860,17 @@ window.copyCode=function(){
     if(navigator.clipboard&&navigator.clipboard.writeText){
         navigator.clipboard.writeText(code).then(()=>toast('Code copied!')).catch(()=>fallbackCopy(code));
     }else{fallbackCopy(code)}
+};
+function inviteUrl(){
+    if(!S.appId||!S.gameCode)return null;
+    return 'https://iotatools.dev/#/onchain-apps?appId='+encodeURIComponent(S.appId)+'&code='+encodeURIComponent(S.gameCode);
+}
+window.copyInviteLink=function(){
+    const url=inviteUrl();
+    if(!url){toast('App ID not ready yet');return;}
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(url).then(()=>toast('Invite link copied!')).catch(()=>fallbackCopy(url));
+    }else{fallbackCopy(url)}
 };
 function fallbackCopy(text){
     const ta=document.createElement('textarea');
@@ -1452,8 +1472,18 @@ function endGame(winner,detail){
    INIT
    ============================== */
 try{
-    const [addr]=await Promise.all([iota.getAddress(),iota.getNetwork()]);
+    const [addr,appId,paramCode]=await Promise.all([
+        iota.getAddress(),
+        iota.getAppId(),
+        iota.localStorage.get('_param_code')
+    ]);
     S.myAddr=addr;
+    S.appId=appId||'';
+    if(paramCode){
+        S.gameCode=paramCode.toUpperCase().slice(0,6);
+        S.screen='join';
+        await iota.localStorage.remove('_param_code');
+    }
     render();
 }catch(e){
     APP().innerHTML='<div class="status-msg" style="color:#f85149">Failed to connect: '+(e.message||e)+'</div>';
