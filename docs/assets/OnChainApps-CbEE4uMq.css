@@ -1,0 +1,421 @@
+
+    main.svelte-1r06gu {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .top.svelte-1r06gu {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .top-actions.svelte-1r06gu {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .subtitle.svelte-1r06gu {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .panel.svelte-1r06gu {
+        padding: 1rem;
+        border: 1px solid rgba(156, 163, 175, 0.2);
+        border-radius: 8px;
+        background: rgba(55, 65, 81, 0.15);
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .panel.svelte-1r06gu h3:where(.svelte-1r06gu) {
+        margin: 0 0 0.25rem 0;
+    }
+
+    details.panel.svelte-1r06gu > summary:where(.svelte-1r06gu) {
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1rem;
+        list-style: revert;
+    }
+
+    details.panel.svelte-1r06gu > summary:where(.svelte-1r06gu):hover {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    details.panel[open].svelte-1r06gu > summary:where(.svelte-1r06gu) {
+        margin-bottom: 0.5rem;
+    }
+
+    .muted.svelte-1r06gu {
+        color: rgba(255, 255, 255, 0.65);
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    .kv.svelte-1r06gu {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    label.svelte-1r06gu {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        font-size: 0.9rem;
+    }
+
+    input.svelte-1r06gu:not([type]),
+    textarea.svelte-1r06gu {
+        font-family: inherit;
+        padding: 0.4rem 0.5rem;
+        border-radius: 4px;
+        border: 1px solid rgba(156, 163, 175, 0.4);
+        background: rgba(0, 0, 0, 0.25);
+        color: inherit;
+        font-size: 0.9rem;
+    }
+
+    textarea.svelte-1r06gu {
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    button.svelte-1r06gu {
+        padding: 0.4rem 0.75rem;
+        border-radius: 4px;
+        border: 1px solid rgba(156, 163, 175, 0.4);
+        background: rgba(55, 65, 81, 0.5);
+        color: inherit;
+        cursor: pointer;
+    }
+
+    button.svelte-1r06gu:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .apps.svelte-1r06gu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .app-card.svelte-1r06gu {
+        width: 100%;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+    }
+
+    .app-card-top.svelte-1r06gu {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .app-avatar.svelte-1r06gu {
+        flex-shrink: 0;
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+        font-weight: 800;
+        background: hsl(var(--hue), 55%, 18%);
+        border: 1px solid hsl(var(--hue), 55%, 30%);
+        color: hsl(var(--hue), 80%, 72%);
+        letter-spacing: -0.5px;
+    }
+
+    .app-card-title.svelte-1r06gu {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+    }
+
+    .app-name.svelte-1r06gu {
+        font-weight: 700;
+        font-size: 0.95rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .app-size.svelte-1r06gu {
+        font-size: 0.72rem;
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    .star-btn.svelte-1r06gu {
+        flex-shrink: 0;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.1rem;
+        line-height: 1;
+        padding: 2px 4px;
+        color: rgba(255, 255, 255, 0.18);
+        transition: color 0.15s, transform 0.12s;
+        border-radius: 4px;
+    }
+
+    .star-btn.svelte-1r06gu:hover {
+        color: #facc15;
+        transform: scale(1.15);
+    }
+
+    .star-btn.starred.svelte-1r06gu {
+        color: #facc15;
+    }
+
+    .apps-divider.svelte-1r06gu {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.07);
+        margin: 0.25rem 0;
+    }
+
+    .app-desc.svelte-1r06gu {
+        font-size: 0.82rem;
+        color: rgba(255, 255, 255, 0.55);
+        line-height: 1.45;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .app-card-footer.svelte-1r06gu {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+        padding-top: 0.4rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .app-date.svelte-1r06gu {
+        font-size: 0.72rem;
+        color: rgba(255, 255, 255, 0.35);
+    }
+
+    .open-btn.svelte-1r06gu {
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 6px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+        white-space: nowrap;
+    }
+
+    .open-btn.svelte-1r06gu:hover {
+        background: rgba(255, 255, 255, 0.13);
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .skill-docs.svelte-1r06gu {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding-top: 0.75rem;
+        margin-top: 0.25rem;
+    }
+
+    .skill-docs.svelte-1r06gu > summary:where(.svelte-1r06gu) {
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.55);
+        list-style: revert;
+        user-select: none;
+    }
+
+    .skill-docs.svelte-1r06gu > summary:where(.svelte-1r06gu):hover {
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    .skill-toolbar.svelte-1r06gu {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-top: 0.6rem;
+    }
+
+    .skill-link.svelte-1r06gu {
+        font-size: 0.78rem;
+        color: rgba(255, 255, 255, 0.45);
+        text-decoration: none;
+    }
+
+    .skill-link.svelte-1r06gu:hover {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: underline;
+    }
+
+    .skill-copy.svelte-1r06gu {
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 5px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+
+    .skill-copy.svelte-1r06gu:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .skill-pre.svelte-1r06gu {
+        margin-top: 0.75rem;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 8px;
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        font-size: 0.78rem;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: rgba(255, 255, 255, 0.75);
+        max-height: 600px;
+        overflow-y: auto;
+    }
+
+    .key-info.svelte-1r06gu {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .key-row.svelte-1r06gu {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+        align-items: baseline;
+    }
+
+    .address-code.svelte-1r06gu {
+        word-break: break-all;
+        font-size: 0.8rem;
+    }
+
+    .viewer-header.svelte-1r06gu {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .my-apps-header.svelte-1r06gu {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .viewer-actions.svelte-1r06gu {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    iframe.svelte-1r06gu {
+        width: 100%;
+        min-height: 200px;
+        border: 1px solid rgba(156, 163, 175, 0.3);
+        border-radius: 6px;
+        background: white;
+    }
+
+    iframe.iframe-maximized.svelte-1r06gu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh !important;
+        min-height: 100vh;
+        border: none;
+        border-radius: 0;
+        z-index: 9999;
+    }
+
+    /* Prevent body scroll when app is maximized. Applied via JS. */
+    body.app-maximized {
+        overflow: hidden !important;
+    }
+
+    .maximize-exit-btn.svelte-1r06gu {
+        position: fixed;
+        top: 12px;
+        right: 12px;
+        z-index: 10000;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+        transition: opacity 0.2s;
+        opacity: 0.7;
+    }
+
+    .maximize-exit-btn.svelte-1r06gu:hover {
+        opacity: 1;
+    }
+
+    .status.svelte-1r06gu {
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        background: rgba(59, 130, 246, 0.15);
+        border: 1px solid rgba(59, 130, 246, 0.4);
+        font-size: 0.9rem;
+    }
+
+    .status.error.svelte-1r06gu {
+        background: rgba(220, 38, 38, 0.15);
+        border-color: rgba(220, 38, 38, 0.4);
+    }
+
+    .error-block.svelte-1r06gu {
+        color: #fecaca;
+        background: rgba(220, 38, 38, 0.15);
+        padding: 0.5rem;
+        border-radius: 4px;
+    }
