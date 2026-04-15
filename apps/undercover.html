@@ -123,6 +123,13 @@ label{display:block;font-size:13px;font-weight:600;color:#8b949e;margin-bottom:4
 .text-dim{color:#8b949e}
 .text-sm{font-size:13px}
 .sep{height:1px;background:#21262d;margin:16px 0}
+.chat-messages{max-height:180px;overflow-y:auto;padding:4px 0;margin-bottom:8px}
+.chat-msg{display:flex;gap:6px;padding:5px 8px;border-radius:4px;font-size:13px;margin-bottom:2px}
+.chat-msg:hover{background:#0d1117}
+.chat-name{font-weight:600;flex-shrink:0}
+.chat-text{color:#e6edf3;word-break:break-word}
+.chat-unread{display:inline-block;background:#f85149;color:#fff;border-radius:10px;padding:0 6px;font-size:11px;font-weight:700;margin-left:6px;vertical-align:middle}
+.rename-card{border-color:#f85149 !important}
 </style>
 
 <div id="app"><div class="status-msg"><span class="spinner"></span> Loading...</div></div>
@@ -215,6 +222,7 @@ let S={
     connecting:false,connectMsg:'',
     showRules:false,
     lobbyRunning:false,
+    nameError:'',namePending:false,
 };
 
 let channels={};
@@ -222,6 +230,9 @@ let hostChannel=null;
 let lobbyAbort=false;
 let mrWhiteTimer=null;
 let mrWhiteCountdown=null;
+let chatMessages=[];
+let chatOpen=false;
+let unreadChat=0;
 
 /* ==============================
    UTILITIES
@@ -236,6 +247,23 @@ function pcolor(id){return COLORS[id%COLORS.length]}
 function toast(msg){
     const d=document.createElement('div');d.className='copy-toast';d.textContent=msg;
     document.body.appendChild(d);setTimeout(()=>d.remove(),2000);
+}
+
+function appendChatMsg(m){
+    const container=$('chat-msgs');
+    if(!container)return;
+    const ph=container.querySelector('p.text-dim');if(ph)ph.remove();
+    const div=document.createElement('div');div.className='chat-msg';
+    div.innerHTML=`<span class="chat-name" style="color:${pcolor(m.id)}">${esc(m.name)}:</span> <span class="chat-text">${esc(m.text)}</span>`;
+    container.appendChild(div);
+    container.scrollTop=container.scrollHeight;
+    setTimeout(()=>iota.resize(document.body.scrollHeight+40),50);
+}
+
+function updateChatBadge(){
+    const hdr=$('chat-header');if(!hdr)return;
+    const h3=hdr.querySelector('h3');if(!h3)return;
+    h3.innerHTML=`Chat${unreadChat>0?`<span class="chat-unread">${unreadChat}</span>`:''}`;
 }
 
 /* ==============================
@@ -254,6 +282,50 @@ function render(){
     setTimeout(()=>iota.resize(document.body.scrollHeight+40),50);
 }
 
+function rulesHtml(){
+    return `<div class="card" style="cursor:pointer" onclick="toggleRules()">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+            <h3 style="margin:0">How to Play</h3>
+            <span style="color:#8b949e">${S.showRules?'Hide':'Show'}</span>
+        </div>
+        ${S.showRules?`<div class="rules-box mt8">
+            <ol>
+                <li>Players are secretly assigned roles: <b style="color:#58a6ff">Citizen</b>, <b style="color:#f85149">Undercover</b>, or <b style="color:#bc8cff">Mr. White</b></li>
+                <li><b style="color:#58a6ff">Citizens</b> all get the same word. <b style="color:#f85149">Undercovers</b> get a similar but different word. <b style="color:#bc8cff">Mr. White</b> gets no word &mdash; their card shows "Mr. White".</li>
+                <li>You see your word but <b>NOT your role</b> &mdash; you don't know if your word is the citizen or undercover word!</li>
+                <li>Each round, take turns giving a <b>clue</b> about your word (one word or short phrase)</li>
+                <li>After clues, <b>vote</b> to eliminate who you think is the undercover</li>
+                <li>The eliminated player's <b>role is revealed</b></li>
+                <li><b style="color:#58a6ff">Citizens win</b> by eliminating all undercovers and Mr. White</li>
+                <li><b style="color:#f85149">Undercovers win</b> if they survive until they outnumber citizens</li>
+                <li>If <b style="color:#bc8cff">Mr. White</b> is eliminated, they get one chance to guess the citizen word &mdash; if correct, they win alone!</li>
+            </ol>
+        </div>`:''}
+    </div>`;
+}
+
+function chatHtml(){
+    const msgs=chatMessages.slice(-100).map(m=>`
+        <div class="chat-msg">
+            <span class="chat-name" style="color:${pcolor(m.id)}">${esc(m.name)}:</span>
+            <span class="chat-text">${esc(m.text)}</span>
+        </div>`).join('');
+    return `<div class="card">
+        <div id="chat-header" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="toggleChat()">
+            <h3 style="margin:0">Chat${unreadChat>0?`<span class="chat-unread">${unreadChat}</span>`:''}</h3>
+            <span style="color:#8b949e">${chatOpen?'Hide':'Show'}</span>
+        </div>
+        ${chatOpen?`
+        <div class="chat-messages mt8" id="chat-msgs">
+            ${msgs||'<p class="text-dim text-sm text-center" style="padding:8px">No messages yet</p>'}
+        </div>
+        <div class="clue-input-row">
+            <input id="chat-input" type="text" maxlength="200" placeholder="Say something..." onkeydown="if(event.key==='Enter')sendChat()">
+            <button class="btn btn-secondary btn-sm" onclick="sendChat()">Send</button>
+        </div>`:''}
+    </div>`;
+}
+
 function renderHome(){
     APP().innerHTML=`
     <div class="mt20">
@@ -268,25 +340,7 @@ function renderHome(){
         <button class="btn btn-primary mb8" onclick="goCreate()">Create Game</button>
         <button class="btn btn-secondary" onclick="goJoin()">Join Game</button>
     </div>
-    <div class="card" style="cursor:pointer" onclick="toggleRules()">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-            <h3 style="margin:0">How to Play</h3>
-            <span style="color:#8b949e">${S.showRules?'Hide':'Show'}</span>
-        </div>
-        ${S.showRules?`<div class="rules-box mt8">
-            <ol>
-                <li>Players are secretly assigned roles: <b style="color:#58a6ff">Citizen</b>, <b style="color:#f85149">Undercover</b>, or <b style="color:#bc8cff">Mr. White</b></li>
-                <li><b style="color:#58a6ff">Citizens</b> all get the same word. <b style="color:#f85149">Undercovers</b> get a similar but different word. <b style="color:#bc8cff">Mr. White</b> gets no word.</li>
-                <li>You see your word but <b>NOT your role</b> &mdash; you don't know if your word is the citizen or undercover word!</li>
-                <li>Each round, take turns giving a <b>clue</b> about your word (one word or short phrase)</li>
-                <li>After clues, <b>vote</b> to eliminate who you think is the undercover</li>
-                <li>The eliminated player's <b>role is revealed</b></li>
-                <li><b style="color:#58a6ff">Citizens win</b> by eliminating all undercovers and Mr. White</li>
-                <li><b style="color:#f85149">Undercovers win</b> if they survive until they outnumber citizens</li>
-                <li>If <b style="color:#bc8cff">Mr. White</b> is eliminated, they get one chance to guess the citizen word &mdash; if correct, they win alone!</li>
-            </ol>
-        </div>`:''}
-    </div>`;
+    ${rulesHtml()}`;
 }
 
 function renderCreate(){
@@ -358,10 +412,21 @@ function renderLobby(){
             </span>
         </li>`).join('');
 
+    const renameHtml=S.namePending?`
+    <div class="card rename-card">
+        <p class="text-sm mb8" style="color:#f85149">${esc(S.nameError)}</p>
+        <div class="field">
+            <label>Choose a different name</label>
+            <input id="rename-input" type="text" maxlength="20" placeholder="Enter your name" value="${esc(S.myName)}">
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="submitRename()">Update Name</button>
+    </div>`:'';
+
     APP().innerHTML=`
     <h2>Game Lobby</h2>
     <div class="game-code" onclick="copyCode()">${S.gameCode}</div>
     <p class="game-code-hint">Tap code to copy &middot; Share with other players</p>
+    ${renameHtml}
     <div class="card">
         <h3>Players (${S.players.length})</h3>
         <ul class="player-list">${plist}</ul>
@@ -380,7 +445,10 @@ function renderLobby(){
         <button class="btn btn-primary" ${canStart?`onclick="startGame()"`:' disabled'}>
             ${canStart?'Start Game':'Waiting for more players...'}
         </button>`
-    :'<div class="status-msg">Waiting for host to start the game...</div>'}`;
+    :'<div class="status-msg">Waiting for host to start the game...</div>'}
+    ${rulesHtml()}
+    ${chatHtml()}`;
+    if(chatOpen){setTimeout(()=>{const el=$('chat-msgs');if(el)el.scrollTop=el.scrollHeight;},50);}
 }
 
 function renderGame(){
@@ -395,7 +463,7 @@ function renderGame(){
     let wordCard=`<div class="word-card ${S.wordRevealed?'flipped':''}" onclick="flipWord()">
         <div class="word-card-inner">
             <div class="word-card-face word-card-front">Tap to reveal</div>
-            <div class="word-card-face word-card-back ${S.myWord===null?'no-word':''}">${S.myWord===null?'? ? ?':esc(S.myWord)}</div>
+            <div class="word-card-face word-card-back ${S.myWord===null?'no-word':''}">${S.myWord===null?'Mr. White':esc(S.myWord)}</div>
         </div>
     </div>`;
 
@@ -429,11 +497,12 @@ function renderGame(){
             break;
     }
 
-    APP().innerHTML=statsHtml+'<div class="card">'+content+'</div>';
+    APP().innerHTML=statsHtml+'<div class="card">'+content+'</div>'+rulesHtml()+chatHtml();
     if(S.phase==='clue'){
         const ci=$('clue-input');
         if(ci)ci.focus();
     }
+    if(chatOpen){setTimeout(()=>{const el=$('chat-msgs');if(el)el.scrollTop=el.scrollHeight;},50);}
 }
 
 function renderCluePhase(){
@@ -605,7 +674,13 @@ function renderOver(){
             <h3>All Roles</h3>
             ${rolesHtml}
         </div>
-        <button class="btn btn-primary mt16" onclick="goHome()">Play Again</button>
+        ${S.isHost?`
+        <div class="btn-row mt16">
+            <button class="btn btn-primary" onclick="playAgainHost()">Play Again</button>
+            <button class="btn btn-secondary" onclick="goHome()">Exit</button>
+        </div>`:`
+        <button class="btn btn-secondary mt16" onclick="goHome()">Leave Game</button>
+        <div class="status-msg mt8">Waiting for host to start a new game...</div>`}
     </div>`;
 }
 
@@ -617,11 +692,72 @@ window.goHome=function(){
     channels={};hostChannel=null;
     if(mrWhiteTimer)clearTimeout(mrWhiteTimer);
     if(mrWhiteCountdown)clearInterval(mrWhiteCountdown);
+    chatMessages=[];chatOpen=false;unreadChat=0;
     S={...S,screen:'home',isHost:false,gameCode:'',mySlot:-1,myId:-1,
         players:[],phase:'',round:0,myWord:null,wordRevealed:false,
         eliminated:[],winner:null,votes:{},myVote:-1,voteTally:{},
         clues:{},roles:{},connecting:false,lobbyRunning:false,
-        mrWhiteGuessing:false,mrWhiteId:-1};
+        mrWhiteGuessing:false,mrWhiteId:-1,
+        nameError:'',namePending:false};
+    render();
+};
+
+window.playAgainHost=function(){
+    if(!S.isHost)return;
+    if(mrWhiteTimer)clearTimeout(mrWhiteTimer);
+    if(mrWhiteCountdown)clearInterval(mrWhiteCountdown);
+    S.players=S.players.map(p=>({...p,alive:true}));
+    S=Object.assign({},S,{
+        screen:'lobby',phase:'',round:0,
+        myWord:null,wordRevealed:false,
+        eliminated:[],winner:null,winDetail:'',
+        votes:{},myVote:-1,voteTally:{},
+        clues:{},roles:{},
+        speakerOrder:[],currentSpeaker:0,
+        stats:{},voteCount:0,votedIds:[],
+        mrWhiteGuessing:false,mrWhiteId:-1,mrWhiteTimerSec:30,
+        lobbyRunning:true,
+        nameError:'',namePending:false,
+    });
+    broadcast({t:'restart',d:{players:S.players.map(p=>({id:p.id,name:p.name,alive:true,connected:p.connected}))}});
+    lobbyAbort=false;
+    const preDiscovered={};
+    for(const sl in channels)preDiscovered[sl]=true;
+    hostLobbyLoop(preDiscovered);
+    render();
+};
+
+window.toggleChat=function(){
+    chatOpen=!chatOpen;
+    if(chatOpen)unreadChat=0;
+    render();
+};
+
+window.sendChat=function(){
+    const input=$('chat-input');
+    if(!input)return;
+    const text=input.value.trim();
+    if(!text)return;
+    input.value='';
+    if(S.isHost){
+        const m={id:S.myId,name:S.myName,text};
+        chatMessages.push(m);
+        broadcast({t:'chatmsg',d:m});
+        appendChatMsg(m);
+    }else{
+        sendToHost({t:'chat',d:{text}});
+        // echo arrives back via chatmsg from host
+    }
+};
+
+window.submitRename=function(){
+    const input=$('rename-input');
+    if(!input)return;
+    const name=input.value.trim();
+    if(!name){toast('Enter a name');return}
+    S.myName=name;
+    sendToHost({t:'join',d:{name,addr:S.myAddr,slot:S.mySlot}});
+    S.nameError='';S.namePending=false;
     render();
 };
 window.goCreate=function(){S.screen='create';render()};
@@ -860,9 +996,9 @@ window.submitMWGuess=function(){
    ============================== */
 const ICE_SERVERS=[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:stun.cloudflare.com:3478'}];
 
-async function hostLobbyLoop(){
+async function hostLobbyLoop(preDiscovered={}){
     const code=S.gameCode;
-    const discovered={};
+    const discovered={...preDiscovered};
 
     while(!lobbyAbort&&S.screen==='lobby'){
         const checks=[];
@@ -899,6 +1035,9 @@ async function hostLobbyLoop(){
 
                     sendTo(r.slot,{t:'welcome',d:{id:pid,players:S.players.map(p=>({id:p.id,name:p.name,alive:p.alive,connected:p.connected}))}});
                     broadcast({t:'plist',d:{players:S.players.map(p=>({id:p.id,name:p.name,alive:p.alive,connected:p.connected}))}});
+                    if(S.players.filter(p=>p.name.toLowerCase()===name.toLowerCase()).length>1){
+                        sendTo(r.slot,{t:'nameError',d:{msg:'Name "'+name+'" is already taken. Please choose a different name.'}});
+                    }
                     render();
                 }catch(e){
                     console.log('WebRTC attempt '+(attempt+1)+' failed for slot '+r.slot,e);
@@ -954,11 +1093,18 @@ function handlePlayerMsg(slot,msg){
     if(!player)return;
 
     switch(msg.t){
-        case'join':
-            player.name=msg.d.name;
-            broadcast({t:'plist',d:{players:S.players.map(p=>({id:p.id,name:p.name,alive:p.alive,connected:p.connected}))}});
-            render();
+        case'join':{
+            const newName=msg.d.name;
+            const isDup=S.players.some(p=>p.id!==player.id&&p.name.toLowerCase()===newName.toLowerCase());
+            if(isDup){
+                sendTo(player.slot,{t:'nameError',d:{msg:'Name "'+newName+'" is already taken. Please choose a different name.'}});
+            }else{
+                player.name=newName;
+                broadcast({t:'plist',d:{players:S.players.map(p=>({id:p.id,name:p.name,alive:p.alive,connected:p.connected}))}});
+                render();
+            }
             break;
+        }
         case'c':
             if(S.phase!=='clue')return;
             if(S.speakerOrder[S.currentSpeaker]!==player.id)return;
@@ -977,6 +1123,14 @@ function handlePlayerMsg(slot,msg){
             if(S.phase!=='mrwhite_guess')return;
             handleMWGuessResult(msg.d.word);
             break;
+        case'chat':{
+            const cm={id:player.id,name:player.name,text:msg.d.text};
+            chatMessages.push(cm);
+            broadcast({t:'chatmsg',d:cm});
+            if(chatOpen){appendChatMsg(cm);}
+            else{unreadChat++;updateChatBadge();}
+            break;
+        }
     }
 }
 
@@ -996,6 +1150,13 @@ function handleHostMsg(msg){
             break;
         case'plist':
             S.players=msg.d.players.map(p=>({...p,slot:p.slot||0}));
+            // If we had a pending name and host accepted it, clear the error
+            if(S.namePending){
+                const me=S.players[S.myId];
+                if(me&&me.name.toLowerCase()===S.myName.toLowerCase()){
+                    S.namePending=false;S.nameError='';
+                }
+            }
             render();
             break;
         case'w':
@@ -1005,6 +1166,37 @@ function handleHostMsg(msg){
             applyStateView(msg.d);
             render();
             break;
+        case'nameError':
+            S.nameError=msg.d.msg;
+            S.namePending=true;
+            render();
+            break;
+        case'restart':{
+            if(mrWhiteTimer)clearTimeout(mrWhiteTimer);
+            if(mrWhiteCountdown)clearInterval(mrWhiteCountdown);
+            const rPlayers=msg.d.players.map(p=>({...p,slot:p.slot||0}));
+            S=Object.assign({},S,{
+                screen:'lobby',phase:'',round:0,
+                myWord:null,wordRevealed:false,
+                eliminated:[],winner:null,winDetail:'',
+                votes:{},myVote:-1,voteTally:{},
+                clues:{},roles:{},
+                speakerOrder:[],currentSpeaker:0,
+                stats:{},voteCount:0,votedIds:[],
+                mrWhiteGuessing:false,mrWhiteId:-1,mrWhiteTimerSec:30,
+                nameError:'',namePending:false,
+                players:rPlayers,
+            });
+            render();
+            break;
+        }
+        case'chatmsg':{
+            const cm=msg.d;
+            chatMessages.push(cm);
+            if(chatOpen){appendChatMsg(cm);}
+            else{unreadChat++;updateChatBadge();}
+            break;
+        }
     }
 }
 

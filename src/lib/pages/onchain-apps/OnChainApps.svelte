@@ -647,6 +647,11 @@
             selectedAppContent = bytes;
             const html = new TextDecoder().decode(bytes);
             iframeSrcDoc = wrapAppHtml(html);
+            if (!appMaximized) {
+                appMaximized = true;
+                window.scrollTo(0, 0);
+                document.body.classList.add('app-maximized');
+            }
         } catch (err: any) {
             setStatus(`Failed to load app: ${err?.message ?? err}`, true);
             selectedApp = null;
