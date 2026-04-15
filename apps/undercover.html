@@ -2,134 +2,143 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;overflow-x:hidden}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0d1117;color:#e6edf3;display:flex;justify-content:center;padding:12px;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
-#app{width:100%;max-width:460px;padding-bottom:40px}
-h1{font-size:28px;font-weight:800;text-align:center;background:linear-gradient(135deg,#58a6ff,#bc8cff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px}
-h2{font-size:20px;font-weight:700;margin-bottom:12px;text-align:center}
-h3{font-size:16px;font-weight:600;margin-bottom:8px;color:#8b949e}
-.sub{text-align:center;color:#8b949e;font-size:14px;margin:4px 0 20px}
-.card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:16px;margin-bottom:12px}
-.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.btn{display:block;width:100%;padding:14px;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#07080f;background-image:radial-gradient(ellipse at 20% 30%,rgba(88,166,255,.07) 0%,transparent 55%),radial-gradient(ellipse at 80% 70%,rgba(192,132,252,.07) 0%,transparent 55%);color:#f0f6fc;display:flex;justify-content:center;padding:12px;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;min-height:100vh}
+#app{width:100%;max-width:460px;padding-bottom:60px}
+h1{font-size:40px;font-weight:900;text-align:center;background:linear-gradient(135deg,#60a5fa,#a78bfa,#f472b6);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:5px;animation:shimmer 4s linear infinite}
+h2{font-size:20px;font-weight:700;margin-bottom:16px;text-align:center;color:#f0f6fc}
+h3{font-size:12px;font-weight:700;margin-bottom:10px;color:#768390;text-transform:uppercase;letter-spacing:1px}
+.sub{text-align:center;color:#768390;font-size:14px;margin:4px 0 24px;letter-spacing:.3px}
+.card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:12px}
+.btn{display:block;width:100%;padding:15px;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;letter-spacing:.2px}
 .btn:active{transform:scale(.97)}
-.btn-primary{background:#58a6ff;color:#0d1117}
-.btn-primary:hover{background:#79b8ff}
-.btn-secondary{background:#21262d;color:#e6edf3;border:1px solid #30363d}
-.btn-secondary:hover{background:#30363d}
-.btn-danger{background:#f8514933;color:#f85149;border:1px solid #f8514966}
-.btn-success{background:#3fb95033;color:#3fb950;border:1px solid #3fb95066}
-.btn-sm{padding:10px 16px;font-size:14px;width:auto;display:inline-block}
-.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.btn-row{display:flex;gap:8px;margin-top:12px}
-.btn-row .btn{flex:1}
-input,select{width:100%;padding:12px;background:#0d1117;border:1px solid #30363d;border-radius:8px;color:#e6edf3;font-size:15px;outline:none}
-input:focus,select:focus{border-color:#58a6ff}
+.btn-primary{background:linear-gradient(135deg,#3b82f6,#7c3aed);color:#fff;box-shadow:0 4px 20px rgba(59,130,246,.3)}
+.btn-primary:hover{background:linear-gradient(135deg,#60a5fa,#8b5cf6);box-shadow:0 4px 28px rgba(59,130,246,.45)}
+.btn-secondary{background:rgba(255,255,255,.06);color:#e6edf3;border:1px solid rgba(255,255,255,.12)}
+.btn-secondary:hover{background:rgba(255,255,255,.10)}
+.btn-danger{background:rgba(248,81,73,.1);color:#f87171;border:1px solid rgba(248,81,73,.3)}
+.btn-success{background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.3)}
+.btn-sm{padding:10px 18px;font-size:14px;width:auto;display:inline-block}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-row{display:flex;gap:8px;margin-top:14px}.btn-row .btn{flex:1}
+input,select{width:100%;padding:13px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#f0f6fc;font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus{border-color:#60a5fa;box-shadow:0 0 0 3px rgba(88,166,255,.15)}
 select{-webkit-appearance:none;appearance:none;cursor:pointer}
-label{display:block;font-size:13px;font-weight:600;color:#8b949e;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
-.field{margin-bottom:14px}
-.game-code{font-family:'Courier New',monospace;font-size:36px;font-weight:800;letter-spacing:8px;text-align:center;color:#58a6ff;padding:16px;background:#0d1117;border-radius:12px;border:2px dashed #30363d;margin:12px 0;cursor:pointer;transition:border-color .2s}
-.game-code:active{border-color:#58a6ff}
-.game-code-hint{text-align:center;font-size:12px;color:#8b949e;margin-top:4px}
+label{display:block;font-size:12px;font-weight:700;color:#768390;margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px}
+.field{margin-bottom:16px}
+.game-code{font-family:'Courier New',monospace;font-size:36px;font-weight:900;letter-spacing:10px;text-align:center;color:#fff;padding:20px 16px;background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(124,58,237,.12));border-radius:16px;border:1px solid rgba(88,166,255,.3);margin:12px 0;cursor:pointer;box-shadow:0 0 30px rgba(88,166,255,.1),inset 0 1px 0 rgba(255,255,255,.08);transition:all .2s;text-shadow:0 0 24px rgba(88,166,255,.5)}
+.game-code:active{transform:scale(.98)}
+.game-code-hint{text-align:center;font-size:12px;color:#768390;margin-top:6px}
 .player-list{list-style:none}
-.player-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:4px;background:#0d1117;transition:background .2s}
-.player-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.dot-connected{background:#3fb950}
-.dot-pending{background:#d29922;animation:pulse 1.5s infinite}
-.dot-dead{background:#484f58}
-.player-name{flex:1;font-size:15px;font-weight:500}
-.player-role{font-size:12px;font-weight:700;padding:2px 8px;border-radius:4px}
-.role-citizen{background:#58a6ff22;color:#58a6ff}
-.role-undercover{background:#f8514922;color:#f85149}
-.role-mrwhite{background:#bc8cff22;color:#bc8cff}
-.player-you{font-size:11px;color:#8b949e;margin-left:4px}
-.player-host{font-size:11px;color:#d29922;margin-left:4px}
-.player-item.eliminated{opacity:.5;text-decoration:line-through}
-.stats-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.stat{padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;background:#21262d;border:1px solid #30363d}
-.stat-label{color:#8b949e}
-.stat-val{margin-left:4px}
-.phase-badge{display:inline-block;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-.phase-clue{background:#58a6ff22;color:#58a6ff}
-.phase-vote{background:#d2992222;color:#d29922}
-.phase-result{background:#f8514922;color:#f85149}
-.word-card{perspective:600px;cursor:pointer;margin:20px auto;width:100%;max-width:300px;height:160px}
-.word-card-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.player-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;margin-bottom:5px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)}
+.player-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;border:2px solid currentColor;background:rgba(255,255,255,.06)}
+.player-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-connected{background:#34d399;box-shadow:0 0 8px rgba(52,211,153,.8)}
+.dot-pending{background:#f59e0b;animation:pulse 1.5s infinite}
+.dot-dead{background:#3d4147}
+.player-name{flex:1;font-size:15px;font-weight:600}
+.player-role{font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;letter-spacing:.5px}
+.role-citizen{background:rgba(88,166,255,.12);color:#60a5fa;border:1px solid rgba(88,166,255,.22)}
+.role-undercover{background:rgba(248,81,73,.12);color:#f87171;border:1px solid rgba(248,81,73,.22)}
+.role-mrwhite{background:rgba(192,132,252,.12);color:#c084fc;border:1px solid rgba(192,132,252,.22)}
+.player-you{font-size:10px;color:#768390;margin-left:4px;font-weight:500}
+.player-host{font-size:10px;color:#f59e0b;margin-left:4px;font-weight:700}
+.player-item.eliminated{opacity:.4;text-decoration:line-through}
+.stats-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;padding:10px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px}
+.stat{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07)}
+.stat-label{color:#768390}
+.stat-val{margin-left:4px;color:#f0f6fc}
+.phase-badge{display:inline-block;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+.phase-clue{background:rgba(88,166,255,.1);color:#60a5fa;border:1px solid rgba(88,166,255,.22)}
+.phase-vote{background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.22)}
+.phase-result{background:rgba(248,81,73,.1);color:#f87171;border:1px solid rgba(248,81,73,.22)}
+.word-card{perspective:900px;cursor:pointer;margin:24px auto;width:100%;max-width:300px;height:170px}
+.word-card-inner{position:relative;width:100%;height:100%;transition:transform .65s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d}
 .word-card.flipped .word-card-inner{transform:rotateY(180deg)}
-.word-card-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;flex-direction:column;border-radius:16px;font-weight:700}
-.word-card-front{background:#161b22;border:2px solid #30363d;font-size:18px;color:#8b949e}
-.word-card-front::before{content:'?';font-size:48px;display:block;margin-bottom:8px;color:#484f58}
-.word-card-back{background:linear-gradient(135deg,#161b22,#1a1028);border:2px solid #58a6ff;transform:rotateY(180deg);font-size:28px;color:#e6edf3}
-.word-card-back.no-word{border-color:#bc8cff;color:#bc8cff}
-.clue-list{margin:8px 0}
-.clue-item{display:flex;gap:8px;padding:8px 10px;border-radius:6px;margin-bottom:3px;font-size:14px;align-items:flex-start}
-.clue-item.current{background:#58a6ff11;border:1px solid #58a6ff33}
-.clue-item.waiting{opacity:.5}
-.clue-speaker{font-weight:600;flex-shrink:0;min-width:80px}
-.clue-text{color:#8b949e;word-break:break-word}
-.clue-text.submitted{color:#e6edf3}
-.clue-input-row{display:flex;gap:8px;margin-top:8px}
+.word-card-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;flex-direction:column;border-radius:20px;font-weight:700}
+.word-card-front{background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.1);font-size:16px;color:#768390;background-image:radial-gradient(circle at 50% 40%,rgba(88,166,255,.05) 0%,transparent 70%)}
+.word-card-front::before{content:'?';font-size:64px;display:block;margin-bottom:8px;color:rgba(255,255,255,.1);font-weight:900}
+.word-card-back{background:linear-gradient(135deg,rgba(59,130,246,.18),rgba(124,58,237,.18));border:2px solid rgba(88,166,255,.5);transform:rotateY(180deg);font-size:30px;color:#fff;box-shadow:0 0 40px rgba(88,166,255,.2),inset 0 1px 0 rgba(255,255,255,.1);text-shadow:0 0 20px rgba(88,166,255,.6)}
+.word-card-back.no-word{border-color:rgba(192,132,252,.5);color:#c084fc;background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(192,132,252,.1));box-shadow:0 0 40px rgba(192,132,252,.2);text-shadow:0 0 20px rgba(192,132,252,.6)}
+.clue-list{margin:10px 0}
+.clue-item{display:flex;gap:10px;padding:10px 12px;border-radius:10px;margin-bottom:4px;font-size:14px;align-items:flex-start}
+.clue-item.current{background:rgba(88,166,255,.07);border:1px solid rgba(88,166,255,.2);box-shadow:0 0 16px rgba(88,166,255,.05)}
+.clue-item.waiting{opacity:.4}
+.clue-speaker{font-weight:700;flex-shrink:0;min-width:80px}
+.clue-text{color:#768390;word-break:break-word}
+.clue-text.submitted{color:#f0f6fc}
+.clue-input-row{display:flex;gap:8px;margin-top:10px}
 .clue-input-row input{flex:1}
 .clue-input-row .btn{width:auto;padding:12px 20px}
-.vote-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
-.vote-btn{padding:14px 10px;border-radius:10px;background:#21262d;border:2px solid #30363d;cursor:pointer;text-align:center;transition:all .2s}
+.vote-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.vote-btn{padding:16px 10px;border-radius:14px;background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.08);cursor:pointer;text-align:center;transition:all .25s}
 .vote-btn:active{transform:scale(.96)}
-.vote-btn.selected{border-color:#d29922;background:#d2992218}
-.vote-btn .vote-name{font-size:15px;font-weight:600;margin-bottom:2px}
-.vote-btn .vote-count{font-size:12px;color:#8b949e}
-.vote-tally{margin:12px 0}
-.tally-row{display:flex;align-items:center;gap:8px;padding:8px;border-radius:6px;margin-bottom:4px}
-.tally-bar-bg{flex:1;height:24px;background:#21262d;border-radius:4px;overflow:hidden;position:relative}
-.tally-bar{height:100%;border-radius:4px;transition:width .5s;display:flex;align-items:center;padding-left:8px;font-size:12px;font-weight:600}
-.tally-name{min-width:80px;font-size:14px;font-weight:500}
-.tally-votes{min-width:30px;text-align:right;font-size:14px;font-weight:700}
-.eliminated-banner{text-align:center;padding:20px;border-radius:12px;margin:12px 0}
-.eliminated-banner.is-citizen{background:#58a6ff15;border:1px solid #58a6ff44}
-.eliminated-banner.is-undercover{background:#f8514915;border:1px solid #f8514944}
-.eliminated-banner.is-mrwhite{background:#bc8cff15;border:1px solid #bc8cff44}
-.eliminated-name{font-size:22px;font-weight:700;margin-bottom:4px}
-.eliminated-role{font-size:16px;font-weight:600}
-.winner-screen{text-align:center;padding:24px 0}
-.winner-title{font-size:32px;font-weight:800;margin-bottom:8px}
-.winner-sub{font-size:16px;color:#8b949e;margin-bottom:20px}
+.vote-btn.selected{border-color:#f59e0b;background:rgba(245,158,11,.1);box-shadow:0 0 24px rgba(245,158,11,.2)}
+.vote-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;margin:0 auto 8px;background:rgba(255,255,255,.06);border:2px solid currentColor}
+.vote-btn .vote-name{font-size:14px;font-weight:700;margin-bottom:2px}
+.vote-btn .vote-count{font-size:11px;color:#768390}
+.vote-tally{margin:14px 0}
+.tally-row{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;margin-bottom:5px}
+.tally-bar-bg{flex:1;height:28px;background:rgba(255,255,255,.05);border-radius:6px;overflow:hidden}
+.tally-bar{height:100%;border-radius:6px;transition:width .6s cubic-bezier(.4,0,.2,1);display:flex;align-items:center;padding-left:10px;font-size:12px;font-weight:700;color:#fff}
+.tally-name{min-width:80px;font-size:14px;font-weight:600}
+.tally-votes{min-width:30px;text-align:right;font-size:14px;font-weight:800}
+.eliminated-banner{text-align:center;padding:24px 20px;border-radius:16px;margin:14px 0}
+.eliminated-banner.is-citizen{background:linear-gradient(135deg,rgba(88,166,255,.08),rgba(88,166,255,.03));border:1px solid rgba(88,166,255,.25);box-shadow:0 0 30px rgba(88,166,255,.07)}
+.eliminated-banner.is-undercover{background:linear-gradient(135deg,rgba(248,81,73,.1),rgba(248,81,73,.03));border:1px solid rgba(248,81,73,.3);box-shadow:0 0 30px rgba(248,81,73,.08)}
+.eliminated-banner.is-mrwhite{background:linear-gradient(135deg,rgba(192,132,252,.1),rgba(192,132,252,.03));border:1px solid rgba(192,132,252,.3);box-shadow:0 0 30px rgba(192,132,252,.08)}
+.eliminated-name{font-size:26px;font-weight:900;margin-bottom:6px}
+.eliminated-role{font-size:15px;font-weight:600}
+.voter-list{margin-top:10px;display:flex;flex-wrap:wrap;gap:5px;justify-content:center}
+.voter-chip{padding:3px 9px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:12px}
+.winner-screen{text-align:center;padding:32px 0}
+.winner-title{font-size:40px;font-weight:900;margin-bottom:8px;text-shadow:0 0 40px currentColor;animation:winPulse 2s ease-in-out infinite}
+.winner-sub{font-size:15px;color:#768390;margin-bottom:20px}
 .roles-reveal{text-align:left;margin:16px 0}
-.role-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-radius:6px;margin-bottom:4px;background:#0d1117}
-.words-reveal{text-align:center;margin:16px 0;padding:16px;background:#0d1117;border-radius:10px}
-.words-reveal .pair{font-size:13px;color:#8b949e;margin-bottom:4px}
-.words-reveal .word{font-size:18px;font-weight:700}
+.role-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:10px;margin-bottom:5px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+.words-reveal{text-align:center;margin:16px 0;padding:20px;background:rgba(255,255,255,.03);border-radius:14px;border:1px solid rgba(255,255,255,.07)}
+.words-reveal .pair{font-size:12px;color:#768390;margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px}
+.words-reveal .word{font-size:22px;font-weight:800;margin-bottom:4px}
+.vote-history{margin:16px 0}
+.vh-round{margin-bottom:14px}
+.vh-label{font-size:11px;font-weight:800;color:#768390;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.vh-row{display:flex;align-items:center;gap:8px;padding:5px 10px;border-radius:8px;font-size:13px;margin-bottom:3px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04)}
+.vh-voter{flex:1;font-weight:600}
+.vh-arrow{color:#768390;font-size:11px;flex-shrink:0;padding:0 2px}
+.vh-target{font-weight:700}
 .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0}
-.toggle{width:48px;height:26px;border-radius:13px;background:#30363d;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
-.toggle.on{background:#58a6ff}
-.toggle::after{content:'';position:absolute;width:22px;height:22px;border-radius:50%;background:#e6edf3;top:2px;left:2px;transition:transform .2s}
+.toggle{width:50px;height:28px;border-radius:14px;background:rgba(255,255,255,.1);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;border:1px solid rgba(255,255,255,.1)}
+.toggle.on{background:linear-gradient(135deg,#3b82f6,#7c3aed);border-color:transparent}
+.toggle::after{content:'';position:absolute;width:22px;height:22px;border-radius:50%;background:#fff;top:2px;left:2px;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.4)}
 .toggle.on::after{transform:translateX(22px)}
-.rules-box{font-size:13px;color:#8b949e;line-height:1.6;padding:12px;background:#0d1117;border-radius:8px;margin:8px 0}
-.rules-box b{color:#e6edf3}
-.rules-box ol{padding-left:18px;margin:6px 0}
-.spinner{display:inline-block;width:18px;height:18px;border:2px solid #30363d;border-top-color:#58a6ff;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px}
-.status-msg{text-align:center;color:#8b949e;font-size:14px;padding:16px}
-.mr-white-input{text-align:center;padding:20px 0}
-.mr-white-input h2{color:#bc8cff}
-.timer-bar{height:4px;background:#21262d;border-radius:2px;overflow:hidden;margin:8px 0}
-.timer-fill{height:100%;background:#d29922;transition:width .1s linear}
-.round-history{margin-top:12px}
-.round-label{font-size:12px;font-weight:700;color:#484f58;text-transform:uppercase;letter-spacing:1px;margin:10px 0 4px;padding-top:8px;border-top:1px solid #21262d}
-.copy-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#3fb950;color:#0d1117;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:600;z-index:999;animation:fadeUp .3s ease}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes fadeUp{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+.rules-box{font-size:13px;color:#768390;line-height:1.7;padding:14px;background:rgba(255,255,255,.02);border-radius:10px;margin:10px 0}
+.rules-box b{color:#f0f6fc}
+.rules-box ol{padding-left:18px;margin:8px 0}.rules-box li{margin-bottom:4px}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.1);border-top-color:#60a5fa;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px}
+.status-msg{text-align:center;color:#768390;font-size:14px;padding:16px}
+.mr-white-input{text-align:center;padding:24px 0}
+.mr-white-input h2{color:#c084fc;font-size:24px}
+.timer-bar{height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;margin:10px 0}
+.timer-fill{height:100%;background:linear-gradient(90deg,#34d399,#f59e0b 60%,#f87171);transition:width .1s linear}
+.round-history{margin-top:14px}
+.round-label{font-size:11px;font-weight:800;color:#3d4147;text-transform:uppercase;letter-spacing:1.5px;margin:12px 0 6px;padding-top:10px;border-top:1px solid rgba(255,255,255,.05)}
+.copy-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#34d399,#059669);color:#fff;padding:10px 20px;border-radius:12px;font-size:14px;font-weight:700;z-index:999;animation:fadeUp .3s ease;box-shadow:0 4px 20px rgba(52,211,153,.4)}
+.sep{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);margin:18px 0}
 .hidden{display:none}
 .mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt20{margin-top:20px}
 .mb8{margin-bottom:8px}.mb12{margin-bottom:12px}
-.text-center{text-align:center}
-.text-dim{color:#8b949e}
-.text-sm{font-size:13px}
-.sep{height:1px;background:#21262d;margin:16px 0}
-.chat-messages{max-height:180px;overflow-y:auto;padding:4px 0;margin-bottom:8px}
-.chat-msg{display:flex;gap:6px;padding:5px 8px;border-radius:4px;font-size:13px;margin-bottom:2px}
-.chat-msg:hover{background:#0d1117}
-.chat-name{font-weight:600;flex-shrink:0}
-.chat-text{color:#e6edf3;word-break:break-word}
-.chat-unread{display:inline-block;background:#f85149;color:#fff;border-radius:10px;padding:0 6px;font-size:11px;font-weight:700;margin-left:6px;vertical-align:middle}
-.rename-card{border-color:#f85149 !important}
+.text-center{text-align:center}.text-dim{color:#768390}.text-sm{font-size:13px}
+.chat-messages{max-height:200px;overflow-y:auto;padding:6px 0;margin-bottom:10px}
+.chat-msg{display:flex;gap:6px;padding:6px 10px;border-radius:8px;font-size:13px;margin-bottom:2px;line-height:1.4}
+.chat-msg:hover{background:rgba(255,255,255,.03)}
+.chat-name{font-weight:700;flex-shrink:0}
+.chat-text{color:#c9d1d9;word-break:break-word}
+.chat-unread{display:inline-block;background:#f87171;color:#fff;border-radius:10px;padding:0 7px;font-size:11px;font-weight:800;margin-left:8px;vertical-align:middle}
+.rename-card{border-color:rgba(248,81,73,.4)!important;box-shadow:0 0 20px rgba(248,81,73,.1)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes winPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
 </style>
 
 <div id="app"><div class="status-msg"><span class="spinner"></span> Loading...</div></div>
@@ -243,6 +252,7 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 function genCode(){let c='';for(let i=0;i<6;i++)c+=CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)];return c}
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function pcolor(id){return COLORS[id%COLORS.length]}
+function initial(name){return String(name).trim().charAt(0).toUpperCase()||'?'}
 
 function toast(msg){
     const d=document.createElement('div');d.className='copy-toast';d.textContent=msg;
@@ -328,14 +338,27 @@ function chatHtml(){
 
 function renderHome(){
     APP().innerHTML=`
-    <div class="mt20">
+    <div style="text-align:center;padding:44px 0 20px">
         <h1>UNDERCOVER</h1>
         <p class="sub">A Social Deduction Game</p>
     </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+        <div style="flex:1;padding:14px 10px;border-radius:14px;text-align:center;background:linear-gradient(135deg,rgba(88,166,255,.1),rgba(88,166,255,.04));border:1px solid rgba(88,166,255,.2)">
+            <div style="color:#60a5fa;font-weight:800;font-size:12px;letter-spacing:.8px;text-transform:uppercase">Citizen</div>
+            <div style="font-size:11px;color:#768390;margin-top:4px">Knows the word</div>
+        </div>
+        <div style="flex:1;padding:14px 10px;border-radius:14px;text-align:center;background:linear-gradient(135deg,rgba(248,81,73,.1),rgba(248,81,73,.04));border:1px solid rgba(248,81,73,.2)">
+            <div style="color:#f87171;font-weight:800;font-size:12px;letter-spacing:.8px;text-transform:uppercase">Undercover</div>
+            <div style="font-size:11px;color:#768390;margin-top:4px">Similar word</div>
+        </div>
+        <div style="flex:1;padding:14px 10px;border-radius:14px;text-align:center;background:linear-gradient(135deg,rgba(192,132,252,.1),rgba(192,132,252,.04));border:1px solid rgba(192,132,252,.2)">
+            <div style="color:#c084fc;font-weight:800;font-size:12px;letter-spacing:.8px;text-transform:uppercase">Mr. White</div>
+            <div style="font-size:11px;color:#768390;margin-top:4px">No word!</div>
+        </div>
+    </div>
     <div class="card">
-        <p style="font-size:14px;color:#8b949e;text-align:center;line-height:1.6;margin-bottom:16px">
-            Citizens share a word. Undercovers have a similar one.<br>
-            Give clues. Find the impostors. Don't blow your cover.
+        <p style="font-size:14px;color:#768390;text-align:center;line-height:1.7;margin-bottom:18px">
+            Give clues. Spot the impostors. Don't blow your cover.
         </p>
         <button class="btn btn-primary mb8" onclick="goCreate()">Create Game</button>
         <button class="btn btn-secondary" onclick="goJoin()">Join Game</button>
@@ -405,11 +428,9 @@ function renderLobby(){
     const canStart=S.players.length>=minP;
     const plist=S.players.map((p,i)=>`
         <li class="player-item">
+            <div class="player-avatar" style="color:${pcolor(p.id)}">${initial(p.name)}</div>
+            <span class="player-name" style="color:${pcolor(p.id)}">${esc(p.name)}${p.id===S.myId?'<span class="player-you">(You)</span>':''}${p.id===0?'<span class="player-host">Host</span>':''}</span>
             <span class="player-dot ${p.connected?'dot-connected':'dot-pending'}"></span>
-            <span class="player-name" style="color:${pcolor(p.id)}">${esc(p.name)}
-                ${p.id===S.myId?'<span class="player-you">(You)</span>':''}
-                ${p.id===0?'<span class="player-host">Host</span>':''}
-            </span>
         </li>`).join('');
 
     const renameHtml=S.namePending?`
@@ -570,6 +591,7 @@ function renderVotingPhase(){
 
     let grid=alive.map(p=>`
         <div class="vote-btn ${S.myVote===p.id?'selected':''}" onclick="castVote(${p.id})">
+            <div class="vote-avatar" style="color:${pcolor(p.id)}">${initial(p.name)}</div>
             <div class="vote-name" style="color:${pcolor(p.id)}">${esc(p.name)}</div>
         </div>`).join('');
 
@@ -583,6 +605,21 @@ function renderVotingPhase(){
         ${!canVote&&S.myVote===-1?'<p class="text-center text-dim text-sm mt8">You cannot vote this round</p>':''}
         <p class="text-center text-dim text-sm mt8">Votes: ${votedCount}/${totalVoters}</p>
         ${renderClueHistory(S.round)}`;
+}
+
+function voteBreakdownHtml(votesMap){
+    if(!votesMap||!Object.keys(votesMap).length)return '';
+    const rows=Object.entries(votesMap).map(([vid,tid])=>{
+        const voter=S.players[parseInt(vid)];
+        const target=S.players[parseInt(tid)];
+        if(!voter||!target)return '';
+        return `<div class="vh-row">
+            <span class="vh-voter" style="color:${pcolor(parseInt(vid))}">${esc(voter.name)}</span>
+            <span class="vh-arrow">voted</span>
+            <span class="vh-target" style="color:${pcolor(parseInt(tid))}">${esc(target.name)}</span>
+        </div>`;
+    }).join('');
+    return rows?`<div style="margin-top:10px"><div class="vh-label">Who voted for whom</div>${rows}</div>`:'';
 }
 
 function renderResultPhase(){
@@ -599,7 +636,7 @@ function renderResultPhase(){
             const isElim=lastElim&&lastElim.id===parseInt(pid);
             return `<div class="tally-row">
                 <span class="tally-name" style="color:${pcolor(parseInt(pid))}">${esc(p.name)}</span>
-                <div class="tally-bar-bg"><div class="tally-bar" style="width:${pct}%;background:${isElim?'#f85149':'#30363d'}">${cnt}</div></div>
+                <div class="tally-bar-bg"><div class="tally-bar" style="width:${pct}%;background:${isElim?'#f87171':'rgba(255,255,255,.15)'}">${cnt}</div></div>
                 <span class="tally-votes">${cnt}</span>
             </div>`;
         }).join('');
@@ -609,40 +646,53 @@ function renderResultPhase(){
         const rc=lastElim.role==='citizen'?'is-citizen':(lastElim.role==='undercover'?'is-undercover':'is-mrwhite');
         const rlabel=lastElim.role==='citizen'?'Citizen':(lastElim.role==='undercover'?'Undercover':'Mr. White');
         const rclass=lastElim.role==='citizen'?'role-citizen':(lastElim.role==='undercover'?'role-undercover':'role-mrwhite');
+        // voters who voted for the eliminated player
+        const voterNames=Object.entries(S.votes||{})
+            .filter(([,tid])=>parseInt(tid)===lastElim.id)
+            .map(([vid])=>S.players[parseInt(vid)])
+            .filter(Boolean);
+        const voterChips=voterNames.map(v=>`<span class="voter-chip" style="color:${pcolor(v.id)}">${esc(v.name)}</span>`).join('');
         elimHtml=`<div class="eliminated-banner ${rc}">
             <div class="eliminated-name">${esc(lastElim.name)}</div>
             <div class="eliminated-role"><span class="player-role ${rclass}">${rlabel}</span></div>
+            ${voterChips?`<div class="voter-list">${voterChips}</div>`:''}
         </div>`;
     } else {
-        elimHtml='<div class="eliminated-banner" style="background:#21262d;border:1px solid #30363d"><div class="eliminated-name">No elimination</div><div class="text-dim">It was a tie!</div></div>';
+        elimHtml=`<div class="eliminated-banner" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1)">
+            <div class="eliminated-name">No elimination</div>
+            <div class="text-dim text-sm">It was a tie!</div>
+        </div>`;
     }
 
     return `<span class="phase-badge phase-result">Vote Result</span>
         <div class="vote-tally">${tallyHtml}</div>
         ${elimHtml}
+        ${voteBreakdownHtml(S.votes)}
         ${S.isHost?'<button class="btn btn-primary mt12" onclick="hostAdvance()">Continue</button>':'<div class="status-msg">Waiting for host...</div>'}
         ${renderClueHistory(S.round)}`;
 }
 
 function renderMrWhiteGuess(){
     const isMW=S.myId===S.mrWhiteId;
+    const pct=(S.mrWhiteTimerSec/30)*100;
     if(isMW){
         return `<div class="mr-white-input">
             <h2>You've been caught!</h2>
-            <p class="text-dim mt8 mb12">Guess the Citizens' word to win!</p>
-            <div class="timer-bar"><div class="timer-fill" id="mw-timer" style="width:${(S.mrWhiteTimerSec/30)*100}%"></div></div>
-            <p class="text-sm text-dim mb8">${S.mrWhiteTimerSec}s remaining</p>
+            <p style="color:#c084fc;font-size:28px;margin:6px 0 4px;font-weight:900">${S.mrWhiteTimerSec}s</p>
+            <div class="timer-bar mb12"><div class="timer-fill" id="mw-timer" style="width:${pct}%"></div></div>
+            <p class="text-dim text-sm mb12">Guess the Citizens' word to win!</p>
             <div class="clue-input-row">
                 <input id="mw-guess" type="text" maxlength="40" placeholder="Your guess..." onkeydown="if(event.key==='Enter')submitMWGuess()">
                 <button class="btn btn-primary btn-sm" onclick="submitMWGuess()">Guess</button>
             </div>
         </div>`;
     }
-    return `<div class="text-center" style="padding:20px">
-        <h2 style="color:#bc8cff">Mr. White is guessing...</h2>
-        <p class="text-dim mt8">They have ${S.mrWhiteTimerSec}s to guess the citizen word</p>
-        <div class="timer-bar mt12"><div class="timer-fill" id="mw-timer" style="width:${(S.mrWhiteTimerSec/30)*100}%"></div></div>
-        <div class="spinner mt12"></div>
+    const mwPlayer=S.players[S.mrWhiteId];
+    return `<div class="text-center" style="padding:24px 0">
+        <h2 style="color:#c084fc;font-size:22px;margin-bottom:6px">${mwPlayer?esc(mwPlayer.name)+' is':'Mr. White is'} guessing...</h2>
+        <p style="color:#c084fc;font-size:36px;font-weight:900;margin:8px 0;text-shadow:0 0 20px rgba(192,132,252,.5)">${S.mrWhiteTimerSec}s</p>
+        <div class="timer-bar mt8 mb8"><div class="timer-fill" id="mw-timer" style="width:${pct}%"></div></div>
+        <p class="text-dim text-sm">One chance to guess the citizen word</p>
     </div>`;
 }
 
@@ -660,28 +710,58 @@ function renderOver(){
         </div>`;
     }).join('');
 
+    // Build full vote history across all rounds
+    const voteHistoryHtml=(()=>{
+        if(!S.eliminated.length&&!Object.keys(S.votes||{}).length)return '';
+        let html='<div class="card"><h3>Vote History</h3><div class="vote-history">';
+        S.eliminated.forEach(e=>{
+            if(!e.votes||!Object.keys(e.votes).length)return;
+            const rc=e.role==='citizen'?'role-citizen':(e.role==='undercover'?'role-undercover':'role-mrwhite');
+            const rl=e.role==='citizen'?'Citizen':(e.role==='undercover'?'Undercover':'Mr. White');
+            html+=`<div class="vh-round"><div class="vh-label">Round ${e.round} — eliminated: <span style="font-weight:800">${esc(e.name)}</span> <span class="player-role ${rc}" style="font-size:10px">${rl}</span></div>`;
+            Object.entries(e.votes).forEach(([vid,tid])=>{
+                const voter=S.players[parseInt(vid)];
+                const target=S.players[parseInt(tid)];
+                if(!voter||!target)return;
+                html+=`<div class="vh-row"><span class="vh-voter" style="color:${pcolor(parseInt(vid))}">${esc(voter.name)}</span><span class="vh-arrow">voted</span><span class="vh-target" style="color:${pcolor(parseInt(tid))}">${esc(target.name)}</span></div>`;
+            });
+            html+='</div>';
+        });
+        html+='</div></div>';
+        return html;
+    })();
+
     APP().innerHTML=`
     <div class="winner-screen">
+        <div style="font-size:52px;margin-bottom:4px;line-height:1">${S.winner==='citizens'?'&#x1F3C6;':S.winner==='undercover'?'&#x1F5E1;':'&#x1F977;'}</div>
         <div class="winner-title" style="color:${wc}">${wl}</div>
         <p class="winner-sub">${esc(S.winDetail)}</p>
-        <div class="words-reveal">
-            <div class="pair">Citizen word</div>
-            <div class="word" style="color:#58a6ff">${esc(S.citizenWord)}</div>
-            <div class="pair mt8">Undercover word</div>
-            <div class="word" style="color:#f85149">${esc(S.undercoverWord)}</div>
+    </div>
+    <div class="words-reveal">
+        <div style="display:flex;gap:16px;justify-content:center">
+            <div>
+                <div class="pair">Citizen word</div>
+                <div class="word" style="color:#60a5fa">${esc(S.citizenWord)}</div>
+            </div>
+            <div style="color:rgba(255,255,255,.15);font-size:24px;align-self:center">vs</div>
+            <div>
+                <div class="pair">Undercover word</div>
+                <div class="word" style="color:#f87171">${esc(S.undercoverWord)}</div>
+            </div>
         </div>
-        <div class="roles-reveal">
-            <h3>All Roles</h3>
-            ${rolesHtml}
-        </div>
-        ${S.isHost?`
-        <div class="btn-row mt16">
-            <button class="btn btn-primary" onclick="playAgainHost()">Play Again</button>
-            <button class="btn btn-secondary" onclick="goHome()">Exit</button>
-        </div>`:`
-        <button class="btn btn-secondary mt16" onclick="goHome()">Leave Game</button>
-        <div class="status-msg mt8">Waiting for host to start a new game...</div>`}
-    </div>`;
+    </div>
+    <div class="card">
+        <h3>All Roles</h3>
+        ${rolesHtml}
+    </div>
+    ${voteHistoryHtml}
+    ${S.isHost?`
+    <div class="btn-row mt16">
+        <button class="btn btn-primary" onclick="playAgainHost()">Play Again</button>
+        <button class="btn btn-secondary" onclick="goHome()">Exit</button>
+    </div>`:`
+    <button class="btn btn-secondary mt16" onclick="goHome()">Leave Game</button>
+    <div class="status-msg mt8">Waiting for host to start a new game...</div>`}`;
 }
 
 /* ==============================
@@ -1076,7 +1156,7 @@ function broadcastState(){
         voteTally:S.phase==='result'?S.voteTally:{},
         voteCount:S.phase==='voting'?Object.keys(S.votes).length:0,
         votedIds:S.phase==='voting'?Object.keys(S.votes).map(Number):[],
-        eliminated:S.eliminated.map(e=>({id:e.id,name:e.name,role:e.role,round:e.round})),
+        eliminated:S.eliminated.map(e=>({id:e.id,name:e.name,role:e.role,round:e.round,votes:e.votes||{}})),
         stats:S.stats,winner:S.winner,winDetail:S.winDetail||'',
         citizenWord:S.winner?S.citizenWord:'',
         undercoverWord:S.winner?S.undercoverWord:'',
@@ -1269,7 +1349,7 @@ function checkAllVotes(){
         const elimP=S.players[elimId];
         const role=S.roles[elimId];
         elimP.alive=false;
-        S.eliminated.push({id:elimId,name:elimP.name,role,round:S.round});
+        S.eliminated.push({id:elimId,name:elimP.name,role,round:S.round,votes:{...S.votes}});
         calcStats();
 
         if(role==='mrwhite'){

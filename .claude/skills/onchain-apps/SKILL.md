@@ -245,7 +245,267 @@ They contain your public IP (via ICE candidates). If that is a concern,
 encrypt the SDP blobs with a shared room password before writing, or use a
 TURN server that masks your IP.
 
-## App authoring rules
+## Multi-player apps — proven patterns
+
+Building a real-time multi-player game or tool on top of `iota.webrtc` requires
+a few more patterns beyond the basic two-player example above. These patterns
+are extracted from the working Undercover game and will save you hours of
+debugging.
+
+### Star topology: one host, many players
+
+Do **not** try to build a full-mesh of N*(N-1)/2 peer connections. Instead:
+
+- One player is the **host**: they create one WebRTC connection *per player slot*.
+- All other players are **guests**: each guest connects only to the host.
+- The host is the authoritative game state. It broadcasts a sanitised state
+  snapshot to every connected guest after any state change.
+- Guests only send events to the host (`sendToHost(msg)`); they never talk to
+  each other directly.
+
+```
+Guest A ──┐
+Guest B ──┼──► Host (state authority, relay)
+Guest C ──┘
+```
+
+### Slot-based player discovery
+
+Shared storage is used only for *signaling* (slot booking + SDP exchange).
+Game data flows over the open `RTCDataChannel` — never back through storage.
+
+1. **Host** registers the game by writing lobby info:
+   ```js
+   await iota.storage.setShared('game:' + code + ':lobby', JSON.stringify(settings));
+   ```
+
+2. **Guest** discovers the lobby, then claims an empty slot (with optimistic
+   concurrency — check + write + re-read):
+   ```js
+   for (let slot = 0; slot < MAX_SLOTS; slot++) {
+       const key = 'game:' + code + ':s' + slot;
+       const val = await iota.storage.getShared(key);
+       if (!val) {
+           await iota.storage.setShared(key, name + '\t' + addr);
+           await sleep(2500);                         // wait for race window
+           const verify = await iota.storage.getShared(key);
+           if (verify && verify.includes(addr)) { mySlot = slot; break; }
+       }
+   }
+   ```
+
+3. **Host lobby loop** polls storage for new slots and opens one WebRTC
+   connection per discovered slot. Keep a `discovered` set to avoid
+   re-connecting the same slot.
+
+   ```js
+   async function hostLobbyLoop(preDiscovered = {}) {
+       const discovered = { ...preDiscovered };           // reuse for Play Again
+       while (!lobbyAbort && S.screen === 'lobby') {
+           for (let sl = 0; sl < MAX_SLOTS; sl++) {
+               if (discovered[sl]) continue;
+               const v = await iota.storage.getShared('game:' + code + ':s' + sl);
+               if (!v) continue;
+               discovered[sl] = true;
+               // establish WebRTC connection for this slot …
+           }
+           await sleep(3000);
+       }
+   }
+   ```
+
+4. The host's `channels` object maps `slot → RTCDataChannel`. Use a helper:
+   ```js
+   function sendTo(slot, msg) {
+       const ch = channels[slot];
+       if (ch && ch.readyState === 'open') ch.send(JSON.stringify(msg));
+   }
+   function broadcast(msg) {
+       const data = JSON.stringify(msg);
+       for (const sl in channels) sendTo(sl, data);  // sendTo checks readyState
+   }
+   ```
+
+### Connection reliability — retry + multiple ICE servers
+
+WebRTC connections are not 100% reliable — especially across mobile networks or
+strict NATs. Always:
+
+```js
+const ICE_SERVERS = [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'stun:stun.cloudflare.com:3478' },
+];
+
+// Host side — retry per slot
+for (let attempt = 0; attempt < 2 && !connected; attempt++) {
+    try {
+        const roomId = 'game-' + code + '-' + slot + (attempt > 0 ? '-r' + attempt : '');
+        const { channel } = await iota.webrtc.host({ roomId, iceServers: ICE_SERVERS, timeout: 90000 });
+        // … success
+        connected = true;
+    } catch (e) {
+        if (attempt === 0) await sleep(3000);
+    }
+}
+
+// Guest side — same pattern
+for (let attempt = 0; attempt < 2 && !channel; attempt++) {
+    try {
+        const roomId = 'game-' + code + '-' + mySlot + (attempt > 0 ? '-r' + attempt : '');
+        const res = await iota.webrtc.join({ roomId, iceServers: ICE_SERVERS, timeout: 120000 });
+        channel = res.channel;
+    } catch (e) {
+        if (attempt === 0) await sleep(3000);
+    }
+}
+if (!channel) throw new Error('Could not connect. Use a different browser/device than the host.');
+```
+
+> **Same-browser limitation:** Two tabs on the same browser *can* connect via
+> `BroadcastChannel` (the bridge handles this internally), but WebRTC between
+> two tabs in the same browser often fails or loops. Tell users to test with
+> two different devices or browsers.
+
+### Message protocol
+
+Use a simple `{ t: 'type', d: payload }` envelope for all data channel messages.
+Always wrap `JSON.parse` in a try-catch on the `onmessage` handler:
+
+```js
+channel.onmessage = e => {
+    try { handleMsg(JSON.parse(e.data)); } catch (err) { console.error(err); }
+};
+```
+
+Common message types for a multi-player game:
+
+| Sent by | Type | Payload | Meaning |
+|---------|------|---------|---------|
+| Guest→Host | `join` | `{name, addr, slot}` | Player announces themselves |
+| Host→Guest | `welcome` | `{id, players}` | You are player #id, here's the lobby |
+| Host→All | `plist` | `{players}` | Player list changed |
+| Host→Guest | `w` | `{word}` | Private game assignment |
+| Host→All | `s` | full state view | Authoritative state snapshot |
+| Guest→Host | `c` | `{text}` | Submit a clue |
+| Guest→Host | `v` | `{target}` | Cast a vote |
+| Host→All | `restart` | `{players}` | Play Again — reset state, keep connections |
+| Both directions | `chat` / `chatmsg` | `{text}` / `{id,name,text}` | In-game chat relay |
+
+### State broadcasting — hide private info
+
+The host holds *all* game state (including every player's role and word).
+When broadcasting to guests, strip what they should not see:
+
+```js
+function broadcastState() {
+    const view = {
+        phase: S.phase,
+        players: S.players.map(p => ({ id: p.id, name: p.name, alive: p.alive, connected: p.connected })),
+        // Only reveal words/roles at game end:
+        citizenWord:   S.winner ? S.citizenWord   : '',
+        undercoverWord: S.winner ? S.undercoverWord : '',
+        roles:         S.winner ? S.roles          : {},
+        // Only reveal full votes in result phase:
+        votes:    S.phase === 'result'  ? S.votes    : {},
+        voteTally: S.phase === 'result' ? S.voteTally : {},
+        // ... other non-secret fields
+    };
+    broadcast({ t: 's', d: view });
+}
+```
+
+### Play Again — reuse connections
+
+Do **not** call `goHome()` (which tears down WebRTC) when starting a new round.
+Instead:
+
+1. Reset only the game-state fields, leave `channels` and `players` intact.
+2. Broadcast a `{t:'restart'}` message so guests switch back to the lobby screen.
+3. Restart the lobby loop with slots already in `channels` pre-marked as
+   `discovered` so the loop only picks up *new* players:
+
+```js
+function playAgainHost() {
+    S.players = S.players.map(p => ({ ...p, alive: true }));
+    Object.assign(S, { screen: 'lobby', phase: '', round: 0, /* ... */ });
+    broadcast({ t: 'restart', d: { players: S.players } });
+    const preDiscovered = {};
+    for (const sl in channels) preDiscovered[sl] = true;
+    hostLobbyLoop(preDiscovered);
+    render();
+}
+```
+
+### In-game chat without re-rendering
+
+Appending chat messages via full `render()` calls will erase whatever the
+player is typing in a clue/vote input. Use direct DOM manipulation instead:
+
+```js
+// On receiving a chatmsg (both host and guest)
+function appendChatMsg(m) {
+    const container = document.getElementById('chat-msgs');
+    if (!container) return;
+    const div = document.createElement('div');
+    div.className = 'chat-msg';
+    div.innerHTML = `<b style="color:${pcolor(m.id)}">${esc(m.name)}:</b> ${esc(m.text)}`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+}
+```
+
+Only call `render()` when toggling chat open/closed (which rebuilds the full
+panel anyway).
+
+### Duplicate name prevention
+
+Before accepting a `join` message, check for name collisions:
+
+```js
+case 'join': {
+    const isDup = S.players.some(p => p.id !== player.id &&
+                                      p.name.toLowerCase() === msg.d.name.toLowerCase());
+    if (isDup) {
+        sendTo(player.slot, { t: 'nameError', d: { msg: 'Name already taken' } });
+    } else {
+        player.name = msg.d.name;
+        broadcast({ t: 'plist', d: { players: sanitisedPlayers() } });
+    }
+    break;
+}
+```
+
+The guest shows a rename form when it receives `{t:'nameError'}` and keeps the
+WebRTC connection open until a unique name is accepted.
+
+### Disconnection handling
+
+```js
+channel.onclose = () => {
+    const p = S.players.find(x => x.slot === slot);
+    if (p) p.connected = false;
+    if (S.screen === 'lobby') render();
+};
+```
+
+Mark players as `connected: false` rather than removing them — the host can
+still advance a disconnected speaker (`skipSpeaker`) and votes from alive-but-
+offline players are simply absent (auto-skip them in `checkAllVotes`).
+
+### Preventing blank host status messages during connection
+
+The host's UI shows connecting status while waiting for each slot. Reset it
+after each connection attempt so stale messages don't linger:
+
+```js
+if (!connected) {
+    S.connectMsg = '';  render();
+}
+```
+
+
 
 Keep the payload small and self-contained:
 
