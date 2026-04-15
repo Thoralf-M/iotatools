@@ -1,4 +1,6 @@
 <script lang="ts" module>
+    import skillMd from '../../../../.claude/skills/onchain-apps/SKILL.md?raw';
+
     // The DEFAULT_HTML template literal below embeds a closing script tag.
     // To keep Svelte's own parser from seeing it as the end of this script
     // block, we assemble the closing tag at runtime from two halves.
@@ -130,6 +132,33 @@
 
     let iframeEl: HTMLIFrameElement | undefined = $state();
     let appMaximized = $state(false);
+
+    // --- Starred apps ---
+    const STARRED_KEY = 'onchainApps:starred';
+    function loadStarred(): Set<string> {
+        try {
+            const raw = localStorage.getItem(STARRED_KEY);
+            return new Set(raw ? JSON.parse(raw) : []);
+        } catch {
+            return new Set();
+        }
+    }
+    function saveStarred(set: Set<string>) {
+        localStorage.setItem(STARRED_KEY, JSON.stringify([...set]));
+    }
+    let starred: Set<string> = $state(loadStarred());
+    function toggleStar(id: string) {
+        const next = new Set(starred);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        starred = next;
+        saveStarred(next);
+    }
+    let sortedApps = $derived.by(() => {
+        const pinned = apps.filter((a) => starred.has(a.id));
+        const rest = apps.filter((a) => !starred.has(a.id));
+        return { pinned, rest };
+    });
 
     // --- WebRTC state (connections are managed on the host page for ICE compatibility) ---
 
@@ -472,7 +501,7 @@
     });
 
     onDestroy(() => {
-        // nothing; the effect returns its own cleanup
+        document.body.classList.remove('app-maximized');
     });
 
     // --- helpers ---
@@ -647,6 +676,11 @@
             selectedAppContent = bytes;
             const html = new TextDecoder().decode(bytes);
             iframeSrcDoc = wrapAppHtml(html);
+            if (!appMaximized) {
+                appMaximized = true;
+                window.scrollTo(0, 0);
+                document.body.classList.add('app-maximized');
+            }
         } catch (err: any) {
             setStatus(`Failed to load app: ${err?.message ?? err}`, true);
             selectedApp = null;
@@ -1150,70 +1184,6 @@
         </div>
     </header>
 
-    <section class="panel key-panel">
-        <h3>Sandbox signer</h3>
-        <p class="muted">
-            A random Ed25519 key is used for every tx this page signs. It is kept in your browser's
-            <code>localStorage</code>. Devnet only.
-        </p>
-        <div class="key-info">
-            <div class="key-row">
-                <strong>Network:</strong> {$sharedClientConfig.selected}
-            </div>
-            <div class="key-row">
-                <strong>Address:</strong> <code class="address-code">{randomKey.address}</code>
-            </div>
-            {#if signerBalance}
-                <div class="key-row">
-                    <strong>Balance:</strong> {signerBalance}
-                </div>
-            {/if}
-        </div>
-        <div class="kv">
-            <button onclick={rotateKey}>Generate new random key</button>
-            <button onclick={requestFromFaucet}>Request devnet IOTA from faucet</button>
-            <a
-                href={`${getSelectedNetworkConfig().explorer}/address/${randomKey.address}?network=${$sharedClientConfig.selected}`}
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                View in explorer ↗
-            </a>
-        </div>
-    </section>
-
-    <details class="panel config-panel">
-        <summary>Package configuration</summary>
-        <p class="muted">
-            Override the Move package / object ids if you deployed your own instance. Otherwise the
-            defaults point at the canonical devnet deployment.
-        </p>
-        <label>
-            Package ID
-            <input
-                bind:value={$onChainAppsConfig.packageId}
-                placeholder="0x..."
-                spellcheck="false"
-            />
-        </label>
-        <label>
-            Registry object ID (shared)
-            <input
-                bind:value={$onChainAppsConfig.registryId}
-                placeholder="0x..."
-                spellcheck="false"
-            />
-        </label>
-        <label>
-            Generic storage object ID (shared)
-            <input
-                bind:value={$onChainAppsConfig.storageId}
-                placeholder="0x..."
-                spellcheck="false"
-            />
-        </label>
-    </details>
-
     {#if statusMessage}
         <div class="status" class:error={statusIsError}>{statusMessage}</div>
     {/if}
@@ -1252,6 +1222,26 @@
                     <a href={publishResultUrl}>{publishResultUrl}</a>
                 {/if}
             </div>
+
+            <details class="skill-docs">
+                <summary>App development guide (SKILL.md)</summary>
+                <div class="skill-toolbar">
+                    <a
+                        href="https://github.com/thoralf-m/iotatools/blob/main/.claude/skills/onchain-apps/SKILL.md"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="skill-link"
+                    >View on GitHub ↗</a>
+                    <button
+                        class="skill-copy"
+                        onclick={() => navigator.clipboard.writeText(skillMd).then(() => {
+                            const btn = document.querySelector('.skill-copy') as HTMLButtonElement;
+                            if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy'; }, 2000); }
+                        })}
+                    >Copy</button>
+                </div>
+                <pre class="skill-pre">{skillMd}</pre>
+            </details>
         </section>
     {/if}
 
@@ -1288,7 +1278,7 @@
                 {#if appMaximized}
                     <button
                         class="maximize-exit-btn"
-                        onclick={() => (appMaximized = false)}
+                        onclick={() => { appMaximized = false; document.body.classList.remove('app-maximized'); }}
                         title="Exit fullscreen (Esc)"
                     >
                         ✕
@@ -1341,6 +1331,72 @@
             </div>
         </section>
     {:else}
+        <section class="panel">
+            <h3>Published apps ({apps.length})</h3>
+            {#if loadError}
+                <div class="error-block">{loadError}</div>
+            {/if}
+            {#if loadingList}
+                <p>Loading...</p>
+            {:else if apps.length === 0 && !loadError}
+                <p class="muted">
+                    Nothing published yet. Use <em>+ Publish new app</em> above to upload your first app.
+                </p>
+            {:else}
+                {#snippet appCard(app: AppMetadata)}
+                    {@const initials = app.name.trim().split(/\s+/).slice(0, 2).map((w: string) => w[0]?.toUpperCase() ?? '').join('') || '?'}
+                    {@const hue = [...app.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) & 0xffff, 0) % 360}
+                    <li>
+                        <div class="app-card">
+                            <div class="app-card-top">
+                                <div class="app-avatar" style="--hue:{hue}">{initials}</div>
+                                <div class="app-card-title">
+                                    <div class="app-name">{app.name}</div>
+                                    <div class="app-size">{formatSize(app.totalSize)}</div>
+                                </div>
+                                <button
+                                    class="star-btn"
+                                    class:starred={starred.has(app.id)}
+                                    onclick={() => toggleStar(app.id)}
+                                    title={starred.has(app.id) ? 'Unstar' : 'Star'}
+                                    aria-label={starred.has(app.id) ? 'Unstar' : 'Star'}
+                                >★</button>
+                            </div>
+                            {#if app.description}
+                                <div class="app-desc">{app.description}</div>
+                            {/if}
+                            <div class="app-card-footer">
+                                <span class="app-date">{formatDate(app.publishedAtMs)}</span>
+                                <button class="open-btn" onclick={() => openApp(app.id)}>Open →</button>
+                            </div>
+                        </div>
+                    </li>
+                {/snippet}
+
+                {#if sortedApps.pinned.length > 0}
+                    <ul class="apps">
+                        {#each sortedApps.pinned as app (app.id)}
+                            {@render appCard(app)}
+                        {/each}
+                    </ul>
+                    {#if sortedApps.rest.length > 0}
+                        <div class="apps-divider"></div>
+                        <ul class="apps">
+                            {#each sortedApps.rest as app (app.id)}
+                                {@render appCard(app)}
+                            {/each}
+                        </ul>
+                    {/if}
+                {:else}
+                    <ul class="apps">
+                        {#each sortedApps.rest as app (app.id)}
+                            {@render appCard(app)}
+                        {/each}
+                    </ul>
+                {/if}
+            {/if}
+        </section>
+
         <section class="panel my-apps-panel">
             <div class="my-apps-header">
                 <h3>My apps ({myApps.length})</h3>
@@ -1408,40 +1464,72 @@
                 </ul>
             {/if}
         </section>
-
-        <section class="panel">
-            <h3>Published apps ({apps.length})</h3>
-            {#if loadError}
-                <div class="error-block">{loadError}</div>
-            {/if}
-            {#if loadingList}
-                <p>Loading...</p>
-            {:else if apps.length === 0 && !loadError}
-                <p class="muted">
-                    Nothing published yet. Use <em>+ Publish new app</em> above to upload your first app.
-                </p>
-            {:else}
-                <ul class="apps">
-                    {#each apps as app (app.id)}
-                        <li>
-                            <button class="app-card" onclick={() => openApp(app.id)}>
-                                <div class="app-name">{app.name}</div>
-                                <div class="app-desc">{app.description || '—'}</div>
-                                <div class="app-meta">
-                                    <span>v{app.appVersion} · pkg v{app.packageVersion}</span>
-                                    <span
-                                        >{app.chunkCount} chunks · {formatSize(app.totalSize)}</span
-                                    >
-                                    <span>{formatDate(app.publishedAtMs)}</span>
-                                </div>
-                                <div class="app-id">{app.id}</div>
-                            </button>
-                        </li>
-                    {/each}
-                </ul>
-            {/if}
-        </section>
     {/if}
+
+    <details class="panel key-panel">
+        <summary>Sandbox signer</summary>
+
+        <p class="muted">
+            A random Ed25519 key is used for every tx this page signs. It is kept in your browser's
+            <code>localStorage</code>. Devnet only.
+        </p>
+        <div class="key-info">
+            <div class="key-row">
+                <strong>Network:</strong> {$sharedClientConfig.selected}
+            </div>
+            <div class="key-row">
+                <strong>Address:</strong> <code class="address-code">{randomKey.address}</code>
+            </div>
+            {#if signerBalance}
+                <div class="key-row">
+                    <strong>Balance:</strong> {signerBalance}
+                </div>
+            {/if}
+        </div>
+        <div class="kv">
+            <button onclick={rotateKey}>Generate new random key</button>
+            <button onclick={requestFromFaucet}>Request devnet IOTA from faucet</button>
+            <a
+                href={`${getSelectedNetworkConfig().explorer}/address/${randomKey.address}?network=${$sharedClientConfig.selected}`}
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                View in explorer ↗
+            </a>
+        </div>
+    </details>
+
+    <details class="panel config-panel">
+        <summary>Package configuration</summary>
+        <p class="muted">
+            Override the Move package / object ids if you deployed your own instance. Otherwise the
+            defaults point at the canonical devnet deployment.
+        </p>
+        <label>
+            Package ID
+            <input
+                bind:value={$onChainAppsConfig.packageId}
+                placeholder="0x..."
+                spellcheck="false"
+            />
+        </label>
+        <label>
+            Registry object ID (shared)
+            <input
+                bind:value={$onChainAppsConfig.registryId}
+                placeholder="0x..."
+                spellcheck="false"
+            />
+        </label>
+        <label>
+            Generic storage object ID (shared)
+            <input
+                bind:value={$onChainAppsConfig.storageId}
+                placeholder="0x..."
+                spellcheck="false"
+            />
+        </label>
+    </details>
 </main>
 
 <style>
@@ -1555,7 +1643,7 @@
         padding: 0;
         margin: 0;
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
         gap: 0.75rem;
     }
 
@@ -1564,38 +1652,196 @@
         text-align: left;
         display: flex;
         flex-direction: column;
-        gap: 0.35rem;
-        padding: 0.75rem;
+        gap: 0.6rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+    }
+
+    .app-card-top {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .app-avatar {
+        flex-shrink: 0;
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+        font-weight: 800;
+        background: hsl(var(--hue), 55%, 18%);
+        border: 1px solid hsl(var(--hue), 55%, 30%);
+        color: hsl(var(--hue), 80%, 72%);
+        letter-spacing: -0.5px;
+    }
+
+    .app-card-title {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
     }
 
     .app-name {
-        font-weight: 600;
+        font-weight: 700;
+        font-size: 0.95rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .app-size {
+        font-size: 0.72rem;
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    .star-btn {
+        flex-shrink: 0;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.1rem;
+        line-height: 1;
+        padding: 2px 4px;
+        color: rgba(255, 255, 255, 0.18);
+        transition: color 0.15s, transform 0.12s;
+        border-radius: 4px;
+    }
+
+    .star-btn:hover {
+        color: #facc15;
+        transform: scale(1.15);
+    }
+
+    .star-btn.starred {
+        color: #facc15;
+    }
+
+    .apps-divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.07);
+        margin: 0.25rem 0;
     }
 
     .app-desc {
-        font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.75);
-        min-height: 2em;
-    }
-
-    .app-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        font-size: 0.75rem;
+        font-size: 0.82rem;
         color: rgba(255, 255, 255, 0.55);
+        line-height: 1.45;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
         overflow: hidden;
     }
 
-    .app-meta code {
-        word-break: break-all;
+    .app-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+        padding-top: 0.4rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .app-id {
-        font-family: ui-monospace, Menlo, Consolas, monospace;
-        font-size: 0.7rem;
-        word-break: break-all;
+    .app-date {
+        font-size: 0.72rem;
+        color: rgba(255, 255, 255, 0.35);
+    }
+
+    .open-btn {
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 6px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+        white-space: nowrap;
+    }
+
+    .open-btn:hover {
+        background: rgba(255, 255, 255, 0.13);
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .skill-docs {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding-top: 0.75rem;
+        margin-top: 0.25rem;
+    }
+
+    .skill-docs > summary {
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
         color: rgba(255, 255, 255, 0.55);
+        list-style: revert;
+        user-select: none;
+    }
+
+    .skill-docs > summary:hover {
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    .skill-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-top: 0.6rem;
+    }
+
+    .skill-link {
+        font-size: 0.78rem;
+        color: rgba(255, 255, 255, 0.45);
+        text-decoration: none;
+    }
+
+    .skill-link:hover {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: underline;
+    }
+
+    .skill-copy {
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 5px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+
+    .skill-copy:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .skill-pre {
+        margin-top: 0.75rem;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 8px;
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        font-size: 0.78rem;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: rgba(255, 255, 255, 0.75);
+        max-height: 600px;
+        overflow-y: auto;
     }
 
     .key-info {

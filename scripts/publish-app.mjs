@@ -99,7 +99,7 @@ async function main() {
         await new Promise((r) => setTimeout(r, 2000));
     }
 
-    // TX1: Publish app using the entry function (handles sharing internally).
+    // TX1: Publish app (shares it and transfers AppCap to signer).
     console.log('Publishing app...');
     const tx = new Transaction();
     tx.moveCall({
@@ -124,32 +124,15 @@ async function main() {
         process.exit(1);
     }
 
-    // Find the created App object ID
+    // Find the created App and AppCap object IDs.
+    // IMPORTANT: use end-anchored regex — '::app::AppCap' also contains '::app::App'
+    // so a plain includes() check would match the wrong object.
     const appObjChange = result.objectChanges?.find(
-        (c) => c.type === 'created' && c.objectType?.includes('::app::App'),
+        (c) => c.type === 'created' && /::app::App$/.test(String(c.objectType ?? '')),
     );
     const capObjChange = result.objectChanges?.find(
-        (c) => c.type === 'created' && c.objectType?.includes('::app::AppCap'),
+        (c) => c.type === 'created' && /::app::AppCap$/.test(String(c.objectType ?? '')),
     );
-
-    // TX2: Register in the shared registry (separate tx so the shared object is ready).
-    if (appObjChange) {
-        console.log('Registering in registry...');
-        await new Promise((r) => setTimeout(r, 1500));
-        const regTx = new Transaction();
-        regTx.moveCall({
-            target: `${PACKAGE_ID}::registry::register`,
-            arguments: [regTx.object(REGISTRY_ID), regTx.pure.id(appObjChange.objectId)],
-        });
-        const regResult = await client.signAndExecuteTransaction({
-            transaction: regTx,
-            signer: keypair,
-            options: { showEffects: true },
-        });
-        if (regResult.effects?.status?.status !== 'success') {
-            console.warn('Registry registration failed (app still usable via direct link):', regResult.effects?.status);
-        }
-    }
 
     if (!appObjChange) {
         console.error('Could not find App object in tx results');
@@ -160,27 +143,54 @@ async function main() {
     const newAppId = appObjChange.objectId;
     const newCapId = capObjChange?.objectId;
     console.log(`App created: ${newAppId}`);
+    console.log(`Cap ID:      ${newCapId}`);
+    console.log(`TX App owner: ${JSON.stringify(appObjChange.owner)}`);
 
-    // Wait for the shared object to be available and get its version.
+    // TX2: Register in the shared registry.
+    console.log('Registering in registry...');
+    await new Promise((r) => setTimeout(r, 1500));
+    const regTx = new Transaction();
+    regTx.moveCall({
+        target: `${PACKAGE_ID}::registry::register`,
+        arguments: [regTx.object(REGISTRY_ID), regTx.pure.id(newAppId)],
+    });
+    const regResult = await client.signAndExecuteTransaction({
+        transaction: regTx,
+        signer: keypair,
+        options: { showEffects: true },
+    });
+    if (regResult.effects?.status?.status !== 'success') {
+        console.warn('Registry registration failed (app still usable via direct link):', regResult.effects?.status);
+    }
+
+    // Always re-fetch the object from the chain to get the confirmed owner/shared state.
+    // The objectChanges in the TX result can report an intermediate owner that doesn't
+    // yet reflect public_share_object; polling the fullnode gives us the committed state.
     let appSharedVersion = null;
     if (chunks.length > 1) {
-        console.log('Waiting for object to propagate...');
+        console.log('Waiting for shared object to be available...');
         for (let w = 0; w < 30; w++) {
             try {
                 const obj = await client.getObject({ id: newAppId, options: { showOwner: true } });
                 if (obj.data) {
-                    // Shared objects report their initial shared version in the owner field.
                     const owner = obj.data.owner;
-                    if (typeof owner === 'object' && 'Shared' in owner) {
-                        appSharedVersion = owner.Shared.initial_shared_version;
+                    console.log(`  poll ${w + 1}: version=${obj.data.version} owner=${JSON.stringify(owner)}`);
+                    if (typeof owner === 'object' && owner !== null && 'Shared' in owner) {
+                        appSharedVersion = String(owner.Shared.initial_shared_version);
+                        console.log(`Confirmed shared. Initial shared version: ${appSharedVersion}`);
+                        break;
                     }
-                    console.log(`Object found, version: ${obj.data.version}, shared: ${appSharedVersion}`);
-                    break;
                 }
-            } catch {
-                /* not ready yet */
+            } catch (e) {
+                console.log(`  poll ${w + 1}: not ready yet (${e.message})`);
             }
             await new Promise((r) => setTimeout(r, 2000));
+        }
+
+        if (!appSharedVersion) {
+            console.error('App object did not become shared within timeout.');
+            console.error('Owner from TX result:', JSON.stringify(appObjChange.owner));
+            process.exit(1);
         }
     }
 

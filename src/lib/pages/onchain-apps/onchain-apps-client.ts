@@ -139,7 +139,14 @@ export async function fetchAppMetadatas(
         for (const r of responses) {
             if (!r.data) continue;
             try {
-                results.push(parseApp(r));
+                const meta = parseApp(r);
+                // Skip entries that have no name and no content — these are
+                // incomplete uploads or garbage registry entries.
+                if (!meta.name && meta.totalSize === 0 && meta.chunkCount === 0) {
+                    console.warn('skipping empty app entry', r.data.objectId);
+                    continue;
+                }
+                results.push(meta);
             } catch (err) {
                 console.warn('failed to parse app', r, err);
             }
