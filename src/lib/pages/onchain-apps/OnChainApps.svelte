@@ -1428,18 +1428,25 @@
             {:else}
                 <ul class="apps">
                     {#each apps as app (app.id)}
+                        {@const initials = app.name.trim().split(/\s+/).slice(0, 2).map((w: string) => w[0]?.toUpperCase() ?? '').join('') || '?'}
+                        {@const hue = [...app.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) & 0xffff, 0) % 360}
                         <li>
                             <button class="app-card" onclick={() => openApp(app.id)}>
-                                <div class="app-name">{app.name}</div>
-                                <div class="app-desc">{app.description || '—'}</div>
-                                <div class="app-meta">
-                                    <span>v{app.appVersion} · pkg v{app.packageVersion}</span>
-                                    <span
-                                        >{app.chunkCount} chunks · {formatSize(app.totalSize)}</span
-                                    >
-                                    <span>{formatDate(app.publishedAtMs)}</span>
+                                <div class="app-card-top">
+                                    <div class="app-avatar" style="--hue:{hue}">{initials}</div>
+                                    <div class="app-card-title">
+                                        <div class="app-name">{app.name}</div>
+                                        <div class="app-size">{formatSize(app.totalSize)}</div>
+                                    </div>
+                                    <span class="app-arrow">→</span>
                                 </div>
-                                <div class="app-id">{app.id}</div>
+                                {#if app.description}
+                                    <div class="app-desc">{app.description}</div>
+                                {/if}
+                                <div class="app-card-footer">
+                                    <span class="app-date">{formatDate(app.publishedAtMs)}</span>
+                                    <span class="app-id-short" title={app.id}>{app.id.slice(0, 6)}…{app.id.slice(-4)}</span>
+                                </div>
                             </button>
                         </li>
                     {/each}
@@ -1560,7 +1567,7 @@
         padding: 0;
         margin: 0;
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
         gap: 0.75rem;
     }
 
@@ -1569,38 +1576,104 @@
         text-align: left;
         display: flex;
         flex-direction: column;
-        gap: 0.35rem;
-        padding: 0.75rem;
+        gap: 0.6rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        transition: background 0.15s, border-color 0.15s, transform 0.15s;
+        cursor: pointer;
+    }
+
+    .app-card:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.15);
+        transform: translateY(-1px);
+    }
+
+    .app-card-top {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .app-avatar {
+        flex-shrink: 0;
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+        font-weight: 800;
+        background: hsl(var(--hue), 55%, 18%);
+        border: 1px solid hsl(var(--hue), 55%, 30%);
+        color: hsl(var(--hue), 80%, 72%);
+        letter-spacing: -0.5px;
+    }
+
+    .app-card-title {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
     }
 
     .app-name {
-        font-weight: 600;
+        font-weight: 700;
+        font-size: 0.95rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .app-size {
+        font-size: 0.72rem;
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    .app-arrow {
+        color: rgba(255, 255, 255, 0.25);
+        font-size: 1rem;
+        transition: color 0.15s, transform 0.15s;
+    }
+
+    .app-card:hover .app-arrow {
+        color: rgba(255, 255, 255, 0.7);
+        transform: translateX(2px);
     }
 
     .app-desc {
-        font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.75);
-        min-height: 2em;
-    }
-
-    .app-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        font-size: 0.75rem;
+        font-size: 0.82rem;
         color: rgba(255, 255, 255, 0.55);
+        line-height: 1.45;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
         overflow: hidden;
     }
 
-    .app-meta code {
-        word-break: break-all;
+    .app-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+        padding-top: 0.4rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .app-id {
+    .app-date {
+        font-size: 0.72rem;
+        color: rgba(255, 255, 255, 0.35);
+    }
+
+    .app-id-short {
         font-family: ui-monospace, Menlo, Consolas, monospace;
         font-size: 0.7rem;
-        word-break: break-all;
-        color: rgba(255, 255, 255, 0.55);
+        color: rgba(255, 255, 255, 0.25);
     }
 
     .key-info {
