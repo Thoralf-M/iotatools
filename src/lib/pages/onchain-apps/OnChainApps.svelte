@@ -472,7 +472,7 @@
     });
 
     onDestroy(() => {
-        // nothing; the effect returns its own cleanup
+        document.body.classList.remove('app-maximized');
     });
 
     // --- helpers ---
@@ -1293,7 +1293,7 @@
                 {#if appMaximized}
                     <button
                         class="maximize-exit-btn"
-                        onclick={() => (appMaximized = false)}
+                        onclick={() => { appMaximized = false; document.body.classList.remove('app-maximized'); }}
                         title="Exit fullscreen (Esc)"
                     >
                         ✕
