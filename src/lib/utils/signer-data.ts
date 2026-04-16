@@ -50,9 +50,20 @@ export class PrivateKeyWallet {
         }
         const keypair = keypairFromBech32PrivateKey(senderAccount.bech32PrivateKey);
         let client = getLegacyClient();
-        return client.signAndExecuteTransaction({
-            transaction: params.transaction as any,
-            signer: keypair as any,
+
+        // Build the transaction bytes using the legacy client (handles gas resolution)
+        const transaction = params.transaction as Transaction;
+        transaction.setSenderIfNotSet(senderAddress);
+        const txBytes = await transaction.build({ client });
+
+        // Sign with WASM SDK keypair
+        const wasmTx = transactionFromBcs(txBytes.buffer as ArrayBuffer);
+        const sig = await keypair.signTransaction(wasmTx);
+
+        // Execute using the legacy client with pre-signed data
+        return client.executeTransactionBlock({
+            transactionBlock: txBytes,
+            signature: sig.toBase64(),
             options: params.options,
         });
     }
