@@ -1,18 +1,29 @@
 import { execSync } from 'child_process';
+import { readFileSync, writeFileSync, readdirSync } from 'fs';
+import { join } from 'path';
 
 try {
     // Move build output to docs
     execSync('rm -rf docs && mv dist docs');
 
     // Create CNAME file for custom domain
-    execSync('echo "iotatools.dev" > docs/CNAME');
+    writeFileSync('docs/CNAME', 'iotatools.dev\n');
+
+    // Disable Jekyll processing so files starting with _ are served
+    writeFileSync('docs/.nojekyll', '');
 
     // Fix asset paths in index.html
-    execSync("sed -i 's|/assets|./assets|g' docs/index.html");
+    const indexPath = 'docs/index.html';
+    writeFileSync(indexPath, readFileSync(indexPath, 'utf8').replaceAll('/assets', './assets'));
+
     // Fix ledger nano debug module issues in JS files
-    execSync(
-        "sed -i -e 's|module.exports = debug;||g' -e 's|debug2(|JSON.stringify(|g' docs/assets/*.js",
-    );
+    for (const file of readdirSync('docs/assets').filter((f) => f.endsWith('.js'))) {
+        const filePath = join('docs/assets', file);
+        const content = readFileSync(filePath, 'utf8')
+            .replaceAll('module.exports = debug;', '')
+            .replaceAll('debug2(', 'JSON.stringify(');
+        writeFileSync(filePath, content);
+    }
 
     console.log('Post-build steps completed.');
 } catch (err) {
