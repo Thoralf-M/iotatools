@@ -78,6 +78,7 @@
         onPricesFetched,
         noTransactionsFound = false,
         timeFrameFilteredEpochs = undefined as number[] | undefined,
+        csvFileNameSuffix = '' as string,
     } = $props();
 
     let windowWidth = $state(0);
@@ -103,8 +104,14 @@
 
     let filteredEpochs = $derived.by(() => {
         if (!showCompactView) return baseEpochs;
+        // When a timeframe filter narrows the epoch set, always keep its
+        // first and last epoch so the compact view has visible endpoints.
+        const isTimeFrameFiltered = baseEpochs.length !== epochs.length;
+        const firstEpoch = baseEpochs[0];
+        const lastEpoch = baseEpochs[baseEpochs.length - 1];
         return baseEpochs.filter((epoch) => {
             if (epoch === currentEpoch || epoch === currentEpoch - 1) return true;
+            if (isTimeFrameFiltered && (epoch === firstEpoch || epoch === lastEpoch)) return true;
             const hasPreActive = stakeObjects.some((stakeObject) =>
                 isPreActivationInEpoch(stakeObject, epoch, epochData),
             );
@@ -265,6 +272,7 @@
             showValidatorColumns,
             epochPrices,
             selectedCurrency,
+            fileNameSuffix: csvFileNameSuffix,
         };
 
         exportTableToCSV(

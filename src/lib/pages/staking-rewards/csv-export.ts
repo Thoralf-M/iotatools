@@ -14,7 +14,8 @@ export function exportTableToCSV(
     epochData: EpochData,
     options: ExportOptions,
 ): void {
-    const { showPriceColumns, showValidatorColumns, epochPrices, selectedCurrency } = options;
+    const { showPriceColumns, showValidatorColumns, epochPrices, selectedCurrency, fileNameSuffix } =
+        options;
 
     // Build header row
     let headers = [
@@ -207,9 +208,8 @@ export function exportTableToCSV(
     });
 
     // Download as file
-    const today = new Date();
-    const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD format
-    downloadCSV(csvContent, `staking-rewards-table-${dateStr}.csv`);
+    const suffix = fileNameSuffix?.trim() || new Date().toISOString().split('T')[0];
+    downloadCSV(csvContent, `staking-rewards-table-${suffix}.csv`);
 }
 
 /**

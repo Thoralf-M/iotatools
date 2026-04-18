@@ -100,6 +100,8 @@ export type ExportOptions = {
     showValidatorColumns: boolean;
     epochPrices: Record<number, number>;
     selectedCurrency: 'usd' | 'eur';
+    /** Suffix used in the exported filename. Falls back to today's date when omitted. */
+    fileNameSuffix?: string;
 };
 
 /**
