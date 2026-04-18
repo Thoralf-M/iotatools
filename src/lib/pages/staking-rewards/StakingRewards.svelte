@@ -484,6 +484,18 @@
     {#if error}
         <div class="error-message">{error}</div>
     {/if}
+    {#if tableData.negativeAvailableEpochs.length > 0}
+        <div class="error-message">
+            Available Rewards went negative at {tableData.negativeAvailableEpochs.length} epoch(s) — likely
+            an ownership/transfer accounting bug. Offending epoch{tableData.negativeAvailableEpochs
+                .length === 1
+                ? ''
+                : 's'}: {tableData.negativeAvailableEpochs.slice(0, 10).join(', ')}{tableData
+                .negativeAvailableEpochs.length > 10
+                ? '…'
+                : ''}
+        </div>
+    {/if}
 
     <div class="summary-section">
         <StakingRewardsTable

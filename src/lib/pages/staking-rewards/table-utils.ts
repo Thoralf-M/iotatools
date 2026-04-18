@@ -23,17 +23,19 @@ export function getFirstPrincipal(stakeObject: StakeObject): string {
 function computeEpochDisplayData(
     entry: Omit<EpochDataEntry, 'display' | 'availableRewards'>,
     totalPreTransferRewards: bigint,
-): { display: EpochDataEntry['display']; availableRewards: bigint } {
+): { display: EpochDataEntry['display']; availableRewards: bigint; isNegative: boolean } {
     // Calculate available rewards
     const adjustedUnstake =
         entry.totalUnstakeAccumulated > totalPreTransferRewards
             ? entry.totalUnstakeAccumulated - totalPreTransferRewards
             : 0n;
-    const availableRewards =
-        entry.totalAccumulated > adjustedUnstake ? entry.totalAccumulated - adjustedUnstake : 0n;
+    const rawAvailable = entry.totalAccumulated - adjustedUnstake;
+    const isNegative = rawAvailable < 0n;
+    const availableRewards = isNegative ? 0n : rawAvailable;
 
     return {
         availableRewards,
+        isNegative,
         display: {
             stakedDisplay: formatNanoAsIota(entry.totalStaked),
             rewardsDisplay: formatNanoAsIota(entry.totalRewards),
@@ -62,6 +64,7 @@ export function computeEpochData(
             validatorPrincipal: {},
             epochs: [],
             totalPreTransferRewards: 0n,
+            negativeAvailableEpochs: [],
         };
     }
 
@@ -281,15 +284,26 @@ export function computeEpochData(
 
     // Now compute display values for each epoch
     const epochData: EpochData = {};
+    const negativeAvailableEpochs: number[] = [];
     epochRange.forEach((epoch) => {
         const raw = rawEpochData[epoch];
-        const { display, availableRewards } = computeEpochDisplayData(raw, totalPreTransferRewards);
+        const { display, availableRewards, isNegative } = computeEpochDisplayData(
+            raw,
+            totalPreTransferRewards,
+        );
+        if (isNegative) negativeAvailableEpochs.push(epoch);
         epochData[epoch] = {
             ...raw,
             availableRewards,
             display,
         };
     });
+
+    if (negativeAvailableEpochs.length > 0) {
+        console.error(
+            `[StakingRewards] Available Rewards went negative at ${negativeAvailableEpochs.length} epoch(s) — indicates incorrect ownership/transfer accounting. First offending epochs: ${negativeAvailableEpochs.slice(0, 5).join(', ')}`,
+        );
+    }
 
     return {
         minEpoch: finalMinEpoch,
@@ -298,6 +312,7 @@ export function computeEpochData(
         validatorPrincipal,
         epochs,
         totalPreTransferRewards,
+        negativeAvailableEpochs,
     };
 }
 
