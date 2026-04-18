@@ -160,7 +160,10 @@ async function main() {
         options: { showEffects: true },
     });
     if (regResult.effects?.status?.status !== 'success') {
-        console.warn('Registry registration failed (app still usable via direct link):', regResult.effects?.status);
+        console.warn(
+            'Registry registration failed (app still usable via direct link):',
+            regResult.effects?.status,
+        );
     }
 
     // Always re-fetch the object from the chain to get the confirmed owner/shared state.
@@ -174,10 +177,14 @@ async function main() {
                 const obj = await client.getObject({ id: newAppId, options: { showOwner: true } });
                 if (obj.data) {
                     const owner = obj.data.owner;
-                    console.log(`  poll ${w + 1}: version=${obj.data.version} owner=${JSON.stringify(owner)}`);
+                    console.log(
+                        `  poll ${w + 1}: version=${obj.data.version} owner=${JSON.stringify(owner)}`,
+                    );
                     if (typeof owner === 'object' && owner !== null && 'Shared' in owner) {
                         appSharedVersion = String(owner.Shared.initial_shared_version);
-                        console.log(`Confirmed shared. Initial shared version: ${appSharedVersion}`);
+                        console.log(
+                            `Confirmed shared. Initial shared version: ${appSharedVersion}`,
+                        );
                         break;
                     }
                 }

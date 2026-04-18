@@ -97,7 +97,7 @@ export async function listAppIds(client: IotaClient, registryId: string): Promis
         });
         // Only interested in IndexKey entries; AppIdKey are the reverse index.
         const indexEntries = page.data.filter((f) =>
-            /::registry::IndexKey$/.test(String(f.name?.type ?? '')),
+            String(f.name?.type ?? '').endsWith('::registry::IndexKey'),
         );
         if (indexEntries.length > 0) {
             const wrappers = await client.multiGetObjects({
@@ -233,7 +233,7 @@ function toUint8(value: unknown): Uint8Array {
 /** Load every chunk of an app and concatenate them into a single blob. */
 export async function fetchAppContent(client: IotaClient, app: AppMetadata): Promise<Uint8Array> {
     if (app.chunkCount === 0) return new Uint8Array();
-    const buffers: Uint8Array[] = new Array(app.chunkCount);
+    const buffers: Uint8Array[] = Array.from({ length: app.chunkCount });
 
     // Enumerate all dynamic fields in pages so we have the wrapper object ids
     // (chunks are stored as `Field<ChunkKey, vector<u8>>` objects hanging off
@@ -245,7 +245,7 @@ export async function fetchAppContent(client: IotaClient, app: AppMetadata): Pro
         for (const f of page.data) {
             // We only care about ChunkKey entries; skip anything else that
             // might be hanging off the object (Display, etc.).
-            if (!/::app::ChunkKey$/.test(String(f.name?.type ?? ''))) continue;
+            if (!String(f.name?.type ?? '').endsWith('::app::ChunkKey')) continue;
             const idxStr = (f.name as any)?.value?.index ?? (f.name as any)?.value;
             const idx = asNumber(idxStr);
             entries.push({ index: idx, objectId: f.objectId });
