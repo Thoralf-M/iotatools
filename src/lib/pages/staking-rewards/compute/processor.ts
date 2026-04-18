@@ -380,6 +380,7 @@ async function determineActionDetails(
     digest: string,
     timestamp: string,
     targetAddress: string,
+    trackedAddresses: Set<string>,
     currentEpoch: number,
     epochId: number,
     existing: StakeObject,
@@ -437,35 +438,27 @@ async function determineActionDetails(
             actionDetails.fromAddress = input.owner;
             actionDetails.toAddress = output.owner;
 
-            console.log(
-                `Transfer detected: epoch ${epochId}, from ${input.owner} to ${output.owner}, targetAddress: ${targetAddress}`,
-            );
-            console.log(`existing.wasOwnedByTargetAddress: ${existing.wasOwnedByTargetAddress}`);
+            const fromTracked = trackedAddresses.has(input.owner);
+            const toTracked = trackedAddresses.has(output.owner);
 
-            // If this stake object was owned by target address and is being transferred to someone else,
-            // stop tracking rewards from this epoch onwards
-            if (existing.wasOwnedByTargetAddress && output.owner !== targetAddress) {
-                console.log(
-                    `Transfer away detected: epoch ${epochId}, setting lastEpoch from ${existing.lastEpoch} to ${epochId}`,
-                );
+            if (fromTracked && toTracked) {
+                // Intra-tracked transfer: same user moving stake between their own
+                // addresses. Treat as continuation — don't set transferredInEpoch
+                // (no pre-transfer rewards to strip) and don't truncate lastEpoch.
+                if (existing.lastEpoch < currentEpoch) {
+                    existing.lastEpoch = currentEpoch;
+                }
+            } else if (existing.wasOwnedByTargetAddress && output.owner !== targetAddress) {
+                // Transfer from tracked target to untracked external address:
+                // stop tracking rewards from this epoch onwards.
                 existing.lastEpoch = epochId;
             } else if (output.owner === targetAddress) {
-                // Transferring TO target address - record the transfer epoch
-                // This is used to calculate pre-transfer rewards that shouldn't count as available
+                // Transfer from untracked external address INTO tracked target:
+                // record transfer epoch so pre-transfer rewards are subtracted
+                // from Available Rewards.
                 existing.transferredInEpoch = epochId;
-                console.log(
-                    `Transfer to target detected: epoch ${epochId}, recording transferredInEpoch`,
-                );
-                // Only extend if current lastEpoch is earlier than currentEpoch (don't override later transfer-away epochs)
                 if (existing.lastEpoch < currentEpoch) {
-                    console.log(
-                        `Transfer to target detected: epoch ${epochId}, setting lastEpoch to ${currentEpoch}`,
-                    );
                     existing.lastEpoch = currentEpoch;
-                } else {
-                    console.log(
-                        `Transfer to target detected: epoch ${epochId}, but lastEpoch (${existing.lastEpoch}) is already later than currentEpoch (${currentEpoch}), not changing`,
-                    );
                 }
             }
         } else {
@@ -584,6 +577,7 @@ async function processTransactions(
     transactions: Array<any>,
     currentEpoch: number,
     targetAddress: string,
+    trackedAddresses: Set<string> = new Set([targetAddress]),
 ): Promise<Map<string, StakeObject>> {
     const stakeObjects = new Map<string, StakeObject>();
 
@@ -691,6 +685,7 @@ async function processTransactions(
                             digest,
                             timestamp,
                             targetAddress,
+                            trackedAddresses,
                             currentEpoch,
                             epochId,
                             existing,
@@ -1026,11 +1021,14 @@ export async function processStakeTransactionsWithExchangeRates(
     // processing will update the wasOwnedByTargetAddress flag to true, which is correct behavior.
     const allStakeObjects = new Map<string, StakeObject>();
 
+    const trackedAddresses = new Set(addressArray);
+
     for (const targetAddress of addressArray) {
         const stakeObjects = await processTransactions(
             filteredTransactions,
             currentEpoch,
             targetAddress,
+            trackedAddresses,
         );
 
         // Merge stake objects from this address into the combined map

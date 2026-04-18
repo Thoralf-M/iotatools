@@ -205,8 +205,26 @@ export async function computeRewardsForStakeObject(
         const transferEpoch = stakeObject.transferredInEpoch;
         const principalAtTransfer = safeBigInt(stakeObject.principalByEpoch[transferEpoch] || '0');
 
-        // Get exchange rate at transfer epoch (use previous epoch since you don't earn in transfer epoch)
-        const transferExchangeRate = stakeObject.exchangeRatesByEpoch[transferEpoch - 1];
+        // Get exchange rate at transfer epoch (use previous epoch since you don't earn in transfer epoch).
+        // Rates are normally only fetched for [firstEpoch, lastEpoch], so for a transferred-in stake
+        // the rate at transferEpoch - 1 is typically missing — fetch it on demand.
+        let transferExchangeRate = stakeObject.exchangeRatesByEpoch[transferEpoch - 1];
+        if (!transferExchangeRate && transferEpoch - 1 >= 0) {
+            try {
+                const fetched = await fetchPoolExchangeRates(
+                    exchangeRateId,
+                    transferEpoch - 1,
+                    stakeObject.poolId,
+                    true,
+                );
+                if (fetched) {
+                    transferExchangeRate = fetched;
+                    stakeObject.exchangeRatesByEpoch[transferEpoch - 1] = fetched;
+                }
+            } catch {
+                // Leave transferExchangeRate undefined; preTransferRewards will fall back to '0'
+            }
+        }
 
         if (transferExchangeRate && principalAtTransfer > 0n) {
             // Calculate the accumulated rewards at the transfer epoch
@@ -216,9 +234,6 @@ export async function computeRewardsForStakeObject(
                 totalIotaAmount > principalAtTransfer ? totalIotaAmount - principalAtTransfer : 0n;
 
             stakeObject.preTransferRewards = preTransferRewards.toString();
-            console.log(
-                `Pre-transfer rewards for stake ${stakeObject.objectId}: ${preTransferRewards} (transferred in epoch ${transferEpoch})`,
-            );
         } else {
             stakeObject.preTransferRewards = '0';
         }

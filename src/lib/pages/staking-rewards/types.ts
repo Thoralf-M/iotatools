@@ -82,6 +82,12 @@ export type TableComputationResult = {
     epochs: number[];
     /** Total pre-transfer rewards (rewards that accrued before stakes were transferred to user) */
     totalPreTransferRewards: bigint;
+    /**
+     * Epochs where Available Rewards would have been negative before clamping
+     * to 0 — indicates a bug in ownership/transfer accounting that the UI should
+     * surface to the user.
+     */
+    negativeAvailableEpochs: number[];
 };
 
 /**
