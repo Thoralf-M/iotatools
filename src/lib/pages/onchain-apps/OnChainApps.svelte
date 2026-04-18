@@ -260,8 +260,17 @@
         function startTimeout(ms: number) {
             setTimeout(() => {
                 if (!resolved && rejectFn) {
-                    rtcLog('DataChannel receive timeout (' + ms + 'ms) — ICE state:', pc.iceConnectionState, 'connection:', pc.connectionState);
-                    rejectFn(new Error('DataChannel receive timeout (' + (ms / 1000) + 's after signaling)'));
+                    rtcLog(
+                        'DataChannel receive timeout (' + ms + 'ms) — ICE state:',
+                        pc.iceConnectionState,
+                        'connection:',
+                        pc.connectionState,
+                    );
+                    rejectFn(
+                        new Error(
+                            'DataChannel receive timeout (' + ms / 1000 + 's after signaling)',
+                        ),
+                    );
                 }
             }, ms);
         }
@@ -317,7 +326,9 @@
             }
             await new Promise((r) => setTimeout(r, WEBRTC_POLL_MS));
         }
-        throw new Error('WebRTC signaling timeout for key: ' + key + ' after ' + attempts + ' attempts');
+        throw new Error(
+            'WebRTC signaling timeout for key: ' + key + ' after ' + attempts + ' attempts',
+        );
     }
 
     function registerProxy(channelId: string, proxy: ProxyChannel) {
@@ -335,8 +346,7 @@
 
     /** Wire up an RTCDataChannel + its PeerConnection as a proxy channel. */
     function setupRTCProxy(channelId: string, pc: RTCPeerConnection, dc: RTCDataChannel) {
-        pc.onconnectionstatechange = () =>
-            rtcLog('pc connection state:', pc.connectionState);
+        pc.onconnectionstatechange = () => rtcLog('pc connection state:', pc.connectionState);
         pc.oniceconnectionstatechange = () =>
             rtcLog('pc ICE connection state:', pc.iceConnectionState);
         dc.onmessage = (e) => pushToIframe(channelId, e.data);
@@ -347,8 +357,16 @@
         registerProxy(channelId, {
             send: (data) => dc.send(data),
             close: () => {
-                try { dc.close(); } catch { /* ok */ }
-                try { pc.close(); } catch { /* ok */ }
+                try {
+                    dc.close();
+                } catch {
+                    /* ok */
+                }
+                try {
+                    pc.close();
+                } catch {
+                    /* ok */
+                }
             },
         });
     }
@@ -401,7 +419,10 @@
             // This never resolves on its own — it gets cancelled or resolved by a ping.
         });
         function cancel() {
-            if (!done) { done = true; bc.close(); }
+            if (!done) {
+                done = true;
+                bc.close();
+            }
         }
         return { promise, cancel };
     }
@@ -428,14 +449,22 @@
             }, 500);
             setTimeout(() => {
                 clearInterval(retryInterval);
-                if (!done) { done = true; bc.close(); resolve(null); }
+                if (!done) {
+                    done = true;
+                    bc.close();
+                    resolve(null);
+                }
             }, timeoutMs);
         });
     }
 
     function cleanupWebRTC() {
         for (const [, proxy] of proxyChannels) {
-            try { proxy.close(); } catch { /* ok */ }
+            try {
+                proxy.close();
+            } catch {
+                /* ok */
+            }
         }
         proxyChannels.clear();
     }
@@ -1230,15 +1259,23 @@
                         href="https://github.com/thoralf-m/iotatools/blob/main/.claude/skills/onchain-apps/SKILL.md"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="skill-link"
-                    >View on GitHub ↗</a>
+                        class="skill-link">View on GitHub ↗</a
+                    >
                     <button
                         class="skill-copy"
-                        onclick={() => navigator.clipboard.writeText(skillMd).then(() => {
-                            const btn = document.querySelector('.skill-copy') as HTMLButtonElement;
-                            if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy'; }, 2000); }
-                        })}
-                    >Copy</button>
+                        onclick={() =>
+                            navigator.clipboard.writeText(skillMd).then(() => {
+                                const btn = document.querySelector(
+                                    '.skill-copy',
+                                ) as HTMLButtonElement;
+                                if (btn) {
+                                    btn.textContent = 'Copied!';
+                                    setTimeout(() => {
+                                        btn.textContent = 'Copy';
+                                    }, 2000);
+                                }
+                            })}>Copy</button
+                    >
                 </div>
                 <pre class="skill-pre">{skillMd}</pre>
             </details>
@@ -1266,7 +1303,17 @@
                 </div>
                 <div class="viewer-actions">
                     <button onclick={copyShareLink}>Copy share link</button>
-                    <button onclick={() => { appMaximized = !appMaximized; if (appMaximized) { window.scrollTo(0, 0); document.body.classList.add('app-maximized'); } else { document.body.classList.remove('app-maximized'); } }}>
+                    <button
+                        onclick={() => {
+                            appMaximized = !appMaximized;
+                            if (appMaximized) {
+                                window.scrollTo(0, 0);
+                                document.body.classList.add('app-maximized');
+                            } else {
+                                document.body.classList.remove('app-maximized');
+                            }
+                        }}
+                    >
                         {appMaximized ? '↙ Minimize' : '↗ Maximize'}
                     </button>
                     <button onclick={closeApp}>← Back to list</button>
@@ -1278,7 +1325,10 @@
                 {#if appMaximized}
                     <button
                         class="maximize-exit-btn"
-                        onclick={() => { appMaximized = false; document.body.classList.remove('app-maximized'); }}
+                        onclick={() => {
+                            appMaximized = false;
+                            document.body.classList.remove('app-maximized');
+                        }}
                         title="Exit fullscreen (Esc)"
                     >
                         ✕
@@ -1344,8 +1394,15 @@
                 </p>
             {:else}
                 {#snippet appCard(app: AppMetadata)}
-                    {@const initials = app.name.trim().split(/\s+/).slice(0, 2).map((w: string) => w[0]?.toUpperCase() ?? '').join('') || '?'}
-                    {@const hue = [...app.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) & 0xffff, 0) % 360}
+                    {@const initials =
+                        app.name
+                            .trim()
+                            .split(/\s+/)
+                            .slice(0, 2)
+                            .map((w: string) => w[0]?.toUpperCase() ?? '')
+                            .join('') || '?'}
+                    {@const hue =
+                        [...app.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) & 0xffff, 0) % 360}
                     <li>
                         <div class="app-card">
                             <div class="app-card-top">
@@ -1359,15 +1416,17 @@
                                     class:starred={starred.has(app.id)}
                                     onclick={() => toggleStar(app.id)}
                                     title={starred.has(app.id) ? 'Unstar' : 'Star'}
-                                    aria-label={starred.has(app.id) ? 'Unstar' : 'Star'}
-                                >★</button>
+                                    aria-label={starred.has(app.id) ? 'Unstar' : 'Star'}>★</button
+                                >
                             </div>
                             {#if app.description}
                                 <div class="app-desc">{app.description}</div>
                             {/if}
                             <div class="app-card-footer">
                                 <span class="app-date">{formatDate(app.publishedAtMs)}</span>
-                                <button class="open-btn" onclick={() => openApp(app.id)}>Open →</button>
+                                <button class="open-btn" onclick={() => openApp(app.id)}
+                                    >Open →</button
+                                >
                             </div>
                         </div>
                     </li>
@@ -1475,14 +1534,16 @@
         </p>
         <div class="key-info">
             <div class="key-row">
-                <strong>Network:</strong> {$sharedClientConfig.selected}
+                <strong>Network:</strong>
+                {$sharedClientConfig.selected}
             </div>
             <div class="key-row">
                 <strong>Address:</strong> <code class="address-code">{randomKey.address}</code>
             </div>
             {#if signerBalance}
                 <div class="key-row">
-                    <strong>Balance:</strong> {signerBalance}
+                    <strong>Balance:</strong>
+                    {signerBalance}
                 </div>
             {/if}
         </div>
@@ -1711,7 +1772,9 @@
         line-height: 1;
         padding: 2px 4px;
         color: rgba(255, 255, 255, 0.18);
-        transition: color 0.15s, transform 0.12s;
+        transition:
+            color 0.15s,
+            transform 0.12s;
         border-radius: 4px;
     }
 
@@ -1764,7 +1827,9 @@
         font-weight: 600;
         padding: 4px 10px;
         cursor: pointer;
-        transition: background 0.15s, border-color 0.15s;
+        transition:
+            background 0.15s,
+            border-color 0.15s;
         white-space: nowrap;
     }
 

@@ -14,8 +14,13 @@ export function exportTableToCSV(
     epochData: EpochData,
     options: ExportOptions,
 ): void {
-    const { showPriceColumns, showValidatorColumns, epochPrices, selectedCurrency, fileNameSuffix } =
-        options;
+    const {
+        showPriceColumns,
+        showValidatorColumns,
+        epochPrices,
+        selectedCurrency,
+        fileNameSuffix,
+    } = options;
 
     // Build header row
     let headers = [
