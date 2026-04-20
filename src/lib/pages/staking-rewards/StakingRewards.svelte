@@ -285,16 +285,24 @@
                 customDateRange,
             );
 
-            // Fetch transactions for all addresses in parallel
-            const allTxsPromises = allAddresses.map(async (addr, index) => {
+            // Fetch transactions for all addresses in parallel. The loading
+            // step shows a monotonic completion counter rather than each
+            // promise's map-index, which jumps around when promises finish
+            // out of order.
+            let sentDone = 0;
+            let receivedDone = 0;
+            const total = allAddresses.length;
+            const allTxsPromises = allAddresses.map(async (addr) => {
                 try {
-                    loadingStep = `Fetching stake txs for address ${index + 1}/${allAddresses.length}...`;
                     const sentTxs = await fetchStakeTransactions(addr);
+                    sentDone++;
+                    loadingStep = `Fetching stake txs ${sentDone}/${total}...`;
 
                     let receivedTxs: any[] = [];
                     if (fetchReceivedTxs) {
-                        loadingStep = `Fetching received txs for address ${index + 1}/${allAddresses.length}...`;
                         receivedTxs = await fetchReceivedStakeTransactions(addr);
+                        receivedDone++;
+                        loadingStep = `Fetching received txs ${receivedDone}/${total}...`;
                     }
 
                     return { sentTxs, receivedTxs, address: addr, error: null };
