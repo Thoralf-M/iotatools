@@ -4,7 +4,7 @@
  */
 
 import type { ActionDetails, StakeObject, ValidatorInfo } from './compute/types';
-import { formatNanoAsIota } from './formatting';
+import { formatNanoAsIota, nanoToIota } from './formatting';
 import type { EpochData, EpochDataEntry, TableComputationResult } from './types';
 
 /**
@@ -465,4 +465,47 @@ export function getActionNames(actions: ActionDetails[]): string {
 export function hasActionType(actions: ActionDetails[] | undefined, actionType: string): boolean {
     if (!actions) return false;
     return actions.some((a) => a.action === actionType);
+}
+
+/**
+ * Running fiat value of unstake rewards using each epoch's own price.
+ * If a price is missing for an epoch where unstake rewards occurred, that
+ * slice contributes 0 — the running total stays consistent so later epochs
+ * aren't punished for a single missing price point.
+ */
+export function computeCumulativeUnstakeFiat(
+    epochs: number[],
+    epochData: EpochData,
+    epochPrices: Record<number, number>,
+): Record<number, number> {
+    const result: Record<number, number> = {};
+    let running = 0;
+    for (const epoch of epochs) {
+        const data = epochData[epoch];
+        const price = epochPrices[epoch];
+        if (data && price) {
+            running += nanoToIota(data.totalUnstakeRewards) * price;
+        }
+        result[epoch] = running;
+    }
+    return result;
+}
+
+/**
+ * Total earned value at a given epoch in fiat:
+ *   Σ(unstakeRewards[i] × price[i]) for i ≤ epoch + availableRewards[epoch] × price[epoch]
+ *
+ * Returns null when the epoch's own price is unknown (the "current" leg can't
+ * be computed). The cumulative leg survives missing prices via 0-substitution.
+ */
+export function computeEarnedValueForEpoch(
+    epoch: number,
+    epochData: EpochData,
+    cumulativeUnstakeFiat: Record<number, number>,
+    epochPrices: Record<number, number>,
+): number | null {
+    const data = epochData[epoch];
+    const price = epochPrices[epoch];
+    if (!data || !price) return null;
+    return (cumulativeUnstakeFiat[epoch] ?? 0) + nanoToIota(data.availableRewards) * price;
 }

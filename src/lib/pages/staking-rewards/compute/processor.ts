@@ -643,6 +643,27 @@ async function processTransactions(
                     currentEpoch,
                     wasOwnedByTarget,
                 );
+
+                // Synthesize a Staked action for pure-creation txs (the action
+                // block below only runs when `input` is present, so new stake
+                // objects created from scratch were missing an action entry at
+                // their firstEpoch — leaving pre-active rows blank even when
+                // the stake tx itself is known).
+                if (idCreated && !input && wasOwnedByTarget) {
+                    const existing = stakeObjects.get(address);
+                    if (existing) {
+                        existing.actionByEpoch = existing.actionByEpoch || {};
+                        if (!existing.actionByEpoch[epochId]) {
+                            existing.actionByEpoch[epochId] = [];
+                        }
+                        existing.actionByEpoch[epochId].push({
+                            action: 'Staked',
+                            digest,
+                            timestamp,
+                            amount: output.principal,
+                        });
+                    }
+                }
             }
 
             // Determine action type and create detailed action info

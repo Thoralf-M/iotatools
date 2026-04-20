@@ -8,14 +8,18 @@
     import type { ActionDetails, StakeObject, ValidatorInfo } from './';
     import pricesCache from './cache/iota-prices-coingecko.json';
     import epochTimestampsCacheJson from './cache/mainnet-epoch-timestamps-cache.json';
-    import { exportTableToCSV } from './csv-export';
+    import { buildExportSections, exportTableToCSV } from './csv-export';
+    import ExportDialog from './ExportDialog.svelte';
     import { nanoToIota } from './formatting';
     import { fetchEpochTimestampsForDisplay } from './graphql-requests';
+    import { exportTableToPDF } from './pdf-export';
     import {
         fetchAllPrices as fetchAllPricesUtil,
         reloadFromCoinGeckoCache,
     } from './price-fetching';
     import {
+        computeCumulativeUnstakeFiat,
+        computeEarnedValueForEpoch,
         computeEpochData,
         formatMultipleActionDetails,
         formatPrincipal,
@@ -23,7 +27,6 @@
         getFirstPrincipal,
         getValidatorRewardsForEpoch,
         getValidatorTotalPrincipal,
-        hasActionType,
         isActiveInEpoch,
         isPreActivationInEpoch,
     } from './table-utils';
@@ -265,17 +268,44 @@
     let epochPrices = $state<Record<number, number>>({});
     let loadedCache = $state<Record<string, { usd: number; eur: number }>>(pricesCache);
 
-    // Export table data to CSV
-    function handleExportCSV() {
+    // Running cumulative unstake fiat across the filtered epochs. Reactive so
+    // the Total Earned column updates when prices or filters change.
+    let cumulativeUnstakeFiat = $derived.by(() =>
+        Object.keys(epochPrices).length > 0
+            ? computeCumulativeUnstakeFiat(filteredEpochs, epochData, epochPrices)
+            : {},
+    );
+
+    // Export dialog state
+    let showExportDialog = $state(false);
+
+    function openExportDialog() {
+        showExportDialog = true;
+    }
+
+    let exportError = $state<string>('');
+
+    function handleExportConfirm(opts: {
+        format: 'csv' | 'pdf';
+        includePrices: boolean;
+        includeValidators: boolean;
+        wrapStakeObjects: boolean;
+        wrapValidators: boolean;
+        fileNameSuffix: string;
+    }) {
+        showExportDialog = false;
+        exportError = '';
         const options: ExportOptions = {
-            showPriceColumns,
-            showValidatorColumns,
+            showPriceColumns: opts.includePrices,
+            showValidatorColumns: opts.includeValidators,
             epochPrices,
             selectedCurrency,
-            fileNameSuffix: csvFileNameSuffix,
+            fileNameSuffix: opts.fileNameSuffix || csvFileNameSuffix,
+            wrapStakeObjects: opts.wrapStakeObjects,
+            wrapValidators: opts.wrapValidators,
         };
 
-        exportTableToCSV(
+        const args = [
             filteredEpochs,
             filteredEpochEndDates,
             currentEpoch,
@@ -283,7 +313,24 @@
             uniqueValidators,
             epochData,
             options,
-        );
+        ] as const;
+
+        try {
+            if (opts.format === 'pdf') {
+                // PDF export is async (dynamic jsPDF import + render); a
+                // rejection here shouldn't silently become an unhandled
+                // promise.
+                exportTableToPDF(...args).catch((err) => {
+                    console.error('PDF export failed:', err);
+                    exportError = err instanceof Error ? err.message : 'Failed to export PDF';
+                });
+            } else {
+                exportTableToCSV(...args);
+            }
+        } catch (err) {
+            console.error('Export failed:', err);
+            exportError = err instanceof Error ? err.message : 'Failed to export';
+        }
     }
 
     async function fetchAllPrices() {
@@ -411,6 +458,33 @@
     </div>
 {/if}
 
+<ExportDialog
+    open={showExportDialog}
+    defaultFileNameSuffix={csvFileNameSuffix}
+    pricesAvailable={Object.keys(epochPrices).length > 0}
+    validatorsAvailable={uniqueValidators.length > 0}
+    stakeObjectsAvailable={stakeObjects.length > 0}
+    buildPreview={(opts) =>
+        buildExportSections({
+            epochs: filteredEpochs,
+            epochEndDates: filteredEpochEndDates,
+            currentEpoch,
+            stakeObjects,
+            uniqueValidators,
+            epochData,
+            options: {
+                showPriceColumns: opts.includePrices,
+                showValidatorColumns: opts.includeValidators,
+                epochPrices,
+                selectedCurrency,
+                wrapStakeObjects: opts.wrapStakeObjects,
+                wrapValidators: opts.wrapValidators,
+            },
+        })}
+    onCancel={() => (showExportDialog = false)}
+    onExport={handleExportConfirm}
+/>
+
 <div style="margin-bottom: 8px; text-align: left;">
     The data may be incomplete or incorrect, so it is advisable to check it against other sources.
     <br />
@@ -476,12 +550,23 @@
     </div>
     <div class="controls-right">
         <button
-            onclick={handleExportCSV}
+            onclick={openExportDialog}
             style="min-width: 120px;"
             disabled={epochs.length === 0 || noTransactionsFound}
         >
-            Export table to CSV
+            Export table...
         </button>
+        {#if exportError}
+            <div class="export-error" role="alert">
+                Export failed: {exportError}
+                <button
+                    type="button"
+                    class="export-error-dismiss"
+                    aria-label="Dismiss"
+                    onclick={() => (exportError = '')}>×</button
+                >
+            </div>
+        {/if}
     </div>
 </div>
 {#if noTransactionsFound}
@@ -511,6 +596,12 @@
                         </div>
                         <div class="header-cell rewards-header">
                             Accumulated in {selectedCurrency.toUpperCase()}
+                        </div>
+                        <div
+                            class="header-cell rewards-header"
+                            title="Cumulative unstake rewards × price on the day they were unstaked + current available rewards × price at this epoch"
+                        >
+                            Total Earned ({selectedCurrency.toUpperCase()})
                         </div>
                     {/if}
                     {#if showValidatorColumns}
@@ -681,6 +772,22 @@
                                                   ? `${(nanoToIota(epochData[filteredEpochs[index]]?.totalAccumulated ?? 0n) * epochPrices[filteredEpochs[index]]).toFixed(2)} ${selectedCurrency.toUpperCase()}`
                                                   : 'no price'}
                                         </div>
+                                        {@const earned =
+                                            filteredEpochs[index] === currentEpoch
+                                                ? null
+                                                : computeEarnedValueForEpoch(
+                                                      filteredEpochs[index],
+                                                      epochData,
+                                                      cumulativeUnstakeFiat,
+                                                      epochPrices,
+                                                  )}
+                                        <div class="table-cell rewards-cell">
+                                            {filteredEpochs[index] === currentEpoch
+                                                ? 'pending'
+                                                : earned !== null
+                                                  ? `${earned.toFixed(2)} ${selectedCurrency.toUpperCase()}`
+                                                  : 'no price'}
+                                        </div>
                                     {/if}
                                 {/if}
                                 {#if showValidatorColumns}
@@ -773,9 +880,7 @@
                                 {#each stakeObjects.filter((obj) => !hideUnstaked || obj.lastEpoch >= currentEpoch) as stakeObject}
                                     <div class="table-cell stake-cell">
                                         <div class="stake-popup-container">
-                                            {#if isPreActivationInEpoch(stakeObject, filteredEpochs[index], epochData)}
-                                                <div class="pre-active-indicator">pre-active</div>
-                                            {:else if isActiveInEpoch(stakeObject, filteredEpochs[index], epochData) && filteredEpochs[index] >= stakeObject.firstEpoch && filteredEpochs[index] !== currentEpoch && !hasActionType(stakeObject.actionByEpoch?.[filteredEpochs[index]], 'Unstaked')}
+                                            {#if isActiveInEpoch(stakeObject, filteredEpochs[index], epochData) && filteredEpochs[index] >= stakeObject.firstEpoch && filteredEpochs[index] !== currentEpoch}
                                                 <div class="stake-cell-content">
                                                     {#if stakeObject.rewardsByEpoch[filteredEpochs[index]] === '0'}
                                                         <span class="stake-value">-</span>
@@ -1114,11 +1219,6 @@
     .inactive-indicator {
         color: #e2e8f0;
         font-size: 1em;
-        font-size: 0.75em;
-    }
-
-    .pre-active-indicator {
-        color: white;
         font-size: 0.75em;
     }
 
@@ -1531,6 +1631,35 @@
         align-items: center;
         gap: 12px;
         flex-wrap: wrap;
+    }
+
+    .control-item select {
+        margin-left: 0.25rem;
+    }
+
+    .export-error {
+        margin-top: 0.4rem;
+        padding: 0.4rem 0.6rem;
+        border: 1px solid rgba(239, 68, 68, 0.4);
+        background: rgba(239, 68, 68, 0.1);
+        color: rgba(254, 202, 202, 0.95);
+        border-radius: 6px;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        max-width: 320px;
+    }
+
+    .export-error-dismiss {
+        background: transparent;
+        border: none;
+        color: inherit;
+        cursor: pointer;
+        font-size: 1rem;
+        line-height: 1;
+        padding: 0 0.25rem;
+        margin-left: auto;
     }
 
     .controls-left {
