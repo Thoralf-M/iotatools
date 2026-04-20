@@ -14,7 +14,6 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 import { buildExportSections, sectionsToCsv } from '../src/lib/pages/staking-rewards/csv-export.js';
-import { formatDate } from '../src/lib/pages/staking-rewards/formatting.js';
 import {
     collectActionsByEpoch,
     computeEpochData,
@@ -28,6 +27,15 @@ import type { ExportOptions } from '../src/lib/pages/staking-rewards/types.js';
 import { MAINNET_CONFIG, setNetworkConfigOverride } from '../src/lib/utils/network-config.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+/** UTC formatter so regenerated snapshots don't drift with the runner's timezone. */
+function formatDateUTC(d: Date): string {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return (
+        `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}` +
+        ` ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`
+    );
+}
 
 setNetworkConfigOverride(MAINNET_CONFIG);
 
@@ -79,7 +87,7 @@ async function main() {
     const epochs = tableData.epochs.filter((e) => e >= EPOCH_RANGE_START && e <= EPOCH_RANGE_END);
     const epochEndDates = epochs.map((e) => {
         const ts = epochTimestamps[String(e)];
-        return ts ? formatDate(new Date(ts * 1000)) : '';
+        return ts ? formatDateUTC(new Date(ts * 1000)) : '';
     });
 
     const epochPrices: Record<number, number> = {};

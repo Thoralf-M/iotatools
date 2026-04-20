@@ -11,7 +11,18 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 import { MAINNET_CONFIG, setNetworkConfigOverride } from '../../utils/network-config.js';
 import { buildExportSections, sectionsToCsv } from './csv-export.js';
-import { formatDate } from './formatting.js';
+/**
+ * UTC date formatter — matches the shape of {@link formatDate} from
+ * `formatting.ts` but pins the timezone so snapshot tests are stable
+ * regardless of the runner's local time (CI is UTC, dev machines vary).
+ */
+function formatDateUTC(d: Date): string {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return (
+        `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}` +
+        ` ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`
+    );
+}
 import {
     computeEpochData,
     getMaxEpochFromCache,
@@ -64,7 +75,7 @@ describe('CSV / PDF export - snapshot', () => {
         );
         const epochEndDates = epochs.map((e) => {
             const ts = epochTimestamps[String(e)];
-            return ts ? formatDate(new Date(ts * 1000)) : '';
+            return ts ? formatDateUTC(new Date(ts * 1000)) : '';
         });
 
         epochPrices = {};
