@@ -1,5 +1,6 @@
 <script lang="ts">
     import { isValidIotaAddress } from '@iota/iota-sdk/utils';
+    import { get } from 'svelte/store';
 
     import JsonToggleView from '../../components/JsonToggleView.svelte';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
@@ -30,17 +31,35 @@
         type TimeFrame,
     } from './timeframe';
 
-    // Use query parameters for the address field
+    // Query-param-backed fields. `addresses` is a comma/whitespace-separated
+    // list used when the multi-address toggle is on; its presence on load
+    // auto-enables that toggle. Timeframe + custom date bounds round-trip so
+    // shared URLs preserve the full filter state.
     const queryParamValues = usePageQueryParams({
         address:
             $activeAddress || '0x5caab122e732ae3e00c374b7653f7d01b840891467cc157ca3f6b776b64c3fc1',
+        addresses: '',
+        timeFrame: 'all',
+        customStart: '',
+        customEnd: '',
     });
 
+    // One-shot snapshot used to seed local state that's either bound with
+    // `bind:value` (incompatible with reactive re-reads) or whose query-param
+    // key is only relevant under certain conditions.
+    const initialQueryParams = get(queryParamValues);
+
+    function isValidTimeFrame(v: unknown): v is TimeFrame {
+        return typeof v === 'string' && v in TIME_FRAME_LABELS;
+    }
+
     let address = '';
-    let textareaValue = '';
-    let useMultipleAddresses = false;
+    let textareaValue = initialQueryParams.addresses;
+    let useMultipleAddresses = initialQueryParams.addresses.trim() !== '';
     let hasAutoAddedPrimary = false;
-    let userHasEditedTextarea = false;
+    // Treat a URL-supplied address list as pre-edited so the auto-add-primary
+    // effect below doesn't clobber it on mount.
+    let userHasEditedTextarea = initialQueryParams.addresses.trim() !== '';
 
     let initialActiveAddress = '';
 
@@ -141,10 +160,27 @@
     >;
     let epochPrices: Record<number, number> = {};
 
-    // Time frame filtering
-    let selectedTimeFrame: TimeFrame = 'all';
-    let customDateStart = '';
-    let customDateEnd = '';
+    // Time frame filtering — seeded from URL once so the <select>/<input>
+    // two-way bindings can own the state from then on.
+    let selectedTimeFrame: TimeFrame = isValidTimeFrame(initialQueryParams.timeFrame)
+        ? (initialQueryParams.timeFrame as TimeFrame)
+        : 'all';
+    let customDateStart = initialQueryParams.customStart || '';
+    let customDateEnd = initialQueryParams.customEnd || '';
+
+    // Sync local UI state back to the URL. Each reactive writes only when the
+    // value is meaningful and clears the param otherwise so shared links stay
+    // minimal.
+    $: updatePageQueryParams({
+        timeFrame: selectedTimeFrame === 'all' ? null : selectedTimeFrame,
+    });
+    $: updatePageQueryParams({
+        customStart: selectedTimeFrame === 'custom' && customDateStart ? customDateStart : null,
+        customEnd: selectedTimeFrame === 'custom' && customDateEnd ? customDateEnd : null,
+    });
+    $: updatePageQueryParams({
+        addresses: useMultipleAddresses && textareaValue.trim() ? textareaValue : null,
+    });
 
     $: customDateRange =
         selectedTimeFrame === 'custom' && customDateStart && customDateEnd
@@ -182,19 +218,20 @@
         epochs: timeFrameFilteredEpochs,
     };
 
-    // Build the CSV filename suffix from the active timeframe's date range so
-    // the exported file reflects the filter (e.g. "2026-01-01_to_2026-03-31")
-    // instead of today's date.
-    $: csvFileNameSuffix = (() => {
-        if (selectedTimeFrame === 'all') return '';
+    // Build the default export filename stem from the active timeframe so the
+    // file reflects the filter (e.g. "2026-01-01_to_2026-03-31") instead of
+    // today's date. The user can override this entirely in the export dialog.
+    $: exportFileName = (() => {
+        const fmt = (d: Date) =>
+            `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const today = fmt(new Date());
+        if (selectedTimeFrame === 'all') return `staking-rewards-table-${today}`;
         const range =
             selectedTimeFrame === 'custom'
                 ? customDateRange
                 : getTimeFrameDateRange(selectedTimeFrame);
-        if (!range) return '';
-        const fmt = (d: Date) =>
-            `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        return `${fmt(range.start)}_to_${fmt(range.end)}`;
+        if (!range) return `staking-rewards-table-${today}`;
+        return `staking-rewards-table-${fmt(range.start)}_to_${fmt(range.end)}`;
     })();
 
     // Fetch epoch end dates when tableData changes
@@ -249,16 +286,24 @@
                 customDateRange,
             );
 
-            // Fetch transactions for all addresses in parallel
-            const allTxsPromises = allAddresses.map(async (addr, index) => {
+            // Fetch transactions for all addresses in parallel. The loading
+            // step shows a monotonic completion counter rather than each
+            // promise's map-index, which jumps around when promises finish
+            // out of order.
+            let sentDone = 0;
+            let receivedDone = 0;
+            const total = allAddresses.length;
+            const allTxsPromises = allAddresses.map(async (addr) => {
                 try {
-                    loadingStep = `Fetching stake txs for address ${index + 1}/${allAddresses.length}...`;
                     const sentTxs = await fetchStakeTransactions(addr);
+                    sentDone++;
+                    loadingStep = `Fetching stake txs ${sentDone}/${total}...`;
 
                     let receivedTxs: any[] = [];
                     if (fetchReceivedTxs) {
-                        loadingStep = `Fetching received txs for address ${index + 1}/${allAddresses.length}...`;
                         receivedTxs = await fetchReceivedStakeTransactions(addr);
+                        receivedDone++;
+                        loadingStep = `Fetching received txs ${receivedDone}/${total}...`;
                     }
 
                     return { sentTxs, receivedTxs, address: addr, error: null };
@@ -486,9 +531,12 @@
     {/if}
     {#if tableData.negativeAvailableEpochs.length > 0}
         <div class="error-message">
-            Available Rewards went negative at {tableData.negativeAvailableEpochs.length} epoch(s) — likely
-            an ownership/transfer accounting bug. Offending epoch{tableData.negativeAvailableEpochs
-                .length === 1
+            Available Rewards went negative at {tableData.negativeAvailableEpochs.length} epoch(s). This
+            is most likely because stake objects were received from another address and the incoming transactions
+            were not fetched{fetchReceivedTxs
+                ? ' completely'
+                : ' — try enabling "Include received" above and fetching again'}. Offending epoch{tableData
+                .negativeAvailableEpochs.length === 1
                 ? ''
                 : 's'}: {tableData.negativeAvailableEpochs.slice(0, 10).join(', ')}{tableData
                 .negativeAvailableEpochs.length > 10
@@ -507,7 +555,7 @@
             onPricesFetched={handlePricesFetched}
             {noTransactionsFound}
             {timeFrameFilteredEpochs}
-            {csvFileNameSuffix}
+            {exportFileName}
         />
     </div>
     {#if stakeObjects.length > 0}
@@ -691,11 +739,6 @@
     }
 
     .timeframe-label select {
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid var(--border-color);
-        color: white;
-        padding: 0.3rem 0.5rem;
-        border-radius: 4px;
         margin-left: 0.25rem;
     }
 

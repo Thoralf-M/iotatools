@@ -13,16 +13,26 @@ Epoch    |                 Staked |                Rewards |            Accumula
 10       |         174,496,945.76 |              74,128.41 |             710,711.07 |                   0.00 |                   0.00 |             710,711.07
 11       |         174,496,945.76 |              74,818.22 |             785,529.29 |                   0.00 |                   0.00 |             785,529.29
 12       |         174,496,945.76 |              74,591.88 |             860,121.17 |                   0.00 |                   0.00 |             860,121.17
+  ▶ [Staked] ObjId: 0x0b61bac05a3a1b32727d4afec9acf95449d439c6b5e77fd589a46b92226ab3c9 | TX: KG4nAecjx1udkD9c7rDk8wcAdNoy8CYAkjha4tLtcjP | Validator: CroutonDigital | Amount: 698,167.46
+  ▶ [Staked] ObjId: 0x605b3b0829d7ac49d5181ba444a8e53aeb2af2dc623e3209a28fad0b750f799c | TX: A6Q9dzEtm4qY8wLfQPLn2AaKRFXnsXDG7ow27j8Th7nQ | Validator: Realize | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0x29f60c0255f30af4a85fe5eba01eba766a957cfe986a748ac101c1f6753ca5f6 | TX: HF9rhdJVLvFKDcASv3mtP2zwh1iUo96n1L4bG9FD9Mhs | Validator: Realize | Amount: 2,816,564.86
 13       |         180,828,242.93 |              73,373.02 |             933,494.20 |                   0.00 |                   0.00 |             933,494.20
 14       |         180,828,242.93 |              75,437.83 |           1,008,932.02 |                   0.00 |                   0.00 |           1,008,932.02
+  ▶ [Staked] ObjId: 0x80558969627ad7abdc04dea2b5c267bb0e23b96cd3853c3ffec7b1dd60517ee8 | TX: H8oeqnrGQHhoAFnpZP1hEhZyLUi5BrYH3oyc6QsiGxxC | Validator: Stardust Staking | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0x76d4aaf52732d34e9625d1106ae6a0186bb8996be5be27e2ab2e1fc065a2ae03 | TX: 2aoNz8kfgtkxGwy3iBiFxvjYhpY1oEDwo6i1y88u7hsh | Validator: Stardust Staking | Amount: 2,816,564.86
 15       |         186,461,372.65 |              74,730.92 |           1,083,662.94 |                   0.00 |                   0.00 |           1,083,662.94
 16       |         186,461,372.65 |              76,743.32 |           1,160,406.26 |                   0.00 |                   0.00 |           1,160,406.26
 17       |         186,461,372.65 |              71,174.43 |           1,231,580.69 |                   0.00 |                   0.00 |           1,231,580.69
 18       |         186,461,372.65 |              70,618.80 |           1,302,199.49 |                   0.00 |                   0.00 |           1,302,199.49
 19       |         186,461,372.65 |              69,921.89 |           1,372,121.38 |                   0.00 |                   0.00 |           1,372,121.38
+  ▶ [Staked] ObjId: 0x3ae2984124e15b4782d916c0304fa8f95be6761d8fc12d89ca05f62287b93429 | TX: 7iLshzgc7wwSZLPiejy7GHFm1pASjo1cXfE3X3Jftq79 | Validator: Spectrum Staking | Amount: 2,816,564.86
 20       |         189,277,937.51 |              69,420.50 |           1,441,541.88 |                   0.00 |                   0.00 |           1,441,541.88
+  ▶ [Staked] ObjId: 0xd67616dd1fe08be8b2438d0980e2cb20501f66e3e5436bc332c6124c90247c9f | TX: GcSUhjMThtcjiwqXnZP4b74ibtFbXc2MsnGfHhPQW4U8 | Validator: SDVC | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0x656fc14671e9fbbdbb8d9d0f4028f4b0ef5a6532f33e593bf6c66c3bbe73cb8e | TX: 5muRqTCSpkNa6Ad4LCj8vxt3EvEzcrQt1XnUVZdyDKQB | Validator: SDVC | Amount: 2,816,564.86
 21       |         194,911,067.23 |              70,134.22 |           1,511,676.11 |                   0.00 |                   0.00 |           1,511,676.11
 22       |         194,911,067.23 |              71,901.05 |           1,583,577.16 |                   0.00 |                   0.00 |           1,583,577.16
+  ▶ [Staked] ObjId: 0x819e5b6a09237d2171e87368b67719fb2df4c2acf99b927228d746e932db83b4 | TX: 78YLTUiJEukoN9TGNTmBFGoR5g9MNBs7Unx7JPYcoCP5 | Validator: InfraSingularity | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0xae25363cd877e5972d4a7e8f303b6cc61afa003ca5ba5a81c8daa28ab145ad8f | TX: 5gEQZVGwczuayRatyNYKiPfyPmb94pGYunPT4g7WDVWN | Validator: InfraSingularity | Amount: 2,816,564.86
 23       |         200,544,196.94 |              71,587.69 |           1,655,164.85 |                   0.00 |                   0.00 |           1,655,164.85
 24       |         200,544,196.94 |              73,471.40 |           1,728,636.25 |                   0.00 |                   0.00 |           1,728,636.25
 25       |         200,544,196.94 |              73,400.94 |           1,802,037.20 |                   0.00 |                   0.00 |           1,802,037.20
@@ -47,6 +57,8 @@ Epoch    |                 Staked |                Rewards |            Accumula
   ▶ [Partial Unstake] ObjId: 0xcba34e618be3cda338d89b1917217282e9724e3aaa3bab5a4be9a1162ba8198f | TX: 7EbTrZdJU87fSMooJrBmgv29YgtnFNEFbhQRWbPwAp1t | Validator: IOTA 3 | Amount: 6,000,000.00 | Rewards: 83,899.28
 42       |         184,727,632.08 |              67,234.99 |           2,995,565.45 |              83,899.28 |             134,840.46 |           2,860,724.99
 43       |         190,727,632.08 |              67,166.09 |           3,062,731.54 |                   0.00 |             134,840.46 |           2,927,891.08
+  ▶ [Staked] ObjId: 0xda01f468dacb139e26128cfa092abed2e6ac2f9a812ec61b9483826df78c38f5 | TX: 3xKms9YyJomuREdxmPvpda8QtZoKwaQZ5RxkrgHNcCk5 | Validator: IOTA 3 | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0xe7a5fa488a1b6a6b023fd26e14d4532895d02426af949b5fdb0bb684469a77a5 | TX: 3xKms9YyJomuREdxmPvpda8QtZoKwaQZ5RxkrgHNcCk5 | Validator: IOTA 3 | Amount: 2,816,564.86
 44       |         196,360,761.80 |              67,219.34 |           3,129,950.88 |                   0.00 |             134,840.46 |           2,995,110.42
 45       |         196,360,761.80 |              68,480.76 |           3,198,431.64 |                   0.00 |             134,840.46 |           3,063,591.18
 46       |         196,360,761.80 |              68,544.10 |           3,266,975.75 |                   0.00 |             134,840.46 |           3,132,135.29
@@ -72,6 +84,8 @@ Epoch    |                 Staked |                Rewards |            Accumula
 66       |         196,360,761.80 |              68,480.12 |           4,629,021.07 |                   0.00 |             134,840.46 |           4,494,180.62
 67       |         196,360,761.80 |              68,359.28 |           4,697,380.36 |                   0.00 |             134,840.46 |           4,562,539.90
   ▶ [Partial Unstake] ObjId: 0xcba34e618be3cda338d89b1917217282e9724e3aaa3bab5a4be9a1162ba8198f | TX: 6jZgfz3Mrs8P6MSSgTDWiihTKVDv5xHg21u3GiFD4uK3 | Validator: IOTA 3 | Amount: 5,000,000.00 | Rewards: 114,266.02
+  ▶ [Staked] ObjId: 0x64df07b72bcf549271879bae1e441d6c97936b9cb6da79ea754717b2d6c55eb9 | TX: GxMLeMfaek5TThdgokgouExgM14niCtUfRPM9eNTmAAb | Validator: IOTA 3 | Amount: 2,183,435.14
+  ▶ [Staked] ObjId: 0x80ea073c0747ec71bd6002fb2674163c6eb71e0700b7309b8674e6ff9a538a47 | TX: GxMLeMfaek5TThdgokgouExgM14niCtUfRPM9eNTmAAb | Validator: IOTA 3 | Amount: 2,816,564.86
 68       |         191,360,761.80 |              67,580.48 |           4,764,960.84 |             114,266.02 |             249,106.48 |           4,515,854.36
 69       |         196,360,761.80 |              68,723.04 |           4,833,683.88 |                   0.00 |             249,106.48 |           4,584,577.40
 70       |         196,360,761.80 |              68,436.92 |           4,902,120.80 |                   0.00 |             249,106.48 |           4,653,014.32
@@ -93,6 +107,9 @@ Epoch    |                 Staked |                Rewards |            Accumula
 86       |         196,360,761.80 |              65,823.61 |           5,953,859.07 |                   0.00 |             249,106.48 |           5,704,752.59
 87       |         196,360,761.80 |              65,809.64 |           6,019,668.72 |                   0.00 |             249,106.48 |           5,770,562.24
   ▶ [Partial Unstake] ObjId: 0xcba34e618be3cda338d89b1917217282e9724e3aaa3bab5a4be9a1162ba8198f | TX: CKyye6PcRU68XGJJUBQuATLatb66vyE4M3HdZH6PjdS9 | Validator: IOTA 3 | Amount: 5,000,000.00 | Rewards: 147,493.20
+  ▶ [Staked] ObjId: 0x076fd2ba397bab4f234a15df26a7de73ca2b5699c1e50af920ce4a1f9ac5c796 | TX: 9nYfUxe5KMHs3C3zFabZEonL7Bs7TLRQ8QPTD9ju1uBx | Validator: IOTA 3 | Amount: 633,129.72
+  ▶ [Staked] ObjId: 0x185f0ba9870483fbe9ab2635b327cf1efe3a63e5fa7d198ce32a063a67b695ee | TX: 9nYfUxe5KMHs3C3zFabZEonL7Bs7TLRQ8QPTD9ju1uBx | Validator: IOTA 3 | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0xb18f2d0549d7e767b8344bea0437baa4f5b32db54a91a6464432103313e35c4e | TX: 9nYfUxe5KMHs3C3zFabZEonL7Bs7TLRQ8QPTD9ju1uBx | Validator: IOTA 3 | Amount: 1,550,305.42
 88       |         191,360,761.80 |              64,737.44 |           6,084,406.16 |             147,493.20 |             396,599.68 |           5,687,806.48
 89       |         196,360,761.80 |              65,632.20 |           6,150,038.36 |                   0.00 |             396,599.68 |           5,753,438.69
 90       |         196,360,761.80 |              65,611.98 |           6,215,650.34 |                   0.00 |             396,599.68 |           5,819,050.66
@@ -106,6 +123,7 @@ Epoch    |                 Staked |                Rewards |            Accumula
 98       |         196,360,761.80 |              65,383.00 |           6,740,861.79 |                   0.00 |             396,599.68 |           6,344,262.11
 99       |         196,360,761.80 |              65,292.28 |           6,806,154.07 |                   0.00 |             396,599.68 |           6,409,554.39
   ▶ [Unstaked] ObjId: 0x857a806a7665e8f475810ae1d24a878ec38c4409bc2d0ee6b6de6fbf23feceb8 | TX: FD55aSAED28U4vZTErT5ixdyUKhqkRaTidivszSfhsPq | Validator: Alchemy | Amount: 2,816,564.86 | Rewards: 90,336.41
+  ▶ [Staked] ObjId: 0xbe2f968cf3d404ecc7023dd6a91194ab15606b0e2869e21ee400a7ed555d91cd | TX: H7jX1hwmEhoYwjBuBuqrVRMKcwkNbQTtHHpDJ1VqLTkP | Validator: Klever | Amount: 2,816,564.86
 100      |         196,360,761.80 |              63,624.45 |           6,869,778.52 |              90,336.41 |             486,936.09 |           6,382,842.43
 101      |         196,360,761.80 |              61,525.81 |           6,931,304.33 |                   0.00 |             486,936.09 |           6,444,368.24
 102      |         196,360,761.80 |              65,082.48 |           6,996,386.82 |                   0.00 |             486,936.09 |           6,509,450.73
@@ -123,6 +141,8 @@ Epoch    |                 Staked |                Rewards |            Accumula
 114      |         196,360,761.80 |              64,914.16 |           7,777,535.33 |                   0.00 |             486,936.09 |           7,290,599.24
   ▶ [Unstaked] ObjId: 0x20d60510f0fb655735c27815271611d54b9d3c589e6ff9b15efa6c91f4c50305 | TX: 9gu8n4BWisoWVjiygFddgj722XK95Ky3iiCRYCLg7UVo | Validator: Meria | Amount: 2,816,564.86 | Rewards: 110,136.60
   ▶ [Unstaked] ObjId: 0x5f25c7aed026327721b5172738144d843a122cf889bda31540be6e5cf50c78eb | TX: 9gu8n4BWisoWVjiygFddgj722XK95Ky3iiCRYCLg7UVo | Validator: Meria | Amount: 2,816,564.86 | Rewards: 107,153.57
+  ▶ [Staked] ObjId: 0x3c44cdfe8216e0a9b5ad94a22e29044dd73c92ff8939940181758f0e24906be3 | TX: ExEef1D62hXSEZJkFccGULa8Ax7HnM7ndNKzvEYf6ch4 | Validator: Klever | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0xd06b97202ff09a2921cb7665094e83f81d791f4e161ed1194c6d88daa6cc3b80 | TX: DAD8UKPFg51aXpncLGVeNxaAuAZWmXkbgCZegAgQPnnj | Validator: Meria | Amount: 2,816,564.86
 115      |         196,360,761.80 |              63,241.28 |           7,840,776.61 |             217,290.18 |             704,226.27 |           7,136,550.34
 116      |         196,360,761.80 |              64,858.76 |           7,905,635.36 |                   0.00 |             704,226.27 |           7,201,409.10
 117      |         196,360,761.80 |              64,983.08 |           7,970,618.44 |                   0.00 |             704,226.27 |           7,266,392.17
@@ -151,7 +171,9 @@ Epoch    |                 Staked |                Rewards |            Accumula
 132      |         172,360,761.80 |              58,126.25 |           8,915,685.11 |                   0.00 |           1,720,717.68 |           7,194,967.43
 133      |         172,360,761.80 |              58,033.59 |           8,973,718.70 |                   0.00 |           1,720,717.68 |           7,253,001.02
 134      |         172,360,761.80 |              57,684.00 |           9,031,402.70 |                   0.00 |           1,720,717.68 |           7,310,685.02
+  ▶ [Staked] ObjId: 0x6fa71d53a0c155086062efdf197408e0f8d9c9f932b414b4738faaad790b94be | TX: 7gEphrG5xnkjZcWxQip591JA4WJnD7iVhBqzWYRd4P1s | Validator: IOTA 3 | Amount: 1,000.00
 135      |         172,361,761.80 |              57,974.45 |           9,089,377.16 |                   0.00 |           1,720,717.68 |           7,368,659.47
+  ▶ [Staked] ObjId: 0x2b51887b8cc8abf61dc58b171ecedf705aa8033d743ab16ac0bb4ac9b8347243 | TX: F71qhcWcRbuuwsni3CEe57CFf2hr5ehmk7yWcgLwLMTd | Validator: IOTA 3 | Amount: 21,000,000.00
 136      |         193,361,761.80 |              57,488.48 |           9,146,865.64 |                   0.00 |           1,720,717.68 |           7,426,147.95
 137      |         193,361,761.80 |              63,131.72 |           9,209,997.36 |                   0.00 |           1,720,717.68 |           7,489,279.67
 138      |         193,361,761.80 |              63,141.85 |           9,273,139.21 |                   0.00 |           1,720,717.68 |           7,552,421.53
@@ -195,6 +217,7 @@ Epoch    |                 Staked |                Rewards |            Accumula
 174      |         190,361,761.80 |              59,958.46 |          11,505,236.07 |                   0.00 |           1,728,892.64 |           9,776,343.43
 175      |         190,361,761.80 |              59,898.59 |          11,565,134.66 |                   0.00 |           1,728,892.64 |           9,836,242.02
 176      |         190,361,761.80 |              59,857.59 |          11,624,992.25 |                   0.00 |           1,728,892.64 |           9,896,099.61
+  ▶ [Staked] ObjId: 0x586f671227d958dfa2340afced3e961b6801450632469c66f92751684a62b150 | TX: 66cSAiJ7EGE2MK8VkC4YY7d24sK4YvVn2ZvcogZfVgA5 | Validator: IOTA 1 | Amount: 1.50
 177      |         190,361,763.30 |              64,743.18 |          11,689,735.42 |                   0.00 |           1,728,892.64 |           9,960,842.79
   ▶ [Unstaked] ObjId: 0x586f671227d958dfa2340afced3e961b6801450632469c66f92751684a62b150 | TX: DFpzV7weA44sRgix8TZcqiTgvK1pvmRJy7eZzX1g195J | Validator: IOTA 1 | Amount: 1.50
   ▶ [Unstaked] ObjId: 0x07fe5a18ffca8eeb414924ffb7799b282952b492bc3fc8ac4216572e4e3e352d | TX: DFpzV7weA44sRgix8TZcqiTgvK1pvmRJy7eZzX1g195J | Validator: IOTA 1 | Amount: 2,816,564.86 | Rewards: 176,531.73
@@ -215,7 +238,26 @@ Epoch    |                 Staked |                Rewards |            Accumula
   ▶ [Unstaked] ObjId: 0xb4c74dccaae70ec0df83510b07492e9d7f39f8e1b81c347bf4a1c4fca840797c | TX: DFpzV7weA44sRgix8TZcqiTgvK1pvmRJy7eZzX1g195J | Validator: IOTA 1 | Amount: 2,816,564.86 | Rewards: 176,531.73
   ▶ [Unstaked] ObjId: 0xb793756ed35396d4cd4e973f680e6f109573030a2d3dff97c2e0591aaf03a6b0 | TX: DFpzV7weA44sRgix8TZcqiTgvK1pvmRJy7eZzX1g195J | Validator: IOTA 1 | Amount: 2,816,564.86 | Rewards: 176,531.73
   ▶ [Unstaked] ObjId: 0xc825e2bde7b470ddfa600f07611aab2226a1bc43ae4c33229a4f714d87d0a352 | TX: DFpzV7weA44sRgix8TZcqiTgvK1pvmRJy7eZzX1g195J | Validator: IOTA 1 | Amount: 2,816,564.86 | Rewards: 176,531.73
+  ▶ [Staked] ObjId: 0x04755dd24c94427ab742d634a739e629529cc0c774605fc750a00186c9770e6d | TX: 3NL5f89NnTdeUxFjLX1cdEm6KpmXd93mEB8JptUV5Z7w | Validator: IOTA 1 | Amount: 1.50
 178      |         140,361,763.30 |              49,194.32 |          11,738,929.75 |           3,133,812.61 |           4,862,705.24 |           6,876,224.50
+  ▶ [Staked] ObjId: 0x098bff7544b5e189c80765610ef963f1cdba2455b449689ad734ad069486e169 | TX: g5brrnsGW7aCDeaPGDu7E2xV5mTUZT7iasDycZZXpzT | Validator: IOTA 1 | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0x6adec6bb3599eedea73c9e35940426e9143d73ab5ca34fdc10d04129327df0cb | TX: g5brrnsGW7aCDeaPGDu7E2xV5mTUZT7iasDycZZXpzT | Validator: IOTA 1 | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0xba33607b31348d2fe1dbbfa51960cd0a89e8ffd17056a60a6095fee217f8cf65 | TX: g5brrnsGW7aCDeaPGDu7E2xV5mTUZT7iasDycZZXpzT | Validator: IOTA 1 | Amount: 2,118,397.40
+  ▶ [Staked] ObjId: 0x165f713635f344f7cc64cb2a4ccbc2a948b36546849bd75f55f57e0bb3ff8641 | TX: FZZg4b3MkaQVMehXm4Ybxm3o36Gij756Xu8hWjyDC5jy | Validator: IOTA 2 | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0x1e9b96e0e3116124c3b4afb5a01bf157e7b034e31ac3ecbe010cd77719e9c599 | TX: FZZg4b3MkaQVMehXm4Ybxm3o36Gij756Xu8hWjyDC5jy | Validator: IOTA 2 | Amount: 2,816,563.36
+  ▶ [Staked] ObjId: 0x3bc9ef82c1ad37a92c81d6483e76f5831a0c838162bcc414d3437a926fd9fcf7 | TX: FZZg4b3MkaQVMehXm4Ybxm3o36Gij756Xu8hWjyDC5jy | Validator: IOTA 2 | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0x43ccf7ac0167c86b093892bab3fb4d4728a9418b417a5e59f67eab922ae87137 | TX: FZZg4b3MkaQVMehXm4Ybxm3o36Gij756Xu8hWjyDC5jy | Validator: IOTA 2 | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0x4eb5b25d55e207fe37c2a77d5e98d3a427ffd581d26af3d31c1dc9595b5605fc | TX: FZZg4b3MkaQVMehXm4Ybxm3o36Gij756Xu8hWjyDC5jy | Validator: IOTA 2 | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0x524fd2aed200804f8457cd2941078e634a09a674ba65a0fe672ba19ac447216f | TX: FZZg4b3MkaQVMehXm4Ybxm3o36Gij756Xu8hWjyDC5jy | Validator: IOTA 2 | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0x64e83ff3d9d19fc7e6867d80568cea89d818eb9ad04f8409ad4c9a3878b34c62 | TX: FZZg4b3MkaQVMehXm4Ybxm3o36Gij756Xu8hWjyDC5jy | Validator: IOTA 2 | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0x74df21fd73fe995928643be0b15b118e00e61c2de4639c74eb2a12eb4fb10540 | TX: FZZg4b3MkaQVMehXm4Ybxm3o36Gij756Xu8hWjyDC5jy | Validator: IOTA 2 | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0x833c61b9e24e9239e5b0be7d032512262ce756326695b375fba5a05af5722d76 | TX: FZZg4b3MkaQVMehXm4Ybxm3o36Gij756Xu8hWjyDC5jy | Validator: IOTA 2 | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0x94af629b5988ced6c4ee30f32ca5b7f34eee523813d389298ae5693fa3aa7246 | TX: FZZg4b3MkaQVMehXm4Ybxm3o36Gij756Xu8hWjyDC5jy | Validator: IOTA 2 | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0x969adeb4dd8ba68f023c580842e5f094ab6d6211b4ee767bb29d3403a281c740 | TX: FZZg4b3MkaQVMehXm4Ybxm3o36Gij756Xu8hWjyDC5jy | Validator: IOTA 2 | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0xd520d078f3196b0c8efc0ad71e30c780a5f8e0a3aeff6d920705da0d736ddcc5 | TX: FZZg4b3MkaQVMehXm4Ybxm3o36Gij756Xu8hWjyDC5jy | Validator: IOTA 2 | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0xd8a40aafc4a91f55d43aed8f2727894d0a8450d439e1440c693b6bab3eb8cb5d | TX: FZZg4b3MkaQVMehXm4Ybxm3o36Gij756Xu8hWjyDC5jy | Validator: IOTA 2 | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0xdfaa2839914cad8d68873ee5331ccec102352cba94f8eedfd9a1e0412446817e | TX: FZZg4b3MkaQVMehXm4Ybxm3o36Gij756Xu8hWjyDC5jy | Validator: IOTA 2 | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0xfa46376305fd1138b11aa0ed143dfdd2ad9f900cee7170cd28cd0670a67d6846 | TX: FZZg4b3MkaQVMehXm4Ybxm3o36Gij756Xu8hWjyDC5jy | Validator: IOTA 2 | Amount: 2,816,564.86
 179      |         190,361,763.30 |              45,764.91 |          11,784,694.65 |                   0.00 |           4,862,705.24 |           6,921,989.41
 180      |         190,361,763.30 |              65,905.15 |          11,850,599.80 |                   0.00 |           4,862,705.24 |           6,987,894.56
 181      |         190,361,763.30 |              59,256.41 |          11,909,856.21 |                   0.00 |           4,862,705.24 |           7,047,150.96
@@ -255,6 +297,9 @@ Epoch    |                 Staked |                Rewards |            Accumula
   ▶ [Unstaked] ObjId: 0x6a4df47701711f479c2f9bd7113de7589dac9c55b2cb51a748d83316fb71e552 | TX: ADtoFhTzDZgjdXm45M9VxEmzapB1P4goYSM1QTcLCR88 | Validator: Realize | Amount: 2,816,564.86 | Rewards: 204,766.44
 211      |         175,912,068.73 |              54,600.30 |          13,691,078.25 |             605,896.79 |           5,590,173.49 |           8,100,904.76
 212      |         175,912,068.73 |              54,413.41 |          13,745,491.66 |                   0.00 |           5,590,173.49 |           8,155,318.17
+  ▶ [Staked] ObjId: 0x0323ff96d53ce1eaa632dbb018c24187ac22609f61f960d724f5278cc3c2e224 | TX: BwiF4ssnqAt1CMRQdQzPSredeMu2sP77fu1oo6pcxVhY | Validator: Sensei_Node | Amount: 1,266,259.43
+  ▶ [Staked] ObjId: 0x84bfd5d2d406a42842967a48e3b57d5c90e4ca5e3dbd04acc3ce176262136614 | TX: BwiF4ssnqAt1CMRQdQzPSredeMu2sP77fu1oo6pcxVhY | Validator: Sensei_Node | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0x89f2c00db48d4765f12c8d67483e394ed1ddd06a9f2b3a12e2498e6b31f7bb1f | TX: BwiF4ssnqAt1CMRQdQzPSredeMu2sP77fu1oo6pcxVhY | Validator: Sensei_Node | Amount: 2,816,564.86
 213      |         182,811,457.88 |              54,356.12 |          13,799,847.78 |                   0.00 |           5,590,173.49 |           8,209,674.29
 214      |         182,811,457.88 |              56,348.06 |          13,856,195.84 |                   0.00 |           5,590,173.49 |           8,266,022.35
 215      |         182,811,457.88 |              56,344.23 |          13,912,540.07 |                   0.00 |           5,590,173.49 |           8,322,366.59
@@ -272,6 +317,8 @@ Epoch    |                 Staked |                Rewards |            Accumula
   ▶ [Unstaked] ObjId: 0x185f0ba9870483fbe9ab2635b327cf1efe3a63e5fa7d198ce32a063a67b695ee | TX: 6pdeSKJbhRLY8DhWjLuCPcVxpCi7yQdj2KjvEbfJnJCa | Validator: IOTA 3 | Amount: 2,816,564.86 | Rewards: 117,859.87
   ▶ [Unstaked] ObjId: 0xb18f2d0549d7e767b8344bea0437baa4f5b32db54a91a6464432103313e35c4e | TX: 6pdeSKJbhRLY8DhWjLuCPcVxpCi7yQdj2KjvEbfJnJCa | Validator: IOTA 3 | Amount: 1,550,305.42 | Rewards: 64,872.92
 224      |         169,811,457.88 |              56,639.57 |          14,413,544.32 |             504,068.54 |           6,168,957.42 |           8,244,586.90
+  ▶ [Staked] ObjId: 0x2f0885873307489148cb4337e570895405e4a45ed25522ca186dab654792ae0a | TX: E8J549FYxHYVtT9vSdXUxCJ8cJWHDhCG86VuKbanqedY | Validator: liquidlink.io | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0xccf2075a912a4197698239448a0a1d882c3f362945e846a0051d9dd7d4da5ad6 | TX: E8J549FYxHYVtT9vSdXUxCJ8cJWHDhCG86VuKbanqedY | Validator: liquidlink.io | Amount: 2,816,564.86
 225      |         175,444,587.60 |              53,040.11 |          14,466,584.43 |                   0.00 |           6,168,957.42 |           8,297,627.01
 226      |         175,444,587.60 |              54,417.85 |          14,521,002.27 |                   0.00 |           6,168,957.42 |           8,352,044.85
 227      |         175,444,587.60 |              54,431.34 |          14,575,433.61 |                   0.00 |           6,168,957.42 |           8,406,476.19
@@ -360,6 +407,7 @@ Epoch    |                 Staked |                Rewards |            Accumula
 307      |         166,443,587.60 |              51,084.53 |          18,754,631.02 |                   0.00 |           6,492,892.30 |          12,261,738.73
   ▶ [Unstaked] ObjId: 0x4eb5b25d55e207fe37c2a77d5e98d3a427ffd581d26af3d31c1dc9595b5605fc | TX: EpoHAwUHPWzWFNscrRJkp1ydyh692Za4gBAvTAMvw9ED | Validator: IOTA 2 | Amount: 2,816,564.86 | Rewards: 107,304.20
   ▶ [Unstaked] ObjId: 0xdfaa2839914cad8d68873ee5331ccec102352cba94f8eedfd9a1e0412446817e | TX: EpoHAwUHPWzWFNscrRJkp1ydyh692Za4gBAvTAMvw9ED | Validator: IOTA 2 | Amount: 2,816,564.86 | Rewards: 107,304.20
+  ▶ [Staked] ObjId: 0x90172c55dc113429e99ea5f734abaecd0de67712825efcafa3dcefebecce76ed | TX: Fw77WrNM6ZxGzbyberusAyZ5cc8rL8XZ2FdiQ7WZciQf | Validator: hoh.zone | Amount: 2,816,564.86
 308      |         163,627,022.74 |              50,564.61 |          18,805,195.63 |             214,608.39 |           6,707,500.69 |          12,097,694.94
 309      |         163,627,022.74 |              50,408.09 |          18,855,603.71 |                   0.00 |           6,707,500.69 |          12,148,103.03
 310      |         163,627,022.74 |              50,343.49 |          18,905,947.20 |                   0.00 |           6,707,500.69 |          12,198,446.52
@@ -425,10 +473,22 @@ Epoch    |                 Staked |                Rewards |            Accumula
   ▶ [Unlocked] ObjId: 0xaa8ea407fc9703220f7e7089ca88b284bee9bd4baa59debc26ec30629627fc3b | TX: 6Qm9MTnE9t3BxukJp38dBR461KjRFCKrZq1GJ2yYXozx | Validator: HashKeyCloud | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0xa1cb11e4ef55942a6a27b88be691baed339d652c05b614f997846db4d671b785 | TX: DQBELz9dA8TzPYw3mwLvwYgNrWfP3NGXnEX7WoUSAaX1 | Validator: Lavender.Five Nodes | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0xe7c82927cd65f505b9e1c04cc5ac6baecff8047c1b5b122e980b346a1496246c | TX: DQBELz9dA8TzPYw3mwLvwYgNrWfP3NGXnEX7WoUSAaX1 | Validator: Lavender.Five Nodes | Amount: 2,816,564.86
-331      |         218,958,321.41 |              50,954.73 |          19,964,156.63 |                   0.00 |           6,707,500.69 |          13,256,655.94
+331      |         163,627,022.74 |              50,954.73 |          19,964,156.63 |                   0.00 |           6,707,500.69 |          13,256,655.94
 332      |         163,627,022.74 |              50,755.56 |          20,014,912.19 |                   0.00 |           6,707,500.69 |          13,307,411.51
 333      |         163,627,022.74 |              50,718.48 |          20,065,630.68 |                   0.00 |           6,707,500.69 |          13,358,129.99
 334      |         163,627,022.74 |              50,657.78 |          20,116,288.45 |                   0.00 |           6,707,500.69 |          13,408,787.77
 335      |         163,627,022.74 |              50,666.61 |          20,166,955.06 |                   0.00 |           6,707,500.69 |          13,459,454.37
 336      |         163,627,022.74 |              50,623.43 |          20,217,578.49 |                   0.00 |           6,707,500.69 |          13,510,077.81
 337      |         163,627,022.74 |              50,607.52 |          20,268,186.01 |                   0.00 |           6,707,500.69 |          13,560,685.32
+338      |         163,627,022.74 |              50,605.06 |          20,318,791.07 |                   0.00 |           6,707,500.69 |          13,611,290.39
+339      |         163,627,022.74 |              48,600.25 |          20,367,391.32 |                   0.00 |           6,707,500.69 |          13,659,890.64
+340      |         163,627,022.74 |              51,121.93 |          20,418,513.26 |                   0.00 |           6,707,500.69 |          13,711,012.57
+341      |         163,627,022.74 |              50,571.97 |          20,469,085.23 |                   0.00 |           6,707,500.69 |          13,761,584.54
+342      |         163,627,022.74 |              50,896.22 |          20,519,981.45 |                   0.00 |           6,707,500.69 |          13,812,480.77
+343      |         163,627,022.74 |              50,477.18 |          20,570,458.64 |                   0.00 |           6,707,500.69 |          13,862,957.95
+344      |         163,627,022.74 |              50,771.53 |          20,621,230.17 |                   0.00 |           6,707,500.69 |          13,913,729.48
+345      |         163,627,022.74 |              50,914.78 |          20,672,144.95 |                   0.00 |           6,707,500.69 |          13,964,644.26
+346      |         163,627,022.74 |              51,069.81 |          20,723,214.76 |                   0.00 |           6,707,500.69 |          14,015,714.07
+347      |         163,627,022.74 |              50,917.13 |          20,774,131.88 |                   0.00 |           6,707,500.69 |          14,066,631.20
+348      |         163,627,022.74 |                   0.00 |          20,774,131.88 |                   0.00 |           6,707,500.69 |          14,066,631.20
+----------------------------------------------------------------------------------------------------------------------------------------------

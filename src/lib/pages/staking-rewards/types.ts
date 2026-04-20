@@ -106,8 +106,17 @@ export type ExportOptions = {
     showValidatorColumns: boolean;
     epochPrices: Record<number, number>;
     selectedCurrency: 'usd' | 'eur';
-    /** Suffix used in the exported filename. Falls back to today's date when omitted. */
-    fileNameSuffix?: string;
+    /** Full filename stem (no extension). Falls back to a sensible default when omitted. */
+    fileName?: string;
+    /**
+     * When true, per-stake-object columns are emitted as a separate long-format
+     * section below the main table (one row per epoch × stake object) instead
+     * of as extra columns to the right. Keeps rows readable when there are
+     * many stake objects (useful for PDF/print).
+     */
+    wrapStakeObjects?: boolean;
+    /** Same idea as `wrapStakeObjects`, but for validator columns. */
+    wrapValidators?: boolean;
 };
 
 /**

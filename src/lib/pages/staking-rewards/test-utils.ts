@@ -3,11 +3,32 @@
  */
 
 import type { StakeObject, ValidatorInfo } from './compute/types';
+import type { ExportSection } from './csv-export';
 import { formatNumberLocale } from './formatting';
 import type { ActionsByEpoch, TableComputationResult } from './types';
 
 // Re-export types for convenience
 export type { ActionsByEpoch };
+
+/**
+ * Compact, snapshot-friendly summary of an `ExportSection[]`.
+ *
+ * The full wrapped export runs into hundreds of KB once you include every
+ * stake-object row; that's overkill for the PDF snapshot whose job is to
+ * pin the *data contract* (titles, headers, row counts, a couple of
+ * representative rows), not the full content — full content is already
+ * covered by the CSV snapshot tests. Keeps PR diffs small.
+ */
+export function sectionsSkeleton(sections: ExportSection[]) {
+    const SAMPLE_ROWS = 3;
+    return sections.map((s) => ({
+        title: s.title,
+        headers: s.headers,
+        rowCount: s.rows.length,
+        firstRows: s.rows.slice(0, SAMPLE_ROWS),
+        lastRow: s.rows.length > SAMPLE_ROWS ? s.rows[s.rows.length - 1] : undefined,
+    }));
+}
 
 /**
  * Get the max epoch from exchange rate cache data
