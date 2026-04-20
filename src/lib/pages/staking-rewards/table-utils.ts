@@ -156,14 +156,30 @@ export function computeEpochData(
             if (principal && principal !== '0') {
                 try {
                     let endPrincipal = BigInt(principal);
-                    // Subtract unstaked amounts in this epoch
+                    // Subtract principal amounts that leave this stake object
+                    // during the epoch:
+                    //   - Unstaked / Partial Unstake: principal goes back to coins
+                    //   - Unlocked (destroyed side only): a TimelockedStakedIota
+                    //     is being converted into a new StakedIota in the same
+                    //     tx; the new object already contributes the principal,
+                    //     so zero out this side to avoid double-counting.
+                    //     The destroyed side is identified by lastEpoch === epoch.
                     if (stakeObject.actionByEpoch && stakeObject.actionByEpoch[epoch]) {
                         const actions = stakeObject.actionByEpoch[epoch];
-                        // Sum up all unstaked amounts in this epoch
                         for (const action of actions) {
                             if (
                                 (action.action === 'Unstaked' ||
                                     action.action === 'Partial Unstake') &&
+                                action.amount
+                            ) {
+                                try {
+                                    endPrincipal -= BigInt(action.amount);
+                                } catch {
+                                    // Skip invalid amount
+                                }
+                            } else if (
+                                action.action === 'Unlocked' &&
+                                stakeObject.lastEpoch === epoch &&
                                 action.amount
                             ) {
                                 try {

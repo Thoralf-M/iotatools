@@ -522,7 +522,7 @@ Epoch    |                 Staked |                Rewards |            Accumula
   ▶ [Unlocked] ObjId: 0x86c3671f080f839bd76d56eeb5a56f463336c94fb66116e332fd9d6081767bb1 | TX: FWVBQK2tUgfjtMY5oAN6e6YeVKRMyBd6PVLGzMfidyMo | Validator: Encapsulate | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0x3bca2d5801c05d4fe576d6289b82e97ebb17e1dfd9316365b664aeb2a384c23f | TX: 6Qm9MTnE9t3BxukJp38dBR461KjRFCKrZq1GJ2yYXozx | Validator: HashKeyCloud | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0xa1cb11e4ef55942a6a27b88be691baed339d652c05b614f997846db4d671b785 | TX: DQBELz9dA8TzPYw3mwLvwYgNrWfP3NGXnEX7WoUSAaX1 | Validator: Lavender.Five Nodes | Amount: 2,816,564.86
-331      |         218,958,321.41 |              50,954.73 |          19,964,156.63 |                   0.00 |           6,707,500.69 |          13,256,655.94
+331      |         163,627,022.74 |              50,954.73 |          19,964,156.63 |                   0.00 |           6,707,500.69 |          13,256,655.94
 332      |         163,627,022.74 |              50,755.56 |          20,014,912.19 |                   0.00 |           6,707,500.69 |          13,307,411.51
 333      |         163,627,022.74 |              50,718.48 |          20,065,630.68 |                   0.00 |           6,707,500.69 |          13,358,129.99
 334      |         163,627,022.74 |              50,657.78 |          20,116,288.45 |                   0.00 |           6,707,500.69 |          13,408,787.77
