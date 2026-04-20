@@ -182,6 +182,8 @@ export async function exportTableToPDF(
         options,
     });
     const doc = await renderSectionsToPdf(sections);
-    const suffix = options.fileNameSuffix?.trim() || new Date().toISOString().split('T')[0];
-    doc.save(`staking-rewards-table-${suffix}.pdf`);
+    const stem =
+        options.fileName?.trim() ||
+        `staking-rewards-table-${new Date().toISOString().split('T')[0]}`;
+    doc.save(`${stem}.pdf`);
 }

@@ -15,7 +15,7 @@
 
     let {
         open = false,
-        defaultFileNameSuffix = '',
+        defaultFileName = '',
         pricesAvailable = false,
         validatorsAvailable = false,
         stakeObjectsAvailable = false,
@@ -24,7 +24,8 @@
         onExport,
     }: {
         open: boolean;
-        defaultFileNameSuffix?: string;
+        /** Default filename stem (no extension) shown when the dialog opens. */
+        defaultFileName?: string;
         pricesAvailable?: boolean;
         validatorsAvailable?: boolean;
         stakeObjectsAvailable?: boolean;
@@ -37,7 +38,7 @@
             includeValidators: boolean;
             wrapStakeObjects: boolean;
             wrapValidators: boolean;
-            fileNameSuffix: string;
+            fileName: string;
         }) => void;
     } = $props();
 
@@ -46,9 +47,9 @@
     let format = $state<ExportFormat>('csv');
     let includePrices = $state(true);
     let includeValidators = $state(true);
-    let wrapStakeObjects = $state(false);
-    let wrapValidators = $state(false);
-    let fileNameSuffix = $state('');
+    let wrapStakeObjects = $state(true);
+    let wrapValidators = $state(true);
+    let fileName = $state('');
     let isMaximized = $state(false);
 
     let effectiveOpts = $derived<PreviewOpts>({
@@ -121,12 +122,12 @@
     });
 
     // Seed the filename field only when the dialog transitions to open —
-    // `defaultFileNameSuffix` is read via `untrack` so a parent-side refresh
-    // (e.g. the timeframe changes and pushes a new suffix while the user is
+    // `defaultFileName` is read via `untrack` so a parent-side refresh
+    // (e.g. the timeframe changes and pushes a new default while the user is
     // still typing) can't clobber what they've typed.
     $effect(() => {
         if (open) {
-            fileNameSuffix = untrack(() => defaultFileNameSuffix);
+            fileName = untrack(() => defaultFileName);
         }
     });
 
@@ -137,7 +138,7 @@
             includeValidators: validatorsAvailable && includeValidators,
             wrapStakeObjects: stakeObjectsAvailable && wrapStakeObjects,
             wrapValidators: validatorsAvailable && wrapValidators,
-            fileNameSuffix,
+            fileName,
         });
     }
 
@@ -317,8 +318,11 @@
                 <section>
                     <div class="section-title">Filename</div>
                     <label class="filename-field">
-                        <span>staking-rewards-table-</span>
-                        <input type="text" bind:value={fileNameSuffix} placeholder="YYYY-MM-DD" />
+                        <input
+                            type="text"
+                            bind:value={fileName}
+                            placeholder="staking-rewards-table-YYYY-MM-DD"
+                        />
                         <span>.{format}</span>
                     </label>
                 </section>

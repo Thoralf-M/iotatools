@@ -242,8 +242,10 @@ export function exportTableToCSV(
         options,
     });
     const csvContent = sectionsToCsv(sections);
-    const suffix = options.fileNameSuffix?.trim() || new Date().toISOString().split('T')[0];
-    downloadCSV(csvContent, `staking-rewards-table-${suffix}.csv`);
+    const stem =
+        options.fileName?.trim() ||
+        `staking-rewards-table-${new Date().toISOString().split('T')[0]}`;
+    downloadCSV(csvContent, `${stem}.csv`);
 }
 
 /**
@@ -363,9 +365,6 @@ function csvRow(cells: string[]): string {
     return cells.map((cell) => '"' + String(cell).replace(/"/g, '""') + '"').join(',');
 }
 
-/**
- * Download CSV content as a file
- */
 function downloadCSV(csvContent: string, filename: string): void {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);

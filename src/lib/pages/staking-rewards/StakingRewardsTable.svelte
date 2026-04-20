@@ -81,7 +81,7 @@
         onPricesFetched,
         noTransactionsFound = false,
         timeFrameFilteredEpochs = undefined as number[] | undefined,
-        csvFileNameSuffix = '' as string,
+        exportFileName = '' as string,
     } = $props();
 
     let windowWidth = $state(0);
@@ -291,16 +291,15 @@
         includeValidators: boolean;
         wrapStakeObjects: boolean;
         wrapValidators: boolean;
-        fileNameSuffix: string;
+        fileName: string;
     }) {
-        showExportDialog = false;
         exportError = '';
         const options: ExportOptions = {
             showPriceColumns: opts.includePrices,
             showValidatorColumns: opts.includeValidators,
             epochPrices,
             selectedCurrency,
-            fileNameSuffix: opts.fileNameSuffix || csvFileNameSuffix,
+            fileName: opts.fileName || exportFileName,
             wrapStakeObjects: opts.wrapStakeObjects,
             wrapValidators: opts.wrapValidators,
         };
@@ -315,11 +314,11 @@
             options,
         ] as const;
 
+        // Leave the dialog open after exporting — Chrome occasionally drops
+        // rapid same-tab downloads, and keeping the dialog open lets users
+        // retry without reopening it. Closed manually via X / Cancel / Esc.
         try {
             if (opts.format === 'pdf') {
-                // PDF export is async (dynamic jsPDF import + render); a
-                // rejection here shouldn't silently become an unhandled
-                // promise.
                 exportTableToPDF(...args).catch((err) => {
                     console.error('PDF export failed:', err);
                     exportError = err instanceof Error ? err.message : 'Failed to export PDF';
@@ -460,7 +459,7 @@
 
 <ExportDialog
     open={showExportDialog}
-    defaultFileNameSuffix={csvFileNameSuffix}
+    defaultFileName={exportFileName}
     pricesAvailable={Object.keys(epochPrices).length > 0}
     validatorsAvailable={uniqueValidators.length > 0}
     stakeObjectsAvailable={stakeObjects.length > 0}

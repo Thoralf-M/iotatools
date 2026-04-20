@@ -218,19 +218,20 @@
         epochs: timeFrameFilteredEpochs,
     };
 
-    // Build the CSV filename suffix from the active timeframe's date range so
-    // the exported file reflects the filter (e.g. "2026-01-01_to_2026-03-31")
-    // instead of today's date.
-    $: csvFileNameSuffix = (() => {
-        if (selectedTimeFrame === 'all') return '';
+    // Build the default export filename stem from the active timeframe so the
+    // file reflects the filter (e.g. "2026-01-01_to_2026-03-31") instead of
+    // today's date. The user can override this entirely in the export dialog.
+    $: exportFileName = (() => {
+        const fmt = (d: Date) =>
+            `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const today = fmt(new Date());
+        if (selectedTimeFrame === 'all') return `staking-rewards-table-${today}`;
         const range =
             selectedTimeFrame === 'custom'
                 ? customDateRange
                 : getTimeFrameDateRange(selectedTimeFrame);
-        if (!range) return '';
-        const fmt = (d: Date) =>
-            `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        return `${fmt(range.start)}_to_${fmt(range.end)}`;
+        if (!range) return `staking-rewards-table-${today}`;
+        return `staking-rewards-table-${fmt(range.start)}_to_${fmt(range.end)}`;
     })();
 
     // Fetch epoch end dates when tableData changes
@@ -554,7 +555,7 @@
             onPricesFetched={handlePricesFetched}
             {noTransactionsFound}
             {timeFrameFilteredEpochs}
-            {csvFileNameSuffix}
+            {exportFileName}
         />
     </div>
     {#if stakeObjects.length > 0}
