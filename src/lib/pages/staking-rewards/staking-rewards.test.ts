@@ -613,11 +613,17 @@ describe('Staking Rewards - Reduced Transactions with Current Objects', () => {
             const fullSnapLines = parseEpochLines(fullSnapshot);
             const reducedSnapLines = parseEpochLines(reducedSnapshot);
 
-            // Pick the newest epoch present in BOTH snapshot files. This keeps
-            // the test robust against cache refreshes updating one snapshot but
-            // not the other (e.g. the primary snapshot ends earlier than the
-            // reduced ones after a cache update).
-            const commonEpochs = [...fullSnapLines.keys()].filter((e) => reducedSnapLines.has(e));
+            // Pick the newest epoch present in BOTH snapshot files, excluding
+            // each snapshot's final row — that row was the "unfinished" epoch
+            // at snapshot-creation time (rewards recorded as 0.00). Once the
+            // cache is refreshed past it, the live run treats that epoch as
+            // fully completed, so its live values will no longer match the
+            // frozen snapshot values.
+            const fullMaxEpoch = Math.max(...fullSnapLines.keys());
+            const reducedMaxEpoch = Math.max(...reducedSnapLines.keys());
+            const commonEpochs = [...fullSnapLines.keys()]
+                .filter((e) => reducedSnapLines.has(e))
+                .filter((e) => e !== fullMaxEpoch && e !== reducedMaxEpoch);
             expect(commonEpochs.length).toBeGreaterThan(0);
             const lastCompletedEpoch = Math.max(...commonEpochs);
 
@@ -667,7 +673,14 @@ describe('Staking Rewards - Reduced Transactions with Current Objects', () => {
         const generatedByEpoch = parseEpochLines(generated);
 
         expect(expectedByEpoch.size).toBeGreaterThan(0);
+        // Skip the final epoch in the committed snapshot — it was the
+        // "unfinished" epoch at snapshot-creation time (rewards recorded as
+        // 0.00). After a cache refresh the live run treats it as a fully
+        // completed epoch with real rewards, so its values will no longer
+        // match the frozen snapshot row.
+        const expectedMaxEpoch = Math.max(...expectedByEpoch.keys());
         for (const [epoch, expectedCols] of expectedByEpoch) {
+            if (epoch === expectedMaxEpoch) continue;
             const generatedCols = generatedByEpoch.get(epoch);
             expect(generatedCols, `missing row for epoch ${epoch}`).toBeDefined();
             expect(generatedCols).toEqual(expectedCols);
