@@ -646,8 +646,11 @@
 
                 <dt>How much staking reward do I miss?</dt>
                 <dd>
-                    Your deposits remain staked until execution, so you keep earning rewards. During
-                    the restaking transition you miss one epoch of rewards.
+                    Your deposits remain staked until execution, so you keep earning rewards up to
+                    that point. After restaking, the candidate becomes an active validator only in
+                    the second following epoch and can only start earning rewards from then on, so
+                    you miss at least two epochs of rewards during the transition, but nothing
+                    before.
                 </dd>
 
                 <dt>What happens if the pool is full (1,000 deposits)?</dt>
