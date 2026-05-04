@@ -131,25 +131,78 @@ export async function getObjectsForAccounts(
     }
 }
 
-// Fetch current IOTA price from CoinGecko
-export async function fetchCurrentPrice(): Promise<{ usd: number; eur: number } | null> {
+// ─── IOTA price (CoinGecko) ─────────────────────────────────────────────
+// Cached in localStorage so reloads / cross-page navigation don't hammer
+// CoinGecko's free tier (which rate-limits aggressively). The "Fetch
+// Price" button bypasses the cache when called without `maxAgeMs`.
+
+const PRICE_CACHE_KEY = 'iota-price-cache-v1';
+type CachedPrice = { usd: number; eur: number; fetchedAt: number };
+
+function readPriceCache(): CachedPrice | null {
+    try {
+        const raw = typeof localStorage !== 'undefined' && localStorage.getItem(PRICE_CACHE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (
+            parsed &&
+            typeof parsed.fetchedAt === 'number' &&
+            (typeof parsed.usd === 'number' || typeof parsed.eur === 'number')
+        ) {
+            return parsed as CachedPrice;
+        }
+        return null;
+    } catch {
+        return null;
+    }
+}
+
+function writePriceCache(price: { usd: number; eur: number }): void {
+    try {
+        if (typeof localStorage === 'undefined') return;
+        const data: CachedPrice = { ...price, fetchedAt: Date.now() };
+        localStorage.setItem(PRICE_CACHE_KEY, JSON.stringify(data));
+    } catch (err) {
+        console.warn('Failed to write price cache:', err);
+    }
+}
+
+/**
+ * Fetch the current IOTA price from CoinGecko, optionally serving from a
+ * localStorage cache when fresh enough.
+ *
+ * Pass `maxAgeMs > 0` from auto-fetch paths (component mount, page nav)
+ * so reloads within the freshness window reuse the cached value. Omit the
+ * option (or pass 0) for the manual "Fetch Price" button so the user can
+ * force a refresh.
+ *
+ * A successful fetch always updates the cache, regardless of whether the
+ * call hit the network or not.
+ */
+export async function fetchCurrentPrice(
+    opts: { maxAgeMs?: number } = {},
+): Promise<{ usd: number; eur: number } | null> {
+    const maxAgeMs = opts.maxAgeMs ?? 0;
+    if (maxAgeMs > 0) {
+        const cached = readPriceCache();
+        if (cached && Date.now() - cached.fetchedAt < maxAgeMs) {
+            return { usd: cached.usd, eur: cached.eur };
+        }
+    }
     try {
         const url = 'https://api.coingecko.com/api/v3/coins/iota';
         const res = await fetch(url);
-
         if (res.ok) {
             const data = await res.json();
             const usd = data?.market_data?.current_price?.usd;
             const eur = data?.market_data?.current_price?.eur;
-
             if (typeof usd === 'number' || typeof eur === 'number') {
-                return { usd, eur };
-            } else {
-                return null;
+                const price = { usd, eur };
+                writePriceCache(price);
+                return price;
             }
-        } else {
-            return null;
         }
+        return null;
     } catch (err) {
         console.error('Failed to fetch current price:', err);
         return null;

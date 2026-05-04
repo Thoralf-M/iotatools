@@ -1,137 +1,316 @@
 <script lang="ts">
-    import { toBase64 } from '@iota/bcs';
-    import { Transaction } from '@iota/iota-sdk/transactions';
     import { isValidIotaAddress } from '@iota/iota-sdk/utils';
-    import { dragHandle, dragHandleZone, type DndEvent } from 'svelte-dnd-action';
+    import { untrack } from 'svelte';
+    import type { DndEvent } from 'svelte-dnd-action';
 
-    import TransactionView from '../../components/TransactionView.svelte';
-    import { getClient, getSelectedChain } from '../../utils/client';
-    import { formatNumberWithUnderscores, nanoToIota } from '../../utils/iota-nano-conversion';
-    import { requireMainnetTransactionConfirmation } from '../../utils/mainnet-transaction-confirmation';
-    import { sharedTransactionExecution, TransactionExecution } from '../../utils/shared-in-memory';
     import { iota_accounts } from '../../utils/signer-data';
-    import { calculateGasFee } from '../../utils/transaction-execution';
-    import { getActiveWallet } from '../../utils/web-wallet';
+    import { executeTransaction } from '../../utils/transaction-execution';
+    import {
+        fetchAllExchangeRates,
+        setInitialExchangeRateCacheFromBinary,
+    } from '../staking-rewards';
+    // @ts-ignore - Vite ?raw import returns the file as a string
+    import exchangeRateCacheBinary from '../staking-rewards/cache/exchange-rate-cache.bin?raw';
+    import AccountCard from './AccountCard.svelte';
+    import type { Currency, FiatPrice } from './balance-utils';
+    import BalanceSummary from './BalanceSummary.svelte';
     import {
         computeAllStakingRewards,
         fetchCurrentPrice,
         getObjectsForAccounts,
         type ExtendedAccount,
-        type ExtendedObject,
     } from './multi-account-service';
+    import type { StakingMetricInfo } from './ObjectItem.svelte';
+    import {
+        poolNetAprOverWindow,
+        poolReturnOverWindow,
+        stakeRewardsInWindow,
+        timeFrameToEpochRange,
+        type StakingTimeFrame,
+    } from './staking-metrics';
+    import { buildSwitchValidatorTransactionMulti } from './staking-transactions';
+    import StakingControls, { type StakingMetricType } from './StakingControls.svelte';
+    import StakingTrendChart, { type UserStakeRef } from './StakingTrendChart.svelte';
+    import Toolbar from './Toolbar.svelte';
+    import TransactionResults from './TransactionResults.svelte';
+    import {
+        executeTransferTransactions,
+        getMovements,
+        prepareTransferTransactions,
+    } from './transfer-transactions';
+    import {
+        effectiveCommissionBps,
+        fetchValidatorsForStaking,
+        type ValidatorInfoFull,
+    } from './validator-info';
+    import ValidatorComparisonTable from './ValidatorComparisonTable.svelte';
 
-    // Will be updated with the result - array of results, one per transaction
-    let transactionResults: any[] = $state([]);
-    let currentResultIndex = $state(0);
-    let syncError = $state('');
-
+    // ─── Core multi-account state ────────────────────────────────────────────
     let extendedAccounts: ExtendedAccount[] = $state([]);
-    let allAccountsTotalBalance = $derived.by(() => {
-        let total = BigInt(0);
-        for (let account of extendedAccounts) {
-            total += account.objects.reduce((acc, obj) => {
-                let amountToAdd = BigInt(0);
-                if (obj.data.content.fields?.balance) {
-                    amountToAdd = BigInt(obj.data.content.fields.balance);
-                } else if (obj.data.content.fields?.principal) {
-                    amountToAdd = BigInt(obj.data.content.fields.principal);
-                }
-                return acc + amountToAdd;
-            }, BigInt(0));
+    let transactionResults: any[] = $state([]);
+    let syncError = $state('');
+    let newAccountAddress = $state('');
+    let newAccountError = $state('');
+    let stakingMode = $state(false);
+    let syncing = $state(false);
+    let numTransfers = $derived(getMovements(extendedAccounts).size);
 
-            total += account.timelockedObjects.reduce((acc, obj) => {
-                let amountToAdd = BigInt(0);
-                if (obj.data.content.fields?.locked) {
-                    amountToAdd = BigInt(obj.data.content.fields?.locked);
-                } else if (obj.data.content.fields?.staked_iota?.fields?.principal) {
-                    amountToAdd = BigInt(obj.data.content.fields.staked_iota.fields.principal);
-                }
-                return acc + amountToAdd;
-            }, BigInt(0));
+    /** Lifted out of BalanceSummary so the staking views (validator table,
+     *  optimize panel, charts) can render fiat values consistently. The
+     *  price is fetched once on mount; the currency selector lives in
+     *  BalanceSummary and is two-way bound. */
+    let selectedCurrency = $state<Currency>('USD');
+    let currentPrice = $state<FiatPrice>(null);
+    let priceFetched = false;
 
-            total += account.stakingRewards;
+    // ─── Staking state ───────────────────────────────────────────────────────
+    let selectedTimeFrame: StakingTimeFrame = $state('last-7-days');
+    let metricType: StakingMetricType = $state('rewards');
+    let validators = $state<ValidatorInfoFull[]>([]);
+    let currentEpoch = $state(0);
+    let stakingLoading = $state(false);
+    let stakingError = $state('');
+    /** External focus signal sent to the trend chart when the user clicks
+     *  Optimize on a stake card. The chart consumes the value (replaces its
+     *  selection with this stake, opens itself, scrolls into view) and
+     *  resets it back to null via $bindable. */
+    let chartFocusStake = $state<string | null>(null);
+    let cacheInitialized = false;
+
+    // Indexes derived from `validators`. Re-derive on change so callers can
+    // do O(1) lookups without iterating the full list.
+    let validatorsByPool = $derived(new Map(validators.map((v) => [v.poolId, v])));
+    let validatorsByAddress = $derived(new Map(validators.map((v) => [v.address, v])));
+
+    // Per-pool sum of the user's staked principal across all synced accounts.
+    // The Set of pool ids is derived from the keys for callers that just need
+    // membership; the bigint values feed the comparison table's "your stake"
+    // amount + percentage display.
+    let userStakeByPool = $derived.by(() => {
+        const map = new Map<string, bigint>();
+        for (const acc of extendedAccounts) {
+            for (const obj of acc.objects) {
+                if (obj.label !== 'StakedIota') continue;
+                const poolId = obj.data?.content?.fields?.pool_id;
+                const principal = obj.data?.content?.fields?.principal;
+                if (!poolId || !principal) continue;
+                map.set(poolId, (map.get(poolId) ?? 0n) + BigInt(principal));
+            }
         }
-        return total;
+        return map;
+    });
+    let userPoolIds = $derived(new Set(userStakeByPool.keys()));
+
+    let epochRange = $derived(timeFrameToEpochRange(selectedTimeFrame, currentEpoch || 1));
+
+    // Net APR per pool over the chosen window. Computed once so the per-stake
+    // metric computation and the "best alternative" check both reuse it.
+    let aprByPool = $derived.by(() => {
+        const map = new Map<string, number>();
+        for (const v of validators) {
+            map.set(
+                v.poolId,
+                poolNetAprOverWindow(v.poolId, epochRange.fromEpoch, epochRange.toEpoch),
+            );
+        }
+        return map;
     });
 
-    let allAccountsTotalRewards = $derived.by(() => {
-        let total = BigInt(0);
-        for (let account of extendedAccounts) {
-            total += account.stakingRewards;
+    let bestCommitteeApr = $derived.by(() => {
+        let best = 0;
+        for (const v of validators) {
+            if (!v.isCommittee) continue;
+            const apr = aprByPool.get(v.poolId) ?? 0;
+            if (apr > best) best = apr;
         }
-        return total;
+        return best;
     });
 
-    let allAccountsTotalIotaCoins = $derived.by(() => {
-        let total = BigInt(0);
-        for (let account of extendedAccounts) {
-            total += account.objects.reduce((acc, obj) => {
-                let amountToAdd = BigInt(0);
-                if (
-                    obj.data.content.fields?.balance &&
-                    obj.data.content.type === '0x2::coin::Coin<0x2::iota::IOTA>'
-                ) {
-                    amountToAdd = BigInt(obj.data.content.fields.balance);
-                }
-                return acc + amountToAdd;
-            }, BigInt(0));
-
-            total += account.timelockedObjects.reduce((acc, obj) => {
-                let amountToAdd = BigInt(0);
-                if (obj.data.content.fields?.locked) {
-                    amountToAdd = BigInt(obj.data.content.fields.locked);
-                }
-                return acc + amountToAdd;
-            }, BigInt(0));
+    /** Flat list of the user's StakedIota objects with each one's resolved
+     *  validator attached. Drives the per-stake selector inside
+     *  StakingTrendChart. Excludes timelocked stakes (handled separately). */
+    let userStakeRefs = $derived.by<UserStakeRef[]>(() => {
+        const refs: UserStakeRef[] = [];
+        for (const acc of extendedAccounts) {
+            for (const obj of acc.objects) {
+                if (obj.label !== 'StakedIota') continue;
+                const poolId = obj.data?.content?.fields?.pool_id;
+                const principal = obj.data?.content?.fields?.principal;
+                if (!poolId || !principal) continue;
+                const validator = validatorsByPool.get(poolId);
+                if (!validator) continue;
+                refs.push({
+                    stakeId: obj.id,
+                    accountAddress: acc.address,
+                    principal: BigInt(principal),
+                    validator,
+                });
+            }
         }
-        return total;
+        return refs;
     });
 
-    let allAccountsTotalStaked = $derived.by(() => {
-        let total = BigInt(0);
-        for (let account of extendedAccounts) {
-            total += account.objects.reduce((acc, obj) => {
-                let amountToAdd = BigInt(0);
-                if (obj.data.content.fields?.principal && obj.label === 'StakedIota') {
-                    amountToAdd = BigInt(obj.data.content.fields.principal);
-                }
-                return acc + amountToAdd;
-            }, BigInt(0));
-
-            total += account.timelockedObjects.reduce((acc, obj) => {
-                let amountToAdd = BigInt(0);
-                if (obj.data.content.fields?.staked_iota?.fields?.principal) {
-                    amountToAdd = BigInt(obj.data.content.fields.staked_iota.fields.principal);
-                }
-                return acc + amountToAdd;
-            }, BigInt(0));
+    /** The lowest known net APR among the user's current stakes. Used by the
+     *  validator-comparison table as the "old APR" baseline when computing
+     *  per-row break-even days. The minimum (rather than weighted average) is
+     *  the more actionable number: "if I moved my weakest-yielding stake to
+     *  this validator, when does it pay off?". An average comparison would
+     *  hide every validator that beats some of your stakes but not others.
+     *
+     *  Pools whose APR isn't yet computed (returns 0 — usually missing
+     *  exchange-rate data) are skipped so they don't pin the minimum to 0
+     *  and make every other row look profitable.
+     *
+     *  Returns 0 when the user has no stakes (or no stakes with known APR),
+     *  which the table renders as "—". */
+    let userMinNetApr = $derived.by(() => {
+        let min = Infinity;
+        for (const poolId of userStakeByPool.keys()) {
+            const apr = aprByPool.get(poolId) ?? 0;
+            if (apr <= 0) continue;
+            if (apr < min) min = apr;
         }
-        return total;
+        return min === Infinity ? 0 : min;
     });
 
-    let selectedCurrency = $state('USD');
-    let currentPrice = $state<{ usd: number; eur: number } | null>(null);
+    /** Per-stake metric block, keyed by stake object id. Only populated for
+     *  StakedIota objects whose pool is known to us. Timelocked stakes are
+     *  intentionally omitted — see Toolbar staking-mode comment. */
+    let stakingMetrics = $derived.by(() => {
+        if (!stakingMode || validators.length === 0) return new Map<string, StakingMetricInfo>();
+        const map = new Map<string, StakingMetricInfo>();
+        for (const acc of extendedAccounts) {
+            for (const obj of acc.objects) {
+                if (obj.label !== 'StakedIota') continue;
+                const poolId = obj.data?.content?.fields?.pool_id;
+                const principalRaw = obj.data?.content?.fields?.principal;
+                const activationEpochRaw = obj.data?.content?.fields?.stake_activation_epoch;
+                if (!poolId || !principalRaw) continue;
+                const validator = validatorsByPool.get(poolId);
+                if (!validator) continue;
 
+                const principal = BigInt(principalRaw);
+                const activationEpoch = activationEpochRaw ? parseInt(activationEpochRaw) : 0;
+
+                const ourApr = aprByPool.get(poolId) ?? 0;
+                const rewardsFraction = poolReturnOverWindow(
+                    poolId,
+                    epochRange.fromEpoch,
+                    epochRange.toEpoch,
+                );
+                // Actual IOTA earned in the chosen window for this specific
+                // stake (uses the stake's activation epoch + principal). Used
+                // by the per-stake badge to show "Window rewards X% (Y IOTA)".
+                const rewardsInWindow = stakeRewardsInWindow(
+                    poolId,
+                    principal,
+                    activationEpoch,
+                    epochRange.fromEpoch,
+                    epochRange.toEpoch,
+                );
+                // Show "Optimize" prominently when at least one other committee
+                // validator has materially higher net APR (≥0.1% absolute gap).
+                const hasBetterAlternative = bestCommitteeApr - ourApr > 0.001;
+
+                map.set(obj.id, {
+                    metricType,
+                    // IIP-8 effective commission, not the declared rate —
+                    // see `effectiveCommissionBps` for the rationale.
+                    commissionPct: effectiveCommissionBps(validator) / 100,
+                    rewardsFractionInWindow: rewardsFraction,
+                    rewardsInWindowNano: rewardsInWindow,
+                    principalNano: principal,
+                    validatorName: validator.name,
+                    hasBetterAlternative,
+                });
+            }
+        }
+        return map;
+    });
+
+    /** Non-reactive in-flight flag so the load can early-return without
+     *  re-triggering the $effect below. The $state-backed `stakingLoading`
+     *  is only used for UI display. */
+    let stakingDataInFlight = false;
+
+    // Auto-load staking data when the mode is first toggled on, or when the
+    // account set has changed (e.g. after a sync). The exchange-rate cache is
+    // initialized lazily here so users who never enter staking mode don't pay
+    // the cost.
+    //
+    // The work is wrapped in `untrack` because Svelte 5 tracks reactive reads
+    // and writes through called async functions. Without it, every state
+    // write in loadStakingData (`stakingLoading`, `validators`, `currentEpoch`)
+    // would re-trigger this effect — and since loadStakingData ends with
+    // `stakingLoading = false`, the effect would loop forever, hammering
+    // `getLatestIotaSystemState` and `getProtocolConfig` on the RPC node.
+    $effect(() => {
+        if (!stakingMode) return;
+        // Re-trigger when the set of user pools changes (new sync).
+        void userPoolIds.size;
+        untrack(() => {
+            if (!stakingDataInFlight) loadStakingData();
+        });
+    });
+
+    async function loadStakingData() {
+        if (stakingDataInFlight) return;
+        stakingDataInFlight = true;
+        try {
+            stakingLoading = true;
+            stakingError = '';
+            if (!cacheInitialized) {
+                setInitialExchangeRateCacheFromBinary(exchangeRateCacheBinary);
+                cacheInitialized = true;
+            }
+            const { validators: list, currentEpoch: ep } = await fetchValidatorsForStaking();
+            validators = list;
+            currentEpoch = ep;
+
+            // Warm any missing recent epochs for pools the user is staking with.
+            // Cheap when the bundled cache already covers them.
+            if (userPoolIds.size > 0) {
+                try {
+                    await fetchAllExchangeRates(ep, userPoolIds);
+                } catch (err) {
+                    console.warn('Warming exchange-rate cache failed (non-fatal):', err);
+                }
+            }
+        } catch (err: any) {
+            stakingError = err?.toString() ?? 'Failed to load staking data';
+            console.error(err);
+        } finally {
+            stakingLoading = false;
+            stakingDataInFlight = false;
+        }
+    }
+
+    // ─── Sync / mutation flows (transfers) ───────────────────────────────────
+    /** Re-entrancy guard so a click while a sync is in flight is a no-op. The
+     *  $state-backed `syncing` is what the toolbar reads to disable the
+     *  button + show the spinner; this duplicate non-reactive flag survives
+     *  reactivity edge-cases (e.g. an effect firing before `syncing` flushes). */
+    let syncInFlight = false;
     const syncReset = async () => {
+        if (syncInFlight) return;
+        syncInFlight = true;
+        syncing = true;
         try {
             syncError = '';
-            // Preserve external accounts (not in $iota_accounts)
             const externalAccounts = extendedAccounts.filter(
                 (acc) => !$iota_accounts.some((iotaAcc) => iotaAcc.address === acc.address),
             );
-            // Reset only the $iota_accounts
-            const iotaAccounts = $iota_accounts.map((account, i) => {
-                return {
-                    id: account.address,
-                    address: account.address,
-                    label: account.label,
-                    objects: [],
-                    timelockedObjects: [],
-                    stakingRewards: BigInt(0),
-                    isCollapsed: false,
-                };
-            });
+            const iotaAccounts = $iota_accounts.map((account) => ({
+                id: account.address,
+                address: account.address,
+                label: account.label,
+                objects: [],
+                timelockedObjects: [],
+                stakingRewards: BigInt(0),
+                isCollapsed: false,
+            }));
             extendedAccounts = [...iotaAccounts, ...externalAccounts];
+
             try {
                 extendedAccounts = await getObjectsForAccounts(extendedAccounts);
             } catch (err: any) {
@@ -144,209 +323,81 @@
                 syncError = err.toString();
                 console.error(err);
             }
+            // When staking mode is on, also refresh validator info + warm any
+            // missing recent exchange rates. Without this, Sync only updates
+            // owned objects + accumulated rewards but the comparison table
+            // still reflects the staking snapshot from the last load.
+            if (stakingMode) {
+                try {
+                    await loadStakingData();
+                } catch (err: any) {
+                    console.error('Refreshing staking data during sync failed:', err);
+                }
+            }
         } catch (err: any) {
             syncError = err.toString();
             console.error(err);
+        } finally {
+            syncing = false;
+            syncInFlight = false;
         }
     };
 
-    function handleDnd(event: CustomEvent<DndEvent<any>>, accountId: string) {
-        // Find the account being updated and set its new items
-        const idx = extendedAccounts.findIndex((acc) => acc.address === accountId);
-        if (idx !== -1) {
-            // Make items unique by id
-            const seen = new Set();
-            const uniqueItems = event.detail.items.filter((item) => {
-                if (seen.has(item.id)) {
-                    return false;
-                }
-                seen.add(item.id);
-                return true;
-            });
-            // Create a new array/object to trigger reactivity
-            extendedAccounts = [
-                ...extendedAccounts.slice(0, idx),
-                { ...extendedAccounts[idx], objects: uniqueItems },
-                ...extendedAccounts.slice(idx + 1),
-            ];
-        }
-    }
-    // Get all the objects that were moved from one account to another
-    function getMovements(): Map<string, Map<string, ExtendedObject[]>> {
-        let movements = new Map<string, Map<string, ExtendedObject[]>>();
-        for (const account of extendedAccounts) {
-            for (const object of account.objects) {
-                if (object.currentOwner !== account.address) {
-                    if (!movements.has(object.currentOwner)) {
-                        movements.set(object.currentOwner, new Map());
-                    }
-                    if (!movements.get(object.currentOwner)!.has(account.address)) {
-                        movements.get(object.currentOwner)!.set(account.address, []);
-                    }
-                    movements.get(object.currentOwner)!.get(account.address)!.push(object);
-                }
-            }
-        }
-        return movements;
-    }
-    interface PreparedTransaction {
-        sender: string;
-        recipients: string[];
-        transaction: Transaction;
-    }
-    async function prepareTxs(): Promise<PreparedTransaction[]> {
-        let preparedTxs = [];
-
-        let movements = getMovements();
-        for (const movement of movements) {
-            const senderAddress = movement[0];
-
-            const tx = new Transaction();
-            for (let [to, objects] of movement[1]) {
-                // If we transfer all gas coin objects, we have to split the gas from one of the objects
-                if (
-                    extendedAccounts
-                        .find((acc) => acc.address == senderAddress)
-                        ?.objects.filter(
-                            (obj) => obj.data.content.type === '0x2::coin::Coin<0x2::iota::IOTA>',
-                        ).length == 0
-                ) {
-                    // Get largest gas coin
-                    let gasCoin = objects
-                        .filter(
-                            (obj) => obj.data.content.type === '0x2::coin::Coin<0x2::iota::IOTA>',
-                        )
-                        .sort((a, b) => {
-                            const aBal = BigInt(a.data.content.fields.balance);
-                            const bBal = BigInt(b.data.content.fields.balance);
-                            if (bBal > aBal) return 1;
-                            if (bBal < aBal) return -1;
-                            return 0;
-                        })[0];
-                    if (!gasCoin) {
-                        throw new Error(
-                            `No gas coin found for sender ${senderAddress}. Please ensure the account has IOTA coins.`,
-                        );
-                    }
-                    console.log('Using transfer object as gasCoin', gasCoin);
-                    tx.setGasPayment([
-                        {
-                            objectId: gasCoin.id,
-                            version: gasCoin.data.version,
-                            digest: gasCoin.data.digest,
-                        },
-                    ]);
-
-                    tx.transferObjects(
-                        objects.map((obj) => {
-                            if (obj.id === gasCoin.id) {
-                                // Replace the gas coin id by the gas argument
-                                return tx.gas;
-                            } else {
-                                return obj.id;
-                            }
-                        }),
-                        to,
-                    );
-                } else {
-                    // Just transfer the objects and let the SDK select the gas
-                    tx.transferObjects(
-                        objects.map((obj) => obj.id),
-                        to,
-                    );
-                }
-            }
-            tx.setSender(senderAddress);
-            // const txBytes = await tx.build({ client });
-
-            preparedTxs.push({
-                sender: senderAddress,
-                recipients: Array.from(movement[1].keys()),
-                transaction: tx,
-            });
-        }
-        return preparedTxs;
-    }
-    // Number of pending transfers
-    let numTransfers = $derived.by(() => {
-        return getMovements().size;
+    /** Auto-trigger sync once on mount so the user lands on a populated view
+     *  without needing to click. Wrapped in `untrack` to avoid the same kind
+     *  of reactivity loop that bit `loadStakingData` previously. */
+    $effect(() => {
+        untrack(() => {
+            if (extendedAccounts.length === 0 && !syncInFlight) syncReset();
+        });
     });
+
+    /** Auto-fetch the IOTA price once per visit so fiat values appear
+     *  alongside IOTA amounts everywhere (badges, optimize panel, chart
+     *  tooltips). The Fetch Price button in BalanceSummary lets the user
+     *  refresh manually. */
+    $effect(() => {
+        untrack(() => {
+            if (priceFetched) return;
+            priceFetched = true;
+            // Auto-fetch tolerates cached values up to 1 hour old to avoid
+            // hammering CoinGecko on every page load. The Fetch Price
+            // button in BalanceSummary calls without `maxAgeMs` so users
+            // can always force a fresh read.
+            fetchCurrentPrice({ maxAgeMs: 60 * 60 * 1000 })
+                .then((p) => {
+                    currentPrice = p;
+                })
+                .catch((err) => console.warn('Initial price fetch failed:', err));
+        });
+    });
+
+    function handleDnd(event: CustomEvent<DndEvent<any>>, accountId: string) {
+        const idx = extendedAccounts.findIndex((acc) => acc.address === accountId);
+        if (idx === -1) return;
+        const seen = new Set();
+        const uniqueItems = event.detail.items.filter((item) => {
+            if (seen.has(item.id)) return false;
+            seen.add(item.id);
+            return true;
+        });
+        extendedAccounts = [
+            ...extendedAccounts.slice(0, idx),
+            { ...extendedAccounts[idx], objects: uniqueItems },
+            ...extendedAccounts.slice(idx + 1),
+        ];
+    }
 
     async function executeTransfers() {
         try {
             transactionResults = [];
-            currentResultIndex = 0;
-            const client = getClient();
-            const executionMode = $sharedTransactionExecution;
-            let preparedTxs = await prepareTxs();
-
-            for (const preparedTx of preparedTxs) {
-                const { sender, recipients, transaction } = preparedTx;
-                console.log(`Executing transfer from ${sender} to:`, recipients.join(', '));
-
-                let result: any;
-
-                switch (executionMode) {
-                    case TransactionExecution.DevInspect:
-                        result = await client.devInspectTransactionBlock({
-                            sender: sender,
-                            transactionBlock: transaction,
-                        });
-                        break;
-                    case TransactionExecution.DryRun:
-                        result = await client.dryRunTransactionBlock({
-                            transactionBlock: await transaction.build({ client }),
-                        });
-                        break;
-                    case TransactionExecution.Send:
-                        const wallet = getActiveWallet();
-                        if (!wallet) {
-                            throw new Error('No active wallet available');
-                        }
-                        await requireMainnetTransactionConfirmation(transaction);
-                        result = await wallet.signAndExecuteTransaction({
-                            transaction,
-                            options: {
-                                showEffects: true,
-                                showObjectChanges: true,
-                                showBalanceChanges: true,
-                            },
-                            account: { address: sender },
-                            // @ts-ignore
-                            chain: getSelectedChain(),
-                        });
-                        break;
-                    case TransactionExecution.Prepare:
-                        let json = JSON.parse(await transaction.toJSON());
-
-                        if (transaction.getData().gasData.price == 0) {
-                            let referenceGasPrice = await client.getReferenceGasPrice();
-                            transaction.setGasPrice(referenceGasPrice);
-                        }
-                        if (transaction.getData().gasData.budget == 0) {
-                            let gas = await calculateGasFee(transaction);
-                            transaction.setGasBudget(BigInt(gas!));
-                        }
-
-                        let transactionBytes = toBase64(await transaction.build({ client }));
-                        result = { json, transactionBytes };
-                        break;
-                    default:
-                        throw new Error(`Unknown transaction execution mode: ${executionMode}`);
-                }
-
-                result.sender = sender;
-                result.recipients = recipients;
-                transactionResults = [...transactionResults, result];
-            }
+            const prepared = prepareTransferTransactions(extendedAccounts);
+            transactionResults = await executeTransferTransactions(prepared);
         } catch (err: any) {
             transactionResults = [{ error: err.toString() }];
             console.error(err);
         }
     }
-
-    let newAccountAddress = $state('');
-    let newAccountError = $state('');
 
     function addExternalAccount() {
         const address = newAccountAddress.trim();
@@ -359,7 +410,6 @@
             newAccountError = 'Invalid IOTA address.';
             return;
         }
-        // Prevent duplicates
         if (
             extendedAccounts.some((acc) => acc.address === address) ||
             $iota_accounts.some((acc) => acc.address === address)
@@ -388,44 +438,75 @@
 
     function getAccountDisplayName(address: string): string {
         const acc = extendedAccounts.find((a) => a.address === address);
-        return acc
-            ? acc.label || address.slice(0, 6) + '...' + address.slice(-4)
-            : address.slice(0, 6) + '...' + address.slice(-4);
+        const fallback = address.slice(0, 6) + '...' + address.slice(-4);
+        return acc?.label || fallback;
     }
 
     function toggleCollapse(accountId: string) {
         const idx = extendedAccounts.findIndex((acc) => acc.id === accountId);
-        if (idx !== -1) {
-            extendedAccounts[idx] = {
-                ...extendedAccounts[idx],
-                isCollapsed: !extendedAccounts[idx].isCollapsed,
-            };
+        if (idx === -1) return;
+        extendedAccounts[idx] = {
+            ...extendedAccounts[idx],
+            isCollapsed: !extendedAccounts[idx].isCollapsed,
+        };
+    }
+
+    // ─── Staking actions ─────────────────────────────────────────────────────
+    /** Per-stake "Optimize" click in an account card → focus the trend chart
+     *  on this stake. The chart owns the actual layout (mode switch, scroll,
+     *  selection replacement). */
+    function openOptimize(stakeId: string) {
+        chartFocusStake = stakeId;
+    }
+
+    /** Build and execute switch transactions for the selected stakes,
+     *  grouped by sending account so each PTB has a single sender. The
+     *  trend chart calls this with whichever stakes the user picked. */
+    async function executeSwitch(stakes: UserStakeRef[], newValidator: ValidatorInfoFull) {
+        if (stakes.length === 0) return;
+        try {
+            transactionResults = [];
+            const byAccount = new Map<string, UserStakeRef[]>();
+            for (const s of stakes) {
+                const list = byAccount.get(s.accountAddress) ?? [];
+                list.push(s);
+                byAccount.set(s.accountAddress, list);
+            }
+            const results: any[] = [];
+            for (const [account, accountStakes] of byAccount) {
+                try {
+                    const tx = buildSwitchValidatorTransactionMulti(
+                        accountStakes.map((s) => s.stakeId),
+                        newValidator.address,
+                    );
+                    tx.setSender(account);
+                    const result: any = await executeTransaction(tx);
+                    result.sender = account;
+                    result.recipients = [newValidator.address];
+                    results.push(result);
+                } catch (err: any) {
+                    results.push({ error: err.toString(), sender: account });
+                    console.error(err);
+                }
+            }
+            transactionResults = results;
+        } catch (err: any) {
+            transactionResults = [{ error: err.toString() }];
+            console.error(err);
         }
     }
 </script>
 
 <main class="container">
-    <div class="toolbar">
-        <div style="display: flex; gap: 0.5rem;">
-            <button onclick={syncReset} style="background: #059669;">Sync/Reset</button>
-        </div>
-        <div
-            style="display: flex; align-items: center; gap: 0.5rem; flex-grow: 1; flex-wrap: wrap;"
-        >
-            <input
-                type="text"
-                placeholder="Enter external address (0x...)"
-                bind:value={newAccountAddress}
-            />
-            <button onclick={addExternalAccount}>Add Account</button>
-        </div>
-
-        <div style="display: flex; gap: 0.5rem;">
-            <button onclick={executeTransfers} disabled={numTransfers === 0}>
-                Execute ({numTransfers}) Transfer{numTransfers !== 1 ? 's' : ''}
-            </button>
-        </div>
-    </div>
+    <Toolbar
+        bind:newAccountAddress
+        bind:stakingMode
+        {numTransfers}
+        {syncing}
+        onSync={syncReset}
+        onAddExternalAccount={addExternalAccount}
+        onExecuteTransfers={executeTransfers}
+    />
 
     {#if newAccountError}
         <div style="color: #ef4444; padding: 0 0.5rem;">{newAccountError}</div>
@@ -435,332 +516,76 @@
         <div style="color: #ef4444; padding: 0 0.5rem;">{syncError}</div>
     {/if}
 
-    {#if transactionResults.length > 0}
-        <div class="transactions-container">
-            <div class="transactions-tabs">
-                <span class="transactions-label">Transfers({transactionResults.length}):</span>
-                {#each transactionResults as result, i}
-                    {@const label = result.sender ? getAccountDisplayName(result.sender) : ''}
-                    <button
-                        onclick={() => (currentResultIndex = i)}
-                        class="transaction-tab {currentResultIndex === i ? 'active' : ''}"
-                        title={result.sender ? `From ${result.sender}` : ''}
-                    >
-                        {i + 1}
-                        {#if label}
-                            (from: {label}){/if}
-                    </button>
-                {/each}
-            </div>
-            <div class="transaction-content">
-                <TransactionView value={transactionResults[currentResultIndex]} />
-            </div>
+    {#if stakingMode}
+        <div class="disclaimer">
+            <strong>Not financial advice.</strong> The numbers shown here are computed from a bundled
+            snapshot of on-chain exchange rates and may be incomplete, stale, or wrong. Past validator
+            performance does not guarantee future returns — commission rates and uptime can change at
+            any time. Verify before acting.
         </div>
+
+        <BalanceSummary
+            accounts={extendedAccounts}
+            {stakingMode}
+            bind:selectedCurrency
+            bind:currentPrice
+        />
+
+        <StakingControls
+            bind:timeFrame={selectedTimeFrame}
+            bind:metricType
+            loading={stakingLoading}
+            loadError={stakingError}
+            validatorsLoaded={validators.length || undefined}
+        />
+
+        {#if validators.length > 0}
+            <StakingTrendChart
+                {validators}
+                fromEpoch={epochRange.fromEpoch}
+                toEpoch={epochRange.toEpoch}
+                {userPoolIds}
+                userStakes={userStakeRefs}
+                {aprByPool}
+                {currentPrice}
+                {selectedCurrency}
+                bind:focusStakeRequest={chartFocusStake}
+                onSwitch={executeSwitch}
+            />
+
+            <ValidatorComparisonTable
+                {validators}
+                timeFrame={selectedTimeFrame}
+                fromEpoch={epochRange.fromEpoch}
+                toEpoch={epochRange.toEpoch}
+                {userStakeByPool}
+                {userMinNetApr}
+                {currentPrice}
+                {selectedCurrency}
+            />
+        {/if}
     {/if}
 
-    <div class="summary-section">
-        <div class="summary-header">
-            <h3>Balance Breakdown</h3>
-            <div class="price-controls">
-                <select bind:value={selectedCurrency}>
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                </select>
-                <button onclick={() => fetchCurrentPrice().then((price) => (currentPrice = price))}>
-                    Fetch Price
-                </button>
-            </div>
-        </div>
-        <div class="table-wrapper">
-            <table class="summary-table">
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Amount (IOTA)</th>
-                        <th>Value ({selectedCurrency})</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="total-row" style="background: rgba(16, 185, 129, 0.1);">
-                        <td><strong>Total</strong></td>
-                        <td
-                            ><strong
-                                >{formatNumberWithUnderscores(
-                                    nanoToIota(allAccountsTotalBalance.toString()),
-                                )}</strong
-                            ></td
-                        >
-                        <td>
-                            <strong>
-                                {currentPrice
-                                    ? (
-                                          parseFloat(
-                                              nanoToIota(allAccountsTotalBalance.toString()),
-                                          ) *
-                                          (selectedCurrency === 'USD'
-                                              ? currentPrice.usd
-                                              : currentPrice.eur)
-                                      ).toFixed(2)
-                                    : '-'}
-                            </strong>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>IOTA Coins</td>
-                        <td
-                            >{formatNumberWithUnderscores(
-                                nanoToIota(allAccountsTotalIotaCoins.toString()),
-                            )}</td
-                        >
-                        <td>
-                            {currentPrice
-                                ? (
-                                      parseFloat(nanoToIota(allAccountsTotalIotaCoins.toString())) *
-                                      (selectedCurrency === 'USD'
-                                          ? currentPrice.usd
-                                          : currentPrice.eur)
-                                  ).toFixed(2)
-                                : '-'}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Staked</td>
-                        <td
-                            >{formatNumberWithUnderscores(
-                                nanoToIota(allAccountsTotalStaked.toString()),
-                            )}</td
-                        >
-                        <td>
-                            {currentPrice
-                                ? (
-                                      parseFloat(nanoToIota(allAccountsTotalStaked.toString())) *
-                                      (selectedCurrency === 'USD'
-                                          ? currentPrice.usd
-                                          : currentPrice.eur)
-                                  ).toFixed(2)
-                                : '-'}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Staking Rewards</td>
-                        <td
-                            >{formatNumberWithUnderscores(
-                                nanoToIota(allAccountsTotalRewards.toString()),
-                            )}</td
-                        >
-                        <td>
-                            {currentPrice
-                                ? (
-                                      parseFloat(nanoToIota(allAccountsTotalRewards.toString())) *
-                                      (selectedCurrency === 'USD'
-                                          ? currentPrice.usd
-                                          : currentPrice.eur)
-                                  ).toFixed(2)
-                                : '-'}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <TransactionResults
+        results={transactionResults}
+        {getAccountDisplayName}
+        title={stakingMode ? 'Staking / transfer transactions' : 'Transfers'}
+    />
 
     <div class="accounts-grid">
         {#each extendedAccounts as account (account.id)}
-            <div class="account-card">
-                <div class="account-header">
-                    <div style="display: flex; flex-direction: column;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <span class="account-title" title={account.address}>
-                                {account.label ||
-                                    account.address.slice(0, 6) + '...' + account.address.slice(-4)}
-                            </span>
-                            <button
-                                style="font-size: 0.7rem; padding: 0.1rem 0.3rem; width: fit-content; background: var(--secondary-color); border-radius: 3px;"
-                                onclick={() => navigator.clipboard.writeText(account.address)}
-                            >
-                                Copy Address
-                            </button>
-                        </div>
-                        <div
-                            class="account-buttons"
-                            style="display: flex; gap: 0.5rem; margin-top: 0.2rem;"
-                        >
-                            <button
-                                style="font-size: 0.7rem; padding: 0.1rem 0.3rem; width: fit-content; border-radius: 3px;"
-                                onclick={() => toggleCollapse(account.id)}
-                            >
-                                {account.isCollapsed ? '▶ Expand' : '▼ Collapse'} ({account.objects
-                                    .length + account.timelockedObjects.length})
-                            </button>
-                        </div>
-                    </div>
-                    <div
-                        style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 0.2rem;"
-                    >
-                        <button
-                            class="danger"
-                            style="font-size: 0.7rem; padding: 0.1rem 0.3rem; width: fit-content; border-radius: 3px;"
-                            onclick={() => removeAccount(account.address)}
-                        >
-                            Remove
-                        </button>
-                        <div class="account-balance">
-                            {formatNumberWithUnderscores(
-                                nanoToIota(
-                                    (
-                                        account.objects.reduce((acc, obj) => {
-                                            let amountToAdd = BigInt(0);
-                                            if (obj.data.content.fields?.balance) {
-                                                amountToAdd = BigInt(
-                                                    obj.data.content.fields.balance,
-                                                );
-                                            } else if (obj.data.content.fields?.principal) {
-                                                amountToAdd = BigInt(
-                                                    obj.data.content.fields.principal,
-                                                );
-                                            }
-                                            return acc + amountToAdd;
-                                        }, BigInt(0)) +
-                                        account.timelockedObjects.reduce((acc, obj) => {
-                                            let amountToAdd = BigInt(0);
-                                            if (obj.data.content.fields?.locked) {
-                                                amountToAdd = BigInt(
-                                                    obj.data.content.fields?.locked,
-                                                );
-                                            } else if (
-                                                obj.data.content.fields?.staked_iota?.fields
-                                                    ?.principal
-                                            ) {
-                                                amountToAdd = BigInt(
-                                                    obj.data.content.fields.staked_iota.fields
-                                                        .principal,
-                                                );
-                                            }
-                                            return acc + amountToAdd;
-                                        }, BigInt(0)) +
-                                        account.stakingRewards
-                                    ).toString(),
-                                ),
-                            )}
-                            <span style="font-size: 0.8em; color: var(--text-muted);">IOTA</span>
-                        </div>
-                    </div>
-                </div>
-
-                {#if !account.isCollapsed}
-                    <div
-                        use:dragHandleZone={{
-                            items: account.objects,
-                            flipDurationMs: 200,
-                        }}
-                        onconsider={(e) => handleDnd(e, account.id)}
-                        onfinalize={(e) => handleDnd(e, account.id)}
-                        class="object-list"
-                    >
-                        {#each account.objects as item (item.id)}
-                            <div
-                                class="object-item"
-                                class:foreign={account.address !== item.currentOwner}
-                            >
-                                <div use:dragHandle class="object-header">
-                                    <span class="object-type" title={item.label}>
-                                        {#if item.label.startsWith('Coin<0x2::iota::IOTA>')}
-                                            IOTA Coin
-                                        {:else}
-                                            {item.label}
-                                        {/if}
-                                    </span>
-                                    <span class="object-amount">
-                                        {#if item.label.startsWith('Coin<0x2::iota::IOTA>')}
-                                            {formatNumberWithUnderscores(
-                                                nanoToIota(item.data?.content.fields?.balance),
-                                            )}
-                                        {:else if item.label == 'StakedIota'}
-                                            {formatNumberWithUnderscores(
-                                                nanoToIota(item.data?.content.fields?.principal),
-                                            )}
-                                        {:else if item.label == 'TimelockedStakedIota'}
-                                            {formatNumberWithUnderscores(
-                                                nanoToIota(
-                                                    item.data.content.fields.staked_iota.fields
-                                                        .principal,
-                                                ),
-                                            )}
-                                        {/if}
-                                    </span>
-                                </div>
-
-                                <div style="position: relative;">
-                                    {#if account.address !== item.currentOwner}
-                                        <div
-                                            style="position: absolute; left: 0; top: 0; height: 1.2rem; display: flex; align-items: center; font-size: 0.7rem; color: #f59e0b; pointer-events: none;"
-                                        >
-                                            From: {getAccountDisplayName(item.currentOwner)}
-                                        </div>
-                                    {/if}
-                                    <details class="object-details">
-                                        <summary
-                                            style="text-align: center; list-style-position: inside;"
-                                            >Data</summary
-                                        >
-                                        <pre>{JSON.stringify(item, null, 2)}</pre>
-                                    </details>
-                                </div>
-                            </div>
-                        {/each}
-
-                        {#if account.objects.length === 0 && account.timelockedObjects.length === 0}
-                            <div
-                                style="text-align: center; color: var(--text-muted); padding: 1rem; font-size: 0.8rem;"
-                            >
-                                No objects
-                            </div>
-                        {/if}
-
-                        {#if account.timelockedObjects.length != 0}
-                            <div
-                                style="margin-top: 0.5rem; border-top: 1px solid var(--border-color); padding-top: 0.5rem;"
-                            >
-                                <div
-                                    style="font-size: 0.8rem; color: #f87171; margin-bottom: 0.25rem;"
-                                >
-                                    Timelocked
-                                </div>
-                                {#each account.timelockedObjects as item (item.id)}
-                                    <div
-                                        class="object-item"
-                                        style="border-color: rgba(248, 113, 113, 0.3);"
-                                    >
-                                        <div class="object-header">
-                                            <span class="object-type">{item.label}</span>
-                                            <span class="object-amount">
-                                                {#if item.label == 'TimelockedStakedIota'}
-                                                    {formatNumberWithUnderscores(
-                                                        nanoToIota(
-                                                            item.data.content.fields.staked_iota
-                                                                .fields.principal,
-                                                        ),
-                                                    )}
-                                                {:else if item.label.startsWith('Coin<0x2::iota::IOTA>')}
-                                                    {formatNumberWithUnderscores(
-                                                        nanoToIota(
-                                                            item.data?.content.fields?.balance,
-                                                        ),
-                                                    )}
-                                                {/if}
-                                            </span>
-                                        </div>
-                                        <details class="object-details">
-                                            <summary>Data</summary>
-                                            <pre>{JSON.stringify(item, null, 2)}</pre>
-                                        </details>
-                                    </div>
-                                {/each}
-                            </div>
-                        {/if}
-                    </div>
-                {/if}
-            </div>
+            <AccountCard
+                {account}
+                {stakingMode}
+                {getAccountDisplayName}
+                onDnd={(event) => handleDnd(event, account.id)}
+                onRemove={() => removeAccount(account.address)}
+                onToggleCollapse={() => toggleCollapse(account.id)}
+                stakingMetrics={stakingMode ? stakingMetrics : undefined}
+                onOptimizeStake={stakingMode ? openOptimize : undefined}
+                {currentPrice}
+                {selectedCurrency}
+            />
         {/each}
     </div>
 </main>
@@ -771,83 +596,6 @@
         padding: 0;
     }
 
-    button.danger {
-        background: rgba(220, 53, 69, 0.2);
-        border-color: rgba(220, 53, 69, 0.5);
-        color: #ffadad;
-    }
-
-    button.danger:hover {
-        background: rgba(220, 53, 69, 0.4);
-    }
-
-    .summary-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-    }
-
-    .summary-header h3 {
-        margin: 0;
-        font-size: 1rem;
-        color: var(--text-muted);
-    }
-
-    .price-controls {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-    }
-
-    .price-controls select {
-        padding: 0.25rem;
-        background-color: #232324;
-        color: #ffffff;
-        border: 1px solid #535353;
-        border-radius: 4px;
-        font-size: 0.85rem;
-    }
-
-    .price-controls button {
-        padding: 0.25rem 0.5rem;
-        background-color: rgb(36, 47, 77);
-        color: #ffffff;
-        border: 1px solid #535353;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.85rem;
-    }
-
-    .summary-table {
-        margin-left: 0;
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.9rem;
-    }
-
-    .summary-table th,
-    .summary-table td {
-        padding: 0.25rem 0.5rem;
-        text-align: right;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .summary-table th:first-child,
-    .summary-table td:first-child {
-        text-align: left;
-    }
-
-    .summary-table td:not(:first-child) {
-        font-family: monospace;
-        font-variant-numeric: tabular-nums;
-    }
-
-    .summary-table th {
-        color: var(--text-muted);
-        font-weight: 600;
-    }
-
     .accounts-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -855,152 +603,18 @@
         padding-bottom: 0.5rem;
     }
 
-    .account-card {
-        background: var(--background-card);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-    }
-
-    .account-header {
-        background: rgba(255, 255, 255, 0.03);
+    .disclaimer {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        background: rgba(245, 158, 11, 0.06);
+        border: 1px solid rgba(245, 158, 11, 0.25);
+        border-radius: 6px;
         padding: 0.5rem 0.75rem;
-        border-bottom: 1px solid var(--border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        margin: 0.5rem 0;
+        line-height: 1.4;
     }
 
-    .account-title {
-        font-weight: 600;
-        font-size: 0.95rem;
-    }
-
-    .account-buttons {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .account-balance {
-        font-family: monospace;
-        color: #4ade80; /* Greenish */
-    }
-
-    .object-list {
-        flex-grow: 1;
-        overflow-y: auto;
-        max-height: 300px;
-        padding: 0.5rem;
-        background: rgba(0, 0, 0, 0.1);
-    }
-
-    .object-item {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        margin-bottom: 0.25rem;
-        padding: 0.4rem;
-        font-size: 0.85rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-
-    .object-item.foreign {
-        border-left: 3px solid #f59e0b; /* Amber for foreign objects */
-    }
-
-    .object-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        cursor: grab;
-    }
-
-    .object-type {
-        font-weight: 500;
-        color: var(--text-muted);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 70%;
-    }
-
-    .object-amount {
-        font-family: monospace;
-    }
-
-    .object-details {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-    }
-
-    .transactions-container {
-        margin-bottom: 0.5rem;
-    }
-
-    .transactions-tabs {
-        display: flex;
-        align-items: flex-end;
-        gap: 0.25rem;
-        flex-wrap: wrap;
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 0;
-    }
-
-    .transactions-label {
-        font-size: 0.9rem;
-        font-weight: 600;
-        padding: 0.5rem 0.5rem 0.5rem 0;
-        align-self: center;
-    }
-
-    .transaction-tab {
-        padding: 0.4rem 0.75rem;
-        border: 1px solid var(--border-color);
-        border-bottom: none;
-        border-radius: 6px 6px 0 0;
-        background: rgba(255, 255, 255, 0.03);
-        color: var(--text-muted);
-        cursor: pointer;
-        position: relative;
-        bottom: -1px;
-        transition:
-            background 0.15s,
-            color 0.15s;
-    }
-
-    .transaction-tab:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: var(--text-color);
-    }
-
-    .transaction-tab.active {
-        background: var(--background-card);
-        color: white;
-        font-weight: bold;
-        border-color: var(--border-color);
-        border-bottom: 1px solid var(--background-card);
-    }
-
-    .transaction-content {
-        background: var(--background-card);
-        border: 1px solid var(--border-color);
-        border-top: none;
-        border-radius: 0 0 8px 8px;
-        padding: 0.75rem;
-    }
-
-    pre {
-        margin: 0;
-        white-space: pre-wrap;
-        word-break: break-all;
-    }
-
-    details summary {
-        cursor: pointer;
-        color: var(--accent-color);
+    .disclaimer strong {
+        color: #fbbf24;
     }
 </style>
