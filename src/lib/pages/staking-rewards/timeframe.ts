@@ -193,10 +193,7 @@ export function getDateRangeForEpochRange(
 
     for (const [epochStr, ts] of Object.entries(epochTimestamps)) {
         const epoch = parseInt(epochStr);
-        if (
-            epoch >= epochRange.start &&
-            (bestStartEpoch === undefined || epoch < bestStartEpoch)
-        ) {
+        if (epoch >= epochRange.start && (bestStartEpoch === undefined || epoch < bestStartEpoch)) {
             bestStartEpoch = epoch;
             startTs = ts;
         }

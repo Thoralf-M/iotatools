@@ -4,11 +4,7 @@
     import { onDestroy, onMount, untrack } from 'svelte';
 
     import { nanoToIota } from '../../utils/iota-nano-conversion';
-    import {
-        formatIotaWithFiat,
-        type Currency,
-        type FiatPrice,
-    } from './balance-utils';
+    import { formatIotaWithFiat, type Currency, type FiatPrice } from './balance-utils';
     import {
         ACTIVATION_DELAY_DAYS,
         aprToApy,
@@ -136,19 +132,14 @@
             for (const s of userStakes) {
                 const eff = effectiveCommissionBps(s.validator);
                 const total = totalsByAddr.get(s.validator.address) ?? s.principal;
-                if (
-                    eff > pickedComm ||
-                    (eff === pickedComm && total > pickedPrincipal)
-                ) {
+                if (eff > pickedComm || (eff === pickedComm && total > pickedPrincipal)) {
                     pickedComm = eff;
                     pickedPrincipal = total;
                     pickedAddr = s.validator.address;
                 }
             }
             const ids = pickedAddr
-                ? userStakes
-                      .filter((s) => s.validator.address === pickedAddr)
-                      .map((s) => s.stakeId)
+                ? userStakes.filter((s) => s.validator.address === pickedAddr).map((s) => s.stakeId)
                 : validIds;
             selectedStakeIds = new Set(ids);
             stakesInitialized = true;
@@ -250,11 +241,7 @@
             );
         }
         return [...map.values()].sort((a, b) =>
-            a.totalPrincipal < b.totalPrincipal
-                ? 1
-                : a.totalPrincipal > b.totalPrincipal
-                  ? -1
-                  : 0,
+            a.totalPrincipal < b.totalPrincipal ? 1 : a.totalPrincipal > b.totalPrincipal ? -1 : 0,
         );
     });
 
@@ -335,21 +322,15 @@
      *  button below the chart. Computing once here means the markup and the
      *  chart-builder agree on numbers; previously the projection chart and
      *  the (now-deleted) OptimizePanel could drift if their inputs differed. */
-    let selectedStakeRefs = $derived(
-        userStakes.filter((s) => selectedStakeIds.has(s.stakeId)),
-    );
-    let combinedPrincipal = $derived(
-        selectedStakeRefs.reduce((sum, s) => sum + s.principal, 0n),
-    );
+    let selectedStakeRefs = $derived(userStakes.filter((s) => selectedStakeIds.has(s.stakeId)));
+    let combinedPrincipal = $derived(selectedStakeRefs.reduce((sum, s) => sum + s.principal, 0n));
     let combinedOldApr = $derived(weightedOldApr(selectedStakeRefs));
     let switchTarget = $derived(
         switchTargetAddress
             ? (validators.find((v) => v.address === switchTargetAddress) ?? null)
             : null,
     );
-    let switchTargetApr = $derived(
-        switchTarget ? (aprByPool.get(switchTarget.poolId) ?? 0) : 0,
-    );
+    let switchTargetApr = $derived(switchTarget ? (aprByPool.get(switchTarget.poolId) ?? 0) : 0);
     let projectionBreakeven = $derived(
         switchTarget ? computeBreakevenDays(combinedOldApr, switchTargetApr) : null,
     );
@@ -809,9 +790,9 @@
                             const offset = (x as number) - toEpoch;
                             let suffix: string;
                             if (offset === 0) suffix = 'today';
-                            else if (offset > 0) suffix = `+${offset} day${offset === 1 ? '' : 's'}`;
-                            else
-                                suffix = `${-offset} day${-offset === 1 ? '' : 's'} ago`;
+                            else if (offset > 0)
+                                suffix = `+${offset} day${offset === 1 ? '' : 's'}`;
+                            else suffix = `${-offset} day${-offset === 1 ? '' : 's'} ago`;
                             return `Epoch ${x} · ${suffix}`;
                         },
                         label: (ctx: any) => {
@@ -913,7 +894,6 @@
         const hue = 142 * (1 - t);
         return `hsl(${hue}, 60%, 40%, 0.35)`;
     }
-
 </script>
 
 <details class="trend-section" open bind:this={detailsEl}>
@@ -1018,7 +998,9 @@
                                 onclick={() => toggleStake(s.stakeId)}
                                 title="{g.validator.name} — {fmtIotaFiat(
                                     s.principal,
-                                )} · effective commission {fmtCommission(g.validator)} · click to toggle"
+                                )} · effective commission {fmtCommission(
+                                    g.validator,
+                                )} · click to toggle"
                             >
                                 {g.validator.name} · {fmtIotaFiat(s.principal)} · {fmtCommission(
                                     g.validator,
@@ -1033,8 +1015,8 @@
                                     class:partial={state === 'partial'}
                                     style="--commission-tint: {commissionTint(g.validator)}"
                                     onclick={() => toggleGroup(g)}
-                                    title="Toggle all {g.stakes
-                                        .length} stakes at {g.validator.name} ({fmtIotaFiat(
+                                    title="Toggle all {g.stakes.length} stakes at {g.validator
+                                        .name} ({fmtIotaFiat(
                                         g.totalPrincipal,
                                     )} total · effective commission {fmtCommission(g.validator)})"
                                 >
@@ -1132,13 +1114,13 @@
         <div class="legend-hint">
             Solid blue = realized return on your selected stake{selectedStakeIds.size > 1
                 ? 's (principal-weighted)'
-                : ''}. Each scenario gets <strong>two projection lines</strong>: the dashed,
-            lighter one is the linear <strong>APR</strong> extrapolation; the solid, deeper
-            one is the compounded <strong>APY</strong> (what actually happens — the staking
-            pool auto-compounds at every epoch). Red = stay; green = switch (flat for ≈1
-            epoch during activation, then climbs). Amber filled area = APY-based
-            <em>switch − stay</em> on the right axis: negative during the activation gap,
-            positive once the higher APY catches up.
+                : ''}. Each scenario gets <strong>two projection lines</strong>: the dashed, lighter
+            one is the linear <strong>APR</strong> extrapolation; the solid, deeper one is the
+            compounded <strong>APY</strong> (what actually happens — the staking pool auto-compounds
+            at every epoch). Red = stay; green = switch (flat for ≈1 epoch during activation, then
+            climbs). Amber filled area = APY-based
+            <em>switch − stay</em> on the right axis: negative during the activation gap, positive
+            once the higher APY catches up.
             {#if breakevenInfo}
                 <span class="breakeven-pill">
                     Breakeven at day +{breakevenInfo.days} (epoch {breakevenInfo.epoch})
@@ -1169,8 +1151,8 @@
                  here makes the source of these numbers unambiguous. -->
             <div class="metrics-context">
                 Numbers below are derived from the selected timeframe ({windowDays} epochs ≈
-                {windowDays} days). Shorter windows give noisier APR estimates and therefore
-                noisier breakeven numbers — pick a longer window for a more stable read.
+                {windowDays} days). Shorter windows give noisier APR estimates and therefore noisier breakeven
+                numbers — pick a longer window for a more stable read.
             </div>
             <div class="metrics">
                 <div class="metric">
@@ -1248,12 +1230,11 @@
             </div>
 
             <div class="optimize-note">
-                The protocol activates new stakes at the next epoch boundary, so switched
-                principal earns nothing for ≈1 epoch — that loss is what the breakeven
-                calculation accounts for. A transaction can only have one sender, so stakes
-                from different accounts are bundled into one PTB per account ({switchTxCount}
-                {switchTxCount === 1 ? 'transaction' : 'transactions'} for the current
-                selection).
+                The protocol activates new stakes at the next epoch boundary, so switched principal
+                earns nothing for ≈1 epoch — that loss is what the breakeven calculation accounts
+                for. A transaction can only have one sender, so stakes from different accounts are
+                bundled into one PTB per account ({switchTxCount}
+                {switchTxCount === 1 ? 'transaction' : 'transactions'} for the current selection).
             </div>
         </div>
     {/if}

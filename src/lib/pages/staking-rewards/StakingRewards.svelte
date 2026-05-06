@@ -688,10 +688,9 @@
                 : ' — try enabling "Include received" above and fetching again'}. Offending epoch{filteredNegativeEpochs.length ===
             1
                 ? ''
-                : 's'}: {filteredNegativeEpochs.slice(0, 10).join(', ')}{filteredNegativeEpochs.length >
-            10
-                ? '…'
-                : ''}
+                : 's'}: {filteredNegativeEpochs
+                .slice(0, 10)
+                .join(', ')}{filteredNegativeEpochs.length > 10 ? '…' : ''}
         </div>
     {/if}
 

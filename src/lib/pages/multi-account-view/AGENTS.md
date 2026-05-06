@@ -28,7 +28,7 @@ synced from chain regardless of mode.
 **Key hard-learned constraints** (don't undo these without thought):
 
 - **DnD and stake-only filtering are mutually exclusive.** `dragHandleZone`
-  takes a list of items; if you pass a *filtered* list, a drop replaces the
+  takes a list of items; if you pass a _filtered_ list, a drop replaces the
   full list with only the filtered+dropped subset → silently drops everything
   hidden. Staking mode therefore renders a non-DnD list. See `AccountCard`.
 - **Timelocked stakes are intentionally excluded from optimization.** Per
@@ -36,14 +36,14 @@ synced from chain regardless of mode.
   up in account cards (for visibility) but get no metric badge, no Optimize
   button, and aren't included in the chart's basket.
 - **Effective commission per IIP-8** = `max(declared commission, voting-power
-  share)`. Always show the effective number when displaying commission.
+share)`. Always show the effective number when displaying commission.
   Helper in `validator-info.ts`. Mirrors the system-state-page committee table.
-- **Days-to-breakeven uses the user's *minimum* APR, not the average.** A
+- **Days-to-breakeven uses the user's _minimum_ APR, not the average.** A
   weighted-average baseline makes most rows show "—". Min is more actionable:
   "would moving my worst-yielding stake here pay off?"
 - **The exchange rate already encodes commission.** APR computed from the
-  cached exchange-rate deltas is *net* APR — do not multiply by `(1 −
-  commission)` again.
+  cached exchange-rate deltas is _net_ APR — do not multiply by `(1 −
+commission)` again.
 - **APR vs APY both shown.** APR is the linear annualization shown in the
   table header; APY (compounded, via `aprToApy`) is the realized yield since
   the staking pool auto-compounds at every epoch. Always offer both — APR
@@ -51,7 +51,7 @@ synced from chain regardless of mode.
 - **Window-resolution shifts back when the current epoch has no rate yet.**
   See `resolveWindow` in `staking-metrics.ts` — the in-progress epoch's
   exchange rate isn't computed yet, so we shift `fromEpoch` back by the
-  resolution gap to keep the requested window length over *completed*
+  resolution gap to keep the requested window length over _completed_
   epochs. Without this the 1-day APR is always 0 and longer windows are
   underestimated.
 
@@ -59,23 +59,23 @@ synced from chain regardless of mode.
 
 ## 2. File map
 
-| File | Lines | Role |
-|---|---|---|
-| `MultiAccountView.svelte` | ~620 | Orchestrator. Owns top-level $state, runs sync, executes transactions, threads price/currency down. Auto-fetches IOTA price on mount with a 1h cache. Render is mostly delegation. |
-| `Toolbar.svelte` | ~190 | Sync button (spinner + pulse), add-external-account input, staking-mode toggle, execute-transfers button. |
-| `BalanceSummary.svelte` | ~175 | Totals table + currency selector + "Fetch price" button. Owns the price-fetch UI; the state itself lives in MultiAccountView (`$bindable`). |
-| `AccountCard.svelte` | ~245 | One per account. Header with copy/remove/collapse. Two render paths: DnD list (default) vs filtered list (staking mode). |
-| `ObjectItem.svelte` | ~245 | Single owned-object row. `variant: 'standard' \| 'timelocked'`. In staking mode, standard rows get a metric badge + Optimize button. |
-| `TransactionResults.svelte` | ~100 | Tabbed execution-result view, reused for transfers and switch transactions. |
-| `StakingControls.svelte` | ~200 | Top-of-staking-section: timeframe dropdown with prev/next arrows (1d/7d/15d/30d/50d/90d/all), per-stake metric type radio (commission vs rewards %), loading indicator. **Position: sticky** so the timeframe stays accessible while scrolling. |
-| `ValidatorComparisonTable.svelte` | ~525 | Sortable table: Validator / Status / Effective commission / Days to breakeven / Net APR + APY / Pool stake. "Your stake" badge shows amount + share-of-total + fiat. APY shown inline as muted secondary text. |
-| `StakingTrendChart.svelte` | ~1700 | Two modes: **My stake projection** (default) plots realized + 2 stay lines (APR linear / APY compounded) + 2 switch lines (APR / APY) + APY-based difference series + breakeven marker, with merged metrics + Switch button; **All validators** plots per-epoch returns colored by validator. Stake chips grouped by validator, sorted by total IOTA, color-graded green→red by commission, selection signaled by blue border (commission tint preserved). Configurable projection horizon (auto / 30 / 60 / 90 / 180 / 365 / 730). Switch-target dropdown shows `APR / APY · breakeven`. |
-| `multi-account-service.ts` | ~210 | Async data: `getObjectsForAccounts`, `computeAllStakingRewards`, `fetchCurrentPrice({ maxAgeMs })` with localStorage cache (key `iota-price-cache-v1`). Defines `ExtendedAccount` / `ExtendedObject`. |
-| `balance-utils.ts` | ~145 | Pure functions: per-object/per-account balance reducers, `formatIotaCompact`, `fiatValue`, `formatIotaWithFiat`, `isStakeObject`. Types: `Currency`, `FiatPrice`. |
-| `transfer-transactions.ts` | ~165 | DnD movements → transfer PTBs. `getMovements`, `prepareTransferTransactions` (one PTB per sender), `executeTransferTransactions`. |
-| `staking-transactions.ts` | ~90 | PTB builders. `buildSwitchValidatorTransactionMulti` chains N withdraw → from_balance → add_stake triples for one sender (caller must `tx.setSender`); `buildSwitchValidatorTransaction` is the single-stake convenience wrapper. |
-| `staking-metrics.ts` | ~365 | Math + cache resolution. `resolveWindow` (handles current-epoch-not-cached and pre-pool-existence cases), `poolNetAprOverWindow`, `poolReturnOverWindow`, `poolReturnSeries` (cumulative), `poolPerEpochReturnSeries`, `stakeRewardsInWindow`, `aprToApy`, `computeBreakevenDays`, `projectStayVsSwitch`, `timeFrameToEpochRange`. |
-| `validator-info.ts` | ~60 | `fetchValidatorsForStaking()` → `getLatestIotaSystemState()` mapped to `ValidatorInfoFull[]`. `effectiveCommissionBps()` helper (IIP-8: `max(declared, votingPowerShare)`). |
+| File                              | Lines | Role                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| --------------------------------- | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MultiAccountView.svelte`         | ~620  | Orchestrator. Owns top-level $state, runs sync, executes transactions, threads price/currency down. Auto-fetches IOTA price on mount with a 1h cache. Render is mostly delegation.                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `Toolbar.svelte`                  | ~190  | Sync button (spinner + pulse), add-external-account input, staking-mode toggle, execute-transfers button.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `BalanceSummary.svelte`           | ~175  | Totals table + currency selector + "Fetch price" button. Owns the price-fetch UI; the state itself lives in MultiAccountView (`$bindable`).                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `AccountCard.svelte`              | ~245  | One per account. Header with copy/remove/collapse. Two render paths: DnD list (default) vs filtered list (staking mode).                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `ObjectItem.svelte`               | ~245  | Single owned-object row. `variant: 'standard' \| 'timelocked'`. In staking mode, standard rows get a metric badge + Optimize button.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `TransactionResults.svelte`       | ~100  | Tabbed execution-result view, reused for transfers and switch transactions.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `StakingControls.svelte`          | ~200  | Top-of-staking-section: timeframe dropdown with prev/next arrows (1d/7d/15d/30d/50d/90d/all), per-stake metric type radio (commission vs rewards %), loading indicator. **Position: sticky** so the timeframe stays accessible while scrolling.                                                                                                                                                                                                                                                                                                                                           |
+| `ValidatorComparisonTable.svelte` | ~525  | Sortable table: Validator / Status / Effective commission / Days to breakeven / Net APR + APY / Pool stake. "Your stake" badge shows amount + share-of-total + fiat. APY shown inline as muted secondary text.                                                                                                                                                                                                                                                                                                                                                                            |
+| `StakingTrendChart.svelte`        | ~1700 | Two modes: **My stake projection** (default) plots realized + 2 stay lines (APR linear / APY compounded) + 2 switch lines (APR / APY) + APY-based difference series + breakeven marker, with merged metrics + Switch button; **All validators** plots per-epoch returns colored by validator. Stake chips grouped by validator, sorted by total IOTA, color-graded green→red by commission, selection signaled by blue border (commission tint preserved). Configurable projection horizon (auto / 30 / 60 / 90 / 180 / 365 / 730). Switch-target dropdown shows `APR / APY · breakeven`. |
+| `multi-account-service.ts`        | ~210  | Async data: `getObjectsForAccounts`, `computeAllStakingRewards`, `fetchCurrentPrice({ maxAgeMs })` with localStorage cache (key `iota-price-cache-v1`). Defines `ExtendedAccount` / `ExtendedObject`.                                                                                                                                                                                                                                                                                                                                                                                     |
+| `balance-utils.ts`                | ~145  | Pure functions: per-object/per-account balance reducers, `formatIotaCompact`, `fiatValue`, `formatIotaWithFiat`, `isStakeObject`. Types: `Currency`, `FiatPrice`.                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `transfer-transactions.ts`        | ~165  | DnD movements → transfer PTBs. `getMovements`, `prepareTransferTransactions` (one PTB per sender), `executeTransferTransactions`.                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `staking-transactions.ts`         | ~90   | PTB builders. `buildSwitchValidatorTransactionMulti` chains N withdraw → from_balance → add_stake triples for one sender (caller must `tx.setSender`); `buildSwitchValidatorTransaction` is the single-stake convenience wrapper.                                                                                                                                                                                                                                                                                                                                                         |
+| `staking-metrics.ts`              | ~365  | Math + cache resolution. `resolveWindow` (handles current-epoch-not-cached and pre-pool-existence cases), `poolNetAprOverWindow`, `poolReturnOverWindow`, `poolReturnSeries` (cumulative), `poolPerEpochReturnSeries`, `stakeRewardsInWindow`, `aprToApy`, `computeBreakevenDays`, `projectStayVsSwitch`, `timeFrameToEpochRange`.                                                                                                                                                                                                                                                        |
+| `validator-info.ts`               | ~60   | `fetchValidatorsForStaking()` → `getLatestIotaSystemState()` mapped to `ValidatorInfoFull[]`. `effectiveCommissionBps()` helper (IIP-8: `max(declared, votingPowerShare)`).                                                                                                                                                                                                                                                                                                                                                                                                               |
 
 ---
 
@@ -83,16 +83,16 @@ synced from chain regardless of mode.
 
 ### Top-level state (in `MultiAccountView.svelte`)
 
-| Variable | Type | Owner of write |
-|---|---|---|
-| `extendedAccounts` | `ExtendedAccount[]` | `syncReset`, DnD handler, add/remove account |
-| `transactionResults` | `any[]` | `executeTransfers`, `executeSwitch` |
-| `syncing` / `syncInFlight` | $state + non-reactive flag | `syncReset` (re-entrancy guard) |
-| `stakingMode` | bool | Toolbar toggle |
-| `selectedTimeFrame`, `metricType` | StakingControls | Bound to children |
-| `validators`, `currentEpoch` | from validator-info | `loadStakingData` (untracked) |
-| `selectedCurrency`, `currentPrice` | bound to BalanceSummary | Auto-fetched once on mount with `maxAgeMs: 1h` (localStorage cache); manual refresh via Fetch Price button bypasses cache |
-| `chartFocusStake` | `string \| null` | Set when user clicks Optimize on a stake card; chart consumes & clears via `$bindable` |
+| Variable                           | Type                       | Owner of write                                                                                                            |
+| ---------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `extendedAccounts`                 | `ExtendedAccount[]`        | `syncReset`, DnD handler, add/remove account                                                                              |
+| `transactionResults`               | `any[]`                    | `executeTransfers`, `executeSwitch`                                                                                       |
+| `syncing` / `syncInFlight`         | $state + non-reactive flag | `syncReset` (re-entrancy guard)                                                                                           |
+| `stakingMode`                      | bool                       | Toolbar toggle                                                                                                            |
+| `selectedTimeFrame`, `metricType`  | StakingControls            | Bound to children                                                                                                         |
+| `validators`, `currentEpoch`       | from validator-info        | `loadStakingData` (untracked)                                                                                             |
+| `selectedCurrency`, `currentPrice` | bound to BalanceSummary    | Auto-fetched once on mount with `maxAgeMs: 1h` (localStorage cache); manual refresh via Fetch Price button bypasses cache |
+| `chartFocusStake`                  | `string \| null`           | Set when user clicks Optimize on a stake card; chart consumes & clears via `$bindable`                                    |
 
 ### Key derivations (also `MultiAccountView.svelte`)
 
@@ -149,7 +149,7 @@ it.
 
 ### "Thousands of RPC calls on toggling staking mode"
 
-Cause: an async function called *inside* a `$effect` writes to `$state` it
+Cause: an async function called _inside_ a `$effect` writes to `$state` it
 also reads — Svelte tracks reads through the function call, so writes
 trigger re-runs, including the `finally`-block reset of an in-flight flag,
 which makes the next run proceed and loop forever.
@@ -161,8 +161,10 @@ non-reactive in-flight guard:
 let workInFlight = false;
 $effect(() => {
     if (!enabled) return;
-    void someTrigger;  // explicit dep
-    untrack(() => { if (!workInFlight) doAsyncWork(); });
+    void someTrigger; // explicit dep
+    untrack(() => {
+        if (!workInFlight) doAsyncWork();
+    });
 });
 ```
 
@@ -172,7 +174,7 @@ Used by both `loadStakingData` and `syncReset`.
 
 Auto-init effects must distinguish "fresh visit, never set" from "user
 explicitly cleared". Use a non-reactive `let stakesInitialized = false`
-flag set on first init; afterwards just *prune* invalid IDs rather than
+flag set on first init; afterwards just _prune_ invalid IDs rather than
 re-filling. See `StakingTrendChart.svelte` selectedStakeIds effect.
 
 ### Stale tooltip after currency switch
@@ -184,8 +186,10 @@ chart is re-instantiated:
 
 ```ts
 $effect(() => {
-    void points; void breakevenDays;
-    void currentPrice; void selectedCurrency;  // ← needed
+    void points;
+    void breakevenDays;
+    void currentPrice;
+    void selectedCurrency; // ← needed
     if (canvas) build();
 });
 ```
@@ -194,7 +198,7 @@ $effect(() => {
 
 `overflow: auto` on the wrapper clips absolutely-positioned children
 extending past its box — including tooltips above sticky `<th>` cells.
-Position tooltips *below* (`top: calc(100% + 6px)`), bump z-index above
+Position tooltips _below_ (`top: calc(100% + 6px)`), bump z-index above
 the sticky header, and right-anchor (`right: 0`) for rightmost columns.
 
 ### "All time" APR was always 0%
@@ -202,7 +206,7 @@ the sticky header, and right-anchor (`right: 0`) for rightmost columns.
 The cache only has rates from the pool's first staking epoch onward. With
 `fromEpoch=1`, `findClosestCachedRate` (looks at-or-before) returned null.
 Fix: `findEarliestCachedRate` falls forward to the pool's first cached
-entry, and `resolveWindow` annualizes over the *actual* span between
+entry, and `resolveWindow` annualizes over the _actual_ span between
 resolved start/end epochs (not the requested span).
 
 ### Current-epoch rate isn't cached → tiny windows return 0%
@@ -237,7 +241,7 @@ shows through. Same approach for `.group-toggle.all` / `.partial`.
 
 Symptom: tooltip went `−2 days, −1 day, +6 days` (skipping today through
 +5). Cause: Chart.js `interaction.mode: 'index'` groups tooltip items by
-*array index*, not by x value. With variable-length datasets (Realized
+_array index_, not by x value. With variable-length datasets (Realized
 covers past, Stay/Switch projections cover future, etc.) the same array
 index points to wildly different x values across datasets — and the
 title callback's `items[0].parsed.x` then reports a misleading offset.
@@ -346,8 +350,8 @@ or `switchTargetTouched` pattern.
   when its read graph changes; if a parent reassigns an array (`x = [...x]`)
   child derivations re-run. Mutating in place doesn't propagate.
 - **Component types** are exported via `<script lang="ts">` `export
-  interface Foo`. Parents import them as `import type { Foo } from
-  './Bar.svelte'`.
+interface Foo`. Parents import them as `import type { Foo } from
+'./Bar.svelte'`.
 - **Number formatting.** Use `formatIotaCompact` (2 decimals + `_`
   separators) for amounts. `formatIotaWithFiat` appends "(≈ $X.XX)" when a
   price is loaded. `fiatValue` returns `''` when there's no price.
@@ -378,7 +382,7 @@ or `switchTargetTouched` pattern.
   use `border-color` + `box-shadow`, never `background`, so the tint
   shows through.
 - **Sticky controls.** `StakingControls` is `position: sticky; top: 0;
-  z-index: 30` with a solid background composite (so content underneath
+z-index: 30` with a solid background composite (so content underneath
   doesn't bleed through when it pins). When adding new sticky elements,
   give them lower z-index so they tuck under it.
 - **Price caching.** `fetchCurrentPrice({ maxAgeMs: 60 * 60 * 1000 })` for
