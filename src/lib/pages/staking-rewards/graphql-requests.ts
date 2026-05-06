@@ -1321,12 +1321,78 @@ export async function updateExchangeRatesCache(): Promise<void> {
                 if (cacheEntry.deactivationEpoch === undefined) {
                     cacheEntry.deactivationEpoch = info.deactivationEpoch;
                 }
+                // Update exchangeRateId if it was empty
+                if (!cacheEntry.exchangeRateId) {
+                    cacheEntry.exchangeRateId = info.exchangeRateId;
+                }
             }
             console.log(`Set deactivation epoch ${info.deactivationEpoch} for pool ${poolId}`);
         }
         console.log(
             `Processed ${Object.keys(inactiveValidators).length} inactive validators with deactivation epochs`,
         );
+
+        // Fill in exchange rate data for inactive pools whose cache is incomplete.
+        // The active-validator loop above only sees currently-active pools, so any
+        // epochs between the pool's last active epoch and its deactivationEpoch
+        // would otherwise never get fetched.
+        for (const [poolId, info] of Object.entries(inactiveValidators)) {
+            const cacheEntry = exchangeRateCache.get(poolId);
+            if (!cacheEntry || !cacheEntry.exchangeRateId) continue;
+
+            const cachedEpochNums = Object.keys(cacheEntry.epochData).map(Number);
+            const maxCached = cachedEpochNums.length > 0 ? Math.max(...cachedEpochNums) : -1;
+            if (maxCached >= info.deactivationEpoch) continue;
+
+            console.log(
+                `Filling missing exchange rates for inactive pool ${poolId} (cached up to ${maxCached}, deactivated at ${info.deactivationEpoch})`,
+            );
+
+            let hasNextPage = true;
+            let cursor = '';
+            let added = 0;
+            while (hasNextPage) {
+                const cursorSection = cursor ? `(after: "${cursor}")` : '';
+                const query = `query getInactiveExchangeRates($tableId: IotaAddress!) {
+                    owner(address: $tableId) {
+                        dynamicFields${cursorSection} {
+                            pageInfo { endCursor hasNextPage }
+                            nodes {
+                                name { json }
+                                value { ... on MoveValue { data } }
+                            }
+                        }
+                    }
+                }`;
+                // @ts-ignore
+                const result = await gqlClient.query({
+                    query,
+                    variables: { tableId: cacheEntry.exchangeRateId },
+                });
+                // @ts-ignore
+                const dynamicFields = result.data?.owner?.dynamicFields;
+                if (!dynamicFields?.nodes) break;
+
+                for (const node of dynamicFields.nodes) {
+                    const epochFromName = parseInt(node.name?.json);
+                    if (isNaN(epochFromName)) continue;
+                    if (epochFromName > info.deactivationEpoch) continue;
+                    if (cacheEntry.epochData[epochFromName]) continue;
+                    if (!node.value?.data) continue;
+                    const exchangeRateData = parseExchangeRateData(node.value.data);
+                    if (exchangeRateData) {
+                        cacheEntry.epochData[epochFromName] = exchangeRateData;
+                        added++;
+                    }
+                }
+
+                hasNextPage = dynamicFields.pageInfo?.hasNextPage || false;
+                cursor = dynamicFields.pageInfo?.endCursor || '';
+            }
+            if (added > 0) {
+                console.log(`  added ${added} missing epoch(s) for pool ${poolId}`);
+            }
+        }
     } catch (error) {
         console.warn('Failed to fetch inactive validators:', error);
     }
