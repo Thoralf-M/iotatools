@@ -32,42 +32,37 @@
     } from './table-utils';
     import type { ExportOptions } from './types';
 
-    function toIota(amount: number | string | bigint): bigint {
-        return BigInt(amount) / NANOS_PER_IOTA;
+    type Amount = number | string | bigint | null | undefined;
+
+    // BigInt() crashes on null/undefined/'' — common when reading missing entries
+    // from rewardsByEpoch / accumulatedRewards on stakes with deactivated pools.
+    function asNanos(amount: Amount): bigint {
+        return amount == null || amount === '' ? 0n : BigInt(amount);
     }
 
-    function formatIota(amount: number | string | bigint, decimals: number = 2): string {
-        const bigAmount = BigInt(amount);
+    function toIota(amount: Amount): bigint {
+        return asNanos(amount) / NANOS_PER_IOTA;
+    }
+
+    function formatIota(amount: Amount, decimals: number = 2): string {
+        const bigAmount = asNanos(amount);
         const whole = bigAmount / NANOS_PER_IOTA;
         const nano = bigAmount % NANOS_PER_IOTA;
-        const nanoStr = nano.toString().padStart(9, '0');
-        const decimal = nanoStr.slice(0, decimals);
-        const wholeStr = whole.toLocaleString('en-US');
-        return `${wholeStr}.${decimal} IOTA`;
+        const decimal = nano.toString().padStart(9, '0').slice(0, decimals);
+        return `${whole.toLocaleString('en-US')}.${decimal} IOTA`;
     }
 
-    function formatIotaWithSeparators(amount: number | string | bigint): string {
-        const whole = toIota(amount);
-        return whole.toLocaleString('en-US') + ' IOTA';
-    }
-
-    function formatExactIota(amount: number | string | bigint): string {
-        const bigAmount = BigInt(amount);
+    function formatExactIota(amount: Amount): string {
+        const bigAmount = asNanos(amount);
         const whole = bigAmount / NANOS_PER_IOTA;
         const nano = bigAmount % NANOS_PER_IOTA;
+        const trimmedNano = nano.toString().padStart(9, '0').replace(/0+$/, '');
         const wholeStr = whole.toLocaleString('en-US');
-        const nanoStr = nano.toString().padStart(9, '0');
-        // Remove trailing zeros
-        const trimmedNano = nanoStr.replace(/0+$/, '');
-        if (trimmedNano === '') {
-            return wholeStr + ' IOTA';
-        }
-        return `${wholeStr}.${trimmedNano} IOTA`;
+        return trimmedNano === '' ? `${wholeStr} IOTA` : `${wholeStr}.${trimmedNano} IOTA`;
     }
 
-    function formatNano(amount: number | string | bigint): string {
-        const bigAmount = BigInt(amount);
-        return bigAmount.toLocaleString('en-US').replace(/,/g, '_') + ' NANO';
+    function formatNano(amount: Amount): string {
+        return asNanos(amount).toLocaleString('en-US').replace(/,/g, '_') + ' NANO';
     }
 
     let {
@@ -881,7 +876,7 @@
                                         <div class="stake-popup-container">
                                             {#if isActiveInEpoch(stakeObject, filteredEpochs[index], epochData) && filteredEpochs[index] >= stakeObject.firstEpoch && filteredEpochs[index] !== currentEpoch}
                                                 <div class="stake-cell-content">
-                                                    {#if stakeObject.rewardsByEpoch[filteredEpochs[index]] === '0'}
+                                                    {#if !stakeObject.rewardsByEpoch[filteredEpochs[index]] || stakeObject.rewardsByEpoch[filteredEpochs[index]] === '0'}
                                                         <span class="stake-value">-</span>
                                                     {:else}
                                                         <button

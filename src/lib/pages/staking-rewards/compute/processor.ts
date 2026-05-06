@@ -345,6 +345,26 @@ async function calculateRewardsFromExchangeRates(
                     iota_amount: currentData.iota,
                     pool_token_amount: currentData.pool,
                 };
+            } else if (
+                cacheEntry.deactivationEpoch !== undefined &&
+                currentEpoch > cacheEntry.deactivationEpoch
+            ) {
+                // Pool is deactivated and the requested epoch is past deactivation:
+                // exchange rates stop being published at deactivationEpoch, so
+                // emergency withdrawals settle at the deactivation-epoch rate.
+                // Using the coin-balance fallback here is unreliable for txs that
+                // contain multiple operations (overstates rewards), which locks
+                // totalUnstakeAccumulated > totalAccumulated for every subsequent
+                // epoch.
+                const deactivationData = cacheEntry.epochData[cacheEntry.deactivationEpoch];
+                if (deactivationData) {
+                    currentExchangeRate = {
+                        iota_amount: deactivationData.iota,
+                        pool_token_amount: deactivationData.pool,
+                    };
+                } else {
+                    return { totalRewards: 0n, success: false };
+                }
             } else {
                 // If no exchange rate available, we can't calculate rewards
                 return { totalRewards: 0n, success: false };

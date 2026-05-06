@@ -23,11 +23,14 @@
     import { computeEpochData } from './table-utils';
     import {
         filterEpochsByTimeFrame,
+        getDateRangeForEpochRange,
+        getEpochRangeForDateRange,
         getStartEpochForTimeFrame,
         getTimeFrameDateRange,
         getTimeFrameDescription,
         TIME_FRAME_LABELS,
         type DateRange,
+        type EpochRange,
         type TimeFrame,
     } from './timeframe';
 
@@ -42,6 +45,9 @@
         timeFrame: 'all',
         customStart: '',
         customEnd: '',
+        customEpochStart: '',
+        customEpochEnd: '',
+        fetchReceivedTxs: false,
     });
 
     // One-shot snapshot used to seed local state that's either bound with
@@ -51,6 +57,16 @@
 
     function isValidTimeFrame(v: unknown): v is TimeFrame {
         return typeof v === 'string' && v in TIME_FRAME_LABELS;
+    }
+
+    function fmtDate(d: Date): string {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function parseEpochParam(raw: string): number | null {
+        if (!raw) return null;
+        const n = parseInt(raw);
+        return Number.isFinite(n) ? n : null;
     }
 
     let address = '';
@@ -142,7 +158,7 @@
     let validatorInfo: Record<string, ValidatorInfo> = {};
     let loadingTxs = false;
     let loadingStep: string | null = null;
-    let fetchReceivedTxs = false;
+    let fetchReceivedTxs = initialQueryParams.fetchReceivedTxs;
     let showPriceColumns = true;
     let showValidatorColumns = true;
     let noTransactionsFound = false;
@@ -167,6 +183,10 @@
         : 'all';
     let customDateStart = initialQueryParams.customStart || '';
     let customDateEnd = initialQueryParams.customEnd || '';
+    // bind:value on <input type="number"> yields `null` (not '') when cleared,
+    // so use number | null throughout to match what Svelte hands back.
+    let customEpochStart: number | null = parseEpochParam(initialQueryParams.customEpochStart);
+    let customEpochEnd: number | null = parseEpochParam(initialQueryParams.customEpochEnd);
 
     // Sync local UI state back to the URL. Each reactive writes only when the
     // value is meaningful and clears the param otherwise so shared links stay
@@ -179,7 +199,24 @@
         customEnd: selectedTimeFrame === 'custom' && customDateEnd ? customDateEnd : null,
     });
     $: updatePageQueryParams({
+        customEpochStart:
+            selectedTimeFrame === 'custom-epochs' &&
+            typeof customEpochStart === 'number' &&
+            Number.isFinite(customEpochStart)
+                ? String(customEpochStart)
+                : null,
+        customEpochEnd:
+            selectedTimeFrame === 'custom-epochs' &&
+            typeof customEpochEnd === 'number' &&
+            Number.isFinite(customEpochEnd)
+                ? String(customEpochEnd)
+                : null,
+    });
+    $: updatePageQueryParams({
         addresses: useMultipleAddresses && textareaValue.trim() ? textareaValue : null,
+    });
+    $: updatePageQueryParams({
+        fetchReceivedTxs: fetchReceivedTxs ? true : null,
     });
 
     $: customDateRange =
@@ -190,12 +227,70 @@
               } as DateRange)
             : undefined;
 
+    // Latest epoch we know about — prefer the live current epoch once fetched,
+    // otherwise fall back to the highest epoch in the timestamp cache so the
+    // open-ended "To epoch" can resolve before any fetch happens.
+    $: latestKnownEpoch = (() => {
+        if (typeof epoch === 'number') return epoch;
+        const keys = Object.keys(epochTimestamps).map(Number);
+        return keys.length > 0 ? Math.max(...keys) : undefined;
+    })();
+
+    // Empty "From epoch" defaults to 0; empty "To epoch" defaults to the latest
+    // known epoch — together with `<input type="number">` returning null on
+    // clear (and occasionally NaN), we treat anything non-finite as empty.
+    $: customEpochRange = (() => {
+        if (selectedTimeFrame !== 'custom-epochs') return undefined;
+        const startNum =
+            typeof customEpochStart === 'number' && Number.isFinite(customEpochStart)
+                ? customEpochStart
+                : null;
+        const endNum =
+            typeof customEpochEnd === 'number' && Number.isFinite(customEpochEnd)
+                ? customEpochEnd
+                : null;
+        const start = startNum ?? 0;
+        const end = endNum ?? latestKnownEpoch;
+        if (end == null || start > end) return undefined;
+        return { start, end } as EpochRange;
+    })();
+
+    // Cross-mapped info: when filtering by epochs, show the date range those
+    // epochs span; when filtering by date, show the epoch range that falls
+    // inside the cache. Computed from the bundled cache so the user sees the
+    // mapping before fetching anything.
+    $: mappedDateRangeForEpochs =
+        selectedTimeFrame === 'custom-epochs' && customEpochRange
+            ? getDateRangeForEpochRange(epochTimestamps, customEpochRange)
+            : null;
+
+    $: dateRangeForEpochMapping = (() => {
+        if (selectedTimeFrame === 'all' || selectedTimeFrame === 'custom-epochs') return null;
+        if (selectedTimeFrame === 'custom') return customDateRange ?? null;
+        return getTimeFrameDateRange(selectedTimeFrame);
+    })();
+
+    $: mappedEpochRangeForDates = dateRangeForEpochMapping
+        ? getEpochRangeForDateRange(epochTimestamps, dateRangeForEpochMapping)
+        : null;
+
     $: timeFrameFilteredEpochs = filterEpochsByTimeFrame(
         tableData.epochs,
         epochTimestamps,
         selectedTimeFrame,
         customDateRange,
+        undefined,
+        customEpochRange,
     );
+
+    // Restrict the negative-rewards warning to the active filter so it only
+    // calls out epochs the user is actually viewing — otherwise a narrow
+    // selection (e.g. epochs 154-160) gets spammed with offenders from
+    // unrelated parts of the underlying computation.
+    $: filteredNegativeEpochs =
+        selectedTimeFrame === 'all'
+            ? tableData.negativeAvailableEpochs
+            : tableData.negativeAvailableEpochs.filter((e) => timeFrameFilteredEpochs.includes(e));
 
     $: timeFrameFilteredEpochEndDates = timeFrameFilteredEpochs.map((ep) => {
         const idx = tableData.epochs.indexOf(ep);
@@ -222,16 +317,18 @@
     // file reflects the filter (e.g. "2026-01-01_to_2026-03-31") instead of
     // today's date. The user can override this entirely in the export dialog.
     $: exportFileName = (() => {
-        const fmt = (d: Date) =>
-            `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        const today = fmt(new Date());
+        const today = fmtDate(new Date());
         if (selectedTimeFrame === 'all') return `staking-rewards-table-${today}`;
+        if (selectedTimeFrame === 'custom-epochs') {
+            if (!customEpochRange) return `staking-rewards-table-${today}`;
+            return `staking-rewards-table-epoch-${customEpochRange.start}_to_${customEpochRange.end}`;
+        }
         const range =
             selectedTimeFrame === 'custom'
                 ? customDateRange
                 : getTimeFrameDateRange(selectedTimeFrame);
         if (!range) return `staking-rewards-table-${today}`;
-        return `staking-rewards-table-${fmt(range.start)}_to_${fmt(range.end)}`;
+        return `staking-rewards-table-${fmtDate(range.start)}_to_${fmtDate(range.end)}`;
     })();
 
     // Fetch epoch end dates when tableData changes
@@ -284,6 +381,8 @@
                 epochTimestampsCacheJson,
                 selectedTimeFrame,
                 customDateRange,
+                undefined,
+                customEpochRange,
             );
 
             // Fetch transactions for all addresses in parallel. The loading
@@ -490,9 +589,60 @@
                         <input type="date" bind:value={customDateEnd} />
                     </label>
                 {/if}
+                {#if selectedTimeFrame === 'custom-epochs'}
+                    <label class="timeframe-date">
+                        From epoch:
+                        <input
+                            type="number"
+                            min="0"
+                            step="1"
+                            bind:value={customEpochStart}
+                            placeholder="0"
+                            class="epoch-input"
+                        />
+                    </label>
+                    <label class="timeframe-date">
+                        To epoch:
+                        <input
+                            type="number"
+                            min="0"
+                            step="1"
+                            bind:value={customEpochEnd}
+                            placeholder={latestKnownEpoch !== undefined
+                                ? `current (${latestKnownEpoch})`
+                                : 'current'}
+                            class="epoch-input"
+                        />
+                    </label>
+                {/if}
                 {#if selectedTimeFrame !== 'all'}
                     <span class="timeframe-info">
-                        {getTimeFrameDescription(selectedTimeFrame, customDateRange)}
+                        {#if selectedTimeFrame === 'custom-epochs' && customEpochRange}
+                            Epoch {customEpochRange.start} to {customEpochRange.end}{!(
+                                typeof customEpochEnd === 'number' &&
+                                Number.isFinite(customEpochEnd)
+                            )
+                                ? ' (current)'
+                                : ''}
+                        {:else}
+                            {getTimeFrameDescription(
+                                selectedTimeFrame,
+                                customDateRange,
+                                undefined,
+                                customEpochRange,
+                            )}
+                        {/if}
+                        {#if selectedTimeFrame === 'custom-epochs' && mappedDateRangeForEpochs}
+                            <span class="timeframe-mapping">
+                                ≈ {fmtDate(mappedDateRangeForEpochs.start)} to {fmtDate(
+                                    mappedDateRangeForEpochs.end,
+                                )}
+                            </span>
+                        {:else if selectedTimeFrame !== 'custom-epochs' && mappedEpochRangeForDates}
+                            <span class="timeframe-mapping">
+                                ≈ epoch {mappedEpochRangeForDates.start} to {mappedEpochRangeForDates.end}
+                            </span>
+                        {/if}
                         {#if tableData.epochs.length > 0}
                             ({timeFrameFilteredEpochs.length} of {tableData.epochs.length} epochs)
                         {/if}
@@ -529,17 +679,17 @@
     {#if error}
         <div class="error-message">{error}</div>
     {/if}
-    {#if tableData.negativeAvailableEpochs.length > 0}
+    {#if filteredNegativeEpochs.length > 0}
         <div class="error-message">
-            Available Rewards went negative at {tableData.negativeAvailableEpochs.length} epoch(s). This
-            is most likely because stake objects were received from another address and the incoming transactions
+            Available Rewards went negative at {filteredNegativeEpochs.length} epoch(s). This is most
+            likely because stake objects were received from another address and the incoming transactions
             were not fetched{fetchReceivedTxs
                 ? ' completely'
-                : ' — try enabling "Include received" above and fetching again'}. Offending epoch{tableData
-                .negativeAvailableEpochs.length === 1
+                : ' — try enabling "Include received" above and fetching again'}. Offending epoch{filteredNegativeEpochs.length ===
+            1
                 ? ''
-                : 's'}: {tableData.negativeAvailableEpochs.slice(0, 10).join(', ')}{tableData
-                .negativeAvailableEpochs.length > 10
+                : 's'}: {filteredNegativeEpochs.slice(0, 10).join(', ')}{filteredNegativeEpochs.length >
+            10
                 ? '…'
                 : ''}
         </div>
@@ -754,5 +904,15 @@
     .timeframe-info {
         color: #10b981;
         font-size: 0.85rem;
+    }
+
+    .timeframe-mapping {
+        opacity: 0.75;
+        font-size: 0.8rem;
+        margin-left: 0.25rem;
+    }
+
+    .epoch-input {
+        width: 7rem;
     }
 </style>
