@@ -117,11 +117,7 @@ export function fiatValue(nano: bigint, price: FiatPrice, currency: Currency): s
 
 /** "1_234.56 IOTA (≈ $123.45)" — drops the fiat parens entirely when no
  *  price has been fetched yet. */
-export function formatIotaWithFiat(
-    nano: bigint,
-    price: FiatPrice,
-    currency: Currency,
-): string {
+export function formatIotaWithFiat(nano: bigint, price: FiatPrice, currency: Currency): string {
     const iota = `${formatIotaCompact(nano)} IOTA`;
     const f = fiatValue(nano, price, currency);
     return f ? `${iota} (≈ ${f})` : iota;

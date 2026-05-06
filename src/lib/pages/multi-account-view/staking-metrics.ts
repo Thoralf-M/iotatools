@@ -84,9 +84,7 @@ export function findClosestCachedRate(
  *  data — e.g. an "all time" window with `fromEpoch = 1` against a pool
  *  whose first entry is at epoch 100. Without this, the closest-before
  *  lookup returns null and the APR comes out as 0. */
-export function findEarliestCachedRate(
-    poolId: string,
-): { rate: CachedRate; epoch: number } | null {
+export function findEarliestCachedRate(poolId: string): { rate: CachedRate; epoch: number } | null {
     const entry = exchangeRateCache.get(poolId);
     if (!entry) return null;
     let earliest = Infinity;
@@ -122,11 +120,7 @@ function resolveRateWithEpoch(
 ): { rate: CachedRate; epoch: number } | null {
     const exact = getCachedRate(poolId, logicalEpoch);
     if (exact) return { rate: exact, epoch: logicalEpoch };
-    return (
-        findClosestCachedRate(poolId, logicalEpoch) ??
-        findEarliestCachedRate(poolId) ??
-        null
-    );
+    return findClosestCachedRate(poolId, logicalEpoch) ?? findEarliestCachedRate(poolId) ?? null;
 }
 
 /** Cumulative net return per epoch for a pool, baselined at `fromEpoch`.

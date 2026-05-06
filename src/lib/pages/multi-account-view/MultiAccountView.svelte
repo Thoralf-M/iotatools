@@ -64,7 +64,7 @@
     let priceFetched = false;
 
     // ─── Staking state ───────────────────────────────────────────────────────
-    let selectedTimeFrame: StakingTimeFrame = $state('last-7-days');
+    let selectedTimeFrame: StakingTimeFrame = $state('last-30-days');
     let metricType: StakingMetricType = $state('rewards');
     let validators = $state<ValidatorInfoFull[]>([]);
     let currentEpoch = $state(0);
@@ -516,6 +516,8 @@
         <div style="color: #ef4444; padding: 0 0.5rem;">{syncError}</div>
     {/if}
 
+    <BalanceSummary accounts={extendedAccounts} bind:selectedCurrency bind:currentPrice />
+
     {#if stakingMode}
         <div class="disclaimer">
             <strong>Not financial advice.</strong> The numbers shown here are computed from a bundled
@@ -523,13 +525,6 @@
             performance does not guarantee future returns — commission rates and uptime can change at
             any time. Verify before acting.
         </div>
-
-        <BalanceSummary
-            accounts={extendedAccounts}
-            {stakingMode}
-            bind:selectedCurrency
-            bind:currentPrice
-        />
 
         <StakingControls
             bind:timeFrame={selectedTimeFrame}

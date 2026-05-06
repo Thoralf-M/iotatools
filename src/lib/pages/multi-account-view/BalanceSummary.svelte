@@ -4,6 +4,7 @@
         accountIotaCoins,
         accountStaked,
         accountTotalBalance,
+        formatIotaCompact,
         sumAccounts,
         type Currency,
         type FiatPrice,
@@ -12,17 +13,11 @@
 
     interface Props {
         accounts: ExtendedAccount[];
-        stakingMode: boolean;
         selectedCurrency: Currency;
         currentPrice: FiatPrice;
     }
 
-    let {
-        accounts,
-        stakingMode,
-        selectedCurrency = $bindable(),
-        currentPrice = $bindable(),
-    }: Props = $props();
+    let { accounts, selectedCurrency = $bindable(), currentPrice = $bindable() }: Props = $props();
 
     let totalBalance = $derived(sumAccounts(accounts, accountTotalBalance));
     let totalIotaCoins = $derived(sumAccounts(accounts, accountIotaCoins));
@@ -37,18 +32,26 @@
     }
 </script>
 
-<div class="summary-section">
-    <div class="summary-header">
-        <h3>Balance Breakdown</h3>
-        <div class="price-controls">
-            <select bind:value={selectedCurrency}>
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-            </select>
-            <button onclick={() => fetchCurrentPrice().then((price) => (currentPrice = price))}>
-                Fetch Price
-            </button>
-        </div>
+<details class="summary-section" open>
+    <summary>
+        <span class="chevron" aria-hidden="true">▶</span>
+        <span class="title">Balance Breakdown</span>
+        <span class="subtitle">
+            Total:
+            {formatIotaCompact(totalBalance)} IOTA{currentPrice
+                ? ` ≈ ${fiat(totalBalance)} ${selectedCurrency}`
+                : ''}
+        </span>
+    </summary>
+
+    <div class="price-controls">
+        <select bind:value={selectedCurrency}>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+        </select>
+        <button onclick={() => fetchCurrentPrice().then((price) => (currentPrice = price))}>
+            Fetch Price
+        </button>
     </div>
 
     <!-- TODO(staking): when stakingMode is on, render a timeframe selector
@@ -67,25 +70,22 @@
                 </tr>
             </thead>
             <tbody>
-                {#if !stakingMode}
-                    <tr class="total-row" style="background: rgba(16, 185, 129, 0.1);">
-                        <td><strong>Total</strong></td>
-                        <td>
-                            <strong
-                                >{formatNumberWithUnderscores(
-                                    nanoToIota(totalBalance.toString()),
-                                )}</strong
-                            >
-                        </td>
-                        <td><strong>{fiat(totalBalance)}</strong></td>
-                    </tr>
-                    <tr>
-                        <td>IOTA Coins</td>
-                        <td>{formatNumberWithUnderscores(nanoToIota(totalIotaCoins.toString()))}</td
+                <tr class="total-row" style="background: rgba(16, 185, 129, 0.1);">
+                    <td><strong>Total</strong></td>
+                    <td>
+                        <strong
+                            >{formatNumberWithUnderscores(
+                                nanoToIota(totalBalance.toString()),
+                            )}</strong
                         >
-                        <td>{fiat(totalIotaCoins)}</td>
-                    </tr>
-                {/if}
+                    </td>
+                    <td><strong>{fiat(totalBalance)}</strong></td>
+                </tr>
+                <tr>
+                    <td>IOTA Coins</td>
+                    <td>{formatNumberWithUnderscores(nanoToIota(totalIotaCoins.toString()))}</td>
+                    <td>{fiat(totalIotaCoins)}</td>
+                </tr>
                 <tr>
                     <td>Staked</td>
                     <td>{formatNumberWithUnderscores(nanoToIota(totalStaked.toString()))}</td>
@@ -103,26 +103,67 @@
             </tbody>
         </table>
     </div>
-</div>
+</details>
 
 <style>
-    .summary-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
+    .summary-section {
+        margin: 0.5rem 0;
+        background: var(--background-card);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
     }
 
-    .summary-header h3 {
-        margin: 0;
-        font-size: 1rem;
+    .summary-section summary {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        list-style: none;
+        user-select: none;
+    }
+
+    /* Hide the default disclosure marker so our chevron is the only one. */
+    .summary-section summary::-webkit-details-marker {
+        display: none;
+    }
+    .summary-section summary::marker {
+        content: '';
+    }
+
+    .chevron {
+        display: inline-block;
+        width: 1em;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        transition: transform 0.15s ease;
+        transform: rotate(0deg);
+    }
+
+    .summary-section[open] > summary .chevron {
+        transform: rotate(90deg);
+    }
+
+    .summary-section summary:hover .chevron {
+        color: var(--text-color);
+    }
+
+    .title {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .subtitle {
+        font-size: 0.8rem;
         color: var(--text-muted);
     }
 
     .price-controls {
         display: flex;
+        justify-content: flex-end;
         gap: 0.5rem;
         align-items: center;
+        margin-top: 0.5rem;
     }
 
     .price-controls select {
@@ -145,7 +186,7 @@
     }
 
     .summary-table {
-        margin-left: 0;
+        margin: 0.5rem 0 0 0;
         width: 100%;
         border-collapse: collapse;
         font-size: 0.9rem;

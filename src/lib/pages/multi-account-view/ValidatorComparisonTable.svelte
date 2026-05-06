@@ -1,10 +1,5 @@
 <script lang="ts">
-    import {
-        fiatValue,
-        formatIotaCompact,
-        type Currency,
-        type FiatPrice,
-    } from './balance-utils';
+    import { fiatValue, formatIotaCompact, type Currency, type FiatPrice } from './balance-utils';
     import {
         aprToApy,
         computeBreakevenDays,
@@ -180,9 +175,9 @@
                             <span class="info-icon">ⓘ</span>
                             <span class="tooltip">
                                 <strong>Committee</strong> validators earn rewards each epoch.
-                                <strong>Active</strong> validators are registered but not currently
-                                in the committee, so they earn nothing — switching to one would
-                                drop your yield to zero.
+                                <strong>Active</strong> validators are registered but not currently in
+                                the committee, so they earn nothing — switching to one would drop your
+                                yield to zero.
                             </span>
                         </span>
                     </th>
@@ -196,9 +191,9 @@
                                 <strong>effective commission per IIP-8</strong>:
                                 <em>max(declared commission, voting-power share)</em>. Validators
                                 with disproportionately large stake are forced to keep at least
-                                their voting-power percentage as commission, so the effective
-                                rate can be higher than what the validator declared. When that's
-                                the case, the declared rate is shown in parentheses.
+                                their voting-power percentage as commission, so the effective rate
+                                can be higher than what the validator declared. When that's the
+                                case, the declared rate is shown in parentheses.
                             </span>
                         </span>
                     </th>
@@ -208,15 +203,15 @@
                             <span class="info-icon">ⓘ</span>
                             <span class="tooltip">
                                 If you moved your <em>worst-yielding</em> stake to this validator
-                                today, how many days until cumulative earnings overtake what
-                                you'd have made by leaving it where it is. Compared against the
-                                lowest net APR among your current stakes (not the average — using
-                                the minimum surfaces any validator that beats at least one of
-                                your stakes). Accounts for the ≈1 epoch of activation delay
-                                where the new stake earns nothing.<br /><br />
-                                <strong>—</strong> means this validator's APR is at or below
-                                even your weakest stake (so switching anything to here would lose
-                                money), or that you have no stakes to compare against.
+                                today, how many days until cumulative earnings overtake what you'd
+                                have made by leaving it where it is. Compared against the lowest net
+                                APR among your current stakes (not the average — using the minimum
+                                surfaces any validator that beats at least one of your stakes).
+                                Accounts for the ≈1 epoch of activation delay where the new stake
+                                earns nothing.<br /><br />
+                                <strong>—</strong> means this validator's APR is at or below even your
+                                weakest stake (so switching anything to here would lose money), or that
+                                you have no stakes to compare against.
                             </span>
                         </span>
                     </th>
@@ -225,18 +220,17 @@
                         <span class="tooltip-container">
                             <span class="info-icon">ⓘ</span>
                             <span class="tooltip">
-                                <strong>APR</strong> = Annual Percentage Rate (linear): the
-                                window return projected to a full year (365 epochs ≈ 1 year on
-                                mainnet).<br /><br />
-                                <strong>APY</strong> = Annual Percentage Yield (compounded):
-                                what the same return becomes when each epoch's growth compounds
-                                into the next — which is what actually happens, since the pool
-                                token amount stays constant and only the IOTA value per token
-                                grows. APY ≥ APR.<br /><br />
-                                <strong>Net</strong> = after commission. The exchange rate
-                                already reflects only what delegators receive, so these numbers
-                                are what you actually earn — no further commission deduction is
-                                applied on top.
+                                <strong>APR</strong> = Annual Percentage Rate (linear): the window
+                                return projected to a full year (365 epochs ≈ 1 year on mainnet).<br
+                                /><br />
+                                <strong>APY</strong> = Annual Percentage Yield (compounded): what
+                                the same return becomes when each epoch's growth compounds into the
+                                next — which is what actually happens, since the pool token amount
+                                stays constant and only the IOTA value per token grows. APY ≥ APR.<br
+                                /><br />
+                                <strong>Net</strong> = after commission. The exchange rate already reflects
+                                only what delegators receive, so these numbers are what you actually earn
+                                — no further commission deduction is applied on top.
                             </span>
                         </span>
                     </th>
@@ -285,7 +279,11 @@
                             {#if row.commissionPct - row.declaredCommissionPct > 0.01}
                                 <span
                                     class="declared-hint"
-                                    title="Declared {formatPct(row.declaredCommissionPct / 100)} — bumped to {formatPct(row.commissionPct / 100)} by the IIP-8 voting-power floor."
+                                    title="Declared {formatPct(
+                                        row.declaredCommissionPct / 100,
+                                    )} — bumped to {formatPct(
+                                        row.commissionPct / 100,
+                                    )} by the IIP-8 voting-power floor."
                                     >(decl. {formatPct(row.declaredCommissionPct / 100)})</span
                                 >
                             {/if}

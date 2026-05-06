@@ -111,8 +111,7 @@
            ~6%-alpha and let everything underneath bleed through, which
            looks bad once the bar starts overlapping the chart on scroll. */
         background:
-            linear-gradient(rgba(5, 150, 105, 0.06), rgba(5, 150, 105, 0.06)),
-            rgb(12, 17, 28);
+            linear-gradient(rgba(5, 150, 105, 0.06), rgba(5, 150, 105, 0.06)), rgb(12, 17, 28);
         border: 1px solid rgba(5, 150, 105, 0.25);
         border-radius: 6px;
         margin-bottom: 0.5rem;
