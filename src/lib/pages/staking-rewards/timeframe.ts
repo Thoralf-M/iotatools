@@ -3,11 +3,23 @@
  * Provides date range presets and epoch filtering by timestamp.
  */
 
-export type TimeFrame = 'all' | 'last-7-days' | 'last-month' | 'last-quarter' | 'ytd' | 'custom';
+export type TimeFrame =
+    | 'all'
+    | 'last-7-days'
+    | 'last-month'
+    | 'last-quarter'
+    | 'ytd'
+    | 'custom'
+    | 'custom-epochs';
 
 export type DateRange = {
     start: Date;
     end: Date;
+};
+
+export type EpochRange = {
+    start: number;
+    end: number;
 };
 
 export const TIME_FRAME_LABELS: Record<TimeFrame, string> = {
@@ -16,7 +28,8 @@ export const TIME_FRAME_LABELS: Record<TimeFrame, string> = {
     'last-month': 'Last month',
     'last-quarter': 'Last quarter',
     ytd: 'Year to date',
-    custom: 'Custom',
+    custom: 'Custom dates',
+    'custom-epochs': 'Custom epochs',
 };
 
 /**
@@ -69,6 +82,7 @@ export function getTimeFrameDateRange(
 /**
  * Filter an array of epoch numbers by a time frame using epoch timestamps.
  * Returns only epochs whose end timestamp falls within the computed date range.
+ * For 'custom-epochs', filters by direct epoch number bounds instead.
  */
 export function filterEpochsByTimeFrame(
     epochs: number[],
@@ -76,8 +90,16 @@ export function filterEpochsByTimeFrame(
     timeFrame: TimeFrame,
     customRange?: DateRange,
     referenceDate?: Date,
+    customEpochRange?: EpochRange,
 ): number[] {
     if (timeFrame === 'all') return epochs;
+
+    if (timeFrame === 'custom-epochs') {
+        if (!customEpochRange) return epochs;
+        return epochs.filter(
+            (epoch) => epoch >= customEpochRange.start && epoch <= customEpochRange.end,
+        );
+    }
 
     const range =
         timeFrame === 'custom' ? customRange : getTimeFrameDateRange(timeFrame, referenceDate);
@@ -97,14 +119,20 @@ export function filterEpochsByTimeFrame(
  * Compute the start epoch for a time frame using the epoch timestamps cache.
  * Returns the latest epoch whose timestamp is <= the time frame's start date,
  * or undefined if the time frame is 'all' or no matching epoch exists.
+ * For 'custom-epochs', returns the explicitly-selected start epoch.
  */
 export function getStartEpochForTimeFrame(
     epochTimestamps: Record<number | string, number>,
     timeFrame: TimeFrame,
     customRange?: DateRange,
     referenceDate?: Date,
+    customEpochRange?: EpochRange,
 ): number | undefined {
     if (timeFrame === 'all') return undefined;
+
+    if (timeFrame === 'custom-epochs') {
+        return customEpochRange?.start;
+    }
 
     const range =
         timeFrame === 'custom' ? customRange : getTimeFrameDateRange(timeFrame, referenceDate);
@@ -125,14 +153,81 @@ export function getStartEpochForTimeFrame(
 }
 
 /**
+ * Map a date range to the inclusive epoch range whose timestamps fall in it.
+ * Returns null if no epoch in the cache falls inside the range.
+ */
+export function getEpochRangeForDateRange(
+    epochTimestamps: Record<number | string, number>,
+    range: DateRange,
+): EpochRange | null {
+    const startTs = Math.floor(range.start.getTime() / 1000);
+    const endTs = Math.floor(range.end.getTime() / 1000);
+
+    let startEpoch: number | undefined;
+    let endEpoch: number | undefined;
+    for (const [epochStr, ts] of Object.entries(epochTimestamps)) {
+        if (ts < startTs || ts > endTs) continue;
+        const epoch = parseInt(epochStr);
+        if (startEpoch === undefined || epoch < startEpoch) startEpoch = epoch;
+        if (endEpoch === undefined || epoch > endEpoch) endEpoch = epoch;
+    }
+    if (startEpoch === undefined || endEpoch === undefined) return null;
+    return { start: startEpoch, end: endEpoch };
+}
+
+/**
+ * Map an epoch range to the date range spanned by their cached timestamps.
+ * Falls back to the nearest available cached epoch on either side (the smallest
+ * epoch >= start and the largest epoch <= end) so the mapping still resolves
+ * when the cache lags behind the live current epoch or the start predates the
+ * first cached epoch. Returns null only when the cache has no overlap at all.
+ */
+export function getDateRangeForEpochRange(
+    epochTimestamps: Record<number | string, number>,
+    epochRange: EpochRange,
+): DateRange | null {
+    let startTs: number | undefined;
+    let endTs: number | undefined;
+    let bestStartEpoch: number | undefined;
+    let bestEndEpoch: number | undefined;
+
+    for (const [epochStr, ts] of Object.entries(epochTimestamps)) {
+        const epoch = parseInt(epochStr);
+        if (
+            epoch >= epochRange.start &&
+            (bestStartEpoch === undefined || epoch < bestStartEpoch)
+        ) {
+            bestStartEpoch = epoch;
+            startTs = ts;
+        }
+        if (epoch <= epochRange.end && (bestEndEpoch === undefined || epoch > bestEndEpoch)) {
+            bestEndEpoch = epoch;
+            endTs = ts;
+        }
+    }
+
+    if (startTs === undefined || endTs === undefined) return null;
+    return {
+        start: new Date(startTs * 1000),
+        end: new Date(endTs * 1000),
+    };
+}
+
+/**
  * Get a human-readable description of the active time frame.
  */
 export function getTimeFrameDescription(
     timeFrame: TimeFrame,
     customRange?: DateRange,
     referenceDate?: Date,
+    customEpochRange?: EpochRange,
 ): string {
     if (timeFrame === 'all') return '';
+
+    if (timeFrame === 'custom-epochs') {
+        if (!customEpochRange) return '';
+        return `Epoch ${customEpochRange.start} to ${customEpochRange.end}`;
+    }
 
     const range =
         timeFrame === 'custom' ? customRange : getTimeFrameDateRange(timeFrame, referenceDate);
