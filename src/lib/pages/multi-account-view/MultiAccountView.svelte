@@ -1,9 +1,11 @@
 <script lang="ts">
     import { isValidIotaAddress } from '@iota/iota-sdk/utils';
+    import { get } from 'svelte/store';
     import { untrack } from 'svelte';
     import type { DndEvent } from 'svelte-dnd-action';
 
     import { iota_accounts } from '../../utils/signer-data';
+    import { sharedMultiAccountCurrency } from '../../utils/local-storage-store';
     import { executeTransaction } from '../../utils/transaction-execution';
     import {
         fetchAllExchangeRates,
@@ -59,9 +61,13 @@
      *  optimize panel, charts) can render fiat values consistently. The
      *  price is fetched once on mount; the currency selector lives in
      *  BalanceSummary and is two-way bound. */
-    let selectedCurrency = $state<Currency>('USD');
+    let selectedCurrency = $state<Currency>(get(sharedMultiAccountCurrency));
     let currentPrice = $state<FiatPrice>(null);
     let priceFetched = false;
+
+    $effect(() => {
+        sharedMultiAccountCurrency.set(selectedCurrency);
+    });
 
     // ─── Staking state ───────────────────────────────────────────────────────
     let selectedTimeFrame: StakingTimeFrame = $state('last-30-days');

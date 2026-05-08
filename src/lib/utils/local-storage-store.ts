@@ -63,6 +63,8 @@ const EXTERNAL_ADDRESSES_KEY = 'externalAddresses';
 const IS_PRO_MODE_KEY = 'isProMode';
 const SELECTED_ADDRESS_KEY = 'selectedAddress';
 const DISCLAIMER_ACCEPTED_KEY = 'disclaimerAccepted';
+const STAKING_CURRENCY_KEY = 'stakingCurrency';
+const MULTI_ACCOUNT_CURRENCY_KEY = 'multiAccountCurrency';
 
 export const clientConfigErrorMsg = writable<string>('');
 export const sharedClientConfig: Writable<ClientConfig> = persistentWritableStore(
@@ -132,6 +134,28 @@ export const disclaimerAccepted: Writable<boolean> = persistentWritableStore(
     DISCLAIMER_ACCEPTED_KEY,
     false,
     (value: any) => typeof value === 'boolean',
+);
+
+export const sharedStakingCurrency: Writable<'usd' | 'eur'> = persistentWritableStore(
+    STAKING_CURRENCY_KEY,
+    'usd',
+    (value: any) => {
+        if (value !== 'usd' && value !== 'eur') {
+            throw new Error(`Invalid staking currency: ${value}. Must be 'usd' or 'eur'`);
+        }
+        return true;
+    },
+);
+
+export const sharedMultiAccountCurrency: Writable<'USD' | 'EUR'> = persistentWritableStore(
+    MULTI_ACCOUNT_CURRENCY_KEY,
+    'USD',
+    (value: any) => {
+        if (value !== 'USD' && value !== 'EUR') {
+            throw new Error(`Invalid multi-account currency: ${value}. Must be 'USD' or 'EUR'`);
+        }
+        return true;
+    },
 );
 
 // Custom store synced with localStorage
