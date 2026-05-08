@@ -3,8 +3,11 @@
     import { onMount } from 'svelte';
     import { List } from 'svelte-virtual';
 
+    import { get } from 'svelte/store';
+
     import { getSelectedNetworkConfig } from '../../utils/client';
     import { copyToClipboard } from '../../utils/formatting';
+    import { sharedStakingCurrency } from '../../utils/local-storage-store';
     import type { ActionDetails, StakeObject, ValidatorInfo } from './';
     import pricesCache from './cache/iota-prices-coingecko.json';
     import epochTimestampsCacheJson from './cache/mainnet-epoch-timestamps-cache.json';
@@ -241,8 +244,12 @@
         }
     });
 
-    let selectedCurrency = $state<'usd' | 'eur'>('usd');
-    let previousCurrency = $state<'usd' | 'eur'>('usd');
+    let selectedCurrency = $state<'usd' | 'eur'>(get(sharedStakingCurrency));
+    let previousCurrency = $state<'usd' | 'eur'>(get(sharedStakingCurrency));
+
+    $effect(() => {
+        sharedStakingCurrency.set(selectedCurrency);
+    });
     function reloadPricesFromCache() {
         epochPrices = reloadFromCoinGeckoCache({
             epochs,
