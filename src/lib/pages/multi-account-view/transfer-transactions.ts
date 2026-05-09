@@ -1,12 +1,5 @@
-import { toBase64 } from '@iota/bcs';
 import { Transaction } from '@iota/iota-sdk/transactions';
-import { get } from 'svelte/store';
 
-import { getClient, getSelectedChain } from '../../utils/client';
-import { requireMainnetTransactionConfirmation } from '../../utils/mainnet-transaction-confirmation';
-import { sharedTransactionExecution, TransactionExecution } from '../../utils/shared-in-memory';
-import { calculateGasFee } from '../../utils/transaction-execution';
-import { getActiveWallet } from '../../utils/web-wallet';
 import type { ExtendedAccount, ExtendedObject } from './multi-account-service';
 
 const IOTA_COIN_TYPE = '0x2::coin::Coin<0x2::iota::IOTA>';
@@ -100,68 +93,3 @@ export function prepareTransferTransactions(
     return prepared;
 }
 
-/** Execute (or simulate / dry-run / prepare) a list of prepared transactions
- *  sequentially using the currently-selected execution mode. Each result has
- *  `sender` and `recipients` attached for downstream display. */
-export async function executeTransferTransactions(prepared: PreparedTransaction[]): Promise<any[]> {
-    const client = getClient();
-    const executionMode = get(sharedTransactionExecution);
-    const results: any[] = [];
-
-    for (const { sender, recipients, transaction } of prepared) {
-        console.log(`Executing transfer from ${sender} to:`, recipients.join(', '));
-        let result: any;
-
-        switch (executionMode) {
-            case TransactionExecution.DevInspect:
-                result = await client.devInspectTransactionBlock({
-                    sender,
-                    transactionBlock: transaction,
-                });
-                break;
-            case TransactionExecution.DryRun:
-                result = await client.dryRunTransactionBlock({
-                    transactionBlock: await transaction.build({ client }),
-                });
-                break;
-            case TransactionExecution.Send: {
-                const wallet = getActiveWallet();
-                if (!wallet) throw new Error('No active wallet available');
-                await requireMainnetTransactionConfirmation(transaction);
-                result = await wallet.signAndExecuteTransaction({
-                    transaction,
-                    options: {
-                        showEffects: true,
-                        showObjectChanges: true,
-                        showBalanceChanges: true,
-                    },
-                    account: { address: sender },
-                    // @ts-ignore
-                    chain: getSelectedChain(),
-                });
-                break;
-            }
-            case TransactionExecution.Prepare: {
-                const json = JSON.parse(await transaction.toJSON());
-                if (transaction.getData().gasData.price == 0) {
-                    const referenceGasPrice = await client.getReferenceGasPrice();
-                    transaction.setGasPrice(referenceGasPrice);
-                }
-                if (transaction.getData().gasData.budget == 0) {
-                    const gas = await calculateGasFee(transaction);
-                    transaction.setGasBudget(BigInt(gas!));
-                }
-                const transactionBytes = toBase64(await transaction.build({ client }));
-                result = { json, transactionBytes };
-                break;
-            }
-            default:
-                throw new Error(`Unknown transaction execution mode: ${executionMode}`);
-        }
-
-        result.sender = sender;
-        result.recipients = recipients;
-        results.push(result);
-    }
-    return results;
-}

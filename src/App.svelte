@@ -7,6 +7,8 @@
     import Options from './lib/components/Options.svelte';
     import Signer from './lib/components/Signer.svelte';
     import Tabs from './lib/components/Tabs.svelte';
+    import TransactionTray from './lib/components/TransactionTray.svelte';
+    import { trayItems } from './lib/stores/transaction-tray';
     import { isProMode } from './lib/utils/local-storage-store';
     import { navigateWithGlobalParams } from './lib/utils/query-param-store';
 
@@ -131,7 +133,7 @@
               .map((e, index) => ({ ...e, value: index, group: '' }));
 </script>
 
-<main>
+<main class:has-tray={$trayItems.length > 0}>
     <header class="app-header">
         <div class="header-row">
             <div class="warning-banner">Experimental website, use at your own risk.</div>
@@ -210,6 +212,7 @@
 
     <DisclaimerModal />
     <MainnetTransactionConfirmation />
+    <TransactionTray />
 </main>
 
 <style>
@@ -219,6 +222,12 @@
         flex-direction: column;
         position: relative;
         width: 100%;
+    }
+
+    main.has-tray {
+        /* Reserve space so the fixed transaction tray (collapsed handle ~3rem)
+           never covers the footer or page content. */
+        padding-bottom: 3.5rem;
     }
 
     .app-header {

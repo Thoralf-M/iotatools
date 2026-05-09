@@ -17,7 +17,9 @@ import { sharedTransactionExecution, TransactionExecution } from './shared-in-me
 import { activeAddress } from './signer-data';
 import { getActiveWallet } from './web-wallet';
 
-// Execute the transaction based on the selected execution mode and sender address
+// Execute the transaction based on the selected execution mode and sender address.
+// `modeOverride` is used by the transaction tray's per-card re-run; when omitted
+// the global `sharedTransactionExecution` store decides the mode.
 export async function executeTransaction(
     transaction: Transaction,
     options: IotaTransactionBlockResponseOptions | undefined = {
@@ -25,9 +27,10 @@ export async function executeTransaction(
         showObjectChanges: true,
         showBalanceChanges: true,
     },
+    modeOverride?: TransactionExecution,
 ): Promise<DevInspectResults | DryRunTransactionBlockResponse | IotaTransactionBlockResponse> {
     const client = getClient();
-    const executionMode = get(sharedTransactionExecution);
+    const executionMode = modeOverride ?? get(sharedTransactionExecution);
     const senderAddress = get(activeAddress);
 
     transaction.setSenderIfNotSet(senderAddress);

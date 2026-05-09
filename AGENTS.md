@@ -56,8 +56,8 @@ pnpm production
 # Type checking
 pnpm run check
 
-# Format code
-pnpm run prettier:fix
+# Format + lint (run after every edit)
+pnpm fix
 
 # Run tests
 pnpm test
@@ -183,7 +183,20 @@ Imports are auto-sorted: built-ins → third-party → local.
 | `Signer.svelte`          | Transaction signing interface                |
 | `Tabs.svelte`            | Tab navigation component                     |
 
+## Post-edit checks
+
+After making code changes, run these before reporting the task as complete:
+
+```bash
+pnpm fix      # format (oxfmt + prettier on .svelte) and lint (oxlint)
+pnpm check    # svelte-check + tsc — catches type errors
+```
+
+`pnpm fix` is a convenience wrapper around `pnpm format:fix && pnpm lint`. Format and lint are kept as separate scripts so CI can run the non-mutating `pnpm format:check` independently.
+
 ## Testing
+
+### Unit tests (Vitest)
 
 - Test files: `*.test.ts` alongside source files
 - Uses Vitest with jsdom environment
@@ -201,6 +214,31 @@ Run tests:
 pnpm test              # Run tests once
 pnpm test:ui           # Interactive UI
 ```
+
+### UI / end-to-end testing (Playwright MCP)
+
+For any change that affects UI or user-facing behavior, **verify the change in a real browser using the Playwright MCP tools** before reporting the task as complete. Type checks and unit tests catch code correctness, not feature correctness.
+
+Workflow:
+
+1. Start the dev server in the background: `pnpm run dev` (default URL: http://localhost:5173).
+2. Navigate to the affected route with `browser_navigate`, then exercise the feature using `browser_snapshot`, `browser_click`, `browser_fill_form`, `browser_type`, etc.
+3. Test the **golden path** (the primary flow you changed) and at least one **edge case** (empty input, invalid address, network switch, etc.).
+4. Check `browser_console_messages` for unexpected errors and watch for regressions in adjacent features.
+5. Close the page with `browser_close` when done.
+
+If browser testing is not possible for a given change (e.g., Ledger/WebHID hardware-wallet flows, camera-based QR scanning), say so explicitly in the summary rather than claiming the change was verified.
+
+#### Testing real transactions
+
+For flows that build, sign, or execute transactions, use **devnet** with one of the **built-in default accounts** so signing happens fully in the browser — no Ledger or external wallet needed:
+
+1. Switch the network to **devnet** via the network selector (persisted in `sharedClientConfig`).
+2. Click **"Enable Pro Mode"** in the top toolbar. The default-toolbar only exposes `Connect Web Wallet` and `Use External Address` — the **Localstorage** signer (which uses the default accounts) is hidden until Pro Mode is on. Pro Mode also surfaces the `Tx execution` selector you'll need in step 4.
+3. In the per-page signer panel, set **Signer → `Localstorage`** and **Address → `Default Account 0/1/2`** ([src/lib/utils/default-private-keys.ts](src/lib/utils/default-private-keys.ts)). They're pre-loaded into `sharedPrivateKeyAccounts` and signed via the wallet-standard wrapper in [src/lib/utils/signer-data.ts](src/lib/utils/signer-data.ts) — do **not** create or import a new account just for testing.
+4. Set **Tx execution → `send (transaction, costs gas)`**. The default is `dry-run`, which simulates only and won't produce an on-chain digest.
+5. These accounts usually carry devnet funds. If a flow fails because the chosen account is empty, top it up from the devnet faucet and retry.
+6. Drive the transaction through the UI with Playwright and assert on the resulting effects / digest in the Transactions panel.
 
 ## Build & Deployment
 

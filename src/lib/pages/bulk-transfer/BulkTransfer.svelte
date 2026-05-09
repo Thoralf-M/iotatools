@@ -2,10 +2,9 @@
     import { Transaction } from '@iota/iota-sdk/transactions';
     import { isValidIotaAddress } from '@iota/iota-sdk/utils';
 
-    import TransactionView from '../../components/TransactionView.svelte';
+    import { addAndRun } from '../../stores/transaction-tray';
     import { getClient } from '../../utils/client';
     import { activeAddress } from '../../utils/signer-data';
-    import { executeTransaction } from '../../utils/transaction-execution';
 
     let transfersJson = `0x0000a4984bd495d4346fa208ddff4f5d5e5ad48c21dec631ddebc99809f16900 1000000000
 0x111173a14c3d402c01546c54265c30cc04414c7b7ec1732412bb19066dd49d11 2000000000`;
@@ -154,8 +153,6 @@
         return transfers;
     }
 
-    // Will be updated with the result
-    let value = {};
     let errorMsg = '';
 
     // Compute total amount
@@ -278,10 +275,13 @@
                 });
             }
 
-            value = await executeTransaction(txb);
+            await addAndRun({
+                label: `Bulk transfer ${transfers.length} × ${coinSymbol}`,
+                transaction: txb,
+                recipients: transfers.map((t) => t.address),
+            });
         } catch (err: any) {
             errorMsg = err.toString();
-            value = err.toString();
             console.error(err);
         }
     };
@@ -448,8 +448,6 @@
 
         <button onclick={executeBulkTransfer}>Execute Bulk Transfer</button>
     </div>
-
-    <TransactionView {value} />
 </main>
 
 <style>
