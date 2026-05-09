@@ -1,11 +1,12 @@
 <script lang="ts">
     import { isValidIotaAddress } from '@iota/iota-sdk/utils';
-    import { get } from 'svelte/store';
-    import { untrack } from 'svelte';
+    import { onMount, untrack } from 'svelte';
     import type { DndEvent } from 'svelte-dnd-action';
+    import { get } from 'svelte/store';
 
-    import { iota_accounts } from '../../utils/signer-data';
     import { sharedMultiAccountCurrency } from '../../utils/local-storage-store';
+    import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
+    import { iota_accounts } from '../../utils/signer-data';
     import { executeTransaction } from '../../utils/transaction-execution';
     import {
         fetchAllExchangeRates,
@@ -30,7 +31,10 @@
         timeFrameToEpochRange,
         type StakingTimeFrame,
     } from './staking-metrics';
-    import { buildSwitchValidatorTransactionMulti } from './staking-transactions';
+    import {
+        buildStakeTransaction,
+        buildSwitchValidatorTransactionMulti,
+    } from './staking-transactions';
     import StakingControls, { type StakingMetricType } from './StakingControls.svelte';
     import StakingTrendChart, { type UserStakeRef } from './StakingTrendChart.svelte';
     import Toolbar from './Toolbar.svelte';
@@ -57,6 +61,165 @@
     let syncing = $state(false);
     let numTransfers = $derived(getMovements(extendedAccounts).size);
 
+    // ─── Visibility state (toolbar-driven, not persisted) ────────────────────
+    /** Per-card "Hide" — soft hide, restored via the toolbar's "Show hidden". */
+    let hiddenAddresses = $state(new Set<string>());
+    /** Per-chip override that *forces* an account visible even when the global
+     *  rules (hideEmpty, typeFilter) would have hidden it. Set by clicking a
+     *  dimmed chip in the strip; cleared by clicking it again. */
+    let forceVisibleAddresses = $state(new Set<string>());
+    /** Per-card "Solo" — when set, only this address renders. */
+    let soloAddress = $state<string | null>(null);
+    /** Toolbar toggle. "Empty" = no objects and no timelocked objects. */
+    let hideEmpty = $state(true);
+    /** Global, partial, case-insensitive substring filter on Move object type. */
+    let typeFilter = $state('');
+
+    let normalizedTypeFilter = $derived(typeFilter.trim().toLowerCase());
+
+    // Toggling `hideEmpty` clears the per-chip force-show overrides so the
+    // user can re-hide previously revealed empties by simply toggling the
+    // checkbox off and back on. Without this, overrides set during the
+    // first "on" period would survive the off→on cycle and stubbornly
+    // keep empty accounts visible.
+    $effect(() => {
+        void hideEmpty;
+        untrack(() => {
+            if (forceVisibleAddresses.size > 0) {
+                forceVisibleAddresses = new Set();
+            }
+        });
+    });
+
+    // ─── Query-param persistence for toolbar state ───────────────────────────
+    // Read-on-mount so deep links / reloads restore the user's last view; the
+    // $effect below writes back as the user toggles. The `urlInitialized`
+    // gate prevents the initial mount from clobbering an existing URL state
+    // before we've read it.
+    const queryParamDefaults = {
+        stakingMode: false,
+        hideEmpty: true,
+        typeFilter: '',
+    };
+    const pageParams = usePageQueryParams(queryParamDefaults);
+    let urlInitialized = false;
+
+    onMount(() => {
+        const initial = get(pageParams);
+        stakingMode = initial.stakingMode;
+        hideEmpty = initial.hideEmpty;
+        typeFilter = initial.typeFilter;
+        urlInitialized = true;
+    });
+
+    $effect(() => {
+        if (!urlInitialized) return;
+        // Only write a value when it differs from the default so the URL
+        // stays clean for the common-case (no flags set, empty filter).
+        updatePageQueryParams({
+            stakingMode: stakingMode ? 'true' : null,
+            hideEmpty: hideEmpty ? null : 'false',
+            typeFilter: typeFilter || null,
+        });
+    });
+
+    function accountIsEmpty(a: ExtendedAccount): boolean {
+        return a.objects.length === 0 && a.timelockedObjects.length === 0;
+    }
+
+    function accountHasMatchingObject(a: ExtendedAccount, filter: string): boolean {
+        if (!filter) return true;
+        const match = (obj: any) => {
+            const t = obj?.data?.content?.type;
+            return typeof t === 'string' && t.toLowerCase().includes(filter);
+        };
+        return a.objects.some(match) || a.timelockedObjects.some(match);
+    }
+
+    /** Cards to actually render. Solo overrides everything else; otherwise we
+     *  apply hide/empty/filter in turn. The filter also drops accounts with no
+     *  matching objects so the user isn't left with empty cards while
+     *  searching. */
+    let visibleAccounts = $derived.by(() => {
+        if (soloAddress) {
+            return extendedAccounts.filter((a) => a.address === soloAddress);
+        }
+        return extendedAccounts.filter((a) => {
+            if (hiddenAddresses.has(a.address)) return false;
+            // Per-chip forced visibility wins over hideEmpty/filter — it's
+            // the user explicitly saying "I want to see this one anyway".
+            if (forceVisibleAddresses.has(a.address)) return true;
+            if (hideEmpty && accountIsEmpty(a)) return false;
+            if (normalizedTypeFilter && !accountHasMatchingObject(a, normalizedTypeFilter))
+                return false;
+            return true;
+        });
+    });
+
+    let soloLabel = $derived.by(() => {
+        if (!soloAddress) return null;
+        const acc = extendedAccounts.find((a) => a.address === soloAddress);
+        return acc?.label || soloAddress.slice(0, 6) + '...' + soloAddress.slice(-4);
+    });
+
+    /** Set of addresses that pass all filters and would render. The chip strip
+     *  uses this to gray out anything not currently in the grid (regardless of
+     *  *why* it's hidden — solo, manual hide, hide-empty, or type filter). */
+    let visibleAddressSet = $derived(new Set(visibleAccounts.map((a) => a.address)));
+
+    /** Toggle visibility for a chip click. A click always flips the chip
+     *  between visible and dimmed, regardless of *why* it was dimmed:
+     *   - in solo mode, click on the soloed chip exits solo; click on any
+     *     other chip switches solo to that one;
+     *   - if currently visible, hide it (`hiddenAddresses`);
+     *   - if dimmed by manual hide, unhide;
+     *   - if dimmed by `hideEmpty` or the type filter, force-show
+     *     (`forceVisibleAddresses`) so the user sees it even though the
+     *     global rule would have hidden it;
+     *   - if already force-shown, click again clears the override. */
+    function toggleAccountChip(address: string) {
+        if (soloAddress) {
+            if (soloAddress === address) soloAddress = null;
+            else soloAddress = address;
+            return;
+        }
+        if (hiddenAddresses.has(address)) {
+            const next = new Set(hiddenAddresses);
+            next.delete(address);
+            hiddenAddresses = next;
+            return;
+        }
+        if (forceVisibleAddresses.has(address)) {
+            const next = new Set(forceVisibleAddresses);
+            next.delete(address);
+            forceVisibleAddresses = next;
+            return;
+        }
+        if (visibleAddressSet.has(address)) {
+            hideAccount(address);
+        } else {
+            const next = new Set(forceVisibleAddresses);
+            next.add(address);
+            forceVisibleAddresses = next;
+        }
+    }
+
+    function hideAccount(address: string) {
+        const next = new Set(hiddenAddresses);
+        next.add(address);
+        hiddenAddresses = next;
+        if (soloAddress === address) soloAddress = null;
+    }
+    function soloAccountAction(address: string) {
+        soloAddress = address;
+    }
+    function clearHidden() {
+        hiddenAddresses = new Set();
+    }
+    function clearSolo() {
+        soloAddress = null;
+    }
+
     /** Lifted out of BalanceSummary so the staking views (validator table,
      *  optimize panel, charts) can render fiat values consistently. The
      *  price is fetched once on mount; the currency selector lives in
@@ -81,12 +244,27 @@
      *  selection with this stake, opens itself, scrolls into view) and
      *  resets it back to null via $bindable. */
     let chartFocusStake = $state<string | null>(null);
+    /** Switch-target validator address shared between the trend chart's switch
+     *  picker and the new-stake flow. Lifting it here means the chart's
+     *  validator pick is reused as the destination for staking new liquid
+     *  IOTA from any account. */
+    let switchTargetAddress = $state<string>('');
+    /** A pending "stake new liquid IOTA from account X" intent. Set when the
+     *  user clicks Stake on an AccountCard. The trend chart consumes this
+     *  via $bindable: opens itself, clears any existing-stake selection,
+     *  shows a banner with the amount + source account, and exposes a
+     *  "Stake" action that calls back into `executeStake`. After a
+     *  successful execute (or explicit cancel) the chart clears it. */
+    let pendingNewStake = $state<{
+        accountAddress: string;
+        accountLabel: string;
+        amountNano: bigint;
+    } | null>(null);
     let cacheInitialized = false;
 
-    // Indexes derived from `validators`. Re-derive on change so callers can
-    // do O(1) lookups without iterating the full list.
+    // Pool-id index derived from `validators` so callers can do O(1) lookups
+    // without iterating the full list.
     let validatorsByPool = $derived(new Map(validators.map((v) => [v.poolId, v])));
-    let validatorsByAddress = $derived(new Map(validators.map((v) => [v.address, v])));
 
     // Per-pool sum of the user's staked principal across all synced accounts.
     // The Set of pool ids is derived from the keys for callers that just need
@@ -349,12 +527,17 @@
         }
     };
 
-    /** Auto-trigger sync once on mount so the user lands on a populated view
-     *  without needing to click. Wrapped in `untrack` to avoid the same kind
-     *  of reactivity loop that bit `loadStakingData` previously. */
+    /** Auto-trigger sync so the user lands on a populated view without
+     *  needing to click. Tracks `$iota_accounts.length` so that the WebWallet
+     *  signer — which populates accounts asynchronously after `wallet.connect()`
+     *  resolves — also gets auto-synced once they hydrate. The Localstorage
+     *  signer populates synchronously, so for it this still effectively runs
+     *  once on mount. The rest is wrapped in `untrack` to avoid the kind of
+     *  reactivity loop that bit `loadStakingData` previously. */
     $effect(() => {
+        const iotaCount = $iota_accounts.length;
         untrack(() => {
-            if (extendedAccounts.length === 0 && !syncInFlight) syncReset();
+            if (extendedAccounts.length === 0 && iotaCount > 0 && !syncInFlight) syncReset();
         });
     });
 
@@ -440,6 +623,17 @@
 
     function removeAccount(address: string) {
         extendedAccounts = extendedAccounts.filter((acc) => acc.address !== address);
+        if (hiddenAddresses.has(address)) {
+            const next = new Set(hiddenAddresses);
+            next.delete(address);
+            hiddenAddresses = next;
+        }
+        if (forceVisibleAddresses.has(address)) {
+            const next = new Set(forceVisibleAddresses);
+            next.delete(address);
+            forceVisibleAddresses = next;
+        }
+        if (soloAddress === address) soloAddress = null;
     }
 
     function getAccountDisplayName(address: string): string {
@@ -463,6 +657,48 @@
      *  selection replacement). */
     function openOptimize(stakeId: string) {
         chartFocusStake = stakeId;
+    }
+
+    /** Per-card "Stake X IOTA" click → record the intent and let the chart
+     *  pick it up. The chart focuses itself, clears its existing-stake
+     *  selection, auto-picks a target validator (or honors the existing one),
+     *  and shows a confirm banner — no transaction is built here. */
+    function requestStake(accountAddress: string, amountNano: bigint) {
+        const acc = extendedAccounts.find((a) => a.address === accountAddress);
+        const fallback = accountAddress.slice(0, 6) + '...' + accountAddress.slice(-4);
+        pendingNewStake = {
+            accountAddress,
+            accountLabel: acc?.label || fallback,
+            amountNano,
+        };
+    }
+
+    /** Build + execute a stake transaction for a pending new-stake intent.
+     *  Called by the chart's confirm button — the chart owns validator
+     *  selection so passes it explicitly here, decoupling the action from
+     *  the shared `switchTargetAddress` state. */
+    async function executeStake(
+        accountAddress: string,
+        amountNano: bigint,
+        target: ValidatorInfoFull,
+    ) {
+        if (amountNano <= 0n) {
+            transactionResults = [{ error: 'Stake amount must be > 0.', sender: accountAddress }];
+            return;
+        }
+        try {
+            transactionResults = [];
+            const tx = buildStakeTransaction(target.address, amountNano);
+            tx.setSender(accountAddress);
+            const result: any = await executeTransaction(tx);
+            result.sender = accountAddress;
+            result.recipients = [target.address];
+            transactionResults = [result];
+            pendingNewStake = null;
+        } catch (err: any) {
+            transactionResults = [{ error: err.toString(), sender: accountAddress }];
+            console.error(err);
+        }
     }
 
     /** Build and execute switch transactions for the selected stakes,
@@ -504,14 +740,21 @@
 </script>
 
 <main class="container">
+    <BalanceSummary accounts={visibleAccounts} bind:selectedCurrency bind:currentPrice />
+
     <Toolbar
         bind:newAccountAddress
         bind:stakingMode
+        bind:typeFilter
         {numTransfers}
         {syncing}
+        hiddenCount={hiddenAddresses.size}
+        {soloLabel}
         onSync={syncReset}
         onAddExternalAccount={addExternalAccount}
         onExecuteTransfers={executeTransfers}
+        onClearHidden={clearHidden}
+        onClearSolo={clearSolo}
     />
 
     {#if newAccountError}
@@ -522,7 +765,66 @@
         <div style="color: #ef4444; padding: 0 0.5rem;">{syncError}</div>
     {/if}
 
-    <BalanceSummary accounts={extendedAccounts} bind:selectedCurrency bind:currentPrice />
+    <TransactionResults
+        results={transactionResults}
+        {getAccountDisplayName}
+        title={stakingMode ? 'Staking / transfer transactions' : 'Transfers'}
+    />
+
+    {#if extendedAccounts.length > 0}
+        <div
+            class="account-strip"
+            title="All accounts. Greyed-out chips are hidden from the grid below — click to toggle. In solo mode, click another chip to switch solo, or click the active chip to exit solo."
+        >
+            <label class="strip-toggle" title="Hide accounts with no objects.">
+                <input type="checkbox" bind:checked={hideEmpty} />
+                <span>Hide empty</span>
+            </label>
+            <span class="strip-divider" aria-hidden="true"></span>
+            {#each extendedAccounts as a (a.id)}
+                {@const visible = visibleAddressSet.has(a.address)}
+                {@const isSolo = soloAddress === a.address}
+                <button
+                    type="button"
+                    class="account-chip"
+                    class:dim={!visible}
+                    class:solo={isSolo}
+                    onclick={() => toggleAccountChip(a.address)}
+                >
+                    {a.label || a.address.slice(0, 6) + '...' + a.address.slice(-4)}
+                </button>
+            {/each}
+        </div>
+    {/if}
+
+    <div class="accounts-grid">
+        {#each visibleAccounts as account (account.id)}
+            <AccountCard
+                {account}
+                {stakingMode}
+                {getAccountDisplayName}
+                typeFilter={normalizedTypeFilter}
+                onDnd={(event) => handleDnd(event, account.id)}
+                onRemove={() => removeAccount(account.address)}
+                onHide={() => hideAccount(account.address)}
+                onSolo={() => soloAccountAction(account.address)}
+                onToggleCollapse={() => toggleCollapse(account.id)}
+                stakingMetrics={stakingMode ? stakingMetrics : undefined}
+                onOptimizeStake={stakingMode ? openOptimize : undefined}
+                onRequestStake={stakingMode ? requestStake : undefined}
+                {currentPrice}
+                {selectedCurrency}
+            />
+        {/each}
+
+        {#if visibleAccounts.length === 0 && extendedAccounts.length > 0}
+            <div class="empty-hint">
+                No accounts to show.
+                {#if soloAddress}Exit solo view{:else if hiddenAddresses.size > 0 || hideEmpty || normalizedTypeFilter}adjust
+                    the filters above{:else}sync to load{/if}.
+            </div>
+        {/if}
+    </div>
 
     {#if stakingMode}
         <div class="disclaimer">
@@ -551,44 +853,26 @@
                 {currentPrice}
                 {selectedCurrency}
                 bind:focusStakeRequest={chartFocusStake}
+                bind:switchTargetAddress
+                bind:pendingNewStake
                 onSwitch={executeSwitch}
-            />
-
-            <ValidatorComparisonTable
-                {validators}
-                timeFrame={selectedTimeFrame}
-                fromEpoch={epochRange.fromEpoch}
-                toEpoch={epochRange.toEpoch}
-                {userStakeByPool}
-                {userMinNetApr}
-                {currentPrice}
-                {selectedCurrency}
+                onStakeNew={executeStake}
             />
         {/if}
     {/if}
 
-    <TransactionResults
-        results={transactionResults}
-        {getAccountDisplayName}
-        title={stakingMode ? 'Staking / transfer transactions' : 'Transfers'}
-    />
-
-    <div class="accounts-grid">
-        {#each extendedAccounts as account (account.id)}
-            <AccountCard
-                {account}
-                {stakingMode}
-                {getAccountDisplayName}
-                onDnd={(event) => handleDnd(event, account.id)}
-                onRemove={() => removeAccount(account.address)}
-                onToggleCollapse={() => toggleCollapse(account.id)}
-                stakingMetrics={stakingMode ? stakingMetrics : undefined}
-                onOptimizeStake={stakingMode ? openOptimize : undefined}
-                {currentPrice}
-                {selectedCurrency}
-            />
-        {/each}
-    </div>
+    {#if stakingMode && validators.length > 0}
+        <ValidatorComparisonTable
+            {validators}
+            timeFrame={selectedTimeFrame}
+            fromEpoch={epochRange.fromEpoch}
+            toEpoch={epochRange.toEpoch}
+            {userStakeByPool}
+            {userMinNetApr}
+            {currentPrice}
+            {selectedCurrency}
+        />
+    {/if}
 </main>
 
 <style>
@@ -617,5 +901,77 @@
 
     .disclaimer strong {
         color: #fbbf24;
+    }
+
+    .empty-hint {
+        grid-column: 1 / -1;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        padding: 1.5rem;
+        border: 1px dashed var(--border-color);
+        border-radius: 6px;
+    }
+
+    .account-strip {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.4rem 0.5rem;
+        margin: 0.25rem 0 0.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.15);
+    }
+
+    .strip-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .strip-toggle input {
+        accent-color: #6366f1;
+    }
+
+    .strip-divider {
+        width: 1px;
+        align-self: stretch;
+        background: var(--border-color);
+        margin: 0 0.25rem;
+    }
+
+    .account-chip {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        border: 1px solid rgba(100, 116, 139, 0.4);
+        background: rgba(100, 116, 139, 0.18);
+        color: rgba(255, 255, 255, 0.85);
+        cursor: pointer;
+        max-width: 14rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .account-chip:hover {
+        background: rgba(100, 116, 139, 0.32);
+    }
+
+    .account-chip.dim {
+        opacity: 0.4;
+        text-decoration: line-through;
+    }
+
+    .account-chip.solo {
+        background: rgba(99, 102, 241, 0.3);
+        border-color: rgba(99, 102, 241, 0.6);
+        color: #c7d2fe;
     }
 </style>
