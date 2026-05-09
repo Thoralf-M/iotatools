@@ -4,10 +4,10 @@
     import type { DndEvent } from 'svelte-dnd-action';
     import { get } from 'svelte/store';
 
+    import { addAndRun } from '../../stores/transaction-tray';
     import { sharedMultiAccountCurrency } from '../../utils/local-storage-store';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
     import { iota_accounts } from '../../utils/signer-data';
-    import { executeTransaction } from '../../utils/transaction-execution';
     import {
         fetchAllExchangeRates,
         setInitialExchangeRateCacheFromBinary,
@@ -38,12 +38,7 @@
     import StakingControls, { type StakingMetricType } from './StakingControls.svelte';
     import StakingTrendChart, { type UserStakeRef } from './StakingTrendChart.svelte';
     import Toolbar from './Toolbar.svelte';
-    import TransactionResults from './TransactionResults.svelte';
-    import {
-        executeTransferTransactions,
-        getMovements,
-        prepareTransferTransactions,
-    } from './transfer-transactions';
+    import { getMovements, prepareTransferTransactions } from './transfer-transactions';
     import {
         effectiveCommissionBps,
         fetchValidatorsForStaking,
@@ -53,7 +48,6 @@
 
     // ─── Core multi-account state ────────────────────────────────────────────
     let extendedAccounts: ExtendedAccount[] = $state([]);
-    let transactionResults: any[] = $state([]);
     let syncError = $state('');
     let newAccountAddress = $state('');
     let newAccountError = $state('');
@@ -577,14 +571,29 @@
         ];
     }
 
+    function shortAddrLabel(a: string): string {
+        const acc = extendedAccounts.find((x) => x.address === a);
+        if (acc?.label) return acc.label;
+        return a.length > 14 ? `${a.slice(0, 6)}…${a.slice(-4)}` : a;
+    }
+
     async function executeTransfers() {
         try {
-            transactionResults = [];
             const prepared = prepareTransferTransactions(extendedAccounts);
-            transactionResults = await executeTransferTransactions(prepared);
+            // Push every prepared transaction onto the global tray. Each card
+            // runs independently so a re-run on one tx leaves the others alone.
+            for (const { sender, recipients, transaction } of prepared) {
+                const recipientLabels = recipients.map(shortAddrLabel).join(', ');
+                addAndRun({
+                    label: `Transfer from ${shortAddrLabel(sender)} → ${recipientLabels}`,
+                    transaction,
+                    sender,
+                    recipients,
+                });
+            }
         } catch (err: any) {
-            transactionResults = [{ error: err.toString() }];
             console.error(err);
+            alert(err.toString());
         }
     }
 
@@ -683,21 +692,22 @@
         target: ValidatorInfoFull,
     ) {
         if (amountNano <= 0n) {
-            transactionResults = [{ error: 'Stake amount must be > 0.', sender: accountAddress }];
+            alert('Stake amount must be > 0.');
             return;
         }
         try {
-            transactionResults = [];
             const tx = buildStakeTransaction(target.address, amountNano);
             tx.setSender(accountAddress);
-            const result: any = await executeTransaction(tx);
-            result.sender = accountAddress;
-            result.recipients = [target.address];
-            transactionResults = [result];
+            await addAndRun({
+                label: `Stake from ${shortAddrLabel(accountAddress)} → ${target.name || shortAddrLabel(target.address)}`,
+                transaction: tx,
+                sender: accountAddress,
+                recipients: [target.address],
+            });
             pendingNewStake = null;
         } catch (err: any) {
-            transactionResults = [{ error: err.toString(), sender: accountAddress }];
             console.error(err);
+            alert(err.toString());
         }
     }
 
@@ -707,14 +717,14 @@
     async function executeSwitch(stakes: UserStakeRef[], newValidator: ValidatorInfoFull) {
         if (stakes.length === 0) return;
         try {
-            transactionResults = [];
             const byAccount = new Map<string, UserStakeRef[]>();
             for (const s of stakes) {
                 const list = byAccount.get(s.accountAddress) ?? [];
                 list.push(s);
                 byAccount.set(s.accountAddress, list);
             }
-            const results: any[] = [];
+            // Each (account → validator) pair becomes its own tray card so the
+            // user can re-run them individually after a successful dry-run.
             for (const [account, accountStakes] of byAccount) {
                 try {
                     const tx = buildSwitchValidatorTransactionMulti(
@@ -722,19 +732,22 @@
                         newValidator.address,
                     );
                     tx.setSender(account);
-                    const result: any = await executeTransaction(tx);
-                    result.sender = account;
-                    result.recipients = [newValidator.address];
-                    results.push(result);
+                    addAndRun({
+                        label: `Switch ${accountStakes.length} stake${accountStakes.length === 1 ? '' : 's'} (${shortAddrLabel(account)}) → ${newValidator.name || shortAddrLabel(newValidator.address)}`,
+                        transaction: tx,
+                        sender: account,
+                        recipients: [newValidator.address],
+                    });
                 } catch (err: any) {
-                    results.push({ error: err.toString(), sender: account });
                     console.error(err);
+                    alert(
+                        `Failed to build switch tx for ${shortAddrLabel(account)}: ${err.toString()}`,
+                    );
                 }
             }
-            transactionResults = results;
         } catch (err: any) {
-            transactionResults = [{ error: err.toString() }];
             console.error(err);
+            alert(err.toString());
         }
     }
 </script>
@@ -764,12 +777,6 @@
     {#if syncError}
         <div style="color: #ef4444; padding: 0 0.5rem;">{syncError}</div>
     {/if}
-
-    <TransactionResults
-        results={transactionResults}
-        {getAccountDisplayName}
-        title={stakingMode ? 'Staking / transfer transactions' : 'Transfers'}
-    />
 
     {#if extendedAccounts.length > 0}
         <div

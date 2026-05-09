@@ -7,6 +7,7 @@
         "format:fix": "oxfmt src/ scripts/ && prettier -w \"**/*.svelte\"",
         "format:check": "oxfmt --check src/ scripts/ && prettier --check \"**/*.svelte\"",
         "lint": "oxlint src/",
+        "fix": "pnpm format:fix && pnpm lint",
         "prettier:fix": "pnpm run format:fix",
         "build": "vite build && node scripts/postbuild.js",
         "preview": "vite preview",

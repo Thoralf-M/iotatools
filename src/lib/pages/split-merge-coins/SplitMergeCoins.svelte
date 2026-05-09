@@ -4,18 +4,17 @@
 
     import IotaAmountInput from '../../components/IotaAmountInput.svelte';
     import JsonToggleView from '../../components/JsonToggleView.svelte';
-    import TransactionView from '../../components/TransactionView.svelte';
+    import { addAndRun } from '../../stores/transaction-tray';
     import { getClient } from '../../utils/client';
     import { activeAddress } from '../../utils/signer-data';
-    import { executeTransaction } from '../../utils/transaction-execution';
 
     let objectCount = $state('1');
     let amountPerObject = $state('1000000000');
     let amountPerObjectNumber = $state(1000000000);
-    // Will be updated with the result
-    let value = $state({});
+    // Inline `value` is now only for the coin listing (not transactions).
+    let value = $state<unknown>({});
     let iotaBalance = $state(0);
-    let isTransactionResult = $state(false);
+    let hasListed = $state(false);
 
     // Keep string and number variables in sync
     $effect(() => {
@@ -53,12 +52,13 @@
                 },
             ]);
 
-            value = await executeTransaction(tx);
-            isTransactionResult = true;
+            await addAndRun({
+                label: `Merge ${coinObjectIds.length + 1} IOTA coins`,
+                transaction: tx,
+            });
         } catch (err: any) {
-            value = err.toString();
-            isTransactionResult = false;
             console.error(err);
+            alert(err.toString());
         }
     };
     const splitIotaCoins = async () => {
@@ -77,12 +77,13 @@
             // @ts-ignore
             tx.transferObjects(coinArgs, $activeAddress);
 
-            value = await executeTransaction(tx);
-            isTransactionResult = true;
+            await addAndRun({
+                label: `Split into ${splitAmounts.length} × ${amountPerObject} NANO`,
+                transaction: tx,
+            });
         } catch (err: any) {
-            value = err.toString();
-            isTransactionResult = false;
             console.error(err);
+            alert(err.toString());
         }
     };
     const listAllIotaCoinObjects = async () => {
@@ -94,10 +95,10 @@
                 iotaBalance += parseInt(coin.balance);
             }
             value = coins;
-            isTransactionResult = false;
+            hasListed = true;
         } catch (err: any) {
             value = err.toString();
-            isTransactionResult = false;
+            hasListed = true;
             console.error(err);
         }
     };
@@ -147,12 +148,12 @@
     <br />
     <button onclick={() => splitIotaCoins()}>Split IOTA coins (max 2048)</button>
 
-    {#if isTransactionResult}
-        <TransactionView {value} />
-    {:else if Array.isArray(value) && value.length === 0}
-        <div>No coins available</div>
-    {:else}
-        <JsonToggleView {value} />
+    {#if hasListed}
+        {#if Array.isArray(value) && value.length === 0}
+            <div>No coins available</div>
+        {:else}
+            <JsonToggleView {value} />
+        {/if}
     {/if}
 </main>
 

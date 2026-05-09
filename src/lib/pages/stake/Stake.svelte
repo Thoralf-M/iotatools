@@ -9,6 +9,7 @@
 
     import IotaAmountInput from '../../components/IotaAmountInput.svelte';
     import TransactionView from '../../components/TransactionView.svelte';
+    import { addAndRun } from '../../stores/transaction-tray';
     import { getClient } from '../../utils/client';
     import {
         formatNumbersWithUnderscores,
@@ -16,7 +17,6 @@
         nanoToIotaFormatted,
     } from '../../utils/iota-nano-conversion';
     import { activeAddress } from '../../utils/signer-data';
-    import { executeTransaction } from '../../utils/transaction-execution';
     import {
         buildSingleObjectUnstakeTransaction,
         buildStakeTransaction,
@@ -37,10 +37,14 @@
     let validatorAddress = '';
     const minStakeAmount = 2_000_000_000;
     let amount = minStakeAmount;
-    // Will be updated with the result
+    // Inline `value` is only used for non-transaction outputs (validator load
+    // errors, listStakedIota result, timelocked-object listing). Transaction
+    // results go into the global TransactionTray instead.
     let value = {};
     let devInspectValue = {};
     let stakedIotaObjectId = '0x';
+
+    const shortAddr = (a: string) => (a && a.length > 14 ? `${a.slice(0, 6)}…${a.slice(-4)}` : a);
 
     interface ValidatorInfo {
         address: string;
@@ -64,20 +68,27 @@
                 throw new Error('invalid address');
             }
             const tx = buildStakeTransaction(validatorAddress, amount);
-            value = await executeTransaction(tx);
+            await addAndRun({
+                label: `Stake ${nanoToIotaFormatted(String(amount))} IOTA → ${shortAddr(validatorAddress)}`,
+                transaction: tx,
+                recipients: [validatorAddress],
+            });
         } catch (err: any) {
-            value = err.toString();
             console.error(err);
+            alert(err.toString());
         }
     };
 
     async function unstakeSingle() {
         try {
             const tx = await buildUnstakeSingleTransaction(getClient(), stakedIotaObjectId);
-            value = await executeTransaction(tx);
+            await addAndRun({
+                label: `Unstake ${shortAddr(stakedIotaObjectId)}`,
+                transaction: tx,
+            });
         } catch (err: any) {
-            value = err.toString();
             console.error(err);
+            alert(err.toString());
         }
     }
 
@@ -127,10 +138,13 @@
                 $activeAddress,
             );
 
-            value = await executeTransaction(tx);
+            await addAndRun({
+                label: `Unstake ${nanoToIotaFormatted(String(amount))} IOTA from ${shortAddr(stakedIotaObjectId)}`,
+                transaction: tx,
+            });
         } catch (err: any) {
-            value = err.toString();
             console.error(err);
+            alert(err.toString());
         }
     }
 
@@ -279,10 +293,16 @@
                 staked.timelockedStakedIota,
                 $activeAddress,
             );
-            value = await executeTransaction(tx);
+            const stakeCount =
+                staked.stakedIota.reduce((n, ds) => n + ds.stakes.length, 0) +
+                staked.timelockedStakedIota.reduce((n, ds) => n + ds.stakes.length, 0);
+            await addAndRun({
+                label: `Unstake all (${stakeCount} stake${stakeCount === 1 ? '' : 's'})`,
+                transaction: tx,
+            });
         } catch (err: any) {
-            value = err.toString();
             console.error(err);
+            alert(err.toString());
         }
     }
 
@@ -313,10 +333,14 @@
                 });
             }
 
-            value = await executeTransaction(tx);
+            await addAndRun({
+                label: `Stake ${timelockedObjects.length} timelocked object${timelockedObjects.length === 1 ? '' : 's'} → ${shortAddr(validatorAddress)}`,
+                transaction: tx,
+                recipients: [validatorAddress],
+            });
         } catch (err: any) {
-            value = err.toString();
             console.error(err);
+            alert(err.toString());
         }
     };
     async function listStakedIota(): Promise<
