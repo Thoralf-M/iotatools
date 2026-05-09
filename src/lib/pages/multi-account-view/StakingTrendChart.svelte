@@ -42,10 +42,34 @@
          *  null. Used to focus the chart from outside (e.g. clicking the
          *  per-stake "Optimize" button in an account card). */
         focusStakeRequest?: string | null;
+        /** Selected switch-target validator address. Bindable so the host can
+         *  share it with per-account stake controls (the AccountCard's
+         *  "Stake X IOTA" button stakes to this same validator). Empty string
+         *  means "no target picked". */
+        switchTargetAddress?: string;
+        /** Pending "stake new liquid IOTA from account X" intent originated by
+         *  an AccountCard click. When set, the chart focuses itself, clears
+         *  any existing-stake selection, auto-picks a target if needed, and
+         *  shows a banner above the chart with a confirm button. The chart
+         *  clears it back to `null` after a successful confirm or explicit
+         *  cancel. */
+        pendingNewStake?: {
+            accountAddress: string;
+            accountLabel: string;
+            amountNano: bigint;
+        } | null;
         /** Build + execute the switch transaction(s). Receives the currently-
          *  selected stakes and the chosen target validator. The host owns
          *  building the actual PTB(s) so it can group by sending account. */
         onSwitch?: (stakes: UserStakeRef[], newValidator: ValidatorInfoFull) => void;
+        /** Build + execute a new-stake transaction for a pending stake intent.
+         *  Called only when `pendingNewStake` is set and the user clicks the
+         *  banner's confirm button. */
+        onStakeNew?: (
+            accountAddress: string,
+            amountNano: bigint,
+            target: ValidatorInfoFull,
+        ) => void;
     }
 
     let {
@@ -58,7 +82,10 @@
         currentPrice = null,
         selectedCurrency = 'USD',
         focusStakeRequest = $bindable(null),
+        switchTargetAddress = $bindable(''),
+        pendingNewStake = $bindable(null),
         onSwitch,
+        onStakeNew,
     }: Props = $props();
 
     let mode = $state<Mode>('my-stake');
@@ -67,7 +94,6 @@
      *  Svelte tracks the change. Default is "all selected" so users see the
      *  full picture immediately. */
     let selectedStakeIds = $state<Set<string>>(new Set());
-    let switchTargetAddress = $state<string>('');
     /** How many top-APR committee validators to show alongside the user's
      *  stakes. `'all'` shows every committee validator (can be a lot of
      *  lines). `0` shows only the user's stakes. */
@@ -357,6 +383,25 @@
         onSwitch?.(selectedStakeRefs, switchTarget);
     }
 
+    /** Pending-new-stake confirm: hand the intent off to the host, which
+     *  builds + executes the transaction and clears `pendingNewStake` on
+     *  success (so the banner disappears). */
+    function handleConfirmNewStake() {
+        if (!pendingNewStake || !switchTarget) return;
+        onStakeNew?.(pendingNewStake.accountAddress, pendingNewStake.amountNano, switchTarget);
+    }
+    function handleCancelNewStake() {
+        pendingNewStake = null;
+    }
+    /** Net APR of the auto/explicitly-picked target — used for the banner's
+     *  "≈ X IOTA / year" preview. */
+    let pendingTargetApr = $derived(switchTarget ? (aprByPool.get(switchTarget.poolId) ?? 0) : 0);
+    let pendingYearlyText = $derived.by(() => {
+        if (!pendingNewStake || pendingTargetApr <= 0) return '';
+        const yearly = BigInt(Math.floor(Number(pendingNewStake.amountNano) * pendingTargetApr));
+        return formatIotaWithFiat(yearly, currentPrice, selectedCurrency) + ' / year';
+    });
+
     /** Switching is performed one PTB per sending account (a transaction can
      *  only have one sender). Surfacing the count makes the button label
      *  honest — "1 transaction" when all selected stakes share an account,
@@ -396,6 +441,45 @@
         });
     });
 
+    /** Pending new-stake request from an AccountCard. Same focus mechanic as
+     *  `focusStakeRequest`, but here we *clear* the existing-stake selection
+     *  rather than replacing it — the user is staking fresh liquid IOTA, so
+     *  there's no "stay" baseline to compare against. We do not clear
+     *  `pendingNewStake` itself: the banner needs it to render, and the
+     *  confirm/cancel handlers below own clearing. */
+    $effect(() => {
+        if (pendingNewStake === null) return;
+        untrack(() => {
+            mode = 'my-stake';
+            stakesInitialized = true;
+            selectedStakeIds = new Set();
+            if (detailsEl) detailsEl.open = true;
+            requestAnimationFrame(() => {
+                detailsEl?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    });
+
+    /** Auto-pick a target validator when a new-stake intent arrives without
+     *  one already chosen. Picks the highest-APR committee validator — same
+     *  rationale as the existing-stake auto-pick (best alternative). The
+     *  user can override via the Switch target dropdown. */
+    $effect(() => {
+        if (pendingNewStake === null) return;
+        if (switchTargetAddress) return;
+        if (validators.length === 0) return;
+        untrack(() => {
+            const best = validators
+                .filter((v) => v.isCommittee)
+                .map((v) => ({ v, apr: aprByPool.get(v.poolId) ?? 0 }))
+                .sort((a, b) => b.apr - a.apr)[0];
+            if (best) {
+                switchTargetAddress = best.v.address;
+                switchTargetTouched = true;
+            }
+        });
+    });
+
     let canvas: HTMLCanvasElement;
     let chart: Chart | null = null;
 
@@ -420,6 +504,7 @@
         void aprByPool;
         void currentPrice;
         void selectedCurrency;
+        void pendingNewStake;
         if (canvas) buildChart();
     });
 
@@ -501,6 +586,17 @@
     function buildMyStakeDatasets() {
         breakevenInfo = null;
         const selected = userStakes.filter((s) => selectedStakeIds.has(s.stakeId));
+
+        // New-stake-only branch: no existing stake selected, but the user
+        // requested a fresh stake from an AccountCard. Project the cumulative
+        // return for the new stake at the target validator's APR/APY, starting
+        // from zero at the current epoch with the protocol's activation gap.
+        // Done before the early-return so callers don't need to check both
+        // selection state and pendingNewStake.
+        if (selected.length === 0 && pendingNewStake && switchTargetAddress) {
+            return buildNewStakeProjection();
+        }
+
         if (selected.length === 0) return [];
 
         const target = switchTargetAddress
@@ -709,15 +805,81 @@
         return datasets;
     }
 
+    /** Project the cumulative return of a *new* stake at the chosen target
+     *  validator. Differs from the switch projection in two ways:
+     *    1. The starting value is 0 — there is no realized history to bridge
+     *       from, so day 0 is the bottom of the chart.
+     *    2. There is no "stay" comparison line and no breakeven — staking
+     *       nothing yields nothing, so the comparison is degenerate.
+     *  We still draw the dashed APR (linear) line alongside the solid APY
+     *  (compounded) line so the user can see how compounding pulls ahead
+     *  of the headline rate over the chosen horizon, mirroring how the
+     *  switch projection presents both. */
+    function buildNewStakeProjection() {
+        if (!pendingNewStake) return [];
+        const target = validators.find((v) => v.address === switchTargetAddress);
+        if (!target) return [];
+
+        const newApr = aprByPool.get(target.poolId) ?? 0;
+        // 'auto' has no breakeven to anchor on for new stakes, so default to a
+        // year. Numeric horizons pass through so the user can pin to 30 / 90
+        // / 365 / etc. for cross-comparison with the switch view.
+        const horizonDays = projectionHorizon === 'auto' ? 365 : projectionHorizon;
+        const aprPoints: { x: number; y: number }[] = [];
+        const apyPoints: { x: number; y: number }[] = [];
+        for (let d = 0; d <= horizonDays; d++) {
+            // Activation gap: identical to the switch projection — new stakes
+            // earn nothing for the first ACTIVATION_DELAY_DAYS, then climb.
+            const eff = Math.max(0, d - ACTIVATION_DELAY_DAYS);
+            const aprY = (newApr * eff) / EPOCHS_PER_YEAR;
+            const apyY = Math.pow(1 + newApr / EPOCHS_PER_YEAR, eff) - 1;
+            const x = toEpoch + d;
+            aprPoints.push({ x, y: aprY * 100 });
+            apyPoints.push({ x, y: apyY * 100 });
+        }
+
+        const fmtRate = (r: number) => `${(r * 100).toFixed(2)}%`;
+        return [
+            {
+                label: `New stake → ${target.name} · APR ${fmtRate(newApr)} (linear)`,
+                data: aprPoints,
+                borderColor: '#34d399',
+                backgroundColor: 'transparent',
+                tension: 0.1,
+                pointRadius: 0,
+                borderWidth: 1.5,
+                borderDash: [5, 5],
+                fill: false,
+                yAxisID: 'y',
+            },
+            {
+                label: `New stake → ${target.name} · APY ${fmtRate(aprToApy(newApr))} (compounded)`,
+                data: apyPoints,
+                borderColor: '#059669',
+                backgroundColor: 'transparent',
+                tension: 0.1,
+                pointRadius: 0,
+                borderWidth: 2,
+                fill: false,
+                yAxisID: 'y',
+            },
+        ];
+    }
+
     function chartOptions() {
         const isStakeMode = mode === 'my-stake';
-        // Combined principal across all selected stakes — used to convert
-        // tooltip percentages into IOTA amounts.
-        const principalIota = isStakeMode
-            ? userStakes
-                  .filter((s) => selectedStakeIds.has(s.stakeId))
-                  .reduce((sum, s) => sum + Number(s.principal) / 1e9, 0)
-            : 0;
+        // Combined principal used to convert tooltip percentages into IOTA
+        // amounts. In new-stake-only mode there is no existing-stake selection
+        // (it gets cleared when pendingNewStake lands), so the pending intent's
+        // amount is what the projection lines are denominated in. We add both
+        // anyway to keep the math right in a future where the user selects
+        // existing stakes alongside a pending new-stake.
+        const selectedPrincipalIota = userStakes
+            .filter((s) => selectedStakeIds.has(s.stakeId))
+            .reduce((sum, s) => sum + Number(s.principal) / 1e9, 0);
+        const pendingPrincipalIota =
+            isStakeMode && pendingNewStake ? Number(pendingNewStake.amountNano) / 1e9 : 0;
+        const principalIota = isStakeMode ? selectedPrincipalIota + pendingPrincipalIota : 0;
         const priceRate = currentPrice
             ? selectedCurrency === 'USD'
                 ? currentPrice.usd
@@ -1136,6 +1298,51 @@
         </button>
     </div>
 
+    {#if pendingNewStake}
+        <!-- New-stake intent originated by an AccountCard click. Sits above
+             the canvas as a confirm banner: shows what's about to be staked,
+             from which account, to which validator (auto-picked or chosen
+             via the Switch target dropdown), and the projected yearly yield
+             at the target's net APR. The chart's existing-stake lines stay
+             visible behind it so the user can compare against the rest of
+             their portfolio while deciding. -->
+        <div class="new-stake-banner">
+            <div class="new-stake-summary">
+                <span class="banner-tag">New stake</span>
+                <strong>
+                    {nanoToIota(pendingNewStake.amountNano.toString())} IOTA
+                </strong>
+                from <strong>{pendingNewStake.accountLabel}</strong>
+                {#if switchTarget}
+                    → <strong>{switchTarget.name}</strong>
+                    <span class="banner-meta">
+                        APR {fmtPctValue(pendingTargetApr)} · APY {fmtPctValue(
+                            aprToApy(pendingTargetApr),
+                        )}{pendingYearlyText ? ` · ≈ ${pendingYearlyText}` : ''}
+                    </span>
+                {:else}
+                    <span class="banner-meta-warn">Pick a target validator below.</span>
+                {/if}
+            </div>
+            <div class="new-stake-actions">
+                <button type="button" class="banner-cancel" onclick={handleCancelNewStake}>
+                    Cancel
+                </button>
+                <button
+                    type="button"
+                    class="banner-confirm"
+                    disabled={!switchTarget || !onStakeNew}
+                    onclick={handleConfirmNewStake}
+                    title={switchTarget
+                        ? `Stake to ${switchTarget.name}`
+                        : 'Pick a target validator first'}
+                >
+                    Stake{switchTarget ? ` → ${switchTarget.name}` : ''}
+                </button>
+            </div>
+        </div>
+    {/if}
+
     <div class="chart-wrapper">
         <canvas bind:this={canvas}></canvas>
     </div>
@@ -1528,6 +1735,91 @@
         padding: 0.25rem 0.4rem;
         font-size: 0.85rem;
         max-width: 28rem;
+    }
+
+    /* New-stake confirm banner — sits above the canvas when an AccountCard
+       requests a stake. Distinct (green-tinted, bordered) so it doesn't get
+       lost between the dense control row and the chart itself. */
+    .new-stake-banner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.6rem;
+        padding: 0.5rem 0.75rem;
+        margin: 0.4rem 0;
+        background: rgba(74, 222, 128, 0.08);
+        border: 1px solid rgba(74, 222, 128, 0.4);
+        border-radius: 6px;
+        font-size: 0.8rem;
+    }
+
+    .new-stake-summary {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .banner-tag {
+        background: rgba(74, 222, 128, 0.25);
+        border: 1px solid rgba(74, 222, 128, 0.45);
+        color: #bbf7d0;
+        padding: 0.05rem 0.4rem;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .banner-meta {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+    }
+
+    .banner-meta-warn {
+        color: #fbbf24;
+        font-size: 0.75rem;
+    }
+
+    .new-stake-actions {
+        display: flex;
+        gap: 0.4rem;
+    }
+
+    .banner-cancel,
+    .banner-confirm {
+        font-size: 0.78rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .banner-cancel {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--border-color);
+        color: inherit;
+    }
+
+    .banner-cancel:hover {
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    .banner-confirm {
+        background: rgba(74, 222, 128, 0.22);
+        border: 1px solid rgba(74, 222, 128, 0.55);
+        color: #bbf7d0;
+        font-weight: 600;
+    }
+
+    .banner-confirm:hover:not(:disabled) {
+        background: rgba(74, 222, 128, 0.35);
+    }
+
+    .banner-confirm:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
     /* Metrics + action area below the chart, merged in from the old

@@ -4,9 +4,14 @@
         numTransfers: number;
         stakingMode: boolean;
         syncing: boolean;
+        typeFilter: string;
+        hiddenCount: number;
+        soloLabel: string | null;
         onSync: () => void;
         onAddExternalAccount: () => void;
         onExecuteTransfers: () => void;
+        onClearHidden: () => void;
+        onClearSolo: () => void;
     }
 
     let {
@@ -14,9 +19,14 @@
         numTransfers,
         stakingMode = $bindable(),
         syncing,
+        typeFilter = $bindable(),
+        hiddenCount,
+        soloLabel,
         onSync,
         onAddExternalAccount,
         onExecuteTransfers,
+        onClearHidden,
+        onClearSolo,
     }: Props = $props();
 </script>
 
@@ -47,6 +57,14 @@
             bind:value={newAccountAddress}
         />
         <button onclick={onAddExternalAccount}>Add Account</button>
+
+        <input
+            type="text"
+            placeholder="Filter by object type (e.g. 0x2 or StakedIota)"
+            bind:value={typeFilter}
+            title="Partial, case-insensitive match against the full Move type. Empty = no filter."
+            style="min-width: 16rem;"
+        />
     </div>
 
     <label class="toggle-row" title="Hide non-staking objects and focus the view on stakes.">
@@ -57,11 +75,21 @@
         <span>Staking mode</span>
     </label>
 
-    <!-- TODO(staking): when stakingMode is on, surface staking-action buttons
-         here (e.g. "Stake to validator…", "Unstake all", "Optimize: switch to
-         lower-commission validator"). They should execute via the same
-         execution-mode plumbing as transfers (see transfer-transactions.ts;
-         the staking equivalent will live in staking-transactions.ts). -->
+    {#if soloLabel}
+        <button class="visibility-btn" onclick={onClearSolo} title="Show all accounts again.">
+            Exit solo: {soloLabel}
+        </button>
+    {/if}
+
+    {#if hiddenCount > 0}
+        <button
+            class="visibility-btn"
+            onclick={onClearHidden}
+            title="Unhide accounts that were hidden via the per-card Hide button."
+        >
+            Show hidden ({hiddenCount})
+        </button>
+    {/if}
 
     <div style="display: flex; gap: 0.5rem;">
         <button onclick={onExecuteTransfers} disabled={numTransfers === 0}>
@@ -185,5 +213,19 @@
         to {
             transform: rotate(360deg);
         }
+    }
+
+    .visibility-btn {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.6rem;
+        background: rgba(99, 102, 241, 0.15);
+        border: 1px solid rgba(99, 102, 241, 0.4);
+        border-radius: 4px;
+        color: #c7d2fe;
+        cursor: pointer;
+    }
+
+    .visibility-btn:hover {
+        background: rgba(99, 102, 241, 0.3);
     }
 </style>

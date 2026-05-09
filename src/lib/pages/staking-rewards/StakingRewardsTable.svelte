@@ -2,7 +2,6 @@
     import { NANOS_PER_IOTA } from '@iota/iota-sdk/utils';
     import { onMount } from 'svelte';
     import { List } from 'svelte-virtual';
-
     import { get } from 'svelte/store';
 
     import { getSelectedNetworkConfig } from '../../utils/client';
