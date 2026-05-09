@@ -44,9 +44,16 @@ export function prepareTransferTransactions(
         const senderAccount = extendedAccounts.find((a) => a.address === senderAddress);
 
         for (const [to, objects] of perRecipient) {
+            // Only count coins whose on-chain owner is still the sender — coins
+            // dropped into the sender's card from another account live in
+            // `objects` but aren't ours to spend for gas. Without this filter
+            // bidirectional transfers (A→B and B→A) misjudge gas availability.
             const senderHasGasCoinLeft =
-                senderAccount?.objects.some((obj) => obj.data?.content?.type === IOTA_COIN_TYPE) ??
-                false;
+                senderAccount?.objects.some(
+                    (obj) =>
+                        obj.currentOwner === senderAddress &&
+                        obj.data?.content?.type === IOTA_COIN_TYPE,
+                ) ?? false;
 
             if (!senderHasGasCoinLeft) {
                 const gasCoin = objects
@@ -92,4 +99,3 @@ export function prepareTransferTransactions(
     }
     return prepared;
 }
-
