@@ -3,7 +3,10 @@
     import { get } from 'svelte/store';
 
     import JsonToggleView from '../../components/JsonToggleView.svelte';
-    import { sharedStakingSkipPaginationSenders } from '../../utils/local-storage-store';
+    import {
+        sharedStakingSkipPaginationEnabled,
+        sharedStakingSkipPaginationSenders,
+    } from '../../utils/local-storage-store';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
     import { activeAddress, iota_accounts } from '../../utils/signer-data';
     import { EpochPTBAnalyzer } from '../programmable-transaction-block';
@@ -166,12 +169,13 @@
 
     // Skip-pagination sender list — addresses whose received txs we *fetch* but
     // for whom we *skip* the objectChanges drill-down because they post huge,
-    // non-staking transactions. Persisted to localStorage so the user keeps
-    // their list across reloads. Toggle controls only whether the list is
-    // applied; the list itself survives toggling off.
-    let skipSendersEnabled = $sharedStakingSkipPaginationSenders.length > 0;
+    // non-staking transactions. Both the on/off flag and the address list are
+    // persisted independently in localStorage so the user can keep a preferred
+    // list configured but toggle the feature off without losing it.
     let skipSendersTextarea = $sharedStakingSkipPaginationSenders.join('\n');
-    $: skipSendersList = skipSendersEnabled ? parseAddresses(skipSendersTextarea) : [];
+    $: skipSendersList = $sharedStakingSkipPaginationEnabled
+        ? parseAddresses(skipSendersTextarea)
+        : [];
     $: skipSendersSet = new Set(skipSendersList);
     $: skipSendersInvalid = skipSendersList.filter((a) => !isValidIotaAddress(a));
     // Persist whenever the (parsed) list changes — invalid entries are still
@@ -400,7 +404,9 @@
         try {
             // Snapshot the skip-pagination set once per fetch so toggling the
             // UI mid-fetch can't corrupt the in-flight result.
-            const skipSendersSnapshot = skipSendersEnabled ? skipSendersSet : undefined;
+            const skipSendersSnapshot = $sharedStakingSkipPaginationEnabled
+                ? skipSendersSet
+                : undefined;
             const recordSkippedSender = (sender: string) => {
                 skippedSendersCounts = {
                     ...skippedSendersCounts,
@@ -632,7 +638,7 @@
                     <div class="toggle-switch">
                         <input
                             type="checkbox"
-                            bind:checked={skipSendersEnabled}
+                            bind:checked={$sharedStakingSkipPaginationEnabled}
                             disabled={loadingTxs}
                         />
                         <span class="slider"></span>
@@ -655,7 +661,7 @@
                         >
                     </div>
                 </label>
-                {#if skipSendersEnabled}
+                {#if $sharedStakingSkipPaginationEnabled}
                     <details class="skip-senders-details">
                         <summary>
                             Skip-sender addresses ({skipSendersList.length}){skippedSendersTotal > 0

@@ -66,6 +66,7 @@ const DISCLAIMER_ACCEPTED_KEY = 'disclaimerAccepted';
 const STAKING_CURRENCY_KEY = 'stakingCurrency';
 const MULTI_ACCOUNT_CURRENCY_KEY = 'multiAccountCurrency';
 const STAKING_SKIP_PAGINATION_SENDERS_KEY = 'stakingSkipPaginationSenders';
+const STAKING_SKIP_PAGINATION_ENABLED_KEY = 'stakingSkipPaginationEnabled';
 
 export const clientConfigErrorMsg = writable<string>('');
 export const sharedClientConfig: Writable<ClientConfig> = persistentWritableStore(
@@ -178,6 +179,16 @@ export const sharedStakingSkipPaginationSenders: Writable<string[]> = persistent
         }
         return true;
     },
+);
+
+// Whether the skip-by-sender option is currently active on the staking
+// rewards page. Kept independent of the address list so the user can keep a
+// preferred list configured but temporarily turn the feature off without
+// losing it.
+export const sharedStakingSkipPaginationEnabled: Writable<boolean> = persistentWritableStore(
+    STAKING_SKIP_PAGINATION_ENABLED_KEY,
+    true,
+    (value: any) => typeof value === 'boolean',
 );
 
 // Custom store synced with localStorage
