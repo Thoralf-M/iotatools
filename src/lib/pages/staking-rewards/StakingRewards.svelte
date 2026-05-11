@@ -3,6 +3,7 @@
     import { get } from 'svelte/store';
 
     import JsonToggleView from '../../components/JsonToggleView.svelte';
+    import { sharedStakingSkipPaginationSenders } from '../../utils/local-storage-store';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
     import { activeAddress, iota_accounts } from '../../utils/signer-data';
     import { EpochPTBAnalyzer } from '../programmable-transaction-block';
@@ -162,6 +163,27 @@
     let showPriceColumns = true;
     let showValidatorColumns = true;
     let noTransactionsFound = false;
+
+    // Skip-pagination sender list — addresses whose received txs we *fetch* but
+    // for whom we *skip* the objectChanges drill-down because they post huge,
+    // non-staking transactions. Persisted to localStorage so the user keeps
+    // their list across reloads. Toggle controls only whether the list is
+    // applied; the list itself survives toggling off.
+    let skipSendersEnabled = $sharedStakingSkipPaginationSenders.length > 0;
+    let skipSendersTextarea = $sharedStakingSkipPaginationSenders.join('\n');
+    $: skipSendersList = skipSendersEnabled ? parseAddresses(skipSendersTextarea) : [];
+    $: skipSendersSet = new Set(skipSendersList);
+    $: skipSendersInvalid = skipSendersList.filter((a) => !isValidIotaAddress(a));
+    // Persist whenever the (parsed) list changes — invalid entries are still
+    // persisted so the user can fix them across reloads.
+    $: $sharedStakingSkipPaginationSenders = parseAddresses(skipSendersTextarea);
+
+    // Per-sender skipped tx counts for the most recent fetch. Reset at the
+    // start of fetchTransactions and incremented by the onSkipPagination
+    // callback so the user sees exactly which senders contributed to the
+    // skipped pagination after a run.
+    let skippedSendersCounts: Record<string, number> = {};
+    $: skippedSendersTotal = Object.values(skippedSendersCounts).reduce((a, b) => a + b, 0);
 
     // Computed table data
     $: tableData = computeEpochData(stakeObjects, validatorInfo, epoch || 1);
@@ -372,9 +394,19 @@
         stakeObjects = [];
         validatorInfo = {};
         noTransactionsFound = false;
+        skippedSendersCounts = {};
         loadingTxs = true;
         loadingStep = 'Fetching stake txs...';
         try {
+            // Snapshot the skip-pagination set once per fetch so toggling the
+            // UI mid-fetch can't corrupt the in-flight result.
+            const skipSendersSnapshot = skipSendersEnabled ? skipSendersSet : undefined;
+            const recordSkippedSender = (sender: string) => {
+                skippedSendersCounts = {
+                    ...skippedSendersCounts,
+                    [sender]: (skippedSendersCounts[sender] ?? 0) + 1,
+                };
+            };
             // Determine the filter's start epoch (undefined for "all").
             // See ProcessingOptions in processor.ts for how it's used.
             const startEpoch = getStartEpochForTimeFrame(
@@ -388,21 +420,73 @@
             // Fetch transactions for all addresses in parallel. The loading
             // step shows a monotonic completion counter rather than each
             // promise's map-index, which jumps around when promises finish
-            // out of order.
+            // out of order. In-flight transaction counts per address/role are
+            // tracked separately so a single address paginating through many
+            // transactions still surfaces "still working" feedback instead of
+            // going silent for minutes.
             let sentDone = 0;
             let receivedDone = 0;
             const total = allAddresses.length;
+            type FetchProgress = { role: 'sent' | 'received'; transactions: number };
+            const inFlight = new Map<string, FetchProgress>();
+
+            function renderLoadingStep(phase: 'stake' | 'received') {
+                const baseDone = phase === 'stake' ? sentDone : receivedDone;
+                const phaseLabel = phase === 'stake' ? 'stake' : 'received';
+                const targetRole = phase === 'stake' ? 'sent' : 'received';
+                let foundSoFar = 0;
+                for (const p of inFlight.values()) {
+                    if (p.role === targetRole) foundSoFar += p.transactions;
+                }
+                if (foundSoFar === 0) {
+                    loadingStep = `Fetching ${phaseLabel} txs ${baseDone}/${total}...`;
+                    return;
+                }
+                loadingStep =
+                    `Fetching ${phaseLabel} txs ${baseDone}/${total}` + ` (${foundSoFar} found)...`;
+            }
+
             const allTxsPromises = allAddresses.map(async (addr) => {
                 try {
-                    const sentTxs = await fetchStakeTransactions(addr);
+                    const sentKey = `sent:${addr}`;
+                    inFlight.set(sentKey, { role: 'sent', transactions: 0 });
+                    renderLoadingStep('stake');
+                    const sentTxs = await fetchStakeTransactions(addr, {
+                        startEpoch,
+                        skipPaginationSenders: skipSendersSnapshot,
+                        onSkipPagination: recordSkippedSender,
+                        onProgress: ({ transactions }) => {
+                            const entry = inFlight.get(sentKey);
+                            if (entry) {
+                                entry.transactions = transactions;
+                                renderLoadingStep('stake');
+                            }
+                        },
+                    });
+                    inFlight.delete(sentKey);
                     sentDone++;
-                    loadingStep = `Fetching stake txs ${sentDone}/${total}...`;
+                    renderLoadingStep('stake');
 
                     let receivedTxs: any[] = [];
                     if (fetchReceivedTxs) {
-                        receivedTxs = await fetchReceivedStakeTransactions(addr);
+                        const recvKey = `recv:${addr}`;
+                        inFlight.set(recvKey, { role: 'received', transactions: 0 });
+                        renderLoadingStep('received');
+                        receivedTxs = await fetchReceivedStakeTransactions(addr, {
+                            startEpoch,
+                            skipPaginationSenders: skipSendersSnapshot,
+                            onSkipPagination: recordSkippedSender,
+                            onProgress: ({ transactions }) => {
+                                const entry = inFlight.get(recvKey);
+                                if (entry) {
+                                    entry.transactions = transactions;
+                                    renderLoadingStep('received');
+                                }
+                            },
+                        });
+                        inFlight.delete(recvKey);
                         receivedDone++;
-                        loadingStep = `Fetching received txs ${receivedDone}/${total}...`;
+                        renderLoadingStep('received');
                     }
 
                     return { sentTxs, receivedTxs, address: addr, error: null };
@@ -542,6 +626,78 @@
                         </button>
                     {/if}
                 </div>
+            {/if}
+            {#if fetchReceivedTxs}
+                <label class="toggle-row" style="margin-top: 0.5rem;">
+                    <div class="toggle-switch">
+                        <input
+                            type="checkbox"
+                            bind:checked={skipSendersEnabled}
+                            disabled={loadingTxs}
+                        />
+                        <span class="slider"></span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; line-height: 1.2;">
+                        <div style="display: flex; align-items: center; gap: 0.25rem;">
+                            <span class="toggle-label"> Skip object changes by sender </span>
+                            <div class="tooltip-container">
+                                <span class="info-icon">ⓘ</span>
+                                <div class="tooltip">
+                                    Transactions from these addresses still get fetched, but the
+                                    objectChanges drill-down is skipped — useful for senders that
+                                    post huge non-staking transactions and would otherwise dominate
+                                    fetch time.
+                                </div>
+                            </div>
+                        </div>
+                        <span style="font-size: 0.75rem; opacity: 0.7;"
+                            >Speeds up received-tx fetch for known-noisy senders</span
+                        >
+                    </div>
+                </label>
+                {#if skipSendersEnabled}
+                    <details class="skip-senders-details">
+                        <summary>
+                            Skip-sender addresses ({skipSendersList.length}){skippedSendersTotal > 0
+                                ? ` — last fetch skipped ${skippedSendersTotal} tx${skippedSendersTotal === 1 ? '' : 's'}`
+                                : ''}
+                        </summary>
+                        <p
+                            style="margin: 0.4rem 0 0.25rem 0; font-size: 0.9rem; opacity: 0.8; text-align: left !important;"
+                        >
+                            Sender addresses whose objectChanges pagination should be skipped:
+                        </p>
+                        <textarea
+                            bind:value={skipSendersTextarea}
+                            placeholder="Enter sender addresses separated by comma, newline, or space (0x...)"
+                            rows="3"
+                            disabled={loadingTxs}
+                            class="skip-senders-textarea"
+                        ></textarea>
+                        {#if skipSendersInvalid.length > 0}
+                            <div class="error-message">
+                                Invalid skip-sender addresses: {skipSendersInvalid.join(', ')}
+                            </div>
+                        {/if}
+                        {#if skippedSendersTotal > 0}
+                            <p
+                                style="margin: 0.5rem 0 0.25rem 0; font-size: 0.9rem; opacity: 0.85;"
+                            >
+                                Last fetch skipped pagination for {skippedSendersTotal} transaction{skippedSendersTotal ===
+                                1
+                                    ? ''
+                                    : 's'}:
+                            </p>
+                            <ul style="margin: 0 0 0 1.25rem; padding: 0; font-size: 0.85rem;">
+                                {#each Object.entries(skippedSendersCounts) as [sender, count]}
+                                    <li>
+                                        <code style="opacity: 0.9;">{sender}</code>: {count}
+                                    </li>
+                                {/each}
+                            </ul>
+                        {/if}
+                    </details>
+                {/if}
             {/if}
         </div>
         <div
@@ -877,6 +1033,30 @@
         padding: 0.75rem;
         color: #10b981;
         font-size: 0.9rem;
+    }
+
+    .skip-senders-details {
+        text-align: left;
+    }
+
+    .skip-senders-details summary {
+        cursor: pointer;
+        list-style: revert;
+        font-size: 0.9rem;
+        opacity: 0.85;
+        text-align: left;
+    }
+
+    .skip-senders-textarea {
+        width: 100%;
+        min-width: 22rem;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border-color);
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 0.85rem;
     }
 
     .timeframe-controls {
