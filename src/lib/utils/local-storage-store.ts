@@ -65,6 +65,7 @@ const SELECTED_ADDRESS_KEY = 'selectedAddress';
 const DISCLAIMER_ACCEPTED_KEY = 'disclaimerAccepted';
 const STAKING_CURRENCY_KEY = 'stakingCurrency';
 const MULTI_ACCOUNT_CURRENCY_KEY = 'multiAccountCurrency';
+const STAKING_SKIP_PAGINATION_SENDERS_KEY = 'stakingSkipPaginationSenders';
 
 export const clientConfigErrorMsg = writable<string>('');
 export const sharedClientConfig: Writable<ClientConfig> = persistentWritableStore(
@@ -153,6 +154,27 @@ export const sharedMultiAccountCurrency: Writable<'USD' | 'EUR'> = persistentWri
     (value: any) => {
         if (value !== 'USD' && value !== 'EUR') {
             throw new Error(`Invalid multi-account currency: ${value}. Must be 'USD' or 'EUR'`);
+        }
+        return true;
+    },
+);
+
+// Sender addresses whose received transactions should have their objectChanges
+// pagination skipped on the staking rewards page — those senders post huge txs
+// that never contain stake objects, so paginating through their objectChanges
+// is the dominant cost when fetching received txs. Default seeds the known
+// noisy address; users can add/remove via the UI.
+export const sharedStakingSkipPaginationSenders: Writable<string[]> = persistentWritableStore(
+    STAKING_SKIP_PAGINATION_SENDERS_KEY,
+    ['0x5555679093281ffa85c51c24b55fc45ff0f1bb6a57c0bee2c61eae3d5b54ae7c'],
+    (value: any) => {
+        if (!Array.isArray(value)) {
+            throw new Error('Staking skip-pagination senders must be an array');
+        }
+        for (const v of value) {
+            if (typeof v !== 'string') {
+                throw new Error('Staking skip-pagination sender entries must be strings');
+            }
         }
         return true;
     },

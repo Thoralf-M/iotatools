@@ -10,11 +10,87 @@ import {
 import { getInactiveValidatorsWithDeactivationEpoch } from './compute/validator-utils';
 import { formatDate } from './formatting';
 
+/**
+ * Returns the first checkpoint sequence number of the given epoch, or null if
+ * the epoch is unknown. Used to translate a startEpoch into an afterCheckpoint
+ * filter so the transactionBlocks query can be bounded server-side.
+ */
+async function fetchFirstCheckpointForEpoch(epochId: number): Promise<number | null> {
+    const gqlClient = new IotaGraphQLClient({
+        url: getSelectedNetworkConfig().graphql,
+    });
+    const query = `query ($epochId: UInt53!) {
+        epoch(id: $epochId) {
+            checkpoints(first: 1) {
+                nodes {
+                    sequenceNumber
+                }
+            }
+        }
+    }`;
+    const result = await gqlClient.query({ query, variables: { epochId } });
+    // @ts-ignore
+    const seq = result.data?.epoch?.checkpoints?.nodes?.[0]?.sequenceNumber;
+    if (seq === undefined || seq === null) return null;
+    const n = typeof seq === 'number' ? seq : parseInt(seq);
+    return Number.isFinite(n) ? n : null;
+}
+
+export type FetchStakeTxsOptions = {
+    /**
+     * If set, restricts the GraphQL transactionBlocks query to checkpoints at or
+     * after this epoch's first checkpoint via `afterCheckpoint`. This bounds the
+     * fetch server-side — important for received transactions, which can be
+     * many thousands without a filter.
+     */
+    startEpoch?: number;
+    /**
+     * Called once per fetched page so the UI can show "still working" progress
+     * during long paginated fetches.
+     */
+    onProgress?: (info: { pages: number; transactions: number }) => void;
+    /**
+     * Senders whose transactions should have their objectChanges pagination
+     * skipped — used for known-noisy senders that post huge txs that never
+     * carry stake objects. The first page of objectChanges is still inspected;
+     * only the recursive drill-down is suppressed.
+     */
+    skipPaginationSenders?: Set<string>;
+    /**
+     * Called every time pagination is skipped for a transaction because its
+     * sender was in `skipPaginationSenders`. Lets the UI tally per-sender
+     * skip counts and surface them after the fetch.
+     */
+    onSkipPagination?: (senderAddress: string) => void;
+};
+
 async function fetchStakeTransactionsByRole(
     address: string,
     role: 'signAddress' | 'recvAddress',
+    options: FetchStakeTxsOptions = {},
     batchSize = 1,
 ) {
+    const { startEpoch, onProgress, skipPaginationSenders, onSkipPagination } = options;
+
+    // Translate startEpoch into an `afterCheckpoint` filter so the GraphQL
+    // server skips checkpoints before the timeframe entirely. `afterCheckpoint`
+    // is exclusive, so use firstCheckpoint - 1 to keep the first checkpoint of
+    // startEpoch inclusive. If startEpoch is 0 (or the lookup fails), skip the
+    // filter and fetch everything.
+    let afterCheckpointFilter = '';
+    if (startEpoch !== undefined && startEpoch > 0) {
+        try {
+            const firstCheckpoint = await fetchFirstCheckpointForEpoch(startEpoch);
+            if (firstCheckpoint !== null && firstCheckpoint > 0) {
+                afterCheckpointFilter = `\n                        afterCheckpoint: ${firstCheckpoint - 1}`;
+            }
+        } catch (err) {
+            console.warn(
+                `Failed to resolve afterCheckpoint for epoch ${startEpoch}; fetching unbounded`,
+                err,
+            );
+        }
+    }
     // Reusable objectChanges GraphQL section
     const objectChangesSection = `
         pageInfo {
@@ -72,6 +148,7 @@ async function fetchStakeTransactionsByRole(
     let cursorSection = '';
     let hasNextPage = true;
     let endCursor = '';
+    let pageCount = 0;
     while (hasNextPage) {
         console.log(
             `Fetching transactions for address: ${address}, role: ${role}, cursor: ${endCursor}`,
@@ -81,7 +158,7 @@ async function fetchStakeTransactionsByRole(
             query ($address: IotaAddress) {
                 transactionBlocks(
                     filter: {
-                        ${role}: $address
+                        ${role}: $address${afterCheckpointFilter}
                     }
                     first: ${batchSize}${cursorSection}
                 ) {
@@ -91,6 +168,9 @@ async function fetchStakeTransactionsByRole(
                     }
                     nodes {
                         digest
+                        sender {
+                            address
+                        }
                         effects {
                             timestamp
                             epoch {
@@ -129,6 +209,16 @@ ${objectChangesSection}
                     : [];
                 let objectHasNextPage = effects.objectChanges.pageInfo?.hasNextPage;
                 let objectEndCursor = effects.objectChanges.pageInfo?.endCursor;
+                // Skip objectChanges pagination entirely for caller-configured
+                // noisy senders whose transactions never carry stake objects but
+                // have huge objectChanges sets (paginating through them is the
+                // main cost when fetching received txs for an active address).
+                const senderAddr = tx.sender?.address;
+                if (senderAddr && skipPaginationSenders && skipPaginationSenders.has(senderAddr)) {
+                    objectHasNextPage = false;
+                    objectEndCursor = undefined;
+                    onSkipPagination?.(senderAddr);
+                }
                 // Paginate objectChanges if needed
                 while (objectHasNextPage && objectEndCursor) {
                     const objectChangesQuery = `
@@ -191,6 +281,8 @@ ${objectChangesSection}
             (txBlocks as any).pageInfo?.endCursor
                 ? (txBlocks as any).pageInfo.endCursor
                 : undefined;
+        pageCount++;
+        onProgress?.({ pages: pageCount, transactions: allNodes.length });
         if (hasNextPage && endCursor) {
             cursorSection = `,after: "${endCursor}"`;
         } else {
@@ -233,12 +325,15 @@ ${objectChangesSection}
     return filteredNodes;
 }
 
-export async function fetchStakeTransactions(address: string) {
-    return fetchStakeTransactionsByRole(address, 'signAddress');
+export async function fetchStakeTransactions(address: string, options?: FetchStakeTxsOptions) {
+    return fetchStakeTransactionsByRole(address, 'signAddress', options);
 }
 
-export async function fetchReceivedStakeTransactions(address: string) {
-    return fetchStakeTransactionsByRole(address, 'recvAddress');
+export async function fetchReceivedStakeTransactions(
+    address: string,
+    options?: FetchStakeTxsOptions,
+) {
+    return fetchStakeTransactionsByRole(address, 'recvAddress', options);
 }
 
 export async function fetchSystemState() {
