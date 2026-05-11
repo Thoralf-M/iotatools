@@ -1,7 +1,7 @@
 <script lang="ts">
     import { untrack } from 'svelte';
 
-    import type { ExportSection } from './csv-export';
+    import type { ExportProgress, ExportSection } from './csv-export';
     import { renderSectionsToPdfBlobUrl } from './pdf-export';
 
     type ExportFormat = 'csv' | 'pdf';
@@ -19,6 +19,8 @@
         pricesAvailable = false,
         validatorsAvailable = false,
         stakeObjectsAvailable = false,
+        exporting = false,
+        exportProgress = null,
         buildPreview,
         onCancel,
         onExport,
@@ -29,8 +31,24 @@
         pricesAvailable?: boolean;
         validatorsAvailable?: boolean;
         stakeObjectsAvailable?: boolean;
-        /** Builds the full ExportSection[] the dialog previews. */
-        buildPreview: (opts: PreviewOpts) => ExportSection[];
+        /**
+         * Set by the parent while a download is being generated. Disables the
+         * dialog controls and replaces the Export label with a progress hint.
+         */
+        exporting?: boolean;
+        /**
+         * Live progress emitted by the exporters as they yield between row
+         * batches. Drives the "Generating PDF… (40%)" label so the user can
+         * see that work is happening on huge datasets.
+         */
+        exportProgress?: ExportProgress | null;
+        /**
+         * Builds the ExportSection[] the dialog previews. When
+         * `previewRowLimit` is set the implementation should short-circuit row
+         * generation so previews don't pay for building rows that will never
+         * be shown.
+         */
+        buildPreview: (opts: PreviewOpts, previewRowLimit?: number) => ExportSection[];
         onCancel: () => void;
         onExport: (opts: {
             format: ExportFormat;
@@ -59,9 +77,20 @@
         wrapValidators: validatorsAvailable && wrapValidators,
     });
 
-    // Only build a preview while the dialog is open — avoids doing the work
-    // in the background when the dialog isn't visible.
-    let previewSections = $derived.by(() => (open ? buildPreview(effectiveOpts) : []));
+    let progressPct = $derived(
+        exportProgress && exportProgress.rowsTotal > 0
+            ? Math.min(100, Math.round((exportProgress.rowsDone / exportProgress.rowsTotal) * 100))
+            : null,
+    );
+
+    // Build the CSV preview only while the dialog is open AND CSV is the
+    // selected format. Hand `PREVIEW_ROW_LIMIT` to the builder so it stops
+    // generating rows past what we'll display — for addresses with thousands
+    // of stake objects this is the difference between a fast popup and a
+    // multi-second freeze on every toggle change.
+    let previewSections = $derived.by(() =>
+        open && format === 'csv' ? buildPreview(effectiveOpts, PREVIEW_ROW_LIMIT) : [],
+    );
 
     // PDF preview state. The PDF render is async (dynamic import + autotable),
     // so we debounce toggles and revoke old blob URLs to avoid memory leaks.
@@ -70,13 +99,6 @@
     let pdfPreviewError = $state<string>('');
     const PDF_PREVIEW_DEBOUNCE_MS = 250;
     const PDF_PREVIEW_ROW_LIMIT = 25;
-
-    function truncateSectionsForPreview(sections: ExportSection[]): ExportSection[] {
-        return sections.map((s) => ({
-            ...s,
-            rows: s.rows.slice(0, PDF_PREVIEW_ROW_LIMIT),
-        }));
-    }
 
     $effect(() => {
         // Dependencies — re-runs whenever any of these change.
@@ -98,7 +120,8 @@
 
         const timeout = setTimeout(async () => {
             try {
-                const sections = truncateSectionsForPreview(buildPreview(opts));
+                const sections = buildPreview(opts, PDF_PREVIEW_ROW_LIMIT);
+                if (cancelled) return;
                 const url = await renderSectionsToPdfBlobUrl(sections);
                 if (cancelled) {
                     URL.revokeObjectURL(url);
@@ -291,7 +314,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {#each section.rows.slice(0, PREVIEW_ROW_LIMIT) as row}
+                                        {#each section.rows as row}
                                             <tr>
                                                 {#each row as cell}
                                                     <td title={cell}>{cell}</td>
@@ -300,15 +323,8 @@
                                         {/each}
                                     </tbody>
                                 </table>
-                                {#if section.rows.length > PREVIEW_ROW_LIMIT}
-                                    <div class="preview-more">
-                                        … {section.rows.length - PREVIEW_ROW_LIMIT} more row{section
-                                            .rows.length -
-                                            PREVIEW_ROW_LIMIT ===
-                                        1
-                                            ? ''
-                                            : 's'}
-                                    </div>
+                                {#if section.truncated}
+                                    <div class="preview-more">… more rows below in the export</div>
                                 {/if}
                             {/each}
                         </div>
@@ -329,8 +345,17 @@
             </div>
 
             <div class="actions">
-                <button class="secondary" onclick={onCancel}>Cancel</button>
-                <button class="primary" onclick={handleExport}>Export</button>
+                <button class="secondary" onclick={onCancel} disabled={exporting}>Cancel</button>
+                <button class="primary" onclick={handleExport} disabled={exporting}>
+                    {#if exporting}
+                        Generating {format.toUpperCase()}…
+                        {#if progressPct !== null}
+                            {progressPct}%
+                        {/if}
+                    {:else}
+                        Export
+                    {/if}
+                </button>
             </div>
         </div>
     </div>
@@ -626,6 +651,11 @@
         font-size: 0.95rem;
         cursor: pointer;
         transition: all 0.15s ease;
+    }
+
+    .actions button:disabled {
+        cursor: progress;
+        opacity: 0.7;
     }
 
     .actions .primary {

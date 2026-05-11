@@ -18,6 +18,12 @@ export type ExportSection = {
     title?: string;
     headers: string[];
     rows: string[][];
+    /**
+     * True when the section was truncated by `previewRowLimit` and the actual
+     * export would contain more rows. The dialog uses this to display a
+     * "more rows below" hint without needing the exact count.
+     */
+    truncated?: boolean;
 };
 
 export type ExportInputs = {
@@ -28,6 +34,13 @@ export type ExportInputs = {
     uniqueValidators: ValidatorInfo[];
     epochData: EpochData;
     options: ExportOptions;
+    /**
+     * When set, each section stops generating rows once it has this many.
+     * Used to make the in-dialog preview cheap for huge datasets — without
+     * this, opening the dialog could build hundreds of thousands of rows
+     * just to display the first 5–25.
+     */
+    previewRowLimit?: number;
 };
 
 /**
@@ -45,6 +58,7 @@ export function buildExportSections(inputs: ExportInputs): ExportSection[] {
         uniqueValidators,
         epochData,
         options,
+        previewRowLimit,
     } = inputs;
     const {
         showPriceColumns,
@@ -95,7 +109,12 @@ export function buildExportSections(inputs: ExportInputs): ExportSection[] {
     }
 
     const mainRows: string[][] = [];
+    let mainTruncated = false;
     for (let i = 0; i < epochs.length; i++) {
+        if (previewRowLimit !== undefined && mainRows.length >= previewRowLimit) {
+            mainTruncated = true;
+            break;
+        }
         const epoch = epochs[i];
         const data = epochData[epoch];
         const isPending = epoch === currentEpoch;
@@ -164,33 +183,41 @@ export function buildExportSections(inputs: ExportInputs): ExportSection[] {
         mainRows.push(row);
     }
 
-    const sections: ExportSection[] = [{ headers: mainHeaders, rows: mainRows }];
+    const sections: ExportSection[] = [
+        { headers: mainHeaders, rows: mainRows, ...(mainTruncated && { truncated: true }) },
+    ];
 
     if (wrapValidators && showValidatorColumns && uniqueValidators.length > 0) {
+        const { rows, truncated } = buildValidatorLongRows(
+            epochs,
+            epochEndDates,
+            currentEpoch,
+            uniqueValidators,
+            epochData,
+            previewRowLimit,
+        );
         sections.push({
             title: '--- Validators ---',
             headers: ['Epoch', 'End Date', 'Validator', 'Pool ID', 'Rewards'],
-            rows: buildValidatorLongRows(
-                epochs,
-                epochEndDates,
-                currentEpoch,
-                uniqueValidators,
-                epochData,
-            ),
+            rows,
+            ...(truncated && { truncated: true }),
         });
     }
 
     if (wrapStakeObjects && stakeObjects.length > 0) {
+        const { rows, truncated } = buildStakeObjectLongRows(
+            epochs,
+            epochEndDates,
+            currentEpoch,
+            stakeObjects,
+            epochData,
+            previewRowLimit,
+        );
         sections.push({
             title: '--- Stake Objects ---',
             headers: ['Epoch', 'End Date', 'Stake Object', 'Reward', 'Action'],
-            rows: buildStakeObjectLongRows(
-                epochs,
-                epochEndDates,
-                currentEpoch,
-                stakeObjects,
-                epochData,
-            ),
+            rows,
+            ...(truncated && { truncated: true }),
         });
     }
 
@@ -216,6 +243,56 @@ export function sectionsToCsv(sections: ExportSection[]): string {
 }
 
 /**
+ * Progress reported by the async exporters as they yield between row
+ * batches. Lets the dialog show a percentage on the Export button so the
+ * user can see that work is happening on huge datasets.
+ */
+export type ExportProgress = {
+    rowsDone: number;
+    rowsTotal: number;
+};
+
+export type ExportProgressCallback = (p: ExportProgress) => void;
+
+/**
+ * Async variant of {@link sectionsToCsv} that yields between row batches so
+ * the UI thread can repaint. For huge sections (tens of thousands of rows in
+ * the long-format stake-objects table) the synchronous path was responsible
+ * for noticeable freezes — chunking lets the dialog's "Generating…" indicator
+ * stay alive and the browser handle input events between batches.
+ */
+const CSV_CHUNK_SIZE = 2000;
+
+const yieldToBrowser = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
+
+export async function sectionsToCsvAsync(
+    sections: ExportSection[],
+    onProgress?: ExportProgressCallback,
+): Promise<string> {
+    const rowsTotal = sections.reduce((sum, s) => sum + s.rows.length, 0);
+    let rowsDone = 0;
+    onProgress?.({ rowsDone, rowsTotal });
+
+    const parts: string[] = [];
+    for (const section of sections) {
+        const lines: string[] = [];
+        if (section.title) lines.push(csvRow([section.title]));
+        lines.push(csvRow(section.headers));
+        for (let i = 0; i < section.rows.length; i += CSV_CHUNK_SIZE) {
+            const end = Math.min(i + CSV_CHUNK_SIZE, section.rows.length);
+            for (let j = i; j < end; j++) lines.push(csvRow(section.rows[j]));
+            rowsDone += end - i;
+            onProgress?.({ rowsDone, rowsTotal });
+            if (end < section.rows.length) await yieldToBrowser();
+        }
+        lines.push('');
+        parts.push(lines.join('\n'));
+        await yieldToBrowser();
+    }
+    return parts.join('\n');
+}
+
+/**
  * Export table data to CSV format and trigger download.
  *
  * When `wrapStakeObjects` or `wrapValidators` is set, the per-object columns
@@ -223,7 +300,7 @@ export function sectionsToCsv(sections: ExportSection[]): string {
  * as wide columns. This keeps the main table readable when the data is
  * viewed in a PDF or printout.
  */
-export function exportTableToCSV(
+export async function exportTableToCSV(
     epochs: number[],
     epochEndDates: string[],
     currentEpoch: number,
@@ -231,7 +308,8 @@ export function exportTableToCSV(
     uniqueValidators: ValidatorInfo[],
     epochData: EpochData,
     options: ExportOptions,
-): void {
+    onProgress?: ExportProgressCallback,
+): Promise<void> {
     const sections = buildExportSections({
         epochs,
         epochEndDates,
@@ -241,7 +319,7 @@ export function exportTableToCSV(
         epochData,
         options,
     });
-    const csvContent = sectionsToCsv(sections);
+    const csvContent = await sectionsToCsvAsync(sections, onProgress);
     const stem =
         options.fileName?.trim() ||
         `staking-rewards-table-${new Date().toISOString().split('T')[0]}`;
@@ -306,10 +384,14 @@ function buildStakeObjectLongRows(
     currentEpoch: number,
     stakeObjects: StakeObject[],
     epochData: EpochData,
-): string[][] {
+    previewRowLimit?: number,
+): { rows: string[][]; truncated: boolean } {
     const rows: string[][] = [];
     for (const stakeObject of stakeObjects) {
         for (let i = 0; i < epochs.length; i++) {
+            if (previewRowLimit !== undefined && rows.length >= previewRowLimit) {
+                return { rows, truncated: true };
+            }
             const epoch = epochs[i];
             const [reward, action] = buildStakeObjectCells(
                 stakeObject,
@@ -329,7 +411,7 @@ function buildStakeObjectLongRows(
             ]);
         }
     }
-    return rows;
+    return { rows, truncated: false };
 }
 
 function buildValidatorLongRows(
@@ -338,10 +420,14 @@ function buildValidatorLongRows(
     currentEpoch: number,
     uniqueValidators: ValidatorInfo[],
     epochData: EpochData,
-): string[][] {
+    previewRowLimit?: number,
+): { rows: string[][]; truncated: boolean } {
     const rows: string[][] = [];
     for (const validator of uniqueValidators) {
         for (let i = 0; i < epochs.length; i++) {
+            if (previewRowLimit !== undefined && rows.length >= previewRowLimit) {
+                return { rows, truncated: true };
+            }
             const epoch = epochs[i];
             const data = epochData[epoch];
             const isPending = epoch === currentEpoch;
@@ -358,7 +444,7 @@ function buildValidatorLongRows(
             ]);
         }
     }
-    return rows;
+    return { rows, truncated: false };
 }
 
 function csvRow(cells: string[]): string {
