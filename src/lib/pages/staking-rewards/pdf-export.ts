@@ -1,4 +1,4 @@
-import { buildExportSections, type ExportSection } from './csv-export';
+import { buildExportSections, type ExportProgressCallback, type ExportSection } from './csv-export';
 import type { EpochData, ExportOptions, StakeObject, ValidatorInfo } from './types';
 
 const FONT_SIZE = 8;
@@ -9,6 +9,17 @@ const MIN_COL_WIDTH = 55;
 // cell, but we don't let one cell eat the whole page.
 const MAX_COL_WIDTH = 220;
 const PAGE_MARGIN = 30;
+/**
+ * Maximum rows fed to a single autoTable call. autoTable is fully synchronous
+ * and a 23k-row long-format section can lock the main thread for tens of
+ * seconds — chunking lets us await between batches so the UI can repaint and
+ * the "Generating PDF…" indicator stays responsive. Continuation chunks pass
+ * `showHead: 'never'` and resume at the previous `finalY` so the PDF output
+ * is identical to a single-call render.
+ */
+const ROW_CHUNK_SIZE = 500;
+
+const yieldToBrowser = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
 
 /**
  * Estimate a comfortable width for each column by measuring the longest cell
@@ -70,7 +81,7 @@ export function splitIntoColumnGroups(colWidths: number[], usableWidth: number):
  * jsPDF + autotable are loaded dynamically to keep them out of the initial
  * bundle.
  */
-async function renderSectionsToPdf(sections: ExportSection[]) {
+async function renderSectionsToPdf(sections: ExportSection[], onProgress?: ExportProgressCallback) {
     const [{ jsPDF }, autoTableModule] = await Promise.all([
         import('jspdf'),
         import('jspdf-autotable'),
@@ -97,6 +108,11 @@ async function renderSectionsToPdf(sections: ExportSection[]) {
     const titleHeight = 16;
     const gapAfterTable = 24;
 
+    const rowsTotal = sections.reduce((sum, s) => sum + s.rows.length, 0);
+    let rowsDone = 0;
+    const reportProgress = () => onProgress?.({ rowsDone, rowsTotal });
+    reportProgress();
+
     for (const section of sections) {
         const colWidths = estimateColumnWidths(section);
         const groups = splitIntoColumnGroups(colWidths, usableWidth);
@@ -112,7 +128,9 @@ async function renderSectionsToPdf(sections: ExportSection[]) {
             const showTitle = isFirstGroup && !!section.title;
 
             const estimatedHeight =
-                (showTitle ? titleHeight : 0) + rowHeight + rows.length * rowHeight;
+                (showTitle ? titleHeight : 0) +
+                rowHeight +
+                Math.min(rows.length, ROW_CHUNK_SIZE) * rowHeight;
             if (startY > 60 && startY + estimatedHeight > bottomLimit) {
                 doc.addPage();
                 startY = PAGE_MARGIN + 10;
@@ -129,21 +147,51 @@ async function renderSectionsToPdf(sections: ExportSection[]) {
                 columnStyles[localIdx] = { cellWidth: colWidths[srcIdx] };
             });
 
-            autoTable(doc, {
-                startY,
-                head: [headers],
-                body: rows,
-                styles: {
-                    fontSize: FONT_SIZE,
-                    cellPadding: CELL_PADDING,
-                    overflow: 'linebreak',
-                },
-                columnStyles,
-                headStyles: { fillColor: [59, 130, 246], textColor: 255, valign: 'middle' },
-                margin: { left: PAGE_MARGIN, right: PAGE_MARGIN },
-            });
-            // @ts-expect-error — autotable augments the doc with lastAutoTable at runtime
-            startY = (doc.lastAutoTable?.finalY ?? startY) + gapAfterTable;
+            // Render rows in chunks. autoTable is fully synchronous, so a
+            // single call with 20k+ rows would freeze the page for tens of
+            // seconds. By calling it once per ROW_CHUNK_SIZE rows and
+            // awaiting between batches, the browser gets a chance to repaint
+            // (and the "Generating PDF…" label stays alive). Continuation
+            // chunks resume at the previous `finalY` and suppress the head so
+            // the output is visually identical to a single-call render.
+            const chunkCount = rows.length === 0 ? 1 : Math.ceil(rows.length / ROW_CHUNK_SIZE);
+            for (let chunk = 0; chunk < chunkCount; chunk++) {
+                const sliceStart = chunk * ROW_CHUNK_SIZE;
+                const chunkRows = rows.slice(sliceStart, sliceStart + ROW_CHUNK_SIZE);
+                const isFirstChunk = chunk === 0;
+
+                autoTable(doc, {
+                    startY,
+                    head: isFirstChunk ? [headers] : undefined,
+                    body: chunkRows,
+                    styles: {
+                        fontSize: FONT_SIZE,
+                        cellPadding: CELL_PADDING,
+                        overflow: 'linebreak',
+                    },
+                    columnStyles,
+                    headStyles: { fillColor: [59, 130, 246], textColor: 255, valign: 'middle' },
+                    margin: { left: PAGE_MARGIN, right: PAGE_MARGIN },
+                    showHead: isFirstChunk ? 'firstPage' : 'never',
+                });
+                // @ts-expect-error — autotable augments the doc with lastAutoTable at runtime
+                startY = doc.lastAutoTable?.finalY ?? startY;
+
+                // Only count progress on the first column group — subsequent
+                // groups re-render the same rows at different columns.
+                if (isFirstGroup) {
+                    rowsDone += chunkRows.length;
+                    reportProgress();
+                }
+
+                if (chunk < chunkCount - 1) await yieldToBrowser();
+            }
+            startY += gapAfterTable;
+
+            // Yield between groups too — wide tables (no-wrap with hundreds of
+            // stake-object columns) produce many groups, each its own autoTable
+            // call. Without this the UI would still freeze on those tables.
+            if (g < groups.length - 1) await yieldToBrowser();
         }
     }
 
@@ -155,8 +203,11 @@ async function renderSectionsToPdf(sections: ExportSection[]) {
  * PDF. Caller is responsible for calling `URL.revokeObjectURL` when done.
  * Used for the in-dialog PDF preview.
  */
-export async function renderSectionsToPdfBlobUrl(sections: ExportSection[]): Promise<string> {
-    const doc = await renderSectionsToPdf(sections);
+export async function renderSectionsToPdfBlobUrl(
+    sections: ExportSection[],
+    onProgress?: ExportProgressCallback,
+): Promise<string> {
+    const doc = await renderSectionsToPdf(sections, onProgress);
     return doc.output('bloburl') as unknown as string;
 }
 
@@ -171,6 +222,7 @@ export async function exportTableToPDF(
     uniqueValidators: ValidatorInfo[],
     epochData: EpochData,
     options: ExportOptions,
+    onProgress?: ExportProgressCallback,
 ): Promise<void> {
     const sections = buildExportSections({
         epochs,
@@ -181,7 +233,7 @@ export async function exportTableToPDF(
         epochData,
         options,
     });
-    const doc = await renderSectionsToPdf(sections);
+    const doc = await renderSectionsToPdf(sections, onProgress);
     const stem =
         options.fileName?.trim() ||
         `staking-rewards-table-${new Date().toISOString().split('T')[0]}`;

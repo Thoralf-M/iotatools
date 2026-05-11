@@ -10,7 +10,7 @@
     import type { ActionDetails, StakeObject, ValidatorInfo } from './';
     import pricesCache from './cache/iota-prices-coingecko.json';
     import epochTimestampsCacheJson from './cache/mainnet-epoch-timestamps-cache.json';
-    import { buildExportSections, exportTableToCSV } from './csv-export';
+    import { buildExportSections, exportTableToCSV, type ExportProgress } from './csv-export';
     import ExportDialog from './ExportDialog.svelte';
     import { nanoToIota } from './formatting';
     import { fetchEpochTimestampsForDisplay } from './graphql-requests';
@@ -279,6 +279,8 @@
 
     // Export dialog state
     let showExportDialog = $state(false);
+    let exporting = $state(false);
+    let exportProgress = $state<ExportProgress | null>(null);
 
     function openExportDialog() {
         showExportDialog = true;
@@ -286,7 +288,17 @@
 
     let exportError = $state<string>('');
 
-    function handleExportConfirm(opts: {
+    /**
+     * Run a synchronous callback after yielding to the browser so the dialog
+     * can repaint into its "Generating…" state before the work blocks the
+     * thread. Without this yield, the disabled button + label change never
+     * paints because the export starts on the same tick as the click.
+     */
+    function nextPaint(): Promise<void> {
+        return new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+    }
+
+    async function handleExportConfirm(opts: {
         format: 'csv' | 'pdf';
         includePrices: boolean;
         includeValidators: boolean;
@@ -295,6 +307,8 @@
         fileName: string;
     }) {
         exportError = '';
+        exporting = true;
+        exportProgress = null;
         const options: ExportOptions = {
             showPriceColumns: opts.includePrices,
             showValidatorColumns: opts.includeValidators,
@@ -305,31 +319,40 @@
             wrapValidators: opts.wrapValidators,
         };
 
-        const args = [
-            filteredEpochs,
-            filteredEpochEndDates,
-            currentEpoch,
-            stakeObjects,
-            uniqueValidators,
-            epochData,
-            options,
-        ] as const;
+        const onProgress = (p: ExportProgress) => {
+            exportProgress = p;
+        };
+        const exporter = opts.format === 'pdf' ? exportTableToPDF : exportTableToCSV;
 
         // Leave the dialog open after exporting — Chrome occasionally drops
         // rapid same-tab downloads, and keeping the dialog open lets users
         // retry without reopening it. Closed manually via X / Cancel / Esc.
         try {
-            if (opts.format === 'pdf') {
-                exportTableToPDF(...args).catch((err) => {
-                    console.error('PDF export failed:', err);
-                    exportError = err instanceof Error ? err.message : 'Failed to export PDF';
-                });
-            } else {
-                exportTableToCSV(...args);
-            }
+            // Yield so the disabled-button / "Generating…" label paint before
+            // the export runs. The exporters themselves chunk + yield between
+            // batches, so the page stays responsive even on huge datasets.
+            await nextPaint();
+            await exporter(
+                filteredEpochs,
+                filteredEpochEndDates,
+                currentEpoch,
+                stakeObjects,
+                uniqueValidators,
+                epochData,
+                options,
+                onProgress,
+            );
         } catch (err) {
             console.error('Export failed:', err);
-            exportError = err instanceof Error ? err.message : 'Failed to export';
+            exportError =
+                err instanceof Error
+                    ? err.message
+                    : opts.format === 'pdf'
+                      ? 'Failed to export PDF'
+                      : 'Failed to export';
+        } finally {
+            exporting = false;
+            exportProgress = null;
         }
     }
 
@@ -464,7 +487,9 @@
     pricesAvailable={Object.keys(epochPrices).length > 0}
     validatorsAvailable={uniqueValidators.length > 0}
     stakeObjectsAvailable={stakeObjects.length > 0}
-    buildPreview={(opts) =>
+    {exporting}
+    {exportProgress}
+    buildPreview={(opts, previewRowLimit) =>
         buildExportSections({
             epochs: filteredEpochs,
             epochEndDates: filteredEpochEndDates,
@@ -480,8 +505,9 @@
                 wrapStakeObjects: opts.wrapStakeObjects,
                 wrapValidators: opts.wrapValidators,
             },
+            previewRowLimit,
         })}
-    onCancel={() => (showExportDialog = false)}
+    onCancel={() => !exporting && (showExportDialog = false)}
     onExport={handleExportConfirm}
 />
 
