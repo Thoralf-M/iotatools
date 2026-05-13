@@ -1,6 +1,7 @@
 <script lang="ts">
     // @ts-ignore - Module resolution issue with svelte-json-tree
-    import { fromBase64 } from '@iota/bcs';
+    import { fromBase64, toBase64 } from '@iota/bcs';
+    import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
     import { TransactionDataBuilder } from '@iota/iota-sdk/transactions';
     import JSONTree from '@sveltejs/svelte-json-tree';
 
@@ -157,6 +158,22 @@
         }
     });
 
+    function extractUnsignedTxBytes(bytes: string): string {
+        // dryRunTransactionBlock expects unsigned TransactionData bytes.
+        // If `bytes` is already TransactionData, return as-is. If it's the
+        // signed SenderSignedData envelope (from `rawTransaction`), extract
+        // the inner TransactionData and re-serialize.
+        if (!bytes) return bytes;
+        try {
+            TransactionDataBuilder.fromBytes(fromBase64(bytes));
+            return bytes;
+        } catch {
+            const signed = IotaBcs.SenderSignedData.parse(fromBase64(bytes));
+            const txData = signed[0].intentMessage.value;
+            return toBase64(IotaBcs.TransactionData.serialize(txData).toBytes());
+        }
+    }
+
     async function performDryRun() {
         if (!hasTxBytes || isDryRunning) return;
 
@@ -165,7 +182,7 @@
             const client = getClient();
 
             const dryRunResult = await client.dryRunTransactionBlock({
-                transactionBlock: txBytes,
+                transactionBlock: extractUnsignedTxBytes(txBytes),
             });
 
             // Update the transaction data with dry run effects
