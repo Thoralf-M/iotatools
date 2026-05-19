@@ -8,6 +8,7 @@
     } from '../../utils/iota-nano-conversion';
     import {
         accountTotalBalance,
+        formatIotaAmount,
         isStakeObject,
         objectIotaCoinAmount,
         type Currency,
@@ -43,6 +44,9 @@
         /** Forwarded to per-stake badges for IOTA→fiat conversion. */
         currentPrice?: FiatPrice;
         selectedCurrency?: Currency;
+        /** When true, IOTA amounts on per-object rows and the per-account
+         *  total are rounded to 2 decimals. Toggled in BalanceSummary. */
+        compactAmounts?: boolean;
     }
 
     let {
@@ -60,6 +64,7 @@
         onRequestStake,
         currentPrice = null,
         selectedCurrency = 'USD',
+        compactAmounts = false,
     }: Props = $props();
 
     let displayLabel = $derived(
@@ -193,7 +198,7 @@
                 <button class="header-btn danger" onclick={onRemove}>Remove</button>
             </div>
             <div class="account-balance">
-                {formatNumberWithUnderscores(nanoToIota(totalBalance.toString()))}
+                {formatIotaAmount(totalBalance, compactAmounts)}
                 <span style="font-size: 0.8em; color: var(--text-muted);">IOTA</span>
             </div>
         </div>
@@ -202,7 +207,7 @@
     {#if canStake}
         <div class="stake-row">
             <span class="stake-label" title="Liquid IOTA available to stake">
-                Liquid: {formatNumberWithUnderscores(nanoToIota(liquidIotaNano.toString()))} IOTA
+                Liquid: {formatIotaAmount(liquidIotaNano, compactAmounts)} IOTA
             </span>
             <input
                 class="stake-input"
@@ -241,6 +246,7 @@
                             : undefined}
                         {currentPrice}
                         {selectedCurrency}
+                        {compactAmounts}
                     />
                 {/each}
 
@@ -268,6 +274,7 @@
                                 accountAddress={account.address}
                                 {getAccountDisplayName}
                                 variant="timelocked"
+                                {compactAmounts}
                             />
                         {/each}
                     </div>
@@ -283,6 +290,7 @@
                         accountAddress={account.address}
                         {getAccountDisplayName}
                         variant="standard"
+                        {compactAmounts}
                     />
                 {/each}
 
@@ -307,6 +315,7 @@
                                 accountAddress={account.address}
                                 {getAccountDisplayName}
                                 variant="timelocked"
+                                {compactAmounts}
                             />
                         {/each}
                     </div>
@@ -325,6 +334,7 @@
                         accountAddress={account.address}
                         {getAccountDisplayName}
                         variant="standard"
+                        {compactAmounts}
                     />
                 {/each}
 
@@ -349,6 +359,7 @@
                                 accountAddress={account.address}
                                 {getAccountDisplayName}
                                 variant="timelocked"
+                                {compactAmounts}
                             />
                         {/each}
                     </div>

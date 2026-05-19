@@ -65,6 +65,7 @@ const SELECTED_ADDRESS_KEY = 'selectedAddress';
 const DISCLAIMER_ACCEPTED_KEY = 'disclaimerAccepted';
 const STAKING_CURRENCY_KEY = 'stakingCurrency';
 const MULTI_ACCOUNT_CURRENCY_KEY = 'multiAccountCurrency';
+const MULTI_ACCOUNT_COMPACT_AMOUNTS_KEY = 'multiAccountCompactAmounts';
 const STAKING_SKIP_PAGINATION_SENDERS_KEY = 'stakingSkipPaginationSenders';
 const STAKING_SKIP_PAGINATION_ENABLED_KEY = 'stakingSkipPaginationEnabled';
 
@@ -158,6 +159,15 @@ export const sharedMultiAccountCurrency: Writable<'USD' | 'EUR'> = persistentWri
         }
         return true;
     },
+);
+
+// Toggle for the multi-account view: when true, IOTA amounts on per-object
+// rows, per-account totals, and the breakdown table are rounded to 2 decimal
+// places instead of showing the full 9-digit nano tail.
+export const sharedMultiAccountCompactAmounts: Writable<boolean> = persistentWritableStore(
+    MULTI_ACCOUNT_COMPACT_AMOUNTS_KEY,
+    false,
+    (value: any) => typeof value === 'boolean',
 );
 
 // Sender addresses whose received transactions should have their objectChanges

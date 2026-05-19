@@ -1,9 +1,10 @@
 <script lang="ts">
-    import { formatNumberWithUnderscores, nanoToIota } from '../../utils/iota-nano-conversion';
+    import { nanoToIota } from '../../utils/iota-nano-conversion';
     import {
         accountIotaCoins,
         accountStaked,
         accountTotalBalance,
+        formatIotaAmount,
         formatIotaCompact,
         sumAccounts,
         type Currency,
@@ -15,9 +16,15 @@
         accounts: ExtendedAccount[];
         selectedCurrency: Currency;
         currentPrice: FiatPrice;
+        compactAmounts: boolean;
     }
 
-    let { accounts, selectedCurrency = $bindable(), currentPrice = $bindable() }: Props = $props();
+    let {
+        accounts,
+        selectedCurrency = $bindable(),
+        currentPrice = $bindable(),
+        compactAmounts = $bindable(),
+    }: Props = $props();
 
     let totalBalance = $derived(sumAccounts(accounts, accountTotalBalance));
     let totalIotaCoins = $derived(sumAccounts(accounts, accountIotaCoins));
@@ -45,6 +52,13 @@
     </summary>
 
     <div class="price-controls">
+        <label
+            class="compact-toggle"
+            title="Round IOTA amounts to 2 decimals instead of showing the full nano tail."
+        >
+            <input type="checkbox" bind:checked={compactAmounts} />
+            <span>Compact amounts</span>
+        </label>
         <select bind:value={selectedCurrency}>
             <option value="USD">USD</option>
             <option value="EUR">EUR</option>
@@ -73,27 +87,23 @@
                 <tr class="total-row" style="background: rgba(16, 185, 129, 0.1);">
                     <td><strong>Total</strong></td>
                     <td>
-                        <strong
-                            >{formatNumberWithUnderscores(
-                                nanoToIota(totalBalance.toString()),
-                            )}</strong
-                        >
+                        <strong>{formatIotaAmount(totalBalance, compactAmounts)}</strong>
                     </td>
                     <td><strong>{fiat(totalBalance)}</strong></td>
                 </tr>
                 <tr>
                     <td>IOTA Coins</td>
-                    <td>{formatNumberWithUnderscores(nanoToIota(totalIotaCoins.toString()))}</td>
+                    <td>{formatIotaAmount(totalIotaCoins, compactAmounts)}</td>
                     <td>{fiat(totalIotaCoins)}</td>
                 </tr>
                 <tr>
                     <td>Staked</td>
-                    <td>{formatNumberWithUnderscores(nanoToIota(totalStaked.toString()))}</td>
+                    <td>{formatIotaAmount(totalStaked, compactAmounts)}</td>
                     <td>{fiat(totalStaked)}</td>
                 </tr>
                 <tr>
                     <td>Staking Rewards</td>
-                    <td>{formatNumberWithUnderscores(nanoToIota(totalRewards.toString()))}</td>
+                    <td>{formatIotaAmount(totalRewards, compactAmounts)}</td>
                     <td>{fiat(totalRewards)}</td>
                 </tr>
                 <!-- TODO(staking): in stakingMode, append additional rows here:
@@ -164,6 +174,20 @@
         gap: 0.5rem;
         align-items: center;
         margin-top: 0.5rem;
+    }
+
+    .compact-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .compact-toggle input {
+        accent-color: #6366f1;
     }
 
     .price-controls select {
