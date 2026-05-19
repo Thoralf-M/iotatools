@@ -5,7 +5,10 @@
     import { get } from 'svelte/store';
 
     import { addAndRun } from '../../stores/transaction-tray';
-    import { sharedMultiAccountCurrency } from '../../utils/local-storage-store';
+    import {
+        sharedMultiAccountCompactAmounts,
+        sharedMultiAccountCurrency,
+    } from '../../utils/local-storage-store';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
     import { iota_accounts } from '../../utils/signer-data';
     import {
@@ -221,9 +224,17 @@
     let selectedCurrency = $state<Currency>(get(sharedMultiAccountCurrency));
     let currentPrice = $state<FiatPrice>(null);
     let priceFetched = false;
+    /** When on, IOTA amounts in the account cards, per-object rows, and the
+     *  breakdown table are rounded to 2 decimals instead of the full nano
+     *  tail. Persisted via `sharedMultiAccountCompactAmounts`. */
+    let compactAmounts = $state<boolean>(get(sharedMultiAccountCompactAmounts));
 
     $effect(() => {
         sharedMultiAccountCurrency.set(selectedCurrency);
+    });
+
+    $effect(() => {
+        sharedMultiAccountCompactAmounts.set(compactAmounts);
     });
 
     // ─── Staking state ───────────────────────────────────────────────────────
@@ -753,7 +764,12 @@
 </script>
 
 <main class="container">
-    <BalanceSummary accounts={visibleAccounts} bind:selectedCurrency bind:currentPrice />
+    <BalanceSummary
+        accounts={visibleAccounts}
+        bind:selectedCurrency
+        bind:currentPrice
+        bind:compactAmounts
+    />
 
     <Toolbar
         bind:newAccountAddress
@@ -821,6 +837,7 @@
                 onRequestStake={stakingMode ? requestStake : undefined}
                 {currentPrice}
                 {selectedCurrency}
+                {compactAmounts}
             />
         {/each}
 

@@ -124,18 +124,27 @@ export function formatIotaWithFiat(nano: bigint, price: FiatPrice, currency: Cur
 }
 
 /** Display amount for an object: liquid balance, staked principal, or
- *  timelocked-staked principal — formatted in IOTA with thousands separators. */
-export function objectDisplayAmount(item: ExtendedObject): string {
+ *  timelocked-staked principal — formatted in IOTA with thousands separators.
+ *  When `compact` is true the value is rounded to 2 decimals (see
+ *  `formatIotaCompact`) instead of showing the full 9-digit nano tail. */
+export function objectDisplayAmount(item: ExtendedObject, compact = false): string {
+    let nano: string | undefined;
     if (item.label.startsWith('Coin<0x2::iota::IOTA>')) {
-        return formatNumberWithUnderscores(nanoToIota(item.data?.content?.fields?.balance));
+        nano = item.data?.content?.fields?.balance;
+    } else if (item.label === 'StakedIota') {
+        nano = item.data?.content?.fields?.principal;
+    } else if (item.label === 'TimelockedStakedIota') {
+        nano = item.data.content.fields.staked_iota.fields.principal;
     }
-    if (item.label === 'StakedIota') {
-        return formatNumberWithUnderscores(nanoToIota(item.data?.content?.fields?.principal));
-    }
-    if (item.label === 'TimelockedStakedIota') {
-        return formatNumberWithUnderscores(
-            nanoToIota(item.data.content.fields.staked_iota.fields.principal),
-        );
-    }
-    return '';
+    if (nano === undefined) return '';
+    if (compact) return formatIotaCompact(BigInt(nano));
+    return formatNumberWithUnderscores(nanoToIota(nano));
+}
+
+/** Format a nano-IOTA amount for display in either full precision (9 decimals,
+ *  thousands-separated) or compact (2 decimals) mode. Mirrors the rendering
+ *  conventions of the per-object amounts. */
+export function formatIotaAmount(nano: bigint, compact: boolean): string {
+    if (compact) return formatIotaCompact(nano);
+    return formatNumberWithUnderscores(nanoToIota(nano.toString()));
 }

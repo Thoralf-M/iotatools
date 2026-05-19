@@ -41,6 +41,9 @@
         /** Optional CoinGecko price block for IOTA→fiat conversion. */
         currentPrice?: FiatPrice;
         selectedCurrency?: Currency;
+        /** When true, render IOTA amounts rounded to 2 decimals instead of the
+         *  full 9-digit nano tail. Toggled in BalanceSummary, persisted. */
+        compactAmounts?: boolean;
     }
 
     let {
@@ -52,10 +55,11 @@
         onOptimize,
         currentPrice = null,
         selectedCurrency = 'USD',
+        compactAmounts = false,
     }: Props = $props();
 
     let isForeign = $derived(variant === 'standard' && accountAddress !== item.currentOwner);
-    let amountDisplay = $derived(objectDisplayAmount(item));
+    let amountDisplay = $derived(objectDisplayAmount(item, compactAmounts));
 
     function fmtPct(n: number, digits = 2): string {
         return `${n.toFixed(digits)}%`;
