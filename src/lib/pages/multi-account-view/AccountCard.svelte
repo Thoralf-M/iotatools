@@ -1,11 +1,7 @@
 <script lang="ts">
     import { dragHandleZone, type DndEvent } from 'svelte-dnd-action';
 
-    import {
-        formatNumberWithUnderscores,
-        iotaToNano,
-        nanoToIota,
-    } from '../../utils/iota-nano-conversion';
+    import { iotaToNano, nanoToIota } from '../../utils/iota-nano-conversion';
     import {
         accountTotalBalance,
         formatIotaAmount,
@@ -225,7 +221,7 @@
                     : 'Open net-return chart to pick a validator and confirm.'}
             >
                 Stake{stakeAmountValid && stakeAmountNano !== null
-                    ? ` ${formatNumberWithUnderscores(nanoToIota(stakeAmountNano.toString()))} IOTA`
+                    ? ` ${formatIotaAmount(stakeAmountNano, compactAmounts)} IOTA`
                     : ''}
             </button>
         </div>
