@@ -63,22 +63,31 @@
     };
     const splitIotaCoins = async () => {
         try {
+            // Per-command cap: max_arguments is 512 and one slot is reserved
+            // (source coin for splitCoins, recipient address for transferObjects).
+            const MAX_PER_COMMAND = 511;
+            const total = parseInt(objectCount);
+            const amount = parseInt(amountPerObject);
+
             const tx = new Transaction();
-            const splitAmounts = Array.from({ length: parseInt(objectCount) }, () =>
-                parseInt(amountPerObject),
-            );
-            const coins = tx.splitCoins(tx.gas, splitAmounts);
-            let coinArgs = [...Array(splitAmounts.length).keys()].map((i) => {
-                return {
+
+            let remaining = total;
+            while (remaining > 0) {
+                const chunkSize = Math.min(remaining, MAX_PER_COMMAND);
+                const splitAmounts = Array.from({ length: chunkSize }, () => amount);
+                const coins = tx.splitCoins(tx.gas, splitAmounts);
+                const commandIndex = coins[0].NestedResult[0];
+                const chunkCoinArgs = Array.from({ length: chunkSize }, (_, i) => ({
                     kind: 'NestedResult',
-                    NestedResult: [coins[0].NestedResult[0], i],
-                };
-            });
-            // @ts-ignore
-            tx.transferObjects(coinArgs, $activeAddress);
+                    NestedResult: [commandIndex, i] as [number, number],
+                }));
+                // @ts-ignore
+                tx.transferObjects(chunkCoinArgs, $activeAddress);
+                remaining -= chunkSize;
+            }
 
             await addAndRun({
-                label: `Split into ${splitAmounts.length} × ${amountPerObject} NANO`,
+                label: `Split into ${total} × ${amountPerObject} NANO`,
                 transaction: tx,
             });
         } catch (err: any) {
