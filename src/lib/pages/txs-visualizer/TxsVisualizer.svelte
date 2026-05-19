@@ -1,8 +1,9 @@
 <script lang="ts">
     import { onDestroy, onMount } from 'svelte';
+    import { location } from 'svelte-spa-router';
 
     import TransactionView from '../../components/TransactionView.svelte';
-    import { getSelectedNetworkConfig } from '../../utils/client';
+    import { getClient, getSelectedNetworkConfig } from '../../utils/client';
     import { getAddressLink, getObjectLink } from '../../utils/explorer-links';
     import { fetchRecentTransactions, type TransactionNode } from '../txs/fetchTransactions';
 
@@ -18,6 +19,25 @@
     let showTransactionPopup = $state(false);
 
     let pollTimer: ReturnType<typeof setTimeout> | null = null;
+    let destroyed = false;
+
+    // Tabs.svelte keeps inactive tabs mounted (display: none), so onDestroy
+    // never fires on tab switch — gate polling on the active route instead.
+    const VIZ_ROUTE = '/txs-visualizer';
+    let currentRoute = $state('');
+    const unsubLocation = location.subscribe((v) => (currentRoute = v));
+    let isOnRoute = $derived(currentRoute === VIZ_ROUTE);
+
+    $effect(() => {
+        if (!isOnRoute) {
+            if (pollTimer) {
+                clearTimeout(pollTimer);
+                pollTimer = null;
+            }
+        } else if (isPolling && transactions.length > 0 && !pollTimer) {
+            poll();
+        }
+    });
 
     let sortedTransactions = $derived(
         [...transactions].sort(
@@ -332,7 +352,7 @@
     }
 
     async function poll() {
-        if (!isPolling || transactions.length === 0) return;
+        if (destroyed || !isOnRoute || !isPolling || transactions.length === 0) return;
 
         try {
             let result;
@@ -344,7 +364,11 @@
                     afterCheckpoint: newestCheckpoint.toString(),
                 });
                 if (result.txs.length > 0) {
-                    transactions = [...transactions, ...result.txs].slice(-limit); // Keep max transactions
+                    const seen = new Set(transactions.map((tx) => tx.digest));
+                    const fresh = result.txs.filter((tx) => !seen.has(tx.digest));
+                    if (fresh.length > 0) {
+                        transactions = [...transactions, ...fresh].slice(-limit);
+                    }
                 }
             } else {
                 const oldestCheckpoint = Math.min(...transactions.map((tx) => tx.checkpoint));
@@ -354,14 +378,18 @@
                     beforeCheckpoint: oldestCheckpoint.toString(),
                 });
                 if (result.txs.length > 0) {
-                    transactions = [...result.txs, ...transactions].slice(0, limit); // Keep max
+                    const seen = new Set(transactions.map((tx) => tx.digest));
+                    const fresh = result.txs.filter((tx) => !seen.has(tx.digest));
+                    if (fresh.length > 0) {
+                        transactions = [...fresh, ...transactions].slice(0, limit);
+                    }
                 }
             }
         } catch (e: any) {
             console.error('Polling error:', e);
         }
 
-        if (isPolling) {
+        if (!destroyed && isOnRoute && isPolling) {
             pollTimer = setTimeout(poll, pollingInterval);
         }
     }
@@ -380,9 +408,28 @@
         timeDirection = dir;
     }
 
-    function openTransaction(tx: TransactionNode) {
+    async function openTransaction(tx: TransactionNode) {
         selectedTransaction = tx.rawData;
         showTransactionPopup = true;
+        try {
+            const client = getClient();
+            const fullTx = await client.getTransactionBlock({
+                digest: tx.digest,
+                options: {
+                    showInput: true,
+                    showRawInput: true,
+                    showEffects: true,
+                    showEvents: true,
+                    showObjectChanges: true,
+                    showBalanceChanges: true,
+                },
+            });
+            if (showTransactionPopup && selectedTransaction?.digest === tx.digest) {
+                selectedTransaction = fullTx;
+            }
+        } catch (e) {
+            console.error('Failed to load full transaction:', e);
+        }
     }
 
     function closeTransactionPopup() {
@@ -399,8 +446,11 @@
     });
 
     onDestroy(() => {
+        destroyed = true;
+        unsubLocation();
         if (pollTimer) {
             clearTimeout(pollTimer);
+            pollTimer = null;
         }
     });
 

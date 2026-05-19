@@ -82,6 +82,15 @@
         return typeof status === 'string' ? status : status?.status || 'Unknown';
     }
 
+    function getStatusError(status: any, fallbackErrors?: string[]): string {
+        const err = typeof status === 'object' ? status?.error : null;
+        if (err) return err;
+        if (Array.isArray(fallbackErrors) && fallbackErrors.length > 0) {
+            return fallbackErrors.join('; ');
+        }
+        return '';
+    }
+
     $: effects = transactionData?.effects;
     $: balanceChanges =
         transactionData?.balanceChanges ||
@@ -150,6 +159,13 @@
             <span class="status" style="color: {getStatusColor(effects.status)}"
                 >{getStatusString(effects.status)}</span
             >
+            {#if getStatusError(effects.status, transactionData?.errors)}
+                <span
+                    class="status-error"
+                    title={getStatusError(effects.status, transactionData?.errors)}
+                    >{getStatusError(effects.status, transactionData?.errors)}</span
+                >
+            {/if}
             {#if effects.checkpoint?.sequenceNumber}
                 <span class="checkpoint-info"
                     >Checkpoint: {formatNumberWithUnderscores(
@@ -978,6 +994,17 @@
         font-size: 0.85rem;
         text-transform: uppercase;
         font-weight: 600;
+    }
+
+    .status-error {
+        padding: 4px 8px;
+        border-radius: 4px;
+        background: rgba(220, 53, 69, 0.15);
+        border: 1px solid rgba(220, 53, 69, 0.4);
+        color: #fca5a5;
+        font-size: 0.85rem;
+        font-family: 'JetBrains Mono', monospace;
+        word-break: break-word;
     }
 
     .checkpoint-info,
