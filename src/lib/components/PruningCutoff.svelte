@@ -1,16 +1,12 @@
 <script lang="ts">
     import { onDestroy } from 'svelte';
 
-    import {
-        fetchAvailableRange,
-        formatTimeAgo,
-        type AvailableRange,
-    } from '../utils/pruning-cutoff';
+    import { fetchPruningCutoff, formatTimeAgo, type PruningCutoff } from '../utils/pruning-cutoff';
     import { queryAwareClientConfig } from '../utils/query-param-store';
 
     const REFRESH_MS = 60_000;
 
-    let range = $state<AvailableRange | null>(null);
+    let cutoff = $state<PruningCutoff | null>(null);
     let loading = $state(false);
     let error = $state<string | null>(null);
     let now = $state(Date.now());
@@ -19,20 +15,20 @@
     let refreshInterval: ReturnType<typeof setInterval> | null = null;
     let tickInterval: ReturnType<typeof setInterval> | null = null;
     let currentNetwork = $state('');
-    let currentGraphqlUrl = '';
+    let currentIndexerUrl = '';
 
-    async function load(graphqlUrl: string) {
+    async function load(indexerUrl: string) {
         if (abortController) abortController.abort();
         abortController = new AbortController();
         loading = true;
         try {
-            const result = await fetchAvailableRange(graphqlUrl, abortController.signal);
-            range = result;
+            const result = await fetchPruningCutoff(indexerUrl, abortController.signal);
+            cutoff = result;
             error = null;
         } catch (e: any) {
             if (e?.name !== 'AbortError') {
                 error = e?.message || String(e);
-                range = null;
+                cutoff = null;
             }
         } finally {
             loading = false;
@@ -43,15 +39,15 @@
     const unsubscribe = queryAwareClientConfig.subscribe((config) => {
         const network = config.networks.find((n) => n.name === config.selected);
         if (!network) return;
-        if (network.name === currentNetwork && network.graphql === currentGraphqlUrl) return;
+        if (network.name === currentNetwork && network.indexer === currentIndexerUrl) return;
         currentNetwork = network.name;
-        currentGraphqlUrl = network.graphql;
-        range = null;
+        currentIndexerUrl = network.indexer;
+        cutoff = null;
         error = null;
-        load(network.graphql);
+        load(network.indexer);
 
         if (refreshInterval) clearInterval(refreshInterval);
-        refreshInterval = setInterval(() => load(currentGraphqlUrl), REFRESH_MS);
+        refreshInterval = setInterval(() => load(currentIndexerUrl), REFRESH_MS);
     });
 
     // Re-render the relative-time label every 30s without re-fetching.
@@ -67,21 +63,25 @@
     const formatter = new Intl.NumberFormat('en-US');
 </script>
 
-{#if range}
-    {@const ageLabel = formatTimeAgo(range.firstTimestamp, now)}
+{#if cutoff}
+    {@const ageLabel = formatTimeAgo(cutoff.timestampMs, now)}
+    {@const isoTimestamp = new Date(cutoff.timestampMs).toISOString()}
     <span
         class="pruning-cutoff"
-        title={`Oldest indexed checkpoint on ${currentNetwork} (GraphQL availableRange).\nFirst: #${range.firstCheckpoint} at ${range.firstTimestamp}\nLast: #${range.lastCheckpoint} at ${range.lastTimestamp}`}
+        title={`Pruning cutoff on ${currentNetwork}: oldest checkpoint the indexer still has.\nCheckpoint #${cutoff.checkpoint} at ${isoTimestamp}`}
     >
-        <span class="label">Oldest:</span>
-        <span class="value">#{formatter.format(range.firstCheckpoint)}</span>
+        <span class="label">Pruning cutoff:</span>
+        <span class="value">#{formatter.format(cutoff.checkpoint)}</span>
         {#if ageLabel}<span class="age">({ageLabel})</span>{/if}
     </span>
 {:else if loading}
-    <span class="pruning-cutoff loading" title="Querying GraphQL availableRange">Oldest: …</span>
+    <span class="pruning-cutoff loading" title="Querying oldest available checkpoint"
+        >Pruning cutoff: …</span
+    >
 {:else if error}
-    <span class="pruning-cutoff error" title={`Failed to fetch availableRange: ${error}`}
-        >Oldest: n/a</span
+    <span
+        class="pruning-cutoff error"
+        title={`Failed to fetch oldest available checkpoint: ${error}`}>Pruning cutoff: n/a</span
     >
 {/if}
 

@@ -1,44 +1,43 @@
 /**
- * Pruning cutoff: queries the network's GraphQL endpoint for its indexed range
- * (`availableRange`). The first checkpoint is the oldest data still served by the
- * indexer / GraphQL service — i.e. the pruning cutoff. Used to display, next to
- * the network dropdown, what the oldest data is the user can query against.
+ * Pruning cutoff: queries the indexer for the oldest checkpoint it still holds
+ * (`iota_getCheckpoints` ascending, limit 1). Indexers prune old checkpoints,
+ * so this is the actual cutoff the user can query historical data against.
+ * Used to display, next to the network dropdown, what the oldest data is.
  */
 
-export interface AvailableRange {
-    firstCheckpoint: number;
-    firstTimestamp: string;
-    lastCheckpoint: number;
-    lastTimestamp: string;
+export interface PruningCutoff {
+    checkpoint: number;
+    timestampMs: number;
 }
 
-const QUERY =
-    '{ availableRange { first { sequenceNumber timestamp } last { sequenceNumber timestamp } } }';
-
-export async function fetchAvailableRange(
-    graphqlUrl: string,
+export async function fetchPruningCutoff(
+    rpcUrl: string,
     signal?: AbortSignal,
-): Promise<AvailableRange | null> {
-    const res = await fetch(graphqlUrl, {
+): Promise<PruningCutoff | null> {
+    const res = await fetch(rpcUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: QUERY }),
+        body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'iota_getCheckpoints',
+            // [cursor, limit, descending]: ascending from the oldest still in the DB.
+            params: [null, 1, false],
+        }),
         signal,
     });
     if (!res.ok) {
-        throw new Error(`GraphQL HTTP ${res.status}`);
+        throw new Error(`RPC HTTP ${res.status}`);
     }
     const data = await res.json();
-    if (data?.errors?.length) {
-        throw new Error(data.errors[0]?.message || 'GraphQL error');
+    if (data?.error) {
+        throw new Error(data.error.message || 'RPC error');
     }
-    const r = data?.data?.availableRange;
-    if (!r?.first || !r?.last) return null;
+    const first = data?.result?.data?.[0];
+    if (!first) return null;
     return {
-        firstCheckpoint: Number(r.first.sequenceNumber),
-        firstTimestamp: r.first.timestamp,
-        lastCheckpoint: Number(r.last.sequenceNumber),
-        lastTimestamp: r.last.timestamp,
+        checkpoint: Number(first.sequenceNumber),
+        timestampMs: Number(first.timestampMs),
     };
 }
 
@@ -46,10 +45,9 @@ export async function fetchAvailableRange(
  * Format a duration like "3m ago", "5h ago", "2d ago". Returns "just now" for
  * intervals under a minute and "in the future" for negative deltas (clock skew).
  */
-export function formatTimeAgo(timestamp: string, now: number = Date.now()): string {
-    const then = Date.parse(timestamp);
-    if (Number.isNaN(then)) return '';
-    const diffSec = Math.round((now - then) / 1000);
+export function formatTimeAgo(timestampMs: number, now: number = Date.now()): string {
+    if (!Number.isFinite(timestampMs)) return '';
+    const diffSec = Math.round((now - timestampMs) / 1000);
     if (diffSec < 0) return 'in the future';
     if (diffSec < 60) return 'just now';
     const minutes = Math.floor(diffSec / 60);
