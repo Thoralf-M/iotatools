@@ -304,13 +304,23 @@
             padding: 0.15rem 0.4rem;
         }
 
-        /* Anchor to the chip's right edge so the tooltip extends leftward and
-           stays inside the viewport (the chip sits near the right edge of the
-           header on mobile). */
+        /* On mobile the chip's horizontal position depends on flex-wrap, so
+           anchoring the tooltip to either edge of the chip can push it off
+           one side of the viewport. Pin it to the viewport with small margins
+           instead so it always fits. */
         .tooltip {
-            right: 0;
-            left: auto;
-            width: min(22rem, calc(100vw - 1rem));
+            position: fixed;
+            top: auto;
+            bottom: 1rem;
+            left: 0.5rem;
+            right: 0.5rem;
+            width: auto;
+        }
+
+        /* The chip-to-tooltip bridge isn't meaningful when the tooltip is
+           pinned to the viewport bottom. */
+        .tooltip::before {
+            display: none;
         }
     }
 </style>
