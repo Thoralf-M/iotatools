@@ -5,7 +5,6 @@
         fetchPruningCutoff,
         formatReadableDate,
         formatReadableDateTime,
-        formatTimeAgo,
         formatVerboseAgo,
         type PruningCutoff,
     } from '../utils/pruning-cutoff';
@@ -77,17 +76,12 @@
 <div class="pruning-cutoff-container">
     {#if cutoff}
         {@const noPruning = cutoff.checkpoint < NO_PRUNING_BELOW}
-        {@const chipAge = formatVerboseAgo(cutoff.timestampMs, now)}
-        {@const tooltipAge = formatTimeAgo(cutoff.timestampMs, now)}
+        {@const tooltipAge = formatVerboseAgo(cutoff.timestampMs, now)}
         {@const dateOnly = formatReadableDate(cutoff.timestampMs)}
         {@const dateTime = formatReadableDateTime(cutoff.timestampMs)}
         <span class="pruning-cutoff" class:no-pruning={noPruning}>
-            {#if noPruning}
-                <span class="value">no pruning</span>
-            {:else}
-                <span class="value">{dateOnly}</span>
-                {#if chipAge}<span class="age">({chipAge})</span>{/if}
-            {/if}
+            <span class="label">Pruning:</span>
+            <span class="value">{noPruning ? 'none' : dateOnly}</span>
             <span class="info-icon" aria-hidden="true">ⓘ</span>
         </span>
         <div class="tooltip" role="tooltip">
@@ -183,12 +177,12 @@
         border-color: rgba(16, 185, 129, 0.35);
     }
 
-    .pruning-cutoff .value {
-        font-variant-numeric: tabular-nums;
+    .pruning-cutoff .label {
+        color: rgba(255, 255, 255, 0.6);
     }
 
-    .pruning-cutoff .age {
-        color: rgba(255, 255, 255, 0.55);
+    .pruning-cutoff .value {
+        font-variant-numeric: tabular-nums;
     }
 
     .pruning-cutoff .info-icon {
