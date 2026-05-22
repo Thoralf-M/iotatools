@@ -1,5 +1,9 @@
 <script lang="ts">
-    import { formatJsonWithCompactArrays, removeKindFields } from '../components/transaction-view';
+    import {
+        formatJsonWithCompactArrays,
+        removeKindFields,
+        splitObjectChanges,
+    } from '../components/transaction-view';
     import { getSelectedNetworkConfig } from '../utils/client';
     import { decodeBase64Bytes } from '../utils/converter';
     import { getAddressLink, getObjectLink, getTransactionLink } from '../utils/explorer-links';
@@ -104,38 +108,10 @@
         [];
     $: events = transactionData?.events || effects?.events?.nodes || effects?.events || [];
 
-    // Handle both normalized objectChanges and direct created/mutated arrays
-    $: deletedObjects = objectChanges.filter(
-        (change: any) => change.idDeleted === true || change.type === 'deleted',
-    );
-    $: createdObjects = [
-        ...objectChanges.filter(
-            (change: any) => change.idCreated === true || change.type === 'created',
-        ),
-        ...(effects?.created || []).map((obj: any) => ({
-            type: 'created',
-            objectId: obj.reference?.objectId,
-            version: obj.reference?.version,
-            digest: obj.reference?.digest,
-            owner: obj.owner,
-            objectType: '',
-        })),
-    ];
-    $: mutatedObjects = [
-        ...objectChanges.filter(
-            (change: any) =>
-                (change.idDeleted === false && change.idCreated === false) ||
-                change.type === 'mutated',
-        ),
-        ...(effects?.mutated || []).map((obj: any) => ({
-            type: 'mutated',
-            objectId: obj.reference?.objectId,
-            version: obj.reference?.version,
-            digest: obj.reference?.digest,
-            owner: obj.owner,
-            objectType: '',
-        })),
-    ];
+    $: split = splitObjectChanges(objectChanges, effects);
+    $: deletedObjects = split.deleted;
+    $: createdObjects = split.created;
+    $: mutatedObjects = split.mutated;
     $: hasValidData =
         effects && (effects.status || effects.checkpoint || balanceChanges.length > 0);
 </script>

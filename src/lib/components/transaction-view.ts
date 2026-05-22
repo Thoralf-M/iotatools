@@ -115,6 +115,73 @@ export function normalizeOwner(owner: any): any {
 }
 
 /**
+ * Splits object changes into mutated / created / deleted buckets for display.
+ *
+ * The JSON-RPC `getTransactionBlock` response contains two overlapping sources:
+ *   - `objectChanges`: a unified, sender-facing array with `type:
+ *     'mutated'|'created'|'deleted'|...`
+ *   - `effects.mutated|created|deleted`: raw effects arrays
+ *
+ * For sender-owned changes both arrays usually carry the same entry. For
+ * system-touched objects (e.g. a zero-balance coin merged away) the deletion
+ * sometimes appears only in `effects.deleted`. We merge the two by objectId so
+ * each change shows up exactly once.
+ */
+export function splitObjectChanges(
+    objectChanges: any[],
+    effects: any,
+): { mutated: any[]; created: any[]; deleted: any[] } {
+    const ids = new Set(
+        (objectChanges || []).map((c: any) => c.objectId || c.address).filter(Boolean),
+    );
+
+    const deleted = [
+        ...(objectChanges || []).filter((c: any) => c.idDeleted === true || c.type === 'deleted'),
+        ...(effects?.deleted || [])
+            .filter((obj: any) => !ids.has(obj.objectId || obj.reference?.objectId))
+            .map((obj: any) => ({
+                type: 'deleted',
+                objectId: obj.objectId || obj.reference?.objectId,
+                version: obj.version ?? obj.reference?.version,
+                digest: obj.digest || obj.reference?.digest,
+                objectType: '',
+            })),
+    ];
+
+    const created = [
+        ...(objectChanges || []).filter((c: any) => c.idCreated === true || c.type === 'created'),
+        ...(effects?.created || [])
+            .filter((obj: any) => !ids.has(obj.reference?.objectId))
+            .map((obj: any) => ({
+                type: 'created',
+                objectId: obj.reference?.objectId,
+                version: obj.reference?.version,
+                digest: obj.reference?.digest,
+                owner: obj.owner,
+                objectType: '',
+            })),
+    ];
+
+    const mutated = [
+        ...(objectChanges || []).filter(
+            (c: any) => (c.idDeleted === false && c.idCreated === false) || c.type === 'mutated',
+        ),
+        ...(effects?.mutated || [])
+            .filter((obj: any) => !ids.has(obj.reference?.objectId))
+            .map((obj: any) => ({
+                type: 'mutated',
+                objectId: obj.reference?.objectId,
+                version: obj.reference?.version,
+                digest: obj.reference?.digest,
+                owner: obj.owner,
+                objectType: '',
+            })),
+    ];
+
+    return { mutated, created, deleted };
+}
+
+/**
  * Converts GraphQL object changes format to standard object changes format
  */
 function convertGraphQLObjectChanges(graphqlObjectChanges: any[]): any[] {
