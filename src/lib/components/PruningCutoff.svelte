@@ -10,8 +10,6 @@
     } from '../utils/pruning-cutoff';
     import { queryAwareClientConfig } from '../utils/query-param-store';
 
-    const REFRESH_MS = 60_000;
-
     // Below this checkpoint the probe (oldest ConsensusCommitPrologueV1) is the
     // genesis-adjacent entry, i.e. pruning hasn't started yet for this index.
     const NO_PRUNING_BELOW = 2;
@@ -19,11 +17,8 @@
     let cutoff = $state<PruningCutoff | null>(null);
     let loading = $state(false);
     let error = $state<string | null>(null);
-    let now = $state(Date.now());
 
     let abortController: AbortController | null = null;
-    let refreshInterval: ReturnType<typeof setInterval> | null = null;
-    let tickInterval: ReturnType<typeof setInterval> | null = null;
     let currentNetwork = $state('');
     let currentIndexerUrl = '';
 
@@ -45,7 +40,7 @@
         }
     }
 
-    // React to network changes (also runs on first subscribe).
+    // Fetch on initial mount and refetch only when the network changes.
     const unsubscribe = queryAwareClientConfig.subscribe((config) => {
         const network = config.networks.find((n) => n.name === config.selected);
         if (!network) return;
@@ -55,19 +50,11 @@
         cutoff = null;
         error = null;
         load(network.indexer);
-
-        if (refreshInterval) clearInterval(refreshInterval);
-        refreshInterval = setInterval(() => load(currentIndexerUrl), REFRESH_MS);
     });
-
-    // Re-render the relative-time label every 30s without re-fetching.
-    tickInterval = setInterval(() => (now = Date.now()), 30_000);
 
     onDestroy(() => {
         unsubscribe();
         if (abortController) abortController.abort();
-        if (refreshInterval) clearInterval(refreshInterval);
-        if (tickInterval) clearInterval(tickInterval);
     });
 
     const formatter = new Intl.NumberFormat('en-US');
@@ -96,7 +83,7 @@
 >
     {#if cutoff}
         {@const noPruning = cutoff.checkpoint < NO_PRUNING_BELOW}
-        {@const tooltipAge = formatVerboseAgo(cutoff.timestampMs, now)}
+        {@const tooltipAge = formatVerboseAgo(cutoff.timestampMs)}
         {@const dateOnly = formatReadableDate(cutoff.timestampMs)}
         {@const dateTime = formatReadableDateTime(cutoff.timestampMs)}
         <span bind:this={chipEl} class="pruning-cutoff" class:no-pruning={noPruning}>
