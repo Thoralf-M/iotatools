@@ -71,15 +71,35 @@
     });
 
     const formatter = new Intl.NumberFormat('en-US');
+
+    // On mobile we pin the tooltip to the viewport horizontally (because the
+    // chip's horizontal position depends on flex-wrap) but want it near the
+    // chip vertically. Compute the chip's screen-space bottom on hover/focus
+    // and feed it to the tooltip as a CSS variable.
+    let chipEl: HTMLSpanElement | null = $state(null);
+    let mobileTooltipTop = $state<string>('4rem');
+
+    function recomputeTooltipPosition() {
+        if (!chipEl) return;
+        const rect = chipEl.getBoundingClientRect();
+        mobileTooltipTop = `${rect.bottom + 8}px`;
+    }
 </script>
 
-<div class="pruning-cutoff-container">
+<div
+    class="pruning-cutoff-container"
+    role="group"
+    aria-label="Pruning cutoff"
+    onmouseenter={recomputeTooltipPosition}
+    onfocusin={recomputeTooltipPosition}
+    style:--mobile-tooltip-top={mobileTooltipTop}
+>
     {#if cutoff}
         {@const noPruning = cutoff.checkpoint < NO_PRUNING_BELOW}
         {@const tooltipAge = formatVerboseAgo(cutoff.timestampMs, now)}
         {@const dateOnly = formatReadableDate(cutoff.timestampMs)}
         {@const dateTime = formatReadableDateTime(cutoff.timestampMs)}
-        <span class="pruning-cutoff" class:no-pruning={noPruning}>
+        <span bind:this={chipEl} class="pruning-cutoff" class:no-pruning={noPruning}>
             <span class="label">Pruning:</span>
             <span class="value">{noPruning ? 'none' : dateOnly}</span>
             <span class="info-icon" aria-hidden="true">ⓘ</span>
@@ -306,19 +326,27 @@
 
         /* On mobile the chip's horizontal position depends on flex-wrap, so
            anchoring the tooltip to either edge of the chip can push it off
-           one side of the viewport. Pin it to the viewport with small margins
-           instead so it always fits. */
+           one side of the viewport. Pin horizontally to the viewport, and
+           use a script-computed `top` so it still appears near the chip. */
         .tooltip {
             position: fixed;
-            top: auto;
-            bottom: 1rem;
+            top: var(--mobile-tooltip-top, 4rem);
+            bottom: auto;
             left: 0.5rem;
             right: 0.5rem;
             width: auto;
+            max-height: calc(100vh - var(--mobile-tooltip-top, 4rem) - 1rem);
+            overflow-y: auto;
+            /* On touch the chip's hover state lingers and the desktop's 1s
+               hide delay feels sluggish. Dismiss almost immediately when the
+               user taps away. */
+            transition:
+                opacity 0.15s ease 0s,
+                visibility 0s linear 0.15s;
         }
 
         /* The chip-to-tooltip bridge isn't meaningful when the tooltip is
-           pinned to the viewport bottom. */
+           pinned by viewport coordinates rather than relative to the chip. */
         .tooltip::before {
             display: none;
         }
