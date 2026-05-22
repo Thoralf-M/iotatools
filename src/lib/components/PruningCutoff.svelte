@@ -304,9 +304,12 @@
             padding: 0.15rem 0.4rem;
         }
 
+        /* Anchor to the chip's right edge so the tooltip extends leftward and
+           stays inside the viewport (the chip sits near the right edge of the
+           header on mobile). */
         .tooltip {
-            right: auto;
-            left: 0;
+            right: 0;
+            left: auto;
             width: min(22rem, calc(100vw - 1rem));
         }
     }
