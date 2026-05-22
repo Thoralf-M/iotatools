@@ -1,14 +1,22 @@
 /**
- * Pruning cutoff: queries the indexer for the oldest checkpoint it still holds
- * (`iota_getCheckpoints` ascending, limit 1). Indexers prune old checkpoints,
- * so this is the actual cutoff the user can query historical data against.
- * Used to display, next to the network dropdown, what the oldest data is.
+ * Pruning cutoff: indexers prune the *filtered* tx/event indexes (e.g.
+ * "transactions by kind"), per IOTA indexer PR
+ * https://github.com/iotaledger/iota/pull/10875 — the underlying `checkpoints`
+ * table is not what gets pruned, so `iota_getCheckpoints` ascending always
+ * returns #0 and the GraphQL `availableRange` is just a recent indexing window.
+ *
+ * We detect the real cutoff by querying the filtered transactions index for the
+ * oldest entry of a transaction kind that exists in every checkpoint
+ * (`ConsensusCommitPrologueV1` — emitted once per consensus commit). The oldest
+ * result is the pruning cutoff for filtered queries.
  */
 
 export interface PruningCutoff {
     checkpoint: number;
     timestampMs: number;
 }
+
+const PROBE_TX_KIND = 'ConsensusCommitPrologueV1';
 
 export async function fetchPruningCutoff(
     rpcUrl: string,
@@ -20,9 +28,10 @@ export async function fetchPruningCutoff(
         body: JSON.stringify({
             jsonrpc: '2.0',
             id: 1,
-            method: 'iota_getCheckpoints',
-            // [cursor, limit, descending]: ascending from the oldest still in the DB.
-            params: [null, 1, false],
+            method: 'iotax_queryTransactionBlocks',
+            // [query, cursor, limit, descending]: ascending → oldest match still
+            // present in the (prunable) filtered-tx index.
+            params: [{ filter: { TransactionKind: PROBE_TX_KIND } }, null, 1, false],
         }),
         signal,
     });
@@ -34,9 +43,9 @@ export async function fetchPruningCutoff(
         throw new Error(data.error.message || 'RPC error');
     }
     const first = data?.result?.data?.[0];
-    if (!first) return null;
+    if (!first?.checkpoint || !first?.timestampMs) return null;
     return {
-        checkpoint: Number(first.sequenceNumber),
+        checkpoint: Number(first.checkpoint),
         timestampMs: Number(first.timestampMs),
     };
 }

@@ -68,7 +68,7 @@
     {@const isoTimestamp = new Date(cutoff.timestampMs).toISOString()}
     <span
         class="pruning-cutoff"
-        title={`Pruning cutoff on ${currentNetwork}: oldest checkpoint the indexer still has.\nCheckpoint #${cutoff.checkpoint} at ${isoTimestamp}`}
+        title={`Pruning cutoff on ${currentNetwork}: oldest checkpoint still in the indexer's filtered transaction index (probed via TransactionKind=ConsensusCommitPrologueV1).\nCheckpoint #${cutoff.checkpoint} at ${isoTimestamp}`}
     >
         <span class="label">Pruning cutoff:</span>
         <span class="value">#{formatter.format(cutoff.checkpoint)}</span>
