@@ -62,6 +62,12 @@
         }
     }
 
+    function getBalanceChangeAddress(owner: any): string {
+        if (!owner) return '';
+        if (typeof owner === 'string') return owner;
+        return owner.address || owner.AddressOwner || owner.ObjectOwner || '';
+    }
+
     function formatObjectId(objectId: string): string {
         if (!objectId) return '';
         return `${objectId.slice(0, 8)}...${objectId.slice(-8)}`;
@@ -210,19 +216,17 @@
                         </h5>
                         <div class="balance-content">
                             {#each balanceChanges.filter( (change: any) => change.amount.startsWith('-'), ) as change}
+                                {@const addr = getBalanceChangeAddress(change.owner)}
                                 <div class="balance-box negative">
-                                    {#if change.owner?.address}
+                                    {#if addr}
                                         <a
-                                            href={getAddressLink(
-                                                getSelectedNetworkConfig(),
-                                                change.owner.address,
-                                            )}
+                                            href={getAddressLink(getSelectedNetworkConfig(), addr)}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             class="full-address link-style"
-                                            title={change.owner.address}
+                                            title={addr}
                                         >
-                                            {change.owner.address}
+                                            {addr}
                                         </a>
                                     {:else}
                                         <div class="full-address">N/A</div>
@@ -242,19 +246,17 @@
                         </h5>
                         <div class="balance-content">
                             {#each balanceChanges.filter((change: any) => !change.amount.startsWith('-')) as change}
+                                {@const addr = getBalanceChangeAddress(change.owner)}
                                 <div class="balance-box positive">
-                                    {#if change.owner?.address}
+                                    {#if addr}
                                         <a
-                                            href={getAddressLink(
-                                                getSelectedNetworkConfig(),
-                                                change.owner.address,
-                                            )}
+                                            href={getAddressLink(getSelectedNetworkConfig(), addr)}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             class="full-address link-style"
-                                            title={change.owner.address}
+                                            title={addr}
                                         >
-                                            {change.owner.address}
+                                            {addr}
                                         </a>
                                     {:else}
                                         <div class="full-address">N/A</div>
