@@ -92,10 +92,23 @@ export function formatVerboseAgo(timestampMs: number, now: number = Date.now()):
 }
 
 /**
- * Human-readable date+time, e.g. "21 May 2026, 13:08" in en-GB locales or
- * "May 21, 2026, 1:08 PM" in en-US. Avoids the noisy ISO format.
+ * Human-readable date-only, e.g. "21 May 2026" or "May 21, 2026" — used on
+ * the compact chip.
  */
 export function formatReadableDate(timestampMs: number): string {
+    if (!Number.isFinite(timestampMs)) return '';
+    return new Date(timestampMs).toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+    });
+}
+
+/**
+ * Human-readable date+time, used inside the tooltip where precision is
+ * useful and space is not a constraint.
+ */
+export function formatReadableDateTime(timestampMs: number): string {
     if (!Number.isFinite(timestampMs)) return '';
     return new Date(timestampMs).toLocaleString(undefined, {
         year: 'numeric',

@@ -4,6 +4,7 @@
     import {
         fetchPruningCutoff,
         formatReadableDate,
+        formatReadableDateTime,
         formatTimeAgo,
         formatVerboseAgo,
         type PruningCutoff,
@@ -78,14 +79,13 @@
         {@const noPruning = cutoff.checkpoint < NO_PRUNING_BELOW}
         {@const chipAge = formatVerboseAgo(cutoff.timestampMs, now)}
         {@const tooltipAge = formatTimeAgo(cutoff.timestampMs, now)}
-        {@const readableDate = formatReadableDate(cutoff.timestampMs)}
+        {@const dateOnly = formatReadableDate(cutoff.timestampMs)}
+        {@const dateTime = formatReadableDateTime(cutoff.timestampMs)}
         <span class="pruning-cutoff" class:no-pruning={noPruning}>
             {#if noPruning}
-                <span class="label">Pruning:</span>
-                <span class="value">none yet</span>
+                <span class="value">no pruning</span>
             {:else}
-                <span class="label">Pruning cutoff:</span>
-                <span class="value">{readableDate}</span>
+                <span class="value">{dateOnly}</span>
                 {#if chipAge}<span class="age">({chipAge})</span>{/if}
             {/if}
             <span class="info-icon" aria-hidden="true">ⓘ</span>
@@ -107,7 +107,7 @@
                 {:else}
                     The indexer has pruned filtered-query indexes older than checkpoint #{formatter.format(
                         cutoff.checkpoint,
-                    )} ({readableDate}{tooltipAge ? `, ${tooltipAge}` : ''}).
+                    )} ({dateTime}{tooltipAge ? `, ${tooltipAge}` : ''}).
                 {/if}
             </div>
             <div class="tooltip-section">
@@ -181,10 +181,6 @@
 
     .pruning-cutoff.no-pruning {
         border-color: rgba(16, 185, 129, 0.35);
-    }
-
-    .pruning-cutoff .label {
-        color: rgba(255, 255, 255, 0.6);
     }
 
     .pruning-cutoff .value {
