@@ -15,6 +15,7 @@ import {
     isTransactionData,
     normalizeOwner,
     removeKindFields,
+    splitObjectChanges,
 } from './transaction-view';
 
 // Load fixtures
@@ -510,6 +511,153 @@ describe('getTransactionData - Checkpoint handling', () => {
         expect(normalized.effects.checkpoint.sequenceNumber).not.toBe(
             normalized.effects.executedEpoch,
         );
+    });
+});
+
+describe('splitObjectChanges', () => {
+    it('dedupes a mutated entry present in both objectChanges and effects.mutated', () => {
+        // Regression: JSON-RPC `getTransactionBlock` populates BOTH the unified
+        // `objectChanges` array and `effects.mutated` for the same object. The
+        // formatted view used to show this twice.
+        const objectChanges = [
+            {
+                type: 'mutated',
+                objectId: '0x1abb',
+                objectType: '0x2::coin::Coin<0x2::iota::IOTA>',
+                owner: { AddressOwner: '0xowner' },
+                version: 581852988,
+                previousVersion: 288264089,
+            },
+        ];
+        const effects = {
+            mutated: [
+                {
+                    owner: { AddressOwner: '0xowner' },
+                    reference: { objectId: '0x1abb', version: 581852988, digest: 'd1' },
+                },
+            ],
+            deleted: [],
+        };
+
+        const { mutated } = splitObjectChanges(objectChanges, effects);
+
+        expect(mutated).toHaveLength(1);
+        expect(mutated[0].objectId).toBe('0x1abb');
+        expect(mutated[0].objectType).toBe('0x2::coin::Coin<0x2::iota::IOTA>');
+        expect(mutated[0].previousVersion).toBe(288264089);
+    });
+
+    it('falls back to effects.deleted when objectChanges has no matching entry', () => {
+        // Regression: a deletion that only appears in `effects.deleted` (e.g. a
+        // zero-balance coin merged away) was missing from the formatted view
+        // because the old code only looked at `objectChanges`.
+        const objectChanges = [{ type: 'mutated', objectId: '0x1abb', owner: {}, version: 1 }];
+        const effects = {
+            mutated: [],
+            deleted: [{ objectId: '0xdc31', version: 581852988, digest: 'd2' }],
+        };
+
+        const { deleted } = splitObjectChanges(objectChanges, effects);
+
+        expect(deleted).toHaveLength(1);
+        expect(deleted[0].objectId).toBe('0xdc31');
+        expect(deleted[0].type).toBe('deleted');
+        expect(deleted[0].version).toBe(581852988);
+        expect(deleted[0].digest).toBe('d2');
+    });
+
+    it('reproduces the bug-report transaction shape: 1 mutated + 1 deleted, no duplicates', () => {
+        // Mirrors the data from https://iotatools.dev/#/transaction?txInput=2Ku6mRdQcbSuDFMHXuapm3jnjxwSLdqpVzTBygqco6S1
+        const objectChanges = [
+            {
+                type: 'mutated',
+                objectId: '0x1abb6fd6b65886fd2385acf0b9772064b0d3a08d6dabcc249fdb719c64d09d46',
+                objectType: '0x2::coin::Coin<0x2::iota::IOTA>',
+                owner: { AddressOwner: '0x2521752' },
+                version: 581852988,
+                previousVersion: 288264089,
+            },
+        ];
+        const effects = {
+            mutated: [
+                {
+                    owner: { AddressOwner: '0x2521752' },
+                    reference: {
+                        objectId:
+                            '0x1abb6fd6b65886fd2385acf0b9772064b0d3a08d6dabcc249fdb719c64d09d46',
+                        version: 581852988,
+                        digest: '4uu6MxbTKCvty15Z8QoR8SCD1SpxdUkNcpmhCBgmsB2t',
+                    },
+                },
+            ],
+            deleted: [
+                {
+                    objectId: '0xdc31a7f582c37f01ecc64ee128627eca5fe96cca1750a31e05605f281d915e72',
+                    version: 581852988,
+                    digest: '7gyGAp71YXQRoxmFBaHxofQXAipvgHyBKPyxmdSJxyvz',
+                },
+            ],
+        };
+
+        const { mutated, created, deleted } = splitObjectChanges(objectChanges, effects);
+
+        expect(mutated).toHaveLength(1);
+        expect(created).toHaveLength(0);
+        expect(deleted).toHaveLength(1);
+        expect(deleted[0].objectId).toBe(
+            '0xdc31a7f582c37f01ecc64ee128627eca5fe96cca1750a31e05605f281d915e72',
+        );
+    });
+
+    it('uses effects-only sources when objectChanges is empty', () => {
+        const effects = {
+            mutated: [
+                {
+                    owner: { AddressOwner: '0xowner' },
+                    reference: { objectId: '0xm1', version: 5, digest: 'dm' },
+                },
+            ],
+            created: [
+                {
+                    owner: { AddressOwner: '0xowner' },
+                    reference: { objectId: '0xc1', version: 5, digest: 'dc' },
+                },
+            ],
+            deleted: [{ objectId: '0xd1', version: 5, digest: 'dd' }],
+        };
+
+        const { mutated, created, deleted } = splitObjectChanges([], effects);
+
+        expect(mutated).toHaveLength(1);
+        expect(mutated[0].objectId).toBe('0xm1');
+        expect(created).toHaveLength(1);
+        expect(created[0].objectId).toBe('0xc1');
+        expect(deleted).toHaveLength(1);
+        expect(deleted[0].objectId).toBe('0xd1');
+    });
+
+    it('handles GraphQL-style entries that use idCreated/idDeleted booleans', () => {
+        const objectChanges = [
+            { idCreated: false, idDeleted: false, address: '0xm', objectId: '0xm' },
+            { idCreated: true, idDeleted: false, address: '0xc', objectId: '0xc' },
+            { idCreated: false, idDeleted: true, address: '0xd', objectId: '0xd' },
+        ];
+
+        const { mutated, created, deleted } = splitObjectChanges(objectChanges, null);
+
+        expect(mutated).toHaveLength(1);
+        expect(mutated[0].objectId).toBe('0xm');
+        expect(created).toHaveLength(1);
+        expect(created[0].objectId).toBe('0xc');
+        expect(deleted).toHaveLength(1);
+        expect(deleted[0].objectId).toBe('0xd');
+    });
+
+    it('returns empty buckets when both sources are empty', () => {
+        const { mutated, created, deleted } = splitObjectChanges([], null);
+        expect(mutated).toEqual([]);
+        expect(created).toEqual([]);
+        expect(deleted).toEqual([]);
     });
 });
 

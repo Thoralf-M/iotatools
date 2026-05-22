@@ -1,5 +1,9 @@
 <script lang="ts">
-    import { formatJsonWithCompactArrays, removeKindFields } from '../components/transaction-view';
+    import {
+        formatJsonWithCompactArrays,
+        removeKindFields,
+        splitObjectChanges,
+    } from '../components/transaction-view';
     import { getSelectedNetworkConfig } from '../utils/client';
     import { decodeBase64Bytes } from '../utils/converter';
     import { getAddressLink, getObjectLink, getTransactionLink } from '../utils/explorer-links';
@@ -58,6 +62,12 @@
         }
     }
 
+    function getBalanceChangeAddress(owner: any): string {
+        if (!owner) return '';
+        if (typeof owner === 'string') return owner;
+        return owner.address || owner.AddressOwner || owner.ObjectOwner || '';
+    }
+
     function formatObjectId(objectId: string): string {
         if (!objectId) return '';
         return `${objectId.slice(0, 8)}...${objectId.slice(-8)}`;
@@ -104,38 +114,10 @@
         [];
     $: events = transactionData?.events || effects?.events?.nodes || effects?.events || [];
 
-    // Handle both normalized objectChanges and direct created/mutated arrays
-    $: deletedObjects = objectChanges.filter(
-        (change: any) => change.idDeleted === true || change.type === 'deleted',
-    );
-    $: createdObjects = [
-        ...objectChanges.filter(
-            (change: any) => change.idCreated === true || change.type === 'created',
-        ),
-        ...(effects?.created || []).map((obj: any) => ({
-            type: 'created',
-            objectId: obj.reference?.objectId,
-            version: obj.reference?.version,
-            digest: obj.reference?.digest,
-            owner: obj.owner,
-            objectType: '',
-        })),
-    ];
-    $: mutatedObjects = [
-        ...objectChanges.filter(
-            (change: any) =>
-                (change.idDeleted === false && change.idCreated === false) ||
-                change.type === 'mutated',
-        ),
-        ...(effects?.mutated || []).map((obj: any) => ({
-            type: 'mutated',
-            objectId: obj.reference?.objectId,
-            version: obj.reference?.version,
-            digest: obj.reference?.digest,
-            owner: obj.owner,
-            objectType: '',
-        })),
-    ];
+    $: split = splitObjectChanges(objectChanges, effects);
+    $: deletedObjects = split.deleted;
+    $: createdObjects = split.created;
+    $: mutatedObjects = split.mutated;
     $: hasValidData =
         effects && (effects.status || effects.checkpoint || balanceChanges.length > 0);
 </script>
@@ -234,19 +216,17 @@
                         </h5>
                         <div class="balance-content">
                             {#each balanceChanges.filter( (change: any) => change.amount.startsWith('-'), ) as change}
+                                {@const addr = getBalanceChangeAddress(change.owner)}
                                 <div class="balance-box negative">
-                                    {#if change.owner?.address}
+                                    {#if addr}
                                         <a
-                                            href={getAddressLink(
-                                                getSelectedNetworkConfig(),
-                                                change.owner.address,
-                                            )}
+                                            href={getAddressLink(getSelectedNetworkConfig(), addr)}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             class="full-address link-style"
-                                            title={change.owner.address}
+                                            title={addr}
                                         >
-                                            {change.owner.address}
+                                            {addr}
                                         </a>
                                     {:else}
                                         <div class="full-address">N/A</div>
@@ -266,19 +246,17 @@
                         </h5>
                         <div class="balance-content">
                             {#each balanceChanges.filter((change: any) => !change.amount.startsWith('-')) as change}
+                                {@const addr = getBalanceChangeAddress(change.owner)}
                                 <div class="balance-box positive">
-                                    {#if change.owner?.address}
+                                    {#if addr}
                                         <a
-                                            href={getAddressLink(
-                                                getSelectedNetworkConfig(),
-                                                change.owner.address,
-                                            )}
+                                            href={getAddressLink(getSelectedNetworkConfig(), addr)}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             class="full-address link-style"
-                                            title={change.owner.address}
+                                            title={addr}
                                         >
-                                            {change.owner.address}
+                                            {addr}
                                         </a>
                                     {:else}
                                         <div class="full-address">N/A</div>
