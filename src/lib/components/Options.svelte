@@ -24,6 +24,7 @@
         updateSelectedSignerAccounts,
     } from '../utils/signer-data';
     import { disconnectWallet } from '../utils/web-wallet';
+    import PruningCutoff from './PruningCutoff.svelte';
     import WalletSelectorModal from './WalletSelectorModal.svelte';
 
     let showWalletSelector = $state(false);
@@ -179,6 +180,7 @@
                 <option value={network.name}>{network.name}</option>
             {/each}
         </select>
+        <PruningCutoff />
     </div>
 
     {#if $isProMode}
