@@ -1,7 +1,13 @@
 <script lang="ts">
     import { onDestroy } from 'svelte';
 
-    import { fetchPruningCutoff, formatTimeAgo, type PruningCutoff } from '../utils/pruning-cutoff';
+    import {
+        fetchPruningCutoff,
+        formatReadableDate,
+        formatTimeAgo,
+        formatVerboseAgo,
+        type PruningCutoff,
+    } from '../utils/pruning-cutoff';
     import { queryAwareClientConfig } from '../utils/query-param-store';
 
     const REFRESH_MS = 60_000;
@@ -70,16 +76,17 @@
 <div class="pruning-cutoff-container">
     {#if cutoff}
         {@const noPruning = cutoff.checkpoint < NO_PRUNING_BELOW}
-        {@const ageLabel = formatTimeAgo(cutoff.timestampMs, now)}
-        {@const isoTimestamp = new Date(cutoff.timestampMs).toISOString()}
+        {@const chipAge = formatVerboseAgo(cutoff.timestampMs, now)}
+        {@const tooltipAge = formatTimeAgo(cutoff.timestampMs, now)}
+        {@const readableDate = formatReadableDate(cutoff.timestampMs)}
         <span class="pruning-cutoff" class:no-pruning={noPruning}>
             {#if noPruning}
                 <span class="label">Pruning:</span>
                 <span class="value">none yet</span>
             {:else}
                 <span class="label">Pruning cutoff:</span>
-                <span class="value">#{formatter.format(cutoff.checkpoint)}</span>
-                {#if ageLabel}<span class="age">({ageLabel})</span>{/if}
+                <span class="value">{readableDate}</span>
+                {#if chipAge}<span class="age">({chipAge})</span>{/if}
             {/if}
             <span class="info-icon" aria-hidden="true">ⓘ</span>
         </span>
@@ -88,7 +95,9 @@
                 {#if noPruning}
                     No pruning on {currentNetwork}
                 {:else}
-                    Pruning cutoff on {currentNetwork}: #{formatter.format(cutoff.checkpoint)}
+                    Pruning cutoff on {currentNetwork}: checkpoint #{formatter.format(
+                        cutoff.checkpoint,
+                    )}
                 {/if}
             </div>
             <div class="tooltip-body">
@@ -98,7 +107,7 @@
                 {:else}
                     The indexer has pruned filtered-query indexes older than checkpoint #{formatter.format(
                         cutoff.checkpoint,
-                    )} ({isoTimestamp}{ageLabel ? `, ${ageLabel}` : ''}).
+                    )} ({readableDate}{tooltipAge ? `, ${tooltipAge}` : ''}).
                 {/if}
             </div>
             <div class="tooltip-section">
@@ -201,9 +210,11 @@
     .tooltip {
         visibility: hidden;
         opacity: 0;
+        /* Stay visible briefly when the pointer leaves so the user can move
+           into the panel to read / copy from it. */
         transition:
-            opacity 0.2s ease,
-            visibility 0s linear 0.2s;
+            opacity 0.2s ease 1s,
+            visibility 0s linear 1.2s;
         position: absolute;
         top: calc(100% + 8px);
         right: 0;
@@ -219,14 +230,29 @@
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
         text-align: left;
         white-space: normal;
-        pointer-events: none;
+        user-select: text;
+        cursor: text;
+    }
+
+    /* Transparent bridge across the 8px gap so moving from the chip into the
+       tooltip keeps the hover state. */
+    .tooltip::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: 0;
+        right: 0;
+        height: 10px;
     }
 
     .pruning-cutoff-container:hover .tooltip,
-    .pruning-cutoff-container:focus-within .tooltip {
+    .pruning-cutoff-container:focus-within .tooltip,
+    .tooltip:hover {
         visibility: visible;
         opacity: 1;
-        transition-delay: 0s;
+        transition:
+            opacity 0.15s ease 0s,
+            visibility 0s linear 0s;
     }
 
     .tooltip-title {

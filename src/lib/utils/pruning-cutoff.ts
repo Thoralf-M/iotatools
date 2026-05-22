@@ -66,3 +66,42 @@ export function formatTimeAgo(timestampMs: number, now: number = Date.now()): st
     const days = Math.floor(hours / 24);
     return `${days}d ago`;
 }
+
+/**
+ * Verbose "X days ago" / "X hours ago" / "X minutes ago" — used on the chip,
+ * where the relative-time label is the primary signal rather than a subscript.
+ */
+export function formatVerboseAgo(timestampMs: number, now: number = Date.now()): string {
+    if (!Number.isFinite(timestampMs)) return '';
+    const diffMs = now - timestampMs;
+    if (diffMs < 0) return 'in the future';
+    const minute = 60_000;
+    const hour = 60 * minute;
+    const day = 24 * hour;
+    if (diffMs < minute) return 'just now';
+    if (diffMs < hour) {
+        const m = Math.floor(diffMs / minute);
+        return `${m} minute${m === 1 ? '' : 's'} ago`;
+    }
+    if (diffMs < day) {
+        const h = Math.floor(diffMs / hour);
+        return `${h} hour${h === 1 ? '' : 's'} ago`;
+    }
+    const d = Math.floor(diffMs / day);
+    return `${d} day${d === 1 ? '' : 's'} ago`;
+}
+
+/**
+ * Human-readable date+time, e.g. "21 May 2026, 13:08" in en-GB locales or
+ * "May 21, 2026, 1:08 PM" in en-US. Avoids the noisy ISO format.
+ */
+export function formatReadableDate(timestampMs: number): string {
+    if (!Number.isFinite(timestampMs)) return '';
+    return new Date(timestampMs).toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+}
