@@ -16,27 +16,42 @@
     import type { SignaturePubkeyPair, VerificationStatus } from './sign-utils';
     import { verifySignature } from './sign-utils';
 
-    // Use query parameters for the transaction bytes and signature
+    // Use query parameters for the transaction bytes and signature(s)
     const queryParamValues = usePageQueryParams({
         tx: '', // Query parameter for transaction bytes
-        signature: '', // Query parameter for the signature (base64)
+        signature: '', // Query parameter for the signature(s), comma-separated base64
     });
+
+    // A transaction can carry several signatures: the sender signature and an
+    // optional sponsor signature, each of which may itself be a multisig. We
+    // allow up to MAX_SIGNATURES fields (10 sender + 10 sponsor) while still
+    // defaulting to a single field.
+    const MAX_SIGNATURES = 20;
+
+    interface SignatureEntry {
+        value: string;
+        status: VerificationStatus;
+        error: string;
+        pubkeyPairs: SignaturePubkeyPair[] | null;
+        moveAuthenticator: MoveAuthenticatorData | null;
+    }
+
+    function createSignatureEntry(value = ''): SignatureEntry {
+        return { value, status: null, error: '', pubkeyPairs: null, moveAuthenticator: null };
+    }
 
     let error = '';
     let value: any;
-    let signatureResult = '';
-    let signatureTextarea: HTMLTextAreaElement;
+    let signatures: SignatureEntry[] = [createSignatureEntry()];
     let submitResult: any = null;
     let signatureTypeLabel = '';
     let txBytesInput = '';
     let dryRunResult: any;
-    let signedTxBytes = ''; // New: stores the combined signed transaction bytes
+    let signedTxBytes = ''; // Combined signed transaction bytes
 
-    // Signature verification state
-    let signatureVerificationStatus: VerificationStatus = null;
-    let signatureVerificationError = '';
-    let signaturePubkeyPairs: SignaturePubkeyPair[] | null = null;
-    let signatureMoveAuthenticator: MoveAuthenticatorData | null = null;
+    // Tracks the last signature param we read from / wrote to the URL so the
+    // reactive sync below can ignore our own updates and avoid clobbering input.
+    let lastSignatureParam = '';
     // Dry run transaction function
     async function dryRunTransaction() {
         try {
@@ -73,8 +88,20 @@
         processTransactionBytes(txBytesInput);
     }
 
-    $: if ($queryParamValues.signature !== signatureResult) {
-        signatureResult = $queryParamValues.signature;
+    // Sync signatures from the URL. Only `$queryParamValues.signature` is a
+    // dependency here, so this runs when the store emits (initial load, shared
+    // link, back/forward) but not when the user edits a field locally. The
+    // `lastSignatureParam` guard ignores echoes of our own writes.
+    $: syncSignaturesFromUrl($queryParamValues.signature);
+
+    function syncSignaturesFromUrl(urlValue: string) {
+        if (urlValue === lastSignatureParam) {
+            return;
+        }
+        lastSignatureParam = urlValue;
+        signatures = urlValue
+            ? urlValue.split(',').map((v) => createSignatureEntry(v))
+            : [createSignatureEntry()];
     }
 
     // Function to update transaction bytes and query parameter
@@ -86,10 +113,55 @@
         processTransactionBytes(newTxBytes);
     }
 
-    // Function to update signature and query parameter
-    function updateSignature(newSignature: string) {
-        signatureResult = newSignature;
-        updatePageQueryParams({ signature: newSignature || null });
+    // Persist the current (non-empty) signatures into the URL query parameter.
+    function pushSignaturesToUrl() {
+        const param = signatures
+            .map((s) => s.value.trim())
+            .filter(Boolean)
+            .join(',');
+        lastSignatureParam = param;
+        updatePageQueryParams({ signature: param || null });
+    }
+
+    // Update a single signature field's value.
+    function updateSignatureValue(index: number, newValue: string) {
+        signatures[index].value = newValue;
+        signatures = [...signatures];
+        pushSignaturesToUrl();
+    }
+
+    // Add an empty signature field (up to MAX_SIGNATURES).
+    function addSignatureField() {
+        if (signatures.length >= MAX_SIGNATURES) {
+            return;
+        }
+        signatures = [...signatures, createSignatureEntry()];
+    }
+
+    // Remove a signature field (at least one field always remains).
+    function removeSignatureField(index: number) {
+        if (signatures.length <= 1) {
+            return;
+        }
+        signatures = signatures.filter((_, i) => i !== index);
+        pushSignaturesToUrl();
+    }
+
+    // Place a wallet-produced signature into the first empty field, or append a
+    // new field if all are filled. Lets the user sign with several accounts in
+    // sequence by switching the active address between clicks.
+    function addOrFillSignature(signature: string) {
+        const emptyIndex = signatures.findIndex((s) => !s.value.trim());
+        if (emptyIndex >= 0) {
+            signatures[emptyIndex].value = signature;
+            signatures = [...signatures];
+        } else if (signatures.length < MAX_SIGNATURES) {
+            signatures = [...signatures, createSignatureEntry(signature)];
+        } else {
+            error = `Maximum of ${MAX_SIGNATURES} signatures reached`;
+            return;
+        }
+        pushSignaturesToUrl();
     }
 
     // Function to process transaction bytes and update the value
@@ -142,7 +214,6 @@
     async function signTransaction() {
         try {
             error = '';
-            updateSignature('');
 
             const inputString = txBytesInput.trim();
             if (!inputString) {
@@ -181,11 +252,7 @@
             });
 
             signatureTypeLabel = 'Transaction Signature';
-            updateSignature(result.signature);
-            // Also update the signature textarea if present
-            if (signatureTextarea) {
-                signatureTextarea.value = signatureResult;
-            }
+            addOrFillSignature(result.signature);
         } catch (e) {
             error = `Error signing transaction: ${e}`;
             console.error('Error signing transaction:', e);
@@ -195,7 +262,6 @@
     async function signPersonalMessage() {
         try {
             error = '';
-            updateSignature('');
 
             const inputString = txBytesInput.trim();
             if (!inputString) {
@@ -225,25 +291,42 @@
             });
 
             signatureTypeLabel = 'Message Signature';
-            updateSignature(result.signature);
+            addOrFillSignature(result.signature);
         } catch (e) {
             error = `Error signing message: ${e}`;
         }
     }
     let verificationTimeout: ReturnType<typeof setTimeout> | undefined;
 
-    async function verifySignatureLocal() {
-        const result = await verifySignature(txBytesInput, signatureResult);
-        signatureVerificationStatus = result.status;
-        signatureVerificationError = result.error;
-        signaturePubkeyPairs = result.pubkeyPairs;
-        signatureMoveAuthenticator = result.moveAuthenticator ?? null;
+    // Verify every non-empty signature against the current transaction bytes and
+    // store the result on each entry.
+    async function verifyAllSignatures() {
+        const entries = signatures;
+        await Promise.all(
+            entries.map(async (entry) => {
+                if (!entry.value.trim()) {
+                    entry.status = null;
+                    entry.error = '';
+                    entry.pubkeyPairs = null;
+                    entry.moveAuthenticator = null;
+                    return;
+                }
+                const result = await verifySignature(txBytesInput, entry.value);
+                entry.status = result.status;
+                entry.error = result.error;
+                entry.pubkeyPairs = result.pubkeyPairs;
+                entry.moveAuthenticator = result.moveAuthenticator ?? null;
+            }),
+        );
+        signatures = [...signatures];
     }
 
-    // Function to create signed transaction bytes by combining tx bytes with signature
+    // Build the combined signed transaction bytes from the tx bytes and all
+    // non-empty signatures (sender + sponsor, each possibly a multisig).
     function createSignedTxBytes() {
         try {
-            if (!txBytesInput.trim() || !signatureResult.trim()) {
+            const sigs = signatures.map((s) => s.value.trim()).filter(Boolean);
+            if (!txBytesInput.trim() || sigs.length === 0) {
                 signedTxBytes = '';
                 return;
             }
@@ -263,7 +346,7 @@
                         },
                         value: transactionData,
                     },
-                    txSignatures: [signatureResult.trim()], // signature is already base64 encoded
+                    txSignatures: sigs, // signatures are already base64 encoded
                 },
             ];
 
@@ -277,24 +360,24 @@
         }
     }
 
-    // Watch for changes to signature and trigger verification with debouncing
-    $: {
-        if (signatureResult.trim() === '') {
-            signatureVerificationStatus = null;
-            signaturePubkeyPairs = null;
-            signatureMoveAuthenticator = null;
-            signedTxBytes = '';
-        } else {
-            // Clear any pending verification
-            if (verificationTimeout) {
-                clearTimeout(verificationTimeout);
-            }
-            // Only verify if there's a signature to check
+    // Key over signature values + tx bytes so the block below re-runs whenever
+    // a field is edited, added, removed, or the transaction changes.
+    $: signaturesKey = signatures.map((s) => s.value).join('') + ' ' + txBytesInput;
+
+    $: onSignaturesChanged(signaturesKey);
+
+    // Watch for changes and trigger verification (debounced) plus rebuild the
+    // combined signed transaction bytes. The `_key` argument only declares the
+    // reactive dependency.
+    function onSignaturesChanged(_key: string) {
+        if (verificationTimeout) {
+            clearTimeout(verificationTimeout);
+        }
+        createSignedTxBytes();
+        if (signatures.some((s) => s.value.trim())) {
             verificationTimeout = setTimeout(() => {
-                verifySignatureLocal();
+                verifyAllSignatures();
             }, 300);
-            // Create signed transaction bytes
-            createSignedTxBytes();
         }
     }
 
@@ -304,12 +387,12 @@
             submitResult = null;
 
             const inputString = txBytesInput.trim();
-            const signatureString = signatureResult.trim();
+            const signatureStrings = signatures.map((s) => s.value.trim()).filter(Boolean);
             if (!inputString) {
                 error = 'Please enter transaction bytes';
                 return;
             }
-            if (!signatureString) {
+            if (signatureStrings.length === 0) {
                 error = 'Please enter a signature';
                 return;
             }
@@ -322,18 +405,19 @@
                 return;
             }
 
-            let bcsSignature: Uint8Array;
-            try {
-                bcsSignature = fromBase64(signatureString);
-            } catch (e) {
-                error = 'Invalid base64 signature';
-                return;
+            for (const signatureString of signatureStrings) {
+                try {
+                    fromBase64(signatureString);
+                } catch (e) {
+                    error = 'Invalid base64 signature';
+                    return;
+                }
             }
 
             const client = getClient();
             const result = await client.executeTransactionBlock({
                 transactionBlock: txBytes,
-                signature: signatureString,
+                signature: signatureStrings,
                 options: {
                     showBalanceChanges: true,
                     showObjectChanges: true,
@@ -387,116 +471,150 @@
     {/if}
 
     <div>
-        <div style="margin-bottom: 6px; font-weight: bold;">
-            {signatureTypeLabel || 'Signature'}
+        <div class="signatures-header">
+            <span style="font-weight: bold;">{signatureTypeLabel || 'Signatures'}</span>
+            <button
+                onclick={addSignatureField}
+                disabled={signatures.length >= MAX_SIGNATURES}
+                class="add-signature-button"
+                title={signatures.length >= MAX_SIGNATURES
+                    ? `Maximum of ${MAX_SIGNATURES} signatures`
+                    : 'Add another signature (e.g. sponsor signature)'}
+            >
+                + Add signature
+            </button>
         </div>
-        <textarea
-            bind:this={signatureTextarea}
-            value={signatureResult}
-            oninput={(e) => updateSignature((e.target as HTMLTextAreaElement).value)}
-            placeholder="Signature (base64)"
-            class="signature-textarea"
-        ></textarea>
 
-        <!-- Signature Verification Status -->
-        {#if signatureVerificationStatus === 'checking'}
-            <div style="margin-top: 8px; padding: 8px; border-radius: 4px;">
-                🔍 Verifying signature...
-            </div>
-        {/if}
+        {#each signatures as entry, index}
+            <div class="signature-block">
+                <div class="signature-block-header">
+                    <span>Signature #{index + 1}</span>
+                    {#if signatures.length > 1}
+                        <button
+                            class="remove-signature-button"
+                            onclick={() => removeSignatureField(index)}
+                            title="Remove this signature"
+                        >
+                            Remove
+                        </button>
+                    {/if}
+                </div>
+                <textarea
+                    value={entry.value}
+                    oninput={(e) =>
+                        updateSignatureValue(index, (e.target as HTMLTextAreaElement).value)}
+                    placeholder="Signature (base64)"
+                    class="signature-textarea"
+                ></textarea>
 
-        {#if signatureVerificationStatus === 'valid'}
-            <div style="margin-top: 8px; padding: 8px; border-radius: 4px;">
-                ✓ Signature is valid
-            </div>
-        {/if}
+                <!-- Signature Verification Status -->
+                {#if entry.status === 'checking'}
+                    <div style="margin-top: 8px; padding: 8px; border-radius: 4px;">
+                        🔍 Verifying signature...
+                    </div>
+                {/if}
 
-        {#if signatureVerificationStatus === 'invalid'}
-            <div style="margin-top: 8px; padding: 8px; border-radius: 4px;">
-                ✗ Invalid signature
-                {#if signatureVerificationError}
-                    <div style="margin-top: 4px; font-size: 12px;">
-                        {signatureVerificationError}
+                {#if entry.status === 'valid'}
+                    <div style="margin-top: 8px; padding: 8px; border-radius: 4px;">
+                        ✓ Signature is valid
+                    </div>
+                {/if}
+
+                {#if entry.status === 'invalid'}
+                    <div style="margin-top: 8px; padding: 8px; border-radius: 4px;">
+                        ✗ Invalid signature
+                        {#if entry.error}
+                            <div style="margin-top: 4px; font-size: 12px;">
+                                {entry.error}
+                            </div>
+                        {/if}
+                    </div>
+                {/if}
+
+                {#if entry.status === 'on_chain_only'}
+                    <div style="margin-top: 8px; padding: 8px; border-radius: 4px;">
+                        ⓘ Signature parsed. MoveAuthenticator validity depends on on-chain execution
+                        and cannot be verified here.
+                    </div>
+                {/if}
+
+                {#if entry.moveAuthenticator}
+                    <div class="signature-details-container">
+                        <div class="signature-item">
+                            <div class="signature-header">MoveAuthenticator</div>
+                            <div class="signature-details">
+                                <MoveAuthenticatorDetails data={entry.moveAuthenticator} />
+                            </div>
+                        </div>
+                    </div>
+                {/if}
+
+                <!-- Public Key and Address Display -->
+                {#if entry.pubkeyPairs}
+                    <div class="signature-details-container">
+                        {#each entry.pubkeyPairs as pair, pairIndex}
+                            <div class="signature-item">
+                                <div class="signature-header">
+                                    Public key #{pairIndex + 1} ({pair.signatureScheme})
+                                </div>
+                                <div class="signature-details">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Public key:</span>
+                                        <span class="detail-value">{pair.publicKey.toBase64()}</span
+                                        >
+                                        <button
+                                            class="copy-button"
+                                            onclick={async () =>
+                                                await copyToClipboard(pair.publicKey.toBase64())}
+                                            >Copy</button
+                                        >
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Public key with flag:</span>
+                                        <span class="detail-value"
+                                            >{pair.publicKey.toIotaPublicKey()}</span
+                                        >
+                                        <button
+                                            class="copy-button"
+                                            onclick={async () =>
+                                                await copyToClipboard(
+                                                    pair.publicKey.toIotaPublicKey(),
+                                                )}>Copy</button
+                                        >
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Address:</span>
+                                        <span class="detail-value"
+                                            >{pair.publicKey.toIotaAddress()}</span
+                                        >
+                                        <button
+                                            class="copy-button"
+                                            onclick={async () =>
+                                                await copyToClipboard(
+                                                    pair.publicKey.toIotaAddress(),
+                                                )}>Copy</button
+                                        >
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Signature:</span>
+                                        <span class="detail-value"
+                                            >{Buffer.from(pair.signature).toString('base64')}</span
+                                        >
+                                        <button
+                                            class="copy-button"
+                                            onclick={async () =>
+                                                await copyToClipboard(
+                                                    Buffer.from(pair.signature).toString('base64'),
+                                                )}>Copy</button
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                        {/each}
                     </div>
                 {/if}
             </div>
-        {/if}
-
-        {#if signatureVerificationStatus === 'on_chain_only'}
-            <div style="margin-top: 8px; padding: 8px; border-radius: 4px;">
-                ⓘ Signature parsed. MoveAuthenticator validity depends on on-chain execution and
-                cannot be verified here.
-            </div>
-        {/if}
-
-        {#if signatureMoveAuthenticator}
-            <div class="signature-details-container">
-                <div class="signature-item">
-                    <div class="signature-header">MoveAuthenticator</div>
-                    <div class="signature-details">
-                        <MoveAuthenticatorDetails data={signatureMoveAuthenticator} />
-                    </div>
-                </div>
-            </div>
-        {/if}
-
-        <!-- Public Key and Address Display -->
-        {#if signaturePubkeyPairs}
-            <div class="signature-details-container">
-                {#each signaturePubkeyPairs as pair, index}
-                    <div class="signature-item">
-                        <div class="signature-header">
-                            Signature #{index + 1} ({pair.signatureScheme})
-                        </div>
-                        <div class="signature-details">
-                            <div class="detail-item">
-                                <span class="detail-label">Public key:</span>
-                                <span class="detail-value">{pair.publicKey.toBase64()}</span>
-                                <button
-                                    class="copy-button"
-                                    onclick={async () =>
-                                        await copyToClipboard(pair.publicKey.toBase64())}
-                                    >Copy</button
-                                >
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Public key with flag:</span>
-                                <span class="detail-value">{pair.publicKey.toIotaPublicKey()}</span>
-                                <button
-                                    class="copy-button"
-                                    onclick={async () =>
-                                        await copyToClipboard(pair.publicKey.toIotaPublicKey())}
-                                    >Copy</button
-                                >
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Address:</span>
-                                <span class="detail-value">{pair.publicKey.toIotaAddress()}</span>
-                                <button
-                                    class="copy-button"
-                                    onclick={async () =>
-                                        await copyToClipboard(pair.publicKey.toIotaAddress())}
-                                    >Copy</button
-                                >
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Signature:</span>
-                                <span class="detail-value"
-                                    >{Buffer.from(pair.signature).toString('base64')}</span
-                                >
-                                <button
-                                    class="copy-button"
-                                    onclick={async () =>
-                                        await copyToClipboard(
-                                            Buffer.from(pair.signature).toString('base64'),
-                                        )}>Copy</button
-                                >
-                            </div>
-                        </div>
-                    </div>
-                {/each}
-            </div>
-        {/if}
+        {/each}
 
         <!-- Signed Transaction Bytes Output -->
         {#if signedTxBytes}
@@ -521,7 +639,7 @@
                     style="height: 100px;"
                 ></textarea>
                 <div style="margin-top: 4px; font-size: 12px; color: #666;">
-                    This combines the transaction bytes with the signature and can be submitted to
+                    This combines the transaction bytes with all signatures and can be submitted to
                     the network.
                 </div>
             </div>
@@ -552,6 +670,51 @@
     .signature-textarea {
         height: 40px;
         min-height: 60px;
+    }
+
+    .signatures-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+
+    .add-signature-button {
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+
+    .add-signature-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .signature-block {
+        margin-bottom: 16px;
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+    }
+
+    .signature-block-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 6px;
+        font-weight: bold;
+    }
+
+    .remove-signature-button {
+        padding: 2px 8px;
+        font-size: 12px;
+        background: #850804;
+        color: white;
+        border: 1px solid #a33;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: normal;
     }
 
     .dry-run-result {
