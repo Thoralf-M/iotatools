@@ -12,6 +12,13 @@ import type {
     TransactionBatchResult,
 } from '../../utils/graphql-types';
 
+// Max transaction blocks to request per GraphQL page. The query fetches deeply
+// nested connections (balanceChanges, objectChanges -> modules, events) per
+// block, so the GraphQL server's estimated output-node count grows quickly with
+// the page size. Requesting too many at once trips the server's "Estimated
+// output nodes exceeds 10000" guard, so we page in small chunks instead.
+const MAX_PAGE_SIZE = 10;
+
 export class GraphQLDataFetcher {
     constructor() {}
 
@@ -90,7 +97,7 @@ export class GraphQLDataFetcher {
 
     async fetchTransactionBatch(
         checkpointRange: CheckpointRange,
-        batchSize: number = 50,
+        batchSize: number = MAX_PAGE_SIZE,
         cursor?: string | null,
         inputObject?: string,
         functionFilter?: string,
@@ -244,8 +251,10 @@ export class GraphQLDataFetcher {
         let totalFetched = 0;
 
         while (hasNextPage && (!maxTransactions || totalFetched < maxTransactions)) {
-            const remainingToFetch = maxTransactions ? maxTransactions - totalFetched : 50;
-            const batchSize = Math.min(50, remainingToFetch);
+            const remainingToFetch = maxTransactions
+                ? maxTransactions - totalFetched
+                : MAX_PAGE_SIZE;
+            const batchSize = Math.min(MAX_PAGE_SIZE, remainingToFetch);
 
             const batchResult = await this.fetchTransactionBatch(
                 checkpointRange,
