@@ -48,6 +48,7 @@ pnpm i
 pnpm run dev
 
 # Production build (outputs to docs/ folder - do NOT use for testing changes)
+# Run only as the final step, in its own commit — see "When to run pnpm build"
 pnpm build
 
 # Run production server
@@ -246,6 +247,18 @@ For flows that build, sign, or execute transactions, use **devnet** with one of 
 - Output goes to `docs/` folder (for GitHub Pages)
 - `docs/CNAME` contains custom domain: `iotatools.dev`
 - Asset paths are adjusted for relative loading
+
+### When to run `pnpm build`
+
+- **Run `pnpm build` only once, as the very last step**, after all source
+  changes are finished and verified (`pnpm check`, `pnpm lint`, `pnpm test`) and
+  you are ready to commit and push the branch for a pull request.
+- **Keep the build output in its own dedicated, final commit** — never mix the
+  generated `docs/` output into commits that contain source changes. The build
+  re-hashes every asset filename, so committing it alongside source edits buries
+  the real diff in churn.
+- Do **not** run `pnpm build` to test changes during development — use
+  `pnpm run dev` for that. The `docs/` output is a deployment artifact only.
 
 ## Important Notes
 
