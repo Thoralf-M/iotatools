@@ -22,6 +22,10 @@
     export interface UserStakeRef {
         stakeId: string;
         accountAddress: string;
+        /** Human-readable owner label (account label or shortened address).
+         *  Used by the account list + per-account coloring so users can see
+         *  which stake belongs to which account. */
+        accountLabel: string;
         principal: bigint;
         validator: ValidatorInfoFull;
     }
@@ -194,21 +198,11 @@
     $effect(() => {
         if (mode !== 'my-stake' || selectedStakeIds.size === 0) return;
 
-        if (switchTargetAddress) {
-            const target = validators.find((v) => v.address === switchTargetAddress);
-            if (target) {
-                const userPools = new Set(
-                    userStakes
-                        .filter((s) => selectedStakeIds.has(s.stakeId))
-                        .map((s) => s.validator.poolId),
-                );
-                if (userPools.has(target.poolId)) {
-                    switchTargetAddress = '';
-                    switchTargetTouched = false;
-                }
-            }
-        }
-
+        // Note: a target whose pool the user is already staked in is now a
+        // valid choice (restake to the same validator — withdraw + re-stake to
+        // realize rewards), so we no longer clear it. The default auto-pick
+        // below still suggests a *different* better validator; the user can
+        // override with a current one from the dropdown.
         if (switchTargetTouched) return;
         if (switchTargetAddress) return;
 
@@ -295,18 +289,105 @@
         selectedStakeIds = next;
     }
 
-    /** Sorted-by-APR-descending list of valid switch targets (committee
-     *  validators excluding any pool the selected stakes are already in).
-     *  Drives the prev/next navigation buttons. */
-    let targetCandidates = $derived.by(() => {
-        const myPools = new Set(
+    interface AccountEntry {
+        address: string;
+        label: string;
+        stakeIds: string[];
+    }
+
+    /** Distinct accounts present among the user's stakes, in first-appearance
+     *  order. Drives the account list above the stakes and the per-account
+     *  coloring. Order is stable so each account keeps its color across
+     *  rebuilds. Only meaningful with ≥2 accounts — coloring + the list are
+     *  gated on that below. */
+    let accounts = $derived.by<AccountEntry[]>(() => {
+        const map = new Map<string, AccountEntry>();
+        for (const s of userStakes) {
+            const existing = map.get(s.accountAddress);
+            if (existing) existing.stakeIds.push(s.stakeId);
+            else
+                map.set(s.accountAddress, {
+                    address: s.accountAddress,
+                    label: s.accountLabel,
+                    stakeIds: [s.stakeId],
+                });
+        }
+        return [...map.values()];
+    });
+    /** address → stable color index (position in `accounts`). */
+    let accountColorIndex = $derived(new Map(accounts.map((a, i) => [a.address, i] as const)));
+    /** Coloring + the account list only add value with more than one account. */
+    let showAccountColors = $derived(accounts.length >= 2);
+
+    /** Account address currently hovered (via an account button or a stake
+     *  chip). Both directions set this so the account row and its stake chips
+     *  highlight together. */
+    let hoveredAccount = $state<string | null>(null);
+
+    /** Account → translucent background color, or '' when coloring is off
+     *  (single account). Used for stake amount buttons and the account list. */
+    function stakeBg(accountAddress: string): string {
+        if (!showAccountColors) return '';
+        const i = accountColorIndex.get(accountAddress);
+        return i === undefined ? '' : accountColor(i).bg;
+    }
+    /** Account → opaque accent color (left border on single-stake chips, ring
+     *  on account buttons), or '' when coloring is off. */
+    function stakeAccent(accountAddress: string): string {
+        if (!showAccountColors) return '';
+        const i = accountColorIndex.get(accountAddress);
+        return i === undefined ? '' : accountColor(i).solid;
+    }
+
+    function accountSelectionState(a: AccountEntry): GroupState {
+        let any = false;
+        let all = true;
+        for (const id of a.stakeIds) {
+            if (selectedStakeIds.has(id)) any = true;
+            else all = false;
+        }
+        return all ? 'all' : any ? 'partial' : 'none';
+    }
+
+    function toggleAccount(a: AccountEntry) {
+        const state = accountSelectionState(a);
+        const next = new Set(selectedStakeIds);
+        if (state === 'all') {
+            for (const id of a.stakeIds) next.delete(id);
+        } else {
+            for (const id of a.stakeIds) next.add(id);
+        }
+        selectedStakeIds = next;
+    }
+
+    /** Pool IDs the currently-selected stakes are delegated to. A target in
+     *  one of these pools means "restake to the same validator" rather than a
+     *  switch — still valid (it realizes/compounds rewards), so such targets
+     *  are kept in the candidate list and marked "(current)". */
+    let selectedPoolIds = $derived(
+        new Set(
             userStakes
                 .filter((s) => selectedStakeIds.has(s.stakeId))
                 .map((s) => s.validator.poolId),
+        ),
+    );
+
+    /** Sorted-by-APR-descending list of valid switch targets: committee
+     *  validators, plus the user's own current validators (even if no longer
+     *  in committee) so restaking to them is always possible. Drives the
+     *  prev/next navigation buttons. */
+    let targetCandidates = $derived.by(() => {
+        const byAddress = new Map<string, ValidatorInfoFull>();
+        for (const v of validators) {
+            if (v.isCommittee) byAddress.set(v.address, v);
+        }
+        // Union in the user's current validators regardless of committee status.
+        for (const s of userStakes) {
+            if (selectedStakeIds.has(s.stakeId)) byAddress.set(s.validator.address, s.validator);
+        }
+        return [...byAddress.values()].sort(
+            (a, b) => (aprByPool.get(b.poolId) ?? 0) - (aprByPool.get(a.poolId) ?? 0),
         );
-        return validators
-            .filter((v) => v.isCommittee && !myPools.has(v.poolId))
-            .sort((a, b) => (aprByPool.get(b.poolId) ?? 0) - (aprByPool.get(a.poolId) ?? 0));
     });
     let targetIndex = $derived(
         targetCandidates.findIndex((v) => v.address === switchTargetAddress),
@@ -359,6 +440,21 @@
     let switchTargetApr = $derived(switchTarget ? (aprByPool.get(switchTarget.poolId) ?? 0) : 0);
     let projectionBreakeven = $derived(
         switchTarget ? computeBreakevenDays(combinedOldApr, switchTargetApr) : null,
+    );
+    /** True when the chosen target is a validator some selected stake is
+     *  already at — i.e. the action realizes/compounds rewards rather than
+     *  moving to a better pool. Used to allow the action even though such a
+     *  restake has no (meaningful) breakeven. */
+    let targetIsCurrent = $derived(
+        !!switchTarget &&
+            selectedStakeRefs.some((s) => s.validator.poolId === switchTarget!.poolId),
+    );
+    /** True when *every* selected stake is already at the target — a pure
+     *  restake. Drives the "Restake" vs "Switch" button wording. */
+    let allSelectedAtTarget = $derived(
+        !!switchTarget &&
+            selectedStakeRefs.length > 0 &&
+            selectedStakeRefs.every((s) => s.validator.poolId === switchTarget!.poolId),
     );
 
     /** "X IOTA / year (≈ $Y) / year" — yield on the current basket at a given
@@ -483,6 +579,26 @@
     let canvas: HTMLCanvasElement;
     let chart: Chart | null = null;
 
+    /** Tracks the previous legend click so a quick second click on the same
+     *  item counts as a double-click. Chart.js has no native dblclick on
+     *  legend items, so we detect it from timestamp + dataset index. */
+    let lastLegendClick: { index: number; time: number } | null = null;
+    const LEGEND_DBLCLICK_MS = 300;
+
+    /** Double-clicking a legend item isolates it: hide every other dataset so
+     *  only the clicked validator remains. Double-clicking again (when it's
+     *  already the only visible one) restores all datasets. */
+    function isolateDataset(ci: Chart, index: number) {
+        const onlyThisVisible = ci.data.datasets.every(
+            (_, i) => ci.isDatasetVisible(i) === (i === index),
+        );
+        ci.data.datasets.forEach((_, i) => {
+            if (onlyThisVisible || i === index) ci.show(i);
+            else ci.hide(i);
+        });
+        ci.update();
+    }
+
     onMount(buildChart);
     onDestroy(() => chart?.destroy());
 
@@ -525,6 +641,19 @@
     ];
     function colorFor(i: number): string {
         return PALETTE[i % PALETTE.length];
+    }
+
+    /** Per-account color so users can see which stake belongs to which
+     *  account. Golden-angle hue stepping gives any number of accounts
+     *  distinct, visually-spread colors that stay stable across rebuilds
+     *  (the account's index in `accounts` is fixed). Returns a translucent
+     *  `bg` for chip/list backgrounds and an opaque `solid` for accents/rings. */
+    function accountColor(i: number): { solid: string; bg: string } {
+        const hue = Math.round((i * 137.508) % 360);
+        return {
+            solid: `hsl(${hue}, 60%, 58%)`,
+            bg: `hsla(${hue}, 60%, 50%, 0.28)`,
+        };
     }
 
     function buildChart() {
@@ -929,6 +1058,22 @@
                     display: true,
                     position: (mode === 'validators' ? 'right' : 'top') as 'right' | 'top',
                     labels: { font: { size: 11 } },
+                    onClick: (_e: any, legendItem: any, legend: any) => {
+                        const index = legendItem.datasetIndex as number;
+                        const ci = legend.chart as Chart;
+                        const now = Date.now();
+                        const isDouble =
+                            lastLegendClick?.index === index &&
+                            now - lastLegendClick.time < LEGEND_DBLCLICK_MS;
+                        lastLegendClick = { index, time: now };
+                        if (isDouble) {
+                            isolateDataset(ci, index);
+                            return;
+                        }
+                        // Default Chart.js behavior: toggle the single dataset.
+                        if (ci.isDatasetVisible(index)) ci.hide(index);
+                        else ci.show(index);
+                    },
                 },
                 tooltip: {
                     // Match interaction.mode — see the comment up there for
@@ -1119,6 +1264,39 @@
                  every stake at one validator on/off. Individual stake chips
                  still allow per-stake control inside each group. -->
             <div class="stakes-controls">
+                {#if showAccountColors}
+                    <!-- Account list: one button per account that owns a stake.
+                         Each carries that account's color (also applied to its
+                         stake buttons below), so users can see at a glance which
+                         stake belongs to which account. Clicking toggles all of
+                         that account's stakes; hovering highlights its stakes
+                         (and a hovered stake highlights its account here). -->
+                    <div class="accounts-row">
+                        <span class="chip-label">Accounts:</span>
+                        {#each accounts as a (a.address)}
+                            {@const aState = accountSelectionState(a)}
+                            <button
+                                type="button"
+                                class="chip account-chip"
+                                class:all={aState === 'all'}
+                                class:partial={aState === 'partial'}
+                                class:highlight={hoveredAccount === a.address}
+                                style="--account-bg: {stakeBg(
+                                    a.address,
+                                )}; --account-accent: {stakeAccent(a.address)}"
+                                onclick={() => toggleAccount(a)}
+                                onmouseenter={() => (hoveredAccount = a.address)}
+                                onmouseleave={() => (hoveredAccount = null)}
+                                title="Toggle all {a.stakeIds.length} stake{a.stakeIds.length === 1
+                                    ? ''
+                                    : 's'} from {a.label}"
+                            >
+                                <span class="account-dot" aria-hidden="true"></span>
+                                {a.label} · {a.stakeIds.length}
+                            </button>
+                        {/each}
+                    </div>
+                {/if}
                 <div class="stakes-header">
                     <div class="stakes-actions">
                         <button
@@ -1156,13 +1334,21 @@
                                 type="button"
                                 class="chip stake-row-item"
                                 class:selected={selectedStakeIds.has(s.stakeId)}
-                                style="--commission-tint: {commissionTint(g.validator)}"
+                                class:account-accented={showAccountColors}
+                                class:highlight={hoveredAccount === s.accountAddress}
+                                style="--commission-tint: {commissionTint(
+                                    g.validator,
+                                )}; --account-accent: {stakeAccent(s.accountAddress)}"
                                 onclick={() => toggleStake(s.stakeId)}
+                                onmouseenter={() => (hoveredAccount = s.accountAddress)}
+                                onmouseleave={() => (hoveredAccount = null)}
                                 title="{g.validator.name} — {fmtIotaFiat(
                                     s.principal,
                                 )} · effective commission {fmtCommission(
                                     g.validator,
-                                )} · click to toggle"
+                                )}{showAccountColors
+                                    ? ` · ${s.accountLabel}`
+                                    : ''} · click to toggle"
                             >
                                 {g.validator.name} · {fmtIotaFiat(s.principal)} · {fmtCommission(
                                     g.validator,
@@ -1191,10 +1377,15 @@
                                         type="button"
                                         class="chip stake-sub-chip"
                                         class:selected={selectedStakeIds.has(s.stakeId)}
+                                        class:account-colored={showAccountColors}
+                                        class:highlight={hoveredAccount === s.accountAddress}
+                                        style="--account-bg: {stakeBg(s.accountAddress)}"
                                         onclick={() => toggleStake(s.stakeId)}
+                                        onmouseenter={() => (hoveredAccount = s.accountAddress)}
+                                        onmouseleave={() => (hoveredAccount = null)}
                                         title="Click to toggle this single stake ({fmtIota(
                                             s.principal,
-                                        )} IOTA)"
+                                        )} IOTA){showAccountColors ? ` · ${s.accountLabel}` : ''}"
                                     >
                                         {fmtIota(s.principal)}
                                     </button>
@@ -1231,12 +1422,15 @@
                         {@const candidateApr = aprByPool.get(v.poolId) ?? 0}
                         {@const candidateApy = aprToApy(candidateApr)}
                         {@const candidateBe = computeBreakevenDays(combinedOldApr, candidateApr)}
+                        {@const isCurrent = selectedPoolIds.has(v.poolId)}
                         <option value={v.address}>
                             {v.name} — {(candidateApr * 100).toFixed(2)}% APR / {(
                                 candidateApy * 100
-                            ).toFixed(2)}% APY · {candidateBe === null
-                                ? 'no breakeven'
-                                : `≈ ${Math.ceil(candidateBe)} days breakeven`}
+                            ).toFixed(2)}% APY · {isCurrent
+                                ? 'restake (current)'
+                                : candidateBe === null
+                                  ? 'no breakeven'
+                                  : `≈ ${Math.ceil(candidateBe)} days breakeven`}
                         </option>
                     {/each}
                 </select>
@@ -1418,17 +1612,20 @@
                     type="button"
                     class="primary"
                     disabled={!switchTarget ||
-                        projectionBreakeven === null ||
                         selectedStakeRefs.length === 0 ||
-                        !onSwitch}
+                        !onSwitch ||
+                        (projectionBreakeven === null && !targetIsCurrent)}
                     onclick={handleSwitch}
                     title={!switchTarget
                         ? 'Pick a switch target first.'
-                        : projectionBreakeven === null
-                          ? 'Switching to this validator would not be profitable in the chosen window.'
-                          : `Build one PTB per sending account: ${switchTxCount} transaction(s) covering ${selectedStakeRefs.length} stake(s), all re-staked to ${switchTarget.name}.`}
+                        : allSelectedAtTarget
+                          ? `Withdraw and re-stake ${selectedStakeRefs.length} stake(s) to the same validator (${switchTarget.name}) to realize/compound accumulated rewards, merged into one new stake per account. Costs ≈1 epoch of activation delay.`
+                          : projectionBreakeven === null
+                            ? 'Switching to this validator would not be profitable in the chosen window.'
+                            : `Build one PTB per sending account: ${switchTxCount} transaction(s) covering ${selectedStakeRefs.length} stake(s), all re-staked to ${switchTarget.name} and merged into one new stake per account.`}
                 >
-                    Switch {selectedStakeRefs.length === 1
+                    {allSelectedAtTarget ? 'Restake' : 'Switch'}
+                    {selectedStakeRefs.length === 1
                         ? '1 stake'
                         : `${selectedStakeRefs.length} stakes`} in {switchTxCount === 1
                         ? '1 transaction'
@@ -1441,7 +1638,9 @@
                 earns nothing for ≈1 epoch — that loss is what the breakeven calculation accounts
                 for. A transaction can only have one sender, so stakes from different accounts are
                 bundled into one PTB per account ({switchTxCount}
-                {switchTxCount === 1 ? 'transaction' : 'transactions'} for the current selection).
+                {switchTxCount === 1 ? 'transaction' : 'transactions'} for the current selection). Within
+                each account the withdrawn stakes are merged, producing a single new stake (principal
+                + rewards combined) rather than one per input.
             </div>
         </div>
     {/if}
@@ -1684,6 +1883,68 @@
     .stake-sub-chip {
         font-size: 0.72rem;
         padding: 0.1rem 0.5rem;
+    }
+
+    /* Amount buttons carry their owning account's color (set via --account-bg)
+       so users can see which stake belongs to which account. Gated behind the
+       .account-colored class so the neutral .chip background is used when
+       there's only a single account (coloring off). */
+    .stake-sub-chip.account-colored {
+        background: var(--account-bg);
+        color: var(--text-color);
+    }
+
+    /* Single-stake chips double as the validator header (they keep the
+       commission tint), so the account is shown as a left-border accent
+       instead of a full background. */
+    .stake-row-item.account-accented {
+        border-left: 3px solid var(--account-accent);
+    }
+
+    /* Account list above the stakes — one chip per account that owns a stake. */
+    .accounts-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .account-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-weight: 500;
+        background: var(--account-bg);
+        color: var(--text-color);
+    }
+
+    .account-dot {
+        width: 0.6rem;
+        height: 0.6rem;
+        border-radius: 50%;
+        background: var(--account-accent);
+        flex: none;
+    }
+
+    /* Selection-state rings mirror the validator group-toggle conventions:
+       solid blue ring = all selected, dashed = partial. The account color
+       still shows through (only border/shadow change). */
+    .account-chip.all {
+        border-color: rgba(59, 130, 246, 0.9);
+        box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.45);
+    }
+
+    .account-chip.partial {
+        border: 1px dashed rgba(59, 130, 246, 0.9);
+    }
+
+    /* Hover highlight shared by account chips and stake chips: a bright ring
+       tying the hovered stake to its account (and vice-versa). */
+    .account-chip.highlight,
+    .stake-sub-chip.highlight,
+    .stake-row-item.highlight {
+        outline: 2px solid var(--account-accent, rgba(255, 255, 255, 0.6));
+        outline-offset: 1px;
     }
 
     .chip-action {
