@@ -331,6 +331,8 @@
                 refs.push({
                     stakeId: obj.id,
                     accountAddress: acc.address,
+                    accountLabel:
+                        acc.label || acc.address.slice(0, 6) + '…' + acc.address.slice(-4),
                     principal: BigInt(principal),
                     validator,
                 });

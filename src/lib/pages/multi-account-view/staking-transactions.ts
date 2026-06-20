@@ -56,11 +56,20 @@ export function buildSwitchValidatorTransaction(
     return buildSwitchValidatorTransactionMulti([stakedIotaObjectId], newValidatorAddress);
 }
 
-/** Multi-stake variant: chains one (withdraw → from_balance → add_stake)
- *  triple per stake into a single PTB. All stakes must belong to the same
- *  sender (set externally with `tx.setSender(...)`). The resulting tx ends
- *  with the same number of new StakedIota objects as it started with, all
- *  delegated to `newValidatorAddress`. */
+/** Multi-stake variant: withdraws every stake, **merges** the resulting
+ *  balances into a single coin, and stakes that one coin to
+ *  `newValidatorAddress` — so N input stakes become a **single** new
+ *  StakedIota object (principal + accumulated rewards combined), not N.
+ *
+ *  All stakes must belong to the same sender (set externally with
+ *  `tx.setSender(...)`). Since the view only ever targets one validator and a
+ *  PTB has a single sender, this produces the minimum possible number of
+ *  output objects: one. This is correct whether the action is a switch
+ *  (different validator) or a restake (same validator to realize/compound
+ *  rewards) — both consolidate into one stake.
+ *
+ *  A single-element input is a no-op for the merge (one withdraw → one
+ *  add_stake), behaving exactly as before. */
 export function buildSwitchValidatorTransactionMulti(
     stakedIotaObjectIds: string[],
     newValidatorAddress: string,
@@ -71,7 +80,8 @@ export function buildSwitchValidatorTransactionMulti(
         initialSharedVersion: 1,
         mutable: true,
     });
-    for (const stakeId of stakedIotaObjectIds) {
+    // Withdraw each stake to a Balance, convert to a Coin, collecting them.
+    const coins = stakedIotaObjectIds.map((stakeId) => {
         const [balance] = tx.moveCall({
             target: '0x3::iota_system::request_withdraw_stake_non_entry',
             arguments: [systemRef, tx.object(stakeId)],
@@ -81,10 +91,17 @@ export function buildSwitchValidatorTransactionMulti(
             arguments: [balance!],
             typeArguments: ['0x2::iota::IOTA'],
         });
-        tx.moveCall({
-            target: '0x3::iota_system::request_add_stake',
-            arguments: [systemRef, coin!, tx.pure.address(newValidatorAddress)],
-        });
+        return coin!;
+    });
+    // Merge all withdrawn coins into the first, then stake the combined amount
+    // once → a single new StakedIota for the whole basket.
+    const [primaryCoin, ...restCoins] = coins;
+    if (restCoins.length > 0) {
+        tx.mergeCoins(primaryCoin!, restCoins);
     }
+    tx.moveCall({
+        target: '0x3::iota_system::request_add_stake',
+        arguments: [systemRef, primaryCoin!, tx.pure.address(newValidatorAddress)],
+    });
     return tx;
 }
