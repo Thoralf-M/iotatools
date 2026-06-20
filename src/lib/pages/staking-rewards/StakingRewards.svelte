@@ -13,7 +13,9 @@
     // @ts-ignore
     import exchangeRateCacheBinary from './cache/exchange-rate-cache.bin?raw';
     import epochTimestampsCacheJson from './cache/mainnet-epoch-timestamps-cache.json';
+    import { formatNanoAsIota } from './formatting';
     import { fetchCurrentStakedObjects, fetchEpochTimestampsForDisplay } from './graphql-requests';
+    import { mapWithConcurrency } from './graphql-retry';
     import {
         fetchReceivedStakeTransactions,
         fetchStakeTransactions,
@@ -24,7 +26,7 @@
     } from './index';
     import StakingRewardsChart from './StakingRewardsChart.svelte';
     import StakingRewardsTable from './StakingRewardsTable.svelte';
-    import { computeEpochData } from './table-utils';
+    import { computeEpochData, rebaselineStakeObjects } from './table-utils';
     import {
         filterEpochsByTimeFrame,
         getDateRangeForEpochRange,
@@ -52,6 +54,7 @@
         customEpochStart: '',
         customEpochEnd: '',
         fetchReceivedTxs: false,
+        ignorePreviousRewards: false,
     });
 
     // One-shot snapshot used to seed local state that's either bound with
@@ -163,6 +166,10 @@
     let loadingTxs = false;
     let loadingStep: string | null = null;
     let fetchReceivedTxs = initialQueryParams.fetchReceivedTxs;
+    // When on (and a narrower time frame than "All time" is selected), rewards
+    // accrued before the window are removed from the report. Defaults to off so
+    // the output is unchanged unless the user explicitly enables it.
+    let ignorePreviousRewards = initialQueryParams.ignorePreviousRewards;
     let showPriceColumns = true;
     let showValidatorColumns = true;
     let noTransactionsFound = false;
@@ -244,6 +251,9 @@
     $: updatePageQueryParams({
         fetchReceivedTxs: fetchReceivedTxs ? true : null,
     });
+    $: updatePageQueryParams({
+        ignorePreviousRewards: ignorePreviousRewards ? true : null,
+    });
 
     $: customDateRange =
         selectedTimeFrame === 'custom' && customDateStart && customDateEnd
@@ -323,6 +333,35 @@
         return idx >= 0 ? epochEndDates[idx] : '';
     });
 
+    // "Ignore previous rewards" — only meaningful for a narrower time frame than
+    // "All time". The window start is the first epoch actually displayed; every
+    // reward accrued before it is stripped from the figures (table, chart,
+    // export). When the option is off, displayStakeObjects === stakeObjects so
+    // the output is byte-for-byte unchanged.
+    $: rebaseStartEpoch =
+        ignorePreviousRewards && selectedTimeFrame !== 'all' && timeFrameFilteredEpochs.length > 0
+            ? timeFrameFilteredEpochs[0]
+            : undefined;
+
+    $: rebaseResult =
+        rebaseStartEpoch !== undefined
+            ? rebaselineStakeObjects(stakeObjects, rebaseStartEpoch)
+            : null;
+
+    $: displayStakeObjects = rebaseResult ? rebaseResult.stakeObjects : stakeObjects;
+
+    $: previousRewardsRemoved = rebaseResult ? rebaseResult.previousRewardsRemoved : 0n;
+
+    $: previousRewardsNotice =
+        rebaseStartEpoch !== undefined && previousRewardsRemoved > 0n
+            ? `Previous rewards ignored: ${formatNanoAsIota(previousRewardsRemoved)} — accrued before epoch ${rebaseStartEpoch}`
+            : '';
+
+    // Re-based epoch data drives the chart so it matches the table/export.
+    $: displayTableData = rebaseResult
+        ? computeEpochData(displayStakeObjects, validatorInfo, epoch || 1)
+        : tableData;
+
     // Only tell the chart to drop its last epoch when the filter ends at the
     // pending current epoch (that epoch has partial data). For closed ranges
     // that end earlier, every epoch in the filter is complete and should render.
@@ -335,7 +374,7 @@
             tableData.epochs[tableData.epochs.length - 1];
 
     $: filteredTableDataForChart = {
-        ...tableData,
+        ...displayTableData,
         epochs: timeFrameFilteredEpochs,
     };
 
@@ -452,57 +491,66 @@
                     `Fetching ${phaseLabel} txs ${baseDone}/${total}` + ` (${foundSoFar} found)...`;
             }
 
-            const allTxsPromises = allAddresses.map(async (addr) => {
-                try {
-                    const sentKey = `sent:${addr}`;
-                    inFlight.set(sentKey, { role: 'sent', transactions: 0 });
-                    renderLoadingStep('stake');
-                    const sentTxs = await fetchStakeTransactions(addr, {
-                        startEpoch,
-                        skipPaginationSenders: skipSendersSnapshot,
-                        onSkipPagination: recordSkippedSender,
-                        onProgress: ({ transactions }) => {
-                            const entry = inFlight.get(sentKey);
-                            if (entry) {
-                                entry.transactions = transactions;
-                                renderLoadingStep('stake');
-                            }
-                        },
-                    });
-                    inFlight.delete(sentKey);
-                    sentDone++;
-                    renderLoadingStep('stake');
-
-                    let receivedTxs: any[] = [];
-                    if (fetchReceivedTxs) {
-                        const recvKey = `recv:${addr}`;
-                        inFlight.set(recvKey, { role: 'received', transactions: 0 });
-                        renderLoadingStep('received');
-                        receivedTxs = await fetchReceivedStakeTransactions(addr, {
+            // Cap how many addresses fetch at once. Each address fans out into
+            // many sequential GraphQL requests (paginated sent/received txs +
+            // objectChanges), so running every address in parallel floods the
+            // endpoint and trips its rate limiter (HTTP 429). A small pool keeps
+            // throughput high without the burst; per-request retries in
+            // graphql-requests.ts absorb any 429s that still slip through.
+            const ADDRESS_FETCH_CONCURRENCY = 10;
+            const allTxsResults = await mapWithConcurrency(
+                allAddresses,
+                ADDRESS_FETCH_CONCURRENCY,
+                async (addr) => {
+                    try {
+                        const sentKey = `sent:${addr}`;
+                        inFlight.set(sentKey, { role: 'sent', transactions: 0 });
+                        renderLoadingStep('stake');
+                        const sentTxs = await fetchStakeTransactions(addr, {
                             startEpoch,
                             skipPaginationSenders: skipSendersSnapshot,
                             onSkipPagination: recordSkippedSender,
                             onProgress: ({ transactions }) => {
-                                const entry = inFlight.get(recvKey);
+                                const entry = inFlight.get(sentKey);
                                 if (entry) {
                                     entry.transactions = transactions;
-                                    renderLoadingStep('received');
+                                    renderLoadingStep('stake');
                                 }
                             },
                         });
-                        inFlight.delete(recvKey);
-                        receivedDone++;
-                        renderLoadingStep('received');
+                        inFlight.delete(sentKey);
+                        sentDone++;
+                        renderLoadingStep('stake');
+
+                        let receivedTxs: any[] = [];
+                        if (fetchReceivedTxs) {
+                            const recvKey = `recv:${addr}`;
+                            inFlight.set(recvKey, { role: 'received', transactions: 0 });
+                            renderLoadingStep('received');
+                            receivedTxs = await fetchReceivedStakeTransactions(addr, {
+                                startEpoch,
+                                skipPaginationSenders: skipSendersSnapshot,
+                                onSkipPagination: recordSkippedSender,
+                                onProgress: ({ transactions }) => {
+                                    const entry = inFlight.get(recvKey);
+                                    if (entry) {
+                                        entry.transactions = transactions;
+                                        renderLoadingStep('received');
+                                    }
+                                },
+                            });
+                            inFlight.delete(recvKey);
+                            receivedDone++;
+                            renderLoadingStep('received');
+                        }
+
+                        return { sentTxs, receivedTxs, address: addr, error: null };
+                    } catch (err) {
+                        console.error(`Failed to fetch transactions for address ${addr}:`, err);
+                        return { sentTxs: [], receivedTxs: [], address: addr, error: err };
                     }
-
-                    return { sentTxs, receivedTxs, address: addr, error: null };
-                } catch (err) {
-                    console.error(`Failed to fetch transactions for address ${addr}:`, err);
-                    return { sentTxs: [], receivedTxs: [], address: addr, error: err };
-                }
-            });
-
-            const allTxsResults = await Promise.all(allTxsPromises);
+                },
+            );
 
             // Check if any addresses had errors
             const failedAddresses = allTxsResults.filter((r) => r.error);
@@ -811,6 +859,31 @@
                     </span>
                 {/if}
             </div>
+            {#if selectedTimeFrame !== 'all'}
+                <label class="toggle-row">
+                    <div class="toggle-switch">
+                        <input type="checkbox" bind:checked={ignorePreviousRewards} />
+                        <span class="slider"></span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; line-height: 1.2;">
+                        <div style="display: flex; align-items: center; gap: 0.25rem;">
+                            <span class="toggle-label"> Ignore previous rewards </span>
+                            <div class="tooltip-container">
+                                <span class="info-icon">ⓘ</span>
+                                <div class="tooltip">
+                                    Removes rewards that accrued before the selected time frame.
+                                    Accumulated, available, and unstake rewards are re-based to
+                                    start at the window, and the amount removed is shown in the
+                                    report and exports.
+                                </div>
+                            </div>
+                        </div>
+                        <span style="font-size: 0.75rem; opacity: 0.7;"
+                            >Report only rewards earned within the selected time frame</span
+                        >
+                    </div>
+                </label>
+            {/if}
             <button
                 onclick={fetchTransactions}
                 disabled={loadingTxs}
@@ -855,11 +928,16 @@
                 .join(', ')}{filteredNegativeEpochs.length > 10 ? '…' : ''}
         </div>
     {/if}
+    {#if previousRewardsNotice && stakeObjects.length > 0}
+        <div class="info-message">
+            {previousRewardsNotice}
+        </div>
+    {/if}
 
     <div class="summary-section">
         <StakingRewardsTable
             currentEpoch={epoch || 1}
-            {stakeObjects}
+            stakeObjects={displayStakeObjects}
             {validatorInfo}
             bind:showPriceColumns
             bind:showValidatorColumns
@@ -867,6 +945,7 @@
             {noTransactionsFound}
             {timeFrameFilteredEpochs}
             {exportFileName}
+            {previousRewardsNotice}
         />
     </div>
     {#if stakeObjects.length > 0}

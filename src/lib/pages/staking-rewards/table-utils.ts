@@ -7,6 +7,123 @@ import type { ActionDetails, StakeObject, ValidatorInfo } from './compute/types'
 import { formatNanoAsIota, nanoToIota } from './formatting';
 import type { EpochData, EpochDataEntry, TableComputationResult } from './types';
 
+function safeBigInt(value: string | undefined): bigint {
+    if (!value) return 0n;
+    try {
+        return BigInt(value);
+    } catch {
+        return 0n;
+    }
+}
+
+/**
+ * Accumulated rewards a stake object had earned strictly before `startEpoch`.
+ *
+ * `accumulatedRewards` is dense from the stake's first epoch onward but resets
+ * to '0' at full-unstake epochs (see rewards-calculator.ts), so we look up the
+ * value at the largest recorded epoch that is still `< startEpoch` rather than
+ * assuming `startEpoch - 1` exists. Returns 0n when the stake only starts in or
+ * after the window (nothing to ignore).
+ */
+function getAccumulatedBefore(
+    accumulatedRewards: Record<number, string>,
+    startEpoch: number,
+): bigint {
+    let bestEpoch = -Infinity;
+    for (const epochStr of Object.keys(accumulatedRewards)) {
+        const epoch = Number(epochStr);
+        if (epoch < startEpoch && epoch > bestEpoch) bestEpoch = epoch;
+    }
+    if (bestEpoch === -Infinity) return 0n;
+    return safeBigInt(accumulatedRewards[bestEpoch]);
+}
+
+/**
+ * Re-baseline stake objects so that only rewards accrued from `startEpoch`
+ * onward are reflected — used by the "Ignore previous rewards" option when a
+ * narrower time frame than "All time" is selected.
+ *
+ * For each stake object we compute its pre-window earnings `B` (accumulated
+ * rewards just before `startEpoch`) and:
+ *   - zero out per-epoch and accumulated rewards before the window,
+ *   - subtract `B` from accumulated rewards within the window (clamped ≥ 0),
+ *   - subtract `B` from the realized rewards of unstake actions within the
+ *     window, distributing it across the object's window unstakes in epoch
+ *     order so multiple (partial) unstakes never over-subtract.
+ *
+ * Principal and exchange-rate maps are left untouched (principal is not a
+ * reward, so "Total Staked" stays correct). The returned `previousRewardsRemoved`
+ * is the sum of every object's `B` — the total previous reward shown in the
+ * "ignored" notice.
+ *
+ * Known limitation: `preTransferRewards` is left unchanged; a stake transferred
+ * in before the window keeps its original pre-transfer adjustment.
+ */
+export function rebaselineStakeObjects(
+    stakeObjects: StakeObject[],
+    startEpoch: number,
+): { stakeObjects: StakeObject[]; previousRewardsRemoved: bigint } {
+    let previousRewardsRemoved = 0n;
+
+    const rebased = stakeObjects.map((obj) => {
+        const baseline = getAccumulatedBefore(obj.accumulatedRewards, startEpoch);
+        previousRewardsRemoved += baseline;
+
+        const rewardsByEpoch: Record<number, string> = {};
+        for (const [epochStr, value] of Object.entries(obj.rewardsByEpoch)) {
+            rewardsByEpoch[Number(epochStr)] = Number(epochStr) < startEpoch ? '0' : value;
+        }
+
+        const accumulatedRewards: Record<number, string> = {};
+        for (const [epochStr, value] of Object.entries(obj.accumulatedRewards)) {
+            const epoch = Number(epochStr);
+            if (epoch < startEpoch) {
+                accumulatedRewards[epoch] = '0';
+            } else {
+                const rebasedValue = safeBigInt(value) - baseline;
+                accumulatedRewards[epoch] = (rebasedValue > 0n ? rebasedValue : 0n).toString();
+            }
+        }
+
+        let actionByEpoch = obj.actionByEpoch;
+        if (actionByEpoch && baseline > 0n) {
+            const next: Record<number, ActionDetails[]> = {};
+            // Absorb the pre-window baseline across this object's window unstakes
+            // in epoch order, capped at each action's realized rewards.
+            let remaining = baseline;
+            const orderedEpochs = Object.keys(actionByEpoch)
+                .map(Number)
+                .sort((a, b) => a - b);
+            for (const epoch of orderedEpochs) {
+                next[epoch] = actionByEpoch[epoch].map((action) => {
+                    if (
+                        epoch >= startEpoch &&
+                        remaining > 0n &&
+                        (action.action === 'Unstaked' || action.action === 'Partial Unstake') &&
+                        action.totalRewards
+                    ) {
+                        const original = safeBigInt(action.totalRewards);
+                        const subtract = original < remaining ? original : remaining;
+                        remaining -= subtract;
+                        return { ...action, totalRewards: (original - subtract).toString() };
+                    }
+                    return action;
+                });
+            }
+            actionByEpoch = next;
+        }
+
+        return {
+            ...obj,
+            rewardsByEpoch,
+            accumulatedRewards,
+            ...(actionByEpoch ? { actionByEpoch } : {}),
+        };
+    });
+
+    return { stakeObjects: rebased, previousRewardsRemoved };
+}
+
 /**
  * Get the first principal amount for a stake object.
  */

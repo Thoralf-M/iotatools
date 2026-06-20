@@ -117,6 +117,12 @@ export type ExportOptions = {
     wrapStakeObjects?: boolean;
     /** Same idea as `wrapStakeObjects`, but for validator columns. */
     wrapValidators?: boolean;
+    /**
+     * When the "Ignore previous rewards" option is active, a human-readable
+     * notice (e.g. "Previous rewards ignored: 31 IOTA — accrued before epoch
+     * 154") emitted at the top of the export so the figures are unambiguous.
+     */
+    previousRewardsNotice?: string;
 };
 
 /**

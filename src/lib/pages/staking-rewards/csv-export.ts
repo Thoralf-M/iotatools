@@ -184,7 +184,12 @@ export function buildExportSections(inputs: ExportInputs): ExportSection[] {
     }
 
     const sections: ExportSection[] = [
-        { headers: mainHeaders, rows: mainRows, ...(mainTruncated && { truncated: true }) },
+        {
+            ...(options.previousRewardsNotice && { title: options.previousRewardsNotice }),
+            headers: mainHeaders,
+            rows: mainRows,
+            ...(mainTruncated && { truncated: true }),
+        },
     ];
 
     if (wrapValidators && showValidatorColumns && uniqueValidators.length > 0) {

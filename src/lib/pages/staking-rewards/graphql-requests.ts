@@ -9,6 +9,7 @@ import {
 } from './cache/binary-cache';
 import { getInactiveValidatorsWithDeactivationEpoch } from './compute/validator-utils';
 import { formatDate } from './formatting';
+import { queryWithRetry } from './graphql-retry';
 
 /**
  * Returns the first checkpoint sequence number of the given epoch, or null if
@@ -28,7 +29,7 @@ async function fetchFirstCheckpointForEpoch(epochId: number): Promise<number | n
             }
         }
     }`;
-    const result = await gqlClient.query({ query, variables: { epochId } });
+    const result = await queryWithRetry(gqlClient, { query, variables: { epochId } });
     // @ts-ignore
     const seq = result.data?.epoch?.checkpoints?.nodes?.[0]?.sequenceNumber;
     if (seq === undefined || seq === null) return null;
@@ -64,9 +65,119 @@ export type FetchStakeTxsOptions = {
     onSkipPagination?: (senderAddress: string) => void;
 };
 
+/**
+ * Shape a past StakedIota / TimelockedStakedIota's JSON-RPC fields into the same
+ * structure `extractStakeObjectData` reads from a GraphQL `inputState.json`, so a
+ * recovered object is processed exactly like a normally-fetched one.
+ */
+function shapeRecoveredStakeJson(type: string, fields: any): any | null {
+    if (!fields) return null;
+    const normalizePrincipal = (p: any) =>
+        p && typeof p === 'object' ? (p.value ?? p.fields?.value) : p;
+    if (type.includes('staking_pool::StakedIota')) {
+        return {
+            pool_id: fields.pool_id,
+            principal: { value: normalizePrincipal(fields.principal) },
+            stake_activation_epoch: fields.stake_activation_epoch,
+        };
+    }
+    if (type.includes('timelocked_staking::TimelockedStakedIota')) {
+        // Nested struct may arrive as { fields: {...} } or flattened.
+        const si = fields.staked_iota?.fields ?? fields.staked_iota;
+        if (!si) return null;
+        return {
+            staked_iota: {
+                pool_id: si.pool_id,
+                principal: { value: normalizePrincipal(si.principal) },
+                stake_activation_epoch: si.stake_activation_epoch,
+            },
+        };
+    }
+    return null;
+}
+
+/**
+ * Backfill `inputState` for unstaked stake objects whose historical version was
+ * pruned from GraphQL. Only runs for transactions that call
+ * `iota_system::request_withdraw_stake*`, and only for deleted objects with a
+ * known input version — keeping the extra JSON-RPC calls bounded to real unstakes.
+ */
+async function recoverPrunedStakeInputStates(transactions: any[]): Promise<void> {
+    type Recovery = { node: any; address: string; version: number };
+    const recoveries: Recovery[] = [];
+
+    for (const tx of transactions) {
+        const kind = tx?.kind;
+        if (kind?.__typename !== 'ProgrammableTransactionBlock') continue;
+
+        const calls = kind.transactions?.nodes ?? [];
+        const hasWithdraw = calls.some(
+            (c: any) =>
+                c?.__typename === 'MoveCallTransaction' &&
+                c.module === 'iota_system' &&
+                typeof c.functionName === 'string' &&
+                c.functionName.startsWith('request_withdraw_stake'),
+        );
+        if (!hasWithdraw) continue;
+
+        const inputVersions = new Map<string, number>();
+        for (const input of kind.inputs?.nodes ?? []) {
+            if (
+                input?.__typename === 'OwnedOrImmutable' &&
+                input.address &&
+                input.version != null
+            ) {
+                inputVersions.set(input.address, Number(input.version));
+            }
+        }
+        if (inputVersions.size === 0) continue;
+
+        for (const node of tx.effects?.objectChanges?.nodes ?? []) {
+            const alreadyHasInput = !!node?.inputState?.asMoveObject?.contents;
+            if (node?.idDeleted !== true || alreadyHasInput) continue;
+            const version = inputVersions.get(node.address);
+            if (version == null) continue;
+            recoveries.push({ node, address: node.address, version });
+        }
+    }
+
+    if (recoveries.length === 0) return;
+
+    const client = getClient();
+    await Promise.all(
+        recoveries.map(async ({ node, address, version }) => {
+            try {
+                const res = await client.tryGetPastObject({
+                    id: address,
+                    version,
+                    options: { showContent: true, showType: true, showOwner: true },
+                });
+                if (res.status !== 'VersionFound') return;
+                const data: any = res.details;
+                const type: string = data?.type ?? data?.content?.type ?? '';
+                const json = shapeRecoveredStakeJson(type, data?.content?.fields);
+                if (!json) return;
+                const ownerAddress =
+                    data?.owner && typeof data.owner === 'object'
+                        ? data.owner.AddressOwner
+                        : undefined;
+                // Mirror the GraphQL inputState.asMoveObject shape the processor reads.
+                node.inputState = {
+                    asMoveObject: {
+                        owner: ownerAddress ? { owner: { address: ownerAddress } } : null,
+                        contents: { type: { repr: type }, json },
+                    },
+                };
+            } catch (err) {
+                console.warn(`Failed to recover pruned input state for ${address}@${version}`, err);
+            }
+        }),
+    );
+}
+
 async function fetchStakeTransactionsByRole(
     address: string,
-    role: 'signAddress' | 'recvAddress',
+    role: 'sentAddress' | 'recvAddress',
     options: FetchStakeTxsOptions = {},
     batchSize = 1,
 ) {
@@ -171,6 +282,29 @@ async function fetchStakeTransactionsByRole(
                         sender {
                             address
                         }
+                        kind {
+                            __typename
+                            ... on ProgrammableTransactionBlock {
+                                transactions {
+                                    nodes {
+                                        __typename
+                                        ... on MoveCallTransaction {
+                                            module
+                                            functionName
+                                        }
+                                    }
+                                }
+                                inputs {
+                                    nodes {
+                                        __typename
+                                        ... on OwnedOrImmutable {
+                                            address
+                                            version
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         effects {
                             timestamp
                             epoch {
@@ -186,7 +320,7 @@ ${objectChangesSection}
         `;
 
         const variables = { address };
-        const result = await gqlClient.query({ query, variables });
+        const result = await queryWithRetry(gqlClient, { query, variables });
         if (result.errors) {
             throw new Error(`GraphQL query error: ${JSON.stringify(result.errors)}`);
         }
@@ -236,7 +370,7 @@ ${objectChangesSection}
                         txDigest: tx.digest,
                         objectChangesCursor: objectEndCursor,
                     };
-                    const objectResult = await gqlClient.query({
+                    const objectResult = await queryWithRetry(gqlClient, {
                         query: objectChangesQuery,
                         variables: objectVariables,
                     });
@@ -289,6 +423,12 @@ ${objectChangesSection}
             break;
         }
     }
+    // Recover input states that GraphQL pruned (a StakedIota created long ago and
+    // never modified has its input version pruned from the indexer, so the unstake
+    // would otherwise be invisible). The full-node JSON-RPC still retains the past
+    // object, so we backfill the missing inputState before the stake-type filter.
+    await recoverPrunedStakeInputStates(allNodes);
+
     const stakeTypes = [
         '0x0000000000000000000000000000000000000000000000000000000000000003::staking_pool::StakedIota',
         '0x0000000000000000000000000000000000000000000000000000000000000003::timelocked_staking::TimelockedStakedIota',
@@ -326,7 +466,7 @@ ${objectChangesSection}
 }
 
 export async function fetchStakeTransactions(address: string, options?: FetchStakeTxsOptions) {
-    return fetchStakeTransactionsByRole(address, 'signAddress', options);
+    return fetchStakeTransactionsByRole(address, 'sentAddress', options);
 }
 
 export async function fetchReceivedStakeTransactions(

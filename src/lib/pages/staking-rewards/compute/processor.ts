@@ -1195,9 +1195,13 @@ export async function processStakeTransactionsWithExchangeRates(
     if (currentStakeObjects && currentStakeObjects.length > 0) {
         supplementMissingStakeObjects(allStakeObjects, currentStakeObjects, currentEpoch);
     }
-    if (startEpoch !== undefined) {
-        extendFirstEpochToActivation(allStakeObjects, startEpoch);
-    }
+    // Reconstruct pre-history for objects whose creation tx was never captured
+    // (stakeActivationEpoch < firstEpoch). This happens both for time-frame fetches
+    // (creation filtered out) and for "all time" fetches where an old object's
+    // creation/input state was pruned and only its unstake survives via recovery.
+    // Normal objects (firstEpoch == stakeActivationEpoch) are never touched, so it
+    // is safe to run unconditionally; `startEpoch ?? 0` keeps all candidates eligible.
+    extendFirstEpochToActivation(allStakeObjects, startEpoch ?? 0);
 
     // Finalize lastEpoch for all stake objects based on their complete action history
     // This ensures correct behavior when multiple actions happen in the same epoch
