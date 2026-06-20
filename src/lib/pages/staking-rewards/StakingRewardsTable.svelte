@@ -79,6 +79,7 @@
         noTransactionsFound = false,
         timeFrameFilteredEpochs = undefined as number[] | undefined,
         exportFileName = '' as string,
+        previousRewardsNotice = '' as string,
     } = $props();
 
     let windowWidth = $state(0);
@@ -317,6 +318,7 @@
             fileName: opts.fileName || exportFileName,
             wrapStakeObjects: opts.wrapStakeObjects,
             wrapValidators: opts.wrapValidators,
+            ...(previousRewardsNotice && { previousRewardsNotice }),
         };
 
         const onProgress = (p: ExportProgress) => {
@@ -504,6 +506,7 @@
                 selectedCurrency,
                 wrapStakeObjects: opts.wrapStakeObjects,
                 wrapValidators: opts.wrapValidators,
+                ...(previousRewardsNotice && { previousRewardsNotice }),
             },
             previewRowLimit,
         })}

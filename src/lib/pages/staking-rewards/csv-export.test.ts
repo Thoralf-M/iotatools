@@ -197,4 +197,31 @@ describe('CSV / PDF export - snapshot', () => {
         const [main] = buildExportSections({ ...baseInputs, options });
         expect(main.headers.some((h) => h.startsWith('Total Earned'))).toBe(false);
     });
+
+    it('renders the "previous rewards ignored" notice as the main section title in the CSV', () => {
+        const notice = 'Previous rewards ignored: 31.00 IOTA — accrued before epoch 131';
+        const options: ExportOptions = {
+            showPriceColumns: false,
+            showValidatorColumns: false,
+            epochPrices: {},
+            selectedCurrency: 'usd',
+            previousRewardsNotice: notice,
+        };
+        const sections = buildExportSections({ ...baseInputs, options });
+        expect(sections[0].title).toBe(notice);
+        // And it makes it into the serialized CSV ahead of the header row.
+        const csv = sectionsToCsv([sections[0]]);
+        expect(csv.indexOf(notice)).toBeLessThan(csv.indexOf('Epoch'));
+    });
+
+    it('omits the notice title when the option is not active', () => {
+        const options: ExportOptions = {
+            showPriceColumns: false,
+            showValidatorColumns: false,
+            epochPrices: {},
+            selectedCurrency: 'usd',
+        };
+        const [main] = buildExportSections({ ...baseInputs, options });
+        expect(main.title).toBeUndefined();
+    });
 });

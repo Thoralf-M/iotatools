@@ -238,7 +238,7 @@ export async function fetchTransactionsForAddress(
     address: string,
     options: FetchTransactionsOptions,
 ): Promise<{ txs: TransactionNode[]; nextCursor: string | null; hasMore: boolean }> {
-    const filterParts = [`signAddress: $address`];
+    const filterParts = [`sentAddress: $address`];
 
     if (options.afterCheckpoint && options.afterCheckpoint.trim()) {
         filterParts.push(`afterCheckpoint: ${parseInt(options.afterCheckpoint)}`);
