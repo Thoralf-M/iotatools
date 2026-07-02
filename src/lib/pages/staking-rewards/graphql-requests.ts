@@ -12,6 +12,21 @@ import { formatDate } from './formatting';
 import { queryWithRetry } from './graphql-retry';
 
 /**
+ * Per-request scan window for the address-filtered transactionBlocks query.
+ *
+ * The `sentAddress`/`recvAddress` filters are scan-based, not index-backed: the
+ * server walks a bounded window of transactions per request. Without an explicit
+ * `scanLimit`, a window that contains no match returns `endCursor: null` while
+ * `hasNextPage` stays true, which stalls cursor-based pagination after the first
+ * window. Passing an explicit `scanLimit` makes the server return the
+ * scan-boundary cursor for empty windows, so pagination can continue scanning.
+ *
+ * 20000 is the server's hard maximum (higher values are rejected with
+ * "Scan limit exceeds max limit of '20000'").
+ */
+const SCAN_LIMIT = 20000;
+
+/**
  * Returns the first checkpoint sequence number of the given epoch, or null if
  * the epoch is unknown. Used to translate a startEpoch into an afterCheckpoint
  * filter so the transactionBlocks query can be bounded server-side.
@@ -257,12 +272,17 @@ async function fetchStakeTransactionsByRole(
     });
     let allNodes = [];
     let cursorSection = '';
-    let hasNextPage = true;
-    let endCursor = '';
+    // Paginate newest-first (`last`/`before`): the address's stake transactions
+    // live near the chain tip, so scanning backward from the tip reaches them in
+    // a bounded number of windows. Scanning forward (`first`) would start at
+    // genesis (tx #0) and never reach recent activity within a usable request
+    // budget. See SCAN_LIMIT for how empty windows are traversed.
+    let hasPreviousPage = true;
+    let startCursor = '';
     let pageCount = 0;
-    while (hasNextPage) {
+    while (hasPreviousPage) {
         console.log(
-            `Fetching transactions for address: ${address}, role: ${role}, cursor: ${endCursor}`,
+            `Fetching transactions for address: ${address}, role: ${role}, cursor: ${startCursor}`,
         );
 
         const query = `
@@ -271,11 +291,11 @@ async function fetchStakeTransactionsByRole(
                     filter: {
                         ${role}: $address${afterCheckpointFilter}
                     }
-                    first: ${batchSize}${cursorSection}
+                    last: ${batchSize}${cursorSection}, scanLimit: ${SCAN_LIMIT}
                 ) {
                     pageInfo {
-                        hasNextPage
-                        endCursor
+                        hasPreviousPage
+                        startCursor
                     }
                     nodes {
                         digest
@@ -401,24 +421,24 @@ ${objectChangesSection}
                 allNodes.push(tx);
             }
         }
-        hasNextPage =
+        hasPreviousPage =
             txBlocks &&
             typeof txBlocks === 'object' &&
             'pageInfo' in txBlocks &&
-            (txBlocks as any).pageInfo?.hasNextPage
-                ? (txBlocks as any).pageInfo.hasNextPage
+            (txBlocks as any).pageInfo?.hasPreviousPage
+                ? (txBlocks as any).pageInfo.hasPreviousPage
                 : false;
-        endCursor =
+        startCursor =
             txBlocks &&
             typeof txBlocks === 'object' &&
             'pageInfo' in txBlocks &&
-            (txBlocks as any).pageInfo?.endCursor
-                ? (txBlocks as any).pageInfo.endCursor
+            (txBlocks as any).pageInfo?.startCursor
+                ? (txBlocks as any).pageInfo.startCursor
                 : undefined;
         pageCount++;
         onProgress?.({ pages: pageCount, transactions: allNodes.length });
-        if (hasNextPage && endCursor) {
-            cursorSection = `,after: "${endCursor}"`;
+        if (hasPreviousPage && startCursor) {
+            cursorSection = `,before: "${startCursor}"`;
         } else {
             break;
         }
