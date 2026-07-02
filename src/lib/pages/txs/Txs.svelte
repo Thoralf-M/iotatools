@@ -1606,9 +1606,17 @@
                                         >
                                             {shortenId(tx.digest, 10)}
                                         </span>
-                                        <span class="tx-sender-label" title={tx.sender}>
+                                        <a
+                                            class="tx-sender-label"
+                                            href={getAddressLink(
+                                                getSelectedNetworkConfig(),
+                                                tx.sender,
+                                            )}
+                                            target="_blank"
+                                            title={tx.sender}
+                                        >
                                             {shortenId(tx.sender, 8)}
-                                        </span>
+                                        </a>
                                         <span class="tx-time">{formatTimestamp(tx.timestamp)}</span>
                                         <span class="checkpoint-badge">#{tx.checkpoint}</span>
                                     </div>
@@ -2623,6 +2631,12 @@
         font-size: 0.7rem;
         color: rgba(255, 255, 255, 0.6);
         font-family: 'JetBrains Mono', monospace;
+        text-decoration: none;
+    }
+
+    .tx-sender-label:hover {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: underline;
     }
 
     .tx-time {

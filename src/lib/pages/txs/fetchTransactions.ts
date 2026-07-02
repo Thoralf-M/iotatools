@@ -154,6 +154,12 @@ export async function fetchTransactionByDigest(digest: string): Promise<Transact
     }
 }
 
+// The GraphQL server rejects any `scanLimit` above this hard cap with a
+// BAD_USER_INPUT error ("Scan limit exceeds max limit of '20000'"). Scan-based
+// filters (e.g. `function`) page through further windows via the returned
+// cursor, so this is the per-request ceiling, not a total.
+const MAX_SCAN_LIMIT = 20000;
+
 interface FetchTransactionsOptions {
     limit: number;
     cursor?: string | null;
@@ -252,7 +258,7 @@ export async function fetchTransactionsForAddress(
 
     const scanLimit =
         options.combineFunctionFilter && options.functionFilter && options.functionFilter.trim()
-            ? 100000000
+            ? MAX_SCAN_LIMIT
             : undefined;
 
     return fetchTransactionsWithFilter(filterParts, { address }, options, scanLimit);
@@ -276,7 +282,7 @@ export async function fetchTransactionsByInputObject(
 
     const scanLimit =
         options.combineFunctionFilter && options.functionFilter && options.functionFilter.trim()
-            ? 100000000
+            ? MAX_SCAN_LIMIT
             : undefined;
 
     return fetchTransactionsWithFilter(filterParts, { objectId }, options, scanLimit);
@@ -294,7 +300,7 @@ export async function fetchTransactionsByFunction(
         filterParts.push(`beforeCheckpoint: ${parseInt(options.beforeCheckpoint)}`);
     }
 
-    return fetchTransactionsWithFilter(filterParts, {}, options, 100000000);
+    return fetchTransactionsWithFilter(filterParts, {}, options, MAX_SCAN_LIMIT);
 }
 
 export async function fetchRecentTransactions(

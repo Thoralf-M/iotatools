@@ -48,7 +48,11 @@
         address:
             $activeAddress || '0x5caab122e732ae3e00c374b7653f7d01b840891467cc157ca3f6b776b64c3fc1',
         addresses: '',
-        timeFrame: 'all',
+        // Default to a narrow window: an address-filtered "All time" fetch is
+        // scan-based server-side and must walk the entire retained history
+        // (thousands of requests), so it's slow. A recent window is fast and
+        // covers the common case. See the note next to the Time frame control.
+        timeFrame: 'last-3-days',
         customStart: '',
         customEnd: '',
         customEpochStart: '',
@@ -213,7 +217,7 @@
     // two-way bindings can own the state from then on.
     let selectedTimeFrame: TimeFrame = isValidTimeFrame(initialQueryParams.timeFrame)
         ? (initialQueryParams.timeFrame as TimeFrame)
-        : 'all';
+        : 'last-3-days';
     let customDateStart = initialQueryParams.customStart || '';
     let customDateEnd = initialQueryParams.customEnd || '';
     // bind:value on <input type="number"> yields `null` (not '') when cleared,
@@ -225,7 +229,9 @@
     // value is meaningful and clears the param otherwise so shared links stay
     // minimal.
     $: updatePageQueryParams({
-        timeFrame: selectedTimeFrame === 'all' ? null : selectedTimeFrame,
+        // Omit the param when it equals the default so shared links stay minimal;
+        // every other value (including 'all') round-trips explicitly.
+        timeFrame: selectedTimeFrame === 'last-3-days' ? null : selectedTimeFrame,
     });
     $: updatePageQueryParams({
         customStart: selectedTimeFrame === 'custom' && customDateStart ? customDateStart : null,
@@ -788,7 +794,21 @@
                             <option {value}>{label}</option>
                         {/each}
                     </select>
+                    <div class="tooltip-container">
+                        <span class="info-icon">ⓘ</span>
+                        <div class="tooltip">
+                            Prefer a narrow window. Address transactions are scanned server-side, so
+                            a wider frame (especially "All time") walks much more history and can
+                            take several minutes. Recent windows are fast.
+                        </div>
+                    </div>
                 </label>
+                {#if selectedTimeFrame === 'all'}
+                    <span class="timeframe-warning">
+                        ⚠ "All time" scans the entire retained history and can take several minutes
+                        — pick a narrower window if you only need recent rewards.
+                    </span>
+                {/if}
                 {#if selectedTimeFrame === 'custom'}
                     <label class="timeframe-date">
                         From:
@@ -1152,8 +1172,21 @@
         font-size: 0.9rem;
     }
 
+    .timeframe-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
     .timeframe-label select {
         margin-left: 0.25rem;
+    }
+
+    .timeframe-warning {
+        flex-basis: 100%;
+        color: #f59e0b;
+        font-size: 0.8rem;
+        opacity: 0.9;
     }
 
     .timeframe-date input {

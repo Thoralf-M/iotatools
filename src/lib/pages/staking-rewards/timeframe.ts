@@ -5,6 +5,7 @@
 
 export type TimeFrame =
     | 'all'
+    | 'last-3-days'
     | 'last-7-days'
     | 'last-month'
     | 'last-quarter'
@@ -24,6 +25,7 @@ export type EpochRange = {
 
 export const TIME_FRAME_LABELS: Record<TimeFrame, string> = {
     all: 'All time',
+    'last-3-days': 'Last 3 days',
     'last-7-days': 'Last 7 days',
     'last-month': 'Last month',
     'last-quarter': 'Last quarter',
@@ -49,6 +51,12 @@ export function getTimeFrameDateRange(
     const now = referenceDate ?? new Date();
 
     switch (timeFrame) {
+        case 'last-3-days': {
+            // Start at midnight 2 days ago so the window covers 3 full days
+            // including today (mirrors the "last-7-days" arithmetic).
+            const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 2);
+            return { start, end: now };
+        }
         case 'last-7-days': {
             // Start at midnight 6 days ago so the window covers 7 full days
             // including today. Date arithmetic via the Date ctor normalizes
