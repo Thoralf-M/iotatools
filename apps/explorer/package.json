@@ -1,0 +1,30 @@
+{
+  "name": "iota-explorer",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Developer-grade IOTA blockchain explorer built on the @iota/sdk-wasm bindings of iota-rust-sdk",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "build:integrated": "tsc -b && VITE_HASH_ROUTER=1 vite build --base=./"
+  },
+  "dependencies": {
+    "@fontsource/chakra-petch": "^5.2.5",
+    "@fontsource/spline-sans-mono": "^5.2.5",
+    "@iota/sdk-wasm": "link:../../../iota-rust-sdk/bindings/wasm",
+    "@tanstack/react-query": "^5.90.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.9.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.1",
+    "@vitejs/plugin-react": "^5.0.4",
+    "typescript": "~5.9.3",
+    "vite": "^7.1.9"
+  }
+}

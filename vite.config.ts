@@ -7,6 +7,20 @@ import { defineConfig } from 'vite';
 export default defineConfig({
     plugins: [
         svelte(),
+        // Serve the staged explorer sub-app (public/explorer, see
+        // `pnpm build:explorer`) at /explorer/ in dev — Vite's SPA fallback
+        // would otherwise swallow the directory request.
+        {
+            name: 'serve-explorer-dir-index',
+            configureServer(server) {
+                server.middlewares.use((req, _res, next) => {
+                    if (req.url === '/explorer' || req.url === '/explorer/') {
+                        req.url = '/explorer/index.html';
+                    }
+                    next();
+                });
+            },
+        },
         // Required for the HID connection for Ledger devices
         NodeGlobalsPolyfillPlugin({
             buffer: true,

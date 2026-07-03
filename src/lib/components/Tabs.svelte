@@ -48,15 +48,20 @@
             <div class="group-label">{group}</div>
             <div class="tab-buttons-row">
                 {#each items.filter((item) => item.group === group) as item}
-                    <button
-                        class={$location === item.route ? 'active' : ''}
-                        onclick={() => {
-                            loadTab(item.route);
-                            navigateWithGlobalParams(item.route);
-                        }}
-                    >
-                        {item.label}
-                    </button>
+                    {#if item.href}
+                        <!-- external entry (e.g. the explorer sub-app) rendered as a link -->
+                        <a class="tab-link" href={item.href}>{item.label}</a>
+                    {:else}
+                        <button
+                            class={$location === item.route ? 'active' : ''}
+                            onclick={() => {
+                                loadTab(item.route);
+                                navigateWithGlobalParams(item.route);
+                            }}
+                        >
+                            {item.label}
+                        </button>
+                    {/if}
                 {/each}
             </div>
         </div>
@@ -149,6 +154,27 @@
         position: relative;
         overflow: hidden;
         word-break: break-word;
+    }
+    a.tab-link {
+        border: 1px solid rgba(156, 163, 175, 0.1);
+        border-radius: 12px;
+        display: block;
+        padding: 0.5rem 0.7rem;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 0.9rem;
+        background: rgba(18, 23, 31, 0.8);
+        color: rgba(255, 255, 255, 0.8);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        word-break: break-word;
+    }
+    a.tab-link:hover {
+        border-color: rgba(59, 130, 246, 0.5);
+        background: rgba(59, 130, 246, 0.1);
+        color: rgba(255, 255, 255, 0.95);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
     }
     button.active {
         background: linear-gradient(135deg, #171a2f 75%, rgb(57, 73, 115));

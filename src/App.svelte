@@ -114,6 +114,7 @@
         { label: 'IOTA-Names', route: '/iota-names', group: 'Other' },
         { label: 'Candidate Stake', route: '/candidate-stake', group: 'Other' },
         { label: '⚙ Settings', route: '/settings', group: 'Other' },
+        { label: 'Explorer ↗', href: '/explorer/', group: 'Other' },
     ];
 
     $: items = $isProMode
@@ -124,6 +125,7 @@
                       'Transaction',
                       'Staking Rewards',
                       'Txs Visualizer',
+                      'Explorer ↗',
                       'Multi Account View',
                       'Sign',
                       'Split Merge Coins',
