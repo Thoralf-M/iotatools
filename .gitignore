@@ -4,3 +4,4 @@ package-lock.json
 
 # staged explorer build (source of truth: apps/explorer, committed output: docs/explorer)
 public/explorer
+apps/explorer/dist

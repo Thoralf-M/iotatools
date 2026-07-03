@@ -3,7 +3,7 @@
 
 import { Address, ObjectFilter } from "@iota/sdk-wasm";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Empty, ErrorNote, Hash, LoadingBlock, ObjectLink, Pager, Section, TypePill } from "../components/ui";
 import { normalizeTypeTag } from "../lib/format";
 import { usePagedList } from "../lib/paging";
@@ -26,10 +26,22 @@ const WELL_KNOWN_PKGS: Array<[string, string]> = [
 export default function Objects() {
   const client = useClient();
   const { network } = useNetwork();
-  const [typeTag, setTypeTag] = useState("");
-  const [owner, setOwner] = useState("");
-  const [applied, setApplied] = useState<{ typeTag: string; owner: string } | null>(null);
+  // ?type= / ?owner= make queries deep-linkable (package structs, search)
+  const [params, setParams] = useSearchParams();
+  const appliedType = params.get("type") ?? "";
+  const appliedOwner = params.get("owner") ?? "";
+  const applied = appliedType || appliedOwner ? { typeTag: appliedType, owner: appliedOwner } : null;
+  const [typeTag, setTypeTag] = useState(appliedType);
+  const [owner, setOwner] = useState(appliedOwner);
   const [err, setErr] = useState<string | null>(null);
+  const setApplied = (v: { typeTag: string; owner: string } | null) => {
+    const next = new URLSearchParams(params);
+    if (v?.typeTag) next.set("type", v.typeTag);
+    else next.delete("type");
+    if (v?.owner) next.set("owner", v.owner);
+    else next.delete("owner");
+    setParams(next);
+  };
 
   const list = usePagedList({
     queryKey: [network, "objects-query", applied],
@@ -97,7 +109,15 @@ export default function Objects() {
         ) : list.rows.length === 0 ? (
           <Empty>no objects match</Empty>
         ) : (
-          <Section index="01" title="Results">
+          <Section
+            index="01"
+            title="Results"
+            aux={
+              applied?.typeTag ? (
+                <Link to={`/events?type=${encodeURIComponent(applied.typeTag)}`}>events with this type →</Link>
+              ) : undefined
+            }
+          >
             <div className="panel tbl-wrap">
               <table className="tbl">
                 <thead>

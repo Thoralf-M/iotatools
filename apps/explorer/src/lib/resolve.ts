@@ -102,7 +102,9 @@ export async function resolveQuery(
       if (/^[a-z]/.test(lastSeg) && !query.includes("<")) {
         return { to: `/transactions?fn=${encodeURIComponent(query)}`, label: "Transactions calling function" };
       }
-      return { to: `/events?type=${encodeURIComponent(query)}`, label: "Events by type" };
+      // Type name → objects of that type; the results page cross-links to
+      // events with the same type, so both are one click away.
+      return { to: `/objects?type=${encodeURIComponent(query)}`, label: "Objects by type" };
     }
     if (pkg && seg.length === 2) return { to: `/package/${pkg}?module=${seg[1]}`, label: "Package module" };
     return null;

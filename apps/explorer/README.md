@@ -1,4 +1,4 @@
-# TANGLESCOPE — IOTA Explorer
+# IOTASCOPE — IOTA Explorer
 
 A developer-grade blockchain explorer for IOTA, built entirely on the
 **`@iota/sdk-wasm`** bindings of [`iota-rust-sdk`](../iota-rust-sdk) —

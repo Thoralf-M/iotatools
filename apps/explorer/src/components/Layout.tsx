@@ -249,7 +249,7 @@ export function Layout() {
           <img className="brand-mark" src={`${import.meta.env.BASE_URL}tangle.svg`} alt="" />
           <div>
             <div className="brand-name">
-              TANGLE<em>SCOPE</em>
+              IOTA<em>SCOPE</em>
             </div>
             <div className="brand-sub">IOTA EXPLORER</div>
           </div>
@@ -301,7 +301,7 @@ export function Layout() {
           <div className="topbar-brand">
             <img className="brand-mark" src={`${import.meta.env.BASE_URL}tangle.svg`} alt="" />
             <span className="brand-name">
-              TANGLE<em>SCOPE</em>
+              IOTA<em>SCOPE</em>
             </span>
           </div>
           <SearchBox />

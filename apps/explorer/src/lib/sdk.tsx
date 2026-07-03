@@ -91,8 +91,18 @@ export const NETWORKS: Record<Exclude<NetworkId, "custom">, NetworkDef> = {
   },
 };
 
-const LS_KEY = "tanglescope.network";
-const LS_CUSTOM = "tanglescope.customUrl";
+const LS_KEY = "iotascope.network";
+const LS_CUSTOM = "iotascope.customUrl";
+
+// one-time migration from the pre-rename keys
+for (const [oldKey, newKey] of [
+  ["tanglescope.network", LS_KEY],
+  ["tanglescope.customUrl", LS_CUSTOM],
+] as const) {
+  const v = localStorage.getItem(oldKey);
+  if (v != null && localStorage.getItem(newKey) == null) localStorage.setItem(newKey, v);
+  if (v != null) localStorage.removeItem(oldKey);
+}
 
 interface NetCtx {
   network: NetworkId;

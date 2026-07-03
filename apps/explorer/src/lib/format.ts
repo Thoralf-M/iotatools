@@ -227,3 +227,33 @@ export function effectiveCommissionBps(
   if (!iip8Active || votingPower == null) return commission;
   return Math.max(commission, votingPower);
 }
+
+// ── package id prettification ───────────────────────────────────────────────
+
+/** Well-known system packages → their common names. */
+export const KNOWN_PACKAGES: Record<string, string> = {
+  "0x0000000000000000000000000000000000000000000000000000000000000001": "std",
+  "0x0000000000000000000000000000000000000000000000000000000000000002": "iota",
+  "0x0000000000000000000000000000000000000000000000000000000000000003": "iota_system",
+  "0x000000000000000000000000000000000000000000000000000000000000107a": "stardust",
+  "0x000000000000000000000000000000000000000000000000000000000000000b": "bridge",
+};
+
+/** Full 64-char package id → known name or middle-ellipsized hex. */
+export function shortPackage(hex: string): string {
+  const known = KNOWN_PACKAGES[hex.toLowerCase()];
+  if (known) return known;
+  return `${hex.slice(0, 8)}…${hex.slice(-4)}`;
+}
+
+const FULL_HEX_RE = /0x[0-9a-fA-F]{64}/g;
+
+/**
+ * Make Move type reprs readable: every embedded full-length package id
+ * becomes its known name (std, iota, …) or a middle-ellipsized hex.
+ * `0x…0001::ascii::String` → `std::ascii::String`. Show the original in a
+ * title attribute — this is display-only and lossy.
+ */
+export function prettifyTypeRepr(repr: string): string {
+  return repr.replace(FULL_HEX_RE, (m) => shortPackage(m));
+}

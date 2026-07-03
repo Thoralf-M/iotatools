@@ -46,7 +46,7 @@ import {
   TypePill,
   useTabParam,
 } from "../components/ui";
-import { base64ToBytes, bytesToHex, fmtInt, fmtIota, fmtTimestamp, shortType, timeAgo } from "../lib/format";
+import { base64ToBytes, bytesToHex, fmtInt, fmtIota, fmtTimestamp, shortPackage, shortType, timeAgo } from "../lib/format";
 import { txExtras } from "../lib/gql";
 import { pageFwd, useClient, useNetwork } from "../lib/sdk";
 import { argLabel, commandViews, effectsView, kindLabel, kindTag, netGas, ptbBody, unwrapV1 } from "../lib/tx";
@@ -459,7 +459,84 @@ function InputCard({ input, idx }: { input: any; idx: number }) {
   );
 }
 
-function CommandCard({ view, idx, usedBy }: { view: ReturnType<typeof commandViews>[number]; idx: number; usedBy: number[] }) {
+/** One PTB argument. With `inputs` provided (combined view) the referenced
+ *  input value is inlined — pure values decoded, objects linked — instead of
+ *  the bare "Input(n)" indirection. */
+function Arg({ arg, inputs }: { arg: any; inputs: any[] | null }) {
+  if (arg === "Gas" || arg === "GasCoin") {
+    return (
+      <span className="pill amber" style={{ fontSize: 9.5 }} title="the gas coin (special argument)">
+        Gas
+      </span>
+    );
+  }
+  if (arg && typeof arg === "object" && "Result" in arg) {
+    return (
+      <span className="pill teal" style={{ fontSize: 9.5 }} title={`output of command #${arg.Result}`}>
+        result of #{arg.Result}
+      </span>
+    );
+  }
+  if (arg && typeof arg === "object" && "NestedResult" in arg) {
+    const [c, n] = arg.NestedResult;
+    return (
+      <span className="pill teal" style={{ fontSize: 9.5 }} title={`output ${n} of command #${c}`}>
+        result of #{c}[{n}]
+      </span>
+    );
+  }
+  if (arg && typeof arg === "object" && "Input" in arg) {
+    const i = Number(arg.Input);
+    const input = inputs?.[i];
+    if (input == null) {
+      return <span style={{ color: "var(--amber)" }}>{argLabel(arg)}</span>;
+    }
+    const tag = typeof input === "string" ? input : Object.keys(input ?? {})[0] ?? "?";
+    const body = typeof input === "object" ? input[tag] : null;
+    if (tag === "Pure") {
+      const b64 = typeof body === "string" ? body : (body?.value ?? "");
+      let hex = "";
+      let display: string | null = null;
+      try {
+        const bytes = base64ToBytes(b64);
+        hex = bytesToHex(bytes);
+        const guesses = decodePure(bytes);
+        const str = guesses.find((g) => g.label === "string?");
+        display = str ? str.value : (guesses[0]?.value ?? null);
+      } catch {
+        hex = b64;
+      }
+      const shortHex = hex.length > 22 ? `${hex.slice(0, 12)}…${hex.slice(-6)}` : hex;
+      return (
+        <span
+          className="mono"
+          style={{ color: "var(--amber)", overflowWrap: "anywhere" }}
+          title={`input #${i} (pure) · ${hex}`}
+        >
+          {display ?? shortHex}
+          <span className="faint" style={{ fontSize: 9 }}>ᵢ{i}</span>
+        </span>
+      );
+    }
+    if (body?.object_id) {
+      return (
+        <span style={{ whiteSpace: "nowrap" }} title={`input #${i} (${tag})`}>
+          <ObjectLink id={body.object_id} />
+          {tag === "Shared" && (
+            <span className="pill amber" style={{ fontSize: 8.5, marginLeft: 3 }} title={`shared object, ${body.mutable ? "mutable" : "read-only"} access`}>
+              {body.mutable ? "shared·mut" : "shared"}
+            </span>
+          )}
+          {tag === "Receiving" && <span className="pill blue" style={{ fontSize: 8.5, marginLeft: 3 }}>receiving</span>}
+        </span>
+      );
+    }
+    return <span style={{ color: "var(--amber)" }}>{argLabel(arg)}</span>;
+  }
+  return <span style={{ color: "var(--amber)" }}>{argLabel(arg)}</span>;
+}
+
+function CommandCard({ view, idx, usedBy, inputs }: { view: ReturnType<typeof commandViews>[number]; idx: number; usedBy: number[]; inputs: any[] | null }) {
   const { tag, target, body } = view;
   return (
     <div className="cmd-card">
@@ -468,8 +545,8 @@ function CommandCard({ view, idx, usedBy }: { view: ReturnType<typeof commandVie
         <Pill color="teal">{tag}</Pill>
         {target && (
           <span className="mono">
-            <Link to={`/package/${target.pkg}?module=${target.module}`}>
-              {target.pkg.slice(0, 8)}…::{target.module}
+            <Link to={`/package/${target.pkg}?module=${target.module}`} title={target.pkg}>
+              {shortPackage(target.pkg)}::{target.module}
             </Link>
             ::<b>{target.fn}</b>
             {target.typeArgs.length > 0 && <span className="dim">&lt;{target.typeArgs.map(shortType).join(", ")}&gt;</span>}
@@ -479,13 +556,13 @@ function CommandCard({ view, idx, usedBy }: { view: ReturnType<typeof commandVie
           <span className="dim">→ used by {usedBy.map((j) => `#${j}`).join(", ")}</span>
         )}
       </div>
-      <div className="cmd-body">
+      <div className="cmd-body" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>
         {tag === "MoveCall" && (
           <div>
             args: [{(body.arguments ?? []).map((a: any, i: number) => (
               <span key={i}>
                 {i > 0 && ", "}
-                <span style={{ color: "var(--amber)" }}>{argLabel(a)}</span>
+                <Arg arg={a} inputs={inputs} />
               </span>
             ))}]
           </div>
@@ -493,19 +570,19 @@ function CommandCard({ view, idx, usedBy }: { view: ReturnType<typeof commandVie
         {tag === "TransferObjects" && (
           <div>
             objects [{(body.objects ?? []).map((a: any, i: number) => (
-              <span key={i} style={{ color: "var(--amber)" }}>
+              <span key={i}>
                 {i > 0 ? ", " : ""}
-                {argLabel(a)}
+                <Arg arg={a} inputs={inputs} />
               </span>
-            ))}] → <span style={{ color: "var(--amber)" }}>{argLabel(body.address)}</span>
+            ))}] → <Arg arg={body.address} inputs={inputs} />
           </div>
         )}
         {tag === "SplitCoins" && (
           <div>
-            split <span style={{ color: "var(--amber)" }}>{argLabel(body.coin)}</span> into [{(body.amounts ?? []).map((a: any, i: number) => (
-              <span key={i} style={{ color: "var(--amber)" }}>
+            split <Arg arg={body.coin} inputs={inputs} /> into [{(body.amounts ?? []).map((a: any, i: number) => (
+              <span key={i}>
                 {i > 0 ? ", " : ""}
-                {argLabel(a)}
+                <Arg arg={a} inputs={inputs} />
               </span>
             ))}]
           </div>
@@ -513,20 +590,20 @@ function CommandCard({ view, idx, usedBy }: { view: ReturnType<typeof commandVie
         {tag === "MergeCoins" && (
           <div>
             merge [{(body.coins_to_merge ?? []).map((a: any, i: number) => (
-              <span key={i} style={{ color: "var(--amber)" }}>
+              <span key={i}>
                 {i > 0 ? ", " : ""}
-                {argLabel(a)}
+                <Arg arg={a} inputs={inputs} />
               </span>
-            ))}] into <span style={{ color: "var(--amber)" }}>{argLabel(body.coin)}</span>
+            ))}] into <Arg arg={body.coin} inputs={inputs} />
           </div>
         )}
         {tag === "MakeMoveVector" && (
           <div>
             {body.type_ && <span className="dim">&lt;{shortType(String(body.type_))}&gt; </span>}
             elements: [{(body.elements ?? []).map((a: any, i: number) => (
-              <span key={i} style={{ color: "var(--amber)" }}>
+              <span key={i}>
                 {i > 0 ? ", " : ""}
-                {argLabel(a)}
+                <Arg arg={a} inputs={inputs} />
               </span>
             ))}]
           </div>
@@ -545,7 +622,7 @@ function CommandCard({ view, idx, usedBy }: { view: ReturnType<typeof commandVie
         )}
         {tag === "Upgrade" && (
           <div>
-            package <ObjectLink id={String(body.package)} /> · ticket <span style={{ color: "var(--amber)" }}>{argLabel(body.ticket)}</span> ·{" "}
+            package <ObjectLink id={String(body.package)} /> · ticket <Arg arg={body.ticket} inputs={inputs} /> ·{" "}
             {(body.modules ?? []).length} modules
           </div>
         )}
@@ -561,6 +638,7 @@ export default function TransactionDetail() {
   const { digest = "" } = useParams();
   const q = useTx(digest);
   const [tab, setTab] = useTabParam("overview");
+  const [ptbView, setPtbView] = useState<"combined" | "separated">("combined");
 
   if (q.isPending) return <LoadingBlock />;
   if (q.error) return <ErrorNote error={q.error} />;
@@ -572,6 +650,18 @@ export default function TransactionDetail() {
   const cmds = ptb ? commandViews(ptb.commands) : [];
   const usedBy = ptb ? resultConsumers(ptb.commands) : [];
   const gasArgUsed = ptb ? usesGasArg(ptb.commands) : false;
+  // inputs never referenced by any command (rare, but don't hide them).
+  // Plain computation — this code runs after conditional returns, so no hooks.
+  const unusedInputs: number[] = (() => {
+    if (!ptb) return [];
+    const used = new Set<number>();
+    ptb.commands.forEach((cmd: any) =>
+      eachArg(cmd, (a: any) => {
+        if (a && typeof a === "object" && "Input" in a) used.add(Number(a.Input));
+      }),
+    );
+    return ptb.inputs.map((_: any, i: number) => i).filter((i: number) => !used.has(i));
+  })();
   const gasPay = txJson?.gas_payment;
   const sender: string = txJson?.sender ?? "";
   const gasOwner: string | null = gasPay?.owner ?? null;
@@ -778,33 +868,56 @@ export default function TransactionDetail() {
       {tab === "ptb" &&
         (ptb ? (
           <>
-            <div className="dim" style={{ margin: "10px 0 2px" }}>
-              <Info tip={TERMS.ptb}>programmable transaction block</Info>
+            <div className="row spread" style={{ margin: "10px 0 2px" }}>
+              <span className="dim">
+                <Info tip={TERMS.ptb}>programmable transaction block</Info>
+              </span>
+              <span className="row" style={{ gap: 6 }}>
+                <button
+                  className={`pill${ptbView === "combined" ? " teal" : ""}`}
+                  style={{ cursor: "pointer", background: ptbView === "combined" ? undefined : "transparent" }}
+                  onClick={() => setPtbView("combined")}
+                  title="input values inlined where the commands use them"
+                >
+                  COMBINED
+                </button>
+                <button
+                  className={`pill${ptbView === "separated" ? " teal" : ""}`}
+                  style={{ cursor: "pointer", background: ptbView === "separated" ? undefined : "transparent" }}
+                  onClick={() => setPtbView("separated")}
+                  title="raw structure: input list + commands referencing Input(n)"
+                >
+                  INPUTS + COMMANDS
+                </button>
+              </span>
             </div>
-            <Section index="01" title="Inputs" aux={<><Info tip={TERMS.ptbInputs} /> {ptb.inputs.length} values</>}>
-              <div className="panel tbl-wrap">
-                <table className="tbl">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>TYPE</th>
-                      <th>VALUE</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {ptb.inputs.map((inp: any, i: number) => (
-                      <InputCard key={i} input={inp} idx={i} />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Section>
+            {ptbView === "separated" && (
+              <Section index="01" title="Inputs" aux={<><Info tip={TERMS.ptbInputs} /> {ptb.inputs.length} values</>}>
+                <div className="panel tbl-wrap">
+                  <table className="tbl">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>TYPE</th>
+                        <th>VALUE</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ptb.inputs.map((inp: any, i: number) => (
+                        <InputCard key={i} input={inp} idx={i} />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </Section>
+            )}
             <Section
-              index="02"
+              index={ptbView === "separated" ? "02" : "01"}
               title="Commands"
               aux={
                 <>
                   <Info tip={TERMS.ptbCommands} /> {cmds.length} commands · executed in order
+                  {ptbView === "combined" && <> · values inlined, ᵢₙ marks input #n</>}
                   {gasArgUsed && (
                     <>
                       {" "}· <Info tip={TERMS.gasCoin}>Gas = gas coin</Info>
@@ -814,8 +927,19 @@ export default function TransactionDetail() {
               }
             >
               {cmds.map((c, i) => (
-                <CommandCard key={i} view={c} idx={i} usedBy={usedBy[i] ?? []} />
+                <CommandCard key={i} view={c} idx={i} usedBy={usedBy[i] ?? []} inputs={ptbView === "combined" ? ptb.inputs : null} />
               ))}
+              {ptbView === "combined" && unusedInputs.length > 0 && (
+                <div className="panel pad small dim" style={{ marginTop: 6 }}>
+                  unreferenced inputs:{" "}
+                  {unusedInputs.map((i, k) => (
+                    <span key={i}>
+                      {k > 0 && ", "}
+                      #{i} <Arg arg={{ Input: i }} inputs={ptb.inputs} />
+                    </span>
+                  ))}
+                </div>
+              )}
             </Section>
           </>
         ) : (

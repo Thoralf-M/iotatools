@@ -111,7 +111,17 @@ export default function Events() {
         {filterError && <div className="error-note" style={{ marginTop: 10 }}>{filterError}</div>}
       </Section>
 
-      <Section index="01" title="Stream" aux={list.page === 0 ? "live · 8s" : undefined}>
+      <Section
+        index="01"
+        title="Stream"
+        aux={
+          applied.type ? (
+            <Link to={`/objects?type=${encodeURIComponent(applied.type)}`}>objects with this type →</Link>
+          ) : list.page === 0 ? (
+            "live · 8s"
+          ) : undefined
+        }
+      >
         {list.error ? (
           <ErrorNote error={list.error} />
         ) : list.isPending ? (

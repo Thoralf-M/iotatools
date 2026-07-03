@@ -35,7 +35,7 @@ import {
   TxLink,
   TypePill,
 } from "../components/ui";
-import { fmtInt } from "../lib/format";
+import { fmtInt, prettifyTypeRepr } from "../lib/format";
 import { usePagedList } from "../lib/paging";
 import { errMsg, pageFwd, useClient, useNetwork } from "../lib/sdk";
 import { kindTag, ptbBody, unwrapV1 } from "../lib/tx";
@@ -160,7 +160,7 @@ function FunctionRunner({
       {userParams.map((p, i) => (
         <div key={p.idx} style={{ marginBottom: 6 }}>
           <div className="mono" style={{ fontSize: 10, marginBottom: 2, color: "var(--blue)" }}>
-            arg{p.idx}: {p.repr}
+            arg{p.idx}: <span title={p.repr}>{prettifyTypeRepr(p.repr)}</span>
           </div>
           <input
             className="input mono"
@@ -380,13 +380,13 @@ export default function PackagePage() {
                                 </button>
                               )}
                             </div>
-                            <div className="cmd-body">
+                            <div className="cmd-body" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>
                               <div>
                                 <span className="faint">args </span>(
                                 {(f.parameters() ?? []).map((p, i) => (
                                   <span key={i}>
                                     {i > 0 && ", "}
-                                    <span style={{ color: "var(--blue)" }}>{p.repr}</span>
+                                    <span style={{ color: "var(--blue)" }} title={p.repr}>{prettifyTypeRepr(p.repr)}</span>
                                   </span>
                                 ))}
                                 )
@@ -397,7 +397,7 @@ export default function PackagePage() {
                                   {(f.returnType() ?? []).map((r, i) => (
                                     <span key={i}>
                                       {i > 0 && ", "}
-                                      <span style={{ color: "var(--amber)" }}>{r.repr}</span>
+                                      <span style={{ color: "var(--amber)" }} title={r.repr}>{prettifyTypeRepr(r.repr)}</span>
                                     </span>
                                   ))}
                                 </div>
@@ -434,13 +434,33 @@ export default function PackagePage() {
                             </span>
                           ) : null}
                           <span className="dim">{abilities(s.abilities)}</span>
+                          <span style={{ marginLeft: "auto", display: "inline-flex", gap: 6 }}>
+                            {(s.abilities ?? []).includes(MoveAbility.Key) && (
+                              <Link
+                                className="pill teal"
+                                style={{ fontSize: 9.5, textDecoration: "none" }}
+                                to={`/objects?type=${encodeURIComponent(`${id}::${moduleName}::${s.name}`)}`}
+                                title="objects have the key ability — query live instances of this type"
+                              >
+                                find objects →
+                              </Link>
+                            )}
+                            <Link
+                              className="pill"
+                              style={{ fontSize: 9.5, textDecoration: "none" }}
+                              to={`/events?type=${encodeURIComponent(`${id}::${moduleName}::${s.name}`)}`}
+                              title="events emitted with this type"
+                            >
+                              events →
+                            </Link>
+                          </span>
                         </div>
                         <div className="cmd-body">
                           {(s.fields ?? []).map((fl) => (
                             <div key={fl.name}>
                               <span style={{ color: "var(--ink)" }}>{fl.name}</span>
                               <span className="faint">: </span>
-                              <span style={{ color: "var(--blue)" }}>{fl.type?.repr ?? "?"}</span>
+                              <span style={{ color: "var(--blue)", overflowWrap: "anywhere" }} title={fl.type?.repr}>{fl.type?.repr ? prettifyTypeRepr(fl.type.repr) : "?"}</span>
                             </div>
                           ))}
                         </div>
@@ -466,7 +486,7 @@ export default function PackagePage() {
                                 <span className="faint">
                                   {" "}
                                   {"{ "}
-                                  {v.fields.map((fl, i) => `${i > 0 ? ", " : ""}${fl.name}: ${fl.type?.repr ?? "?"}`)}
+                                  {v.fields.map((fl, i) => `${i > 0 ? ", " : ""}${fl.name}: ${fl.type?.repr ? prettifyTypeRepr(fl.type.repr) : "?"}`)}
                                   {" }"}
                                 </span>
                               )}
