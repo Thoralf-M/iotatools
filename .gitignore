@@ -1,3 +1,6 @@
 node_modules
 package-lock.json
 .playwright-mcp
+
+# staged explorer build (source of truth: apps/explorer, committed output: docs/explorer)
+public/explorer

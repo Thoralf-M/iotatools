@@ -96,7 +96,6 @@
         { label: 'Delegators', route: '/delegators', group: 'Info' },
         { label: 'Txs', route: '/txs', group: 'Info' },
         { label: 'Txs Visualizer', route: '/txs-visualizer', group: 'Info' },
-        { label: 'Explorer ↗', href: './explorer/', group: 'Info' },
         { label: 'Multi Account View', route: '/multi-account-view', group: 'Wallet' },
         { label: 'Accounts List', route: '/accounts-list', group: 'Wallet' },
         { label: 'Keystone', route: '/keystone', group: 'Wallet' },
@@ -115,6 +114,7 @@
         { label: 'IOTA-Names', route: '/iota-names', group: 'Other' },
         { label: 'Candidate Stake', route: '/candidate-stake', group: 'Other' },
         { label: '⚙ Settings', route: '/settings', group: 'Other' },
+        { label: 'Explorer ↗', href: '/explorer/', group: 'Other' },
     ];
 
     $: items = $isProMode

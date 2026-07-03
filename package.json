@@ -9,13 +9,14 @@
         "lint": "oxlint src/",
         "fix": "pnpm format:fix && pnpm lint",
         "prettier:fix": "pnpm run format:fix",
-        "build": "vite build && pnpm --filter iota-explorer run build:integrated && node scripts/postbuild.js",
+        "build": "pnpm run build:explorer && vite build && node scripts/postbuild.js",
         "preview": "vite preview",
         "production": "node scripts/server.js",
         "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json",
         "test": "vitest --run",
         "test:ui": "vitest --ui",
-        "dev:explorer": "pnpm --filter iota-explorer run dev"
+        "dev:explorer": "pnpm --filter iota-explorer run dev",
+        "build:explorer": "pnpm --filter iota-explorer run build:integrated && rm -rf public/explorer && cp -R apps/explorer/dist public/explorer"
     },
     "license": "Apache-2.0",
     "devDependencies": {

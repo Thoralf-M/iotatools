@@ -6,10 +6,6 @@ try {
     // Move build output to docs
     execSync('rm -rf docs && mv dist docs');
 
-    // Bundle the explorer sub-app (built separately with a relative base +
-    // hash routing) under /explorer/
-    execSync('rm -rf docs/explorer && cp -R apps/explorer/dist docs/explorer');
-
     // Create CNAME file for custom domain
     writeFileSync('docs/CNAME', 'iotatools.dev\n');
 
