@@ -246,7 +246,7 @@ export function Layout() {
     <div className="app">
       <aside className={`sidebar${navOpen ? " open" : ""}`} id="site-nav">
         <div className="brand">
-          <img className="brand-mark" src={`${import.meta.env.BASE_URL}tangle.svg`} alt="" />
+          <img className="brand-mark" src={`${import.meta.env.BASE_URL}iotascope.svg`} alt="" />
           <div>
             <div className="brand-name">
               IOTA<em>SCOPE</em>
@@ -299,7 +299,7 @@ export function Layout() {
             </svg>
           </button>
           <div className="topbar-brand">
-            <img className="brand-mark" src={`${import.meta.env.BASE_URL}tangle.svg`} alt="" />
+            <img className="brand-mark" src={`${import.meta.env.BASE_URL}iotascope.svg`} alt="" />
             <span className="brand-name">
               IOTA<em>SCOPE</em>
             </span>

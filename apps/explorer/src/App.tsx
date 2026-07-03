@@ -58,7 +58,7 @@ function Boot({ children }: { children: React.ReactNode }) {
   if (state === "loading") {
     return (
       <div className="boot">
-        <img className="mark" src={`${import.meta.env.BASE_URL}tangle.svg`} alt="" />
+        <img className="mark" src={`${import.meta.env.BASE_URL}iotascope.svg`} alt="" />
         <div>LOADING IOTA-SDK WASM MODULE</div>
         <div className="faint">iota-sdk-ffi · uniffi → wasm32-unknown-unknown</div>
       </div>

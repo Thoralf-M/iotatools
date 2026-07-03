@@ -1,5 +1,5 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte';
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 
 export default defineConfig({
     plugins: [svelte({ hot: !process.env.VITEST })],
@@ -15,6 +15,9 @@ export default defineConfig({
         // each run is ~1s but CI can be several times slower. 30s gives
         // comfortable headroom without hiding real hangs.
         testTimeout: 30_000,
+        // The explorer sub-app ships its own Playwright suite under
+        // apps/explorer/tests — Playwright test() must not run inside Vitest.
+        exclude: [...configDefaults.exclude, 'apps/**'],
     },
     resolve: {
         conditions: ['browser'],
