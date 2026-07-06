@@ -16,7 +16,7 @@
         "test": "vitest --run",
         "test:ui": "vitest --ui",
         "dev:explorer": "pnpm --filter iota-explorer run dev",
-        "build:explorer": "pnpm --filter iota-explorer run build:integrated && rm -rf public/explorer && cp -R apps/explorer/dist public/explorer"
+        "build:explorer": "node scripts/build-explorer.js"
     },
     "license": "Apache-2.0",
     "devDependencies": {
