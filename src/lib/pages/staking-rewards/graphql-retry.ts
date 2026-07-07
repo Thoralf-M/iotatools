@@ -26,17 +26,14 @@ function isRetryableError(err: unknown): boolean {
 }
 
 /**
- * Run a GraphQL query, retrying on rate-limit / transient network errors with
+ * Run an async request, retrying on rate-limit / transient network errors with
  * exponential backoff and jitter. Non-retryable errors (and the final attempt)
  * are rethrown unchanged so callers keep their existing error handling.
  */
-export async function queryWithRetry<T = any>(
-    gqlClient: IotaGraphQLClient,
-    args: { query: string; variables?: Record<string, unknown> },
-): Promise<T> {
+export async function withRetry<T>(fn: () => Promise<T>, label = 'Request'): Promise<T> {
     for (let attempt = 0; ; attempt++) {
         try {
-            return (await gqlClient.query(args as any)) as T;
+            return await fn();
         } catch (err) {
             if (attempt >= MAX_RETRIES || !isRetryableError(err)) {
                 throw err;
@@ -44,12 +41,22 @@ export async function queryWithRetry<T = any>(
             const backoff = Math.min(BASE_DELAY_MS * 2 ** attempt, MAX_DELAY_MS);
             const wait = backoff + Math.random() * backoff * 0.5; // up to +50% jitter
             console.warn(
-                `GraphQL request failed (${err instanceof Error ? err.message : String(err)}); ` +
+                `${label} failed (${err instanceof Error ? err.message : String(err)}); ` +
                     `retrying in ${Math.round(wait)}ms (attempt ${attempt + 1}/${MAX_RETRIES})`,
             );
             await delay(wait);
         }
     }
+}
+
+/**
+ * Run a GraphQL query with the retry behavior of {@link withRetry}.
+ */
+export async function queryWithRetry<T = any>(
+    gqlClient: IotaGraphQLClient,
+    args: { query: string; variables?: Record<string, unknown> },
+): Promise<T> {
+    return withRetry(() => gqlClient.query(args as any) as Promise<T>, 'GraphQL request');
 }
 
 /**

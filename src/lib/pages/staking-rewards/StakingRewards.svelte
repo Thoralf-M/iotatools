@@ -48,10 +48,9 @@
         address:
             $activeAddress || '0x5caab122e732ae3e00c374b7653f7d01b840891467cc157ca3f6b776b64c3fc1',
         addresses: '',
-        // Default to a narrow window: an address-filtered "All time" fetch is
-        // scan-based server-side and must walk the entire retained history
-        // (thousands of requests), so it's slow. A recent window is fast and
-        // covers the common case. See the note next to the Time frame control.
+        // Default to a narrow window: it bounds how much transaction history is
+        // fetched and processed, and covers the common case. See the note next
+        // to the Time frame control.
         timeFrame: 'last-3-days',
         customStart: '',
         customEnd: '',
@@ -178,11 +177,11 @@
     let showValidatorColumns = true;
     let noTransactionsFound = false;
 
-    // Skip-pagination sender list — addresses whose received txs we *fetch* but
-    // for whom we *skip* the objectChanges drill-down because they post huge,
-    // non-staking transactions. Both the on/off flag and the address list are
-    // persisted independently in localStorage so the user can keep a preferred
-    // list configured but toggle the feature off without losing it.
+    // Skip-pagination sender list — addresses whose transactions are skipped
+    // when looking for stake objects because they post huge, non-staking
+    // transactions. Both the on/off flag and the address list are persisted
+    // independently in localStorage so the user can keep a preferred list
+    // configured but toggle the feature off without losing it.
     let skipSendersTextarea = $sharedStakingSkipPaginationSenders.join('\n');
     $: skipSendersList = $sharedStakingSkipPaginationEnabled
         ? parseAddresses(skipSendersTextarea)
@@ -703,10 +702,9 @@
                             <div class="tooltip-container">
                                 <span class="info-icon">ⓘ</span>
                                 <div class="tooltip">
-                                    Transactions from these addresses still get fetched, but the
-                                    objectChanges drill-down is skipped — useful for senders that
-                                    post huge non-staking transactions and would otherwise dominate
-                                    fetch time.
+                                    Transactions from these addresses are skipped when looking for
+                                    stake objects — useful for senders that post huge non-staking
+                                    transactions and would otherwise dominate fetch time.
                                 </div>
                             </div>
                         </div>
@@ -725,7 +723,7 @@
                         <p
                             style="margin: 0.4rem 0 0.25rem 0; font-size: 0.9rem; opacity: 0.8; text-align: left !important;"
                         >
-                            Sender addresses whose objectChanges pagination should be skipped:
+                            Sender addresses whose transactions should be skipped:
                         </p>
                         <textarea
                             bind:value={skipSendersTextarea}
@@ -797,18 +795,12 @@
                     <div class="tooltip-container">
                         <span class="info-icon">ⓘ</span>
                         <div class="tooltip">
-                            Prefer a narrow window. Address transactions are scanned server-side, so
-                            a wider frame (especially "All time") walks much more history and can
-                            take several minutes. Recent windows are fast.
+                            A wider frame (especially "All time") fetches and processes more
+                            transaction history, so it takes longer for very active addresses.
+                            Recent windows are fast.
                         </div>
                     </div>
                 </label>
-                {#if selectedTimeFrame === 'all'}
-                    <span class="timeframe-warning">
-                        ⚠ "All time" scans the entire retained history and can take several minutes
-                        — pick a narrower window if you only need recent rewards.
-                    </span>
-                {/if}
                 {#if selectedTimeFrame === 'custom'}
                     <label class="timeframe-date">
                         From:
@@ -1180,13 +1172,6 @@
 
     .timeframe-label select {
         margin-left: 0.25rem;
-    }
-
-    .timeframe-warning {
-        flex-basis: 100%;
-        color: #f59e0b;
-        font-size: 0.8rem;
-        opacity: 0.9;
     }
 
     .timeframe-date input {
