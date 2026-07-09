@@ -348,7 +348,7 @@ function buildStakeObjectCells(
     }
 
     const reward =
-        stakeObject.rewardsByEpoch[epoch] === '0'
+        !stakeObject.rewardsByEpoch[epoch] || stakeObject.rewardsByEpoch[epoch] === '0'
             ? '-'
             : formatNanoAsIotaFullPrecision(BigInt(stakeObject.rewardsByEpoch[epoch]));
 
