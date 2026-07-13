@@ -1,4 +1,5 @@
-import { bcs, fromBase64 } from '@iota/bcs';
+import { bcs } from '@iota/bcs';
+import { base64Decode as fromBase64 } from './wasm-sdk';
 
 export function bytesToUtf8(bytes: number[]): string {
     try {
@@ -67,7 +68,8 @@ export function decodeBase64Bytes(
     base64: string,
 ): { bytes: number[]; utf8: string; integer: { type: string; value: string } } | null {
     try {
-        const bytes = fromBase64(base64) as any;
+        const rawBytes = fromBase64(base64);
+        const bytes = Array.from(new Uint8Array(rawBytes));
         const utf8 = bytesToUtf8(bytes);
         const integer = bcsBytesToInteger(bytes);
         return { bytes, utf8, integer };

@@ -3,7 +3,7 @@
     import { onMount } from 'svelte';
 
     import TransactionView from '../../components/TransactionView.svelte';
-    import { getClient, getSelectedNetworkConfig } from '../../utils/client';
+    import { getClient, getLegacyClient, getSelectedNetworkConfig } from '../../utils/client';
     import { getAddressLink, getObjectLink } from '../../utils/explorer-links';
     import { formatAddress } from '../../utils/formatting';
     import { sharedClientConfig } from '../../utils/local-storage-store';
@@ -143,7 +143,7 @@
     async function waitForTxAndRefresh(result: any) {
         const digest = result?.digest;
         if (digest) {
-            const client = getClient();
+            const client = getLegacyClient();
             await client.waitForTransaction({ digest, waitMode: 'checkpoint' });
         }
         await refreshAll();

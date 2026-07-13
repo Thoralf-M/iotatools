@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { fromBase64, toBase64 } from '@iota/bcs';
     import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
     import type { MoveAuthenticatorData } from '@iota/iota-sdk/keypairs/move-authenticator';
     import { Transaction, TransactionDataBuilder } from '@iota/iota-sdk/transactions';
@@ -8,10 +7,11 @@
     import JsonToggleView from '../../components/JsonToggleView.svelte';
     import MoveAuthenticatorDetails from '../../components/MoveAuthenticatorDetails.svelte';
     import TransactionView from '../../components/TransactionView.svelte';
-    import { getClient, getSelectedChain } from '../../utils/client';
+    import { getClient, getLegacyClient, getSelectedChain } from '../../utils/client';
     import { copyToClipboard } from '../../utils/formatting';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
     import { activeAddress } from '../../utils/signer-data';
+    import { base64Decode as fromBase64, toB64 as toBase64 } from '../../utils/wasm-sdk';
     import { getActiveWallet } from '../../utils/web-wallet';
     import type { SignaturePubkeyPair, VerificationStatus } from './sign-utils';
     import { verifySignature } from './sign-utils';
@@ -67,14 +67,14 @@
             // Parse transaction bytes
             let txBytes: Uint8Array;
             try {
-                txBytes = fromBase64(inputString);
+                txBytes = new Uint8Array(fromBase64(inputString));
             } catch (e) {
                 error = 'Invalid base64 transaction bytes';
                 return;
             }
 
-            const client = getClient();
-            const result = await client.dryRunTransactionBlock({
+            const legacyClient = getLegacyClient();
+            const result = await legacyClient.dryRunTransactionBlock({
                 transactionBlock: txBytes,
             });
             dryRunResult = result;
@@ -171,14 +171,16 @@
             return;
         }
         try {
-            let txBytes = fromBase64(inputString);
+            let txBytes = new Uint8Array(fromBase64(inputString));
             value = TransactionDataBuilder.fromBytes(txBytes);
             // Store the original transaction bytes for display
             value.transactionBytes = inputString;
         } catch (e) {
             console.log('error TransactionDataBuilder', e);
             try {
-                const signedData = IotaBcs.SenderSignedData.parse(fromBase64(inputString));
+                const signedData = IotaBcs.SenderSignedData.parse(
+                    new Uint8Array(fromBase64(inputString)),
+                );
                 value = signedData[0];
                 // Store the original signed transaction bytes
                 value.rawTransaction = inputString;
@@ -238,7 +240,7 @@
             let transactionBytes: Uint8Array;
 
             try {
-                transactionBytes = fromBase64(inputString);
+                transactionBytes = new Uint8Array(fromBase64(inputString));
             } catch (e) {
                 error = 'Invalid base64 transaction bytes';
                 return;
@@ -332,7 +334,7 @@
             }
 
             // Parse the transaction data from bytes
-            const txBytes = fromBase64(txBytesInput.trim());
+            const txBytes = new Uint8Array(fromBase64(txBytesInput.trim()));
             const transactionData = IotaBcs.TransactionData.parse(txBytes);
 
             // Create the SenderSignedData structure
@@ -399,7 +401,7 @@
 
             let txBytes: Uint8Array;
             try {
-                txBytes = fromBase64(inputString);
+                txBytes = new Uint8Array(fromBase64(inputString));
             } catch (e) {
                 error = 'Invalid base64 transaction bytes';
                 return;
@@ -414,7 +416,7 @@
                 }
             }
 
-            const client = getClient();
+            const client = getLegacyClient();
             const result = await client.executeTransactionBlock({
                 transactionBlock: txBytes,
                 signature: signatureStrings,

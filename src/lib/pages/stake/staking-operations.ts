@@ -1,9 +1,39 @@
-import { bcs } from '@iota/bcs';
-import type { IotaClient, IotaObjectData } from '@iota/iota-sdk/client';
+// [MIGRATION] IotaClient → GraphQlClient from wasm-sdk
+import type { GraphQlClient } from '../../utils/wasm-sdk';
+type IotaObjectData = any;
 import { Transaction } from '@iota/iota-sdk/transactions';
-import { IOTA_SYSTEM_STATE_OBJECT_ID } from '@iota/iota-sdk/utils';
+import { IOTA_SYSTEM_STATE_OBJECT_ID } from '../../utils/wasm-sdk';
+import { getClient, getLegacyClient } from '../../utils/client';
 
 import { computeStakingRewards, type StakeData } from '../../utils/staking-utils';
+
+/**
+ * Helper to query a single object's type and JSON content via GraphQL.
+ */
+async function queryObjectTypeAndJson(
+    client: GraphQlClient,
+    objectId: string,
+): Promise<{ type: string | null; json: any }> {
+    const resultStr = await client.runQuery({
+        query: `query GetObject($id: IotaAddress!) {
+            object(address: $id) {
+                asMoveObject {
+                    contents {
+                        type { repr }
+                        json
+                    }
+                }
+            }
+        }`,
+        variables: JSON.stringify({ id: objectId }),
+    });
+    const result: any = JSON.parse(resultStr);
+    const contents = result?.object?.asMoveObject?.contents;
+    return {
+        type: contents?.type?.repr ?? null,
+        json: contents?.json ?? null,
+    };
+}
 
 export interface RequiredUnstakeAmount {
     amount: bigint;
@@ -35,21 +65,16 @@ export function buildStakeTransaction(validatorAddress: string, amount: number):
  * Build a transaction to unstake a single staked IOTA object
  */
 export async function buildUnstakeSingleTransaction(
-    client: IotaClient,
+    client: GraphQlClient,
     stakedIotaObjectId: string,
 ): Promise<Transaction> {
-    const obj = await client.getObject({
-        id: stakedIotaObjectId,
-        options: { showContent: true },
-    });
+    const { type } = await queryObjectTypeAndJson(client, stakedIotaObjectId);
 
     let target;
-    // @ts-ignore
-    if (obj.data?.content?.type === '0x3::staking_pool::StakedIota') {
+    if (type === '0x3::staking_pool::StakedIota') {
         target = '0x3::iota_system::request_withdraw_stake';
     }
-    // @ts-ignore
-    if (obj.data?.content?.type === '0x3::timelocked_staking::TimelockedStakedIota') {
+    if (type === '0x3::timelocked_staking::TimelockedStakedIota') {
         target = '0x3::timelocked_staking::request_withdraw_stake';
     }
 
@@ -122,25 +147,20 @@ export function buildSingleObjectUnstakeTransaction(
  * Compute the required unstake amount to withdraw a specific amount
  */
 export async function computeRequiredUnstakeAmount(
-    client: IotaClient,
+    client: GraphQlClient,
     stakedIotaObjectId: string,
     targetAmount: bigint,
     activeAddress: string,
 ): Promise<RequiredUnstakeAmount> {
     const stakeData = await computeStakingRewards(client, stakedIotaObjectId, activeAddress);
 
-    const obj = await client.getObject({
-        id: stakedIotaObjectId,
-        options: { showContent: true },
-    });
+    const { type } = await queryObjectTypeAndJson(client, stakedIotaObjectId);
 
     let timelocked = false;
-    // @ts-ignore
-    if (obj.data?.content?.type === '0x3::timelocked_staking::TimelockedStakedIota') {
+    if (type === '0x3::timelocked_staking::TimelockedStakedIota') {
         timelocked = true;
     }
-    // @ts-ignore
-    if (!timelocked && obj.data?.content?.type !== '0x3::staking_pool::StakedIota') {
+    if (!timelocked && type !== '0x3::staking_pool::StakedIota') {
         throw new Error('No staked IOTA object: ' + stakedIotaObjectId);
     }
 
@@ -167,7 +187,7 @@ export async function computeRequiredUnstakeAmount(
  * Dev inspect a staked object to get stake data
  */
 export async function devInspectStakedObject(
-    client: IotaClient,
+    client: GraphQlClient,
     stakedIotaObjectId: string,
     activeAddress: string,
 ): Promise<StakeData> {
@@ -240,31 +260,59 @@ export function buildUnstakeAllTransaction(
  * Get timelocked objects for an address
  */
 export async function getTimelockedObjects(
-    client: IotaClient,
+    client: GraphQlClient,
     address: string,
 ): Promise<IotaObjectData[]> {
-    const ownedObjectPage = await client.getOwnedObjects({
-        owner: address,
-        filter: {
-            StructType: '0x2::timelock::TimeLock<0x2::balance::Balance<0x2::iota::IOTA>>',
-        },
-        options: {
-            showContent: true,
-        },
-    });
-
-    if (ownedObjectPage.data.length === 0) {
+    const allObjects: any[] = [];
+    let cursor: string | null = null;
+    while (true) {
+        const resultStr = await client.runQuery({
+            query: `query getTimelockedObjects($owner: IotaAddress!, $type: String!, $cursor: String) {
+                address(address: $owner) {
+                    objects(filter: { type: $type }, after: $cursor) {
+                        pageInfo { hasNextPage endCursor }
+                        nodes {
+                            address
+                            contents {
+                                type { repr }
+                                json
+                            }
+                        }
+                    }
+                }
+            }`,
+            variables: JSON.stringify({
+                owner: address,
+                type: '0x2::timelock::TimeLock<0x2::balance::Balance<0x2::iota::IOTA>>',
+                cursor,
+            }),
+        });
+        const result = JSON.parse(resultStr);
+        const objects = result?.address?.objects?.nodes ?? [];
+        for (const obj of objects) {
+            const contents = obj.contents;
+            allObjects.push({
+                objectId: obj.address,
+                content: {
+                    type: contents?.type?.repr,
+                    fields: contents?.json,
+                },
+            });
+        }
+        if (!result?.address?.objects?.pageInfo?.hasNextPage) break;
+        cursor = result.address.objects.pageInfo.endCursor;
+    }
+    if (allObjects.length === 0) {
         throw new Error('no timelocked object found');
     }
-
-    return ownedObjectPage.data.map((d) => d.data!);
+    return allObjects;
 }
 
 /**
  * Run a simulation to test different unstake amounts
  */
 export async function unstakeSpecificAmountSimulation(
-    client: IotaClient,
+    client: GraphQlClient,
     stakedIotaObjectId: string,
     targetAmount: bigint,
     activeAddress: string,
@@ -310,7 +358,7 @@ export async function unstakeSpecificAmountSimulation(
             activeAddress,
         );
 
-        const txRes = await client.devInspectTransactionBlock({
+        const txRes = await getLegacyClient().devInspectTransactionBlock({
             sender: activeAddress,
             transactionBlock: tx,
         });
@@ -323,7 +371,9 @@ export async function unstakeSpecificAmountSimulation(
         const index = timelocked ? 1 : 0;
         // @ts-ignore
         const amountBytes = txRes.results[1].returnValues[index][0];
-        const amountString = bcs.u64().parse(new Uint8Array(amountBytes));
+        // Parse u64 from little-endian bytes (replaces bcs.u64().parse())
+        const view = new DataView(new Uint8Array(amountBytes).buffer);
+        const amountString = view.getBigUint64(0, true).toString();
 
         const resString = `Unstake amount with ${diff.toString().padStart(12, ' ')}: ${formatNumber(unstakeAmount)}, would result in: ${formatNumber(BigInt(amountString))} for target amount: ${formatNumber(targetAmount)}`;
 

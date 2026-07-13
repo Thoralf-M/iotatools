@@ -1,22 +1,18 @@
 <script lang="ts">
-    import type {
-        DelegatedStake,
-        DelegatedTimelockedStake,
-        IotaObjectData,
-    } from '@iota/iota-sdk/client';
     import { Transaction } from '@iota/iota-sdk/transactions';
-    import { IOTA_SYSTEM_STATE_OBJECT_ID, isValidIotaAddress } from '@iota/iota-sdk/utils';
 
     import IotaAmountInput from '../../components/IotaAmountInput.svelte';
     import TransactionView from '../../components/TransactionView.svelte';
     import { addAndRun } from '../../stores/transaction-tray';
-    import { getClient } from '../../utils/client';
+    import { getClient, getLegacyClient } from '../../utils/client';
     import {
         formatNumbersWithUnderscores,
         formatNumberWithUnderscores,
         nanoToIotaFormatted,
     } from '../../utils/iota-nano-conversion';
     import { activeAddress } from '../../utils/signer-data';
+    import { executeTransaction } from '../../utils/transaction-execution';
+    import { IOTA_SYSTEM_STATE_OBJECT_ID, isValidIotaAddress } from '../../utils/wasm-sdk';
     import {
         buildSingleObjectUnstakeTransaction,
         buildStakeTransaction,
@@ -29,10 +25,15 @@
     } from './staking-operations';
     import {
         fetchValidatorByAddress,
-        getCommitteeMemberAddresses,
-        isValidatorCommitteeMember,
         loadValidators as loadValidatorsService,
     } from './validator-service';
+
+    // [GAP] DelegatedStake type not available in WASM SDK
+    // [GAP] DelegatedTimelockedStake type not available in WASM SDK
+    // [GAP] IotaObjectData type not available in WASM SDK - use ObjectInterface
+    type DelegatedStake = any;
+    type DelegatedTimelockedStake = any;
+    type IotaObjectData = any;
 
     let validatorAddress = '';
     const minStakeAmount = 2_000_000_000;
@@ -153,96 +154,8 @@
             loadingValidators = true;
             validators = [];
 
-            const client = getClient();
-            const systemState = await client.getLatestIotaSystemState();
-
-            console.log('System state structure:', systemState);
-            console.log(
-                'Validator candidates size:',
-                systemState.validatorCandidatesSize,
-                'ID:',
-                systemState.validatorCandidatesId,
-            );
-
-            const committeeMemberAddresses = getCommitteeMemberAddresses(systemState);
-
-            // Add active validators
-            for (const validator of systemState.activeValidators) {
-                // Check if this validator is a committee member
-                const isCommitteeMember = isValidatorCommitteeMember(
-                    validator.iotaAddress,
-                    committeeMemberAddresses,
-                );
-                validators.push({
-                    address: validator.iotaAddress,
-                    name: validator.name || 'Unknown',
-                    status: isCommitteeMember ? 'Committee Member' : 'Active Validator',
-                    stake: validator.stakingPoolIotaBalance,
-                });
-            }
-
-            // Add candidate validators
-            const validatorCandidatesId = systemState.validatorCandidatesId;
-            let hasNextPage = true;
-            let nextPageCursor;
-
-            while (hasNextPage) {
-                const candidateValidatorsPage = await client.getDynamicFields({
-                    parentId: validatorCandidatesId,
-                    cursor: nextPageCursor,
-                });
-
-                console.log('Candidate validators page:', candidateValidatorsPage);
-
-                for (const candidateValidator of candidateValidatorsPage.data) {
-                    try {
-                        const validatorWrapper = await client.getDynamicFieldObjectV2({
-                            parentObjectId: validatorCandidatesId,
-                            name: candidateValidator.name,
-                            options: { showContent: true },
-                        });
-
-                        const innerId = (validatorWrapper.data as any).content.fields.value.fields
-                            .inner.fields.id.id;
-                        const validatorV1 = await client.getDynamicFields({
-                            parentId: innerId,
-                        });
-
-                        const validatorObject = await client.getObject({
-                            id: validatorV1.data[0].objectId,
-                            options: { showContent: true },
-                        });
-
-                        const validator =
-                            // @ts-ignore
-                            validatorObject.data?.content.fields.value.fields;
-
-                        validators.push({
-                            address: validator.metadata.fields.iota_address,
-                            name: validator.metadata.fields.name || 'Unknown',
-                            status: 'Candidate',
-                            stake: validator.staking_pool.fields.iota_balance,
-                        });
-                    } catch (err) {
-                        console.warn('Failed to load candidate validator:', err);
-                    }
-                }
-
-                hasNextPage = candidateValidatorsPage.hasNextPage;
-                if (hasNextPage) {
-                    nextPageCursor = candidateValidatorsPage.nextCursor;
-                }
-            }
-
-            // Sort validators: Committee members first, then active validators, then candidates
-            validators.sort((a, b) => {
-                const statusOrder: Record<ValidatorInfo['status'], number> = {
-                    'Committee Member': 0,
-                    'Active Validator': 1,
-                    Candidate: 2,
-                };
-                return statusOrder[a.status] - statusOrder[b.status];
-            });
+            const gqlClient = getClient(true);
+            validators = await loadValidatorsService(gqlClient);
         } catch (err: any) {
             console.error('Failed to load validators:', err);
             value = 'Failed to load validators: ' + err.toString();
@@ -263,7 +176,7 @@
     };
 
     const handleFetchValidatorByAddress = async (address: string) => {
-        const validator = await fetchValidatorByAddress(getClient(), address);
+        const validator = await fetchValidatorByAddress(getClient(true), address);
         if (validator && validatorAddress === validator.address) {
             selectedValidator = validator;
         }
@@ -352,7 +265,7 @@
         | undefined
     > {
         try {
-            const client = getClient();
+            const client = getLegacyClient();
             const stakedIota = await client.getStakes({
                 owner: $activeAddress,
             });

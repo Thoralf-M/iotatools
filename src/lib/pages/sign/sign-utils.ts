@@ -1,4 +1,3 @@
-import { fromBase64 } from '@iota/bcs';
 import { parseSerializedSignature } from '@iota/iota-sdk/cryptography';
 import type { MoveAuthenticatorData } from '@iota/iota-sdk/keypairs/move-authenticator';
 import { parsePartialSignatures } from '@iota/iota-sdk/multisig';
@@ -7,6 +6,7 @@ import {
     verifyPersonalMessageSignature,
     verifyTransactionSignature,
 } from '@iota/iota-sdk/verify';
+import { base64Decode as fromBase64 } from '../../utils/wasm-sdk';
 
 export interface SignaturePubkeyPair {
     signatureScheme: string;
@@ -100,7 +100,7 @@ export async function verifySignature(
             const pair = pubkeyPairs[0];
             try {
                 // Try transaction verification first, fallback to message if it fails
-                const txBytes = fromBase64(inputString);
+                const txBytes = new Uint8Array(fromBase64(inputString));
                 const verifiedPubKey = await verifyTransactionSignature(txBytes, signatureString);
                 if (verifiedPubKey.toBase64() !== pair.publicKey.toBase64()) {
                     status = 'invalid';

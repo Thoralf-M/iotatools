@@ -1,9 +1,9 @@
 // IOTA Names transaction functions
 import { Transaction } from '@iota/iota-sdk/transactions';
-import { IOTA_CLOCK_OBJECT_ID } from '@iota/iota-sdk/utils';
+import { IOTA_CLOCK_OBJECT_ID } from '../../utils/wasm-sdk';
 
-import { getClient } from '../../utils/client';
 import { executeTransaction } from '../../utils/transaction-execution';
+import { createGraphQLClient, queryGraphQl } from './iota-names-graphql';
 import { config } from './iota-names-config';
 import { getRegisteredNamesInner, queryDynamicFields } from './iota-names-data';
 
@@ -13,7 +13,7 @@ import { getRegisteredNamesInner, queryDynamicFields } from './iota-names-data';
 export async function getPackageIds() {
     try {
         // @ts-ignore
-        let dynamicFields = (await queryDynamicFields()).data.owner.dynamicFields.nodes;
+        let dynamicFields = (await queryDynamicFields()).owner.dynamicFields.nodes;
         // Don't want to fail everything if auction/coupons are not existing
         try {
             config.AUCTION_PACKAGE_ID = parsePackageId('auction::AuctionAuth', dynamicFields);
@@ -52,7 +52,7 @@ export async function registerName(nameName: string, activeAddress: string) {
         let dynamicFields = await queryDynamicFields();
         let priceConfig =
             // @ts-ignore
-            dynamicFields.data.owner.dynamicFields.nodes.filter((d: any) =>
+            dynamicFields.owner.dynamicFields.nodes.filter((d: any) =>
                 d.name.type.repr.includes('pricing_config::PricingConfig'),
             )[0].value.json;
         let nameLabels = nameName.split('.');
@@ -102,26 +102,43 @@ export async function registerName(nameName: string, activeAddress: string) {
 
             if (isParentSubname) {
                 // parent NFT is wrapped in Subname NFT, so the subname NFT must be provided
-                const client = getClient();
-                const outputs = await client.getOwnedObjects({
-                    owner: activeAddress,
-                    options: { showContent: true, showType: true },
-                });
+                const gqlClient = createGraphQLClient();
+                let allNodes: any[] = [];
+                let cursor: string | null = null;
+                let hasNextPage = true;
+                while (hasNextPage) {
+                    const cursorSection = cursor ? `(after: "${cursor}")` : '';
+                    const query = `{
+                        address(address: "${activeAddress}") {
+                            objects${cursorSection} {
+                                pageInfo { hasNextPage endCursor }
+                                nodes {
+                                    address
+                                    contents {
+                                        type { repr }
+                                        json
+                                    }
+                                }
+                            }
+                        }
+                    }`;
+                    const result = await queryGraphQl(gqlClient, query, {});
+                    const objects = result.address.objects;
+                    allNodes.push(...objects.nodes);
+                    hasNextPage = objects.pageInfo.hasNextPage;
+                    cursor = objects.pageInfo.endCursor;
+                }
                 // Find the output that contains the parentNft id
-                const subnameOutputs = outputs.data.filter((output) =>
-                    // @ts-ignore
-                    output.data.content.type.includes('SubNameRegistration'),
+                const subnameOutputs = allNodes.filter((node: any) =>
+                    node.contents?.type?.repr?.includes('SubNameRegistration'),
                 );
                 let subnameNft = subnameOutputs.find(
-                    (e) =>
-                        // @ts-ignore
-                        e.data.content.fields.nft.fields.name == parentNameName,
+                    (node: any) => node.contents?.json?.nft?.name == parentNameName,
                 );
-                parentNft = subnameNft?.data?.objectId ?? '';
+                parentNft = subnameNft?.address ?? '';
                 // Expiration time can be at most the same as the parent
                 expirationNextMonthTimestampMs =
-                    // @ts-ignore
-                    subnameNft.data.content.fields.nft.fields.expiration_timestamp_ms;
+                    subnameNft?.contents?.json?.nft?.expiration_timestamp_ms;
             }
 
             let allowChildCreation = true;

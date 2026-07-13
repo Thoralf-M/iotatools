@@ -62,7 +62,7 @@
     import { Transaction } from '@iota/iota-sdk/transactions';
     import { onDestroy, onMount } from 'svelte';
 
-    import { getClient, getSelectedNetworkConfig } from '../../utils/client';
+    import { getLegacyClient, getSelectedNetworkConfig } from '../../utils/client';
     import { sharedClientConfig } from '../../utils/local-storage-store';
     import {
         getCurrentPageQueryParams,
@@ -278,7 +278,7 @@
     }
 
     async function rtcReadShared(key: string): Promise<string | null> {
-        const client = getClient();
+        const client = getLegacyClient();
         const appId = selectedApp?.id ?? '';
         if (!$onChainAppsConfig.storageId || !appId) return null;
         const bytes = await readStorageValue(client, appId, '', key, true);
@@ -288,7 +288,7 @@
 
     async function rtcWriteShared(key: string, value: string): Promise<void> {
         rtcLog('writing shared key:', key, '(' + value.length + ' bytes)');
-        const client = getClient();
+        const client = getLegacyClient();
         const appId = selectedApp?.id ?? '';
         const tx = buildStorageSetTx({
             packageId: $onChainAppsConfig.packageId,
@@ -483,7 +483,7 @@
         // Auto-fund from faucet if the balance is zero (first-time use).
         (async () => {
             try {
-                const client = getClient();
+                const client = getLegacyClient();
                 const bal = await client.getBalance({ owner: randomKey.address });
                 if (BigInt(bal.totalBalance) === 0n) {
                     setStatus('New signer detected — requesting devnet funds...');
@@ -548,7 +548,7 @@
         }
         loadingMyApps = true;
         try {
-            const client = getClient();
+            const client = getLegacyClient();
             myApps = await fetchOwnedAppCaps(
                 client,
                 $onChainAppsConfig.packageId,
@@ -574,7 +574,7 @@
         // don't require re-typing everything from scratch.
         if (owned.app) {
             try {
-                const client = getClient();
+                const client = getLegacyClient();
                 const bytes = await fetchAppContent(client, owned.app);
                 updateHtml = new TextDecoder().decode(bytes);
             } catch (err: any) {
@@ -609,7 +609,7 @@
         updating = true;
         setStatus('');
         try {
-            const client = getClient();
+            const client = getLegacyClient();
             const signer = keypairFor(randomKey.bech32PrivateKey);
             const bytes = new TextEncoder().encode(updateHtml);
             const chunks = splitChunks(bytes, DEFAULT_CHUNK_SIZE);
@@ -671,7 +671,7 @@
         }
         loadingList = true;
         try {
-            const client = getClient();
+            const client = getLegacyClient();
             const ids = await listAppIds(client, $onChainAppsConfig.registryId);
             const metas = await fetchAppMetadatas(client, ids);
             // Show newest apps first (by publish date, falling back to index).
@@ -687,7 +687,7 @@
     async function openApp(appId: string) {
         loadingApp = true;
         try {
-            const client = getClient();
+            const client = getLegacyClient();
             const app = await fetchAppMetadata(client, appId);
             selectedApp = app;
             updatePageQueryParams({ appId: app.id });
@@ -751,7 +751,7 @@
         if (method.startsWith('webrtc')) {
             console.log('[Bridge] request:', method, args);
         }
-        const client = getClient();
+        const client = getLegacyClient();
         const appId = selectedApp?.id ?? '';
         switch (method) {
             case 'getAddress':
@@ -1042,7 +1042,7 @@
 
     async function refreshBalance() {
         try {
-            const client = getClient();
+            const client = getLegacyClient();
             const bal = await client.getBalance({ owner: randomKey.address });
             const nano = BigInt(bal.totalBalance);
             if (nano === 0n) {
@@ -1117,7 +1117,7 @@
         setStatus('');
 
         try {
-            const client = getClient();
+            const client = getLegacyClient();
             const signer = keypairFor(randomKey.bech32PrivateKey);
             const bytes = new TextEncoder().encode(publishHtml);
             const chunks = splitChunks(bytes, DEFAULT_CHUNK_SIZE);

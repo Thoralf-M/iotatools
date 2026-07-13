@@ -11,7 +11,46 @@
 
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+
+// Mock fetchSystemState and fetchAllExchangeRates to avoid WASM initialization.
+// The WASM SDK requires its .wasm binary to be loaded before use (via initAsync),
+// which is not possible in the jsdom test environment.
+// The test pre-loads all required data via setInitialExchangeRateCache, so network
+// calls are not needed.
+vi.mock('./graphql-requests', async (importOriginal) => {
+    const { readFileSync: fsReadFileSync } = await import('fs');
+    const { join: pathJoin } = await import('path');
+    const cacheData: Array<{ poolId: string; exchangeRateId: string }> = JSON.parse(
+        fsReadFileSync(pathJoin(import.meta.dirname, 'cache/exchange-rate-cache.json'), 'utf-8'),
+    );
+    // Validator names for pools that appear in test transactions (derived from snapshot)
+    const validatorNames: Record<string, string> = JSON.parse(
+        fsReadFileSync(pathJoin(import.meta.dirname, 'cache/validator-info-cache.json'), 'utf-8'),
+    );
+    // Build a mock system state with all pool → exchangeRateId mappings from cache
+    const mockSystemState = {
+        json: {
+            validators: {
+                active_validators: cacheData.map((entry) => ({
+                    staking_pool: {
+                        id: entry.poolId,
+                        exchange_rates: { id: entry.exchangeRateId },
+                    },
+                    metadata: { name: validatorNames[entry.poolId] || 'Unknown Validator' },
+                })),
+                inactive_validators: { size: 0 },
+            },
+        },
+    };
+    const mod = await importOriginal<typeof import('./graphql-requests')>();
+    return {
+        ...mod,
+        fetchSystemState: vi.fn().mockResolvedValue([mockSystemState]),
+        // fetchAllExchangeRates is a no-op: the cache is fully pre-loaded by the test
+        fetchAllExchangeRates: vi.fn().mockResolvedValue(undefined),
+    };
+});
 
 import { MAINNET_CONFIG, setNetworkConfigOverride } from '../../utils/network-config.js';
 import {

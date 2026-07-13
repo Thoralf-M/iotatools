@@ -1,6 +1,6 @@
-import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
+import { GraphQlClient } from '../../utils/wasm-sdk';
 
-import { getClient } from '../../utils/client';
+import { getLegacyClient } from '../../utils/client';
 
 type GraphQLObjectNode = {
     address: string;
@@ -34,11 +34,9 @@ export function detectInputType(input: string): 'hex' | 'type' | null {
 }
 
 export async function fetchSingleObjectData(objectId: string, graphqlUrl: string) {
-    const graphqlClient = new IotaGraphQLClient({
-        url: graphqlUrl,
-    });
+    const graphqlClient = new GraphQlClient(graphqlUrl);
 
-    const result = await graphqlClient.query({
+    const resultStr = await graphqlClient.runQuery({
         query: `
             query GetObject($id: IotaAddress!) {
                 object(address: $id) {
@@ -82,17 +80,18 @@ export async function fetchSingleObjectData(objectId: string, graphqlUrl: string
                 }
             }
         `,
-        variables: {
+        variables: JSON.stringify({
             id: objectId,
-        },
+        }),
     });
 
-    const object = result.data?.object as any;
+    const result: any = JSON.parse(resultStr);
+    const object = result?.object as any;
 
     // GraphQL can't always resolve the parent object, fall back to JSON-RPC
     if (object?.owner?.__typename === 'Parent' && !object.owner.parent) {
         try {
-            const rpcClient = getClient();
+            const rpcClient = getLegacyClient();
             const rpcResult = await rpcClient.getObject({
                 id: objectId,
                 options: { showOwner: true },
@@ -115,12 +114,11 @@ export async function fetchObjectsByTypeData(
     cursor: string | null = null,
     first: number = 1,
 ): Promise<ObjectsResponse> {
-    const graphqlClient = new IotaGraphQLClient({
-        url: graphqlUrl,
-    });
+    const graphqlClient = new GraphQlClient(graphqlUrl);
 
-    const result = await graphqlClient.query({
-        query: `
+    const result: any = JSON.parse(
+        await graphqlClient.runQuery({
+            query: `
             query GetObjects($type: String!, $cursor: String, $first: Int!) {
                 objects(filter: { type: $type }, after: $cursor, first: $first) {
                     nodes {
@@ -162,14 +160,15 @@ export async function fetchObjectsByTypeData(
                 }
             }
         `,
-        variables: {
-            type,
-            cursor,
-            first,
-        },
-    });
+            variables: JSON.stringify({
+                type,
+                cursor,
+                first,
+            }),
+        }),
+    );
 
-    return (result.data?.objects as ObjectsResponse) || null;
+    return (result?.objects as ObjectsResponse) || null;
 }
 
 type PackageVersionNode = {
@@ -191,12 +190,11 @@ export async function fetchPackageVersionsData(
     cursor: string | null = null,
     first: number = 10,
 ): Promise<PackageVersionsResponse> {
-    const graphqlClient = new IotaGraphQLClient({
-        url: graphqlUrl,
-    });
+    const graphqlClient = new GraphQlClient(graphqlUrl);
 
-    const result = await graphqlClient.query({
-        query: `
+    const result: any = JSON.parse(
+        await graphqlClient.runQuery({
+            query: `
             query GetPackageVersions($address: IotaAddress!, $cursor: String, $first: Int!) {
                 packageVersions(address: $address, after: $cursor, first: $first) {
                     nodes {
@@ -210,23 +208,23 @@ export async function fetchPackageVersionsData(
                 }
             }
         `,
-        variables: {
-            address: packageAddress,
-            cursor,
-            first,
-        },
-    });
+            variables: JSON.stringify({
+                address: packageAddress,
+                cursor,
+                first,
+            }),
+        }),
+    );
 
-    return (result.data?.packageVersions as PackageVersionsResponse) || null;
+    return (result?.packageVersions as PackageVersionsResponse) || null;
 }
 
 export async function fetchPackageTypesData(packageId: string, graphqlUrl: string) {
-    const graphqlClient = new IotaGraphQLClient({
-        url: graphqlUrl,
-    });
+    const graphqlClient = new GraphQlClient(graphqlUrl);
 
-    const result = await graphqlClient.query({
-        query: `
+    const result: any = JSON.parse(
+        await graphqlClient.runQuery({
+            query: `
             query GetPackage($address: IotaAddress!) {
                 package(address: $address) {
                     address
@@ -253,12 +251,13 @@ export async function fetchPackageTypesData(packageId: string, graphqlUrl: strin
                 }
             }
         `,
-        variables: {
-            address: packageId,
-        },
-    });
+            variables: JSON.stringify({
+                address: packageId,
+            }),
+        }),
+    );
 
-    const pkg = result.data?.package as any;
+    const pkg = result?.package as any;
     if (!pkg) {
         return [];
     }

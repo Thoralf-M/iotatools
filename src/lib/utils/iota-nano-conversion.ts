@@ -1,4 +1,4 @@
-import { IOTA_DECIMALS } from '@iota/iota-sdk/utils';
+import { IOTA_DECIMALS } from './wasm-sdk';
 
 export function iotaToNano(iota: string): string {
     const [intPart, decPart = ''] = iota.replace(/_/g, '').split('.');

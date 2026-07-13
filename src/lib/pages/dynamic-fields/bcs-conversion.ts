@@ -1,7 +1,7 @@
 import type { BcsType } from '@iota/bcs';
 import { bcs } from '@iota/iota-sdk/bcs';
 import { type MoveTypeLayout } from '@iota/iota-sdk/graphql/schemas/2025.2';
-import { toBase64 } from '@iota/iota-sdk/utils';
+import { toB64 as toBase64 } from '../../utils/wasm-sdk';
 
 export interface BcsDecodeResult {
     value?: any;

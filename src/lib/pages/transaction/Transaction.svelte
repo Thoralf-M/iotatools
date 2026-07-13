@@ -1,14 +1,14 @@
 <script lang="ts">
-    import { fromBase64, toBase64 } from '@iota/bcs';
-    import { bcs } from '@iota/iota-sdk/bcs';
-    import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
-    import { TransactionDataBuilder } from '@iota/iota-sdk/transactions';
     import { onMount } from 'svelte';
 
-    import { getTransactionData } from '../../components/transaction-view';
+    import { decodeBcsToDecodedBCS, getTransactionData } from '../../components/transaction-view';
     import TransactionView from '../../components/TransactionView.svelte';
     import { getClient, getSelectedNetworkConfig } from '../../utils/client';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
+    import { GraphQlClient } from '../../utils/wasm-sdk';
+
+    // [GAP] TransactionDataBuilder not in WASM SDK
+    type TransactionDataBuilder = any;
 
     // Query parameter integration
     const queryParamDefaults = {
@@ -97,49 +97,50 @@
             loading = true;
             error = '';
 
-            const client = getClient();
-            const tx = await client.getTransactionBlock({
-                digest,
-                options: {
-                    showInput: true,
-                    showRawInput: true,
-                    showEffects: true,
-                    showEvents: true,
-                    showObjectChanges: true,
-                    showBalanceChanges: true,
-                    showRawEffects: true,
-                },
+            const config = getSelectedNetworkConfig();
+            const graphqlClient = new GraphQlClient(config.graphql);
+
+            const resultStr = await graphqlClient.runQuery({
+                query: `query($digest: String!) {
+                    transactionBlock(digest: $digest) {
+                        digest
+                        sender { address }
+                        effects {
+                            status
+                            checkpoint { sequenceNumber timestamp }
+                            timestamp
+                            transactionBlock { bcs }
+                            objectChanges {
+                                nodes {
+                                    address
+                                    inputState { asMoveObject { contents { type { repr } json } } version }
+                                    outputState { asMoveObject { contents { type { repr } json } } version }
+                                    idCreated
+                                    idDeleted
+                                }
+                            }
+                            gasEffects {
+                                gasObject { address version }
+                                gasSummary { computationCost storageCost storageRebate }
+                            }
+                            balanceChanges { nodes { owner { asAddress { address } } amount coinType { repr } } }
+                            events { nodes { sendingModule { name } type { repr } json timestamp } }
+                        }
+                        expiration { epochId }
+                    }
+                }`,
+                variables: JSON.stringify({ digest }),
             });
+            const result: any = JSON.parse(resultStr);
+            const tx = result?.transactionBlock;
+
+            if (!tx) {
+                error = 'Transaction not found';
+                transactionData = null;
+                return;
+            }
 
             transactionData = tx;
-            // If the API response includes rawTransaction, extract it for dry run functionality
-            if (tx.rawTransaction) {
-                // Try to parse as signed transaction first
-                try {
-                    const signedBytes = fromBase64(tx.rawTransaction);
-                    const signedData = bcs.SenderSignedData.parse(signedBytes);
-                    // Extract the transaction part from the signed data for dry run
-                    const v1Data = signedData[0].intentMessage.value.V1;
-                    if (v1Data.kind && v1Data.kind.ProgrammableTransaction) {
-                        const normalizedTxData = {
-                            version: 2 as const,
-                            sender: v1Data.sender,
-                            inputs: v1Data.kind.ProgrammableTransaction.inputs,
-                            commands: v1Data.kind.ProgrammableTransaction.commands,
-                            gasData: v1Data.gasData,
-                            expiration: v1Data.expiration,
-                        };
-                        const txDataBuilder = new TransactionDataBuilder(normalizedTxData);
-                        transactionData.transactionBytes = toBase64(txDataBuilder.build());
-                    } else {
-                        // Fallback to raw transaction if parsing fails
-                        transactionData.transactionBytes = tx.rawTransaction;
-                    }
-                } catch (e) {
-                    // If parsing as signed transaction fails, assume it's already unsigned
-                    transactionData.transactionBytes = tx.rawTransaction;
-                }
-            }
 
             // Update query parameters with the digest
             updatePageQueryParams({ txInput: digest, inputObjectFilter, functionFilter });
@@ -179,68 +180,41 @@
                 const parsed = JSON.parse(input);
                 transactionData = parsed;
             } else if (type === 'base64') {
-                // Try multiple decoding methods like in Converter page
+                // Try multiple decoding methods using WASM SDK
                 let decoded = false;
 
-                // First try: TransactionDataBuilder (unsigned transaction)
-                try {
-                    const txBytes = fromBase64(input);
-                    transactionData = TransactionDataBuilder.fromBytes(txBytes);
-                    // Add the original transaction bytes for dry run functionality
-                    transactionData.transactionBytes = input;
+                // Use shared BCS decoder which tries multiple strategies
+                const decodedBCS = decodeBcsToDecodedBCS(input);
+                if (decodedBCS) {
+                    const v1 = decodedBCS.intentMessage.value.V1;
+                    transactionData = {
+                        sender: v1.sender,
+                        inputs: v1.kind.ProgrammableTransaction?.inputs,
+                        commands: v1.kind.ProgrammableTransaction?.commands,
+                        gasData: v1.gasData,
+                        expiration: v1.expiration,
+                        transactionBytes: input,
+                        decodedBCS,
+                        signatures: decodedBCS.txSignatures,
+                    };
                     decoded = true;
-                } catch (e1) {
-                    console.log(
-                        'TransactionDataBuilder failed, trying JSON then SenderSignedData:',
-                        e1,
-                    );
-
-                    // Second try: Check if it's a JSON string containing signed transaction data
+                }
+                if (!decoded) {
+                    // Last try: JSON string containing signed transaction data
                     try {
                         const jsonData = JSON.parse(input);
                         if (jsonData && jsonData.intentMessage && jsonData.txSignatures) {
-                            // This is a JSON signed transaction format
                             transactionData = getTransactionData(jsonData);
                             decoded = true;
-                        } else {
-                            throw new Error('Not a signed transaction JSON format');
                         }
-                    } catch (e2) {
-                        console.log('JSON parsing failed, trying SenderSignedData BCS:', e2);
-
-                        // Third try: SenderSignedData (signed transaction)
-                        try {
-                            const txBytes = fromBase64(input);
-                            const signedData = bcs.SenderSignedData.parse(txBytes);
-                            transactionData = signedData[0];
-                            // Store the original signed transaction bytes
-                            transactionData.rawTransaction = input;
-                            // For dry run, we need just the transaction bytes without signatures
-                            // Extract the transaction part from the signed data and build it properly
-                            const v1Data = signedData[0].intentMessage.value.V1;
-                            if (v1Data.kind && v1Data.kind.ProgrammableTransaction) {
-                                const normalizedTxData = {
-                                    version: 2 as const,
-                                    sender: v1Data.sender,
-                                    inputs: v1Data.kind.ProgrammableTransaction.inputs,
-                                    commands: v1Data.kind.ProgrammableTransaction.commands,
-                                    gasData: v1Data.gasData,
-                                    expiration: v1Data.expiration,
-                                };
-                                const txDataBuilder = new TransactionDataBuilder(normalizedTxData);
-                                const transactionBytesForDryRun = toBase64(txDataBuilder.build());
-                                transactionData.transactionBytes = transactionBytesForDryRun;
-                            } else {
-                                throw new Error('Unsupported transaction kind');
-                            }
-                            decoded = true;
-                        } catch (e3) {
-                            console.log('SenderSignedData failed:', e3);
-                            throw new Error(
-                                `Failed to decode base64 transaction. Tried TransactionDataBuilder, JSON, and SenderSignedData formats.`,
-                            );
-                        }
+                    } catch {
+                        // Not JSON
                     }
+                }
+                if (!decoded) {
+                    throw new Error(
+                        'Failed to decode base64 transaction. Tried Transaction BCS and SenderSignedData BCS formats.',
+                    );
                 }
             }
 
@@ -259,12 +233,11 @@
             error = '';
 
             const config = getSelectedNetworkConfig();
-            const graphqlClient = new IotaGraphQLClient({
-                url: config.graphql,
-            });
+            const graphqlClient = new GraphQlClient(config.graphql);
 
-            const result = await graphqlClient.query({
-                query: `
+            const result: any = JSON.parse(
+                await graphqlClient.runQuery({
+                    query: `
                     query($filter: TransactionBlockFilter) {
                         transactionBlocks(last: 1, filter: $filter${hasFilters() ? ', scanLimit: 100000000' : ''}) {
                             nodes {
@@ -279,13 +252,14 @@
                         }
                     }
                 `,
-                variables: {
-                    filter: buildFilter(),
-                },
-            });
+                    variables: JSON.stringify({
+                        filter: buildFilter(),
+                    }),
+                }),
+            );
 
-            const nodes = (result.data as any)?.transactionBlocks?.nodes;
-            const pageInfo = (result.data as any)?.transactionBlocks?.pageInfo;
+            const nodes = result?.transactionBlocks?.nodes;
+            const pageInfo = result?.transactionBlocks?.pageInfo;
 
             if (!nodes || nodes.length === 0) {
                 error = 'No PTB transactions found';
@@ -320,12 +294,11 @@
             error = '';
 
             const config = getSelectedNetworkConfig();
-            const graphqlClient = new IotaGraphQLClient({
-                url: config.graphql,
-            });
+            const graphqlClient = new GraphQlClient(config.graphql);
 
-            const result = await graphqlClient.query({
-                query: `
+            const result: any = JSON.parse(
+                await graphqlClient.runQuery({
+                    query: `
                     query($cursor: String!, $filter: TransactionBlockFilter) {
                         transactionBlocks(before: $cursor, last: 1, filter: $filter${hasFilters() ? ', scanLimit: 100000000' : ''}) {
                             nodes {
@@ -340,14 +313,15 @@
                         }
                     }
                 `,
-                variables: {
-                    cursor: currentCursor,
-                    filter: buildFilter(),
-                },
-            });
+                    variables: JSON.stringify({
+                        cursor: currentCursor,
+                        filter: buildFilter(),
+                    }),
+                }),
+            );
 
-            const nodes = (result.data as any)?.transactionBlocks?.nodes;
-            const pageInfo = (result.data as any)?.transactionBlocks?.pageInfo;
+            const nodes = result?.transactionBlocks?.nodes;
+            const pageInfo = result?.transactionBlocks?.pageInfo;
 
             if (!nodes || nodes.length === 0) {
                 error = 'No more PTB transactions found';
@@ -384,12 +358,11 @@
             error = '';
 
             const config = getSelectedNetworkConfig();
-            const graphqlClient = new IotaGraphQLClient({
-                url: config.graphql,
-            });
+            const graphqlClient = new GraphQlClient(config.graphql);
 
-            const result = await graphqlClient.query({
-                query: `
+            const result: any = JSON.parse(
+                await graphqlClient.runQuery({
+                    query: `
                     query($cursor: String!, $filter: TransactionBlockFilter) {
                         transactionBlocks(after: $cursor, first: 1, filter: $filter${hasFilters() ? ', scanLimit: 100000000' : ''}) {
                             nodes {
@@ -404,14 +377,15 @@
                         }
                     }
                 `,
-                variables: {
-                    cursor: currentCursor,
-                    filter: buildFilter(),
-                },
-            });
+                    variables: JSON.stringify({
+                        cursor: currentCursor,
+                        filter: buildFilter(),
+                    }),
+                }),
+            );
 
-            const nodes = (result.data as any)?.transactionBlocks?.nodes;
-            const pageInfo = (result.data as any)?.transactionBlocks?.pageInfo;
+            const nodes = result?.transactionBlocks?.nodes;
+            const pageInfo = result?.transactionBlocks?.pageInfo;
 
             if (!nodes || nodes.length === 0) {
                 error = 'No more PTB transactions found';

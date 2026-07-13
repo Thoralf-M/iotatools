@@ -1,4 +1,5 @@
-import type { Transaction } from '@iota/iota-sdk/transactions';
+// [GAP] Transaction class not in WASM SDK - use TransactionBuilder + .finish()
+type Transaction = any;
 import { writable } from 'svelte/store';
 
 import { getSelectedNetworkConfig } from './client';

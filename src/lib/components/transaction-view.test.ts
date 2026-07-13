@@ -4,9 +4,9 @@
 
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { fromBase64, toBase64 } from '@iota/bcs';
-import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
 import { Transaction, TransactionDataBuilder } from '@iota/iota-sdk/transactions';
+import { base64Decode as fromBase64, toB64 as toBase64 } from '../utils/wasm-sdk';
+import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
 import { describe, expect, it, vi } from 'vitest';
 
 import {
@@ -772,7 +772,7 @@ describe('getTransactionData - Fixture file parsing', () => {
 
         // The signed tx should be valid data
         expect(signedTxData).toBeDefined();
-        expect(signedTxData.length).toBeGreaterThan(0);
+        expect(signedTxData.byteLength).toBeGreaterThan(0);
     });
 
     it('should parse unsigned transaction fixture', () => {
@@ -781,7 +781,7 @@ describe('getTransactionData - Fixture file parsing', () => {
 
         // The unsigned tx should be valid data
         expect(unsignedTxData).toBeDefined();
-        expect(unsignedTxData.length).toBeGreaterThan(0);
+        expect(unsignedTxData.byteLength).toBeGreaterThan(0);
     });
 
     it('should distinguish executedEpoch from checkpoint in fixtures', () => {
@@ -928,14 +928,14 @@ function toRawTxJson(value: any): Record<string, unknown> {
 
 describe('Raw TX JSON roundtrip - unsigned example tx', () => {
     it('should parse the unsigned example tx without throwing', () => {
-        const txBytes = fromBase64(CONVERTER_EXAMPLE_UNSIGNED_TX);
+        const txBytes = new Uint8Array(fromBase64(CONVERTER_EXAMPLE_UNSIGNED_TX));
         const txBuilder = TransactionDataBuilder.fromBytes(txBytes);
         expect(txBuilder).toBeDefined();
         expect(txBuilder.sender).toBeDefined();
     });
 
     it('should produce formatted output that is valid JSON (no undefined literals)', () => {
-        const txBytes = fromBase64(CONVERTER_EXAMPLE_UNSIGNED_TX);
+        const txBytes = new Uint8Array(fromBase64(CONVERTER_EXAMPLE_UNSIGNED_TX));
         const txBuilder = TransactionDataBuilder.fromBytes(txBytes);
         const value = Object.assign(txBuilder, { transactionBytes: CONVERTER_EXAMPLE_UNSIGNED_TX });
 
@@ -959,7 +959,7 @@ describe('Raw TX JSON roundtrip - unsigned example tx', () => {
     });
 
     it('should round-trip via Transaction.from(formatJsonWithCompactArrays): rawTxJson → same base64 as original', async () => {
-        const txBytes = fromBase64(CONVERTER_EXAMPLE_UNSIGNED_TX);
+        const txBytes = new Uint8Array(fromBase64(CONVERTER_EXAMPLE_UNSIGNED_TX));
         const txBuilder = TransactionDataBuilder.fromBytes(txBytes);
         const value = Object.assign(txBuilder, { transactionBytes: CONVERTER_EXAMPLE_UNSIGNED_TX });
 
@@ -977,7 +977,9 @@ describe('Raw TX JSON roundtrip - unsigned example tx', () => {
 
 describe('Raw TX JSON roundtrip - signed example tx', () => {
     it('should parse the signed example tx (SenderSignedData) without throwing', () => {
-        const parsed = IotaBcs.SenderSignedData.parse(fromBase64(CONVERTER_EXAMPLE_SIGNED_TX))[0];
+        const parsed = IotaBcs.SenderSignedData.parse(
+            new Uint8Array(fromBase64(CONVERTER_EXAMPLE_SIGNED_TX)),
+        )[0];
         expect(parsed).toBeDefined();
         expect(parsed.intentMessage).toBeDefined();
         expect(parsed.txSignatures).toBeDefined();
@@ -985,7 +987,9 @@ describe('Raw TX JSON roundtrip - signed example tx', () => {
     });
 
     it('should produce a rawTxJson that contains core transaction fields and signatures', () => {
-        const parsed = IotaBcs.SenderSignedData.parse(fromBase64(CONVERTER_EXAMPLE_SIGNED_TX))[0];
+        const parsed = IotaBcs.SenderSignedData.parse(
+            new Uint8Array(fromBase64(CONVERTER_EXAMPLE_SIGNED_TX)),
+        )[0];
 
         const rawTxJson = toRawTxJson(parsed);
         const formatted = formatJsonWithCompactArrays(rawTxJson);
@@ -1006,7 +1010,9 @@ describe('Raw TX JSON roundtrip - signed example tx', () => {
     });
 
     it('should round-trip via Transaction.from(formatJsonWithCompactArrays): rawTxJson → digest matches original', async () => {
-        const parsed = IotaBcs.SenderSignedData.parse(fromBase64(CONVERTER_EXAMPLE_SIGNED_TX))[0];
+        const parsed = IotaBcs.SenderSignedData.parse(
+            new Uint8Array(fromBase64(CONVERTER_EXAMPLE_SIGNED_TX)),
+        )[0];
 
         const rawTxJson = toRawTxJson(parsed);
         // Use formatJsonWithCompactArrays — exact string shown in browser

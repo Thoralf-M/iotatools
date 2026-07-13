@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { isValidIotaAddress } from '@iota/iota-sdk/utils';
     import { onMount } from 'svelte';
 
     import { isProMode, sharedSignerType, SignerType } from '../utils/local-storage-store';
@@ -14,6 +13,7 @@
         selectExternalAddress,
         updateSelectedSignerAccounts,
     } from '../utils/signer-data';
+    import { isValidIotaAddress } from '../utils/wasm-sdk';
     import { disconnectWallet } from '../utils/web-wallet';
     import WalletSelectorModal from './WalletSelectorModal.svelte';
 

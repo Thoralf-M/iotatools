@@ -28,7 +28,7 @@ export const defaultClientConfig: ClientConfig = {
             indexer: 'http://127.0.0.1:9124',
             graphql: 'http://127.0.0.1:9125',
             explorer: 'https://explorer.iota.org',
-            faucet: 'http://127.0.0.1:9123/gas',
+            faucet: 'http://127.0.0.1:9123',
         },
         {
             name: 'testnet',
@@ -36,7 +36,7 @@ export const defaultClientConfig: ClientConfig = {
             indexer: 'https://indexer.testnet.iota.cafe',
             graphql: 'https://graphql.testnet.iota.cafe',
             explorer: 'https://explorer.iota.org',
-            faucet: 'https://faucet.testnet.iota.cafe/gas',
+            faucet: 'https://faucet.testnet.iota.cafe',
         },
         {
             name: 'devnet',
@@ -44,7 +44,7 @@ export const defaultClientConfig: ClientConfig = {
             indexer: 'https://indexer.devnet.iota.cafe',
             graphql: 'https://graphql.devnet.iota.cafe',
             explorer: 'https://explorer.iota.org',
-            faucet: 'https://faucet.devnet.iota.cafe/gas',
+            faucet: 'https://faucet.devnet.iota.cafe',
         },
     ],
 };

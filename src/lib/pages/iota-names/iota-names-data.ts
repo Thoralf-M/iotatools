@@ -1,8 +1,9 @@
 // IOTA Names data fetching functions
 import { Transaction } from '@iota/iota-sdk/transactions';
-import { toHex } from '@iota/iota-sdk/utils';
 
-import { getClient } from '../../utils/client';
+import { toHex } from '../../utils/wasm-sdk';
+
+import { getClient, getLegacyClient } from '../../utils/client';
 import { config } from './iota-names-config';
 import { createGraphQLClient, queryGraphQl } from './iota-names-graphql';
 
@@ -23,9 +24,8 @@ export async function queryIotaNamesObjectId() {
     }`;
     let object = await queryGraphQl(gqlClient, objectQuery, {});
     // @ts-ignore
-    if (object.data.objects.edges.length > 0) {
-        // @ts-ignore
-        config.IOTA_NAMES_OBJECT_ID = object.data.objects.edges[0].node.address;
+    if (object.objects.edges.length > 0) {
+        config.IOTA_NAMES_OBJECT_ID = object.objects.edges[0].node.address;
     } else {
         config.IOTA_NAMES_OBJECT_ID = 'Not found';
     }
@@ -48,7 +48,7 @@ export async function queryAuctionObjectId() {
     }`;
     let object = await queryGraphQl(gqlClient, objectQuery, {});
     // @ts-ignore
-    config.AUCTION_HOUSE_OBJECT_ID = object.data.objects.edges[0].node.address;
+    config.AUCTION_HOUSE_OBJECT_ID = object.objects.edges[0].node.address;
 }
 
 /**
@@ -130,8 +130,7 @@ export const resolveAddress = async (nameName: string) => {
             arguments: [targetAddressOption],
         });
 
-        let client = getClient();
-        let txResult = await client.devInspectTransactionBlock({
+        let txResult = await getLegacyClient().devInspectTransactionBlock({
             sender: '0x0000000000000000000000000000000000000000000000000000000000000000',
             transactionBlock: tx,
         });
@@ -186,8 +185,7 @@ export const resolveName = async (address: string) => {
             arguments: [name],
         });
 
-        let client = getClient();
-        let txResult = await client.devInspectTransactionBlock({
+        let txResult = await getLegacyClient().devInspectTransactionBlock({
             sender: '0x0000000000000000000000000000000000000000000000000000000000000000',
             transactionBlock: tx,
         });
@@ -212,7 +210,7 @@ export const resolveName = async (address: string) => {
 export const getRegistryEntry = async (nameName: string) => {
     try {
         let client = getClient();
-        let result = await client.iotaNamesLookup({ name: nameName });
+        let result = await client.iotaNamesLookup(nameName);
         console.log(result);
         return result || 'No registry entry found';
     } catch (err: any) {
@@ -234,7 +232,7 @@ export async function getRegisteredNamesInner(
     let dynamicFields = await queryDynamicFields();
     let registration =
         // @ts-ignore
-        dynamicFields.data.owner.dynamicFields.nodes.find(
+        dynamicFields.owner.dynamicFields.nodes.find(
             (v: any) =>
                 v.name.type.repr ==
                 `${config.IOTA_NAMES_PACKAGE_ID}::iota_names::RegistryKey<${config.IOTA_NAMES_PACKAGE_ID}::registry::Registry>`,
@@ -279,15 +277,13 @@ export async function getRegisteredNamesInner(
             break;
         }
         // @ts-ignore
-        res.total += object.data.owner.dynamicFields.nodes.length;
+        res.total += object.owner.dynamicFields.nodes.length;
         res.names.push(
             // @ts-ignore
-            ...object.data.owner.dynamicFields.nodes.map((v) =>
-                v.name.json.labels.reverse().join('.'),
-            ),
+            ...object.owner.dynamicFields.nodes.map((v) => v.name.json.labels.reverse().join('.')),
         );
         // @ts-ignore
-        res.registrations.push(...object.data.owner.dynamicFields.nodes);
+        res.registrations.push(...object.owner.dynamicFields.nodes);
 
         // Call progress callback if provided
         if (onProgress) {
@@ -303,9 +299,9 @@ export async function getRegisteredNamesInner(
         }
 
         // @ts-ignore
-        if (object.data.owner.dynamicFields.pageInfo.hasNextPage) {
+        if (object.owner.dynamicFields.pageInfo.hasNextPage) {
             // @ts-ignore
-            cursorSection = `(after: "${object.data.owner.dynamicFields.pageInfo.endCursor}")`;
+            cursorSection = `(after: "${object.owner.dynamicFields.pageInfo.endCursor}")`;
         } else {
             break;
         }
@@ -342,7 +338,7 @@ export async function getReverseRegisteredAddresses(
         let dynamicFields = await queryDynamicFields();
         let registration =
             // @ts-ignore
-            dynamicFields.data.owner.dynamicFields.nodes.find(
+            dynamicFields.owner.dynamicFields.nodes.find(
                 (v: any) =>
                     v.name.type.repr ==
                     `${config.IOTA_NAMES_PACKAGE_ID}::iota_names::RegistryKey<${config.IOTA_NAMES_PACKAGE_ID}::registry::Registry>`,
@@ -391,7 +387,7 @@ export async function getReverseRegisteredAddresses(
             }
 
             // @ts-ignore
-            const newEntries = object.data.owner.dynamicFields.nodes.map((v: any) => {
+            const newEntries = object.owner.dynamicFields.nodes.map((v: any) => {
                 return {
                     address: v.name.json,
                     name: v.value.json.labels.reverse().join('.'),
@@ -407,9 +403,9 @@ export async function getReverseRegisteredAddresses(
             }
 
             // @ts-ignore
-            if (object.data.owner.dynamicFields.pageInfo.hasNextPage) {
+            if (object.owner.dynamicFields.pageInfo.hasNextPage) {
                 // @ts-ignore
-                cursorSection = `(after: "${object.data.owner.dynamicFields.pageInfo.endCursor}")`;
+                cursorSection = `(after: "${object.owner.dynamicFields.pageInfo.endCursor}")`;
             } else {
                 break;
             }

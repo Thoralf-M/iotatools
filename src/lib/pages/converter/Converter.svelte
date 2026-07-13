@@ -1,12 +1,13 @@
 <script lang="ts">
-    import { bcs, fromBase58, fromBase64, toBase58, toBase64, toHex } from '@iota/bcs';
-    import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
+    import { bcs, bcs as IotaBcs } from '@iota/iota-sdk/bcs';
     import { Transaction, TransactionDataBuilder } from '@iota/iota-sdk/transactions';
+    import { base58 as base58codec } from '@scure/base';
     import { onMount } from 'svelte';
 
     import TransactionView from '../../components/TransactionView.svelte';
     import { iotaToNano, nanoToIota } from '../../utils/iota-nano-conversion';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
+    import { base64Decode as fromBase64, toB64 as toBase64, toHex } from '../../utils/wasm-sdk';
     import {
         bcsBytesToInteger,
         bech32ToTernary,
@@ -16,6 +17,9 @@
         ternaryToBech32,
         ternaryToEd25519Hex,
     } from './converter';
+
+    const fromBase58 = (s: string): Uint8Array => base58codec.decode(s);
+    const toBase58 = (b: Uint8Array): string => base58codec.encode(b);
 
     // Query parameter integration
     const queryParamDefaults = {
@@ -263,6 +267,10 @@
                     }
                     sourceBytes = bcs.u64().serialize(bcsNumber).toBytes();
                     break;
+            }
+            // Ensure sourceBytes is always Uint8Array (some paths return number[])
+            if (!(sourceBytes instanceof Uint8Array)) {
+                sourceBytes = new Uint8Array(sourceBytes);
             }
             if (source != SourceType.Bytes) {
                 bytes = sourceBytes;
@@ -521,14 +529,16 @@
 
                     // Base64 decoding logic
                     try {
-                        let txBytes = fromBase64(inputString);
+                        let txBytes = new Uint8Array(fromBase64(inputString));
                         const txBuilder = TransactionDataBuilder.fromBytes(txBytes);
                         // Attach the original base64 bytes so TransactionView can show/use them
                         value = Object.assign(txBuilder, { transactionBytes: inputString });
                     } catch (e) {
                         console.log('error TransactionDataBuilder', e);
                         try {
-                            value = IotaBcs.SenderSignedData.parse(fromBase64(inputString))[0];
+                            value = IotaBcs.SenderSignedData.parse(
+                                new Uint8Array(fromBase64(inputString)),
+                            )[0];
                         } catch (e) {
                             console.log('error SenderSignedData', e);
                             value = e;

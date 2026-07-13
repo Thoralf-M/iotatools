@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
-    import { graphql } from '@iota/iota-sdk/graphql/schemas/2025.2';
     import cytoscape from 'cytoscape';
     // @ts-ignore
     import cytoscapeDagre from 'cytoscape-dagre';
@@ -13,6 +11,7 @@
     import { getClient, getSelectedNetworkConfig } from '../../utils/client';
     import { getAddressLink } from '../../utils/explorer-links';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
+    import { GraphQlClient } from '../../utils/wasm-sdk';
     import {
         fetchRecentTransactions,
         fetchTransactionByDigest,
@@ -23,6 +22,41 @@
     } from './fetchTransactions';
 
     cytoscape.use(cytoscapeDagre);
+
+    // Fetch full transaction data via GraphQL (replaces client.getTransactionBlock)
+    async function fetchFullTxData(digest: string): Promise<any> {
+        const config = getSelectedNetworkConfig();
+        const gqlClient = new GraphQlClient(config.graphql);
+        const resultStr = await gqlClient.runQuery({
+            query: `query($digest: String!) {
+                transactionBlock(digest: $digest) {
+                    digest
+                    sender { address }
+                    effects {
+                        checkpoint { sequenceNumber }
+                        timestamp
+                        objectChanges {
+                            nodes {
+                                address
+                                inputState { asMoveObject { contents { type { repr } json } } version }
+                                outputState { asMoveObject { contents { type { repr } json } } version }
+                                idCreated
+                                idDeleted
+                            }
+                        }
+                        gasEffects {
+                            gasObject { address version }
+                            gasSummary { computationCost storageCost storageRebate }
+                        }
+                        balanceChanges { nodes { owner { asAddress { address } } amount coinType { repr } } }
+                    }
+                    expiration { epochId }
+                }
+            }`,
+            variables: JSON.stringify({ digest }),
+        });
+        return JSON.parse(resultStr)?.transactionBlock;
+    }
 
     // Query parameter integration
     const queryParamDefaults = {
@@ -584,21 +618,17 @@
     async function setCurrentEpochRange() {
         try {
             const config = getSelectedNetworkConfig();
-            const gqlClient = new IotaGraphQLClient({ url: config.graphql });
+            const gqlClient = new GraphQlClient(config.graphql);
 
             // Get current epoch
             const epochQuery = `query { epoch { epochId } }`;
-            // @ts-ignore
-            const epochResult = await gqlClient.query({
-                query: graphql(epochQuery),
-                variables: {},
-            });
-            // @ts-ignore
-            if (epochResult.errors) {
-                throw new Error(`GraphQL errors: ${JSON.stringify(epochResult.errors)}`);
-            }
-            // @ts-ignore
-            const currentEpoch = epochResult.data?.epoch?.epochId;
+            const epochResult: any = JSON.parse(
+                await gqlClient.runQuery({
+                    query: epochQuery,
+                    variables: undefined,
+                }),
+            );
+            const currentEpoch = epochResult?.epoch?.epochId;
 
             if (currentEpoch) {
                 // Get checkpoint range for the epoch
@@ -616,17 +646,16 @@
                         }
                     }
                 }`;
-                // @ts-ignore
-                const checkpointResult = await gqlClient.query({
-                    query: graphql(checkpointQuery),
-                    variables: { epochId: parseInt(currentEpoch) },
-                });
-                // @ts-ignore
+                const checkpointResult: any = JSON.parse(
+                    await gqlClient.runQuery({
+                        query: checkpointQuery,
+                        variables: JSON.stringify({ epochId: parseInt(currentEpoch) }),
+                    }),
+                );
                 if (checkpointResult.errors) {
                     throw new Error(`GraphQL errors: ${JSON.stringify(checkpointResult.errors)}`);
                 }
-                // @ts-ignore
-                const epochData = checkpointResult.data?.epoch;
+                const epochData = checkpointResult?.epoch;
                 // @ts-ignore
                 const firstCheckpoint = epochData?.checkpoints?.nodes?.[0]?.sequenceNumber;
                 // @ts-ignore
@@ -781,19 +810,7 @@
             expandedTransactions.clear();
             // Load full transaction data if not already loaded
             if (!selectedTransaction || selectedTransaction.digest !== digest) {
-                const client = getClient();
-                const tx = await client.getTransactionBlock({
-                    digest,
-                    options: {
-                        showInput: true,
-                        showRawInput: true,
-                        showEffects: true,
-                        showEvents: true,
-                        showObjectChanges: true,
-                        showBalanceChanges: true,
-                    },
-                });
-                selectedTransaction = tx;
+                selectedTransaction = await fetchFullTxData(digest);
             }
             expandedTransactions.add(digest);
             expandedTransactions = new Set(expandedTransactions);
@@ -873,19 +890,7 @@
     }
 
     async function openTransactionPopup(digest: string) {
-        const client = getClient();
-        const tx = await client.getTransactionBlock({
-            digest,
-            options: {
-                showInput: true,
-                showRawInput: true,
-                showEffects: true,
-                showEvents: true,
-                showObjectChanges: true,
-                showBalanceChanges: true,
-            },
-        });
-        selectedTransaction = tx;
+        selectedTransaction = await fetchFullTxData(digest);
         showTransactionPopup = true;
     }
 
@@ -1199,18 +1204,7 @@
                     // Fallback: Load full data asynchronously if rawData is not available
                     (async () => {
                         try {
-                            const client = getClient();
-                            const fullTx = await client.getTransactionBlock({
-                                digest: tx.digest,
-                                options: {
-                                    showInput: true,
-                                    showRawInput: true,
-                                    showEffects: true,
-                                    showEvents: true,
-                                    showObjectChanges: true,
-                                    showBalanceChanges: true,
-                                },
-                            });
+                            const fullTx = await fetchFullTxData(tx.digest);
                             fullTransactionData.set(tx.digest, fullTx);
                             fullTransactionData = new Map(fullTransactionData);
                         } catch (error) {

@@ -3,6 +3,7 @@
     import { defaultClientConfig } from '../../utils/default-client-config';
     import {
         defaultPrivateKeyAccounts,
+        deriveAddressFromKeypair,
         keypairFromBech32PrivateKey,
         type PrivateKeyAccounts,
     } from '../../utils/default-private-keys';
@@ -38,8 +39,9 @@
                 onclick={() => {
                     sharedPrivateKeyAccounts.update((privateKeys: PrivateKeyAccounts) => {
                         try {
-                            const address =
-                                keypairFromBech32PrivateKey(newBech32PrivateKey).toIotaAddress();
+                            const address = deriveAddressFromKeypair(
+                                keypairFromBech32PrivateKey(newBech32PrivateKey),
+                            );
                             error = '';
                             return {
                                 ...privateKeys, // keep all other keys

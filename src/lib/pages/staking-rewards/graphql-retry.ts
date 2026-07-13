@@ -1,4 +1,4 @@
-import type { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
+import type { GraphQlClient } from '../../utils/wasm-sdk';
 
 // Retry tuning. Fetching many addresses fans out into hundreds of GraphQL
 // requests; the public endpoint answers bursts with HTTP 429, which the browser
@@ -51,12 +51,20 @@ export async function withRetry<T>(fn: () => Promise<T>, label = 'Request'): Pro
 
 /**
  * Run a GraphQL query with the retry behavior of {@link withRetry}.
+ * Uses the WASM SDK's GraphQlClient, whose runQuery() returns the response
+ * `data` as a JSON string, so the result is parsed before returning.
  */
 export async function queryWithRetry<T = any>(
-    gqlClient: IotaGraphQLClient,
+    gqlClient: GraphQlClient,
     args: { query: string; variables?: Record<string, unknown> },
 ): Promise<T> {
-    return withRetry(() => gqlClient.query(args as any) as Promise<T>, 'GraphQL request');
+    return withRetry(async () => {
+        const resultStr = await gqlClient.runQuery({
+            query: args.query,
+            variables: args.variables ? JSON.stringify(args.variables) : undefined,
+        });
+        return JSON.parse(resultStr) as T;
+    }, 'GraphQL request');
 }
 
 /**

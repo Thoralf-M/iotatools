@@ -18,7 +18,7 @@ const mockNetwork: NetworkConfig = {
     indexer: 'https://indexer.testnet.iota.cafe',
     graphql: 'https://graphql.testnet.iota.cafe',
     explorer: 'https://explorer.iota.org',
-    faucet: 'https://faucet.testnet.iota.cafe/gas',
+    faucet: 'https://faucet.testnet.iota.cafe',
 };
 
 describe('generateExplorerLink', () => {

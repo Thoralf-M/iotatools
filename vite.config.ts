@@ -42,6 +42,10 @@ export default defineConfig({
     },
     optimizeDeps: {
         include: ['process', 'buffer'],
+        // The WASM SDK ships a pre-bundled ESM file; let Vite handle it as-is
+        // (its `new URL('./index_bg.wasm', import.meta.url)` asset reference
+        // breaks when the dep is pre-bundled by esbuild).
+        exclude: ['@iota/sdk-wasm'],
     },
     build: {
         minify: false,

@@ -2,9 +2,220 @@
  * Utility functions for formatting and displaying transaction data
  */
 
-import { fromBase64 } from '@iota/bcs';
+import {
+    base64Decode as fromBase64,
+    signedTransactionFromBcs,
+    transactionFromBcs,
+    transactionToJson,
+    transactionKindToJson,
+} from '../utils/wasm-sdk';
 import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
 import { TransactionDataBuilder } from '@iota/iota-sdk/transactions';
+
+/**
+ * Convert snake_case command name to PascalCase $kind name.
+ */
+function commandNameToKind(name: string): string {
+    const map: Record<string, string> = {
+        move_call: 'MoveCall',
+        transfer_objects: 'TransferObjects',
+        split_coins: 'SplitCoins',
+        merge_coins: 'MergeCoins',
+        publish: 'Publish',
+        upgrade: 'Upgrade',
+        make_move_vec: 'MakeMoveVec',
+    };
+    return map[name] || name;
+}
+
+/**
+ * Normalize a command from WASM SDK JSON format to the format expected by TransactionCommands.
+ * WASM: {command: "move_call", package: "0x...", ...}
+ * Expected: {$kind: "MoveCall", MoveCall: {package: "0x...", ...}}
+ */
+function normalizeCommand(cmd: any): any {
+    if (cmd.$kind) return cmd; // Already normalized
+    const cmdType = cmd.command;
+    if (!cmdType) return cmd;
+    const kind = commandNameToKind(cmdType);
+    const { command: _, ...rest } = cmd;
+    // Normalize argument references
+    if (rest.arguments) {
+        rest.arguments = rest.arguments.map((arg: any) => {
+            if (arg && typeof arg === 'object') {
+                if ('input' in arg)
+                    return { $kind: 'Input', Input: arg.input, type: 'input', index: arg.input };
+                if ('result' in arg)
+                    return {
+                        $kind: 'Result',
+                        Result: arg.result,
+                        type: 'result',
+                        index: arg.result,
+                    };
+                if ('nested_result' in arg)
+                    return {
+                        $kind: 'NestedResult',
+                        NestedResult: arg.nested_result,
+                        type: 'nestedResult',
+                        index: arg.nested_result?.[0],
+                        resultIndex: arg.nested_result?.[1],
+                    };
+            }
+            return arg;
+        });
+    }
+    return { $kind: kind, [kind]: rest };
+}
+
+/**
+ * Normalize an input from WASM SDK JSON format.
+ * WASM: {type: "shared", objectId: "0x...", initialSharedVersion: "...", mutable: true}
+ * Expected: {$kind: "Object", Object: {$kind: "SharedObject", SharedObject: {...}}}
+ */
+function normalizeInput(inp: any): any {
+    if (inp.$kind) return inp; // Already normalized
+    const type = inp.type;
+    if (type === 'shared') {
+        return {
+            $kind: 'Object',
+            Object: {
+                $kind: 'SharedObject',
+                SharedObject: {
+                    objectId: inp.objectId,
+                    initialSharedVersion: inp.initialSharedVersion,
+                    mutable: inp.mutable ?? true,
+                },
+            },
+        };
+    }
+    if (type === 'immutable' || type === 'receiving') {
+        const innerKind = type === 'immutable' ? 'ImmOrOwnedObject' : 'Receiving';
+        return {
+            $kind: 'Object',
+            Object: {
+                $kind: innerKind,
+                [innerKind]: {
+                    objectId: inp.objectId,
+                    version: inp.version,
+                    digest: inp.digest,
+                },
+            },
+        };
+    }
+    if (type === 'pure') {
+        return { $kind: 'Pure', Pure: { bytes: inp.value || inp.bytes } };
+    }
+    if (type === 'object') {
+        return {
+            $kind: 'Object',
+            Object: {
+                $kind: 'ImmOrOwnedObject',
+                ImmOrOwnedObject: {
+                    objectId: inp.objectId,
+                    version: inp.version,
+                    digest: inp.digest,
+                },
+            },
+        };
+    }
+    return inp;
+}
+
+/**
+ * Decode BCS transaction data (SenderSignedData format) into the decodedBCS
+ * structure expected by getPTB() in TransactionCommands.svelte.
+ * Uses typed WASM SDK methods to avoid JSON key name guessing.
+ */
+export function decodeBcsToDecodedBCS(bcsBase64: string, fallbackSender?: string): any {
+    const fullBytes = fromBase64(bcsBase64);
+    const fullArr = new Uint8Array(fullBytes);
+    // GraphQL transactionBlock.bcs is SenderSignedData = Vec<SenderSignedTransaction>
+    // SenderSignedTransaction = IntentMessage(3 bytes) + TransactionData + Vec<GenericSignature>
+    const strategies: Array<{ offset: number; method: 'signed' | 'transaction' }> = [
+        { offset: 4, method: 'signed' },
+        { offset: 0, method: 'signed' },
+        { offset: 4, method: 'transaction' },
+        { offset: 0, method: 'transaction' },
+        { offset: 1, method: 'signed' },
+    ];
+    for (const { offset, method } of strategies) {
+        try {
+            const sliced = fullArr.slice(offset);
+            let txObj;
+            let signatures: string[] | undefined;
+            if (method === 'signed') {
+                const signedTx = signedTransactionFromBcs(sliced.buffer);
+                txObj = signedTx.transaction;
+                // Extract signatures as base64 strings
+                try {
+                    signatures = signedTx.signatures?.map(
+                        (sig: any) => sig.toBase64?.() ?? sig.toString(),
+                    );
+                } catch {
+                    // Signature extraction is optional
+                }
+            } else {
+                txObj = transactionFromBcs(sliced.buffer);
+            }
+            // Use typed methods to extract sender and kind JSON
+            const v1 = txObj.asV1();
+            const sender = v1.sender().toHex();
+            const kindJson = JSON.parse(transactionKindToJson(v1.kind()));
+            // kindJson is the TransactionKind enum JSON - extract PTB from it
+            const rawPtb =
+                kindJson?.ProgrammableTransaction || kindJson?.programmable_transaction || kindJson;
+
+            // Normalize commands and inputs to match expected format
+            const commands = (rawPtb?.commands || []).map(normalizeCommand);
+            const inputs = (rawPtb?.inputs || []).map(normalizeInput);
+
+            // Normalize gas data from typed interface objects
+            const gasPayment = v1.gasPayment();
+            const gasData = {
+                payment: (gasPayment?.objects || []).map((obj: any) => ({
+                    objectId:
+                        typeof obj?.objectId === 'object'
+                            ? (obj.objectId?.toHex?.() ?? String(obj.objectId))
+                            : obj?.objectId,
+                    version: obj?.version,
+                    digest:
+                        typeof obj?.digest === 'object'
+                            ? (obj.digest?.toBase58?.() ?? String(obj.digest))
+                            : obj?.digest,
+                })),
+                owner:
+                    typeof gasPayment?.owner === 'object'
+                        ? (gasPayment.owner?.toHex?.() ?? String(gasPayment.owner))
+                        : gasPayment?.owner,
+                price: gasPayment?.price?.toString(),
+                budget: gasPayment?.budget?.toString(),
+            };
+
+            return {
+                intentMessage: {
+                    value: {
+                        V1: {
+                            sender: sender || fallbackSender,
+                            kind: {
+                                ProgrammableTransaction: {
+                                    commands,
+                                    inputs,
+                                },
+                            },
+                            gasData,
+                            expiration: txObj.expiration(),
+                        },
+                    },
+                },
+                ...(signatures?.length ? { txSignatures: signatures } : {}),
+            };
+        } catch {
+            // Try next strategy
+        }
+    }
+    console.warn('Failed to decode BCS transaction data');
+    return null;
+}
 
 /**
  * Recursively removes $kind fields from objects to clean up display data
@@ -194,15 +405,15 @@ function convertGraphQLObjectChanges(graphqlObjectChanges: any[]): any[] {
             type = 'deleted';
         }
 
-        // Extract object ID
-        const objectId = change.idCreated || change.address || change.idDeleted;
+        // Extract object ID - always use address (idCreated/idDeleted are booleans)
+        const objectId = change.address;
 
         // Extract object type from contents if available
         let objectType = '';
-        if (change.outputState?.asMoveObject?.contents?.json?.type) {
-            objectType = change.outputState.asMoveObject.contents.json.type;
-        } else if (change.inputState?.asMoveObject?.contents?.json?.type) {
-            objectType = change.inputState.asMoveObject.contents.json.type;
+        if (change.outputState?.asMoveObject?.contents?.type?.repr) {
+            objectType = change.outputState.asMoveObject.contents.type.repr;
+        } else if (change.inputState?.asMoveObject?.contents?.type?.repr) {
+            objectType = change.inputState.asMoveObject.contents.type.repr;
         }
 
         // Fix the GraphQL data by ensuring the `id` field is properly handled
@@ -378,7 +589,7 @@ export function getTransactionData(data: any): any {
         // Decode the transaction bytes
         let decodedTransaction: any = null;
         try {
-            const txBytes = fromBase64(data.bytes);
+            const txBytes = new Uint8Array(fromBase64(data.bytes));
             decodedTransaction = TransactionDataBuilder.fromBytes(txBytes);
         } catch (e) {
             console.warn('Failed to decode transaction bytes from web wallet response:', e);
@@ -387,7 +598,9 @@ export function getTransactionData(data: any): any {
         // Decode the effects
         let decodedEffects: any = null;
         try {
-            decodedEffects = IotaBcs.TransactionEffects.parse(fromBase64(data.effects));
+            decodedEffects = IotaBcs.TransactionEffects.parse(
+                new Uint8Array(fromBase64(data.effects)),
+            );
             console.log('Decoded effects from web wallet response:', decodedEffects);
         } catch (e) {
             console.warn('Failed to decode effects from web wallet response:', e);
@@ -475,14 +688,17 @@ export function getTransactionData(data: any): any {
         return normalized;
     }
 
-    // Handle GraphQL response format (from graphql-fetcher.ts) first
-    // GraphQL has checkpoint and timestampMs at top level as numbers
+    // Handle GraphQL response format (from graphql-fetcher.ts or Transaction page)
+    // GraphQL may have checkpoint/timestampMs at top level or nested in effects
     if (
         data &&
         data.digest &&
         data.sender &&
         data.effects &&
-        (typeof data.checkpoint === 'number' || typeof data.timestampMs === 'number')
+        (typeof data.checkpoint === 'number' ||
+            typeof data.timestampMs === 'number' ||
+            data.effects.checkpoint ||
+            data.effects.timestamp)
     ) {
         // Convert GraphQL object changes to standard format
         const objectChanges = data.effects.objectChanges?.nodes
@@ -495,16 +711,11 @@ export function getTransactionData(data: any): any {
         // Convert GraphQL events to standard format
         const events = data.effects.events?.nodes || [];
 
-        // Decode BCS transaction data if available
+        // Decode BCS transaction data if available (bcs may be at top level or in effects.transactionBlock)
         let decodedBCS: any = null;
-        if (data.effects.transactionBlock?.bcs) {
-            try {
-                decodedBCS = IotaBcs.SenderSignedData.parse(
-                    fromBase64(data.effects.transactionBlock.bcs),
-                )[0];
-            } catch (e) {
-                console.warn('Failed to decode BCS data for transaction:', data.digest, e);
-            }
+        const bcsData = data.bcs || data.effects.transactionBlock?.bcs;
+        if (bcsData) {
+            decodedBCS = decodeBcsToDecodedBCS(bcsData, data.sender?.address || data.sender);
         }
 
         // Extract checkpoint data - can be at top level or nested in effects
@@ -514,14 +725,26 @@ export function getTransactionData(data: any): any {
                 : data.effects.checkpoint?.sequenceNumber;
         const checkpointTimestamp = data.timestampMs || data.effects.checkpoint?.timestamp;
 
+        // Extract transaction data from BCS if available
+        const bcsV1 = decodedBCS?.intentMessage?.value?.V1;
+
         const normalized = {
             digest: data.digest,
             sender: data.sender?.address || data.sender,
             timestamp: checkpointTimestamp,
+            // Transaction data from BCS decode
+            ...(bcsV1
+                ? {
+                      inputs: bcsV1.kind?.ProgrammableTransaction?.inputs,
+                      commands: bcsV1.kind?.ProgrammableTransaction?.commands,
+                      gasData: bcsV1.gasData,
+                      expiration: bcsV1.expiration,
+                  }
+                : {}),
             effects: {
                 transactionDigest: data.digest,
                 status: { status: data.effects.status },
-                executedEpoch: data.effects.executedEpoch,
+                executedEpoch: data.effects.executedEpoch?.epochId ?? data.effects.executedEpoch,
                 gasUsed: data.effects.gasEffects?.gasSummary,
                 checkpoint: {
                     sequenceNumber: checkpointSeqNum ?? null,
@@ -542,14 +765,13 @@ export function getTransactionData(data: any): any {
                 // Include transaction block BCS data if available
                 transactionBlock: data.effects.transactionBlock,
             },
-            // Include the original arrays at the top level too for compatibility
             objectChanges: objectChanges,
             balanceChanges: balanceChanges,
             events: events,
             // Include decoded BCS data if available
             decodedBCS: decodedBCS,
-            // Include original GraphQL data
-            graphqlData: data,
+            // Include signatures from BCS data if available
+            signatures: decodedBCS?.txSignatures,
         };
         return normalized;
     }
@@ -595,7 +817,7 @@ export function getTransactionData(data: any): any {
         let decodedTransaction = null;
         if (data.transactionBytes) {
             try {
-                const txBytes = fromBase64(data.transactionBytes);
+                const txBytes = new Uint8Array(fromBase64(data.transactionBytes));
                 decodedTransaction = TransactionDataBuilder.fromBytes(txBytes);
                 txDigest = TransactionDataBuilder.getDigestFromBytes(txBytes);
             } catch (e) {
@@ -879,7 +1101,12 @@ export function getTransactionData(data: any): any {
         const normalized = {
             ...data,
             digest: data.digest || data.effects?.transactionDigest,
-            sender: data?.transaction?.data?.sender || data.sender || data.input?.sender,
+            sender:
+                data?.transaction?.data?.sender ||
+                (typeof data.sender === 'object' && data.sender?.address
+                    ? data.sender.address
+                    : data.sender) ||
+                data.input?.sender,
             objectChanges: objectChanges,
             effects: {
                 // Selectively include effects properties, excluding created/mutated to avoid conflicts

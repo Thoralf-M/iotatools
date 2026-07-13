@@ -1,6 +1,6 @@
 import type { IotaClient } from '@iota/iota-sdk/client';
 
-import { getClient } from '../../utils/client';
+import { getLegacyClient } from '../../utils/client';
 
 // --- Pool types ---
 
@@ -138,7 +138,7 @@ export async function fetchPools(packageId: string, graphqlUrl: string): Promise
     }
 
     // Fallback: no GraphQL URL, try via events
-    const client = getClient();
+    const client = getLegacyClient();
     const events = await client.queryEvents({
         query: { MoveEventModule: { package: packageId, module: 'candidate_stake' } },
         limit: 50,
@@ -168,7 +168,7 @@ export async function fetchPools(packageId: string, graphqlUrl: string): Promise
 // --- Validators ---
 
 export async function fetchActiveValidators(): Promise<Map<string, ValidatorSummary>> {
-    const client = getClient();
+    const client = getLegacyClient();
     const state = await client.getLatestIotaSystemState();
     const map = new Map<string, ValidatorSummary>();
     for (const v of state.activeValidators) {
@@ -243,7 +243,7 @@ async function fetchCandidate(
 }
 
 export async function fetchCandidateValidators(): Promise<CandidateValidator[]> {
-    const client = getClient();
+    const client = getLegacyClient();
     const state = await client.getLatestIotaSystemState();
     const tableId = state.validatorCandidatesId;
     const size = Number(state.validatorCandidatesSize);
@@ -278,7 +278,7 @@ export async function fetchCandidateValidators(): Promise<CandidateValidator[]> 
 // --- Staked objects ---
 
 export async function fetchStakedObjects(address: string): Promise<StakedIotaInfo[]> {
-    const client = getClient();
+    const client = getLegacyClient();
     const stakes = await client.getStakes({ owner: address });
     const result: StakedIotaInfo[] = [];
     for (const group of stakes) {

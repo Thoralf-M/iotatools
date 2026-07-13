@@ -7,7 +7,39 @@
 
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+
+// Mock fetchSystemState and fetchAllExchangeRates to avoid WASM initialization in jsdom.
+vi.mock('./graphql-requests', async (importOriginal) => {
+    const { readFileSync: fsReadFileSync } = await import('fs');
+    const { join: pathJoin } = await import('path');
+    const cacheData: Array<{ poolId: string; exchangeRateId: string }> = JSON.parse(
+        fsReadFileSync(pathJoin(import.meta.dirname, 'cache/exchange-rate-cache.json'), 'utf-8'),
+    );
+    const validatorNames: Record<string, string> = JSON.parse(
+        fsReadFileSync(pathJoin(import.meta.dirname, 'cache/validator-info-cache.json'), 'utf-8'),
+    );
+    const mockSystemState = {
+        json: {
+            validators: {
+                active_validators: cacheData.map((entry) => ({
+                    staking_pool: {
+                        id: entry.poolId,
+                        exchange_rates: { id: entry.exchangeRateId },
+                    },
+                    metadata: { name: validatorNames[entry.poolId] || 'Unknown Validator' },
+                })),
+                inactive_validators: { size: 0 },
+            },
+        },
+    };
+    const mod = await importOriginal<typeof import('./graphql-requests')>();
+    return {
+        ...mod,
+        fetchSystemState: vi.fn().mockResolvedValue([mockSystemState]),
+        fetchAllExchangeRates: vi.fn().mockResolvedValue(undefined),
+    };
+});
 
 import { MAINNET_CONFIG, setNetworkConfigOverride } from '../../utils/network-config.js';
 import { buildExportSections, sectionsToCsv } from './csv-export.js';

@@ -1,6 +1,9 @@
 import { Ed25519Keypair } from '@iota/iota-sdk/keypairs/ed25519';
 
-import { keypairFromBech32PrivateKey } from '../../utils/default-private-keys';
+import {
+    deriveAddressFromKeypair,
+    keypairFromBech32PrivateKey,
+} from '../../utils/default-private-keys';
 import { loadRandomKey, saveRandomKey } from './onchain-apps-config';
 
 /**
@@ -28,7 +31,7 @@ export function getStoredRandomKey(): RandomKey | null {
     if (!bech32) return null;
     try {
         const keypair = keypairFromBech32PrivateKey(bech32);
-        return { bech32PrivateKey: bech32, address: keypair.toIotaAddress() };
+        return { bech32PrivateKey: bech32, address: deriveAddressFromKeypair(keypair) };
     } catch {
         return null;
     }

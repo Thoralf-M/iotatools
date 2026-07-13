@@ -1,7 +1,8 @@
-import { bcs, toBase64 } from '@iota/bcs';
-import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
+// [GAP] @iota/bcs custom BCS schema not available in WASM SDK
+const bcs = null as any;
+import { toB64 as toBase64, GraphQlClient } from '../../utils/wasm-sdk';
 
-import { getClient, getSelectedNetworkConfig } from '../../utils/client';
+import { getLegacyClient, getSelectedNetworkConfig } from '../../utils/client';
 import {
     compressExchangeRateCache,
     decompressExchangeRateCache,
@@ -11,9 +12,7 @@ import { getInactiveValidatorsWithDeactivationEpoch } from './compute/validator-
 import { formatDate } from './formatting';
 
 export async function fetchSystemState() {
-    const gqlClient = new IotaGraphQLClient({
-        url: getSelectedNetworkConfig().graphql,
-    });
+    const gqlClient = new GraphQlClient(getSelectedNetworkConfig().graphql);
     const query = `{
         owner(address: "0x5") {
             dynamicFields {
@@ -30,10 +29,8 @@ export async function fetchSystemState() {
             }
         }
     }`;
-    // @ts-ignore
-    const result = await gqlClient.query({ query });
-    // @ts-ignore
-    const nodes = result.data?.owner?.dynamicFields?.nodes || [];
+    const result: any = JSON.parse(await gqlClient.runQuery({ query, variables: undefined }));
+    const nodes = result?.owner?.dynamicFields?.nodes || [];
     // Return array of { type: { repr }, json }
     return nodes.map((node: any) => node.value);
 }
@@ -181,11 +178,11 @@ async function fetchMissingEpochsWithDynamicFields(
                                     }`;
                 const variables = { parentId: exchangeRateId, epochBcs };
                 // @ts-ignore
-                const result = await new IotaGraphQLClient({
-                    url: getSelectedNetworkConfig().graphql,
-                }).query({ query, variables });
-                // @ts-ignore
-                const data = result.data?.owner?.dynamicField?.value?.json;
+                const resultStr = await new GraphQlClient(
+                    getSelectedNetworkConfig().graphql,
+                ).runQuery({ query, variables: JSON.stringify(variables) });
+                const result: any = JSON.parse(resultStr);
+                const data = result?.owner?.dynamicField?.value?.json;
                 if (data) {
                     cacheEntry.epochData[epoch] = {
                         iota: data.iota_amount,
@@ -291,9 +288,7 @@ export async function fetchAllExchangeRates(
         `Fetching all exchange rates for epoch ${currentEpoch} and all historical data (cache has ${exchangeRateCache.size} pools, max epoch: ${maxCachedEpoch})`,
     );
 
-    const gqlClient = new IotaGraphQLClient({
-        url: getSelectedNetworkConfig().graphql,
-    });
+    const gqlClient = new GraphQlClient(getSelectedNetworkConfig().graphql);
 
     // First, fetch all validators with pagination
     let hasNextValidatorPage = true;
@@ -343,10 +338,10 @@ export async function fetchAllExchangeRates(
         }`;
 
         const variables = { epochId: currentEpoch };
-        // @ts-ignore
-        const result = await gqlClient.query({ query, variables });
-        // @ts-ignore
-        const activeValidators = result.data?.epoch?.validatorSet?.activeValidators;
+        const result: any = JSON.parse(
+            await gqlClient.runQuery({ query, variables: JSON.stringify(variables) }),
+        );
+        const activeValidators = result?.epoch?.validatorSet?.activeValidators;
 
         if (!activeValidators?.nodes) break;
 
@@ -421,13 +416,13 @@ export async function fetchAllExchangeRates(
                         exchangeRatesTableId: validator.exchangeRatesTable?.address,
                         cursor: exchangeRateCursor,
                     };
-                    // @ts-ignore
-                    const exchangeRateResult = await gqlClient.query({
-                        query: exchangeRateQuery,
-                        variables: exchangeRateVariables,
-                    });
-                    // @ts-ignore
-                    const dynamicFields = exchangeRateResult.data?.owner?.dynamicFields;
+                    const exchangeRateResult: any = JSON.parse(
+                        await gqlClient.runQuery({
+                            query: exchangeRateQuery,
+                            variables: JSON.stringify(exchangeRateVariables),
+                        }),
+                    );
+                    const dynamicFields = exchangeRateResult?.owner?.dynamicFields;
 
                     if (!dynamicFields?.nodes) break;
 
@@ -661,15 +656,13 @@ export function exportExchangeRateCacheAsJson(): ExchangeRateCacheEntry[] {
  * Returns the UNIX timestamp (seconds) or null if not found.
  */
 export async function fetchEpochStartTimestamp(epochId: number): Promise<number | null> {
-    const gqlClient = new IotaGraphQLClient({
-        url: getSelectedNetworkConfig().graphql,
-    });
+    const gqlClient = new GraphQlClient(getSelectedNetworkConfig().graphql);
     const query = `query ($epochId: Int!) { epoch(id: $epochId) { startTimestamp } }`;
     const variables = { epochId };
-    // @ts-ignore
-    const result = await gqlClient.query({ query, variables });
-    // @ts-ignore
-    const startTimestamp = result.data?.epoch?.startTimestamp;
+    const result: any = JSON.parse(
+        await gqlClient.runQuery({ query, variables: JSON.stringify(variables) }),
+    );
+    const startTimestamp = result?.epoch?.startTimestamp;
     if (typeof startTimestamp === 'string') {
         // Parse ISO string to Date and return seconds since epoch
         return Math.floor(new Date(startTimestamp).getTime() / 1000);
@@ -682,15 +675,13 @@ export async function fetchEpochStartTimestamp(epochId: number): Promise<number 
  * Returns the UNIX timestamp (seconds) or null if not found.
  */
 export async function fetchEpochEndTimestamp(epochId: number): Promise<number | null> {
-    const gqlClient = new IotaGraphQLClient({
-        url: getSelectedNetworkConfig().graphql,
-    });
+    const gqlClient = new GraphQlClient(getSelectedNetworkConfig().graphql);
     const query = `query ($epochId: Int!) { epoch(id: $epochId) { endTimestamp } }`;
     const variables = { epochId };
-    // @ts-ignore
-    const result = await gqlClient.query({ query, variables });
-    // @ts-ignore
-    const endTimestamp = result.data?.epoch?.endTimestamp;
+    const result: any = JSON.parse(
+        await gqlClient.runQuery({ query, variables: JSON.stringify(variables) }),
+    );
+    const endTimestamp = result?.epoch?.endTimestamp;
     if (typeof endTimestamp === 'string') {
         // Parse ISO string to Date and return seconds since epoch
         return Math.floor(new Date(endTimestamp).getTime() / 1000);
@@ -706,16 +697,14 @@ export async function updateTimestampsCache(
 ): Promise<Record<string, number>> {
     console.log('Fetching all epoch timestamps...');
 
-    const gqlClient = new IotaGraphQLClient({
-        url: getSelectedNetworkConfig().graphql,
-    });
+    const gqlClient = new GraphQlClient(getSelectedNetworkConfig().graphql);
 
     // Get current epoch
     const epochQuery = `query { epoch { epochId } }`;
-    // @ts-ignore
-    const epochResult = await gqlClient.query({ query: epochQuery });
-    // @ts-ignore
-    const currentEpoch = epochResult.data?.epoch?.epochId || 1;
+    const epochResult: any = JSON.parse(
+        await gqlClient.runQuery({ query: epochQuery, variables: undefined }),
+    );
+    const currentEpoch = epochResult?.epoch?.epochId || 1;
 
     console.log(`Current epoch: ${currentEpoch}`);
 
@@ -836,15 +825,15 @@ export type CurrentStakeInfo = {
  * not found by either method, but they also have no rewards within the range.
  */
 export async function fetchCurrentStakedObjects(addresses: string[]): Promise<CurrentStakeInfo[]> {
-    const client = getClient();
+    const legacyClient = getLegacyClient();
 
     const perAddress = await Promise.all(
         addresses.map(async (address) => {
             const results: CurrentStakeInfo[] = [];
 
             const [stakesRes, timelockedRes] = await Promise.allSettled([
-                client.getStakes({ owner: address }),
-                client.getTimelockedStakes({ owner: address }),
+                legacyClient.getStakes({ owner: address }),
+                legacyClient.getTimelockedStakes({ owner: address }),
             ]);
 
             if (stakesRes.status === 'fulfilled') {
@@ -896,16 +885,14 @@ export async function fetchCurrentStakedObjects(addresses: string[]): Promise<Cu
 export async function updateExchangeRatesCache(): Promise<void> {
     console.log('Fetching all exchange rates for all validators and epochs...');
 
-    const gqlClient = new IotaGraphQLClient({
-        url: getSelectedNetworkConfig().graphql,
-    });
+    const gqlClient = new GraphQlClient(getSelectedNetworkConfig().graphql);
 
     // Get current epoch
     const epochQuery = `query { epoch { epochId } }`;
-    // @ts-ignore
-    const epochResult = await gqlClient.query({ query: epochQuery });
-    // @ts-ignore
-    const currentEpoch = epochResult.data?.epoch?.epochId;
+    const epochResult: any = JSON.parse(
+        await gqlClient.runQuery({ query: epochQuery, variables: undefined }),
+    );
+    const currentEpoch = epochResult?.epoch?.epochId;
 
     if (!currentEpoch) {
         throw new Error('Could not fetch current epoch');
@@ -961,10 +948,10 @@ export async function updateExchangeRatesCache(): Promise<void> {
         }`;
 
         const variables = { epochId: currentEpoch };
-        // @ts-ignore
-        const result = await gqlClient.query({ query, variables });
-        // @ts-ignore
-        const activeValidators = result.data?.epoch?.validatorSet?.activeValidators;
+        const result: any = JSON.parse(
+            await gqlClient.runQuery({ query, variables: JSON.stringify(variables) }),
+        );
+        const activeValidators = result?.epoch?.validatorSet?.activeValidators;
 
         if (!activeValidators?.nodes) break;
 
@@ -1038,13 +1025,13 @@ export async function updateExchangeRatesCache(): Promise<void> {
                         exchangeRatesTableId: validator.exchangeRatesTable?.address,
                         cursor: exchangeRateCursor,
                     };
-                    // @ts-ignore
-                    const exchangeRateResult = await gqlClient.query({
-                        query: exchangeRateQuery,
-                        variables: exchangeRateVariables,
-                    });
-                    // @ts-ignore
-                    const dynamicFields = exchangeRateResult.data?.owner?.dynamicFields;
+                    const exchangeRateResult: any = JSON.parse(
+                        await gqlClient.runQuery({
+                            query: exchangeRateQuery,
+                            variables: JSON.stringify(exchangeRateVariables),
+                        }),
+                    );
+                    const dynamicFields = exchangeRateResult?.owner?.dynamicFields;
 
                     if (!dynamicFields?.nodes) break;
 
@@ -1133,13 +1120,13 @@ export async function updateExchangeRatesCache(): Promise<void> {
                         }
                     }
                 }`;
-                // @ts-ignore
-                const result = await gqlClient.query({
-                    query,
-                    variables: { tableId: cacheEntry.exchangeRateId },
-                });
-                // @ts-ignore
-                const dynamicFields = result.data?.owner?.dynamicFields;
+                const result: any = JSON.parse(
+                    await gqlClient.runQuery({
+                        query,
+                        variables: JSON.stringify({ tableId: cacheEntry.exchangeRateId }),
+                    }),
+                );
+                const dynamicFields = result?.owner?.dynamicFields;
                 if (!dynamicFields?.nodes) break;
 
                 for (const node of dynamicFields.nodes) {

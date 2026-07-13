@@ -1,7 +1,9 @@
-import { fromBase64, type BcsType } from '@iota/bcs';
-import { bcs } from '@iota/iota-sdk/bcs';
-import { IotaGraphQLClient, type GraphQLQueryResult } from '@iota/iota-sdk/graphql';
-import { graphql, type MoveTypeLayout } from '@iota/iota-sdk/graphql/schemas/2025.2';
+import { type BcsType, bcs } from '@iota/iota-sdk/bcs';
+import { base64Decode as fromBase64, GraphQlClient } from './wasm-sdk';
+// [GAP] GraphQLQueryResult type not in WASM SDK - use Value or any
+// [GAP] graphql tagged template not in WASM SDK - use GraphQlClient.runQuery() with raw strings
+// [GAP] MoveTypeLayout type not in WASM SDK
+type MoveTypeLayout = any;
 import { blake2b } from '@noble/hashes/blake2';
 import { bytesToHex } from '@noble/hashes/utils';
 
@@ -42,7 +44,7 @@ export function deriveDynamicFieldIdWithBcs(
     valueBytesB64: string,
 ): string {
     const typeTagBytes = bcs.TypeTag.serialize(tag).toBytes();
-    const valueBcsBytes = fromBase64(valueBytesB64);
+    const valueBcsBytes = new Uint8Array(fromBase64(valueBytesB64));
 
     const valueBcsBytesLen = new Uint8Array(8);
     const view = new DataView(valueBcsBytesLen.buffer);
@@ -100,9 +102,7 @@ export async function queryDynamicFields(
     options: DynamicFieldsQueryOptions,
 ): Promise<DynamicFieldsResult> {
     try {
-        const gqlClient = new IotaGraphQLClient({
-            url: options.graphqlUrl,
-        });
+        const gqlClient = new GraphQlClient(options.graphqlUrl);
 
         const cursorSection = options.cursor
             ? `(first: ${options.pageSize}, after: "${options.cursor}")`
@@ -130,10 +130,11 @@ export async function queryDynamicFields(
             }
         }`;
 
-        const result: GraphQLQueryResult = await gqlClient.query({
-            query: graphql(objectQuery),
-            variables: { address: options.objectId },
+        const resultStr = await gqlClient.runQuery({
+            query: objectQuery,
+            variables: JSON.stringify({ address: options.objectId }),
         });
+        const result: any = JSON.parse(resultStr);
 
         if (result.errors) {
             return {
@@ -144,7 +145,7 @@ export async function queryDynamicFields(
             };
         }
 
-        const data = (result.data as any)?.owner?.dynamicFields;
+        const data = result?.owner?.dynamicFields;
         return {
             nodes: data?.nodes ?? [],
             hasNextPage: data?.pageInfo?.hasNextPage ?? false,
@@ -165,9 +166,7 @@ export async function queryDynamicFields(
  */
 export async function getMoveLayout(type: string, graphqlUrl: string): Promise<LayoutResult> {
     try {
-        const gqlClient = new IotaGraphQLClient({
-            url: graphqlUrl,
-        });
+        const gqlClient = new GraphQlClient(graphqlUrl);
 
         const query = `query getLayout($type: String!) {
             type(type: $type) {
@@ -175,16 +174,17 @@ export async function getMoveLayout(type: string, graphqlUrl: string): Promise<L
             }
         }`;
 
-        const result: GraphQLQueryResult = await gqlClient.query({
-            query: graphql(query),
-            variables: { type },
+        const resultStr = await gqlClient.runQuery({
+            query: query,
+            variables: JSON.stringify({ type }),
         });
+        const result: any = JSON.parse(resultStr);
 
         if (result.errors) {
             return { error: JSON.stringify(result.errors, null, 2) };
         }
 
-        const typeResult = (result.data as any)?.type;
+        const typeResult = result?.type;
         if (!typeResult?.layout) {
             return { error: 'Layout not found for this type' };
         }
@@ -202,15 +202,13 @@ export async function queryDynamicField(
     options: DynamicFieldQueryOptions,
 ): Promise<DynamicFieldResult> {
     try {
-        const gqlClient = new IotaGraphQLClient({
-            url: options.graphqlUrl,
-        });
+        const gqlClient = new GraphQlClient(options.graphqlUrl);
 
         const query = `query ($address: IotaAddress!, $type: String!, $bcs: Base64!) {
             owner(address: $address) {
                 dynamicField(name: {type: $type, bcs: $bcs}) {
                     name { type { repr }, json }
-                    value { ... on MoveValue { 
+                    value { ... on MoveValue {
                         type {
                           repr
                         }
@@ -221,20 +219,21 @@ export async function queryDynamicField(
             }
         }`;
 
-        const result: GraphQLQueryResult = await gqlClient.query({
-            query: graphql(query),
-            variables: {
+        const resultStr = await gqlClient.runQuery({
+            query: query,
+            variables: JSON.stringify({
                 address: options.objectId,
                 type: options.fieldType,
                 bcs: options.bcsValue,
-            },
+            }),
         });
+        const result: any = JSON.parse(resultStr);
 
         if (result.errors) {
             return { error: JSON.stringify(result.errors, null, 2) };
         }
 
-        const fieldResult = (result.data as any)?.owner?.dynamicField;
+        const fieldResult = result?.owner?.dynamicField;
         if (fieldResult === null) {
             return {
                 error: 'Dynamic field not found. The specified field does not exist on this object.',
@@ -254,41 +253,40 @@ export async function queryDynamicObjectField(
     options: DynamicFieldQueryOptions,
 ): Promise<DynamicFieldResult> {
     try {
-        const gqlClient = new IotaGraphQLClient({
-            url: options.graphqlUrl,
-        });
+        const gqlClient = new GraphQlClient(options.graphqlUrl);
 
         const query = `query ($address: IotaAddress!, $name: DynamicFieldName!) {
             owner(address: $address) {
                 dynamicObjectField(name: $name) {
                     name { type { repr }, json }
-                    value { 
-                        ... on MoveObject { 
-                            contents { 
+                    value {
+                        ... on MoveObject {
+                            contents {
                                 type {
                                   repr
                                 }
-                                json 
-                            } 
+                                json
+                            }
                         }
                     }
                 }
             }
         }`;
 
-        const result: GraphQLQueryResult = await gqlClient.query({
-            query: graphql(query),
-            variables: {
+        const resultStr = await gqlClient.runQuery({
+            query: query,
+            variables: JSON.stringify({
                 address: options.objectId,
                 name: { type: options.fieldType, bcs: options.bcsValue },
-            },
+            }),
         });
+        const result: any = JSON.parse(resultStr);
 
         if (result.errors) {
             return { error: JSON.stringify(result.errors, null, 2) };
         }
 
-        const objectFieldResult = (result.data as any)?.owner?.dynamicObjectField;
+        const objectFieldResult = result?.owner?.dynamicObjectField;
         if (objectFieldResult === null) {
             return {
                 error: 'Dynamic object field not found. The specified field does not exist on this object.',

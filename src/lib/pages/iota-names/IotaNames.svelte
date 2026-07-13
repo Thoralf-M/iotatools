@@ -52,7 +52,7 @@
         // Fetch registry sizes
         try {
             const dynamicFields = await getDynamicFields();
-            const nodes = dynamicFields.data.owner.dynamicFields.nodes;
+            const nodes = dynamicFields.owner.dynamicFields.nodes;
             const registryNode = nodes.find((node: any) =>
                 node.name.type.repr.includes('::registry::Registry'),
             );

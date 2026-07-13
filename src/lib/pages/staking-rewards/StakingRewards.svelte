@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { isValidIotaAddress } from '@iota/iota-sdk/utils';
     import { get } from 'svelte/store';
 
     import JsonToggleView from '../../components/JsonToggleView.svelte';
@@ -9,6 +8,7 @@
     } from '../../utils/local-storage-store';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
     import { activeAddress, iota_accounts } from '../../utils/signer-data';
+    import { isValidIotaAddress } from '../../utils/wasm-sdk';
     import { EpochPTBAnalyzer } from '../programmable-transaction-block';
     // @ts-ignore
     import exchangeRateCacheBinary from './cache/exchange-rate-cache.bin?raw';

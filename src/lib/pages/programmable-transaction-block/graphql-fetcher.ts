@@ -1,9 +1,6 @@
-import {
-    IotaGraphQLClient,
-    type GraphQLQueryOptions,
-    type GraphQLQueryResult,
-} from '@iota/iota-sdk/graphql';
-import { graphql } from '@iota/iota-sdk/graphql/schemas/2025.2';
+import { GraphQlClient } from '../../utils/wasm-sdk';
+// [GAP] GraphQLQueryResult type not in WASM SDK - use Value or any
+// [GAP] graphql tagged template not in WASM SDK - use GraphQlClient.runQuery() with raw strings
 
 import { getSelectedNetworkConfig } from '../../utils/client';
 import type {
@@ -22,17 +19,13 @@ const MAX_PAGE_SIZE = 10;
 export class GraphQLDataFetcher {
     constructor() {}
 
-    private async queryGraphQl(
-        query: string,
-        variables: Record<string, any> = {},
-    ): Promise<GraphQLQueryResult> {
-        const options: GraphQLQueryOptions = {
-            query: graphql(query),
-            variables,
-        };
-        return new IotaGraphQLClient({
-            url: getSelectedNetworkConfig().graphql,
-        }).query(options);
+    private async queryGraphQl(query: string, variables: Record<string, any> = {}): Promise<any> {
+        const gqlClient = new GraphQlClient(getSelectedNetworkConfig().graphql);
+        const resultStr = await gqlClient.runQuery({
+            query,
+            variables: JSON.stringify(variables),
+        });
+        return JSON.parse(resultStr);
     }
 
     async getCurrentEpoch(): Promise<string | null> {
@@ -51,7 +44,7 @@ export class GraphQLDataFetcher {
             }
 
             // @ts-ignore
-            const currentEpochId = result.data?.epoch?.epochId;
+            const currentEpochId = result?.epoch?.epochId;
             return currentEpochId ? currentEpochId.toString() : null;
         } catch (err: any) {
             console.error('Error fetching current epoch:', err);
@@ -84,9 +77,9 @@ export class GraphQLDataFetcher {
         }
 
         // @ts-ignore
-        const firstCheckpoint = result.data?.epoch?.checkpoints?.nodes?.[0]?.sequenceNumber;
+        const firstCheckpoint = result?.epoch?.checkpoints?.nodes?.[0]?.sequenceNumber;
         // @ts-ignore
-        const lastCheckpoint = result.data?.epoch?.lastCheckpoints?.nodes?.[0]?.sequenceNumber;
+        const lastCheckpoint = result?.epoch?.lastCheckpoints?.nodes?.[0]?.sequenceNumber;
 
         if (!firstCheckpoint || !lastCheckpoint) {
             throw new Error(`Could not find checkpoint range for epoch ${epochNum}`);
@@ -222,11 +215,11 @@ export class GraphQLDataFetcher {
         }
 
         // @ts-ignore
-        const transactionBlocks = result.data?.transactionBlocks?.nodes || [];
+        const transactionBlocks = result?.transactionBlocks?.nodes || [];
         // @ts-ignore
-        const hasNextPage = result.data?.transactionBlocks?.pageInfo?.hasNextPage || false;
+        const hasNextPage = result?.transactionBlocks?.pageInfo?.hasNextPage || false;
         // @ts-ignore
-        const endCursor = result.data?.transactionBlocks?.pageInfo?.endCursor;
+        const endCursor = result?.transactionBlocks?.pageInfo?.endCursor;
 
         return {
             transactions: transactionBlocks,

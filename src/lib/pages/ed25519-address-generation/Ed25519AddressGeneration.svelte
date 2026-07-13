@@ -1,7 +1,4 @@
 <script lang="ts">
-    import { fromBase64, fromHex, toBase64, toHex } from '@iota/bcs';
-    import { decodeIotaPrivateKey } from '@iota/iota-sdk/cryptography';
-    import { Ed25519Keypair, Ed25519PublicKey } from '@iota/iota-sdk/keypairs/ed25519';
     import {
         entropyToMnemonic,
         generateMnemonic,
@@ -10,6 +7,15 @@
     } from '@scure/bip39';
     import { wordlist } from '@scure/bip39/wordlists/english';
 
+    import {
+        Ed25519PrivateKey,
+        base64Decode as fromBase64,
+        fromHEX as fromHex,
+        toB64 as toBase64,
+        toHex,
+        WasmEd25519PublicKey,
+        type Ed25519PrivateKeyInterface,
+    } from '../../utils/wasm-sdk';
     import { derivePath } from './ed25519-hd-key';
 
     const IOTA_BIP44_COIN_TYPE = 4218;
@@ -80,9 +86,8 @@
             seed,
             `m/44'/${coinType}'/${accountIndex}'/${change}'/${addressIndex}'`,
         );
-        privateKeyBech32 = keyPair.getSecretKey();
-        // @ts-ignore
-        privateKeyHex = toHex(keyPair.keypair.secretKey.slice(0, 32));
+        privateKeyBech32 = keyPair.toBech32();
+        privateKeyHex = toHex(new Uint8Array(keyPair.toBytes()).slice(1, 33));
         generatePublicKey(keyPair);
     };
 
@@ -90,8 +95,8 @@
         tryCatch(generateKeysfromHexPrivateKeyInner);
     };
     const generateKeysfromHexPrivateKeyInner = () => {
-        let keyPair = Ed25519Keypair.fromSecretKey(fromHex(privateKeyHex));
-        privateKeyBech32 = keyPair.getSecretKey();
+        let keyPair = new Ed25519PrivateKey(fromHex(privateKeyHex).buffer as ArrayBuffer);
+        privateKeyBech32 = keyPair.toBech32();
         generatePublicKey(keyPair);
     };
 
@@ -99,23 +104,18 @@
         tryCatch(generateKeysFromBech32PrivateKeyInner);
     };
     const generateKeysFromBech32PrivateKeyInner = () => {
-        const { schema, secretKey } = decodeIotaPrivateKey(privateKeyBech32);
-        if (schema != 'ED25519') {
-            throw 'unsupported schema: ' + schema;
-        }
-        // use schema to choose the correct key pair
-        const keyPair = Ed25519Keypair.fromSecretKey(secretKey);
-        // @ts-ignore
-        privateKeyHex = toHex(keyPair.keypair.secretKey.slice(0, 32));
+        const keyPair = Ed25519PrivateKey.fromBech32(privateKeyBech32);
+        privateKeyHex = toHex(new Uint8Array(keyPair.toBytes()).slice(1, 33));
         generatePublicKey(keyPair);
     };
 
-    const generatePublicKey = (keyPair: Ed25519Keypair) => {
+    const generatePublicKey = (keyPair: Ed25519PrivateKeyInterface) => {
         error = '';
         try {
-            publicKeyBase64 = toBase64(keyPair.getPublicKey().toRawBytes());
-            publicKey = toHex(keyPair.getPublicKey().toRawBytes());
-            address = keyPair.getPublicKey().toIotaAddress();
+            const pubKeyBytes = new Uint8Array(keyPair.publicKey().toBytes());
+            publicKeyBase64 = toBase64(pubKeyBytes);
+            publicKey = toHex(pubKeyBytes);
+            address = keyPair.publicKey().deriveAddress().toCanonicalString(true);
         } catch (err: any) {
             try {
                 error = JSON.stringify(JSON.parse(err.message).payload.error);
@@ -129,13 +129,15 @@
         tryCatch(addressFromPublicKeyBase64Inner);
     };
     const addressFromPublicKeyBase64Inner = () => {
-        let bytes = fromBase64(publicKeyBase64);
+        let bytes = new Uint8Array(fromBase64(publicKeyBase64));
         // Remove byte flag if existing
         if (bytes.length == 33) {
             bytes = bytes.slice(1);
         }
         publicKey = toHex(bytes);
-        address = new Ed25519PublicKey(bytes).toIotaAddress();
+        address = WasmEd25519PublicKey.fromBytes(bytes.buffer as ArrayBuffer)
+            .deriveAddress()
+            .toCanonicalString(true);
     };
     const addressFromPublicKey = () => {
         tryCatch(addressFromPublicKeyInner);
@@ -143,7 +145,9 @@
     const addressFromPublicKeyInner = () => {
         let bytes = fromHex(publicKey);
         publicKeyBase64 = toBase64(bytes);
-        address = new Ed25519PublicKey(bytes).toIotaAddress();
+        address = WasmEd25519PublicKey.fromBytes(bytes.buffer as ArrayBuffer)
+            .deriveAddress()
+            .toCanonicalString(true);
     };
 
     const tryCatch = (fn: any) => {
@@ -160,9 +164,9 @@
     };
 
     // Workaround as `Ed25519Keypair.deriveKeypairFromSeed()` is limited to coin type 4218
-    function deriveKeypairFromSeed(seedHex: string, path: string): Ed25519Keypair {
+    function deriveKeypairFromSeed(seedHex: string, path: string): Ed25519PrivateKeyInterface {
         const { key } = derivePath(path, seedHex);
-        return Ed25519Keypair.fromSecretKey(key);
+        return new Ed25519PrivateKey(key.buffer as ArrayBuffer);
     }
 </script>
 

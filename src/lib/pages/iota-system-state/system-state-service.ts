@@ -1,9 +1,6 @@
-import type {
-    IotaClient,
-    IotaValidatorSummary,
-    LatestIotaSystemStateSummary,
-} from '@iota/iota-sdk/client';
-
+import type { IotaValidatorSummary } from '@iota/iota-sdk/client';
+import type { GraphQlClientInterface } from '../../utils/wasm-sdk';
+import { getLegacyClient } from '../../utils/client';
 import { formatNumbersWithUnderscores } from '../../utils/iota-nano-conversion';
 
 export interface StakeInfo {
@@ -58,7 +55,53 @@ function extractActiveValidatorRow(v: IotaValidatorSummary): ValidatorTableRow {
     };
 }
 
-export async function fetchLatestSystemState(client: IotaClient): Promise<{
+// GraphQL query to fetch the system state object (0x5) contents + epoch/validator data
+const SYSTEM_STATE_QUERY = `
+    query GetSystemState {
+        object(address: "0x5") {
+            asMoveObject {
+                contents {
+                    json
+                    type { repr }
+                }
+            }
+        }
+        epoch {
+            epochId
+            totalGasFees
+            referenceGasPrice
+            startTimestamp
+            endTimestamp
+            validatorSet {
+                totalStake
+                activeValidators {
+                    nodes {
+                        name
+                        description
+                        address { address }
+                        votingPower
+                        gasPrice
+                        stakingPoolIotaBalance
+                        rewardsPool
+                        poolTokenBalance
+                        pendingStake
+                        pendingTotalIotaWithdraw
+                        nextEpochStake
+                        nextEpochGasPrice
+                        nextEpochCommissionRate
+                        exchangeRatesSize
+                        atRisk
+                    }
+                }
+            }
+        }
+        checkpoint {
+            sequenceNumber
+        }
+    }
+`;
+
+export async function fetchLatestSystemState(client: GraphQlClientInterface): Promise<{
     formattedSystemState: any;
     stakeInfo: StakeInfo;
     apiVersion: string;
@@ -66,8 +109,43 @@ export async function fetchLatestSystemState(client: IotaClient): Promise<{
     committeeRows: ValidatorTableRow[];
     activeValidatorRows: ValidatorTableRow[];
 }> {
-    const apiVersion = (await client.getRpcApiVersion()) || '';
-    const systemState = await client.getLatestIotaSystemState();
+    const apiVersion = '';
+
+    const resultStr = await client.runQuery({
+        query: SYSTEM_STATE_QUERY,
+        variables: undefined,
+    });
+    const result: any = JSON.parse(resultStr);
+
+    const systemObjectJson = result?.object?.asMoveObject?.contents?.json;
+    const epochData = result?.epoch;
+    const validatorSet = epochData?.validatorSet;
+
+    // Build a system state summary combining the on-chain object and epoch data
+    const systemState: any = {
+        ...(systemObjectJson || {}),
+        epoch: epochData?.epochId,
+        referenceGasPrice: epochData?.referenceGasPrice,
+        totalStake: validatorSet?.totalStake,
+        activeValidators: (validatorSet?.activeValidators?.nodes || []).map((v: any) => ({
+            name: v.name,
+            description: v.description,
+            iotaAddress: v.address?.address,
+            votingPower: v.votingPower,
+            gasPrice: v.gasPrice,
+            stakingPoolIotaBalance: v.stakingPoolIotaBalance,
+            rewardsPool: v.rewardsPool,
+            poolTokenBalance: v.poolTokenBalance,
+            pendingStake: v.pendingStake,
+            pendingTotalIotaWithdraw: v.pendingTotalIotaWithdraw,
+            nextEpochStake: v.nextEpochStake,
+            nextEpochGasPrice: v.nextEpochGasPrice,
+            nextEpochCommissionRate: v.nextEpochCommissionRate,
+            exchangeRatesSize: v.exchangeRatesSize,
+            atRisk: v.atRisk,
+        })),
+    };
+
     const formattedSystemState = formatNumbersWithUnderscores(systemState);
     const stakeInfo = systemStateStake(systemState);
 
@@ -81,7 +159,7 @@ export async function fetchLatestSystemState(client: IotaClient): Promise<{
     }
 
     // Build committee address set
-    const committeeAddresses = new Set(systemState.committeeMembers.map((m) => m.iotaAddress));
+    const committeeAddresses = new Set(systemState.committeeMembers.map((m: any) => m.iotaAddress));
 
     // Validator lookup by address
     const validatorByAddress = new Map<string, IotaValidatorSummary>();
@@ -122,20 +200,80 @@ export async function fetchLatestSystemState(client: IotaClient): Promise<{
     };
 }
 
+const DYNAMIC_FIELDS_QUERY = `
+    query ($parentId: IotaAddress!, $cursor: String) {
+        object(address: $parentId) {
+            dynamicFields(after: $cursor) {
+                nodes {
+                    name { json }
+                    value {
+                        ... on MoveObject {
+                            contents { json }
+                        }
+                    }
+                }
+                pageInfo { hasNextPage endCursor }
+            }
+        }
+    }
+`;
+
+async function fetchSystemObjectJson(): Promise<any> {
+    const systemState = await getLegacyClient().getLatestIotaSystemState();
+    return systemState;
+}
+
+async function fetchDynamicFieldValidators(
+    client: GraphQlClientInterface,
+    parentId: string,
+    showAllValidatorData: boolean,
+): Promise<any[]> {
+    let validators: any[] = [];
+    let hasNextPage = true;
+    let cursor: string | null = null;
+
+    while (hasNextPage) {
+        const dfResultStr = await client.runQuery({
+            query: DYNAMIC_FIELDS_QUERY,
+            variables: JSON.stringify({ parentId, cursor }),
+        });
+        const dfResult: any = JSON.parse(dfResultStr);
+        const dynamicFields = dfResult?.object?.dynamicFields;
+        const nodes = dynamicFields?.nodes || [];
+
+        for (const node of nodes) {
+            const validatorData = node?.value?.contents?.json;
+            if (validatorData) {
+                const validator = validatorData?.value?.fields || validatorData;
+                if (!showAllValidatorData) {
+                    cleanupValidatorFields(validator);
+                }
+                validators.push(validator);
+            }
+        }
+
+        hasNextPage = dynamicFields?.pageInfo?.hasNextPage || false;
+        cursor = dynamicFields?.pageInfo?.endCursor || null;
+    }
+
+    return validators;
+}
+
 export async function fetchCandidateValidators(
-    client: IotaClient,
+    client: GraphQlClientInterface,
     showAllValidatorData: boolean,
 ): Promise<{
     formattedValidators: any;
     stakeInfo: StakeInfo;
     validatorRows: ValidatorTableRow[];
 }> {
-    const systemState = await client.getLatestIotaSystemState();
-    let stakeInfo = systemStateStake(systemState);
-    stakeInfo.candidateValidatorsStake = 0;
+    const { stakeInfo: baseStakeInfo } = await fetchLatestSystemState(client);
+    let stakeInfo = { ...baseStakeInfo, candidateValidatorsStake: 0 };
 
-    const validatorCandidatesId = systemState.validatorCandidatesId;
-    if (!validatorCandidatesId || validatorCandidatesId === '') {
+    const sysJson = await fetchSystemObjectJson();
+    const validatorCandidatesId = sysJson?.validatorCandidatesId;
+
+    if (!validatorCandidatesId) {
         return {
             formattedValidators: 'No candidate validators',
             stakeInfo: formatNumbersWithUnderscores(stakeInfo) as StakeInfo,
@@ -143,244 +281,165 @@ export async function fetchCandidateValidators(
         };
     }
 
-    let hasNextPage = true;
-    let nextPageCursor: string | null = null;
-    let validatorCandidates: any[] = [];
-    let validatorRows: ValidatorTableRow[] = [];
+    const validatorCandidates = await fetchDynamicFieldValidators(
+        client,
+        validatorCandidatesId,
+        showAllValidatorData,
+    );
 
-    while (hasNextPage) {
-        const candidateValidatorsPage = await client.getDynamicFields({
-            parentId: validatorCandidatesId,
-            cursor: nextPageCursor,
-        });
-
-        for (const candidateValidator of candidateValidatorsPage.data) {
-            const validatorWrapper = await client.getDynamicFieldObjectV2({
-                parentObjectId: validatorCandidatesId,
-                name: candidateValidator.name,
-                options: { showContent: true },
-            });
-
-            const innerId = (validatorWrapper.data as any).content.fields.value.fields.inner.fields
-                .id.id;
-            const validatorV1 = await client.getDynamicFields({
-                parentId: innerId,
-            });
-
-            const validatorObject = await client.getObject({
-                id: validatorV1.data[0].objectId,
-                options: { showContent: true },
-            });
-
-            const validator = (validatorObject.data as any)?.content.fields.value.fields;
-
-            stakeInfo.candidateValidatorsStake! += parseInt(
-                validator.staking_pool.fields.iota_balance,
-            );
-
-            validatorRows.push(extractValidatorRow(validator));
-
-            if (!showAllValidatorData) {
-                cleanupValidatorFields(validator);
-            }
-            validatorCandidates.push(validator);
-        }
-
-        hasNextPage = candidateValidatorsPage.hasNextPage;
-        if (hasNextPage) {
-            nextPageCursor = candidateValidatorsPage.nextCursor;
+    for (const v of validatorCandidates) {
+        const iotaBalance = v?.staking_pool?.fields?.iota_balance || v?.staking_pool?.iota_balance;
+        if (iotaBalance) {
+            stakeInfo.candidateValidatorsStake! += parseInt(iotaBalance);
         }
     }
 
-    const formattedValidators =
-        validatorCandidates.length > 0
-            ? formatNumbersWithUnderscores(validatorCandidates)
-            : 'No candidate validators';
-
+    const validatorRows: ValidatorTableRow[] = [];
     return {
-        formattedValidators,
+        formattedValidators:
+            validatorCandidates.length > 0
+                ? formatNumbersWithUnderscores(validatorCandidates)
+                : 'No candidate validators',
         stakeInfo: formatNumbersWithUnderscores(stakeInfo) as StakeInfo,
         validatorRows,
     };
 }
 
 export async function fetchPendingValidators(
-    client: IotaClient,
+    client: GraphQlClientInterface,
     showAllValidatorData: boolean,
 ): Promise<{
     formattedValidators: any;
     stakeInfo: StakeInfo;
     validatorRows: ValidatorTableRow[];
 }> {
-    const systemState = await client.getLatestIotaSystemState();
-    let stakeInfo = systemStateStake(systemState);
-    stakeInfo.pendingValidatorsStake = 0;
+    const { stakeInfo: baseStakeInfo } = await fetchLatestSystemState(client);
+    let stakeInfo = { ...baseStakeInfo, pendingValidatorsStake: 0 };
 
-    const pendingActiveValidatorsId = systemState.pendingActiveValidatorsId;
+    const sysJson = await fetchSystemObjectJson();
+    const pendingActiveValidatorsId = sysJson?.pending_active_validators?.fields?.id?.id;
 
-    let hasNextPage = true;
-    let nextPageCursor: string | null = null;
-    let pendingValidators: any[] = [];
-    let validatorRows: ValidatorTableRow[] = [];
+    if (!pendingActiveValidatorsId) {
+        return {
+            formattedValidators: 'No pending validators',
+            stakeInfo: formatNumbersWithUnderscores(stakeInfo) as StakeInfo,
+            validatorRows: [],
+        };
+    }
 
-    while (hasNextPage) {
-        const pendingValidatorsPage = await client.getDynamicFields({
-            parentId: pendingActiveValidatorsId,
-            cursor: nextPageCursor,
-        });
+    const pendingValidators = await fetchDynamicFieldValidators(
+        client,
+        pendingActiveValidatorsId,
+        showAllValidatorData,
+    );
 
-        for (const pendingValidator of pendingValidatorsPage.data) {
-            const validatorObject = await client.getObject({
-                id: pendingValidator.objectId,
-                options: { showContent: true },
-            });
-
-            const validator = (validatorObject.data as any)?.content.fields.value.fields;
-
-            stakeInfo.pendingValidatorsStake! += parseInt(
-                validator.staking_pool.fields.iota_balance,
-            );
-
-            validatorRows.push(extractValidatorRow(validator));
-
-            if (!showAllValidatorData) {
-                cleanupValidatorFields(validator);
-            }
-            pendingValidators.push(validator);
-        }
-
-        hasNextPage = pendingValidatorsPage.hasNextPage;
-        if (hasNextPage) {
-            nextPageCursor = pendingValidatorsPage.nextCursor;
+    for (const v of pendingValidators) {
+        if (v?.staking_pool?.fields?.iota_balance) {
+            stakeInfo.pendingValidatorsStake! += parseInt(v.staking_pool.fields.iota_balance);
         }
     }
 
-    const formattedValidators =
-        pendingValidators.length > 0
-            ? formatNumbersWithUnderscores(pendingValidators)
-            : 'No pending validators';
-
+    const validatorRows: ValidatorTableRow[] = [];
     return {
-        formattedValidators,
+        formattedValidators:
+            pendingValidators.length > 0
+                ? formatNumbersWithUnderscores(pendingValidators)
+                : 'No pending validators',
         stakeInfo: formatNumbersWithUnderscores(stakeInfo) as StakeInfo,
         validatorRows,
     };
 }
 
 export async function fetchInactiveValidators(
-    client: IotaClient,
+    client: GraphQlClientInterface,
     showAllValidatorData: boolean,
 ): Promise<{
     formattedValidators: any;
     validatorRows: ValidatorTableRow[];
 }> {
-    const systemState = await client.getLatestIotaSystemState();
-    const size = systemState.inactivePoolsSize;
-    if (parseInt(size) === 0) {
+    const sysJson = await fetchSystemObjectJson();
+    const inactivePoolsSize = sysJson?.inactive_pools?.fields?.size;
+    const inactiveValidatorsId = sysJson?.inactive_pools?.fields?.id?.id;
+
+    if (!inactiveValidatorsId || parseInt(inactivePoolsSize || '0') === 0) {
         return { formattedValidators: 'No inactive validators', validatorRows: [] };
     }
 
-    const inactiveValidatorsId = systemState.inactivePoolsId;
+    const inactiveValidatorsList = await fetchDynamicFieldValidators(
+        client,
+        inactiveValidatorsId,
+        showAllValidatorData,
+    );
 
-    let hasNextPage = true;
-    let nextPageCursor: string | null = null;
-    let inactiveValidatorsList: any[] = [];
-    let validatorRows: ValidatorTableRow[] = [];
-
-    while (hasNextPage) {
-        const inactiveValidatorsPage = await client.getDynamicFields({
-            parentId: inactiveValidatorsId,
-            cursor: nextPageCursor,
+    const validatorRows: ValidatorTableRow[] = inactiveValidatorsList
+        .map((v) => extractValidatorRow(v))
+        .sort((a, b) => {
+            const aEpoch = parseInt(a.stakingPoolDeactivationEpoch ?? '0');
+            const bEpoch = parseInt(b.stakingPoolDeactivationEpoch ?? '0');
+            return bEpoch - aEpoch;
         });
 
-        for (const inactiveValidator of inactiveValidatorsPage.data) {
-            const inactiveValidatorsPage = await client.getDynamicFieldObjectV2({
-                parentObjectId: inactiveValidatorsId,
-                name: { type: '0x2::object::ID', value: inactiveValidator.name.value },
-                options: { showContent: true },
-            });
-
-            const validatorV1 = await client.getDynamicFields({
-                parentId: (inactiveValidatorsPage.data as any).content.fields.value.fields.inner
-                    .fields.id.id,
-            });
-
-            const validatorObject = await client.getObject({
-                id: validatorV1.data[0].objectId,
-                options: { showContent: true },
-            });
-
-            const validator = (validatorObject.data as any)?.content.fields.value.fields;
-
-            validatorRows.push(extractValidatorRow(validator));
-
-            if (!showAllValidatorData) {
-                cleanupValidatorFields(validator);
-            }
-            inactiveValidatorsList.push(validator);
-        }
-
-        hasNextPage = inactiveValidatorsPage.hasNextPage;
-        if (hasNextPage) {
-            nextPageCursor = inactiveValidatorsPage.nextCursor;
-        }
-    }
-
-    const formattedValidators =
-        inactiveValidatorsList.length > 0
-            ? formatNumbersWithUnderscores(inactiveValidatorsList)
-            : 'No inactive validators';
-
-    validatorRows.sort((a, b) => {
-        const aEpoch = parseInt(a.stakingPoolDeactivationEpoch ?? '0');
-        const bEpoch = parseInt(b.stakingPoolDeactivationEpoch ?? '0');
-        return bEpoch - aEpoch;
-    });
-
-    return { formattedValidators, validatorRows };
+    return {
+        formattedValidators:
+            inactiveValidatorsList.length > 0
+                ? formatNumbersWithUnderscores(inactiveValidatorsList)
+                : 'No inactive validators',
+        validatorRows,
+    };
 }
 
-function systemStateStake(systemState: LatestIotaSystemStateSummary): StakeInfo {
+function systemStateStake(systemState: any): StakeInfo {
     const stakeInfo: StakeInfo = {};
-    stakeInfo.totalSupply = systemState.iotaTotalSupply;
-    stakeInfo.totalStake = systemState.totalStake;
+    stakeInfo.totalSupply = systemState.iotaTotalSupply || systemState.iota_total_supply;
+    stakeInfo.totalStake = systemState.totalStake || systemState.total_stake;
     stakeInfo.pendingStake = '0';
     stakeInfo.nextEpochStake = '0';
 
-    for (const validator of systemState.activeValidators) {
+    const validators = systemState.activeValidators || [];
+    for (const validator of validators) {
         stakeInfo.pendingStake = (
-            BigInt(stakeInfo.pendingStake!) + BigInt(validator.pendingStake)
+            BigInt(stakeInfo.pendingStake!) + BigInt(validator.pendingStake || '0')
         ).toString();
         stakeInfo.nextEpochStake = (
-            BigInt(stakeInfo.nextEpochStake!) + BigInt(validator.nextEpochStake)
+            BigInt(stakeInfo.nextEpochStake!) + BigInt(validator.nextEpochStake || '0')
         ).toString();
     }
 
     return stakeInfo;
 }
 
-// Remove fields from the validator to have a cleaner output
 function cleanupValidatorFields(validator: any) {
+    if (!validator) return;
     delete validator.extra_fields;
-    delete validator.metadata.type;
-    delete validator.metadata.fields.authority_pubkey_bytes;
-    delete validator.metadata.fields.next_epoch_authority_pubkey_bytes;
-    delete validator.metadata.fields.next_epoch_net_address;
-    delete validator.metadata.fields.next_epoch_network_pubkey_bytes;
-    delete validator.metadata.fields.next_epoch_p2p_address;
-    delete validator.metadata.fields.next_epoch_primary_address;
-    delete validator.metadata.fields.next_epoch_proof_of_possession;
-    delete validator.metadata.fields.next_epoch_protocol_pubkey_bytes;
-    delete validator.metadata.fields.net_address;
-    delete validator.metadata.fields.p2p_address;
-    delete validator.metadata.fields.primary_address;
-    delete validator.metadata.fields.image_url;
-    delete validator.metadata.fields.extra_fields;
-    delete validator.metadata.fields.network_pubkey_bytes;
-    delete validator.metadata.fields.proof_of_possession;
-    delete validator.metadata.fields.protocol_pubkey_bytes;
-    delete validator.staking_pool.type;
-    delete validator.staking_pool.fields.exchange_rates;
-    delete validator.staking_pool.fields.extra_fields;
-    validator.staking_pool.fields.id = validator.staking_pool.fields.id.id;
+    if (validator.metadata) {
+        delete validator.metadata.type;
+        if (validator.metadata.fields) {
+            delete validator.metadata.fields.authority_pubkey_bytes;
+            delete validator.metadata.fields.next_epoch_authority_pubkey_bytes;
+            delete validator.metadata.fields.next_epoch_net_address;
+            delete validator.metadata.fields.next_epoch_network_pubkey_bytes;
+            delete validator.metadata.fields.next_epoch_p2p_address;
+            delete validator.metadata.fields.next_epoch_primary_address;
+            delete validator.metadata.fields.next_epoch_proof_of_possession;
+            delete validator.metadata.fields.next_epoch_protocol_pubkey_bytes;
+            delete validator.metadata.fields.net_address;
+            delete validator.metadata.fields.p2p_address;
+            delete validator.metadata.fields.primary_address;
+            delete validator.metadata.fields.image_url;
+            delete validator.metadata.fields.extra_fields;
+            delete validator.metadata.fields.network_pubkey_bytes;
+            delete validator.metadata.fields.proof_of_possession;
+            delete validator.metadata.fields.protocol_pubkey_bytes;
+        }
+    }
+    if (validator.staking_pool) {
+        delete validator.staking_pool.type;
+        if (validator.staking_pool.fields) {
+            delete validator.staking_pool.fields.exchange_rates;
+            delete validator.staking_pool.fields.extra_fields;
+            if (validator.staking_pool.fields.id) {
+                validator.staking_pool.fields.id = validator.staking_pool.fields.id.id;
+            }
+        }
+    }
 }

@@ -3,7 +3,7 @@
     import { location } from 'svelte-spa-router';
 
     import TransactionView from '../../components/TransactionView.svelte';
-    import { getClient, getSelectedNetworkConfig } from '../../utils/client';
+    import { getClient, getLegacyClient, getSelectedNetworkConfig } from '../../utils/client';
     import { getAddressLink, getObjectLink } from '../../utils/explorer-links';
     import { fetchRecentTransactions, type TransactionNode } from '../txs/fetchTransactions';
 
@@ -412,7 +412,7 @@
         selectedTransaction = tx.rawData;
         showTransactionPopup = true;
         try {
-            const client = getClient();
+            const client = getLegacyClient();
             const fullTx = await client.getTransactionBlock({
                 digest: tx.digest,
                 options: {

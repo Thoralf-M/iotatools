@@ -1,18 +1,12 @@
 <script lang="ts">
-    import {
-        getFaucetRequestStatus,
-        requestIotaFromFaucetV0,
-        requestIotaFromFaucetV1,
-    } from '@iota/iota-sdk/faucet';
-    import { isValidIotaAddress } from '@iota/iota-sdk/utils';
-
     import JsonToggleView from '../../components/JsonToggleView.svelte';
     import { sharedClientConfig } from '../../utils/local-storage-store';
     import { activeAddress } from '../../utils/signer-data';
+    import { Address, FaucetClient, isValidIotaAddress } from '../../utils/wasm-sdk';
 
     let address = '0x111111111504e9350e635d65cd38ccd2c029434c6a3a480d8947a9ba6a15b215';
-    let faucetUrl = 'https://faucet.testnet.iota.cafe/gas';
-    let value = {};
+    let faucetUrl = 'https://faucet.testnet.iota.cafe';
+    let value: any = {};
     let amountOfRequests = 1;
     let msBetweenRequests = 1000;
 
@@ -28,42 +22,10 @@
             if (!isValidIotaAddress(address)) {
                 throw new Error('invalid address');
             }
-            // Try batched request and switch to single request in case of an error
-            try {
-                var response = await requestIotaFromFaucetV1({
-                    host: faucetUrl,
-                    recipient: address,
-                });
-                // @ts-ignore
-                let taskId = response.task?.taskId;
-
-                if (error || !taskId) {
-                    throw new Error(error ?? 'Failed, task id not found.');
-                }
-
-                console.log(taskId);
-
-                var {
-                    status: { status, transferred_gas_objects },
-                    error,
-                } = await getFaucetRequestStatus({
-                    host: faucetUrl,
-                    taskId,
-                });
-
-                console.log(status);
-                console.log(transferred_gas_objects);
-
-                value = transferred_gas_objects;
-            } catch (e) {
-                console.log(e);
-                const faucetResponse = await requestIotaFromFaucetV0({
-                    host: faucetUrl,
-                    recipient: address,
-                });
-                console.log(faucetResponse);
-                value = faucetResponse;
-            }
+            const faucetClient = new FaucetClient(faucetUrl);
+            const response = await faucetClient.request(Address.fromPrefixedShortHex(address));
+            console.log(response);
+            value = response;
         } catch (err: any) {
             value = err.toString();
             console.error(err);
@@ -78,7 +40,7 @@
             faucetUrl =
                 $sharedClientConfig.networks.find(
                     (network) => network.name === $sharedClientConfig.selected,
-                )?.faucet ?? 'http://127.0.0.1:9123/gas';
+                )?.faucet ?? 'http://127.0.0.1:9123';
         }}
     >
         Set to current network and active address
@@ -91,7 +53,7 @@
             list="faucetUrls"
             class="faucet-input"
             bind:value={faucetUrl}
-            placeholder="faucet URL, like http://127.0.0.1:9123/gas"
+            placeholder="faucet URL, like http://127.0.0.1:9123"
         />
         <datalist id="faucetUrls">
             {#each $sharedClientConfig.networks as network}

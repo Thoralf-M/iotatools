@@ -1,4 +1,4 @@
-import { fromBase64 } from '@iota/bcs';
+import { base64Decode as fromBase64 } from '../../utils/wasm-sdk';
 import { bcs as IotaBcs } from '@iota/iota-sdk/bcs';
 
 import type { CheckpointRange, RawTransactionBlock } from '../../utils/graphql-types';
@@ -112,7 +112,7 @@ export class TransactionDataProcessor {
         if (tx.effects?.transactionBlock?.bcs) {
             try {
                 decodedData = IotaBcs.SenderSignedData.parse(
-                    fromBase64(tx.effects.transactionBlock.bcs),
+                    new Uint8Array(fromBase64(tx.effects.transactionBlock.bcs)),
                 )[0];
             } catch (e2) {
                 console.warn('Failed to decode BCS data for transaction:', tx.digest, e2);

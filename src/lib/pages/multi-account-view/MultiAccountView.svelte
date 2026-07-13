@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { isValidIotaAddress } from '@iota/iota-sdk/utils';
     import { onMount, untrack } from 'svelte';
     import type { DndEvent } from 'svelte-dnd-action';
     import { get } from 'svelte/store';
@@ -11,6 +10,7 @@
     } from '../../utils/local-storage-store';
     import { updatePageQueryParams, usePageQueryParams } from '../../utils/page-query-params';
     import { iota_accounts } from '../../utils/signer-data';
+    import { isValidIotaAddress } from '../../utils/wasm-sdk';
     import {
         fetchAllExchangeRates,
         setInitialExchangeRateCacheFromBinary,

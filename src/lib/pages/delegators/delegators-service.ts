@@ -1,8 +1,8 @@
-import type { IotaClient } from '@iota/iota-sdk/client';
-import { IotaGraphQLClient } from '@iota/iota-sdk/graphql';
-import { graphql } from '@iota/iota-sdk/graphql/schemas/2025.2';
+// [MIGRATION] IotaClient → GraphQlClient from wasm-sdk
+import { GraphQlClient } from '../../utils/wasm-sdk';
+// [GAP] graphql tagged template not in WASM SDK - use GraphQlClient.runQuery() with raw strings
 
-import { getClient, getSelectedNetworkConfig } from '../../utils/client';
+import { getLegacyClient, getSelectedNetworkConfig } from '../../utils/client';
 
 const STAKED_IOTA_TYPE = '0x3::staking_pool::StakedIota';
 const TIMELOCKED_STAKED_IOTA_TYPE = '0x3::timelocked_staking::TimelockedStakedIota';
@@ -93,7 +93,7 @@ export interface DelegatorStats {
 }
 
 export async function fetchDelegatorData(
-    client: IotaClient,
+    client: GraphQlClient,
     progressCallback: (
         message: string,
         currentData?: DelegatorData,
@@ -120,7 +120,7 @@ export async function fetchDelegatorData(
             ? 'Resuming fetch, getting system state...'
             : 'Fetching system state and validators...',
     );
-    const systemState = await getClient(false).getLatestIotaSystemState();
+    const systemState = await getLegacyClient().getLatestIotaSystemState();
     const totalSupply = BigInt(systemState.iotaTotalSupply);
     const totalStake = BigInt(systemState.totalStake);
     const currentEpoch = parseInt(systemState.epoch);
@@ -561,9 +561,7 @@ async function fetchStakedObjectsOfType(
     startingCursor: string | null = null,
 ): Promise<{ stakedObjects: StakedObject[]; cursor: string | null; paused: boolean }> {
     const existingIds = new Set(stakedObjects.map((obj) => obj.id));
-    const gqlClient = new IotaGraphQLClient({
-        url: getSelectedNetworkConfig().graphql,
-    });
+    const gqlClient = new GraphQlClient(getSelectedNetworkConfig().graphql);
 
     const typeLabel = isTimelocked ? 'TimelockedStakedIota' : 'StakedIota';
 
@@ -619,7 +617,7 @@ async function fetchStakedObjectsOfType(
             throw new Error('GraphQL query failed: ' + JSON.stringify(result.errors));
         }
 
-        const edges = result.data.objects.edges || [];
+        const edges = result.objects.edges || [];
         const objects = edges.map((edge: any) => edge.node);
 
         for (const node of objects) {
@@ -677,7 +675,7 @@ async function fetchStakedObjectsOfType(
             }
         }
 
-        const pageInfo = result.data.objects.pageInfo || {};
+        const pageInfo = result.objects.pageInfo || {};
         const lastEdgeCursor = edges.length > 0 ? edges[edges.length - 1].cursor : null;
         const nextCursor = pageInfo.endCursor || lastEdgeCursor || null;
 
@@ -694,15 +692,15 @@ async function fetchStakedObjectsOfType(
 }
 
 async function queryGraphQL(
-    gqlClient: IotaGraphQLClient,
+    gqlClient: GraphQlClient,
     query: string,
     variables: Record<string, any>,
 ): Promise<any> {
-    const options = {
-        query: graphql(query),
-        variables,
-    };
-    return gqlClient.query(options);
+    const resultStr = await gqlClient.runQuery({
+        query,
+        variables: JSON.stringify(variables),
+    });
+    return JSON.parse(resultStr);
 }
 
 function computeStats(

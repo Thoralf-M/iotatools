@@ -1,4 +1,4 @@
-import { getClient } from '../../utils/client';
+import { getLegacyClient } from '../../utils/client';
 
 export interface ValidatorInfoFull {
     address: string;
@@ -38,7 +38,7 @@ export interface ValidatorsLoadResult {
  *  Candidates are intentionally skipped — they have no exchange-rate history
  *  and earn no rewards yet, so they can't be compared. */
 export async function fetchValidatorsForStaking(): Promise<ValidatorsLoadResult> {
-    const client = getClient();
+    const client = getLegacyClient();
     const systemState = await client.getLatestIotaSystemState();
     const committeeAddrs = new Set(
         (systemState.committeeMembers || []).map((m: any) => m.iotaAddress),
