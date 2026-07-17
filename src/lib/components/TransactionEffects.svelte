@@ -215,7 +215,7 @@
                             ).length}):
                         </h5>
                         <div class="balance-content">
-                            {#each balanceChanges.filter( (change: any) => change.amount.startsWith('-'), ) as change}
+                            {#each balanceChanges.filter( (change: any) => change.amount.startsWith('-') ) as change}
                                 {@const addr = getBalanceChangeAddress(change.owner)}
                                 <div class="balance-box negative">
                                     {#if addr}

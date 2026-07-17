@@ -446,8 +446,7 @@
                 bind:this={txBytesTextarea}
                 value={txBytesInput}
                 oninput={(e) => updateTxBytes((e.target as HTMLTextAreaElement)?.value || '')}
-                placeholder="base64 transaction bytes or message"
-            ></textarea>
+                placeholder="base64 transaction bytes or message"></textarea>
         </div>
     </div>
 
@@ -504,8 +503,7 @@
                     oninput={(e) =>
                         updateSignatureValue(index, (e.target as HTMLTextAreaElement).value)}
                     placeholder="Signature (base64)"
-                    class="signature-textarea"
-                ></textarea>
+                    class="signature-textarea"></textarea>
 
                 <!-- Signature Verification Status -->
                 {#if entry.status === 'checking'}
@@ -636,8 +634,7 @@
                     readonly
                     placeholder="Signed transaction bytes (base64)"
                     class="signature-textarea"
-                    style="height: 100px;"
-                ></textarea>
+                    style="height: 100px;"></textarea>
                 <div style="margin-top: 4px; font-size: 12px; color: #666;">
                     This combines the transaction bytes with all signatures and can be submitted to
                     the network.

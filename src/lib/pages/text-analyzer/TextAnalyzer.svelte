@@ -117,8 +117,7 @@
             id="textInput"
             bind:value={textContent}
             placeholder="Paste your text here for analysis..."
-            class="text-input"
-        ></textarea>
+            class="text-input"></textarea>
         <div class="controls">
             <label for="limitInput">Show first</label>
             <input

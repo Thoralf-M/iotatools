@@ -701,8 +701,7 @@
                     bind:value={selectedStructJson}
                     rows="12"
                     cols="130"
-                    style="font-family: monospace;"
-                ></textarea>
+                    style="font-family: monospace;"></textarea>
             </div>
             {#if fieldStructType}
                 {@const bcsValue = getBcsBase64()}

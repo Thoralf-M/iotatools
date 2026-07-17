@@ -488,8 +488,7 @@
                 bind:this={txBytesTextarea}
                 placeholder="Enter transaction bytes (base64), transaction digest (base58), or JSON..."
                 rows="6"
-                oninput={handleInput}
-            ></textarea>
+                oninput={handleInput}></textarea>
         </label>
 
         <div class="button-group">

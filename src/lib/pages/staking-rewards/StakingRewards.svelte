@@ -666,8 +666,7 @@
                     placeholder="Enter addresses separated by comma, newline, or space (0x...)"
                     rows="4"
                     style="width: 100%; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-color); color: white; padding: 0.4rem 0.8rem; border-radius: 4px;"
-                    oninput={handleTextareaInput}
-                ></textarea>
+                    oninput={handleTextareaInput}></textarea>
                 {#if invalidAddresses.length > 0 || duplicateAddresses.length > 0}
                     <div class="error-message">
                         {#if invalidAddresses.length > 0}Invalid addresses: {invalidAddresses.join(
@@ -730,8 +729,7 @@
                             placeholder="Enter sender addresses separated by comma, newline, or space (0x...)"
                             rows="3"
                             disabled={loadingTxs}
-                            class="skip-senders-textarea"
-                        ></textarea>
+                            class="skip-senders-textarea"></textarea>
                         {#if skipSendersInvalid.length > 0}
                             <div class="error-message">
                                 Invalid skip-sender addresses: {skipSendersInvalid.join(', ')}
