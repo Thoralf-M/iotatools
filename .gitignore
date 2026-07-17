@@ -5,3 +5,7 @@ package-lock.json
 # staged explorer build (source of truth: apps/explorer, committed output: docs/explorer)
 public/explorer
 apps/explorer/dist
+
+# playwright test artifacts
+apps/explorer/test-results
+apps/explorer/playwright-report

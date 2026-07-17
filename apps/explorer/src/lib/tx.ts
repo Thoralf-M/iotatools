@@ -2,6 +2,8 @@
 // the SDK's transactionToJson / transactionEffectsToJson (snake_case keys,
 // PascalCase enum tags, u64 as decimal strings).
 
+import { fmtInt, fmtIota } from "./format";
+
 export type Json = Record<string, any>;
 
 /** Unwrap the {V1: …} version envelope. */
@@ -169,4 +171,138 @@ export function netGas(gas: NonNullable<EffectsView["gas"]>): bigint {
   } catch {
     return 0n;
   }
+}
+
+// ── plain-language action summary ────────────────────────────────────────────
+// "What is this transaction doing?" — the single line a reader wants before any
+// of the low-level detail. Derived from the PTB commands, cross-referenced with
+// the emitted events (which carry the resolved amounts/parties) and the net
+// balance changes. Best-effort: every branch degrades to a safe generic form,
+// so an unrecognised shape still reads sensibly rather than lying.
+
+export type PillColor = "teal" | "amber" | "coral" | "blue" | "violet";
+
+export interface TxAction {
+  /** short chip, e.g. "STAKE", "SEND", "CALL" */
+  label: string;
+  color: PillColor;
+  /** human sentence; when `party` is set it reads as the lead-in to that link */
+  sentence: string;
+  /** an address the sentence points at (validator, recipient…) — rendered as a link */
+  party: { role: string; address: string } | null;
+  /** move-call targets involved (module::fn), for the "via" line */
+  functions: string[];
+}
+
+interface EventLite {
+  type: string;
+  json: any;
+}
+
+/** The single counterparty that gained coins, if there is exactly one. */
+function soleRecipient(
+  balanceChanges: Array<{ ownerAddress: string; amount: string; coinType: string }>,
+  sender: string,
+): { address: string; amount: string; coinType: string } | null {
+  const gains = balanceChanges.filter((b) => b.ownerAddress !== sender && !b.amount.startsWith("-") && b.amount !== "0");
+  return gains.length === 1 ? { address: gains[0].ownerAddress, amount: gains[0].amount, coinType: gains[0].coinType } : null;
+}
+
+export function interpretTx(input: {
+  kind: Json | null | undefined;
+  events: EventLite[];
+  balanceChanges: Array<{ ownerAddress: string; amount: string; coinType: string }>;
+  sender: string;
+}): TxAction {
+  const { kind, events, balanceChanges, sender } = input;
+  const tag = kindTag(kind);
+  const ptb = ptbBody(kind);
+  if (!ptb) {
+    return { label: kindLabel(tag), color: "violet", sentence: "System transaction injected by the protocol.", party: null, functions: [] };
+  }
+
+  const views = commandViews(ptb.commands);
+  const calls = views.filter((v) => v.tag === "MoveCall" && v.target);
+  const functions = calls.map((v) => `${v.target!.module}::${v.target!.fn}`);
+  const findEvent = (suffix: string) => events.find((e) => e.type.endsWith(suffix))?.json ?? null;
+
+  // Staking (request_add_stake / request_add_stake_mul_coin).
+  if (calls.some((v) => v.target!.fn.startsWith("request_add_stake"))) {
+    const e = findEvent("::StakingRequestEvent");
+    const amount = e?.amount != null ? fmtIota(e.amount) : null;
+    const validator = typeof e?.validator_address === "string" ? e.validator_address : null;
+    return {
+      label: "STAKE",
+      color: "teal",
+      sentence: amount ? `Staked ${amount} with validator` : "Added stake to validator",
+      party: validator ? { role: "validator", address: validator } : null,
+      functions,
+    };
+  }
+
+  // Unstaking (request_withdraw_stake).
+  if (calls.some((v) => v.target!.fn.startsWith("request_withdraw_stake"))) {
+    const e = findEvent("::UnstakingRequestEvent");
+    const principal = e?.principal_amount != null ? fmtIota(e.principal_amount) : null;
+    const reward = e?.reward_amount != null && e.reward_amount !== "0" ? fmtIota(e.reward_amount) : null;
+    return {
+      label: "UNSTAKE",
+      color: "amber",
+      sentence: principal ? `Withdrew ${principal} of stake${reward ? ` plus ${reward} rewards` : ""}.` : "Withdrew staked IOTA.",
+      party: null,
+      functions,
+    };
+  }
+
+  if (views.some((v) => v.tag === "Publish")) {
+    return { label: "PUBLISH", color: "violet", sentence: "Published a new Move package.", party: null, functions };
+  }
+  if (views.some((v) => v.tag === "Upgrade")) {
+    return { label: "UPGRADE", color: "violet", sentence: "Upgraded a Move package.", party: null, functions };
+  }
+
+  // A plain value transfer: TransferObjects with no contract logic around it.
+  if (views.some((v) => v.tag === "TransferObjects") && calls.length === 0) {
+    const rcpt = soleRecipient(balanceChanges, sender);
+    if (rcpt) {
+      const isIota = rcpt.coinType.endsWith("::iota::IOTA");
+      return {
+        label: "SEND",
+        color: "blue",
+        sentence: `Sent ${isIota ? fmtIota(rcpt.amount) : fmtInt(rcpt.amount)} to`,
+        party: { role: "recipient", address: rcpt.address },
+        functions: [],
+      };
+    }
+    const moved = views.filter((v) => v.tag === "TransferObjects").reduce((n, v) => n + (v.body.objects?.length ?? 0), 0);
+    return { label: "TRANSFER", color: "blue", sentence: `Transferred ${moved} object${moved === 1 ? "" : "s"}.`, party: null, functions: [] };
+  }
+
+  // Generic contract interaction: lead with the first call, count the rest.
+  if (calls.length > 0) {
+    const first = calls[0].target!;
+    const more = views.length - 1;
+    return {
+      label: "CALL",
+      color: "blue",
+      sentence: `Called ${first.module}::${first.fn}${more > 0 ? ` and ran ${more} more command${more === 1 ? "" : "s"}` : ""}.`,
+      party: null,
+      functions,
+    };
+  }
+
+  // Only coin plumbing (split/merge) and nothing else recognisable.
+  const rcpt = soleRecipient(balanceChanges, sender);
+  if (rcpt) {
+    const isIota = rcpt.coinType.endsWith("::iota::IOTA");
+    return {
+      label: "SEND",
+      color: "blue",
+      sentence: `Sent ${isIota ? fmtIota(rcpt.amount) : fmtInt(rcpt.amount)} to`,
+      party: { role: "recipient", address: rcpt.address },
+      functions: [],
+    };
+  }
+  const steps = views.map((v) => v.tag).join(" · ");
+  return { label: "PTB", color: "blue", sentence: steps ? `Programmable block: ${steps}.` : "Empty programmable block.", party: null, functions: [] };
 }
