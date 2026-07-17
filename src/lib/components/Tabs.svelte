@@ -1,8 +1,13 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { location } from 'svelte-spa-router';
+    import { router } from 'svelte-spa-router';
+    import { toStore } from 'svelte/store';
 
     import { navigateWithGlobalParams } from '../utils/query-param-store';
+
+    // svelte-spa-router v5 replaced the `location` store with reactive router state;
+    // bridge it back to a store so the `$location` usages below keep working.
+    const location = toStore(() => router.location);
 
     export let items: any[] = [];
 

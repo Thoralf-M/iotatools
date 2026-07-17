@@ -32,8 +32,7 @@
         onchange={onChangeFn}
         rows="10"
         style="width: 100%"
-        class:error={errorStore && $errorStore}
-    ></textarea>
+        class:error={errorStore && $errorStore}></textarea>
     {#if errorStore && $errorStore}
         <div style="color: red;">{$errorStore}</div>
     {/if}

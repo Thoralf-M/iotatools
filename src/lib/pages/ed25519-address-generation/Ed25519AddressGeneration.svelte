@@ -8,7 +8,7 @@
         mnemonicToEntropy,
         mnemonicToSeedSync,
     } from '@scure/bip39';
-    import { wordlist } from '@scure/bip39/wordlists/english';
+    import { wordlist } from '@scure/bip39/wordlists/english.js';
 
     import { derivePath } from './ed25519-hd-key';
 

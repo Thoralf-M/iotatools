@@ -2,8 +2,8 @@ import { fromBase64, type BcsType } from '@iota/bcs';
 import { bcs } from '@iota/iota-sdk/bcs';
 import { IotaGraphQLClient, type GraphQLQueryResult } from '@iota/iota-sdk/graphql';
 import { graphql, type MoveTypeLayout } from '@iota/iota-sdk/graphql/schemas/2025.2';
-import { blake2b } from '@noble/hashes/blake2';
-import { bytesToHex } from '@noble/hashes/utils';
+import { blake2b } from '@noble/hashes/blake2.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
 
 import { mapJsonToBcs } from '../pages/dynamic-fields/bcs-conversion';
 

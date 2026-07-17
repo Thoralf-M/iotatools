@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 // @ts-ignore - bc-ur doesn't have complete type definitions
 import { URDecoder } from '@gandlaf21/bc-ur';
-import { fromHEX, toBase64 } from '@iota/bcs';
+import { fromHex, toBase64 } from '@iota/bcs';
 import { Ed25519PublicKey } from '@iota/iota-sdk/keypairs/ed25519';
 
 // Use direct registry exports
@@ -100,7 +100,7 @@ export function deriveIotaAddress(publicKeyHex: string): string {
         }
 
         // Create Ed25519PublicKey from bytes
-        let bytes = fromHEX(cleanHex);
+        let bytes = fromHex(cleanHex);
         const publicKey = new Ed25519PublicKey(bytes);
         return publicKey.toIotaAddress();
     } catch (error) {

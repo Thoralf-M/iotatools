@@ -1228,8 +1228,7 @@
                 <textarea
                     bind:value={publishDescription}
                     rows="2"
-                    placeholder="Short description shown in the list"
-                ></textarea>
+                    placeholder="Short description shown in the list"></textarea>
             </label>
             <label>
                 Content type
