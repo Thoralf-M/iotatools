@@ -238,7 +238,7 @@
                             parsedBytes.push(parseInt(byte_string, 10));
                         }
                     }
-                    sourceBytes = parsedBytes;
+                    sourceBytes = Uint8Array.from(parsedBytes);
                     break;
                 case SourceType.Hex:
                     if (hex.length % 2 != 0) {
@@ -535,8 +535,7 @@
                         }
                     }
                 }}
-                placeholder="base64 transaction bytes or JSON"
-            ></textarea>
+                placeholder="base64 transaction bytes or JSON"></textarea>
         </div>
     </div>
 

@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onDestroy, onMount } from 'svelte';
-    import { location } from 'svelte-spa-router';
+    import { router } from 'svelte-spa-router';
 
     import TransactionView from '../../components/TransactionView.svelte';
     import { getClient, getSelectedNetworkConfig } from '../../utils/client';
@@ -24,9 +24,7 @@
     // Tabs.svelte keeps inactive tabs mounted (display: none), so onDestroy
     // never fires on tab switch — gate polling on the active route instead.
     const VIZ_ROUTE = '/txs-visualizer';
-    let currentRoute = $state('');
-    const unsubLocation = location.subscribe((v) => (currentRoute = v));
-    let isOnRoute = $derived(currentRoute === VIZ_ROUTE);
+    let isOnRoute = $derived(router.location === VIZ_ROUTE);
 
     $effect(() => {
         if (!isOnRoute) {
@@ -447,7 +445,6 @@
 
     onDestroy(() => {
         destroyed = true;
-        unsubLocation();
         if (pollTimer) {
             clearTimeout(pollTimer);
             pollTimer = null;

@@ -2,7 +2,7 @@
     import { Buffer } from 'buffer';
     // @ts-ignore - bc-ur doesn't have complete type definitions
     import { URDecoder } from '@gandlaf21/bc-ur';
-    import { toB64, toBase64, toHEX } from '@iota/bcs';
+    import { toBase64, toHex } from '@iota/bcs';
     import { messageWithIntent } from '@iota/iota-sdk/cryptography';
 
     import QrGeneratorComponent from '../../components/QrGenerator.svelte';
@@ -286,7 +286,7 @@
             derivationPaths = '';
             derivationPaths = selectedAccount.path + '';
             masterFingerprint = keystoneAccountData.masterFingerprint;
-            accountAddress = deriveIotaAddress(toHEX(selectedAccount.getKey()));
+            accountAddress = deriveIotaAddress(toHex(selectedAccount.getKey()));
         }
     }
 
@@ -486,7 +486,7 @@
             >
                 {#each keystoneAccountData.keys as account, index}
                     <option value={index}>
-                        Account {account.path} - {deriveIotaAddress(toHEX(account.getKey()))}
+                        Account {account.path} - {deriveIotaAddress(toHex(account.getKey()))}
                     </option>
                 {/each}
             </select>
@@ -505,7 +505,7 @@
                     <strong>Address:</strong>
                     <code
                         >{deriveIotaAddress(
-                            toHEX(keystoneAccountData.keys[selectedAccountIndex]?.key) || '',
+                            toHex(keystoneAccountData.keys[selectedAccountIndex]?.key) || '',
                         )}</code
                     >
                 </p>
@@ -736,8 +736,7 @@
                     rows="4"
                     placeholder="Paste UR string here..."
                     class="full-width"
-                    on:input={() => decodeUR()}
-                ></textarea>
+                    on:input={() => decodeUR()}></textarea>
 
                 <div class="example-buttons">
                     <button on:click={() => loadExampleUR('signRequest')}>
