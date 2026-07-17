@@ -63,7 +63,10 @@ test("latest checkpoint and one of its transactions resolve", async ({ page }) =
   const txLink = page.locator("table.tbl tbody tr a").first();
   await expect(txLink).toBeVisible({ timeout: 30_000 });
   await txLink.click();
-  await expect(page.locator(".page-head h1")).toContainText("TX", { timeout: 45_000 });
-  // digest integrity badge re-derived in wasm
-  await expect(page.locator(".pill", { hasText: /DIGEST VERIFIED IN WASM/i })).toBeVisible();
+  await expect(page.locator(".page-head .crumbs")).toContainText("TX", { timeout: 45_000 });
+  // quick view leads with the plain-language action summary
+  await expect(page.locator(".section-head h2", { hasText: /^Action$/i })).toBeVisible();
+  // digest integrity (re-derived in wasm) lives in the advanced view
+  await page.getByRole("button", { name: /^ADVANCED$/ }).click();
+  await expect(page.getByText(/re-derived from the raw BCS/i)).toBeVisible();
 });

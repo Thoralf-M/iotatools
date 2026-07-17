@@ -27,8 +27,11 @@ export default defineConfig({
   },
   server: {
     fs: {
-      // allow /@fs access to the workspace and the (symlinked) sdk dist
-      allow: ["..", sdkWasmDist],
+      // allow /@fs access to the whole monorepo and the (symlinked) sdk dist.
+      // "../.." is the iotatools root: pnpm hoists shared deps (e.g. the
+      // @fontsource fonts) into its top-level node_modules, one level above
+      // apps/, so a narrower ".." would 403 on those font files.
+      allow: ["../..", sdkWasmDist],
     },
   },
   build: {

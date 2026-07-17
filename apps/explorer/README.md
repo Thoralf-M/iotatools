@@ -51,7 +51,7 @@ endpoint — switchable in the top bar, persisted in localStorage.
 | --- | --- |
 | `/` | Live network pulse: epoch, checkpoint stream, throughput, latest transactions |
 | `/checkpoints`, `/checkpoint/:id` | Stream + full summary, rolling gas, contained txs, signing-message BCS |
-| `/transactions`, `/tx/:digest` | Filterable list; PTB inputs/commands with dataflow, effects, events, signatures, raw JSON, BCS with locally re-derived digest |
+| `/transactions`, `/tx/:digest` | Filterable list; plain-language action summary (stake/send/call/…) with one-line command rows, events and object changes with expandable post-tx contents, quick/advanced overview toggle; full PTB dataflow, effects, signatures, raw JSON, BCS with locally re-derived digest |
 | `/epochs`, `/epoch/:id` | Epoch history; economics, storage fund, committee, protocol version |
 | `/events` | Event stream with full `EventFilter` surface |
 | `/analytics` | Client-side network history: throughput, fees, rewards, stake, supply / net inflation (mint vs burn) — interactive hover charts |
