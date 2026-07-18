@@ -2,7 +2,7 @@ import { $ as untrack, B as comment, D as set_class, Dt as pop, E as set_style, 
 import "./legacy-DxVWxrJw.js";
 import { r as getSelectedNetworkConfig } from "./client-BTFoHz6u.js";
 import { n as getObjectLink, r as getTransactionLink, t as getAddressLink } from "./explorer-links-hyzWVZGi.js";
-import { i as TransactionView, o as copyToClipboard, s as formatAddress } from "./index-BILCWTSG.js";
+import { i as TransactionView, o as copyToClipboard, s as formatAddress } from "./index-BOJqqLB8.js";
 import { t as auto_default } from "./auto-DlIbMOkz.js";
 import { t as plugin } from "./chartjs-plugin-zoom.esm-DAYqusPu.js";
 import { t as EpochPTBAnalyzer } from "./programmable-transaction-block-DR8mHtC0.js";
