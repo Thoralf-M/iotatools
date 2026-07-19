@@ -1,5 +1,5 @@
 import { Dt as pop, G as event, I as if_block, Mt as reset, Ot as push, R as set_text, U as delegate, V as from_html, W as delegated, Y as get, at as user_effect, ct as sibling, ft as set, h as bind_value, i as prop, it as template_effect, jt as next, lt as proxy, ot as child, pt as state, v as remove_input_defaults, y as set_attribute, z as append } from "./disclose-version-CpEJO7r1.js";
-import { g as nanoToIota } from "./index-BOJqqLB8.js";
+import { g as nanoToIota } from "./index-Ch4GW1vO.js";
 //#region src/lib/components/IotaAmountInput.svelte
 var root = from_html(`<label> </label>`);
 var root_1 = from_html(`<div class="iota-display svelte-1xg248d"><span class="iota-value svelte-1xg248d"> </span> <span class="iota-label svelte-1xg248d">IOTA</span></div>`);
