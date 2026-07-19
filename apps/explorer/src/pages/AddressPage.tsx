@@ -3,7 +3,7 @@
 // raw owned objects, sent / affected transactions, and IOTA-Names identity.
 
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { Address, NameFormat, ObjectFilter, TransactionsFilter, transactionToJson } from "@iota/sdk-wasm";
+import { Address, NameFormat, ObjectFilter, ObjectId, TransactionsFilter, transactionToJson } from "@iota/sdk-wasm";
 import React, { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
@@ -25,6 +25,8 @@ import {
   useTabParam,
 } from "../components/ui";
 import { Info, TERMS } from "../components/Info";
+import { JsonTree } from "../components/JsonTree";
+import { parseRunQuery } from "../lib/checkpoints";
 import { fmtInt, fmtIota, normalizeTypeTag, shortType, splitTypeTag, toBig } from "../lib/format";
 import { addressBalances, addressStakes, addressTxFeed, ownedObjectsWithDisplay } from "../lib/gql";
 import type { AssetRow, StakeRow } from "../lib/gql";
@@ -81,6 +83,112 @@ function AssetCard({ row }: { row: AssetRow }) {
         </div>
       </div>
     </Link>
+  );
+}
+
+// ── owned objects: inline Move contents ──────────────────────────────────────
+
+interface ObjectRow {
+  id: string;
+  type: string;
+  version: bigint;
+  digest: string;
+  /** digest of the transaction that last wrote this object (previousTransaction) */
+  prevTx: string;
+}
+
+/** Coin<T> Move contents expose the balance either as the bare u64 value or as
+ *  a nested { value } — accept both shapes. */
+function coinBalanceValue(contents: any): string | null {
+  const b = contents?.balance;
+  if (b == null) return null;
+  if (typeof b === "string" || typeof b === "number") return String(b);
+  if (typeof b === "object" && b.value != null) return String(b.value);
+  return null;
+}
+
+/** Lazily-fetched Move contents for one owned object, rendered when its row is
+ *  expanded. Coin objects lead with the balance parsed to IOTA + nanos (native
+ *  IOTA) or raw base units (other coin types); every other type just shows the
+ *  contents JSON, the same view as the object page's Move-contents section. */
+function OwnedObjectContents({ id, type }: { id: string; type: string }) {
+  const client = useClient();
+  const { network } = useNetwork();
+  const q = useQuery({
+    queryKey: [network, "owned-obj-contents", id],
+    queryFn: async () => {
+      const raw = await client.moveObjectContents(ObjectId.fromHex(id), undefined);
+      return raw != null ? parseRunQuery(raw) : null;
+    },
+  });
+  if (q.isPending) return <LoadingBlock label="moveObjectContents(id)…" />;
+  if (q.error) return <ErrorNote error={q.error} />;
+  if (q.data == null) return <Empty>contents unavailable (not a Move object, or pruned)</Empty>;
+
+  const balance = isCoinType(type) ? coinBalanceValue(q.data) : null;
+  const nativeIota = type.includes("::iota::IOTA");
+  const inner = splitTypeTag(type)?.generics?.replace(/^<|>$/g, "") ?? null;
+
+  return (
+    <>
+      {balance != null && (
+        <div className="row mono" style={{ gap: 8, marginBottom: 8 }}>
+          <span className="faint small" style={{ letterSpacing: "0.14em", textTransform: "uppercase" }}>Balance</span>
+          {nativeIota ? (
+            <span style={{ fontSize: 14 }}>
+              {fmtIota(balance)} <span className="faint">({fmtInt(balance)} nanos)</span>
+            </span>
+          ) : (
+            <span style={{ fontSize: 14 }}>
+              {fmtInt(balance)} <span className="faint">base units{inner ? ` · ${shortType(inner)}` : ""}</span>
+            </span>
+          )}
+        </div>
+      )}
+      <JsonTree data={q.data} />
+    </>
+  );
+}
+
+/** One owned-object table row: click anywhere to expand its Move contents; the
+ *  object link still navigates and the type cell still drives the type facet. */
+function OwnedObjectRow({ r, onToggleType }: { r: ObjectRow; onToggleType: (t: string) => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <tr style={{ cursor: "pointer" }} onClick={() => setOpen((v) => !v)} title="click to show the object's Move contents">
+        <td>
+          <span className="dim" style={{ display: "inline-block", width: 12 }}>{open ? "▾" : "▸"}</span>
+          <span onClick={(e) => e.stopPropagation()}>
+            <ObjectLink id={r.id} />
+          </span>
+        </td>
+        <td
+          style={{ cursor: "pointer" }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleType(r.type);
+          }}
+          title="click to filter by this type"
+        >
+          <TypePill type={r.type} />
+        </td>
+        <td className="num dim">{String(r.version)}</td>
+        <td className="dim" onClick={(e) => e.stopPropagation()}>
+          <Hash value={r.digest} />
+        </td>
+        <td onClick={(e) => e.stopPropagation()}>
+          <TxLink digest={r.prevTx} />
+        </td>
+      </tr>
+      {open && (
+        <tr>
+          <td colSpan={5} style={{ whiteSpace: "normal", padding: "10px 14px" }}>
+            <OwnedObjectContents id={r.id} type={r.type} />
+          </td>
+        </tr>
+      )}
+    </>
   );
 }
 
@@ -212,6 +320,7 @@ export default function AddressPage() {
           type: normalizeTypeTag(String(o.objectType())),
           version: o.version().asU64(),
           digest: o.digest().toBase58(),
+          prevTx: o.previousTransaction().toBase58(),
         })),
         hasNext: page.pageInfo.hasNextPage,
         endCursor: page.pageInfo.endCursor ?? undefined,
@@ -591,7 +700,7 @@ export default function AddressPage() {
               aux={
                 <>
                   showing {visibleObjects.length} of {objectRows.length} loaded
-                  {objects.hasNextPage ? "+" : " (complete)"}
+                  {objects.hasNextPage ? "+" : " (complete)"} · click a row for its Move contents
                 </>
               }
             >
@@ -602,19 +711,17 @@ export default function AddressPage() {
                       <th><Info tip={TERMS.objectId}>OBJECT</Info></th>
                       <th>TYPE</th>
                       <th className="num"><Info tip={TERMS.objectVersion}>VERSION</Info></th>
-                      <th>DIGEST</th>
+                      <th><Info tip={TERMS.objectDigest}>DIGEST</Info></th>
+                      <th><Info tip="The transaction that last wrote this object (its previousTransaction). Open it to see exactly how the object reached its current state.">LAST TX</Info></th>
                     </tr>
                   </thead>
                   <tbody>
                     {visibleObjects.map((r) => (
-                      <tr key={r.id}>
-                        <td><ObjectLink id={r.id} /></td>
-                        <td style={{ cursor: "pointer" }} onClick={() => setTypeFilter(typeFilter === r.type ? null : r.type)} title="click to filter by this type">
-                          <TypePill type={r.type} />
-                        </td>
-                        <td className="num dim">{String(r.version)}</td>
-                        <td className="dim"><Hash value={r.digest} copy={false} /></td>
-                      </tr>
+                      <OwnedObjectRow
+                        key={r.id}
+                        r={r}
+                        onToggleType={(t) => setTypeFilter(typeFilter === t ? null : t)}
+                      />
                     ))}
                   </tbody>
                 </table>
