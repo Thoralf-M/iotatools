@@ -1,9 +1,9 @@
 import { B as comment, Dt as pop, I as if_block, Mt as reset, Ot as push, R as set_text, U as delegate, V as from_html, W as delegated, Y as get, at as user_effect, ct as sibling, ft as set, gt as user_derived, h as bind_value, it as template_effect, lt as proxy, ot as child, pt as state, st as first_child, v as remove_input_defaults, vt as setup_stores, yt as store_get, z as append } from "./disclose-version-CpEJO7r1.js";
 import { o as Transaction, t as getClient } from "./client-BTFoHz6u.js";
 import { t as activeAddress } from "./signer-data-D1Egmbld.js";
-import { n as addAndRun } from "./index-Ch4GW1vO.js";
+import { n as addAndRun } from "./index-DQhpjkHG.js";
 import { t as JsonToggleView } from "./JsonToggleView-I_OHyvOi.js";
-import { t as IotaAmountInput } from "./IotaAmountInput-D2_Yb_CX.js";
+import { t as IotaAmountInput } from "./IotaAmountInput-BUkyZeWZ.js";
 //#region src/lib/pages/split-merge-coins/SplitMergeCoins.svelte
 var root = from_html(`<div>No coins available</div>`);
 var root_1 = from_html(`<main><div> </div> <button class="svelte-9gxfab">List all IOTA coins</button> <br/> <button class="svelte-9gxfab">Merge all IOTA coins (max 2048 at once)</button> <br/> <span>object count: <input placeholder="0"/></span> <span>amount per object: <div style="display: inline-block; vertical-align: top;"><!></div></span> <br/> <button class="svelte-9gxfab">Split IOTA coins (max 2048)</button> <!></main>`);
