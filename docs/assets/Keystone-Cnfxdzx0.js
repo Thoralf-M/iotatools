@@ -3,7 +3,7 @@ import { $ as untrack, C as bind_select_value, D as set_class, Dt as pop, E as s
 import "./legacy-DxVWxrJw.js";
 import { t as getClient } from "./client-BTFoHz6u.js";
 import { Q as toBase64, X as toHex, Y as fromHex, g as sha256, m as messageWithIntent, n as Ed25519PublicKey } from "./keypair-DsT3ivIR.js";
-import { f as require_buffer, i as TransactionView, t as __vitePreload } from "./index-DQhpjkHG.js";
+import { f as require_buffer, i as TransactionView, t as __vitePreload } from "./index-C_SiTmAV.js";
 //#region node_modules/.pnpm/bignumber.js@9.3.1/node_modules/bignumber.js/bignumber.mjs
 var isNumeric = /^-?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i;
 var mathceil = Math.ceil;
