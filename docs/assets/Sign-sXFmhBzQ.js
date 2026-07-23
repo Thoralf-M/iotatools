@@ -3,8 +3,8 @@ import "./legacy-DxVWxrJw.js";
 import { n as getSelectedChain, o as Transaction, s as TransactionDataBuilder, t as getClient } from "./client-BTFoHz6u.js";
 import { L as iotaBcs, Q as toBase64, Z as fromBase64, l as parseSerializedSignature } from "./keypair-DsT3ivIR.js";
 import { f as getActiveWallet, t as activeAddress } from "./signer-data-D1Egmbld.js";
-import { a as MoveAuthenticatorDetails, c as parsePartialSignatures, d as verifyTransactionSignature, f as require_buffer, i as TransactionView, l as publicKeyFromRawBytes, o as copyToClipboard, u as verifyPersonalMessageSignature } from "./index-Bt09ux8j.js";
-import { n as updatePageQueryParams, r as usePageQueryParams } from "./page-query-params-CeQ2FIyN.js";
+import { a as MoveAuthenticatorDetails, c as parsePartialSignatures, d as verifyTransactionSignature, f as require_buffer, i as TransactionView, l as publicKeyFromRawBytes, o as copyToClipboard, u as verifyPersonalMessageSignature } from "./index-HfPOc7WU.js";
+import { n as updatePageQueryParams, r as usePageQueryParams } from "./page-query-params-BWkOTvRg.js";
 import { t as JsonToggleView } from "./JsonToggleView-I_OHyvOi.js";
 //#region src/lib/pages/sign/sign-utils.ts
 var import_buffer = require_buffer();
