@@ -4,9 +4,9 @@ import { X as toHex } from "./keypair-DsT3ivIR.js";
 import { t as IotaGraphQLClient } from "./client-CmDrt-ez.js";
 import { t as executeTransaction } from "./transaction-execution-Cg5fkaOd.js";
 import { t as activeAddress } from "./signer-data-D1Egmbld.js";
-import { i as TransactionView } from "./index-ZhiWJ51R.js";
+import { i as TransactionView } from "./index-DifsCGq_.js";
 import { t as graphql } from "./2025.2-wBXoWMFy.js";
-import { t as IotaAmountInput } from "./IotaAmountInput-DB3pkd01.js";
+import { t as IotaAmountInput } from "./IotaAmountInput-BuIR-7N4.js";
 import { n as getIotaNamesPackageId, r as setCustomPackageId, t as config } from "./iota-names-config-OaNo1Bz2.js";
 //#region src/lib/pages/iota-names/iota-names-graphql.ts
 /**
