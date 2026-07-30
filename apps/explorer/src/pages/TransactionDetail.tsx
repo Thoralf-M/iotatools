@@ -406,6 +406,67 @@ function SignatureCard({ s, idx, sender, gasOwner }: { s: UserSignatureInterface
   );
 }
 
+// ── PTB cross-reference highlighting ─────────────────────────────────────────
+// Hovering any reference in the PTB tab lights up every other place naming the
+// same thing: a `result of #n` pill and the command #n that produced it, the
+// same object or package id across different move calls, the same input, the
+// gas coin. Each reference carries the keys it participates in; a hover matches
+// when the key sets intersect.
+
+type XrefCtx = { hovered: string[] | null; set: (keys: string[] | null) => void };
+
+const PtbXrefCtx = React.createContext<XrefCtx>({ hovered: null, set: () => {} });
+
+/** Canonical key for an id, so 0x5 and 0x000…05 cross-highlight each other. */
+function idKey(id: string): string {
+  return `id:${id.toLowerCase().replace(/^0x/, "").replace(/^0+/, "")}`;
+}
+
+function PtbXrefProvider({ children }: { children: React.ReactNode }) {
+  const [hovered, setHovered] = useState<string[] | null>(null);
+  const value = React.useMemo<XrefCtx>(() => ({ hovered, set: setHovered }), [hovered]);
+  return <PtbXrefCtx.Provider value={value}>{children}</PtbXrefCtx.Provider>;
+}
+
+function useXrefActive(keys: string[]): boolean {
+  const { hovered } = React.useContext(PtbXrefCtx);
+  return !!hovered && keys.some((k) => hovered.includes(k));
+}
+
+function Xref({
+  keys,
+  children,
+  className,
+  style,
+  title,
+}: {
+  keys: string[];
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+  title?: string;
+}) {
+  const { set } = React.useContext(PtbXrefCtx);
+  const active = useXrefActive(keys);
+  return (
+    <span
+      className={`xref${active ? " hl" : ""}${className ? ` ${className}` : ""}`}
+      style={style}
+      title={title}
+      onMouseOver={(e) => {
+        e.stopPropagation();
+        set(keys);
+      }}
+      onMouseOut={(e) => {
+        e.stopPropagation();
+        set(null);
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
 // ── PTB cards ────────────────────────────────────────────────────────────────
 
 function InputCard({ input, idx }: { input: any; idx: number }) {
@@ -446,7 +507,9 @@ function InputCard({ input, idx }: { input: any; idx: number }) {
   } else if (body?.object_id) {
     content = (
       <>
-        <ObjectLink id={body.object_id} />
+        <Xref keys={[idKey(body.object_id)]}>
+          <ObjectLink id={body.object_id} />
+        </Xref>
         {body.version != null && <span className="dim"> v{body.version}</span>}
         {body.initial_shared_version != null && <span className="dim"> shared@{body.initial_shared_version}</span>}
         {body.mutable != null && <Pill color={body.mutable ? "amber" : undefined}>{body.mutable ? "MUT" : "READ"}</Pill>}
@@ -456,9 +519,15 @@ function InputCard({ input, idx }: { input: any; idx: number }) {
     content = <span className="dim">{JSON.stringify(body)}</span>;
   }
   const color = tag === "Pure" ? undefined : tag === "Shared" ? "amber" : "blue";
+  const inputKeys = [`input:${idx}`];
+  const active = useXrefActive(inputKeys);
   return (
-    <tr>
-      <td className="dim">{idx}</td>
+    <tr className={active ? "xref-row" : undefined}>
+      <td className="dim">
+        <Xref keys={inputKeys} title={`input #${idx}`}>
+          {idx}
+        </Xref>
+      </td>
       <td>
         <Pill color={color as any}>{tag.toUpperCase()}</Pill>
       </td>
@@ -473,31 +542,41 @@ function InputCard({ input, idx }: { input: any; idx: number }) {
 function Arg({ arg, inputs }: { arg: any; inputs: any[] | null }) {
   if (arg === "Gas" || arg === "GasCoin") {
     return (
-      <span className="pill amber" style={{ fontSize: 9.5 }} title="the gas coin (special argument)">
-        Gas
-      </span>
+      <Xref keys={["gas"]} title="the gas coin (special argument)">
+        <span className="pill amber" style={{ fontSize: 9.5 }}>
+          Gas
+        </span>
+      </Xref>
     );
   }
   if (arg && typeof arg === "object" && "Result" in arg) {
     return (
-      <span className="pill teal" style={{ fontSize: 9.5 }} title={`output of command #${arg.Result}`}>
-        result of #{arg.Result}
-      </span>
+      <Xref keys={[`cmd:${arg.Result}`]} title={`output of command #${arg.Result}`}>
+        <span className="pill teal" style={{ fontSize: 9.5 }}>
+          result of #{arg.Result}
+        </span>
+      </Xref>
     );
   }
   if (arg && typeof arg === "object" && "NestedResult" in arg) {
     const [c, n] = arg.NestedResult;
     return (
-      <span className="pill teal" style={{ fontSize: 9.5 }} title={`output ${n} of command #${c}`}>
-        result of #{c}[{n}]
-      </span>
+      <Xref keys={[`cmd:${c}`]} title={`output ${n} of command #${c}`}>
+        <span className="pill teal" style={{ fontSize: 9.5 }}>
+          result of #{c}[{n}]
+        </span>
+      </Xref>
     );
   }
   if (arg && typeof arg === "object" && "Input" in arg) {
     const i = Number(arg.Input);
     const input = inputs?.[i];
     if (input == null) {
-      return <span style={{ color: "var(--amber)" }}>{argLabel(arg)}</span>;
+      return (
+        <Xref keys={[`input:${i}`]} style={{ color: "var(--amber)" }}>
+          {argLabel(arg)}
+        </Xref>
+      );
     }
     const tag = typeof input === "string" ? input : Object.keys(input ?? {})[0] ?? "?";
     const body = typeof input === "object" ? input[tag] : null;
@@ -520,19 +599,24 @@ function Arg({ arg, inputs }: { arg: any; inputs: any[] | null }) {
       let shown = display ?? shortHex;
       if (/^0x[0-9a-fA-F]{64}$/.test(shown)) shown = `${shown.slice(0, 8)}…${shown.slice(-6)}`;
       return (
-        <span
+        <Xref
+          keys={[`input:${i}`]}
           className="mono"
           style={{ color: "var(--amber)", overflowWrap: "anywhere" }}
           title={`input #${i} (pure) · ${hex}`}
         >
           {shown}
           <span className="faint" style={{ fontSize: 9 }}>ᵢ{i}</span>
-        </span>
+        </Xref>
       );
     }
     if (body?.object_id) {
       return (
-        <span style={{ whiteSpace: "nowrap" }} title={`input #${i} (${tag})`}>
+        <Xref
+          keys={[`input:${i}`, idKey(body.object_id)]}
+          style={{ whiteSpace: "nowrap" }}
+          title={`input #${i} (${tag})`}
+        >
           <ObjectLink id={body.object_id} />
           {tag === "Shared" && (
             <span className="pill amber" style={{ fontSize: 8.5, marginLeft: 3 }} title={`shared object, ${body.mutable ? "mutable" : "read-only"} access`}>
@@ -540,32 +624,52 @@ function Arg({ arg, inputs }: { arg: any; inputs: any[] | null }) {
             </span>
           )}
           {tag === "Receiving" && <span className="pill blue" style={{ fontSize: 8.5, marginLeft: 3 }}>receiving</span>}
-        </span>
+        </Xref>
       );
     }
-    return <span style={{ color: "var(--amber)" }}>{argLabel(arg)}</span>;
+    return (
+      <Xref keys={[`input:${i}`]} style={{ color: "var(--amber)" }}>
+        {argLabel(arg)}
+      </Xref>
+    );
   }
   return <span style={{ color: "var(--amber)" }}>{argLabel(arg)}</span>;
 }
 
 function CommandCard({ view, idx, usedBy, inputs }: { view: ReturnType<typeof commandViews>[number]; idx: number; usedBy: number[]; inputs: any[] | null }) {
   const { tag, target, body } = view;
+  const selfKeys = [`cmd:${idx}`];
+  const active = useXrefActive(selfKeys);
   return (
-    <div className="cmd-card">
+    <div className={`cmd-card${active ? " xref-hl" : ""}`}>
       <div className="cmd-head">
-        <span className="idx">#{idx}</span>
+        <Xref keys={selfKeys} className="idx" title={`command #${idx} and its result references`}>
+          #{idx}
+        </Xref>
         <Pill color="teal">{tag}</Pill>
         {target && (
           <span className="mono">
-            <Link to={`/package/${target.pkg}?module=${target.module}`} title={target.pkg}>
-              {shortPackage(target.pkg)}::{target.module}
-            </Link>
+            <Xref keys={[idKey(target.pkg)]}>
+              <Link to={`/package/${target.pkg}?module=${target.module}`} title={target.pkg}>
+                {shortPackage(target.pkg)}::{target.module}
+              </Link>
+            </Xref>
             ::<b>{target.fn}</b>
             {target.typeArgs.length > 0 && <span className="dim">&lt;{target.typeArgs.map(shortType).join(", ")}&gt;</span>}
           </span>
         )}
         {usedBy.length > 0 && (
-          <span className="dim">→ used by {usedBy.map((j) => `#${j}`).join(", ")}</span>
+          <span className="dim">
+            → used by{" "}
+            {usedBy.map((j, k) => (
+              <span key={j}>
+                {k > 0 && ", "}
+                <Xref keys={[`cmd:${j}`]} title={`command #${j}`}>
+                  #{j}
+                </Xref>
+              </span>
+            ))}
+          </span>
         )}
       </div>
       <div className="cmd-body" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>
@@ -626,7 +730,9 @@ function CommandCard({ view, idx, usedBy, inputs }: { view: ReturnType<typeof co
             {(body.dependencies ?? []).map((d: string, i: number) => (
               <span key={i}>
                 {i > 0 && ", "}
-                <ObjectLink id={d} />
+                <Xref keys={[idKey(d)]}>
+                  <ObjectLink id={d} />
+                </Xref>
               </span>
             ))}
             ]
@@ -634,7 +740,11 @@ function CommandCard({ view, idx, usedBy, inputs }: { view: ReturnType<typeof co
         )}
         {tag === "Upgrade" && (
           <div>
-            package <ObjectLink id={String(body.package)} /> · ticket <Arg arg={body.ticket} inputs={inputs} /> ·{" "}
+            package{" "}
+            <Xref keys={[idKey(String(body.package))]}>
+              <ObjectLink id={String(body.package)} />
+            </Xref>{" "}
+            · ticket <Arg arg={body.ticket} inputs={inputs} /> ·{" "}
             {(body.modules ?? []).length} modules
           </div>
         )}
@@ -675,9 +785,11 @@ function cmdSignature(view: ReturnType<typeof commandViews>[number], inputs: any
     case "MoveCall":
       return (
         <>
-          <Link to={`/package/${target!.pkg}?module=${target!.module}`} title={target!.pkg}>
-            {shortPackage(target!.pkg)}::{target!.module}
-          </Link>
+          <Xref keys={[idKey(target!.pkg)]}>
+            <Link to={`/package/${target!.pkg}?module=${target!.module}`} title={target!.pkg}>
+              {shortPackage(target!.pkg)}::{target!.module}
+            </Link>
+          </Xref>
           ::<b>{target!.fn}</b>
           {target!.typeArgs.length > 0 && <span className="dim">&lt;{target!.typeArgs.map(shortType).join(", ")}&gt;</span>}
           (<ArgList args={body.arguments ?? []} inputs={inputs} />)
@@ -706,7 +818,12 @@ function cmdSignature(view: ReturnType<typeof commandViews>[number], inputs: any
     case "Publish":
       return builtin("Publish", <span className="dim">{(body.modules ?? []).length} modules</span>);
     case "Upgrade":
-      return builtin("Upgrade", <ObjectLink id={String(body.package)} />);
+      return builtin(
+        "Upgrade",
+        <Xref keys={[idKey(String(body.package))]}>
+          <ObjectLink id={String(body.package)} />
+        </Xref>,
+      );
     default:
       return <span style={{ color: "var(--teal)" }}>{tag}</span>;
   }
@@ -726,17 +843,29 @@ function CommandRow({
   raw: any;
 }) {
   const [open, setOpen] = useState(false);
+  const selfKeys = [`cmd:${idx}`];
+  const active = useXrefActive(selfKeys);
   return (
-    <div className="cmd-card">
+    <div className={`cmd-card${active ? " xref-hl" : ""}`}>
       <div className="cmd-head" style={{ cursor: "pointer" }} onClick={() => setOpen((v) => !v)}>
         <span className="toggle" style={{ color: "var(--ink-faint)" }}>{open ? "▾" : "▸"}</span>
-        <span className="idx">#{idx}</span>
+        <Xref keys={selfKeys} className="idx" title={`command #${idx} and its result references`}>
+          #{idx}
+        </Xref>
         <span className="mono" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }} onClick={(ev) => ev.stopPropagation()}>
           {cmdSignature(view, inputs)}
         </span>
         {usedBy.length > 0 && (
           <span className="dim" title={`the output of this command is consumed by ${usedBy.map((j) => `#${j}`).join(", ")}`}>
-            → result used by {usedBy.map((j) => `#${j}`).join(", ")}
+            → result used by{" "}
+            {usedBy.map((j, k) => (
+              <span key={j}>
+                {k > 0 && ", "}
+                <Xref keys={[`cmd:${j}`]} title={`command #${j}`}>
+                  #{j}
+                </Xref>
+              </span>
+            ))}
           </span>
         )}
       </div>
@@ -1067,7 +1196,18 @@ export default function TransactionDetail() {
 
       {tab === "overview" && (
         <>
-          <Section index={nextIndex()} title="Action" aux={ptb ? <><Info tip={TERMS.ptbCommands} /> {cmds.length} command{cmds.length === 1 ? "" : "s"} · executed in order, values inlined</> : undefined}>
+          <Section
+            index={nextIndex()}
+            title="Action"
+            aux={
+              ptb ? (
+                <>
+                  <Info tip={TERMS.ptbCommands} /> {cmds.length} command{cmds.length === 1 ? "" : "s"} · executed in
+                  order, values inlined · hover a reference to highlight every place it appears
+                </>
+              ) : undefined
+            }
+          >
             <div className="panel pad" style={{ marginBottom: ptb ? 10 : 0 }}>
               <div className="row" style={{ gap: 10 }}>
                 <Pill color={action.color}>{action.label}</Pill>
@@ -1085,7 +1225,7 @@ export default function TransactionDetail() {
               </div>
             </div>
             {ptb && (
-              <>
+              <PtbXrefProvider>
                 {cmds.slice(0, OVERVIEW_CMD_CAP).map((c, i) => (
                   <CommandRow key={i} view={c} idx={i} usedBy={usedBy[i] ?? []} inputs={ptb.inputs} raw={ptb.commands[i]} />
                 ))}
@@ -1094,7 +1234,7 @@ export default function TransactionDetail() {
                     view all {cmds.length} commands →
                   </button>
                 )}
-              </>
+              </PtbXrefProvider>
             )}
           </Section>
 
@@ -1316,7 +1456,7 @@ export default function TransactionDetail() {
 
       {tab === "ptb" &&
         (ptb ? (
-          <>
+          <PtbXrefProvider>
             <div className="row spread" style={{ margin: "10px 0 2px" }}>
               <span className="dim">
                 <Info tip={TERMS.ptb}>programmable transaction block</Info>
@@ -1365,7 +1505,8 @@ export default function TransactionDetail() {
               title="Commands"
               aux={
                 <>
-                  <Info tip={TERMS.ptbCommands} /> {cmds.length} commands · executed in order
+                  <Info tip={TERMS.ptbCommands} /> {cmds.length} commands · executed in order · hover a
+                  reference to highlight every place it appears
                   {ptbView === "combined" && <> · values inlined, ᵢₙ marks input #n</>}
                   {gasArgUsed && (
                     <>
@@ -1390,7 +1531,7 @@ export default function TransactionDetail() {
                 </div>
               )}
             </Section>
-          </>
+          </PtbXrefProvider>
         ) : (
           <Section index="01" title={`${kindLabel(tag)} payload`}>
             <JsonTree data={kind?.[tag] ?? kind} />

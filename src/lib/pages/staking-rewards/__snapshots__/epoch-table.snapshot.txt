@@ -19,11 +19,11 @@ Epoch    |                 Staked |                Rewards |            Accumula
   ▶ [Staked] ObjId: 0xb793756ed35396d4cd4e973f680e6f109573030a2d3dff97c2e0591aaf03a6b0 | TX: 6pMagQpythdpT8t7UXs45AkB6LiRQBvh2pTvzAjoSuQQ | Validator: IOTA 1 | Amount: 2,816,564.86
   ▶ [Staked] ObjId: 0xc825e2bde7b470ddfa600f07611aab2226a1bc43ae4c33229a4f714d87d0a352 | TX: 6pMagQpythdpT8t7UXs45AkB6LiRQBvh2pTvzAjoSuQQ | Validator: IOTA 1 | Amount: 2,816,564.86
 0        |          50,000,000.00 |              69,030.09 |              69,030.09 |                   0.00 |                   0.00 |              69,030.09
-  ▶ [Staked] ObjId: 0xba28c19404d7178d759bab9557155ea0bd6aad154cf37c8420460b7763edb070 | TX: 6q9RJvyuEMrs9T1YKci5AVAHynHSfAUca3XezUfTBwMi | Validator: Pier Two | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0xba28c19404d7178d759bab9557155ea0bd6aad154cf37c8420460b7763edb070 | TX: 6q9RJvyuEMrs9T1YKci5AVAHynHSfAUca3XezUfTBwMi | Validator: MAVAN | Amount: 2,816,564.86
   ▶ [Staked] ObjId: 0x39d565cd7be21454e8ad7c2af653b461a6fadf8863f82ba2bae97bff4c5b2ba1 | TX: 377SthKu6yog6g7G65rHUBGnFYwRD5fDceaARtxtyY7H | Validator: Matrixed.Link | Amount: 2,816,564.86
 1        |          55,633,129.72 |              43,482.78 |             112,512.88 |                   0.00 |                   0.00 |             112,512.88
-  ▶ [Staked] ObjId: 0xdc4c6cea62686fd81c356db3d6ea6b26c26b92d06bc1f04fac8ae7a573eff782 | TX: LwUF9eAZ6wVQx9aKE8yNacf27wLRNLg5h3evZQMG832 | Validator: Pier Two | Amount: 2,816,564.86
-  ▶ [Staked] ObjId: 0x0c5ebce73faf1d6e482012b48c94de8e4af2884cb3d35bdcff2a6f7f15e217ad | TX: 4fmQktUm3gCLY5PEtMgB3iUFJDbV1i3JG69pST8RfHSA | Validator: Pier Two | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0xdc4c6cea62686fd81c356db3d6ea6b26c26b92d06bc1f04fac8ae7a573eff782 | TX: LwUF9eAZ6wVQx9aKE8yNacf27wLRNLg5h3evZQMG832 | Validator: MAVAN | Amount: 2,816,564.86
+  ▶ [Staked] ObjId: 0x0c5ebce73faf1d6e482012b48c94de8e4af2884cb3d35bdcff2a6f7f15e217ad | TX: 4fmQktUm3gCLY5PEtMgB3iUFJDbV1i3JG69pST8RfHSA | Validator: MAVAN | Amount: 2,816,564.86
   ▶ [Staked] ObjId: 0x7f2d481343ea8c1539a9aae2eb60d076e9e538d9f8a05789f4154d54d0881d96 | TX: 5iMs8xiJWpkRy3dptUAeL2WDBHHWrjk4GkctKoJRBbby | Validator: Matrixed.Link | Amount: 2,816,564.86
   ▶ [Staked] ObjId: 0xe7c82927cd65f505b9e1c04cc5ac6baecff8047c1b5b122e980b346a1496246c | TX: 4KdnF67EgbyGRBmW5FWKJZ83U2LxypzZok1mMrk7SnTn | Validator: Lavender.Five Nodes | Amount: 2,816,564.86
   ▶ [Staked] ObjId: 0x1947053aa6428f49e45fbc687d7f0d0320ee6930e2d341add3f685fbfc32777d | TX: 8Hsvapc6PC75JsfFxXHTs2rGMiUYmQy8LVDHZdGZ7nXF | Validator: LinkPool | Amount: 2,816,564.86
@@ -480,7 +480,7 @@ Epoch    |                 Staked |                Rewards |            Accumula
 328      |         163,627,022.74 |              50,804.97 |          19,811,697.50 |                   0.00 |           6,707,500.69 |          13,104,196.81
 329      |         163,627,022.74 |              50,784.86 |          19,862,482.36 |                   0.00 |           6,707,500.69 |          13,154,981.68
 330      |         163,627,022.74 |              50,719.53 |          19,913,201.90 |                   0.00 |           6,707,500.69 |          13,205,701.21
-  ▶ [Unlocked] ObjId: 0x0c5ebce73faf1d6e482012b48c94de8e4af2884cb3d35bdcff2a6f7f15e217ad | TX: Hd9GNwSJz8VR1zRjNaaSMuTtighJeT3npVKaiQNPMftW | Validator: Pier Two | Amount: 2,816,564.86
+  ▶ [Unlocked] ObjId: 0x0c5ebce73faf1d6e482012b48c94de8e4af2884cb3d35bdcff2a6f7f15e217ad | TX: Hd9GNwSJz8VR1zRjNaaSMuTtighJeT3npVKaiQNPMftW | Validator: MAVAN | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0xe7c82927cd65f505b9e1c04cc5ac6baecff8047c1b5b122e980b346a1496246c | TX: DQBELz9dA8TzPYw3mwLvwYgNrWfP3NGXnEX7WoUSAaX1 | Validator: Lavender.Five Nodes | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0x1beab684091285a95e327229acf603870d3896eebb342e41ac824a479374aa4d | TX: 97GdqckSCJ2NgxuJrWTGdiqEFyF4bmrqtrTVfSVKNvck | Validator: Allnodes | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0xbe2dc7bcd2e2538f45a0717e4f6eccb590f68a16626780722eebd9591776da67 | TX: FWVBQK2tUgfjtMY5oAN6e6YeVKRMyBd6PVLGzMfidyMo | Validator: Encapsulate | Amount: 2,816,564.86
@@ -518,7 +518,7 @@ Epoch    |                 Staked |                Rewards |            Accumula
   ▶ [Unlocked] ObjId: 0xd3bd6a6994a452564aa9530b006fb9cdb4f93f7c8112fc7ff72eecc4fcd77bdd | TX: HqWZU6rc7H7ofV4HBLgxKVFZMXM1rMzBeshYzWgiXkWM | Validator: InfraSingularity | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0xa68e7634824e46af4f0049a7137329173db3a2365b3162db3a4ef66bdeb132d7 | TX: 2ce1kafAV9TrcZDzcnG5hnNjD9KAK5fqFb4NPyAh34Nq | Validator: CroutonDigital | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0x0d0bd6e6b512796beb9ea151097c8e9b4cbb17c67d08b2a8e00b8f26e156a140 | TX: 2SWoWGe6uGDHBpKz572nq97Ps87wmjKB3grCsp3PQPbh | Validator: IOTA 1 | Amount: 1.50
-  ▶ [Unlocked] ObjId: 0x483a8cb30f3cdf2a50c54e9dbaaa796d502f8a00d99ce0fee2c46d1ba88d8bf5 | TX: Hd9GNwSJz8VR1zRjNaaSMuTtighJeT3npVKaiQNPMftW | Validator: Pier Two | Amount: 2,816,564.86
+  ▶ [Unlocked] ObjId: 0x483a8cb30f3cdf2a50c54e9dbaaa796d502f8a00d99ce0fee2c46d1ba88d8bf5 | TX: Hd9GNwSJz8VR1zRjNaaSMuTtighJeT3npVKaiQNPMftW | Validator: MAVAN | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0x86c3671f080f839bd76d56eeb5a56f463336c94fb66116e332fd9d6081767bb1 | TX: FWVBQK2tUgfjtMY5oAN6e6YeVKRMyBd6PVLGzMfidyMo | Validator: Encapsulate | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0x3bca2d5801c05d4fe576d6289b82e97ebb17e1dfd9316365b664aeb2a384c23f | TX: 6Qm9MTnE9t3BxukJp38dBR461KjRFCKrZq1GJ2yYXozx | Validator: HashKeyCloud | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0xa1cb11e4ef55942a6a27b88be691baed339d652c05b614f997846db4d671b785 | TX: DQBELz9dA8TzPYw3mwLvwYgNrWfP3NGXnEX7WoUSAaX1 | Validator: Lavender.Five Nodes | Amount: 2,816,564.86
@@ -622,8 +622,8 @@ Epoch    |                 Staked |                Rewards |            Accumula
 414      |         163,627,043.74 |              50,566.27 |          24,218,033.68 |                   0.00 |           6,707,500.69 |          17,510,532.99
 415      |         163,627,043.74 |              50,628.47 |          24,268,662.15 |                   0.00 |           6,707,500.69 |          17,561,161.47
 416      |         163,627,043.74 |              52,118.38 |          24,320,780.53 |                   0.00 |           6,707,500.69 |          17,613,279.84
-  ▶ [Unlocked] ObjId: 0xba28c19404d7178d759bab9557155ea0bd6aad154cf37c8420460b7763edb070 | TX: Eeea9rE9oypk8H8QuXVrdkoogKpsERaU33j7QVxdmsTG | Validator: Pier Two | Amount: 2,816,564.86
-  ▶ [Unlocked] ObjId: 0xdc4c6cea62686fd81c356db3d6ea6b26c26b92d06bc1f04fac8ae7a573eff782 | TX: zKFKRzCzv3gB4tgZCGUK2u5QKDaNGVHHAPsmpGerh5G | Validator: Pier Two | Amount: 2,816,564.86
+  ▶ [Unlocked] ObjId: 0xba28c19404d7178d759bab9557155ea0bd6aad154cf37c8420460b7763edb070 | TX: Eeea9rE9oypk8H8QuXVrdkoogKpsERaU33j7QVxdmsTG | Validator: MAVAN | Amount: 2,816,564.86
+  ▶ [Unlocked] ObjId: 0xdc4c6cea62686fd81c356db3d6ea6b26c26b92d06bc1f04fac8ae7a573eff782 | TX: zKFKRzCzv3gB4tgZCGUK2u5QKDaNGVHHAPsmpGerh5G | Validator: MAVAN | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0x82482d42de3533534082499e9b1c30604a73083342abd555f36b85e47b5fa718 | TX: F429m5DXVTKqDaNpu5C5NbCxNEqERmUV3u5EvAa84WTx | Validator: Encapsulate | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0x3ae2984124e15b4782d916c0304fa8f95be6761d8fc12d89ca05f62287b93429 | TX: ms6Sq2h14iTLYbhwA5PWez2DQqdPLiwMYQ9zjkWWgta | Validator: Spectrum Staking | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0x0323ff96d53ce1eaa632dbb018c24187ac22609f61f960d724f5278cc3c2e224 | TX: 5qHG6afWM8VcDvnxDBxaTfUvyg6f37QjqEPqkpdpVL4Y | Validator: Sensei_Node | Amount: 1,266,259.43
@@ -632,8 +632,8 @@ Epoch    |                 Staked |                Rewards |            Accumula
   ▶ [Partial Unstake] ObjId: 0x201fd7652740d99603bbcbd0aa0360b7b3f16f57f1030050a40ecd808d8fde6d | TX: 7tsDu5U8zuvkBavUh6gDFePubvcX6WXA7yER2b5Lbz5v | Validator: Lavender.Five Nodes | Amount: 2,816,563.36 | Rewards: 400,830.78 | Merged: 0x1c6ee87829640c878a4fd03cd7f4ce76971741d9abce43f538cea81cbbcf3040, 0xacdb7741460c10e83ad5f302b62edbde5c628d240a12e45aaed089be30eef3cf
   ▶ [Unstaked] ObjId: 0x1c6ee87829640c878a4fd03cd7f4ce76971741d9abce43f538cea81cbbcf3040 | TX: 7tsDu5U8zuvkBavUh6gDFePubvcX6WXA7yER2b5Lbz5v | Validator: Lavender.Five Nodes | Amount: 2,816,564.86 | Rewards: 395,016.41
   ▶ [Unstaked] ObjId: 0xacdb7741460c10e83ad5f302b62edbde5c628d240a12e45aaed089be30eef3cf | TX: 7tsDu5U8zuvkBavUh6gDFePubvcX6WXA7yER2b5Lbz5v | Validator: Lavender.Five Nodes | Amount: 1.50 | Rewards: 0.00
-  ▶ [Unlocked] ObjId: 0xb557d0f979d178cc10ec1d9c0352cdf54fc751de922a048ed630c4115eb457b2 | TX: zKFKRzCzv3gB4tgZCGUK2u5QKDaNGVHHAPsmpGerh5G | Validator: Pier Two | Amount: 2,816,564.86
-  ▶ [Unlocked] ObjId: 0x9438ecf7605a9935174315d37c71ec3915ff14b96e4e2aec6c78e76c187a12f7 | TX: Eeea9rE9oypk8H8QuXVrdkoogKpsERaU33j7QVxdmsTG | Validator: Pier Two | Amount: 2,816,564.86
+  ▶ [Unlocked] ObjId: 0xb557d0f979d178cc10ec1d9c0352cdf54fc751de922a048ed630c4115eb457b2 | TX: zKFKRzCzv3gB4tgZCGUK2u5QKDaNGVHHAPsmpGerh5G | Validator: MAVAN | Amount: 2,816,564.86
+  ▶ [Unlocked] ObjId: 0x9438ecf7605a9935174315d37c71ec3915ff14b96e4e2aec6c78e76c187a12f7 | TX: Eeea9rE9oypk8H8QuXVrdkoogKpsERaU33j7QVxdmsTG | Validator: MAVAN | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0xe903530a9bbc11e83f34e0e2b7147fa22fec37774e6a7b0ec426360339ef7b7b | TX: C6c1EXgPgeeJ5zVQwcYPVFZbyGJLsE7oYLKyvAKV6hHP | Validator: liquidlink.io | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0xb007c1e6f0ff7e6087fdf4263ab92bf79572fbe6f034ef5d5f2fafad7ec6e8e6 | TX: ms6Sq2h14iTLYbhwA5PWez2DQqdPLiwMYQ9zjkWWgta | Validator: Spectrum Staking | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0xe6fcff42df77c8b073bff1eea0124400d6919c0e9eb5ffdf74229087e16035ea | TX: F429m5DXVTKqDaNpu5C5NbCxNEqERmUV3u5EvAa84WTx | Validator: Encapsulate | Amount: 2,816,564.86

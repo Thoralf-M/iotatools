@@ -767,6 +767,20 @@ textarea.code:focus { border-color: var(--teal); }
 .cmd-head .idx { color: var(--ink-faint); }
 .cmd-body { padding: 10px 12px; font-family: var(--font-mono); font-size: 12px; overflow-x: auto; }
 
+/* PTB cross-reference highlighting: hovering a reference lights up every other
+   place naming the same result, id, input or the gas coin. */
+.xref {
+  border-radius: 3px;
+  transition: background 120ms ease, box-shadow 120ms ease;
+}
+.xref.hl {
+  background: var(--violet-dim);
+  box-shadow: 0 0 0 1px var(--violet), 0 0 6px var(--violet-dim);
+  color: var(--ink);
+}
+.cmd-card.xref-hl { border-color: var(--violet); }
+.tbl tr.xref-row > td { background: var(--violet-dim); }
+
 .searchline-hint {
   font-family: var(--font-mono);
   font-size: 10.5px;

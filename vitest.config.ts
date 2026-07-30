@@ -15,6 +15,10 @@ export default defineConfig({
         // each run is ~1s but CI can be several times slower. 30s gives
         // comfortable headroom without hiding real hangs.
         testTimeout: 30_000,
+        // Those runs happen in beforeAll hooks, which testTimeout does not
+        // cover — hooks have their own 10s default. The tx caches grow with
+        // every daily update, so give hooks the same headroom.
+        hookTimeout: 30_000,
         // The explorer sub-app ships its own Playwright suite under
         // apps/explorer/tests — Playwright test() must not run inside Vitest.
         exclude: [...configDefaults.exclude, 'apps/**'],
