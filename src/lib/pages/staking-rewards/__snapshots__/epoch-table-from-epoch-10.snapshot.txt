@@ -465,8 +465,8 @@ Epoch    |                 Staked |                Rewards |            Accumula
   ▶ [Unlocked] ObjId: 0x1a545b9ddf57df370ebcf6dd1fa571b32b1332604c0276d1ab4b890ead5224d7 | TX: 2ce1kafAV9TrcZDzcnG5hnNjD9KAK5fqFb4NPyAh34Nq | Validator: CroutonDigital | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0xa68e7634824e46af4f0049a7137329173db3a2365b3162db3a4ef66bdeb132d7 | TX: 2ce1kafAV9TrcZDzcnG5hnNjD9KAK5fqFb4NPyAh34Nq | Validator: CroutonDigital | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0x0d0bd6e6b512796beb9ea151097c8e9b4cbb17c67d08b2a8e00b8f26e156a140 | TX: 2SWoWGe6uGDHBpKz572nq97Ps87wmjKB3grCsp3PQPbh | Validator: IOTA 1 | Amount: 1.50
-  ▶ [Unlocked] ObjId: 0x0c5ebce73faf1d6e482012b48c94de8e4af2884cb3d35bdcff2a6f7f15e217ad | TX: Hd9GNwSJz8VR1zRjNaaSMuTtighJeT3npVKaiQNPMftW | Validator: Pier Two | Amount: 2,816,564.86
-  ▶ [Unlocked] ObjId: 0x483a8cb30f3cdf2a50c54e9dbaaa796d502f8a00d99ce0fee2c46d1ba88d8bf5 | TX: Hd9GNwSJz8VR1zRjNaaSMuTtighJeT3npVKaiQNPMftW | Validator: Pier Two | Amount: 2,816,564.86
+  ▶ [Unlocked] ObjId: 0x0c5ebce73faf1d6e482012b48c94de8e4af2884cb3d35bdcff2a6f7f15e217ad | TX: Hd9GNwSJz8VR1zRjNaaSMuTtighJeT3npVKaiQNPMftW | Validator: MAVAN | Amount: 2,816,564.86
+  ▶ [Unlocked] ObjId: 0x483a8cb30f3cdf2a50c54e9dbaaa796d502f8a00d99ce0fee2c46d1ba88d8bf5 | TX: Hd9GNwSJz8VR1zRjNaaSMuTtighJeT3npVKaiQNPMftW | Validator: MAVAN | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0x86c3671f080f839bd76d56eeb5a56f463336c94fb66116e332fd9d6081767bb1 | TX: FWVBQK2tUgfjtMY5oAN6e6YeVKRMyBd6PVLGzMfidyMo | Validator: Encapsulate | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0xbe2dc7bcd2e2538f45a0717e4f6eccb590f68a16626780722eebd9591776da67 | TX: FWVBQK2tUgfjtMY5oAN6e6YeVKRMyBd6PVLGzMfidyMo | Validator: Encapsulate | Amount: 2,816,564.86
   ▶ [Unlocked] ObjId: 0x3bca2d5801c05d4fe576d6289b82e97ebb17e1dfd9316365b664aeb2a384c23f | TX: 6Qm9MTnE9t3BxukJp38dBR461KjRFCKrZq1GJ2yYXozx | Validator: HashKeyCloud | Amount: 2,816,564.86
