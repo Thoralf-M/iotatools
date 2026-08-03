@@ -1,6 +1,6 @@
 import { St as derived } from "./disclose-version-CpEJO7r1.js";
 import "./client-BTFoHz6u.js";
-import { r as queryParams } from "./index-caO0Ryb7.js";
+import { r as queryParams } from "./index-l8E6a0l2.js";
 //#region src/lib/utils/page-query-params.ts
 /**
 * Hook for individual pages to bind form fields to query parameters
