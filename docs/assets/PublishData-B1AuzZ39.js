@@ -2,7 +2,7 @@ import { Dt as pop, G as event, Mt as reset, Ot as push, V as from_html, Y as ge
 import "./legacy-DxVWxrJw.js";
 import { o as Transaction } from "./client-BTFoHz6u.js";
 import { t as executeTransaction } from "./transaction-execution-Cg5fkaOd.js";
-import { i as TransactionView } from "./index-l8E6a0l2.js";
+import { i as TransactionView } from "./index-RSDd7ke0.js";
 //#region src/lib/pages/publish-data/PublishData.svelte
 var root = from_html(`<main>Publish data as input to a tx <br/> <span>pure input data: <input placeholder="string" size="60"/></span> <br/> <button class="svelte-1dks3s0">publish data in tx</button> <!></main>`);
 function PublishData($$anchor, $$props) {
