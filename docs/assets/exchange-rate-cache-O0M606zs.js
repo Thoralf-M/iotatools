@@ -1484,6 +1484,12 @@ async function mapWithConcurrency(items, limit, fn) {
 * (https://github.com/iotaledger/iota/issues/11937), this module can be
 * migrated back to GraphQL.
 *
+* Only the `FromOrToAddress` filter has the archival fallback
+* (iotaledger/iota#11807) — `FromAddress`/`ToAddress` alone query the pruned
+* lookup tables directly and silently lose everything older than the retention
+* window. So both roles query `FromOrToAddress` and split sent vs. received
+* client-side by the transaction sender.
+*
 * The results are shaped exactly like the GraphQL `transactionBlocks` nodes the
 * rewards processor consumes (see compute/processor.ts), so everything
 * downstream of the fetch is unchanged.
@@ -1603,6 +1609,12 @@ function resolveChangeVersions(modifiedAt, change) {
 /**
 * Fetch all transactions for an address in the given role, newest first,
 * stopping at `startEpoch` when set.
+*
+* Always queries `FromOrToAddress` — the only address filter with an archival
+* fallback for pruned history — and splits by role client-side: a transaction
+* counts as sent when its sender is the queried address, as received
+* otherwise. Their union is exactly the `FromOrToAddress` result, so nothing
+* is lost by the split (a self-send is covered by the sent role).
 */
 async function fetchTransactionPages(address, role, startEpoch, onProgress) {
 	const client = getIndexerClient();
@@ -1613,7 +1625,7 @@ async function fetchTransactionPages(address, role, startEpoch, onProgress) {
 	while (hasNextPage) {
 		console.log(`Fetching transactions for address: ${address}, role: ${role}, cursor: ${cursor ?? ""}`);
 		const page = await withRetry(() => client.queryTransactionBlocks({
-			filter: role === "FromAddress" ? { FromAddress: address } : { ToAddress: address },
+			filter: { FromOrToAddress: { addr: address } },
 			options: {
 				showEffects: true,
 				showObjectChanges: true
@@ -1629,7 +1641,8 @@ async function fetchTransactionPages(address, role, startEpoch, onProgress) {
 				reachedStartEpoch = true;
 				break;
 			}
-			transactions.push(tx);
+			const sender = tx.objectChanges?.[0]?.sender;
+			if (role === "FromAddress" ? sender === address : sender !== address) transactions.push(tx);
 		}
 		pageCount++;
 		onProgress?.({
