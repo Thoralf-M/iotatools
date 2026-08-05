@@ -1,7 +1,7 @@
 import { C as bind_select_value, D as set_class, Dt as pop, G as event, I as if_block, Mt as reset, N as each, Ot as push, P as index, Pt as to_array, R as set_text, U as delegate, V as from_html, W as delegated, Y as get, at as user_effect, ct as sibling, ft as set, gt as user_derived, i as prop, it as template_effect, jt as next, ot as child, pt as state, s as init, ut as mutable_source, z as append } from "./disclose-version-CpEJO7r1.js";
 import "./legacy-DxVWxrJw.js";
 import { t as getClient } from "./client-BTFoHz6u.js";
-import { _ as nanoToIotaFormatted, m as formatNumbersWithUnderscores } from "./index-CRnT9hFo.js";
+import { _ as nanoToIotaFormatted, m as formatNumbersWithUnderscores } from "./index-B5Lr4GkJ.js";
 import { t as JsonToggleView } from "./JsonToggleView-I_OHyvOi.js";
 //#region src/lib/pages/iota-system-state/system-state-service.ts
 function extractValidatorRow(validator) {
