@@ -3,7 +3,7 @@ import { r as getSelectedNetworkConfig, t as getClient } from "./client-BTFoHz6u
 import { U as normalizeIotaAddress } from "./keypair-DsT3ivIR.js";
 import { n as getObjectLink, r as getTransactionLink, t as getAddressLink } from "./explorer-links-hyzWVZGi.js";
 import { t as IotaGraphQLClient } from "./client-CmDrt-ez.js";
-import { n as updatePageQueryParams, r as usePageQueryParams } from "./page-query-params-DiZ3J2bX.js";
+import { n as updatePageQueryParams, r as usePageQueryParams } from "./page-query-params-B61opUPr.js";
 import { o as queryDynamicFields } from "./dynamic-fields-huZLT6c7.js";
 import { n as getIotaNamesPackageId } from "./iota-names-config-OaNo1Bz2.js";
 //#region src/lib/pages/object/objectUtils.ts
