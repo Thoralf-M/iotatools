@@ -1,14 +1,14 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/jspdf.es.min-DeAOeqif.js","assets/rolldown-runtime-D3Q5gio6.js","assets/index-k9mbAQtG.js","assets/disclose-version-CpEJO7r1.js","assets/legacy-DxVWxrJw.js","assets/client-BTFoHz6u.js","assets/keypair-DsT3ivIR.js","assets/mainnet-transaction-confirmation-bplSEzLB.js","assets/transaction-view-OeA30yKg.js","assets/transaction-view-QnfdbPMt.css","assets/explorer-links-hyzWVZGi.js","assets/client-CmDrt-ez.js","assets/transaction-execution-Cg5fkaOd.js","assets/signer-data-D1Egmbld.js","assets/index-BwwTFTu_.css","assets/typeof-CRRZfkuU.js"])))=>i.map(i=>d[i]);
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/jspdf.es.min-CozADT5r.js","assets/rolldown-runtime-D3Q5gio6.js","assets/index-BPkABvMC.js","assets/disclose-version-CpEJO7r1.js","assets/legacy-DxVWxrJw.js","assets/client-BTFoHz6u.js","assets/keypair-DsT3ivIR.js","assets/mainnet-transaction-confirmation-bplSEzLB.js","assets/transaction-view-OeA30yKg.js","assets/transaction-view-QnfdbPMt.css","assets/explorer-links-hyzWVZGi.js","assets/client-CmDrt-ez.js","assets/transaction-execution-Cg5fkaOd.js","assets/signer-data-D1Egmbld.js","assets/index-BwwTFTu_.css","assets/typeof-CRRZfkuU.js"])))=>i.map(i=>d[i]);
 import { $ as untrack, B as comment, C as bind_select_value, Ct as get$1, D as set_class, Dt as pop, E as set_style, G as event, H as text, I as if_block, J as deep_read_state, Mt as reset, N as each, Nt as noop, Ot as push, P as index, Pt as to_array, R as set_text, S as set_value, U as delegate, V as from_html, W as delegated, Y as get, _ as attribute_effect, _t as remove_textarea_child, a as rest_props, at as user_effect, ct as sibling, d as bind_element_size, dt as mutate, ft as set, g as STYLE, gt as user_derived, h as bind_value, ht as derived_safe_equal, i as prop, it as template_effect, j as snippet, jt as next, k as action, lt as proxy, m as bind_group, n as onDestroy, nt as legacy_pre_effect_reset, ot as child, p as bind_checked, pt as state, r as onMount, s as init, st as first_child, tt as legacy_pre_effect, u as bind_this, ut as mutable_source, v as remove_input_defaults, vt as setup_stores, xt as store_set, y as set_attribute, yt as store_get, z as append } from "./disclose-version-CpEJO7r1.js";
 import "./legacy-DxVWxrJw.js";
 import { C as sharedStakingCurrency, T as sharedStakingSkipPaginationSenders, r as getSelectedNetworkConfig, u as NANOS_PER_IOTA, w as sharedStakingSkipPaginationEnabled } from "./client-BTFoHz6u.js";
 import { B as isValidIotaAddress } from "./keypair-DsT3ivIR.js";
 import { a as iota_accounts, t as activeAddress } from "./signer-data-D1Egmbld.js";
-import { o as copyToClipboard, t as __vitePreload } from "./index-k9mbAQtG.js";
-import { n as updatePageQueryParams, r as usePageQueryParams } from "./page-query-params-B61opUPr.js";
+import { o as copyToClipboard, t as __vitePreload } from "./index-BPkABvMC.js";
+import { n as updatePageQueryParams, r as usePageQueryParams } from "./page-query-params-B7qI2dyb.js";
 import { t as auto_default } from "./auto-DlIbMOkz.js";
 import { t as JsonToggleView } from "./JsonToggleView-I_OHyvOi.js";
-import { a as processStakeTransactionsWithExchangeRates, c as fetchCurrentStakedObjects, d as formatNanoAsIota, f as formatNanoAsIotaFullPrecision, i as mapWithConcurrency, l as fetchEpochTimestampsForDisplay, n as fetchReceivedStakeTransactions, p as nanoToIota, r as fetchStakeTransactions, t as exchange_rate_cache_default, u as setInitialExchangeRateCacheFromBinary } from "./exchange-rate-cache-Cltg698h.js";
+import { a as processStakeTransactionsWithExchangeRates, c as fetchCurrentStakedObjects, d as formatNanoAsIota, f as formatNanoAsIotaFullPrecision, i as mapWithConcurrency, l as fetchEpochTimestampsForDisplay, n as fetchReceivedStakeTransactions, p as nanoToIota, r as fetchStakeTransactions, t as exchange_rate_cache_default, u as setInitialExchangeRateCacheFromBinary } from "./exchange-rate-cache-l49MxsWu.js";
 import { t as plugin } from "./chartjs-plugin-zoom.esm-DAYqusPu.js";
 import { t as EpochPTBAnalyzer } from "./programmable-transaction-block-DR8mHtC0.js";
 //#region src/lib/pages/staking-rewards/table-utils.ts
@@ -1115,7 +1115,8 @@ var mainnet_epoch_timestamps_cache_default = {
 	"456": 1785915719,
 	"457": 1786002119,
 	"458": 1786088519,
-	"459": 1786174920
+	"459": 1786174920,
+	"460": 1786261320
 };
 //#endregion
 //#region src/lib/pages/staking-rewards/StakingRewardsChart.svelte
@@ -3550,6 +3551,10 @@ var iota_prices_coingecko_default = {
 	"07-08-2026": {
 		"usd": .03400975122350803,
 		"eur": .02951196162419909
+	},
+	"08-08-2026": {
+		"usd": .03381181424150374,
+		"eur": .029246272588101974
 	}
 };
 //#endregion
@@ -3623,7 +3628,7 @@ function splitIntoColumnGroups(colWidths, usableWidth) {
 * bundle.
 */
 async function renderSectionsToPdf(sections, onProgress) {
-	const [{ jsPDF }, autoTableModule] = await Promise.all([__vitePreload(() => import("./jspdf.es.min-DeAOeqif.js"), __vite__mapDeps([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])), __vitePreload(() => import("./jspdf.plugin.autotable--ALKN5AO.js"), [])]);
+	const [{ jsPDF }, autoTableModule] = await Promise.all([__vitePreload(() => import("./jspdf.es.min-CozADT5r.js"), __vite__mapDeps([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])), __vitePreload(() => import("./jspdf.plugin.autotable--ALKN5AO.js"), [])]);
 	const autoTable = autoTableModule.default;
 	const doc = new jsPDF({
 		orientation: "landscape",
