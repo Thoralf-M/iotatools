@@ -1,7 +1,7 @@
 import { B as comment, D as set_class, Dt as pop, E as set_style, I as if_block, Mt as reset, N as each, Ot as push, P as index, Pt as to_array, R as set_text, U as delegate, V as from_html, W as delegated, Y as get, at as user_effect, ct as sibling, ft as set, gt as user_derived, h as bind_value, it as template_effect, jt as next, lt as proxy, n as onDestroy, ot as child, pt as state, r as onMount, st as first_child, v as remove_input_defaults, y as set_attribute, z as append } from "./disclose-version-CpEJO7r1.js";
 import { r as getSelectedNetworkConfig, t as getClient } from "./client-BTFoHz6u.js";
 import { n as getObjectLink, t as getAddressLink } from "./explorer-links-hyzWVZGi.js";
-import { i as TransactionView, y as router } from "./index-RRwG3YDQ.js";
+import { i as TransactionView, y as router } from "./index-BQzblEX3.js";
 import { t as fetchRecentTransactions } from "./fetchTransactions-D9XVVz7p.js";
 //#region src/lib/pages/txs-visualizer/TxsVisualizer.svelte
 var root = from_html(`<div class="loading">Loading initial transactions...</div>`);
