@@ -4,7 +4,7 @@ import { n as getSelectedChain, o as Transaction$1, t as getClient } from "./cli
 import { t as require_browser } from "./browser-YKkc2bFt.js";
 import { i as requireMainnetTransactionConfirmation } from "./mainnet-transaction-confirmation-bplSEzLB.js";
 import { o as iota_wallets, t as activeAddress } from "./signer-data-D1Egmbld.js";
-import { i as TransactionView } from "./index-BQzblEX3.js";
+import { i as TransactionView } from "./index-DrKBFYY2.js";
 //#region node_modules/.pnpm/@lezer+common@1.5.2/node_modules/@lezer/common/dist/index.js
 var import_browser = /* @__PURE__ */ __toESM(require_browser(), 1);
 /**
