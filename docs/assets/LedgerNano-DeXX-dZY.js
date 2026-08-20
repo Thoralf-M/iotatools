@@ -3,7 +3,7 @@ import { C as bind_select_value, Dt as pop, I as if_block, Mt as reset, N as eac
 import { o as Transaction, t as getClient } from "./client-BTFoHz6u.js";
 import { B as isValidIotaAddress, X as toHex, m as messageWithIntent, n as Ed25519PublicKey, u as toSerializedSignature } from "./keypair-DsT3ivIR.js";
 import { t as require_browser } from "./browser-YKkc2bFt.js";
-import { f as require_buffer } from "./index-DtPkstvm.js";
+import { f as require_buffer } from "./index-eVedi1Ly.js";
 import { t as JsonToggleView } from "./JsonToggleView-I_OHyvOi.js";
 //#region node_modules/.pnpm/fast-sha256@1.3.0/node_modules/fast-sha256/sha256.js
 var require_sha256 = /* @__PURE__ */ __commonJSMin(((exports, module) => {
