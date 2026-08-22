@@ -1,7 +1,7 @@
 import { B as comment, C as bind_select_value, Dt as pop, E as set_style, I as if_block, Mt as reset, N as each, Ot as push, P as index, R as set_text, S as set_value, Tt as writable, U as delegate, V as from_html, W as delegated, Y as get, _t as remove_textarea_child, at as user_effect, ct as sibling, ft as set, gt as user_derived, h as bind_value, it as template_effect, lt as proxy, ot as child, pt as state, st as first_child, v as remove_input_defaults, vt as setup_stores, yt as store_get, z as append } from "./disclose-version-CpEJO7r1.js";
 import { r as getSelectedNetworkConfig } from "./client-BTFoHz6u.js";
 import { B as isValidIotaAddress, Q as toBase64, W as normalizeIotaObjectId } from "./keypair-DsT3ivIR.js";
-import { n as updatePageQueryParams, r as usePageQueryParams } from "./page-query-params-CHdo1kNt.js";
+import { n as updatePageQueryParams, r as usePageQueryParams } from "./page-query-params-BSp7GRJX.js";
 import { t as JsonToggleView } from "./JsonToggleView-I_OHyvOi.js";
 import { a as queryDynamicField, c as decodeBcs, i as getMoveLayout, l as layoutToBcs, n as deriveDynamicFieldIdWithBcs, o as queryDynamicFields, r as enhanceFieldsWithLayoutsAndBcs, s as queryDynamicObjectField, t as deriveDynamicFieldId } from "./dynamic-fields-huZLT6c7.js";
 //#region src/lib/pages/dynamic-fields/struct-definitions.ts
