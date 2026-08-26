@@ -3,7 +3,7 @@ import { g as sharedClientConfig, o as Transaction, r as getSelectedNetworkConfi
 import { n as getObjectLink, t as getAddressLink } from "./explorer-links-hyzWVZGi.js";
 import { t as executeTransaction } from "./transaction-execution-Cg5fkaOd.js";
 import { t as activeAddress } from "./signer-data-D1Egmbld.js";
-import { i as TransactionView, s as formatAddress } from "./index-DcswrKQc.js";
+import { i as TransactionView, s as formatAddress } from "./index-J9R-UnBq.js";
 //#region src/lib/pages/candidate-stake/candidate-stake-config.ts
 var DEVNET_PACKAGE_ID = "0x5b8e73954c18a0d743e967de27e588ddcae6b7d060098e7a2e55c5d269cf76c1";
 var TESTNET_PACKAGE_ID = "0xfc65701aeba619e4c1e33c58738874fd76330e8a50cf6a7d34626d198407c653";
