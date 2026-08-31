@@ -1,6 +1,11 @@
 packages:
   - '.'
   - 'apps/explorer'
+
+overrides:
+  lodash: ^4.18.1
+
 allowBuilds:
+  core-js: false
   esbuild: true
   svelte-virtual: false

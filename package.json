@@ -79,10 +79,5 @@
         "svelte-spa-router": "^5.1.1",
         "svelte-virtual": "1.0.0-next.22",
         "uuid": "^14.0.1"
-    },
-    "pnpm": {
-        "overrides": {
-            "lodash": "^4.18.1"
-        }
     }
 }
