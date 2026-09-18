@@ -38,8 +38,11 @@ export default function Transactions() {
   const client = useClient();
   const { network } = useNetwork();
   const [params] = useSearchParams();
+  // Programmable blocks are the traffic worth looking at; system prologues are
+  // a click away under "kind", or with ?kind=any / ?kind=system.
+  const kindParam = params.get("kind");
   const [draft, setDraft] = useState<FilterState>({
-    kind: "",
+    kind: kindParam === "any" ? "" : kindParam === "system" ? "system" : "programmable",
     fn: params.get("fn") ?? "",
     sent: params.get("sent") ?? "",
     recv: params.get("recv") ?? "",

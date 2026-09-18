@@ -7,6 +7,7 @@
 import { Query } from "@iota/sdk-wasm";
 import type { GraphQlClient } from "@iota/sdk-wasm";
 import { parseRunQuery } from "./checkpoints";
+import { kindTagFromTypename } from "./tx";
 
 export async function gql(
   client: GraphQlClient,
@@ -329,5 +330,131 @@ export async function addressTxFeed(
     rows,
     hasMore: !!conn?.pageInfo?.hasPreviousPage,
     nextCursor: conn?.pageInfo?.startCursor ?? undefined,
+  };
+}
+
+// ── checkpoint feed (checkpoints with their transactions inlined) ───────────
+
+export interface FeedTxRow {
+  digest: string;
+  /** kind tag in the same vocabulary as lib/tx (Programmable, ChangeEpoch, …) */
+  tag: string;
+  sender: string | null;
+  success: boolean | null;
+  /** first Move call targets, e.g. "pkg::module::fn" */
+  calls: string[];
+}
+
+export interface FeedCheckpointRow {
+  sequenceNumber: bigint;
+  digest: string;
+  epoch: bigint | null;
+  /** this checkpoint's cursor, for paging further back */
+  cursor: string;
+  timestampMs: number | null;
+  networkTotalTransactions: bigint | null;
+  /** transactions committed by this checkpoint, of every kind */
+  txCount: number | null;
+  /** every kind, in checkpoint order */
+  txs: FeedTxRow[];
+  /** programmable blocks only — fetched separately so system traffic can't crowd them out */
+  ptbs: FeedTxRow[];
+  /** more transactions of that kind in this checkpoint than the page fetched */
+  hasMoreTxs: boolean;
+  hasMorePtbs: boolean;
+}
+
+// The two connections are aliased in one query so switching the kind filter in
+// the UI is instant: a checkpoint full of consensus prologues would otherwise
+// push its programmable blocks past the page limit.
+const TX_FIELDS = `pageInfo { hasNextPage }
+        nodes {
+          digest
+          sender { address }
+          effects { status }
+          kind {
+            __typename
+            ... on ProgrammableTransactionBlock {
+              transactions(first: 4) {
+                nodes { __typename ... on MoveCallTransaction { package module functionName } }
+              }
+            }
+          }
+        }`;
+
+const CHECKPOINT_FEED = `query CpFeed($cps: Int!, $txs: Int!, $before: String) {
+  checkpoints(last: $cps, before: $before) {
+    pageInfo { hasPreviousPage }
+    edges {
+      cursor
+      node {
+        sequenceNumber
+        digest
+        timestamp
+        epoch { epochId }
+        networkTotalTransactions
+        all: transactionBlocks(first: $txs) {
+          ${TX_FIELDS}
+        }
+        ptbs: transactionBlocks(first: $txs, filter: { kind: PROGRAMMABLE_TX }) {
+          ${TX_FIELDS}
+        }
+      }
+    }
+  }
+}`;
+
+/**
+ * Newest-first checkpoints with the transactions they committed. One extra
+ * checkpoint is fetched and dropped: its running total is what makes the
+ * oldest returned checkpoint's own transaction count exact. It reappears as
+ * the first row of the next page, which starts at the oldest kept cursor.
+ */
+export async function checkpointFeed(
+  client: GraphQlClient,
+  opts: { checkpoints: number; txsPerCheckpoint: number; before?: string },
+): Promise<{ rows: FeedCheckpointRow[]; hasMore: boolean; nextBefore?: string }> {
+  const data = await gql(client, CHECKPOINT_FEED, {
+    cps: opts.checkpoints + 1,
+    txs: opts.txsPerCheckpoint,
+    before: opts.before ?? null,
+  });
+  const edges = data?.checkpoints?.edges ?? [];
+  const nodes = edges.map((e: any) => e?.node ?? {});
+  const txRows = (conn: any): FeedTxRow[] =>
+    (conn?.nodes ?? []).map((t: any): FeedTxRow => ({
+      digest: String(t.digest),
+      tag: kindTagFromTypename(t?.kind?.__typename),
+      sender: t?.sender?.address ?? null,
+      success: t?.effects?.status != null ? t.effects.status === "SUCCESS" : null,
+      calls: (t?.kind?.transactions?.nodes ?? [])
+        .filter((c: any) => c?.__typename === "MoveCallTransaction")
+        .map((c: any) => `${c.package}::${c.module}::${c.functionName}`),
+    }));
+  const rows: FeedCheckpointRow[] = nodes
+    .map((n: any, i: number): FeedCheckpointRow => {
+      const total = n?.networkTotalTransactions != null ? BigInt(n.networkTotalTransactions) : null;
+      const prevTotal =
+        i > 0 && nodes[i - 1]?.networkTotalTransactions != null ? BigInt(nodes[i - 1].networkTotalTransactions) : null;
+      return {
+        sequenceNumber: BigInt(n.sequenceNumber),
+        digest: String(n.digest),
+        epoch: n?.epoch?.epochId != null ? BigInt(n.epoch.epochId) : null,
+        cursor: String(edges[i]?.cursor ?? ""),
+        timestampMs: n?.timestamp ? new Date(n.timestamp).getTime() : null,
+        networkTotalTransactions: total,
+        txCount: total != null && prevTotal != null ? Number(total - prevTotal) : null,
+        hasMoreTxs: !!n?.all?.pageInfo?.hasNextPage,
+        hasMorePtbs: !!n?.ptbs?.pageInfo?.hasNextPage,
+        txs: txRows(n?.all),
+        ptbs: txRows(n?.ptbs),
+      };
+    })
+    .slice(1) // the extra oldest checkpoint only supplied the running total
+    .reverse(); // ascending → newest first
+  return {
+    rows,
+    hasMore: !!data?.checkpoints?.pageInfo?.hasPreviousPage,
+    nextBefore: rows[rows.length - 1]?.cursor,
   };
 }

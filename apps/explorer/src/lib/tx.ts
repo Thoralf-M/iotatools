@@ -35,6 +35,13 @@ export function kindLabel(tag: string): string {
   return KIND_LABELS[tag] ?? tag.replace(/([a-z])([A-Z])/g, "$1 $2").toUpperCase();
 }
 
+/** GraphQL `kind { __typename }` → the tag used by kindLabel / isSystemKind. */
+export function kindTagFromTypename(typename: string | null | undefined): string {
+  if (!typename) return "Unknown";
+  if (typename === "ProgrammableTransactionBlock") return "Programmable";
+  return typename.replace(/Transaction$/, "");
+}
+
 export function isSystemKind(tag: string): boolean {
   return tag !== "Programmable" && tag !== "ProgrammableTransaction";
 }

@@ -80,6 +80,20 @@ function useDashboard(paused: boolean) {
       }
       const hotFns = [...fnCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
 
+      // the PTB page is ascending — its tail is the newest programmable traffic
+      const ptbRows: TxRow[] = [...ptbPage.data]
+        .slice(-10)
+        .reverse()
+        .map((st) => {
+          const digest = st.transaction.digest().toBase58();
+          try {
+            const j = unwrapV1(JSON.parse(transactionToJson(st.transaction)));
+            return { digest, kindT: kindTag(j?.kind), summary: summarizeKind(j?.kind), sender: (j?.sender as string) ?? "" };
+          } catch {
+            return { digest, kindT: "Unknown", summary: "", sender: "" };
+          }
+        });
+
       const txRows: TxRow[] = txs.map((st) => {
         const digest = st.transaction.digest().toBase58();
         try {
@@ -95,20 +109,19 @@ function useDashboard(paused: boolean) {
         }
       });
 
-      return { chainId, epoch, totalTx, refGas, supply, cps: cpList.rows, txRows, hotFns, sysParams };
+      return { chainId, epoch, totalTx, refGas, supply, cps: cpList.rows, txRows, ptbRows, hotFns, sysParams };
     },
   });
 }
 
 export default function Dashboard() {
   const [paused, setPaused] = useState(false);
-  const [hideSystem, setHideSystem] = useState(false);
+  const [allKinds, setAllKinds] = useState(false);
   const { data, error, isPending } = useDashboard(paused);
 
-  const visibleTxs = useMemo(() => {
-    if (!data) return [];
-    return hideSystem ? data.txRows.filter((t) => !isSystemKind(t.kindT)) : data.txRows;
-  }, [data, hideSystem]);
+  // Programmable traffic is what people come here for; system transactions
+  // (consensus prologue, randomness) drown it out, so they are off by default.
+  const visibleTxs = useMemo(() => (data ? (allKinds ? data.txRows : data.ptbRows) : []), [data, allKinds]);
 
   if (isPending) return <LoadingBlock label="booting feed — querying via wasm SDK…" />;
   if (error) return <ErrorNote error={error} />;
@@ -153,18 +166,24 @@ export default function Dashboard() {
 
       <div className="stat-grid">
         <Stat
-          label={<Info tip={TERMS.epoch}>Epoch</Info>}
+          label={<Info tip={TERMS.epochProgress}>Epoch progress</Info>}
           value={
             <Link to={`/epoch/${epoch?.epochId ?? ""}`} className="mono">
               {epoch ? fmtInt(epoch.epochId) : "—"}
             </Link>
           }
           hint={
-            remainingMs != null
-              ? `${progress.toFixed(0)}% · ends in ~${durationBetween(0, remainingMs)}`
-              : startMs
-                ? `started ${timeAgo(startMs)}`
-                : undefined
+            <>
+              <div className="progress-track" style={{ margin: "2px 0 5px" }}>
+                <div className="progress-fill" style={{ width: `${progress}%` }} />
+              </div>
+              {epochElapsed != null
+                ? `${progress.toFixed(0)}% · ${durationBetween(0, epochElapsed)} of ${durationBetween(0, durationMs)}`
+                : startMs
+                  ? `started ${timeAgo(startMs)}`
+                  : "—"}
+              {remainingMs != null && <> · ~{durationBetween(0, remainingMs)} left</>}
+            </>
           }
         />
         <Stat
@@ -180,7 +199,11 @@ export default function Dashboard() {
         <Stat
           label={<Info tip={TERMS.tps}>Throughput</Info>}
           value={tps ? <>{tps}<small>tx/s</small></> : "—"}
-          hint={`over last ${cps.length} checkpoints`}
+          hint={
+            <>
+              <Sparkline values={series.slice(-30)} width={150} height={18} /> tx per checkpoint, last {cps.length}
+            </>
+          }
           color="blue"
         />
         <Stat
@@ -203,59 +226,12 @@ export default function Dashboard() {
 
       <Section
         index="01"
-        title="Checkpoint stream"
-        aux={
-          <>
-            tx per checkpoint <Sparkline values={series.slice(-30)} width={150} height={20} />
-          </>
-        }
-      >
-        <div className="panel ticks tbl-wrap">
-          <table className="tbl">
-            <thead>
-              <tr>
-                <th><Info tip={TERMS.checkpointSeq}>SEQ</Info></th>
-                <th><Info tip={TERMS.checkpointDigest}>DIGEST</Info></th>
-                <th className="num">TXS</th>
-                <th className="num"><Info tip={TERMS.checkpointTotalTx}>NETWORK TOTAL</Info></th>
-                <th>AGE</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cps.slice(0, 10).map((cp, i) => {
-                const next = cps[i + 1];
-                const delta =
-                  next?.networkTotalTransactions != null && cp.networkTotalTransactions != null
-                    ? cp.networkTotalTransactions - next.networkTotalTransactions
-                    : null;
-                return (
-                  <tr key={cp.sequenceNumber.toString()}>
-                    <td>
-                      <Link to={`/checkpoint/${cp.sequenceNumber}`}>{fmtInt(cp.sequenceNumber)}</Link>
-                    </td>
-                    <td>
-                      <Hash value={cp.digest} to={`/checkpoint/${cp.sequenceNumber}`} copy={false} />
-                    </td>
-                    <td className="num">{delta != null ? fmtInt(delta) : "—"}</td>
-                    <td className="num dim">{fmtInt(cp.networkTotalTransactions)}</td>
-                    <td className="dim">
-                      <Age ms={cp.timestampMs} />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </Section>
-
-      <Section
-        index="02"
         title="Latest transactions"
         aux={
           <span className="row" style={{ gap: 8 }}>
-            <button className="btn ghost" style={{ padding: "3px 9px" }} onClick={() => setHideSystem((v) => !v)}>
-              {hideSystem ? "show system" : "hide system"}
+            <span className="faint small">{allKinds ? "all kinds" : "programmable only"}</span>
+            <button className="btn ghost" style={{ padding: "3px 9px" }} onClick={() => setAllKinds((v) => !v)}>
+              {allKinds ? "PTBs only" : "show all kinds"}
             </button>
             <button className="btn ghost" style={{ padding: "3px 9px" }} onClick={() => setPaused((v) => !v)}>
               {paused ? "▶ resume" : "⏸ pause"}
@@ -297,7 +273,7 @@ export default function Dashboard() {
               ))}
               {visibleTxs.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="dim">only system transactions in the last batch — toggle "show system"</td>
+                  <td colSpan={4} className="dim">no programmable transactions in the last batch — try "show all kinds"</td>
                 </tr>
               )}
             </tbody>
@@ -306,7 +282,7 @@ export default function Dashboard() {
       </Section>
 
       <div className="grid-2">
-        <Section index="03" title="Hot functions" aux="from the last 50 PTBs">
+        <Section index="02" title="Hot functions" aux="from the last 50 PTBs">
           <div className="panel tbl-wrap">
             <table className="tbl">
               <thead>
@@ -337,22 +313,13 @@ export default function Dashboard() {
           </div>
         </Section>
 
-        <Section index="04" title="Epoch detail" aux={<Link to="/epochs">all epochs →</Link>}>
+        <Section index="03" title="Epoch detail" aux={<Link to="/epochs">all epochs →</Link>}>
           <div className="panel pad">
             <div className="row spread">
               <span className="muted small">
-                <Info tip={TERMS.epochProgress}>EPOCH {epoch ? fmtInt(epoch.epochId) : "—"} PROGRESS</Info>
+                <Info tip={TERMS.epoch}>EPOCH {epoch ? fmtInt(epoch.epochId) : "—"}</Info>
               </span>
-              <span className="mono small">
-                {epochElapsed != null ? durationBetween(0, epochElapsed) : "—"} / {durationBetween(0, durationMs)}
-              </span>
-            </div>
-            <div className="progress-track" style={{ marginTop: 10 }}>
-              <div className="progress-fill" style={{ width: `${progress}%` }} />
-            </div>
-            <div className="row spread" style={{ marginTop: 8 }}>
-              <span className="faint small mono">{epoch?.startTimestamp ?? ""}</span>
-              <span className="faint small mono">{remainingMs != null ? `~${durationBetween(0, remainingMs)} left` : ""}</span>
+              <span className="faint small mono">started {epoch?.startTimestamp ?? "—"}</span>
             </div>
             <div className="row" style={{ gap: 26, marginTop: 16 }}>
               <div>
