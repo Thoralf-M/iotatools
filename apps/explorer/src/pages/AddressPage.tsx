@@ -17,11 +17,14 @@ import {
   Pager,
   Pill,
   Section,
+  SortTh,
   Spinner,
   Stat,
   Tabs,
   TxLink,
   TypePill,
+  cmpValues,
+  useSort,
   useTabParam,
 } from "../components/ui";
 import { Info, TERMS } from "../components/Info";
@@ -198,6 +201,8 @@ export default function AddressPage() {
   const { network } = useNetwork();
   const [tab, setTab] = useTabParam("portfolio");
   const [coinObjsOpen, setCoinObjsOpen] = useState(false);
+  const portfolioSort = useSort<"coin" | "balance" | "objects">("balance", "desc");
+  const stakeSort = useSort<"principal" | "status" | "activated" | "reward">("principal", "desc");
 
   const addrHex = useMemo(() => {
     try {
@@ -261,6 +266,27 @@ export default function AddressPage() {
     () => (portfolio.data ?? []).map((r) => r.coinType).filter((t) => !isIotaType(t)).slice(0, 8),
     [portfolio.data],
   );
+
+  // Balances sort on raw base units — the column shows what the chain stores,
+  // decimals differ per coin type.
+  const sortedPortfolio = useMemo(() => {
+    const value = (b: { coinType: string; totalBalance: unknown; coinObjectCount: unknown }) =>
+      ({ coin: shortType(b.coinType), balance: toBig(b.totalBalance as string), objects: toBig(b.coinObjectCount as string) })[
+        portfolioSort.key
+      ];
+    return [...(portfolio.data ?? [])].sort((a, b) => cmpValues(value(a), value(b), portfolioSort.dir));
+  }, [portfolio.data, portfolioSort.key, portfolioSort.dir]);
+
+  const sortedStakes = useMemo(() => {
+    const value = (s: StakeRow) =>
+      ({
+        principal: toBig(s.principal),
+        status: s.status,
+        activated: toBig(s.activatedEpoch),
+        reward: toBig(s.estimatedReward),
+      })[stakeSort.key];
+    return [...(stakes.data ?? [])].sort((a, b) => cmpValues(value(a), value(b), stakeSort.dir));
+  }, [stakes.data, stakeSort.key, stakeSort.dir]);
 
   const coinMeta = useQuery({
     queryKey: [network, "addr-coinmeta", addrHex, metaTypes.join("|")],
@@ -467,13 +493,13 @@ export default function AddressPage() {
                 <table className="tbl">
                   <thead>
                     <tr>
-                      <th><Info tip={TERMS.coinType}>COIN</Info></th>
-                      <th className="num"><Info tip={TERMS.coinMetadata}>BALANCE</Info></th>
-                      <th className="num">OBJECTS</th>
+                      <SortTh colKey="coin" sort={portfolioSort} firstDir="asc"><Info tip={TERMS.coinType}>COIN</Info></SortTh>
+                      <SortTh colKey="balance" sort={portfolioSort} numeric><Info tip={TERMS.coinMetadata}>BALANCE</Info></SortTh>
+                      <SortTh colKey="objects" sort={portfolioSort} numeric>OBJECTS</SortTh>
                     </tr>
                   </thead>
                   <tbody>
-                    {portfolio.data!.map((b) => {
+                    {sortedPortfolio.map((b) => {
                       const native = isIotaType(b.coinType);
                       const meta = coinMeta.data?.[b.coinType] ?? null;
                       return (
@@ -606,15 +632,17 @@ export default function AddressPage() {
               <table className="tbl">
                 <thead>
                   <tr>
-                    <th className="num"><Info tip="The amount of IOTA originally staked — returned in full when the stake is withdrawn.">PRINCIPAL</Info></th>
-                    <th>STATUS</th>
-                    <th className="num"><Info tip={TERMS.epoch}>ACTIVATED EPOCH</Info></th>
-                    <th className="num">EST. REWARD</th>
+                    <SortTh colKey="principal" sort={stakeSort} numeric>
+                      <Info tip="The amount of IOTA originally staked — returned in full when the stake is withdrawn.">PRINCIPAL</Info>
+                    </SortTh>
+                    <SortTh colKey="status" sort={stakeSort} firstDir="asc">STATUS</SortTh>
+                    <SortTh colKey="activated" sort={stakeSort} numeric><Info tip={TERMS.epoch}>ACTIVATED EPOCH</Info></SortTh>
+                    <SortTh colKey="reward" sort={stakeSort} numeric>EST. REWARD</SortTh>
                     <th><Info tip="The validator staking pool this position belongs to.">POOL</Info></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {stakes.data!.map((s: StakeRow, i: number) => {
+                  {sortedStakes.map((s: StakeRow, i: number) => {
                     const poolId =
                       typeof s.json?.pool_id === "string" ? s.json.pool_id : typeof s.json?.poolId === "string" ? s.json.poolId : null;
                     return (
