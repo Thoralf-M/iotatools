@@ -50,6 +50,34 @@ test("validators table links to a validator profile", async ({ page }) => {
   await expect(page.locator(".stat", { hasText: /VOTING POWER/i })).toBeVisible({ timeout: 45_000 });
 });
 
+test("validators page walks the candidate set out of 0x5", async ({ page }) => {
+  await page.goto("/validators");
+  await appReady(page);
+  await tableRows(page, 10); // committee loaded, so the 0x5 tables are counted
+  const candidates = page.locator(".tab", { hasText: /^CANDIDATE/ });
+  await expect(candidates).toBeVisible({ timeout: 45_000 });
+  await candidates.click();
+  await expect(page.locator("table.tbl tbody").getByText(/CANDIDATE|no validators in this set/).first()).toBeVisible({
+    timeout: 60_000,
+  });
+  await noErrorNote(page);
+});
+
+test("validators table sorts by a clicked column", async ({ page }) => {
+  await page.goto("/validators");
+  await appReady(page);
+  await tableRows(page, 10);
+  await page.locator("th", { hasText: /^APY/ }).click();
+  await expect
+    .poll(async () => {
+      const apys = (await page.locator("table.tbl tbody tr td:nth-child(10)").allInnerTexts()).map((t) =>
+        Number.parseFloat(t.replace("%", "")),
+      );
+      return apys.every((v, i) => i === 0 || Number.isNaN(v) || apys[i - 1] >= v);
+    })
+    .toBe(true);
+});
+
 test("latest checkpoint and one of its transactions resolve", async ({ page }) => {
   await page.goto("/checkpoints");
   await appReady(page);

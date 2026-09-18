@@ -15,9 +15,12 @@ import {
   LoadingBlock,
   Pill,
   Section,
+  SortTh,
   Spinner,
   Stat,
   TxLink,
+  cmpValues,
+  useSort,
 } from "../components/ui";
 import { durationBetween, effectiveCommissionBps, fmtBps, fmtInt, fmtIota, rfc3339Ms, toBig } from "../lib/format";
 import { addressStakes, epochSupplies, epochSystemParameters, type StakeRow } from "../lib/gql";
@@ -63,6 +66,7 @@ function StakeLookup({
   const addrParam = params.get("addr");
   const [draft, setDraft] = useState(addrParam ?? "");
   const [parseError, setParseError] = useState<string | null>(null);
+  const sort = useSort<"validator" | "principal" | "reward" | "status" | "activated">("principal", "desc");
 
   const q = useQuery({
     queryKey: [network, "staking-lookup", addrParam],
@@ -81,6 +85,22 @@ function StakeLookup({
       setParseError(e instanceof Error ? e.message : String(e));
     }
   };
+
+  const stakeRows = useMemo(() => {
+    const rows = (q.data ?? []).map((s: StakeRow, i) => {
+      const poolId = s.json?.pool_id != null ? String(s.json.pool_id) : null;
+      return { s, i, poolId, v: poolId ? poolToValidator.get(poolId) : undefined };
+    });
+    const value = (r: (typeof rows)[number]) =>
+      ({
+        validator: r.v?.name ?? r.poolId ?? "",
+        principal: toBig(r.s.principal),
+        reward: toBig(r.s.estimatedReward),
+        status: r.s.status,
+        activated: toBig(r.s.activatedEpoch),
+      })[sort.key];
+    return rows.sort((a, b) => cmpValues(value(a), value(b), sort.dir));
+  }, [q.data, poolToValidator, sort.key, sort.dir]);
 
   const totals = useMemo(() => {
     if (!q.data) return null;
@@ -143,18 +163,16 @@ function StakeLookup({
               <table className="tbl">
                 <thead>
                   <tr>
-                    <th>VALIDATOR</th>
-                    <th className="num">PRINCIPAL</th>
-                    <th className="num">EST. REWARDS</th>
-                    <th>STATUS</th>
-                    <th className="num">ACTIVE SINCE</th>
+                    <SortTh colKey="validator" sort={sort} firstDir="asc">VALIDATOR</SortTh>
+                    <SortTh colKey="principal" sort={sort} numeric>PRINCIPAL</SortTh>
+                    <SortTh colKey="reward" sort={sort} numeric>EST. REWARDS</SortTh>
+                    <SortTh colKey="status" sort={sort} firstDir="asc">STATUS</SortTh>
+                    <SortTh colKey="activated" sort={sort} numeric>ACTIVE SINCE</SortTh>
                     <th>STAKE OBJECT</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {q.data!.map((s: StakeRow, i) => {
-                    const poolId = s.json?.pool_id != null ? String(s.json.pool_id) : null;
-                    const v = poolId ? poolToValidator.get(poolId) : undefined;
+                  {stakeRows.map(({ s, i, poolId, v }) => {
                     const stakeId = s.json?.id != null ? String(s.json.id) : null;
                     return (
                       <tr key={i}>
@@ -254,6 +272,7 @@ function Calculator({
 
 export default function Staking() {
   const q = useStakingOverview();
+  const sort = useSort<"name" | "apy" | "effective" | "stake">("apy", "desc");
 
   const derived = useMemo(() => {
     if (!q.data) return null;
@@ -333,7 +352,8 @@ export default function Staking() {
         title="Where to stake"
         aux={
           <>
-            top of {d.rows.length} validators by APY · <Link to="/validators">full committee →</Link>
+            top 12 of {d.rows.length} validators by {sort.key} {sort.dir === "desc" ? "▼" : "▲"} ·{" "}
+            <Link to="/validators">full committee →</Link>
           </>
         }
       >
@@ -341,30 +361,34 @@ export default function Staking() {
           <table className="tbl">
             <thead>
               <tr>
-                <th>VALIDATOR</th>
-                <th className="num"><Info tip={TERMS.apy}>APY</Info></th>
-                <th className="num"><Info tip={TERMS.effectiveCommission}>EFFECTIVE COMMISSION</Info></th>
-                <th className="num"><Info tip={TERMS.stake}>STAKE (IOTA)</Info></th>
+                <SortTh colKey="name" sort={sort} firstDir="asc">VALIDATOR</SortTh>
+                <SortTh colKey="apy" sort={sort} numeric><Info tip={TERMS.apy}>APY</Info></SortTh>
+                <SortTh colKey="effective" sort={sort} numeric><Info tip={TERMS.effectiveCommission}>EFFECTIVE COMMISSION</Info></SortTh>
+                <SortTh colKey="stake" sort={sort} numeric><Info tip={TERMS.stake}>STAKE (IOTA)</Info></SortTh>
                 <th className="num">SHARE</th>
               </tr>
             </thead>
             <tbody>
-              {d.rows.slice(0, 12).map((r) => {
-                const share = d.totalStake && d.totalStake > 0n && r.stake != null ? (Number(r.stake) / Number(d.totalStake)) * 100 : null;
-                return (
-                  <tr key={r.addr}>
-                    <td>
-                      <Link to={`/validator/${r.addr}`} style={{ fontFamily: "var(--font-display)", color: "var(--ink)" }}>
-                        {r.name}
-                      </Link>
-                    </td>
-                    <td className="num" style={{ color: "var(--teal)" }}>{r.apy != null ? fmtBps(r.apy) : "—"}</td>
-                    <td className="num dim">{r.effective != null ? fmtBps(r.effective) : "—"}</td>
-                    <td className="num dim">{r.stake != null ? fmtIota(r.stake, { maxFrac: 0, unit: false }) : "—"}</td>
-                    <td className="num dim">{share != null ? `${share.toFixed(2)}%` : "—"}</td>
-                  </tr>
-                );
-              })}
+              {[...d.rows]
+                .sort((a, b) => cmpValues(a[sort.key], b[sort.key], sort.dir))
+                .slice(0, 12)
+                .map((r) => {
+                  const share =
+                    d.totalStake && d.totalStake > 0n && r.stake != null ? (Number(r.stake) / Number(d.totalStake)) * 100 : null;
+                  return (
+                    <tr key={r.addr}>
+                      <td>
+                        <Link to={`/validator/${r.addr}`} style={{ fontFamily: "var(--font-display)", color: "var(--ink)" }}>
+                          {r.name}
+                        </Link>
+                      </td>
+                      <td className="num" style={{ color: "var(--teal)" }}>{r.apy != null ? fmtBps(r.apy) : "—"}</td>
+                      <td className="num dim">{r.effective != null ? fmtBps(r.effective) : "—"}</td>
+                      <td className="num dim">{r.stake != null ? fmtIota(r.stake, { maxFrac: 0, unit: false }) : "—"}</td>
+                      <td className="num dim">{share != null ? `${share.toFixed(2)}%` : "—"}</td>
+                    </tr>
+                  );
+                })}
             </tbody>
           </table>
         </div>

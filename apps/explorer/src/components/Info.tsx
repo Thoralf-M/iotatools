@@ -151,6 +151,11 @@ export const TERMS = {
   apy: "Estimated annual percentage yield for staking with this validator, based on recent epochs.",
   stake: "IOTA locked in the validator's staking pool — its own plus everything delegated to it. More stake = more voting power.",
   committee: "The validators selected to run consensus this epoch. Selection is stake-weighted at the epoch boundary.",
+  validatorCandidate:
+    "A registered validator that is not in the active set yet. It can collect stake, and joins at an epoch boundary once it reaches the minimum joining stake and requests to join.",
+  pendingValidator: "A validator accepted into the set — it becomes active at the next epoch boundary.",
+  inactiveValidator:
+    "A validator that left the active set. Its staking pool stays readable so stakers can withdraw at the exchange rate the pool retired with.",
   delegation: "Anyone can stake IOTA with a validator to earn rewards. The stake activates at the next epoch boundary.",
   bcs:
     "Binary Canonical Serialization — the compact, deterministic byte format used for everything on-chain (transactions, objects, events). What you sign is BCS bytes.",
