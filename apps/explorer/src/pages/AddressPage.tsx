@@ -825,6 +825,11 @@ export default function AddressPage() {
                       <th></th>
                       <th className="num">IOTA CHANGE</th>
                       <th>WHAT</th>
+                      <th className="num">
+                        <Info tip="Commands inside the programmable transaction block — a PTB can move coins, call Move functions and transfer objects in one atomic go.">
+                          PTB CMDS
+                        </Info>
+                      </th>
                       <th>TRANSACTION</th>
                       <th>AGE</th>
                     </tr>
@@ -832,6 +837,13 @@ export default function AddressPage() {
                   <tbody>
                     {feedRows.map((r) => {
                       const sentByMe = r.sender === addrHex;
+                      // the Move call is what identifies a PTB; without one, name its
+                      // first command instead. The count has its own column.
+                      const action = r.firstCall
+                        ? `1st move call: ${r.firstCall}`
+                        : r.firstCommand
+                          ? `1st command: ${r.firstCommand}`
+                          : null;
                       const dir = r.netIota > 0n ? "in" : r.netIota < 0n ? "out" : "none";
                       const what = r.isSystem
                         ? "system"
@@ -882,6 +894,17 @@ export default function AddressPage() {
                                 {" "}
                                 by <Hash value={r.sender} to={`/address/${r.sender}`} head={6} tail={4} copy={false} />
                               </span>
+                            )}
+                            {action && <div className="faint small">{action}</div>}
+                          </td>
+                          <td className="num dim">
+                            {r.commands != null ? (
+                              <span title={`${r.commands}${r.moreCommands ? "+" : ""} command${r.commands === 1 ? "" : "s"} in this PTB`}>
+                                {fmtInt(r.commands)}
+                                {r.moreCommands && "+"}
+                              </span>
+                            ) : (
+                              <span className="faint" title="not a programmable transaction block">—</span>
                             )}
                           </td>
                           <td>

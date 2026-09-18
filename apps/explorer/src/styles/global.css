@@ -393,6 +393,21 @@ button { font-family: inherit; }
 }
 .stat .v small { font-size: 12px; color: var(--ink-dim); margin-left: 5px; }
 .stat .hint { margin-top: 5px; font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-faint); }
+/* hints stack one fact per line; a link sits on its own, arrow never orphaned */
+.stat .hint a { white-space: nowrap; }
+.stat .hint > div + div,
+.stat .hint > div + a { margin-top: 2px; }
+.stat .hint > a { display: inline-block; }
+
+/* headline stat: two columns wide, bigger number, roomier progress bar */
+.stat.lead { grid-column: span 2; }
+.stat.lead .v { font-size: 30px; }
+.stat.lead .hint { font-size: 11.5px; }
+.stat.lead .progress-track { height: 7px; }
+@media (max-width: 720px) {
+  .stat.lead { grid-column: auto; }
+  .stat.lead .v { font-size: 24px; }
+}
 
 /* ── key/value rows ─────────────────────────────────────────────────────── */
 

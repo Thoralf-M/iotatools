@@ -258,6 +258,14 @@ export interface FeedRow {
   otherCoinChanges: number;
   /** address on the opposite side of the largest IOTA flow, if any */
   counterparty: string | null;
+  /** commands in the PTB ("transactions" in GraphQL terms); null for system kinds */
+  commands: number | null;
+  /** the PTB has more commands than the page counted */
+  moreCommands: boolean;
+  /** first Move call in the PTB as "module::function", if it makes one */
+  firstCall: string | null;
+  /** kind of the PTB's first command, e.g. "SplitCoins" */
+  firstCommand: string | null;
 }
 
 export async function addressTxFeed(
@@ -280,6 +288,15 @@ export async function addressTxFeed(
             status
             timestamp
             balanceChanges(first: 30) { nodes { owner { address } amount coinType { repr } } }
+          }
+          kind {
+            __typename
+            ... on ProgrammableTransactionBlock {
+              transactions(first: 50) {
+                pageInfo { hasNextPage }
+                nodes { __typename ... on MoveCallTransaction { module functionName } }
+              }
+            }
           }
         }
       }
@@ -314,8 +331,16 @@ export async function addressTxFeed(
         }
       }
       const sender = n?.sender?.address ?? null;
+      const cmds = n?.kind?.__typename === "ProgrammableTransactionBlock" ? n.kind.transactions : null;
       return {
         digest: String(n.digest),
+        commands: cmds ? (cmds.nodes ?? []).length : null,
+        moreCommands: !!cmds?.pageInfo?.hasNextPage,
+        firstCall: (() => {
+          const call = (cmds?.nodes ?? []).find((c: any) => c?.__typename === "MoveCallTransaction");
+          return call ? `${call.module}::${call.functionName}` : null;
+        })(),
+        firstCommand: cmds?.nodes?.[0]?.__typename ? kindTagFromTypename(cmds.nodes[0].__typename) : null,
         timestampMs: n?.effects?.timestamp ? new Date(n.effects.timestamp).getTime() : null,
         success: n?.effects?.status != null ? n.effects.status === "SUCCESS" : null,
         sender,

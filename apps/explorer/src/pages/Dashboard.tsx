@@ -27,12 +27,44 @@ import {
   fmtIota,
   rfc3339Ms,
   timeAgo,
+  toBig,
 } from "../lib/format";
 import { epochSystemParameters } from "../lib/gql";
+import { fetchValidatorSetInfo } from "../lib/validator-set";
 import { pageBack, useClient, useNetwork } from "../lib/sdk";
 import { commandViews, isSystemKind, kindLabel, kindTag, ptbBody, summarizeKind, unwrapV1 } from "../lib/tx";
 
 const IOTA_TYPE = "0x2::iota::IOTA";
+
+/** A compacted number that expands to its full digits on click. */
+function ToggleNum({ compact, full }: { compact: string; full: string }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <span
+      style={{ cursor: "pointer" }}
+      title={expanded ? `≈${compact} — click to round` : `${full} — click for exact digits`}
+      onClick={() => setExpanded((v) => !v)}
+    >
+      {expanded ? full : `≈${compact}`}
+    </span>
+  );
+}
+
+/** Whole IOTA, compacted — nine-digit amounts wrap mid-number in a stat tile. */
+function compactIota(nanos: bigint | string | number | null | undefined): string {
+  const b = toBig(nanos);
+  return b == null ? "—" : fmtCompact(b / 1_000_000_000n);
+}
+
+/** Share of the total IOTA supply, as a percentage string. */
+function shareOfSupply(amount: bigint | string | number | null | undefined, supply: bigint | string | number | null | undefined): string {
+  const a = toBig(amount);
+  const s = toBig(supply);
+  if (a == null || s == null || s === 0n) return "—";
+  const pct = (Number(a) / Number(s)) * 100;
+  if (pct > 0 && pct < 0.01) return `${Number(pct.toPrecision(2))}%`;
+  return `${pct.toFixed(pct < 1 ? 2 : 1)}%`;
+}
 
 interface TxRow {
   digest: string;
@@ -118,6 +150,21 @@ export default function Dashboard() {
   const [paused, setPaused] = useState(false);
   const [allKinds, setAllKinds] = useState(false);
   const { data, error, isPending } = useDashboard(paused);
+  const client = useClient();
+  const { network } = useNetwork();
+
+  // The committee only changes at an epoch boundary, and counting it means
+  // reading the whole system state — so it is fetched once per epoch.
+  const epochId = data?.epoch?.epochId;
+  const committee = useQuery({
+    queryKey: [network, "committee-size", epochId?.toString() ?? ""],
+    enabled: epochId != null,
+    staleTime: Infinity,
+    queryFn: async () => {
+      const info = await fetchValidatorSetInfo(client);
+      return { committee: info.committee.size, active: info.activeCount };
+    },
+  });
 
   // Programmable traffic is what people come here for; system transactions
   // (consensus prologue, randomness) drown it out, so they are off by default.
@@ -159,13 +206,11 @@ export default function Dashboard() {
             CHAIN {chainId}
           </Pill>
         </h1>
-        <div className="sub">
-          Live view through <span className="mono">iota-sdk-ffi → wasm32</span> · GraphQL transport
-        </div>
       </div>
 
       <div className="stat-grid">
         <Stat
+          size="lead"
           label={<Info tip={TERMS.epochProgress}>Epoch progress</Info>}
           value={
             <Link to={`/epoch/${epoch?.epochId ?? ""}`} className="mono">
@@ -183,18 +228,25 @@ export default function Dashboard() {
                   ? `started ${timeAgo(startMs)}`
                   : "—"}
               {remainingMs != null && <> · ~{durationBetween(0, remainingMs)} left</>}
+              <div style={{ marginTop: 3 }} title={epoch?.startTimestamp ?? undefined}>
+                <Link to="/epochs">all epochs →</Link>
+              </div>
             </>
           }
         />
         <Stat
           label={<Info tip={TERMS.checkpoint}>Latest checkpoint</Info>}
           value={newest ? <Link to={`/checkpoint/${newest.sequenceNumber}`}>{fmtInt(newest.sequenceNumber)}</Link> : "—"}
-          hint={newest?.timestampMs != null ? <Age ms={newest.timestampMs} /> : undefined}
-        />
-        <Stat
-          label={<Info tip={TERMS.checkpointTotalTx}>Total transactions</Info>}
-          value={fmtCompact(totalTx)}
-          hint={totalTx != null ? fmtInt(totalTx) : undefined}
+          hint={
+            <>
+              {newest?.timestampMs != null && (
+                <div>
+                  <Age ms={newest.timestampMs} />
+                </div>
+              )}
+              {epoch?.totalCheckpoints != null && <div>{fmtInt(epoch.totalCheckpoints)} this epoch</div>}
+            </>
+          }
         />
         <Stat
           label={<Info tip={TERMS.tps}>Throughput</Info>}
@@ -207,20 +259,67 @@ export default function Dashboard() {
           color="blue"
         />
         <Stat
+          label={<Info tip={TERMS.checkpointTotalTx}>Total transactions</Info>}
+          value={totalTx != null ? <ToggleNum compact={fmtCompact(totalTx)} full={fmtInt(totalTx)} /> : "—"}
+          hint="since genesis"
+        />
+        <Stat
           label={<Info tip={TERMS.refGasPrice}>Reference gas price</Info>}
           value={refGas != null ? <>{fmtInt(refGas)}<small>nanos</small></> : "—"}
           color="amber"
         />
         <Stat
           label={<Info tip={TERMS.totalSupply}>Total supply</Info>}
-          value={supply != null ? fmtIota(supply, { maxFrac: 0, unit: false }) : "—"}
+          value={
+            supply != null ? (
+              <ToggleNum compact={compactIota(supply)} full={fmtIota(supply, { maxFrac: 0, unit: false })} />
+            ) : (
+              "—"
+            )
+          }
           hint={<Link to={`/coin/${encodeURIComponent(IOTA_TYPE)}`}>0x2::iota::IOTA →</Link>}
         />
         <Stat
           label={<Info tip={TERMS.stake}>Total stake</Info>}
-          value={epoch?.validatorSet?.totalStake ? fmtIota(epoch.validatorSet.totalStake, { maxFrac: 0, unit: false }) : "—"}
-          hint={<Link to="/validators">validators →</Link>}
+          value={
+            epoch?.validatorSet?.totalStake ? (
+              <ToggleNum
+                compact={compactIota(epoch.validatorSet.totalStake)}
+                full={fmtIota(epoch.validatorSet.totalStake, { maxFrac: 0, unit: false })}
+              />
+            ) : (
+              "—"
+            )
+          }
+          hint={
+            <>
+              <div>{shareOfSupply(epoch?.validatorSet?.totalStake, supply)} of supply</div>
+              <Link to="/staking">staking →</Link>
+            </>
+          }
           color="violet"
+        />
+        <Stat
+          label={<Info tip={TERMS.committee}>Committee</Info>}
+          value={committee.data != null ? fmtInt(committee.data.committee) : "—"}
+          hint={
+            <>
+              {committee.data != null && <div>of {fmtInt(committee.data.active)} active</div>}
+              <Link to="/validators">validators →</Link>
+            </>
+          }
+          color="violet"
+        />
+        <Stat
+          label={<Info tip={TERMS.storageFund}>Storage fund</Info>}
+          value={epoch?.fundSize ? fmtIota(epoch.fundSize, { maxFrac: 0, unit: false }) : "—"}
+          hint={<>{shareOfSupply(epoch?.fundSize, supply)} of supply</>}
+        />
+        <Stat
+          label={<Info tip={TERMS.protocolVersion}>Protocol version</Info>}
+          value={epoch?.protocolConfigs?.protocolVersion != null ? fmtInt(epoch.protocolConfigs.protocolVersion) : "—"}
+          hint={<Link to="/protocol">protocol config →</Link>}
+          color="blue"
         />
       </div>
 
@@ -281,69 +380,36 @@ export default function Dashboard() {
         </div>
       </Section>
 
-      <div className="grid-2">
-        <Section index="02" title="Hot functions" aux="from the last 50 PTBs">
-          <div className="panel tbl-wrap">
-            <table className="tbl">
-              <thead>
-                <tr>
-                  <th>FUNCTION</th>
-                  <th className="num">CALLS</th>
-                </tr>
-              </thead>
-              <tbody>
-                {hotFns.length === 0 && (
-                  <tr><td colSpan={2} className="dim">no Move calls in the recent batch</td></tr>
-                )}
-                {hotFns.map(([fn, count]) => {
-                  const [pkg, mod, name] = fn.split("::");
-                  return (
-                    <tr key={fn}>
-                      <td style={{ maxWidth: 380, overflow: "hidden", textOverflow: "ellipsis" }}>
-                        <Link to={`/transactions?fn=${encodeURIComponent(fn)}`} title={fn}>
-                          {pkg.slice(0, 8)}…::{mod}::<b>{name}</b>
-                        </Link>
-                      </td>
-                      <td className="num">{count}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </Section>
-
-        <Section index="03" title="Epoch detail" aux={<Link to="/epochs">all epochs →</Link>}>
-          <div className="panel pad">
-            <div className="row spread">
-              <span className="muted small">
-                <Info tip={TERMS.epoch}>EPOCH {epoch ? fmtInt(epoch.epochId) : "—"}</Info>
-              </span>
-              <span className="faint small mono">started {epoch?.startTimestamp ?? "—"}</span>
-            </div>
-            <div className="row" style={{ gap: 26, marginTop: 16 }}>
-              <div>
-                <div className="faint small"><Info tip={TERMS.systemState}>SYSTEM STATE VERSION</Info></div>
-                <div className="mono" style={{ fontSize: 18, marginTop: 4 }}>
-                  {epoch?.systemStateVersion != null ? fmtInt(epoch.systemStateVersion) : "—"}
-                </div>
-              </div>
-              <div>
-                <div className="faint small">CHECKPOINTS THIS EPOCH</div>
-                <div className="mono" style={{ fontSize: 18, marginTop: 4 }}>
-                  {epoch?.totalCheckpoints != null ? fmtInt(epoch.totalCheckpoints) : "—"}
-                </div>
-              </div>
-              <div>
-                <div className="faint small"><Info tip={TERMS.storageFund}>STORAGE FUND</Info></div>
-                <div className="mono" style={{ fontSize: 18, marginTop: 4 }}>
-                  {epoch?.fundSize ? fmtIota(epoch.fundSize, { maxFrac: 0 }) : "—"}
-                </div>
-              </div>
-            </div>
-          </div>
-        </Section>
-      </div>
+      <Section index="02" title="Hot functions" aux="from the last 50 PTBs">
+        <div className="panel tbl-wrap">
+          <table className="tbl">
+            <thead>
+              <tr>
+                <th>FUNCTION</th>
+                <th className="num">CALLS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {hotFns.length === 0 && (
+                <tr><td colSpan={2} className="dim">no Move calls in the recent batch</td></tr>
+              )}
+              {hotFns.map(([fn, count]) => {
+                const [pkg, mod, name] = fn.split("::");
+                return (
+                  <tr key={fn}>
+                    <td style={{ maxWidth: 380, overflow: "hidden", textOverflow: "ellipsis" }}>
+                      <Link to={`/transactions?fn=${encodeURIComponent(fn)}`} title={fn}>
+                        {pkg.slice(0, 8)}…::{mod}::<b>{name}</b>
+                      </Link>
+                    </td>
+                    <td className="num">{count}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Section>
     </>
   );
 }
