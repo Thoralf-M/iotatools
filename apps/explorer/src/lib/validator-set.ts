@@ -61,6 +61,8 @@ export interface TableRef {
 export interface ValidatorSetInfo {
   /** Active-set addresses that also sit on this epoch's committee. */
   committee: Set<string>;
+  /** size of the active validator set the committee is drawn from */
+  activeCount: number;
   /** Addresses leaving the active set at the next epoch boundary. */
   pendingRemoval: Set<string>;
   /** Address → number of epochs the validator has been below the stake threshold. */
@@ -185,6 +187,7 @@ export async function fetchValidatorSetInfo(client: GraphQlClient): Promise<Vali
 
   return {
     committee: byIndex(vs.committee_members),
+    activeCount: active.length,
     pendingRemoval: byIndex(vs.pending_removals),
     atRisk,
     candidates: tableRef(vs.validator_candidates),

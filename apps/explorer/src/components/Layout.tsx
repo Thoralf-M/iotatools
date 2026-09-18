@@ -216,6 +216,10 @@ function LiveTicker() {
   );
 }
 
+// Integrated builds live under iotatools.dev/explorer/, so the parent app is one
+// level up; standalone dev/hosting has no parent and goes to the live site.
+const IOTATOOLS_URL = import.meta.env.VITE_HASH_ROUTER ? "../" : "https://iotatools.dev/";
+
 export function Layout() {
   const { network, endpoint } = useNetwork();
   const [navOpen, setNavOpen] = useState(false);
@@ -280,7 +284,13 @@ export function Layout() {
             <span className="led" style={{ width: 6, height: 6 }} />
           </div>
           <span className="faint" style={{ overflowWrap: "anywhere" }}>{endpoint}</span>
-          <span className="faint">via @iota/sdk-wasm · uniffi → wasm32</span>
+          <span className="faint">via @iota/sdk-wasm · uniffi → wasm32 · GraphQL transport</span>
+          <span className="faint">
+            History comes from the indexer — older transactions may be pruned and simply not show up here.
+          </span>
+          <a className="btn ghost" href={IOTATOOLS_URL} style={{ marginTop: 8, justifyContent: "center" }}>
+            ← IOTA Tools
+          </a>
         </div>
       </aside>
       <div className={`sidebar-backdrop${navOpen ? " show" : ""}`} onClick={closeNav} aria-hidden="true" />

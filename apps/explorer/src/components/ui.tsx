@@ -263,14 +263,17 @@ export function Stat({
   value,
   hint,
   color,
+  /** "lead" spans two columns with a larger value — for the headline stat */
+  size,
 }: {
   label: React.ReactNode;
   value: React.ReactNode;
   hint?: React.ReactNode;
   color?: "amber" | "blue" | "violet";
+  size?: "lead";
 }) {
   return (
-    <div className={`stat${color ? ` ${color}` : ""}`}>
+    <div className={`stat${color ? ` ${color}` : ""}${size === "lead" ? " lead" : ""}`}>
       <div className="k">{label}</div>
       <div className="v">{value}</div>
       {hint && <div className="hint">{hint}</div>}
