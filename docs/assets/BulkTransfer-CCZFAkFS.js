@@ -3,7 +3,7 @@ import "./legacy-DxVWxrJw.js";
 import { o as Transaction, t as getClient } from "./client-BTFoHz6u.js";
 import { B as isValidIotaAddress } from "./keypair-DsT3ivIR.js";
 import { t as activeAddress } from "./signer-data-D1Egmbld.js";
-import { n as addAndRun } from "./index-CI0VLq-_.js";
+import { n as addAndRun } from "./index-C9x8b2ga.js";
 //#region src/lib/pages/bulk-transfer/BulkTransfer.svelte
 var root = from_html(`<div style="color: red; font-size: 0.9rem; margin-top: 0.25rem;"> </div>`);
 var root_1 = from_html(`<option> </option>`);
