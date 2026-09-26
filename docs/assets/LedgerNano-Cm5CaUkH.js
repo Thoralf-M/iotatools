@@ -3,7 +3,7 @@ import { C as bind_select_value, Dt as pop, I as if_block, Mt as reset, N as eac
 import { o as Transaction, t as getClient } from "./client-BTFoHz6u.js";
 import { B as isValidIotaAddress, X as toHex, Z as fromBase64, m as messageWithIntent, n as Ed25519PublicKey, u as toSerializedSignature } from "./keypair-DsT3ivIR.js";
 import { t as require_browser } from "./browser-YKkc2bFt.js";
-import { f as Buffer } from "./index-DedE9j3K.js";
+import { f as Buffer } from "./index-BTUzYVR6.js";
 import { t as JsonToggleView } from "./JsonToggleView-I_OHyvOi.js";
 //#endregion
 //#region node_modules/.pnpm/@iota+ledgerjs-hw-app-iota@0.6.2/node_modules/@iota/ledgerjs-hw-app-iota/dist/esm/Iota.js
