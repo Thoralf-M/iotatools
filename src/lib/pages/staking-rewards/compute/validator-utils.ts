@@ -25,6 +25,7 @@ export interface InactiveValidatorInfo {
 
 export async function getInactiveValidatorsExchangeRateIds(
     systemState: any,
+    validatorInfo: Record<string, ValidatorInfo>,
 ): Promise<Record<string, string>> {
     const validatorMap: Record<string, string> = {};
     if (systemState?.json?.validators?.inactive_validators.size == 0) {
@@ -49,6 +50,10 @@ export async function getInactiveValidatorsExchangeRateIds(
         let poolId = result.field.value.json.staking_pool.id;
         let exchangeRateId = result.field.value.json.staking_pool.exchange_rates.id;
         validatorMap[poolId] = exchangeRateId;
+        validatorInfo[poolId] ??= {
+            name: result.field.value.json.metadata?.name || 'Unknown Validator',
+            poolId,
+        };
     }
 
     return validatorMap;
