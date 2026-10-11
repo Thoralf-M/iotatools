@@ -1052,9 +1052,12 @@ export async function processStakeTransactionsWithExchangeRates(
     // Get system state to map pool IDs to exchange rate IDs
     const systemState = (await fetchSystemState())[0];
     const validatorMap = getCurrentActiveValidatorsExchangeRateIds(systemState);
-    const inactiveValidatorsMap = await getInactiveValidatorsExchangeRateIds(systemState);
-    const allValidatorsMap = { ...validatorMap, ...inactiveValidatorsMap };
     const validatorInfo = getValidatorInfo(systemState);
+    const inactiveValidatorsMap = await getInactiveValidatorsExchangeRateIds(
+        systemState,
+        validatorInfo,
+    );
+    const allValidatorsMap = { ...validatorMap, ...inactiveValidatorsMap };
 
     // Process transactions to build stake objects for each address and merge them
     // Note: Stake object keys are unique object IDs on the blockchain, so if a stake object
