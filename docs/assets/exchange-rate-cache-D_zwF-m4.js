@@ -143,7 +143,7 @@ function getCurrentActiveValidatorsExchangeRateIds(systemState) {
 	}
 	return validatorMap;
 }
-async function getInactiveValidatorsExchangeRateIds(systemState) {
+async function getInactiveValidatorsExchangeRateIds(systemState, validatorInfo) {
 	const validatorMap = {};
 	if (systemState?.json?.validators?.inactive_validators.size == 0) return validatorMap;
 	const inactiveValidatorsId = systemState?.json?.validators?.inactive_validators.id;
@@ -162,6 +162,10 @@ async function getInactiveValidatorsExchangeRateIds(systemState) {
 		if (result.error) throw new Error("Failed to fetch inactive validator: " + result.error);
 		let poolId = result.field.value.json.staking_pool.id;
 		validatorMap[poolId] = result.field.value.json.staking_pool.exchange_rates.id;
+		validatorInfo[poolId] ??= {
+			name: result.field.value.json.metadata?.name || "Unknown Validator",
+			poolId
+		};
 	}
 	return validatorMap;
 }
@@ -1353,12 +1357,12 @@ async function processStakeTransactionsWithExchangeRates(transactions, currentEp
 	});
 	const systemState = (await fetchSystemState())[0];
 	const validatorMap = getCurrentActiveValidatorsExchangeRateIds(systemState);
-	const inactiveValidatorsMap = await getInactiveValidatorsExchangeRateIds(systemState);
+	const validatorInfo = getValidatorInfo(systemState);
+	const inactiveValidatorsMap = await getInactiveValidatorsExchangeRateIds(systemState, validatorInfo);
 	const allValidatorsMap = {
 		...validatorMap,
 		...inactiveValidatorsMap
 	};
-	const validatorInfo = getValidatorInfo(systemState);
 	const allStakeObjects = /* @__PURE__ */ new Map();
 	const trackedAddresses = new Set(addressArray);
 	for (const targetAddress of addressArray) (await processTransactions(filteredTransactions, currentEpoch, targetAddress, trackedAddresses)).forEach((stakeObject, key) => {
