@@ -3,8 +3,8 @@ import "./legacy-DxVWxrJw.js";
 import { n as getSelectedChain, o as Transaction, s as TransactionDataBuilder, t as getClient } from "./client-BTFoHz6u.js";
 import { L as iotaBcs, Q as toBase64, Z as fromBase64, l as parseSerializedSignature } from "./keypair-DsT3ivIR.js";
 import { f as getActiveWallet, t as activeAddress } from "./signer-data-D1Egmbld.js";
-import { a as MoveAuthenticatorDetails, c as parsePartialSignatures, d as verifyTransactionSignature, f as Buffer, i as TransactionView, l as publicKeyFromRawBytes, o as copyToClipboard, u as verifyPersonalMessageSignature } from "./index-xNP66l3N.js";
-import { n as updatePageQueryParams, r as usePageQueryParams } from "./page-query-params-B3g0_yYe.js";
+import { a as MoveAuthenticatorDetails, c as parsePartialSignatures, d as verifyTransactionSignature, f as Buffer, i as TransactionView, l as publicKeyFromRawBytes, o as copyToClipboard, u as verifyPersonalMessageSignature } from "./index--WF6ES8X.js";
+import { n as updatePageQueryParams, r as usePageQueryParams } from "./page-query-params-D_LbL2Dh.js";
 import { t as JsonToggleView } from "./JsonToggleView-I_OHyvOi.js";
 //#region src/lib/pages/sign/sign-utils.ts
 async function verifySignature(txBytesInput, signatureResult) {
